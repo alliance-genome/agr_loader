@@ -1,4 +1,5 @@
 from go_loader import GoLoader
+from do_loader import DoLoader
 from homolog_loader import HomoLogLoader
 from so_loader import SoLoader
 from ortho_loader import OrthoLoader
