@@ -1,5 +1,7 @@
-# Use an official Python runtime as a base image
-FROM python:3.4.6-slim
+FROM alpine:3.6
+FROM neo4j:3.2.1
+
+RUN apk add --update python3 py3-pip
 
 # Set the working directory to /app
 WORKDIR /app
@@ -8,4 +10,4 @@ WORKDIR /app
 ADD . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
