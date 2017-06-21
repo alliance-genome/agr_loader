@@ -1,5 +1,4 @@
 FROM alpine:3.6
-FROM neo4j:3.2.1
 
 RUN apk add --update python3 py3-pip
 
