@@ -8,7 +8,7 @@ class CSVFile:
         self.filename = filename
 
     def get_data(self):
-        print "Loading csv data from (" + self.filename + ") ..."
+        print("Loading csv data from %s..." % (self.filename))
         with codecs.open(self.filename, 'r', 'utf-8') as f:
             reader = csv.reader(CommentFile(f), delimiter='\t')
             rows = []
