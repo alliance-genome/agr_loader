@@ -33,12 +33,12 @@ class ESMapping:
     def start_index(self):
         self.new_index_name = self.es_index + "_" + str(int(time.time()))
         self.current_name = self.get_current_index()
-        print "Current Index: " + str(self.current_name)
+        # print "Current Index: " + str(self.current_name)
 
         self.create_index(self.new_index_name)
 
     def finish_index(self):
-        print "Finished loading, refreshing index."
+        # print "Finished loading, refreshing index."
         self.es.indices.refresh(index=self.new_index_name)
 
         if self.current_name != None:
@@ -56,19 +56,19 @@ class ESMapping:
             self.create_alias(self.es_index, self.new_index_name)
 
     def create_alias(self, alias, index):
-        print "Add Alias: " + alias + " to: " + index
+        # print "Add Alias: " + alias + " to: " + index
         self.es.indices.put_alias(index=index, name=alias)
 
     def remove_alias(self, alias, index):
-        print "Remove Alias: " + alias + " from: " + index
+        # print "Remove Alias: " + alias + " from: " + index
         self.es.indices.delete_alias(index=index, name=alias, ignore=[400, 404])
 
     def create_index(self, index):
-        print "Creating Index: " + index
+        # print "Creating Index: " + index
         self.es.indices.create(index=index, body=mapping_schema, ignore=400)
 
     def delete_index(self, index):
-        print "Deleting Index: " + index
+        # print "Deleting Index: " + index
         self.es.indices.delete(index=index, ignore=[400, 404])
 
     def index_data(self, data, data_type, op_type):
@@ -76,7 +76,7 @@ class ESMapping:
         bulk_data = []
         id_to_use = None
 
-        print "Indexing %s into Index: %s." % (data_type, self.new_index_name)
+        # print "Indexing %s into Index: %s." % (data_type, self.new_index_name)
 
         for entry in data:
             if data_type == "Gene Data":
@@ -96,15 +96,13 @@ class ESMapping:
 
         for success, info in streaming_bulk(self.es, actions=bulk_data, refresh=False, request_timeout=60, chunk_size=self.chunk_size):
                 if not success:
-                    print "A document failed: %s" % (info)
-
-        print "Indexing took: " + str(time.time() - s) + " seconds"
-
+                    # print "A document failed: %s" % (info)
+        # print "Indexing took: " + str(time.time() - s) + " seconds"
     def update_data(self, data):
         s = time.time()
         bulk_data = []
 
-        print "Updating Genes in Index: %s." % (self.new_index_name)
+        # print "Updating Genes in Index: %s." % (self.new_index_name)
 
         for entry in data:
             id_to_use = entry['primaryId']
@@ -120,6 +118,6 @@ class ESMapping:
 
         for success, info in streaming_bulk(self.es, actions=bulk_data, refresh=False, request_timeout=60, chunk_size=self.chunk_size):
                 if not success:
-                    print "A document failed: %s" % (info)
+                    # print "A document failed: %s" % (info)
 
-        print "Indexing took: " + str(time.time() - s) + " seconds"
+        # print "Indexing took: " + str(time.time() - s) + " seconds"

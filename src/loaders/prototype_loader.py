@@ -5,8 +5,9 @@ from mods import *
 import gc
 import time
 import os
+from py2neo import Graph, authenticate
 
-class AggregateLoader:
+class PrototypeAggregateLoader:
 
 	def __init__(self):
 		authenticate("localhost:7474", "neo4j", "neo4j")
@@ -19,3 +20,4 @@ class AggregateLoader:
 			genes = mod.load_genes_prototype
 
 	def index_data(self):
+		print("Hello!")

@@ -1,4 +1,4 @@
-from mapping import ESMapping
+# from mapping import ESMapping
 from loaders import *
 from annotators import *
 from files import *
@@ -17,18 +17,18 @@ class AggregateLoader:
         self.chunk_size = 5000 # Set size of chunks sent to ES.
 
     def establish_index(self):
-        print "ES_HOST: " + os.environ['ES_HOST']
-        print "ES_INDEX: " + os.environ['ES_INDEX']
-        print "ES_AWS: " + os.environ['ES_AWS']
+        # print "ES_HOST: " + os.environ['ES_HOST']
+        # print "ES_INDEX: " + os.environ['ES_INDEX']
+        # print "ES_AWS: " + os.environ['ES_AWS']
         self.es = ESMapping(os.environ['ES_HOST'], os.environ['ES_INDEX'], os.environ['ES_AWS'], self.chunk_size)
         self.es.start_index()
 
     def load_annotations(self):
-        print "Loading GO Data"
+        # print "Loading GO Data"
         self.go_dataset = GoLoader().get_data()
-        print "Loading SO Data"
+        # print "Loading SO Data"
         self.so_dataset = SoLoader().get_data()
-        print "Loading DO Data"
+        # print "Loading DO Data"
         self.do_dataset = DoLoader().get_data()
 
     def load_from_mods(self, test_set):
@@ -39,23 +39,23 @@ class AggregateLoader:
 
         self.test_set = test_set
         if self.test_set == True:
-            print "WARNING: test_set is enabled -- only indexing test genes."
+            # print "WARNING: test_set is enabled -- only indexing test genes."
             time.sleep(3)
 
-        print "Gathering genes from each MOD."
+        # print "Gathering genes from each MOD."
         for mod in mods:
 
             gene_master_dict[mod.__class__.__name__] = set()
 
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
-            print "Loading GO annotations for %s" % (mod.species)
+            # print "Loading GO annotations for %s" % (mod.species)
             gene_go_annots = mod.load_go()
-            print "Loading DO annotations for %s" % (mod.species)
+            # print "Loading DO annotations for %s" % (mod.species)
             disease_annots = mod.load_diseases()
 
             for gene_list_of_entries in genes:
                 # Annotations to individual genes occurs in the loop below via static methods.
-                print "Attaching annotations to individual genes."
+                # print "Attaching annotations to individual genes."
 
                 for item, individual_gene in enumerate(gene_list_of_entries):
                     # The Do and GoAnnotators also updates their ontology datasets as they annotates genes, hence the two variable assignment.
@@ -66,12 +66,12 @@ class AggregateLoader:
 
                 self.es.index_data(gene_list_of_entries, 'Gene Data', 'index') # Load genes into ES
 
-        print "Processing orthology data for each MOD."
+        # print "Processing orthology data for each MOD."
         for mod in mods:
 
             list_to_index = []
 
-            print "Loading Orthology data for %s" % (mod.species)
+            # print "Loading Orthology data for %s" % (mod.species)
             ortho_dataset = OrthoLoader().get_data(mod.__class__.__name__, self.test_set, gene_master_dict)
 
             for gene in gene_master_dict[mod.__class__.__name__]:
