@@ -1,5 +1,5 @@
 from files import *
-from mods import MOD
+from mods.mod import MOD
 
 import re
 

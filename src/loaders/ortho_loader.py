@@ -3,7 +3,7 @@ from loaders import *
 import time
 import gc
 import json
-from test_check import check_for_test_entry
+from .test_check import check_for_test_entry
 
 class OrthoLoader:
 
