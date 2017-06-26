@@ -26,6 +26,13 @@ class FlyBase(MOD):
         for entry in gene_lists:
              yield entry
 
+    def load_genes_prototype(self):
+        path = "tmp"
+        S3File("mod-datadumps", FlyBase.loadFile, path).download()
+        TARFile(path, FlyBase.loadFile).extract_all()
+        gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
+        gene_lists = GeneLoader().get_data_prototype(gene_data)
+
     @staticmethod
     def gene_id_from_panther(panther_id):
         # example: FlyBase=FBgn0053056
