@@ -9,7 +9,7 @@ class FTPFile:
         self.filename = filename
 
     def download(self):
-        print "Downloading data from ftp (" + self.url + " -> " + self.savepath + "/" + self.filename + ") ..."
+        print("Downloading data from ftp %s->%s/%s ..." % (self.url, self.savepath, self.filename))
         if not os.path.exists(self.savepath):
             os.makedirs(self.savepath)
         urllib.urlretrieve(self.url, self.savepath + "/" + self.filename)

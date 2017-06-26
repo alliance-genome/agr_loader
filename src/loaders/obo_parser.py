@@ -63,4 +63,4 @@ if __name__ == "__main__":
     else:
         for goTerm in parseGOOBO(args.infile):
             termCounter += 1
-        print "Found %d GO terms" % (termCounter)
+        print("Found %d GO terms") % (termCounter)
