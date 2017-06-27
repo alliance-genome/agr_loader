@@ -5,18 +5,24 @@ services:
     container_name: neo4j_nqa
     image: agrdocker/neo4j
     volumes:
-      - /data/neo4j/nqa/data:/data
-      - /data/neo4j/nqa/logs:/logs
+      - dbstore:/data
+      - dbstore:/logs
     ports:
       - "7474:7474"
       - "7687:7687"
     networks:
       - esnet
+    environment:
+      - NEO4J_AUTH=none
 
   agr_loader:
-    image: agrdocker/agr_loader
+    image: agrdocker/agr_loader_run
     networks:
       - esnet
 
 networks:
   esnet:
+
+volumes:
+  dbstore:
+    driver: local
