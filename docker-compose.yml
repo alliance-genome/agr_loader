@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  neo4j_nqa:
+    container_name: neo4j_nqa
+    image: agrdocker/neo4j
+    volumes:
+      - /data/neo4j/nqa/data:/data
+      - /data/neo4j/nqa/logs:/logs
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    networks:
+      - esnet
+
+  agr_loader:
+    image: agrdocker/agr_loader
+    networks:
+      - esnet
+
+networks:
+  esnet:

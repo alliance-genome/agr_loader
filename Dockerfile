@@ -1,9 +1,7 @@
-FROM python:3.6.1-alpine
+FROM agrdocker/agr_loader_env
 
 WORKDIR /usr/src/app
 
 ADD . .
-
-RUN pip install --no-cache-dir -r requirements.txt
 
 CMD ["python", "src/prototype_index.py"]

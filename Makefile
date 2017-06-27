@@ -11,3 +11,13 @@ index_quick:
 	docker stop agr_loader || true && docker rm agr_loader || true
 	docker build -t agr_loader .
 	docker run --name agr_loader agr_loader
+
+build:
+	docker build -t agrdocker/agr_loader_run .
+
+run:
+	docker run -t -i agrdocker/agr_loader_run
+
+bash:
+	docker run -t -i agrdocker/agr_loader_run bash
+
