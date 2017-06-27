@@ -10,8 +10,7 @@ from py2neo import Graph, authenticate
 class PrototypeAggregateLoader:
 
 	def __init__(self):
-		authenticate("localhost:7474", "neo4j", "neo4j")
-		graph = Graph()
+		graph = Graph('http://neo4j:neo4j@172.17.0.2:7474/db/data')
 
 	def load_from_mods(self):
 		mods = [FlyBase()]

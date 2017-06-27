@@ -1,7 +1,9 @@
-FROM christabone/homeone:agr_loader_env_0.3
-FROM agrdocker/neo4j
+FROM python:3.6.1-alpine
 
-WORKDIR /src
-ADD src /src
+WORKDIR /usr/src/app
 
-CMD ["python", "prototype_index.py"]
+ADD . .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "src/prototype_index.py"]
