@@ -1,4 +1,4 @@
-from py2neo import Graph
+from py2neo import Graph, Node, Relationship
 
 class GeneIndexer:
 
@@ -10,7 +10,7 @@ class GeneIndexer:
 		tx = self.graph.begin()
 
 		for entry in data:
-			tx.append(self.statement, {"n": entry['primaryId']})
-			tx.process()
+			a = Node("Gene", primary_key=entry['primaryId'])
+			tx.create(a)
 
 		tx.commit()
