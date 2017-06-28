@@ -5,9 +5,6 @@ from mods.mod import MOD
 import re
 
 class GeneLoader:
-    def get_data_prototype(self, gene_data):
-        print("success")
-        quit()
 
     def get_data(self, gene_data, batch_size, test_set):
 

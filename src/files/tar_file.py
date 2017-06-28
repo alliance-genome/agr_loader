@@ -8,7 +8,7 @@ class TARFile:
         self.tarfilename = tarfilename
 
     def extract_all(self):
-        print("Extracting files from %s/%s ..."(self.path, self.filename))
+        print("Extracting files from %s/%s ..." % (self.path, self.tarfilename))
 
         tfile = tarfile.open(self.path + "/" + self.tarfilename, 'r')
         extract = False

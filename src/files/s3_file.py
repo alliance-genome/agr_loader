@@ -1,4 +1,4 @@
-import urllib 
+import urllib.request
 import os
 
 class S3File:
@@ -15,7 +15,7 @@ class S3File:
             os.makedirs(self.savepath)
         url = "https://s3.amazonaws.com/" + self.bucket + "/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
-            urllib.urlretrieve(url, self.savepath + "/" + self.filename)
+            urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
             print("File: %s/%s already exists not downloading" % (self.savepath, self.filename))
         return self.savepath + "/" + self.filename

@@ -4,4 +4,4 @@ WORKDIR /usr/src/app
 
 ADD . .
 
-CMD ["python", "src/prototype_index.py"]
+CMD ["python", "-u", "src/fetch_index.py"]
