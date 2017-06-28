@@ -3,6 +3,7 @@ from loaders import *
 from annotators import *
 from files import *
 from mods import *
+from indexers import *
 import gc
 import os
 import time
@@ -11,15 +12,21 @@ from py2neo import Graph
 class AggregateLoader:
 
     def __init__(self):
-        graph = Graph('http://neo4j:neo4j@neo4j_nqa:7474/db/data')
+        self.graph = Graph('http://neo4j:neo4j@neo4j_nqa:7474/db/data')
         self.batch_size = 5000 # Set size of gene batches created from JSON file.
 
     def load_from_mods(self, test_set):
         self.test_set = test_set
+
         mods = [FlyBase()]
         print("Gathering genes from each MOD.")
         for mod in mods:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
+            for gene_list_of_entries in genes:
+                GeneIndexer(self.graph).index_genes(gene_list_of_entries)
+
+
+                # print(len(gene_list_of_entries))
 
     def index_data(self):
         print("Hello!")

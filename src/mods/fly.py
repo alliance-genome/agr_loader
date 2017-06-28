@@ -18,9 +18,9 @@ class FlyBase(MOD):
         TARFile(path, self.loadFile).extract_all()
         gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
         gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
-        return yield_gene_lists(gene_lists)
+        return self.yield_gene_lists(gene_lists)
 
-    def yield_gene_lists(gene_lists):
+    def yield_gene_lists(self, gene_lists):
         yield from gene_lists
 
     @staticmethod
