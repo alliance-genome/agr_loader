@@ -1,5 +1,7 @@
-CMD "rm -rf logs"
+FROM agrdocker/agr_loader_env
 
-FROM christabone/homeone:agr_loader_env_0.1
-FROM neo4j:3.2.1
+WORKDIR /usr/src/app
 
+ADD . .
+
+CMD ["python", "src/prototype_index.py"]

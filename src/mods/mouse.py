@@ -1,4 +1,4 @@
-from mod import MOD
+from .mod import MOD
 from files import *
 import gzip
 import csv

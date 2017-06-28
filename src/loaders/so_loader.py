@@ -1,5 +1,4 @@
 from files import *
-from obo_parser import *
 
 import re
 
@@ -42,18 +41,3 @@ class SoLoader:
                         so_dataset[creating_term][key] = [value]
 
         return so_dataset
-
-
-    # TODO The commented code below is not functioning correctly (key error for SO:3000000)
-    # @staticmethod
-    # def get_data():
-    #     path = "tmp";
-    #     S3File("mod-datadumps/data", "so.obo", path).download()
-    #     parsed_line = parseGOOBO(path + "/so.obo")
-    #     dict_to_return = {}
-    #     for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
-    #         go_id = line['id']
-    #         dict_to_return[go_id] = {
-    #             'name': line['name']
-    #         }
-    #     return dict_to_return

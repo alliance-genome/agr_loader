@@ -3,7 +3,7 @@ from loaders.disease_loader import DiseaseLoader
 import gzip
 import csv
 from files import *
-from mod import MOD
+from .mod import MOD
 
 
 class SGD(MOD):

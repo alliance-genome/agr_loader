@@ -8,13 +8,13 @@ class TARFile:
         self.tarfilename = tarfilename
 
     def extract_all(self):
-        print "Extracting files from (" + self.path + "/" + self.tarfilename + ") ..."
+        print("Extracting files from %s/%s ..."(self.path, self.filename))
 
         tfile = tarfile.open(self.path + "/" + self.tarfilename, 'r')
         extract = False
         for member in tfile.getmembers():
             if not os.path.exists(self.path + "/" + member.name):
-                print "Extracting (" + member.name + " -> " + self.path + "/" + member.name + ")"
+                print("Extracting (%s->%s/%s)" % (member.name, self.path, member.name))
                 extract = True
         if extract == True:
             tfile.extractall(self.path)

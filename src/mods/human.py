@@ -1,4 +1,4 @@
-from mod import MOD
+from .mod import MOD
 from loaders.gene_loader import GeneLoader
 from loaders.disease_loader import DiseaseLoader
 import gzip

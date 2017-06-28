@@ -1,10 +1,14 @@
 from files import *
-from test_check import check_for_test_entry
-from mods import MOD
+from .test_check import check_for_test_entry
+from mods.mod import MOD
 
 import re
 
 class GeneLoader:
+    def get_data_prototype(self, gene_data):
+        print("success")
+        quit()
+
     def get_data(self, gene_data, batch_size, test_set):
 
         gene_dataset = {}

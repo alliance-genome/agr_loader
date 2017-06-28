@@ -1,5 +1,5 @@
 from files import *
-from obo_parser import *
+from .obo_parser import *
 
 import re
 
