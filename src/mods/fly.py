@@ -17,21 +17,21 @@ class FlyBase(MOD):
     def get_organism_names():
         return ["Drosophila melanogaster", "D. melanogaster", "DROME"]
 
-    def load_genes(self, batch_size, test_set):
-        path = "tmp"
-        S3File("mod-datadumps", FlyBase.loadFile, path).download()
-        TARFile(path, FlyBase.loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
-        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
-        for entry in gene_lists:
-             yield entry
+    # def load_genes(self, batch_size, test_set):
+    #     path = "tmp"
+    #     S3File("mod-datadumps", FlyBase.loadFile, path).download()
+    #     TARFile(path, FlyBase.loadFile).extract_all()
+    #     gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
+    #     gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
+    #     for entry in gene_lists:
+    #          yield entry
 
-    def load_genes_prototype(self):
+    def load_genes(self):
         path = "tmp"
         S3File("mod-datadumps", FlyBase.loadFile, path).download()
         TARFile(path, FlyBase.loadFile).extract_all()
         gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
-        gene_lists = GeneLoader().get_data_prototype(gene_data)
+        gene_lists = GeneLoader().get_data(gene_data)
 
     @staticmethod
     def gene_id_from_panther(panther_id):
