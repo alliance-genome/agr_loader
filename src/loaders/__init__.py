@@ -9,4 +9,3 @@ from .gene_loader import GeneLoader
 from .go_gene_annot_loader import GoGeneAnnot
 from .disease_loader import DiseaseLoader
 from .aggregate_loader import AggregateLoader
-from .prototype_loader import PrototypeAggregateLoader

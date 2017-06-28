@@ -12,12 +12,14 @@ class AggregateLoader:
 
     def __init__(self):
         graph = Graph('http://neo4j:neo4j@neo4j_nqa:7474/db/data')
+        self.batch_size = 5000 # Set size of gene batches created from JSON file.
 
-    def load_from_mods(self):
+    def load_from_mods(self, test_set):
+        self.test_set = test_set
         mods = [FlyBase()]
         print("Gathering genes from each MOD.")
         for mod in mods:
-            genes = mod.load_genes
+            genes = mod.load_genes(self.batch_size, self.test_set) # generator object
 
     def index_data(self):
         print("Hello!")
@@ -48,7 +50,6 @@ class AggregateLoader:
 
 #     def load_from_mods(self, test_set):
 #         mods = [RGD(), MGI(), ZFIN(), SGD(), WormBase(), FlyBase(), Human()]
-
 
 #         gene_master_dict = {} # Build a dictionary of sets for all indexed MODs/genes. Used for filtering orthology.
 
