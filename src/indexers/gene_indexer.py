@@ -7,10 +7,10 @@ class GeneIndexer:
 		self.statement = "MERGE (n:Gene)"
 
 	def index_genes(self, data):
-		transaction = self.graph.cypher.begin()
+		tx = self.graph.begin()
 
 		for entry in data:
-			tx.append(statement, {"n": entry['primaryId']})
+			tx.append(self.statement, {"n": entry['primaryId']})
 			tx.process()
 
 		tx.commit()

@@ -13,7 +13,6 @@ class FlyBase(MOD):
 
     def load_genes(self, batch_size, test_set):
         path = "tmp"
-        print("maybe")
         S3File("mod-datadumps", self.loadFile, path).download()
         TARFile(path, self.loadFile).extract_all()
         gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")

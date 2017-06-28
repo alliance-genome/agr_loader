@@ -25,12 +25,6 @@ class AggregateLoader:
             for gene_list_of_entries in genes:
                 GeneIndexer(self.graph).index_genes(gene_list_of_entries)
 
-
-                # print(len(gene_list_of_entries))
-
-    def index_data(self):
-        print("Hello!")
-
 # class AggregateLoader:
 
 #     def __init__(self):
