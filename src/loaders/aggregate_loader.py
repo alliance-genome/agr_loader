@@ -6,7 +6,7 @@ from mods import *
 import gc
 import os
 import time
-from py2neo import Graph, authenticate
+from py2neo import Graph
 
 class AggregateLoader:
 
@@ -23,7 +23,6 @@ class AggregateLoader:
 
     def index_data(self):
         print("Hello!")
-
 
 # class AggregateLoader:
 

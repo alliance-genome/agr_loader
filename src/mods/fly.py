@@ -6,8 +6,22 @@ import gzip
 import csv
 
 class FlyBase(MOD):
-    species = "Drosophila melanogaster"
-    loadFile = "FB_0.6.2_3.tar.gz"
+
+    def __init__(self):
+        self.species = "Drosophila melanogaster"
+        self.loadFile = "FB_0.6.2_3.tar.gz"
+
+    def load_genes(self, batch_size, test_set):
+        path = "tmp"
+        print("maybe")
+        S3File("mod-datadumps", self.loadFile, path).download()
+        TARFile(path, self.loadFile).extract_all()
+        gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
+        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
+        return yield_gene_lists(gene_lists)
+
+    def yield_gene_lists(gene_lists):
+        yield from gene_lists
 
     @staticmethod
     def gene_href(gene_id):
@@ -16,15 +30,6 @@ class FlyBase(MOD):
     @staticmethod
     def get_organism_names():
         return ["Drosophila melanogaster", "D. melanogaster", "DROME"]
-
-    def load_genes(self):
-        path = "tmp"
-        S3File("mod-datadumps", FlyBase.loadFile, path).download()
-        TARFile(path, FlyBase.loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
-        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
-        for entry in gene_lists:
-            yield entry
 
     @staticmethod
     def gene_id_from_panther(panther_id):
