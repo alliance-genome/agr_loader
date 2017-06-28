@@ -11,6 +11,6 @@ class GeneIndexer:
 
 		for entry in data:
 			a = Node("Gene", primary_key=entry['primaryId'])
-			tx.create(a)
+			tx.merge(a, "Gene", "primary_key") # Merge on label "Gene" and primary_key of "primary_key".
 
 		tx.commit()

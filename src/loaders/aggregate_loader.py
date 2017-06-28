@@ -22,8 +22,10 @@ class AggregateLoader:
         print("Gathering genes from each MOD.")
         for mod in mods:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
+            print("Loading gene information into Neo4J.")
             for gene_list_of_entries in genes:
                 GeneIndexer(self.graph).index_genes(gene_list_of_entries)
+                print("Loaded %s entries..." % (len(gene_list_of_entries)))
 
 # class AggregateLoader:
 
