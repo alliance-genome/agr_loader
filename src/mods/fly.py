@@ -56,11 +56,11 @@ class FlyBase(MOD):
                     }
         return go_annot_dict
 
-    def load_diseases(self):
+    def load_do_annots(self):
 
         path = "tmp"
-        S3File("mod-datadumps", FlyBase.loadFile, path).download()
-        TARFile(path, FlyBase.loadFile).extract_all()
+        S3File("mod-datadumps", self.loadFile, path).download()
+        TARFile(path, self.loadFile).extract_all()
         disease_data = JSONFile().get_data(path + "/FB_0.6_diseaseAnnotations.json")
         gene_disease_dict = DiseaseLoader().get_data(disease_data)
 

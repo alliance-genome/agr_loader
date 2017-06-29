@@ -9,7 +9,12 @@ class GeneIndexer:
         tx = self.graph.begin()
 
         for entry in data:
-            a = Node("Gene", primary_key=entry['primaryId'])
-            tx.merge(a, "Gene", "primary_key") # Merge on label "Gene" and primary_key of "primary_key".
+
+            gene_node = Node("Gene", primary_key=entry['primaryId'])
+            if entry['name'] is not None:
+                gene_node['name'] = entry['name']
+            if entry['synonyms'] is not None:
+                gene_node['synonyms'] = entry['synonyms']
+            tx.merge(gene_node, "Gene", "primary_key") # Merge on label "Disease" and property "primary_key".
 
         tx.commit()
