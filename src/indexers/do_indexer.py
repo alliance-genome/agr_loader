@@ -35,6 +35,8 @@ class DOIndexer:
                 do_node = Node("Disease", primary_key=sub_entry['do_id'])
                 gene_node_to_do_node = Relationship(gene_node, "associationType", do_node)
                 tx.merge(gene_node_to_do_node)
+                tx.merge(do_node)
+                tx.merge(gene_node)
                 load_size += 1
 
             if load_size == 5000:
