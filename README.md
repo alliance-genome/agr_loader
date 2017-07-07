@@ -12,7 +12,7 @@ Resources.
 ## Installation
 - Build the local image with `make build`.
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
-  - The docker volume `agrloader_storedb` will be created (if it does not already exist).
+  - The Docker volume `agrloader_storedb` will be created (if it does not already exist).
   - To initialize an empty database after previously using the loader, be sure to run `make removedb` **before** running `make startdb`.
 
 ## Running the Loader
