@@ -20,6 +20,7 @@ Resources.
 
 ## Accessing the Neo4j shell
 - From your command line: `docker exec -ti neo4j_nqa bin/cypher-shell`
+- Quick command to count the number of nodes in your db: `match (n) return count (n);`
 
 ## Stopping and Removing the Database
 - Once finished, stop the database with `make stopdb`.
