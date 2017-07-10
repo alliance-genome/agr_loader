@@ -19,7 +19,7 @@ Resources.
 - Run the loader with `make run`.
 
 ## Accessing the Neo4j shell
-- From your command line: `docker exec --interactive neo4j_nqa bin/neo4j-shell -path /db/data`
+- From your command line: `docker exec -ti neo4j_nqa bin/cypher-shell`
 
 ## Stopping and Removing the Database
 - Once finished, stop the database with `make stopdb`.
