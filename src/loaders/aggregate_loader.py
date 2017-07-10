@@ -26,25 +26,25 @@ class AggregateLoader:
                 GeneIndexer(self.graph).index_genes(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
-    def load_from_ontologies(self):
-        print("Loading DO Data.")
-        do_dataset = DoLoader().get_data()
-        DOIndexer(self.graph).index_do(do_dataset)
+    # def load_from_ontologies(self):
+    #     print("Loading DO Data.")
+    #     do_dataset = DoLoader().get_data()
+    #     DOIndexer(self.graph).index_do(do_dataset)
 
-    def load_annotations(self):
-        print("Loading disease annotations.")
-        for mod in self.mods:
-            do_annots = mod.load_do_annots()
-            DOIndexer(self.graph).annotate_do(do_annots)
+    # def load_annotations(self):
+    #     print("Loading disease annotations.")
+    #     for mod in self.mods:
+    #         do_annots = mod.load_do_annots()
+    #         DOIndexer(self.graph).annotate_do(do_annots)
 
-    def create_indicies(self):
-        print("Creating index on Gene nodes via primary_key.")
-        self.graph.run("CREATE INDEX ON :Gene(primary_key)")
-        print("Done.")
+    # def create_indicies(self):
+    #     print("Creating index on Gene nodes via primary_key.")
+    #     self.graph.run("CREATE INDEX ON :Gene(primary_key)")
+    #     print("Done.")
 
-        print("Creating index on Disease nodes via primary_key.")
-        self.graph.run("CREATE INDEX ON :Disease(primary_key)")
-        print("Done.")
+    #     print("Creating index on Disease nodes via primary_key.")
+    #     self.graph.run("CREATE INDEX ON :Disease(primary_key)")
+    #     print("Done.")
 
 
 # class AggregateLoader:
