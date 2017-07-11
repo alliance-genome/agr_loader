@@ -6,12 +6,13 @@ from indexers import *
 import gc
 import os
 import time
-from py2neo import Graph
+from neo4j.v1 import GraphDatabase
 
 class AggregateLoader:
 
     def __init__(self):
-        self.graph = Graph('http://neo4j:neo4j@neo4j_nqa:7474/db/data')
+        uri = "bolt://neo4j_nqa:7687"
+        self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of gene batches created from JSON file.
         self.mods = [FlyBase()]
 

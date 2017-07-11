@@ -8,12 +8,8 @@ class GeneIndexer:
 
     def index_genes(self, data):
         tx = Transaction(self.graph)
-        
-        label = "Gene"
-        nodes = data
-        primary_key = "primaryId"
-                
-        tx.batch_merge_simple(self, label, data, primary_key)
+
+        tx.bgi_merge(data)
 
         # tx = self.graph.begin()
 

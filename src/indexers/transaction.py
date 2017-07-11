@@ -1,19 +1,35 @@
-from py2neo import Graph
+from neo4j.v1 import GraphDatabase
 
 class Transaction():
 
     def __init__(self, graph):
         self.graph = graph
 
-    def batch_merge_simple(self, label, nodes, primary_key)
-        # Nodes should be a simple list of dictionaries with one entry defining the primary key.
-        query = (
-            "UNWIND %s as row \
-            MERGE (n:%s /{primary_key:%s/})"
-        % nodes, label, primary_key)
+    def execute_transaction(self, query, data):
+        with self.graph.session() as session:
+            with session.begin_transaction() as tx:
+                tx.run(query, data=data)
 
-        self.graph.run(query)
+    def batch_merge_simple(self, label, data, primary_key):
+        '''
+        Loads a list of dictionaries (data) into nodes with label (label) and primary_key (primary_key).
+        Dictionary entries must contain the string (primary_key) as the key of a key : value pair.
+        '''
+        query = """
+            UNWIND $data as row \
+            MERGE (n:%s {primary_key:row.%s})
+        """ % (label, primary_key)
 
-            # 'UNWIND %s as row '
-            # 'MERGE (n:Label /{row.id/}) '
-            # '(ON CREATE) SET n += row.properties '
+        self.execute_transaction(query, data)
+
+    def bgi_merge(self, data):
+        '''
+        Loads the BGI data into Neo4j.
+        '''
+        query = """
+            UNWIND $data as row \
+            MERGE (n:Gene {primary_key:row.primaryId})
+            SET n.symbol = row.symbol
+        """
+
+        self.execute_transaction(query, data)

@@ -1,5 +1,5 @@
 from py2neo import Graph, Node, Relationship
-from .assocation import Association
+from .association import Association
 
 class GOIndexer:
 
