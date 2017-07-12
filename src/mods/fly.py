@@ -16,7 +16,7 @@ class FlyBase(MOD):
         S3File("mod-datadumps", self.loadFile, path).download()
         TARFile(path, self.loadFile).extract_all()
         gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
-        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
+        gene_lists = GeneExt().get_data(gene_data, batch_size, test_set)
         return self.yield_gene_lists(gene_lists)
 
     def yield_gene_lists(self, gene_lists):
@@ -62,6 +62,6 @@ class FlyBase(MOD):
         S3File("mod-datadumps", self.loadFile, path).download()
         TARFile(path, self.loadFile).extract_all()
         disease_data = JSONFile().get_data(path + "/FB_0.6_diseaseAnnotations.json")
-        gene_disease_dict = DiseaseLoader().get_data(disease_data)
+        gene_disease_dict = DiseaseExt().get_data(disease_data)
 
         return gene_disease_dict

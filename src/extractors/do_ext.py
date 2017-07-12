@@ -2,7 +2,7 @@ from files import *
 import sys
 import re
 
-class DoLoader:
+class DoExt:
     @staticmethod
     def get_data():
         path = "tmp";

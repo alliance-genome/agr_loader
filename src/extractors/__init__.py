@@ -8,4 +8,3 @@ from .omim_ext import OMIMExt
 from .gene_ext import GeneExt
 from .go_gene_annot_ext import GoGeneAnnot
 from .disease_ext import DiseaseExt
-from .aggregate_ext import AggregateExt

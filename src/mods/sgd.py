@@ -27,7 +27,7 @@ class SGD(MOD):
         S3File("mod-datadumps", "SGD_0.6.0_1.tar.gz", path).download()
         TARFile(path, "SGD_0.6.0_1.tar.gz").extract_all()
         gene_data = JSONFile().get_data(path + "/SGD_0.6_basicGeneInformation.json")
-        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
+        gene_lists = GeneExt().get_data(gene_data, batch_size, test_set)
         for entry in gene_lists:
              yield entry
 
@@ -60,6 +60,6 @@ class SGD(MOD):
         S3File("mod-datadumps", "SGD_0.6.0_1.tar.gz", path).download()
         TARFile(path, "SGD_0.6.0_1.tar.gz").extract_all()
         disease_data = JSONFile().get_data(path + "/SGD_0.6_diseaseAssociation.json")
-        gene_disease_dict = DiseaseLoader().get_data(disease_data)
+        gene_disease_dict = DiseaseExt().get_data(disease_data)
 
         return gene_disease_dict
