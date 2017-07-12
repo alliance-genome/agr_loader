@@ -2,7 +2,7 @@ from .mod import MOD
 from files import *
 import gzip
 import csv
-from extractors.gene_ext import GeneExt
+from extractors.bgi_ext import BGIExt
 from extractors.disease_ext import DiseaseExt
 
 import json
@@ -29,7 +29,7 @@ class MGI(MOD):
         S3File("mod-datadumps", "MGI_0.6.0_2.tar.gz", path).download()
         TARFile(path, "MGI_0.6.0_2.tar.gz").extract_all()
         gene_data = JSONFile().get_data(path + "/MGI_0.6_basicGeneInformation.json")
-        gene_lists = GeneExt().get_data(gene_data, batch_size, test_set)
+        gene_lists = BGIExt().get_data(gene_data, batch_size, test_set)
         for entry in gene_lists:
              yield entry
 
