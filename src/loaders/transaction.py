@@ -22,7 +22,7 @@ class Transaction():
 
         self.execute_transaction(query, data)
 
-    def bgi_load(self, data):
+    def bgi_tx(self, data):
         '''
         Loads the BGI data into Neo4j.
         '''

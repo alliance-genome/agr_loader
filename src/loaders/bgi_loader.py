@@ -7,4 +7,4 @@ class BGILoader:
 
     def load_bgi(self, data):
         tx = Transaction(self.graph)
-        tx.bgi(data)
+        tx.bgi_tx(data)

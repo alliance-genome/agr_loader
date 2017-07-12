@@ -24,7 +24,7 @@ class AggregateLoader:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
             print("Loading gene information into Neo4j.")
             for gene_list_of_entries in genes:
-                BGILoader(self.graph).index_genes(gene_list_of_entries)
+                BGILoader(self.graph).bgi_tx(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
     # def load_from_ontologies(self):
