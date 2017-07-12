@@ -4,7 +4,7 @@ from mods.mod import MOD
 
 import re
 
-class GeneExt:
+class BGIExt:
 
     def get_data(self, gene_data, batch_size, test_set):
 

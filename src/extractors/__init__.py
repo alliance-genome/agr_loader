@@ -5,6 +5,6 @@ from .homolog_ext import HomoLogExt
 from .so_ext import SoExt
 from .ortho_ext import OrthoExt
 from .omim_ext import OMIMExt
-from .gene_ext import GeneExt
+from .bgi_ext import BGIExt
 from .go_gene_annot_ext import GoGeneAnnot
 from .disease_ext import DiseaseExt
