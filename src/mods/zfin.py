@@ -1,6 +1,6 @@
 from files import *
-from loaders.gene_loader import GeneLoader
-from loaders.disease_loader import DiseaseLoader
+from extractors.gene_ext import GeneExt
+from extractors.disease_ext import DiseaseExt
 import csv
 import gzip
 from .mod import MOD

@@ -1,6 +1,6 @@
 from py2neo import Graph, Node, Relationship
 
-class DOIndexer:
+class DOLoader:
 
     def __init__(self, graph):
         self.graph = graph

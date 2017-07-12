@@ -1,7 +1,6 @@
-from py2neo import Graph, Node, Relationship
-from .association import Association
+from neo4j.v1 import GraphDatabase
 
-class GOIndexer:
+class GOLoader:
 
     def __init__(self, graph):
         self.graph = graph

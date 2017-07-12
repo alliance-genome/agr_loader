@@ -1,6 +1,6 @@
 from .transaction import Transaction
 
-class GeneIndexer:
+class BGILoader:
 
     def __init__(self, graph):
         self.graph = graph

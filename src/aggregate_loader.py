@@ -2,7 +2,7 @@ from loaders import *
 from annotators import *
 from files import *
 from mods import *
-from indexers import *
+from extractors import *
 import gc
 import os
 import time

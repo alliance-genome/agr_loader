@@ -1,4 +1,5 @@
 from loaders import *
+from aggregate_loader import AggregateLoader
 import os
 
 test_set = os.environ['TEST_SET']
