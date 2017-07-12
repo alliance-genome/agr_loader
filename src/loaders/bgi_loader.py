@@ -5,6 +5,6 @@ class BGILoader:
     def __init__(self, graph):
         self.graph = graph
 
-    def index_genes(self, data):
+    def load_bgi(self, data):
         tx = Transaction(self.graph)
-        tx.bgi_index(data)
+        tx.bgi(data)
