@@ -1,17 +1,13 @@
 from loaders import *
-import sys
-import argparse
+import os
 
-parser = argparse.ArgumentParser(description='The root file used to launch the loader program.')
-
-parser.add_argument('-t','--test_set', help='Defines whether a test_set is used.')
-args = parser.parse_args() 
-
-test_set = args.test_set
+test_set = os.environ['TEST_SET']
+if test_set == "True":
+	test_set = True # Convert string to boolean. TODO a better method?
 
 if __name__ == '__main__':
     al = AggregateLoader()
-    al.load_from_mods(test_set = False)
-    al.load_from_ontologies()
-    al.load_annotations()
+    al.load_from_mods(test_set = test_set)
+    #al.load_from_ontologies()
+    #al.load_annotations()
     al.create_indicies()

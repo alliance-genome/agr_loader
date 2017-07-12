@@ -1,30 +1,50 @@
-from files import *
-from .obo_parser import *
+from py2neo import Graph, Node, Relationship
+from .association import Association
 
-import re
+class GOIndexer:
 
-class GoLoader:
+    def __init__(self, graph):
+        self.graph = graph
 
+    def index_do(self, data):
+        print("Loading GO information into Neo4J.")
+        tx = self.graph.begin()
+        load_size = 0
 
-    @staticmethod
-    def get_data():
-        path = "tmp";
-        S3File("mod-datadumps/data", "go.obo", path).download()
-        parsed_line = parseGOOBO(path + "/go.obo")
-        dict_to_return = {}
-        for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
-            go_id = line['id']
-            dict_to_return[go_id] = {
-                'go_genes': [],
-                'go_species': [],
-                'name': line['name'],
-                'description': line['def'],
-                'go_type': line['namespace'],
-                'go_synonyms': line.get('synonym'),
-                'name_key': line['name'],
-                'id': go_id,
-                'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
-                'category': 'go'
-            }
+        for entry in data:
+            load_size += 1
+            do_node = Node("Disease", primary_key=entry)
+            tx.merge(do_node, "Disease", "primary_key") # Merge on label "Disease" and property "primary_key".
+            
+            if load_size == 5000:
+                tx.commit()
+                print("Loaded %s nodes..." % load_size)
+                load_size = 0
+                tx = self.graph.begin()
+        
+        print("Loaded %s nodes..." % load_size)
+        tx.commit()
 
-        return dict_to_return
+    def annotate_do(self, data):
+        print("Loading GO annotations into Neo4J.")
+        tx = self.graph.begin()
+        load_size = 0
+
+        for entry in data:
+            gene_node = Node("Gene", primary_key=entry)
+            for sub_entry in data[entry]:
+                do_node = Node("Disease", primary_key=sub_entry['do_id'])
+                gene_node_to_do_node = Relationship(gene_node, "associationType", do_node)
+                tx.merge(do_node) # Merge nodes before relationships.
+                tx.merge(gene_node)
+                tx.merge(gene_node_to_do_node)
+                load_size += 1
+
+            if load_size == 5000:
+                tx.commit()
+                print("Loaded %s edges..." % load_size)
+                load_size = 0
+                tx = self.graph.begin()
+        
+        print("Loaded %s edges..." % load_size)
+        tx.commit()

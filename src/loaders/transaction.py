@@ -10,7 +10,7 @@ class Transaction():
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
 
-    def batch_merge_simple(self, label, data, primary_key):
+    def batch_load_simple(self, label, data, primary_key):
         '''
         Loads a list of dictionaries (data) into nodes with label (label) and primary_key (primary_key).
         Dictionary entries must contain the string (primary_key) as the key of a key : value pair.
@@ -22,7 +22,7 @@ class Transaction():
 
         self.execute_transaction(query, data)
 
-    def bgi_merge(self, data):
+    def bgi_load(self, data):
         '''
         Loads the BGI data into Neo4j.
         '''

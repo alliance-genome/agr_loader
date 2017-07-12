@@ -22,15 +22,15 @@ class AggregateLoader:
         print("Gathering genes from each MOD.")
         for mod in self.mods:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
-            print("Loading gene information into Neo4J.")
+            print("Loading gene information into Neo4j.")
             for gene_list_of_entries in genes:
                 GeneIndexer(self.graph).index_genes(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
     # def load_from_ontologies(self):
-    #     print("Loading DO Data.")
-    #     do_dataset = DoLoader().get_data()
-    #     DOIndexer(self.graph).index_do(do_dataset)
+    #     print("Loading GO Data.")
+    #     do_dataset = GoLoader().get_data()
+    #     GOIndexer(self.graph).index_do(do_dataset)
 
     # def load_annotations(self):
     #     print("Loading disease annotations.")

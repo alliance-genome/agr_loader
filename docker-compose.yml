@@ -19,6 +19,15 @@ services:
     image: agrdocker/agr_loader_run
     networks:
       - esnet
+    environment:
+      - TEST_SET=False
+
+  agr_loader_test:
+    image: agrdocker/agr_loader_run
+    networks:
+      - esnet
+    environment:
+      - TEST_SET=True
 
 networks:
   esnet:

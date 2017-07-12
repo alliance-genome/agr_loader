@@ -1,9 +1,6 @@
 build:
 	docker build -t agrdocker/agr_loader_run .
 
-build_test:
-	docker build -t --build-arg test_set=True agrdocker/agr_loader_run . 
-
 startdb:
 	docker-compose up -d neo4j_nqa
 
@@ -15,6 +12,9 @@ removedb:
 
 run:
 	docker-compose up agr_loader
+
+run_test:
+	docker-compose up agr_loader_test
 
 bash:
 	docker-compose up agr_loader bash

@@ -7,4 +7,4 @@ class GeneIndexer:
 
     def index_genes(self, data):
         tx = Transaction(self.graph)
-        tx.bgi_merge(data)
+        tx.bgi_index(data)

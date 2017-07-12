@@ -1,4 +1,4 @@
-class IdLoader:
+class IdExt:
 
 	@staticmethod
 	def process_identifiers(identifier, dataProvider):

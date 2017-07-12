@@ -1,11 +1,11 @@
 from files import *
-from loaders import *
+from extractors import *
 import time
 import gc
 import json
 from .test_check import check_for_test_entry
 
-class OrthoLoader:
+class OrthoExt:
 
     @staticmethod
     def get_data(mod_name, test_set, gene_master_dict):
