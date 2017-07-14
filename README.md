@@ -16,7 +16,8 @@ Resources.
   - To initialize an empty database after previously using the loader, be sure to run `make removedb` **before** running `make startdb`.
 
 ## Running the Loader
-- Run the loader with `make run`.
+- Initialize a full load with `make run`.
+- Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
 
 ## Accessing the Neo4j shell
 - From your command line: `docker exec -ti neo4j_nqa bin/cypher-shell`
