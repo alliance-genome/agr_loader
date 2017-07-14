@@ -4,7 +4,7 @@ from mods.mod import MOD
 
 import re
 
-class GeneLoader:
+class BGIExt:
 
     def get_data(self, gene_data, batch_size, test_set):
 
@@ -27,7 +27,6 @@ class GeneLoader:
             global_id = geneRecord['primaryId']
 
             local_id = global_id.split(":")[1]
-
 
             modCrossReference = {"id": global_id, "globalCrossRefId": global_id, "localId": local_id, "crossrefCompleteUrl": self.get_complete_url(local_id, global_id)}
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":

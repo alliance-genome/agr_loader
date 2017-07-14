@@ -2,7 +2,7 @@ version: "2"
 
 services:
   neo4j_nqa:
-    container_name: neo4j_nqa
+    container_name: neo4j
     image: agrdocker/neo4j
     volumes:
       - dbstore:/data
@@ -14,11 +14,21 @@ services:
       - esnet
     environment:
       - NEO4J_AUTH=none
+      - NEO4J_dbms_connector_http_address=0.0.0.0:7474
 
   agr_loader:
     image: agrdocker/agr_loader_run
     networks:
       - esnet
+    environment:
+      - TEST_SET=False
+
+  agr_loader_test:
+    image: agrdocker/agr_loader_run
+    networks:
+      - esnet
+    environment:
+      - TEST_SET=True
 
 networks:
   esnet:

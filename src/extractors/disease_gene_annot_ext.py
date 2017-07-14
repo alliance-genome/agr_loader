@@ -1,5 +1,5 @@
 
-class DiseaseGeneAnnotLoader:
+class DiseaseGeneAnnotExt:
     
     def __init__(self, genes, omim_data):
         self.diseases = {}

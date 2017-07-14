@@ -13,6 +13,8 @@ removedb:
 run:
 	docker-compose up agr_loader
 
+run_test:
+	docker-compose up agr_loader_test
+
 bash:
 	docker-compose up agr_loader bash
-

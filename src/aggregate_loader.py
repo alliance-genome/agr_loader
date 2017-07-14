@@ -2,16 +2,17 @@ from loaders import *
 from annotators import *
 from files import *
 from mods import *
-from indexers import *
+from extractors import *
 import gc
 import os
 import time
-from py2neo import Graph
+from neo4j.v1 import GraphDatabase
 
 class AggregateLoader:
 
     def __init__(self):
-        self.graph = Graph('http://neo4j:neo4j@neo4j_nqa:7474/db/data')
+        uri = "bolt://neo4j_nqa:7687"
+        self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of gene batches created from JSON file.
         self.mods = [FlyBase()]
 
@@ -21,30 +22,30 @@ class AggregateLoader:
         print("Gathering genes from each MOD.")
         for mod in self.mods:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
-            print("Loading gene information into Neo4J.")
+            print("Loading gene information into Neo4j.")
             for gene_list_of_entries in genes:
-                GeneIndexer(self.graph).index_genes(gene_list_of_entries)
+                BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
-    def load_from_ontologies(self):
-        print("Loading DO Data.")
-        do_dataset = DoLoader().get_data()
-        DOIndexer(self.graph).index_do(do_dataset)
+    # def load_from_ontologies(self):
+    #     print("Loading GO Data.")
+    #     do_dataset = GoLoader().get_data()
+    #     GOIndexer(self.graph).index_do(do_dataset)
 
-    def load_annotations(self):
-        print("Loading disease annotations.")
-        for mod in self.mods:
-            do_annots = mod.load_do_annots()
-            DOIndexer(self.graph).annotate_do(do_annots)
+    # def load_annotations(self):
+    #     print("Loading disease annotations.")
+    #     for mod in self.mods:
+    #         do_annots = mod.load_do_annots()
+    #         DOIndexer(self.graph).annotate_do(do_annots)
 
-    def create_indicies(self):
-        print("Creating index on Gene nodes via primary_key.")
-        self.graph.run("CREATE INDEX ON :Gene(primary_key)")
-        print("Done.")
+    # def create_indicies(self):
+    #     print("Creating index on Gene nodes via primary_key.")
+    #     self.graph.run("CREATE INDEX ON :Gene(primary_key)")
+    #     print("Done.")
 
-        print("Creating index on Disease nodes via primary_key.")
-        self.graph.run("CREATE INDEX ON :Disease(primary_key)")
-        print("Done.")
+    #     print("Creating index on Disease nodes via primary_key.")
+    #     self.graph.run("CREATE INDEX ON :Disease(primary_key)")
+    #     print("Done.")
 
 
 # class AggregateLoader:

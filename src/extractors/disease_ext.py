@@ -4,7 +4,7 @@ from mods.mod import MOD
 import re
 
 
-class DiseaseLoader:
+class DiseaseExt:
     def get_data(self, disease_data):
 
         disease_annots = {}

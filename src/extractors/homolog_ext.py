@@ -1,7 +1,7 @@
 from files import *
 from mods.human import Human
 
-class HomoLogLoader:
+class HomoLogExt:
 
     def __init__(self, mods):
         path = "tmp"

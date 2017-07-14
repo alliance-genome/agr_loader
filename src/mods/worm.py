@@ -1,7 +1,7 @@
 from .mod import MOD
 from files import *
-from loaders.gene_loader import GeneLoader
-from loaders.disease_loader import DiseaseLoader
+from extractors.bgi_ext import BGIExt
+from extractors.disease_ext import DiseaseExt
 import gzip
 import csv
 
@@ -26,7 +26,7 @@ class WormBase(MOD):
         S3File("mod-datadumps", "WB_0.6.1_1.tar.gz", path).download()
         TARFile(path, "WB_0.6.1_1.tar.gz").extract_all()
         gene_data = JSONFile().get_data(path + "/WB_0.6.1_BGI.json")
-        gene_lists = GeneLoader().get_data(gene_data, batch_size, test_set)
+        gene_lists = BGIExt().get_data(gene_data, batch_size, test_set)
         for entry in gene_lists:
              yield entry
 
@@ -56,6 +56,6 @@ class WormBase(MOD):
         S3File("mod-datadumps", "WB_0.6.1_1.tar.gz", path).download()
         TARFile(path, "WB_0.6.1_1.tar.gz").extract_all()
         disease_data = JSONFile().get_data(path + "/WB_0.6.1_disease.json")
-        gene_disease_dict = DiseaseLoader().get_data(disease_data)
+        gene_disease_dict = DiseaseExt().get_data(disease_data)
 
         return gene_disease_dict

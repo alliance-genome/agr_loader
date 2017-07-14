@@ -1,49 +1,49 @@
-from files import *
-import sys
-import re
+from py2neo import Graph, Node, Relationship
 
-class DoLoader:
-    @staticmethod
-    def get_data():
-        path = "tmp";
-        S3File("mod-datadumps", "disease-ontology.obo", path).download()
-        do_data = TXTFile(path + "/disease-ontology.obo").get_data()
+class DOLoader:
 
-        do_dataset = {}
+    def __init__(self, graph):
+        self.graph = graph
 
-        creating_term = None
+    def index_do(self, data):
+        print("Loading disease information into Neo4J.")
+        tx = self.graph.begin()
+        load_size = 0
 
-        for line in do_data:
-            line = line.strip()
+        for entry in data:
+            load_size += 1
+            do_node = Node("Disease", primary_key=entry)
+            tx.merge(do_node, "Disease", "primary_key") # Merge on label "Disease" and property "primary_key".
+            
+            if load_size == 5000:
+                tx.commit()
+                print("Loaded %s nodes..." % load_size)
+                load_size = 0
+                tx = self.graph.begin()
+        
+        print("Loaded %s nodes..." % load_size)
+        tx.commit()
 
-            if line == "[Term]":
-                creating_term = True
-            elif line == '': # Skip blank lines
-                continue
-            elif creating_term:
-                key = (line.split(":")[0]).strip()
-                value = ("".join(":".join(line.split(":")[1:]))).strip()
+    def annotate_do(self, data):
+        print("Loading disease annotations into Neo4J.")
+        tx = self.graph.begin()
+        load_size = 0
 
-                if key == "id":
-                    creating_term = value
-                    do_dataset[creating_term] = {"id": value}
-                    do_dataset[creating_term]['do_genes'] = [] # Empty dictionaries to receive entries later.
-                    do_dataset[creating_term]['do_species'] = []
-                elif key == "name":
-                    do_dataset[creating_term]['name'] = value
-                else:
-                    if key == "synonym":
-                        if value.split(" ")[-2] == "EXACT":
-                            value = (" ".join(value.split(" ")[:-2]))[1:-1]
-                        else:
-                            continue
-                    if key == "def":
-                        m = re.search('\"(.+)\"', value)
-                        value = m.group(1)
+        for entry in data:
+            gene_node = Node("Gene", primary_key=entry)
+            for sub_entry in data[entry]:
+                do_node = Node("Disease", primary_key=sub_entry['do_id'])
+                gene_node_to_do_node = Relationship(gene_node, "associationType", do_node)
+                tx.merge(do_node) # Merge nodes before relationships.
+                tx.merge(gene_node)
+                tx.merge(gene_node_to_do_node)
+                load_size += 1
 
-                    if key in do_dataset[creating_term]:
-                        do_dataset[creating_term][key].append(value)
-                    else:
-                        do_dataset[creating_term][key] = [value]
-
-        return do_dataset
+            if load_size == 5000:
+                tx.commit()
+                print("Loaded %s edges..." % load_size)
+                load_size = 0
+                tx = self.graph.begin()
+        
+        print("Loaded %s edges..." % load_size)
+        tx.commit()

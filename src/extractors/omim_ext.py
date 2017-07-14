@@ -2,7 +2,7 @@ from files import *
 
 import re
 
-class OMIMLoader:
+class OMIMExt:
 
     def __init__(self):
         path = "tmp";
