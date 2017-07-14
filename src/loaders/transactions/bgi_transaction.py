@@ -1,6 +1,6 @@
 from neo4j.v1 import GraphDatabase
 
-class Transaction():
+class BGITransaction():
 
     def __init__(self, graph):
         self.graph = graph

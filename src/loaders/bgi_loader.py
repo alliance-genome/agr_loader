@@ -1,4 +1,4 @@
-from .transaction import Transaction
+from transactions import bgi_transaction
 
 class BGILoader:
 
@@ -6,5 +6,5 @@ class BGILoader:
         self.graph = graph
 
     def load_bgi(self, data):
-        tx = Transaction(self.graph)
+        tx = BGITransaction(self.graph)
         tx.bgi_tx(data)
