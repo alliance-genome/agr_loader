@@ -26,37 +26,59 @@ class Transaction():
     def bgi_tx(self, data):
         '''
         Loads the BGI data into Neo4j.
+        TODO: is "category" necessary with node type of "gene"?
+        Is name_key necessary with symbol?
+
         '''
         query = """
             UNWIND $data as row 
-            MERGE (n:Gene {primary_key:row.primaryId}) 
-            SET n.symbol = row.symbol 
-            SET n.taxonId = row.taxonId 
-            SET n.name = row.name 
-            SET n.description = row.description 
-            SET n.synonyms = row.synonyms
-            SET n.secondaryIds = row.secondaryIds
-            SET n.geneSynopsisUrl = row.geneSynopsisUrl
-            SET n.species = row.species
-            SET n.external_ids = row.external_ids
+
+            //Merge the Gene node and set properties.
+            MERGE (g:Gene {primary_key:row.primaryId}) 
+            SET g.symbol = row.symbol 
+            SET g.taxonId = row.taxonId 
+            SET g.name = row.name 
+            SET g.description = row.description 
+            SET g.synonyms = row.synonyms
+            SET g.secondaryIds = row.secondaryIds
+            SET g.geneSynopsisUrl = row.geneSynopsisUrl
+            SET g.species = row.species
+            SET g.externalIds = row.external_ids
+            SET g.geneLiteratureUrl = row.geneLiteratureUrl
+            SET g.category = "gene"
+
+            //Merge the soTermId node and set the primary key.
+            MERGE (s:soTermId {primary_key:row.soTermId})
+
+            //Merge the Association node to be used for the gene / soTermId
+            MERGE (a:Association {link_from:row.primaryId, link_to:row.soTermId})
+
+            //Merge the relationship from the gene node to association node.
+            //Merge the relationship from the association node to the soTermId node.
+            MERGE (g)-[r:ASSOC]-(a)
+            MERGE (a)-[z:ASSOC]-(s)
+
+            //Merge the relationship from the gene node to the soTermId node.
+            MERGE (g)-[x:ANNOT_TO]-(s)
+
+            //Merge the entity node.
+            MERGE (ent:Entity {primary_key:row.dataProvider})
+            SET ent.dateProduced = row.dateProduced
+            SET ent.release = row.release
+
+            //Merge the entity to the appropriate association nodes.
+            MERGE (a)-[c1:CREATED_BY]-(ent)
+
         """
         self.execute_transaction(query, data)
 
-        # "soTermId": geneRecord['soTermId'],
-        # "soTermName": None,
-        # "diseases": [],
-        # "external_ids": external_ids,
+        # "href": None,
         # "gene_biological_process": [],
         # "gene_molecular_function": [],
         # "gene_cellular_component": [],
-        # "genomeLocations": genomic_locations,
-        # "geneLiteratureUrl": geneRecord.get('geneLiteratureUrl'),
-        # "name_key": geneRecord['symbol'],
-        # "primaryId": primary_id,
-        # "crossReferences": crossReferences,
-        # "modCrossReference": modCrossReference,
-        # "category": "gene",
-        # "dateProduced": dateProduced,
-        # "dataProvider": dataProvider,
-        # "release": release,
-        # "href": None
+
+        # SET g.genomeLocations = row.genomeLocations
+        # SET g.crossReferences = row.crossReferences 
+        # SET g.modCrossReference = row.modCrossReference
+        # Both crossReferences and genomeLocations break the loader:
+        # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof
