@@ -1,10 +1,3 @@
-from extractors.bgi_ext import BGIExt
-from extractors.disease_ext import DiseaseExt
-from .mod import MOD
-from files import *
-import gzip
-import csv
-
 class FlyBase(MOD):
 
     def __init__(self):
