@@ -3,7 +3,7 @@ from extractors.disease_ext import DiseaseExt
 import gzip
 import csv
 from files import *
-from mods.mod import MOD
+from .mod import MOD
 
 class Human(MOD):
     species = "Homo sapiens"
