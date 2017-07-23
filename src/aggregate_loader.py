@@ -14,7 +14,7 @@ class AggregateLoader:
         uri = "bolt://neo4j_nqa:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of gene batches created from JSON file.
-        self.mods = [FlyBase()]
+        self.mods = [FlyBase(), MGI()]
 
     def load_from_mods(self, test_set):
         self.test_set = test_set
