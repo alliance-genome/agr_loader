@@ -10,17 +10,13 @@ class FlyBase(MOD):
     def __init__(self):
         self.species = "Drosophila melanogaster"
         self.loadFile = "FB_0.6.2_3.tar.gz"
+        self.bgiName = "/FB_0.6_basicGeneInformation.json"
+        self.diseaseName = "/FB_0.6_diseaseAnnotations.json"
+        self.geneAssociationFile = "gene_association.fb.gz"
 
     def load_genes(self, batch_size, test_set):
-        path = "tmp"
-        S3File("mod-datadumps", self.loadFile, path).download()
-        TARFile(path, self.loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + "/FB_0.6_basicGeneInformation.json")
-        gene_lists = BGIExt().get_data(gene_data, batch_size, test_set)
-        return self.yield_gene_lists(gene_lists)
-
-    def yield_gene_lists(self, gene_lists):
-        yield from gene_lists
+        data = MOD.load_genes(batch_size, test_set, self.bgiName, self.loadFile)
+        return data
 
     @staticmethod
     def gene_href(gene_id):
@@ -30,38 +26,10 @@ class FlyBase(MOD):
     def get_organism_names():
         return ["Drosophila melanogaster", "D. melanogaster", "DROME"]
 
-    @staticmethod
-    def gene_id_from_panther(panther_id):
-        # example: FlyBase=FBgn0053056
-        return panther_id.split("=")[1]
-
     def load_go(self):
-        path = "tmp"
-        S3File("mod-datadumps/GO/ANNOT", "gene_association.fb.gz", path).download()
-        go_annot_dict = {}
-        with gzip.open(path + "/gene_association.fb.gz", 'rb') as file:
-            reader = csv.reader(file, delimiter='\t')
-            for line in reader:
-                if line[0].startswith('!'):
-                    continue
-                gene = line[1]
-                go_id = line[4]
-                if gene in go_annot_dict:
-                    go_annot_dict[gene]['go_id'].append(go_id)
-                else:
-                    go_annot_dict[gene] = {
-                        'gene_id': gene,
-                        'go_id': [go_id],
-                        'species': FlyBase.species
-                    }
+        go_annot_dict = MOD.load_go(self.geneAssociationFile, self.species)
         return go_annot_dict
 
     def load_do_annots(self):
-
-        path = "tmp"
-        S3File("mod-datadumps", self.loadFile, path).download()
-        TARFile(path, self.loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + "/FB_0.6_diseaseAnnotations.json")
-        gene_disease_dict = DiseaseExt().get_data(disease_data)
-
+        gene_disease_dict = MOD.load_do_annots(self.diseaseName)
         return gene_disease_dict
