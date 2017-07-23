@@ -1,4 +1,3 @@
-from .mod import MOD
 from files import *
 from extractors.bgi_ext import BGIExt
 from extractors.disease_ext import DiseaseExt

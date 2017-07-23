@@ -3,7 +3,6 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_ext import DiseaseExt
 import csv
 import gzip
-from .mod import MOD
 
 class ZFIN(MOD):
     species = "Danio rerio"

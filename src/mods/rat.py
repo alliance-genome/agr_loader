@@ -1,6 +1,5 @@
 from extractors.bgi_ext import BGIExt
 from extractors.disease_ext import DiseaseExt
-from .mod import MOD
 import gzip
 import csv
 from files import *

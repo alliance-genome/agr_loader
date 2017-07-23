@@ -3,7 +3,6 @@ from extractors.disease_ext import DiseaseExt
 import gzip
 import csv
 from files import *
-from .mod import MOD
 
 
 class SGD(MOD):
