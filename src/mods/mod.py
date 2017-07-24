@@ -38,7 +38,7 @@ class MOD(object):
                     }
         return go_annot_dict
 
-    def load_go_prefix(self):
+    def load_go_prefix(self, geneAssociationFile, species):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
@@ -56,7 +56,7 @@ class MOD(object):
                     go_annot_dict[gene] = {
                         'gene_id': gene,
                         'go_id': [go_id],
-                        'species': RGD.species,
+                        'species': species,
                         'prefix':prefix
                     }
         return go_annot_dict
