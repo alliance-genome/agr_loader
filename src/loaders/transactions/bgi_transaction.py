@@ -33,41 +33,65 @@ class BGITransaction():
         query = """
             UNWIND $data as row 
 
-            //Merge the Gene node and set properties.
-            MERGE (g:Gene {primary_key:row.primaryId}) 
+            //Create the Gene node and set properties.
+            CREATE (g:Gene {primary_key:row.primaryId}) 
             SET g.symbol = row.symbol 
             SET g.taxonId = row.taxonId 
             SET g.name = row.name 
             SET g.description = row.description 
-            SET g.synonyms = row.synonyms
-            SET g.secondaryIds = row.secondaryIds
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
             SET g.species = row.species
-            SET g.externalIds = row.external_ids
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
             SET g.category = "gene"
 
-            //Merge the soTermId node and set the primary key.
-            MERGE (s:soTermId {primary_key:row.soTermId})
+            //Create nodes for other identifiers.
+            CREATE (second:secondaryId {secondaryIds:row.secondaryIds})
+            CREATE (syn:synonyms {synonyms:row.synonyms})
+            CREATE (ext:externalIds {externalIds:row.external_ids})
 
-            //Merge the Association node to be used for the gene / soTermId
-            MERGE (a:Association {link_from:row.primaryId, link_to:row.soTermId})
+            //Create relationships for other identifiers.
+            CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
+            CREATE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
+            CREATE (g)-[aka3:ALSO_KNOWN_AS]->(ext)
 
-            //Merge the relationship from the gene node to association node.
-            //Merge the relationship from the association node to the soTermId node.
-            MERGE (g)-[r:ASSOC]-(a)
-            MERGE (a)-[z:ASSOC]-(s)
+            //Create Association nodes for other identifiers.
+            CREATE (a1:Association {link_from:row.primaryId, link_to:row.secondaryIds})
+            CREATE (a2:Association {link_from:row.primaryId, link_to:row.synonyms})
+            CREATE (a3:Association {link_from:row.primaryId, link_to:row.external_ids})
 
-            //Merge the relationship from the gene node to the soTermId node.
-            MERGE (g)-[x:ANNOT_TO]-(s)
+            //Create Association links for other identifiers.
+            CREATE (g)-[r1:ASSOC]->(a1)
+            CREATE (g)-[r2:ASSOC]->(a2)
+            CREATE (g)-[r3:ASSOC]->(a3)
 
-            //Merge the entity node.
-            MERGE (ent:Entity {primary_key:row.dataProvider})
+            CREATE (a1)-[r4:ASSOC]->(second)
+            CREATE (a2)-[r5:ASSOC]->(syn)
+            CREATE (a3)-[r6:ASSOC]->(ext)
+
+            //Create the soTermId node and set the primary key.
+            CREATE (s:soTermId {primary_key:row.soTermId})
+
+            //Create the Association node to be used for the gene / soTermId
+            CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
+
+            //Create the relationship from the gene node to association node.
+            //Create the relationship from the association node to the soTermId node.
+            CREATE (g)-[r7:ASSOC]->(a4)
+            CREATE (a4)-[r8:ASSOC]->(s)
+
+            //Create the relationship from the gene node to the soTermId node.
+            CREATE (g)-[x:ANNOT_TO]->(s)
+
+            //Create the entity node.
+            CREATE (ent:Entity {primary_key:row.dataProvider})
             SET ent.dateProduced = row.dateProduced
             SET ent.release = row.release
 
-            //Merge the entity to the appropriate association nodes.
-            MERGE (a)-[c1:CREATED_BY]-(ent)
+            //Create the entity relationship to the appropriate association nodes.
+            CREATE (a1)-[c1:CREATED_BY]->(ent)
+            CREATE (a2)-[c2:CREATED_BY]->(ent)
+            CREATE (a3)-[c3:CREATED_BY]->(ent)
+            CREATE (a4)-[c4:CREATED_BY]->(ent)
 
         """
         self.execute_transaction(query, data)
