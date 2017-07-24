@@ -22,9 +22,9 @@ class RGD(MOD):
         return ["Rattus norvegicus", "R. norvegicus", "RAT"]
 
     def load_go_prefix(self):
-        go_annot_dict = MOD.load_go_prefix(self.geneAssociationFile, self.species)
+        go_annot_dict = MOD().load_go_prefix(self.geneAssociationFile, self.species)
         return go_annot_dict
 
     def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots(self.diseaseName)
+        gene_disease_dict = MOD().load_do_annots(self.diseaseName)
         return gene_disease_dict
