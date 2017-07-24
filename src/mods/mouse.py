@@ -22,9 +22,9 @@ class MGI(MOD):
         return ["Mus musculus", "M. musculus", "MOUSE"]
 
     def load_go(self):
-        go_annot_dict = MOD.load_go(self.geneAssociationFile, self.species)
+        go_annot_dict = MOD().load_go(self.geneAssociationFile, self.species)
         return go_annot_dict
 
     def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots(self.diseaseName)
+        gene_disease_dict = MOD().load_do_annots(self.diseaseName)
         return gene_disease_dict
