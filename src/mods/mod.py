@@ -4,12 +4,12 @@ from files import *
 import gzip
 import csv
 
-class MOD():
+class MOD(object):
 
     def load_genes(self, batch_size, test_set, bgiName, loadFile):
         path = "tmp"
-        S3File("mod-datadumps", self.loadFile, path).download()
-        TARFile(path, self.loadFile).extract_all()
+        S3File("mod-datadumps", loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
         gene_data = JSONFile().get_data(path + bgiName)
         gene_lists = BGIExt().get_data(gene_data, batch_size, test_set)
         return self.yield_gene_lists(gene_lists)
@@ -21,7 +21,7 @@ class MOD():
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
-        with gzip.open(path + "/gene_association.fb.gz", 'rb') as file:
+        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
@@ -35,6 +35,29 @@ class MOD():
                         'gene_id': gene,
                         'go_id': [go_id],
                         'species': species
+                    }
+        return go_annot_dict
+
+    def load_go_prefix(self):
+        path = "tmp"
+        S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
+        go_annot_dict = {}
+        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
+            reader = csv.reader(file, delimiter='\t')
+            for line in reader:
+                if line[0].startswith('!'):
+                    continue
+                gene = line[0] + ":" + line[1]
+                go_id = line[4]
+                prefix = line[0]
+                if gene in go_annot_dict:
+                    go_annot_dict[gene]['go_id'].append(go_id)
+                else:
+                    go_annot_dict[gene] = {
+                        'gene_id': gene,
+                        'go_id': [go_id],
+                        'species': RGD.species,
+                        'prefix':prefix
                     }
         return go_annot_dict
 

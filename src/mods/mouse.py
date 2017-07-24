@@ -1,3 +1,5 @@
+from .mod import MOD
+
 class MGI(MOD):
 
     def __init__(self):
@@ -8,7 +10,7 @@ class MGI(MOD):
         self.geneAssociationFile = "gene_association.mgi.gz"
 
     def load_genes(self, batch_size, test_set):
-        data = MOD.load_genes(batch_size, test_set, self.bgiName, self.loadFile)
+        data = MOD().load_genes(batch_size, test_set, self.bgiName, self.loadFile)
         return data
 
     @staticmethod

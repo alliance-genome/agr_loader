@@ -1,5 +1,5 @@
 from files import *
-from mods.human import Human
+# from mods.human import Human
 
 class HomoLogExt:
 
