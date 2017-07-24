@@ -1,7 +1,5 @@
 from files import *
 from .test_check import check_for_test_entry
-from mods.mod import MOD
-
 import re
 
 class BGIExt:

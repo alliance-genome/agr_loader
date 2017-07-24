@@ -1,8 +1,5 @@
 from files import *
-from mods.mod import MOD
-
 import re
-
 
 class DiseaseExt:
     def get_data(self, disease_data):

@@ -1,4 +1,3 @@
-
 from .mod import MOD
 from .mouse import MGI
 from .fly import FlyBase
