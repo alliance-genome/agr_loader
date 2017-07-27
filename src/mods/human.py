@@ -10,7 +10,7 @@ class Human(MOD):
         self.geneAssociationFile = "gene_association.human.gz"
 
     def load_genes(self, batch_size, test_set):
-        data = MOD().load_genes(batch_size, test_set, self.bgiName, self.loadFile)
+        data = MOD.load_genes(self, batch_size, test_set, self.bgiName, self.loadFile)
         return data
 
     @staticmethod
@@ -22,9 +22,9 @@ class Human(MOD):
         return ["Homo sapiens", "H. sapiens", "HUMAN"]
 
     def load_go(self):
-        go_annot_dict = MOD().load_go(self.geneAssociationFile, self.species)
+        go_annot_dict = MOD.load_go(self, self.geneAssociationFile, self.species)
         return go_annot_dict
 
     def load_do_annots(self):
-        gene_disease_dict = MOD().load_do_annots(self.diseaseName)
+        gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
         return gene_disease_dict
