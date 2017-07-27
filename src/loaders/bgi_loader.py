@@ -1,4 +1,4 @@
-from .transactions.bgi_transaction import BGITransaction
+from .transactions.bgi import BGITransaction
 
 class BGILoader:
 

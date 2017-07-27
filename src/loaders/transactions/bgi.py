@@ -1,4 +1,5 @@
 from neo4j.v1 import GraphDatabase
+from .transaction import Transaction
 
 class BGITransaction(Transaction):
 
@@ -76,7 +77,7 @@ class BGITransaction(Transaction):
             CREATE (a4)-[c4:CREATED_BY]->(ent)
 
         """
-        Transaction.execute_transaction(query, data)
+        Transaction.execute_transaction(self, query, data)
 
         # "href": None,
         # "gene_biological_process": [],
