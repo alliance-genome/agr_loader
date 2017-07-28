@@ -1,4 +1,4 @@
-class SoAnnotator:
+class SOAnnotator:
 
     @staticmethod
     def attach_annotations(gene, so_dataset):

@@ -21,7 +21,7 @@ class MOD(object):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
-        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
+        with gzip.open(path + "/" + geneAssociationFile, mode='rt') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
@@ -42,7 +42,7 @@ class MOD(object):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
-        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
+        with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):

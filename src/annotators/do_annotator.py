@@ -1,4 +1,4 @@
-class DoAnnotator:
+class DOAnnotator:
 
     # get the gene, disease_dataset in bulk, do_dataset
     @staticmethod
