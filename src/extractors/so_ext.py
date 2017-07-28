@@ -2,7 +2,7 @@ from files import *
 
 import re
 
-class SoExt:
+class SOExt:
     @staticmethod
     def get_data():
         path = "tmp";

@@ -1,4 +1,4 @@
-class GoGeneAnnot:
+class GOGeneAnnot:
 
     def __init__(self, annots, go_data):
         self.go_blacklist = ("GO:0008150", "GO:0003674", "GO:0005575")

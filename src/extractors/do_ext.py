@@ -2,7 +2,7 @@ from files import *
 import sys
 import re
 
-class DoExt:
+class DOExt:
     @staticmethod
     def get_data():
         path = "tmp";
