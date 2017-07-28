@@ -23,9 +23,6 @@ class AggregateLoader:
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:
-            print("Extracting GO annotations for %s" % (mod.species))
-            gene_go_annots = mod.load_go()
-
             print("Loading BGI data into Neo4j.")
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
 
