@@ -8,6 +8,8 @@ if test_set == "True":
 
 if __name__ == '__main__':
     al = AggregateLoader()
+    al.create_indicies_and_constraints()
     al.load_from_mods(test_set = test_set)
     al.load_from_ontologies()
-    #al.create_indicies()
+    al.load_annotations()
+    #

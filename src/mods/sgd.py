@@ -21,9 +21,9 @@ class SGD(MOD):
     def get_organism_names():
         return ["Saccharomyces cerevisiae", "S. cerevisiae", "YEAST"]
 
-    def load_go_prefix(self):
-        go_annot_dict = MOD.load_go_prefix(self, self.geneAssociationFile, self.species)
-        return go_annot_dict
+    def load_go_annots(self):
+        go_annot_list = MOD.load_go_annots_prefix(self, self.geneAssociationFile, self.species)
+        return go_annot_list
 
     def load_do_annots(self):
         gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)

@@ -52,8 +52,8 @@ class BGITransaction(Transaction):
             CREATE (a2)-[r5:ASSOC]->(syn)
             CREATE (a3)-[r6:ASSOC]->(ext)
 
-            //Create the SOTerm node and set the primary key.
-            CREATE (s:SOTerm {primaryKey:row.soTermId})
+            //MERGE the SOTerm node and set the primary key.
+            MERGE (s:SOTerm {primaryKey:row.soTermId})
 
             //Create the Association node to be used for the gene / SOTerm
             CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
@@ -66,8 +66,8 @@ class BGITransaction(Transaction):
             //Create the relationship from the gene node to the SOTerm node.
             CREATE (g)-[x:ANNOT_TO]->(s)
 
-            //Create the entity node.
-            CREATE (ent:Entity {primaryKey:row.dataProvider})
+            //Merge the entity node.
+            MERGE (ent:Entity {primaryKey:row.dataProvider})
             SET ent.dateProduced = row.dateProduced
             SET ent.release = row.release
 
