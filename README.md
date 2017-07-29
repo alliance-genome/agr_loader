@@ -8,7 +8,7 @@ Resources.
 ## Requirements
 - Docker
 - Docker-compose (can be installed via `pip`: `pip install docker-compose`).
-
+- neo4j-driver (can be installed via `pip`: `pip install neo4j-driver`).  
 ## Installation
 - Build the local image with `make build`.
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
