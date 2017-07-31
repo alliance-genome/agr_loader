@@ -28,21 +28,26 @@ class DiseaseExt:
             if qualifier is None:
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
-                    disease_features[primaryId, dateProduced, dataProvider] = []
-                    disease_features[primaryId, dateProduced, dataProvider].append({
+                    disease_features = {
+                        "primaryId": primaryId,
+                        "dateProduced": dateProduced,
+                        "dataProvider": dataProvider,
                         "diseaseObjectName": diseaseRecord.get('objectName'),
-                        "diseaseObjectType": diseaseObjectType})
+                        "diseaseObjectType": diseaseObjectType
+                    }
+                #print (disease_features)
                 qualifier = None;
 
-            list_to_yield.append(disease_data)
+            list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
+                print (list_to_yield)
                 yield list_to_yield
+
                 list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
+            print (list_to_yield)
             yield list_to_yield
-
-        return disease_features
 
     def get_data(self, disease_data):
 

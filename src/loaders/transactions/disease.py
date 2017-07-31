@@ -15,6 +15,6 @@ class DiseaseTransaction(Transaction):
         query = """
             UNWIND $data as row
 
-            CREATE (f:Feature {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
+            MERGE (f:Feature {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
         """
         Transaction.execute_transaction(self, query, data)

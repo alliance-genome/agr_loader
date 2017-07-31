@@ -66,7 +66,7 @@ class BGIExt:
                     genomic_locations.append(
                         {"chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
 
-            gene_dataset[primary_id, dateProduced, dataProvider] = {
+            gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
                 "description": geneRecord.get('description'),
