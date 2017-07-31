@@ -18,3 +18,4 @@ class DiseaseTransaction(Transaction):
             MERGE (f:Feature {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
 
         """
+        Transaction.execute_transaction(self, query, data)
