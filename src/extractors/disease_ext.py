@@ -25,28 +25,24 @@ class DiseaseExt:
             qualifier = None;
             primaryId = diseaseRecord.get('objectId')
 
-            if 'HGNC' in primaryId:
-                primaryId = primaryId[5:]
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
             if 'evidence' in diseaseRecord:
                 for evidence in diseaseRecord['evidence']:
-                    evidenceCode = evidence.get('evidenceCode')
-                    pubs = []
-                    for pub in evidence['publications']:
+                    pub = evidence.get('publication')
+                    
+                    publicationModId = pub.get('modPublicationId')
+                    if publicationModId is not None:
+                        localPubModId = publicationModId.split(":")[1]
+                        pubModUrl= self.get_complete_pub_url(localPubModId, publicationModId)
+                    if pubMedId is not None:
                         pubMedId = pub.get('pubMedId')
-                        if pubMedId is not None:
-                            if ':' in pubMedId:
-                                localPubMedId = pubMedId.split(":")[1]
-                        publicationModId = pub.get('modPublicationId')
-                        if publicationModId is not None:
-                            localPubModId = publicationModId.split(":")[1]
-                        if pubMedId is not None:
-                            pubs.append({'pubMedId': pubMedId, 'pubMedUrl': 'https://www.ncbi.nlm.nih.gov/pubmed/' + localPubMedId})
-                        else:
-                            if publicationModId is not None:
-                                pubs.append({'publicationModId': publicationModId, 'pubModUrl': self.get_complete_pub_url(localPubModId, publicationModId)})
-                    evidenceList.append({"pubs": pubs, "evidenceCode": evidenceCode})
+                        if ':' in pubMedId:
+                            localPubMedId = pubMedId.split(":")[1]
+                            pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
+                    evidenceCodes =[]
+                    evidenceCodes = evidence.get('evidenceCodes')
+                    evidenceList.append({"pub": pub, "pubMedId": pubMedId, "pubMedUrl": pubMedUrl, "pubModId": publicationModId, "pubModUrl": pubModUrl, "evidenceCodes": evidenceCodes})
 
             if 'objectRelation' in diseaseRecord:
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
@@ -125,5 +121,7 @@ class DiseaseExt:
             complete_url = 'http://zfin.org/' + local_id
         if 'WB:' in global_id:
             complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
+        if 'PUBMED:' in global_id:
+            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
 
         return complete_url

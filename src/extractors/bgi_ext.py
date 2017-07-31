@@ -96,6 +96,7 @@ class BGIExt:
                 "href": None
             }
 
+            
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
             if len(list_to_yield) == batch_size:

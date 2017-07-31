@@ -14,8 +14,8 @@ class AggregateLoader:
         uri = "bolt://neo4j_nqa:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of BGI batches extracted from MOD JSON file.
-        self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        #self.mods = [FlyBase()]
+        #self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
+        self.mods = [FlyBase()]
 
     def load_from_mods(self, test_set):
         self.test_set = test_set
@@ -27,7 +27,8 @@ class AggregateLoader:
             genes = mod.load_genes(self.batch_size, self.test_set) # generator object
 
             for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries)
+                BGILoader(self.graph).load_bgi(gene_list_of_entries, mod.species)
+                print (mod.species)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
     def load_from_ontologies(self):

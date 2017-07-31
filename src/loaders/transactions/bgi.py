@@ -12,26 +12,25 @@ class BGITransaction(Transaction):
         Is name_key necessary with symbol?
 
         '''
-        #speciesQuery = """
-        #    UNWIND $speciesData as row
+        # speciesQuery = """
+        #      UNWIND $data as row
+        #
+        #      MERGE (spec:Species {primaryKey:row.taxonId})
+        #      SET spec.name = row.species
+        #
+        #  """
+        #
+        # Transaction.execute_transaction(self, speciesQuery, data)
 
-        #    MERGE(spec:Species {primaryKey:row.taxonId})
-        #    SET spec.name = row.species
-        
-        #"""
-
-        #ransaction.execute_transaction(self, speciesQuery, species)
-        
         query = """
-            UNWIND $data as row 
+            UNWIND $data as row
 
             //Create the Gene node and set properties. primaryKey is required.
             CREATE (g:Gene {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
-            SET g.symbol = row.symbol 
+            SET g.symbol = row.symbol
             SET g.taxonId = row.taxonId
-            SET g.species = row.species
-            SET g.name = row.name 
-            SET g.description = row.description 
+            SET g.name = row.name
+            SET g.description = row.description
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
             SET g.gene_biological_process = row.gene_biological_process
@@ -43,8 +42,9 @@ class BGITransaction(Transaction):
             CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
             CREATE (syn:Synonyms {synonyms:row.synonyms})
             CREATE (ext:ExternalIds {externalIds:row.external_ids})
-            //MERGE (spec:Species {primaryId:row.taxonId})
-            //MERGE (g)-[:FROM_SPECIES]-(spec)
+            MERGE (spec:Species {primaryId: row.taxonId})
+            SET spec.species = row.species
+            CREATE (g)-[:FROM_SPECIES]->(spec)
 
             //Create relationships for other identifiers.
             CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
