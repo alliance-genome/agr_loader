@@ -25,12 +25,12 @@ class AggregateLoader:
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:
-            #print("Loading BGI data into Neo4j.")
-            #genes = mod.load_genes(self.batch_size, self.test_set) # generator object
+            print("Loading BGI data into Neo4j.")
+            genes = mod.load_genes(self.batch_size, self.test_set) # generator object
 
-            #for gene_list_of_entries in genes:
-             #   BGILoader(self.graph).load_bgi(gene_list_of_entries)
-             #   print("Loaded %s nodes..." % (len(gene_list_of_entries)))
+            for gene_list_of_entries in genes:
+                BGILoader(self.graph).load_bgi(gene_list_of_entries)
+                print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
             features = mod.load_disease_objects(self.batch_size, self.test_set)
             #print (features)

@@ -1,9 +1,10 @@
 from files import *
 import re
+from .test_check import check_for_test_entry
 
 class DiseaseExt:
 
-    def get_features(self, disease_data):
+    def get_features(self, disease_data, batch_size, test_set):
         disease_features = {}
         list_to_yield = []
         qualifier = None;
@@ -16,10 +17,15 @@ class DiseaseExt:
             release = disease_data['metaData']['release']
 
         for diseaseRecord in disease_data['data']:
+            primaryId = diseaseRecord.get('objectId')
+            if test_set == True:
+                is_it_test_entry = check_for_test_entry(primaryId)
+                if is_it_test_entry == False:
+                    continue
+
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
-                primaryId = diseaseRecord.get('objectId')
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
                     disease_features[primaryId, dateProduced, dataProvider] = []
@@ -27,7 +33,15 @@ class DiseaseExt:
                         "diseaseObjectName": diseaseRecord.get('objectName'),
                         "diseaseObjectType": diseaseObjectType})
                 qualifier = None;
-        print (disease_features)
+
+            list_to_yield.append(disease_data)
+            if len(list_to_yield) == batch_size:
+                yield list_to_yield
+                list_to_yield[:] = []  # Empty the list.
+
+        if len(list_to_yield) > 0:
+            yield list_to_yield
+
         return disease_features
 
     def get_data(self, disease_data):

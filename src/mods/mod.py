@@ -75,5 +75,5 @@ class MOD(object):
         S3File("mod-datadumps", self.loadFile, path).download()
         TARFile(path, self.loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName)
-        disease_dict = DiseaseExt().get_features(disease_data)
+        disease_dict = DiseaseExt().get_features(disease_data, batch_size, test_set)
         return disease_dict
