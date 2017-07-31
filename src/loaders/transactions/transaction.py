@@ -11,9 +11,14 @@ class Transaction(object):
                 tx.run(query, data=data)
 
     def execute_transaction_batch(self, query, data, batch_size):
-        print("Executing batch query.")
+        print("Executing batch query. Please wait.")
+        total_submitted = 0
+
         for submission in self.split_into_chunks(data, batch_size):
             self.execute_transaction(query, submission)
+            # total_submitted = total_submitted + len(submission)
+            # print("Loaded %s/%s entries." % (total_submitted, len(data)))
+        print("Finished batch loading.")
 
     def split_into_chunks(self, data, batch_size):
         return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))

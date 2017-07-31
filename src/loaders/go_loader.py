@@ -8,5 +8,4 @@ class GOLoader:
 
     def load_go(self, data):
         tx = GOTransaction(self.graph)
-
         tx.go_tx(data)
