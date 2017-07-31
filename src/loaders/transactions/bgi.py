@@ -12,15 +12,6 @@ class BGITransaction(Transaction):
         Is name_key necessary with symbol?
 
         '''
-        # speciesQuery = """
-        #      UNWIND $data as row
-        #
-        #      MERGE (spec:Species {primaryKey:row.taxonId})
-        #      SET spec.name = row.species
-        #
-        #  """
-        #
-        # Transaction.execute_transaction(self, speciesQuery, data)
 
         query = """
             UNWIND $data as row
