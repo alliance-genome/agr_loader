@@ -2,6 +2,36 @@ from files import *
 import re
 
 class DiseaseExt:
+
+    def get_features(self, disease_data):
+        disease_features = {}
+        list_to_yield = []
+        qualifier = None;
+
+        dateProduced = disease_data['metaData']['dateProduced']
+        dataProvider = disease_data['metaData']['dataProvider']
+        release = None
+
+        if 'release' in disease_data['metaData']:
+            release = disease_data['metaData']['release']
+
+        for diseaseRecord in disease_data['data']:
+            if 'qualifier' in diseaseRecord:
+                qualifier = diseaseRecord.get('qualifier')
+            if qualifier is None:
+                primaryId = diseaseRecord.get('objectId')
+                print (primaryId)
+                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+                if primaryId not in disease_features:
+                    disease_features[primaryId] = []
+                    disease_features[primaryId].append({
+                        "diseaseObjectName": diseaseRecord.get('objectName'),
+                        "diseaseObjectType": diseaseObjectType,
+                        "dateProduced": dateProduced,
+                        "dataProvider": dataProvider})
+                qualifier = None;
+        return disease_features
+
     def get_data(self, disease_data):
 
         disease_annots = {}

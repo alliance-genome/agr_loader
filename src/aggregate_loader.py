@@ -7,13 +7,15 @@ import gc
 import os
 import time
 from neo4j.v1 import GraphDatabase
+from loaders.disease_loader import DiseaseLoader
+
 
 class AggregateLoader:
 
     def __init__(self):
         uri = "bolt://neo4j_nqa:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-        self.batch_size = 5000 # Set size of BGI batches extracted from MOD JSON file.
+        self.batch_size = 5000 # Set size of BGI,disease batches extracted from MOD JSON file.
         #self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
         self.mods = [FlyBase()]
 
@@ -23,19 +25,26 @@ class AggregateLoader:
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:
-            print("Loading BGI data into Neo4j.")
-            genes = mod.load_genes(self.batch_size, self.test_set) # generator object
+            #print("Loading BGI data into Neo4j.")
+            #genes = mod.load_genes(self.batch_size, self.test_set) # generator object
 
-            for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries, mod.species)
-                print (mod.species)
-                print("Loaded %s nodes..." % (len(gene_list_of_entries)))
+            #for gene_list_of_entries in genes:
+             #   BGILoader(self.graph).load_bgi(gene_list_of_entries)
+             #   print("Loaded %s nodes..." % (len(gene_list_of_entries)))
+
+            features = mod.load_disease_objects(self.batch_size, self.test_set)
+            #print (features)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+
+                #print("Loaded %s additional primary data type nodes" % (len(feature_list_of_entries)))
 
     def load_from_ontologies(self):
         print("Extracting GO data.")
         self.go_dataset = GOExt().get_data()
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
+
 
     # def load_annotations(self):
     #     print("Loading disease annotations.")

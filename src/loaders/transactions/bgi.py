@@ -6,7 +6,7 @@ class BGITransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def bgi_tx(self, data, species):
+    def bgi_tx(self, data):
         '''
         Loads the BGI data into Neo4j.
         Is name_key necessary with symbol?
