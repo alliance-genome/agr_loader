@@ -1,5 +1,6 @@
 from loaders import *
 from annotators import *
+from loaders.transactions import *
 from files import *
 from mods import *
 from extractors import *
@@ -18,6 +19,10 @@ class AggregateLoader:
         self.batch_size = 5000 # Set size of BGI,disease batches extracted from MOD JSON file.
         #self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
         self.mods = [FlyBase()]
+
+    def create_indicies(self):
+        print("Creating indicies.")
+        Indicies(self.graph).create_indicies()
 
     def load_from_mods(self, test_set):
         self.test_set = test_set
@@ -45,12 +50,13 @@ class AggregateLoader:
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
 
-
-    # def load_annotations(self):
-    #     print("Loading disease annotations.")
-    #     for mod in self.mods:
-    #         do_annots = mod.load_do_annots()
-    #         DOIndexer(self.graph).annotate_do(do_annots)
+    def load_annotations(self):
+        print("Extracting GO annotations.")
+        for mod in self.mods:
+            print("Extracting GO annotations for %s." % (mod.__class__.__name__))
+            go_annots = mod.load_go_annots()
+            print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
+            GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
     # def create_indicies(self):
     #     print("Creating index on Gene nodes via primary_key.")

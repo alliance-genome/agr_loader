@@ -1,5 +1,4 @@
 
-
 class DOLoader:
 
     def __init__(self, graph):
