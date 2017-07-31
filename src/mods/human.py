@@ -8,6 +8,7 @@ class Human(MOD):
         self.bgiName = "/RGD_0.6.2_basicGeneInformation.9606.json"
         self.diseaseName = "/RGD_0.6.2_disease.9606.daf.json"
         self.geneAssociationFile = "gene_association.human.gz"
+        self.identifierPrefix = "" # None for Human.
 
     def load_genes(self, batch_size, test_set):
         data = MOD.load_genes(self, batch_size, test_set, self.bgiName, self.loadFile)
@@ -22,7 +23,7 @@ class Human(MOD):
         return ["Homo sapiens", "H. sapiens", "HUMAN"]
 
     def load_go_annots(self):
-        go_annot_list = MOD.load_go(self, self.geneAssociationFile, self.species)
+        go_annot_list = MOD.load_go_annots_human(self, self.geneAssociationFile, self.species, self.identifierPrefix)
         return go_annot_list
 
     def load_do_annots(self):

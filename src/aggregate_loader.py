@@ -44,7 +44,7 @@ class AggregateLoader:
     def load_annotations(self):
         print("Extracting GO annotations.")
         for mod in self.mods:
-            print("Extracing GO annotations for %s." % (mod.__class__.__name__))
+            print("Extracting GO annotations for %s." % (mod.__class__.__name__))
             go_annots = mod.load_go_annots()
             print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
             GOAnnotLoader(self.graph).load_go_annot(go_annots)

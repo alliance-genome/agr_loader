@@ -8,7 +8,8 @@ class ZFIN(MOD):
         self.bgiName = "/ZFIN_0.6.1_BGI.json"
         self.diseaseName = "/ZFIN_0.6.1_DAF.json"
         self.geneAssociationFile = "gene_association.zfin.gz"
-
+        self.identifierPrefix = "ZFIN:"
+        
     def load_genes(self, batch_size, test_set):
         data = MOD.load_genes(self, batch_size, test_set, self.bgiName, self.loadFile)
         return data
@@ -22,7 +23,7 @@ class ZFIN(MOD):
         return ["Danio rerio", "D. rerio", "DANRE"]
 
     def load_go_annots(self):
-        go_annot_list = MOD.load_go_annots(self, self.geneAssociationFile, self.species)
+        go_annot_list = MOD.load_go_annots(self, self.geneAssociationFile, self.species, self.identifierPrefix)
         return go_annot_list
 
     def load_do_annots(self):
