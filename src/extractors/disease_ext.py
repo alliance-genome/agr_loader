@@ -20,16 +20,14 @@ class DiseaseExt:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
                 primaryId = diseaseRecord.get('objectId')
-                print (primaryId)
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
-                    disease_features[primaryId] = []
-                    disease_features[primaryId].append({
+                    disease_features[primaryId, dateProduced, dataProvider] = []
+                    disease_features[primaryId, dateProduced, dataProvider].append({
                         "diseaseObjectName": diseaseRecord.get('objectName'),
-                        "diseaseObjectType": diseaseObjectType,
-                        "dateProduced": dateProduced,
-                        "dataProvider": dataProvider})
+                        "diseaseObjectType": diseaseObjectType})
                 qualifier = None;
+        print (disease_features)
         return disease_features
 
     def get_data(self, disease_data):
