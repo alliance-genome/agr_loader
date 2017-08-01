@@ -23,7 +23,18 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOT_TO]->(d)
+                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                //Create the Association node to be used for the object/doTerm
+                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
+                CREATE (f)-[fda:ASSOCIATION]->(da)
+                CREATE (da)-[dad:ASSOCIATION]->(d)
+
+                //Create nodes for other identifiers.  TODO- do this better.
+                CREATE (evidenceCodes:SecondaryIds {secondaryIds:row.secondaryIds})
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
                 MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})
@@ -31,7 +42,15 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOT_TO]->(d)
+                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                //Create the Association node to be used for the object/doTerm
+                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
+                CREATE (f)-[r7:ASSOCIATION]->(da)
+                CREATE (da)-[r8:ASSOCIATION]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele:Allele {primaryKey:row.primaryId})
@@ -39,7 +58,15 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOT_TO]->(d)
+                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                //Create the Association node to be used for the object/doTerm
+                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
+                CREATE (f)-[r7:ASSOCIATION]->(da)
+                CREATE (da)-[r8:ASSOCIATION]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene:Transgene {primaryKey:row.primaryId})
@@ -47,7 +74,15 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOT_TO]->(d)
+                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                //Create the Association node to be used for the object/doTerm
+                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
+                CREATE (f)-[r7:ASSOCIATION]->(da)
+                CREATE (da)-[r8:ASSOCIATION]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
                 MERGE (f:Fish:Fish {primaryKey:row.primaryId})
@@ -55,7 +90,15 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOT_TO]->(d)
+                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                //Create the Association node to be used for the object/doTerm
+                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
+                CREATE (f)-[r7:ASSOCIATION]->(da)
+                CREATE (da)-[r8:ASSOCIATION]->(d)
             )
 
 

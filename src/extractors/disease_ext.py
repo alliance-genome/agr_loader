@@ -27,6 +27,23 @@ class DiseaseExt:
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
+
+                if 'evidence' in diseaseRecord:
+                    for evidence in diseaseRecord['evidence']:
+                        pub = evidence.get('publication')
+
+                        publicationModId = pub.get('modPublicationId')
+                        if publicationModId is not None:
+                            localPubModId = publicationModId.split(":")[1]
+                            pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
+                        if pubMedId is not None:
+                            pubMedId = pub.get('pubMedId')
+                            if ':' in pubMedId:
+                                localPubMedId = pubMedId.split(":")[1]
+                                pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
+                        evidenceCodes = []
+                        evidenceCodes = evidence.get('evidenceCodes')
+
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
                         disease_features = {
@@ -36,7 +53,12 @@ class DiseaseExt:
                             "taxonId": diseaseRecord.get('taxonId'),
                             "diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
                             "with": diseaseRecord.get('with'),
-                            "doId": diseaseRecord.get('DOid')
+                            "doId": diseaseRecord.get('DOid'),
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+
                         }
                 #print (disease_features)
                 qualifier = None;

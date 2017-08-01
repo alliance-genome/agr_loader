@@ -48,13 +48,13 @@ class BGITransaction(Transaction):
             CREATE (a3:Association {link_from:row.primaryId, link_to:row.external_ids})
 
             //Create Association links for other identifiers.
-            CREATE (g)-[r1:ASSOC]->(a1)
-            CREATE (g)-[r2:ASSOC]->(a2)
-            CREATE (g)-[r3:ASSOC]->(a3)
+            CREATE (g)-[r1:ASSOCIATION]->(a1)
+            CREATE (g)-[r2:ASSOCIATION]->(a2)
+            CREATE (g)-[r3:ASSOCIATION]->(a3)
 
-            CREATE (a1)-[r4:ASSOC]->(second)
-            CREATE (a2)-[r5:ASSOC]->(syn)
-            CREATE (a3)-[r6:ASSOC]->(ext)
+            CREATE (a1)-[r4:ASSOCIATION]->(second)
+            CREATE (a2)-[r5:ASSOCIATION]->(syn)
+            CREATE (a3)-[r6:ASSOCIATION]->(ext)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm {primaryKey:row.soTermId})
@@ -64,11 +64,11 @@ class BGITransaction(Transaction):
 
             //Create the relationship from the gene node to association node.
             //Create the relationship from the association node to the SOTerm node.
-            CREATE (g)-[r7:ASSOC]->(a4)
-            CREATE (a4)-[r8:ASSOC]->(s)
+            CREATE (g)-[r7:ASSOCIATION]->(a4)
+            CREATE (a4)-[r8:ASSOCIATION]->(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            CREATE (g)-[x:ANNOT_TO]->(s)
+            CREATE (g)-[x:ANNOTATED_TO]->(s)
 
             //Merge the entity node.
             MERGE (ent:Entity {primaryKey:row.dataProvider})
