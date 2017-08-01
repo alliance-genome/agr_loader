@@ -3,7 +3,7 @@ version: "2"
 services:
   neo4j_nqa:
     container_name: neo4j
-    image: agrdocker/agr_neo4j_env
+    image: agrdocker/agr_neo4j_env:develop
     volumes:
       - dbstore:/data
       - dbstore:/logs
