@@ -33,7 +33,10 @@ class DiseaseExt:
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
                             "diseaseObjectType": diseaseObjectType,
-                            "taxonId": diseaseRecord.get('taxonId')
+                            "taxonId": diseaseRecord.get('taxonId'),
+                            "diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
+                            "with": diseaseRecord.get('with'),
+                            "doId": diseaseRecord.get('DOid')
                         }
                 #print (disease_features)
                 qualifier = None;

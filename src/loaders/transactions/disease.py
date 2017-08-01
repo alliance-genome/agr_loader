@@ -20,28 +20,45 @@ class DiseaseTransaction(Transaction):
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
                 MERGE (f:Gene:Gene {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
-                CREATE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
+                MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (f)-[fa:ANNOT_TO]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
                 MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
-                CREATE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
+                MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (f)-[fa:ANNOT_TO]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele:Allele {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
-                CREATE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
+                MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (f)-[fa:ANNOT_TO]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene:Transgene {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
-                CREATE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
+                MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (f)-[fa:ANNOT_TO]->(d)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
                 MERGE (f:Fish:Fish {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
-                CREATE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
+                MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (f)-[fa:ANNOT_TO]->(d)
             )
+
+
 
         """
         Transaction.execute_transaction(self, query, data)
