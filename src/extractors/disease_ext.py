@@ -58,6 +58,7 @@ class DiseaseExt:
                             "pubMedUrl": pubMedUrl,
                             "pubModId": publicationModId,
                             "pubModUrl": pubModUrl,
+                            "evidenceCodes": evidenceCodes
 
                         }
                 #print (disease_features)

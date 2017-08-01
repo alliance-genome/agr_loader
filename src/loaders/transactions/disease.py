@@ -6,16 +6,22 @@ class DiseaseTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
+
     def disease_object_tx(self, data):
         '''
         Loads the Disease data into Neo4j.
         Nodes: merge object (gene, genotype, transgene, allele, etc..., merge disease term,
         '''
 
+
         query = """
 
             UNWIND $data as row with row
             MERGE (spec:Species {primaryId: row.taxonId})
+
+            CREATE (g:Gene {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
+
+
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
                 MERGE (f:Gene:Gene {primaryKey:row.primaryId})
@@ -33,8 +39,11 @@ class DiseaseTransaction(Transaction):
                 CREATE (f)-[fda:ASSOCIATION]->(da)
                 CREATE (da)-[dad:ASSOCIATION]->(d)
 
-                //Create nodes for other identifiers.  TODO- do this better.
-                CREATE (evidenceCodes:SecondaryIds {secondaryIds:row.secondaryIds})
+                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
+                //of these separately.
+
+                MERGE (evcodes:EvidenceCodes {evidenceCodes:row.evidenceCodes})
+                
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
                 MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})

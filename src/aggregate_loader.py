@@ -40,6 +40,7 @@ class AggregateLoader:
             #print ("features" + features)
             for feature_list_of_entries in features:
                 #print ("list of entries" + feature_list_of_entries)
+
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
                 #print("Loaded %s additional primary data type nodes" % (len(feature_list_of_entries)))
 
