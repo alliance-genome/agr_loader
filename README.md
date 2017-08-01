@@ -20,7 +20,7 @@ Resources.
 - Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
 
 ## Accessing the Neo4j shell
-- From your command line: `docker exec -ti neo4j_nqa bin/cypher-shell`
+- From your command line: `docker exec -ti neo4j_nqc bin/cypher-shell`
   - A quick command to count the number of nodes in your db: `match (n) return count (n);`
 
 ## Stopping and Removing the Database

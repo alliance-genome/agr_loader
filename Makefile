@@ -2,10 +2,10 @@ build:
 	docker build -t agrdocker/agr_loader_run:develop .
 
 startdb:
-	docker-compose up -d neo4j_nqa
+	docker-compose up -d neo4j_nqc
 
 stopdb:
-	docker-compose stop neo4j_nqa
+	docker-compose stop neo4j_nqc
 
 removedb:
 	docker-compose down -v

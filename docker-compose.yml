@@ -1,8 +1,8 @@
 version: "2"
 
 services:
-  neo4j_nqa:
-    container_name: neo4j_nqa
+  neo4j_nqc:
+    container_name: neo4j_nqc
     image: agrdocker/agr_neo4j_env:develop
     volumes:
       - dbstore:/data

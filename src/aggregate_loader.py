@@ -12,7 +12,7 @@ from neo4j.v1 import GraphDatabase
 class AggregateLoader:
 
     def __init__(self):
-        uri = "bolt://neo4j_nqa:7687"
+        uri = "bolt://neo4j_nqc:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of BGI batches extracted from MOD JSON file.
         self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
