@@ -1,5 +1,5 @@
 build:
-	docker build -t agrdocker/agr_loader_run .
+	docker build -t agrdocker/agr_loader_run:develop .
 
 startdb:
 	docker-compose up -d neo4j_nqa
