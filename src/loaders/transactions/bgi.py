@@ -9,15 +9,14 @@ class BGITransaction(Transaction):
     def bgi_tx(self, data):
         '''
         Loads the BGI data into Neo4j.
-        TODO: is "category" necessary with node type of "gene"?
         Is name_key necessary with symbol?
 
         '''
         query = """
             UNWIND $data as row 
 
-            //Create the Gene node and set properties.
-            CREATE (g:Gene {primary_key:row.primaryId}) 
+            //Create the Gene node and set properties. primaryKey is required.
+            CREATE (g:Gene {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
             SET g.symbol = row.symbol 
             SET g.taxonId = row.taxonId 
             SET g.name = row.name 
@@ -25,12 +24,14 @@ class BGITransaction(Transaction):
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
             SET g.species = row.species
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
-            SET g.category = "gene"
+            SET g.gene_biological_process = row.gene_biological_process
+            SET g.gene_molecular_function = row.gene_molecular_function
+            SET g.gene_cellular_component = row.gene_cellular_component
 
             //Create nodes for other identifiers.
-            CREATE (second:secondaryId {secondaryIds:row.secondaryIds})
-            CREATE (syn:synonyms {synonyms:row.synonyms})
-            CREATE (ext:externalIds {externalIds:row.external_ids})
+            CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
+            CREATE (syn:Synonyms {synonyms:row.synonyms})
+            CREATE (ext:ExternalIds {externalIds:row.external_ids})
 
             //Create relationships for other identifiers.
             CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
@@ -51,22 +52,22 @@ class BGITransaction(Transaction):
             CREATE (a2)-[r5:ASSOC]->(syn)
             CREATE (a3)-[r6:ASSOC]->(ext)
 
-            //Create the soTermId node and set the primary key.
-            CREATE (s:soTermId {primary_key:row.soTermId})
+            //MERGE the SOTerm node and set the primary key.
+            MERGE (s:SOTerm {primaryKey:row.soTermId})
 
-            //Create the Association node to be used for the gene / soTermId
+            //Create the Association node to be used for the gene / SOTerm
             CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
 
             //Create the relationship from the gene node to association node.
-            //Create the relationship from the association node to the soTermId node.
+            //Create the relationship from the association node to the SOTerm node.
             CREATE (g)-[r7:ASSOC]->(a4)
             CREATE (a4)-[r8:ASSOC]->(s)
 
-            //Create the relationship from the gene node to the soTermId node.
+            //Create the relationship from the gene node to the SOTerm node.
             CREATE (g)-[x:ANNOT_TO]->(s)
 
-            //Create the entity node.
-            CREATE (ent:Entity {primary_key:row.dataProvider})
+            //Merge the entity node.
+            MERGE (ent:Entity {primaryKey:row.dataProvider})
             SET ent.dateProduced = row.dateProduced
             SET ent.release = row.release
 
@@ -79,13 +80,11 @@ class BGITransaction(Transaction):
         """
         Transaction.execute_transaction(self, query, data)
 
+        # The properties below need to be assigned / resolved:
         # "href": None,
-        # "gene_biological_process": [],
-        # "gene_molecular_function": [],
-        # "gene_cellular_component": [],
 
+        # Both crossReferences and genomeLocations break the loader:
+        # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof
         # SET g.genomeLocations = row.genomeLocations
         # SET g.crossReferences = row.crossReferences 
         # SET g.modCrossReference = row.modCrossReference
-        # Both crossReferences and genomeLocations break the loader:
-        # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof

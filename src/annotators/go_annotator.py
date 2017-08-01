@@ -1,4 +1,4 @@
-class GoAnnotator:
+class GOAnnotator:
 
     @staticmethod
     def attach_annotations(gene, annots, go_data):
@@ -14,7 +14,7 @@ class GoAnnotator:
                     term_name = go_data[entry]['name']
                     go_type = go_data[entry]['go_type']
                     # Add the gene symbol and species to the main GO dataset under the particular GO id.
-                    go_data = GoAnnotator().update_go_dataset(entry, go_data, gene_symbol, species)
+                    go_data = self.update_go_dataset(entry, go_data, gene_symbol, species)
                     if term_name not in gene['gene_' + go_type]:
                         gene['gene_' + go_type].append(term_name)
         return gene, go_data

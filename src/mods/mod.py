@@ -17,16 +17,17 @@ class MOD(object):
     def yield_gene_lists(self, gene_lists):
         yield from gene_lists
 
-    def load_go(self, geneAssociationFile, species):
+    def load_go_annots(self, geneAssociationFile, species, identifierPrefix):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
-        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
+        go_annot_list = []
+        with gzip.open(path + "/" + geneAssociationFile, mode='rt') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
                     continue
-                gene = line[1]
+                gene = identifierPrefix + line[1]
                 go_id = line[4]
                 if gene in go_annot_dict:
                     go_annot_dict[gene]['go_id'].append(go_id)
@@ -36,13 +37,17 @@ class MOD(object):
                         'go_id': [go_id],
                         'species': species
                     }
-        return go_annot_dict
+        # Convert the dictionary into a list of dictionaries for Neo4j.
+        for entry in go_annot_dict:
+            go_annot_list.append(go_annot_dict[entry])
+        return go_annot_list
 
-    def load_go_prefix(self, geneAssociationFile, species):
+    def load_go_annots_prefix(self, geneAssociationFile, species, identifierPrefix):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
-        with gzip.open(path + "/" + geneAssociationFile, 'rb') as file:
+        go_annot_list = []
+        with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
@@ -57,9 +62,36 @@ class MOD(object):
                         'gene_id': gene,
                         'go_id': [go_id],
                         'species': species,
-                        'prefix':prefix
+                        'prefix': prefix
                     }
-        return go_annot_dict
+        # Convert the dictionary into a list of dictionaries for Neo4j.
+        for entry in go_annot_dict:
+            go_annot_list.append(go_annot_dict[entry])
+        return go_annot_list
+
+    def load_go_annots_human(self, geneAssociationFile, species, identifierPrefix):
+        path = "tmp"
+        S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
+        go_annot_dict = {}
+        go_annot_list = []
+        with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
+            reader = csv.reader(file, delimiter='\t')
+            for row in reader:
+                gene = row[0]
+                go_terms = map(lambda s: s.strip(), row[1].split(","))
+                for term in go_terms:
+                    if gene in go_annot_dict:
+                        go_annot_dict[gene]['go_id'].append(term)
+                    else:
+                        go_annot_dict[gene] = {
+                            'gene_id': gene,
+                            'go_id': [term],
+                            'species': species
+                        }
+        # Convert the dictionary into a list of dictionaries for Neo4j.
+        for entry in go_annot_dict:
+            go_annot_list.append(go_annot_dict[entry])
+        return go_annot_list
 
     def load_do_annots(self, diseaseName):
         path = "tmp"
