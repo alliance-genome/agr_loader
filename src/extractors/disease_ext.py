@@ -4,6 +4,7 @@ from .test_check import check_for_test_entry
 
 class DiseaseExt:
 
+
     def get_features(self, disease_data, batch_size, test_set):
         disease_features = {}
         list_to_yield = []
@@ -28,13 +29,11 @@ class DiseaseExt:
             if qualifier is None:
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
-                    disease_features = {
-                        "primaryId": primaryId,
-                        "dateProduced": dateProduced,
-                        "dataProvider": dataProvider,
-                        "diseaseObjectName": diseaseRecord.get('objectName'),
-                        "diseaseObjectType": diseaseObjectType
-                    }
+                        disease_features = {
+                            "primaryId": primaryId,
+                            "diseaseObjectName": diseaseRecord.get('objectName'),
+                            "diseaseObjectType": diseaseObjectType
+                        }
                 #print (disease_features)
                 qualifier = None;
 
