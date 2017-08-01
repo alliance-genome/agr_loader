@@ -32,7 +32,8 @@ class DiseaseExt:
                         disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
-                            "diseaseObjectType": diseaseObjectType
+                            "diseaseObjectType": diseaseObjectType,
+                            "taxonId": diseaseRecord.get('taxonId')
                         }
                 #print (disease_features)
                 qualifier = None;

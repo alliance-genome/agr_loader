@@ -19,19 +19,26 @@ class DiseaseTransaction(Transaction):
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
                 MERGE (g:Gene:Gene {primaryKey:row.primaryId})
                 set g.name = row.diseaseObjectName
+                MERGE (spec:Species {primaryId: row.taxonId})
+                SET spec.species = row.species
+                CREATE (g)-[:FROM_SPECIES]->(spec)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
                 MERGE (g:Genotype:Genotype {primaryKey:row.primaryId})
-                set g.name = row.diseaseObjectName)
+                set g.name = row.diseaseObjectName
+            )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (g:Allele:Allele {primaryKey:row.primaryId})
-                set g.name = row.diseaseObjectName)
+                set g.name = row.diseaseObjectName
+            )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (g:Transgene:Transgene {primaryKey:row.primaryId})
-                set g.name = row.diseaseObjectName)
+                set g.name = row.diseaseObjectName
+            )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
                 MERGE (g:Fish:Fish {primaryKey:row.primaryId})
-                set g.name = row.diseaseObjectName)
+                set g.name = row.diseaseObjectName
+            )
 
         """
         Transaction.execute_transaction(self, query, data)
