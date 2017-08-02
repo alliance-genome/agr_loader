@@ -16,7 +16,6 @@ class AggregateLoader:
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000 # Set size of BGI batches extracted from MOD JSON file.
         self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        #self.mods = [FlyBase()]
 
     def create_indicies(self):
         print("Creating indicies.")
