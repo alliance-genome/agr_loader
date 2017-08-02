@@ -5,13 +5,7 @@ class GOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 500 # Increasing the available memory for Neo4j would eliminate the need to batch:
-        '''
-        neo4j.exceptions.TransientError: There is not enough memory to perform the current task. 
-        Please try increasing 'dbms.memory.heap.max_size' in the neo4j configuration (normally in 'conf/neo4j.conf' 
-        or, if you you are using Neo4j Desktop, found through the user interface) or if you are running an embedded 
-        installation increase the heap by using '-Xmx' command line flag, and then restart the database.
-        '''
+        self.batch_size = 2000
 
     def go_tx(self, data):
         '''
@@ -24,7 +18,7 @@ class GOTransaction(Transaction):
             UNWIND $data as row 
 
             //Create the GOTerm node and set properties. primaryKey is required.
-            CREATE (g:GOTerm {primaryKey:row.id})
+            CREATE (g:GOTerm:Ontology {primaryKey:row.id})
             SET g.description = row.description
             SET g.synonyms = row.go_synonyms
             SET g.type = row.go_type
