@@ -13,9 +13,11 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=8g
       - NEO4J_AUTH=none
+      - NEO4J_dbms_memory_heap_maxSize=8192
       - NEO4J_dbms_connector_http_address=0.0.0.0:7474
+      - NEO4J_dbms_connector_bolt_address=0.0.0.0:7687
+      - NEO4J_dbms_unmanagedExtensionClasses=org.neo4j.graphql=/graphql
 
   agr_loader:
     image: agrdocker/agr_loader_run:develop
