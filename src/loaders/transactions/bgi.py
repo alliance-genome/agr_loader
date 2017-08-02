@@ -29,9 +29,9 @@ class BGITransaction(Transaction):
             SET g.gene_cellular_component = row.gene_cellular_component
 
             //Create nodes for other identifiers.
-            CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
-            CREATE (syn:Synonyms {synonyms:row.synonyms})
-            CREATE (ext:ExternalIds {externalIds:row.external_ids})
+            CREATE (second:SecondaryIds:Identifier {entries:row.secondaryIds})
+            CREATE (syn:Synonyms:Identifier {entries:row.synonyms})
+            CREATE (ext:ExternalIds:Identifier {entries:row.external_ids})
 
             //Create relationships for other identifiers.
             CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
@@ -53,7 +53,7 @@ class BGITransaction(Transaction):
             CREATE (a3)-[r6:ASSOC]->(ext)
 
             //MERGE the SOTerm node and set the primary key.
-            MERGE (s:SOTerm {primaryKey:row.soTermId})
+            MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
 
             //Create the Association node to be used for the gene / SOTerm
             CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
