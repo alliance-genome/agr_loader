@@ -18,6 +18,7 @@ Resources.
 ## Running the Loader
 - Initialize a full load with `make run`.
 - Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
+- make test runs removedb, startdb, build and run_test in one command.
 
 ## Accessing the Neo4j shell
 - From your command line: `docker exec -ti neo4j_nqa bin/cypher-shell`
