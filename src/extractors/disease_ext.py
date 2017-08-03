@@ -48,6 +48,7 @@ class DiseaseExt:
                     #evidenceCodes = evidence.get('evidenceCodes')
                     for ecode in evidence.get('evidenceCodes'):
                         evidenceCodes = {"code": ecode}
+                        print (ecode)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
@@ -76,13 +77,13 @@ class DiseaseExt:
 
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
-                print (list_to_yield)
+                #print (list_to_yield)
                 yield list_to_yield
 
                 list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
-            print (list_to_yield)
+            #print (list_to_yield)
             yield list_to_yield
 
     def get_data(self, disease_data):

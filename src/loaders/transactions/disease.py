@@ -18,38 +18,42 @@ class DiseaseTransaction(Transaction):
 
             UNWIND $data as row
 
+            //WITH row.EvidenceCodes as codes
+            //UNWIND codes as code
+            //    MERGE (ev:EvidenceCode {primaryKey: code.code})
+
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
 
                 MERGE (f:Gene:Gene {primaryKey:row.primaryId})
 
-                MERGE (f)-[:FROM_SPECIES]->(spec)
+                //MERGE (f)-[:FROM_SPECIES]->(spec)
                 //SET f.with = row.with
 
-                MERGE (d:DOTerm {primaryKey:row.doId})
+                //MERGE (d:DOTerm {primaryKey:row.doId})
 
-                FOREACH (rel IN CASE when row.associationType = 'is_model_of' THEN [1] ELSE [] END |
-                    MERGE (f)-[fa:IS_MODEL_OF]->(d))
+                //FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
+                    //MERGE (f)-[fa:IS_MODEL_OF]->(d))
 
-                FOREACH (rel IN CASE when row.associationType = 'is_marker_for' THEN [1] ELSE [] END |
-                    MERGE (f)-[fa:IS_MARKER_FOR]->(d))
+                //FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                    //MERGE (f)-[fa:IS_MARKER_FOR]->(d))
 
-                FOREACH (rel IN CASE when row.associationType = 'is_implicated_in' THEN [1] ELSE [] END |
-                    MERGE (f)-[fa:IS_IMPLICATED_IN]->(d))
+                //FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                    //MERGE (f)-[fa:IS_IMPLICATED_IN]->(d))
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
+                //MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                MERGE (f)-[fda:ASSOCIATION]->(da)
-                MERGE (da)-[dad:ASSOCIATION]->(d)
+                //MERGE (f)-[fda:ASSOCIATION]->(da)
+                //MERGE (da)-[dad:ASSOCIATION]->(d)
 
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                FOREACH (ec in row.evidenceCodes| MERGE (e:EvidenceCode {primaryKey: ec.code}))
-
             )
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
 
                 MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})
