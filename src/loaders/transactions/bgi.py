@@ -35,6 +35,7 @@ class BGITransaction(Transaction):
             CREATE (ext:ExternalIds {externalIds:row.external_ids})
             MERGE (spec:Species {primaryId: row.taxonId})
             SET spec.species = row.species
+            SET spec.name = row.species
             CREATE (g)-[:FROM_SPECIES]->(spec)
 
             //Create relationships for other identifiers.

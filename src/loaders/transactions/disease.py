@@ -16,36 +16,42 @@ class DiseaseTransaction(Transaction):
 
         query = """
 
-            UNWIND $data as row with row
-            MERGE (spec:Species {primaryId: row.taxonId})
-
-            CREATE (g:Gene {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
-
-
+            UNWIND $data as row
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
+
                 MERGE (f:Gene:Gene {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+
                 MERGE (f)-[:FROM_SPECIES]->(spec)
-                SET f.with = row.with
+                //SET f.with = row.with
+
                 MERGE (d:DOTerm {primaryKey:row.doId})
-                MERGE (f)-[fa:ANNOTATED_TO]->(d)
+
+                FOREACH (rel IN CASE when row.associationType = 'is_model_of' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_MODEL_OF]->(d))
+
+                FOREACH (rel IN CASE when row.associationType = 'is_marker_for' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_MARKER_FOR]->(d))
+
+                FOREACH (rel IN CASE when row.associationType = 'is_implicated_in' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_IMPLICATED_IN]->(d))
 
                 //Create the Association node to be used for the object/doTerm
-                CREATE (da:Association {link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                CREATE (f)-[fda:ASSOCIATION]->(da)
-                CREATE (da)-[dad:ASSOCIATION]->(d)
+                MERGE (f)-[fda:ASSOCIATION]->(da)
+                MERGE (da)-[dad:ASSOCIATION]->(d)
 
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                MERGE (evcodes:EvidenceCodes {evidenceCodes:row.evidenceCodes})
-                
+                FOREACH (ec in row.evidenceCodes| MERGE (e:EvidenceCode {primaryKey: ec.code}))
+
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
+
                 MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
                 MERGE (f)-[:FROM_SPECIES]->(spec)

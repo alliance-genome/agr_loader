@@ -13,6 +13,8 @@ class DiseaseExt:
         dateProduced = disease_data['metaData']['dateProduced']
         dataProvider = disease_data['metaData']['dataProvider']
         release = None
+        publicationModId = None
+        pubMedId = None
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
@@ -29,20 +31,27 @@ class DiseaseExt:
             if qualifier is None:
 
                 if 'evidence' in diseaseRecord:
-                    for evidence in diseaseRecord['evidence']:
-                        pub = evidence.get('publication')
+                    publicationModId = None
+                    pubMedId = None
+                    pubModUrl = None
+                    pubMedUrl = None
+                    evidence = diseaseRecord.get('evidence')
+                    evidenceCodes = {}
+                    if 'modPublicationId' in evidence:
+                        publicationModId = evidence.get('modPublicationId')
+                        localPubModId = publicationModId.split(":")[1]
+                        pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
+                    if 'pubMedId' in evidence:
+                        pubMedId = evidence.get('pubMedId')
+                        localPubMedId = publicationModId.split(":")[1]
+                        pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
+                    #evidenceCodes = evidence.get('evidenceCodes')
+                    for ecode in evidence.get('evidenceCodes'):
+                        evidenceCodes = {"code": ecode}
 
-                        publicationModId = pub.get('modPublicationId')
-                        if publicationModId is not None:
-                            localPubModId = publicationModId.split(":")[1]
-                            pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
-                        if pubMedId is not None:
-                            pubMedId = pub.get('pubMedId')
-                            if ':' in pubMedId:
-                                localPubMedId = pubMedId.split(":")[1]
-                                pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-                        evidenceCodes = []
-                        evidenceCodes = evidence.get('evidenceCodes')
+                if 'objectRelation' in diseaseRecord:
+                    diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+                    diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
 
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
@@ -58,11 +67,12 @@ class DiseaseExt:
                             "pubMedUrl": pubMedUrl,
                             "pubModId": publicationModId,
                             "pubModUrl": pubModUrl,
-                            "evidenceCodes": evidenceCodes
-
+                            "release": release,
+                            "dataProvider": dataProvider,
+                            "evidenceCodes": evidenceCodes,
+                            "relationshipType": diseaseAssociationType
                         }
-                #print (disease_features)
-                qualifier = None;
+                qualifier = None
 
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
