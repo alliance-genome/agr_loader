@@ -46,7 +46,7 @@ class DiseaseTransaction(Transaction):
 
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (da:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:DiseaseAssociation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -56,16 +56,21 @@ class DiseaseTransaction(Transaction):
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
-                CREATE (f)-[feca:ASSOCIATION]->(eca)
-
                 MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
                 SET pub.pubModId = row.pubModId
                 SET pub.pubMedId = row.pubMedId
                 SET pub.pubModUrl = row.pubModUrl
                 SET pub.pubMedUrl = row.pubMedUrl
+
+                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (da)-[dae:ANNOTATED]->(e)
+                MERGE (pub)-[pubEv:ANNOTATED]->(e)
+
+                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                MERGE (ecs)-[ecda:ANNOTATED]->(e)
+
             )
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |

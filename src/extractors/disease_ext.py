@@ -85,6 +85,10 @@ class DiseaseExt:
                             "doPrefix": "DOID",
                             # doing the typing in neo, but this is for backwards compatibility in ES
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
+                            "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
+                            "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
+                            "diseaseEvidenceCodePubAssociationId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId+ecode,
+                            "evidenceCodeId": ecode
                         }
                 qualifier = None
                 print (disease_features)
