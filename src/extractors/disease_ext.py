@@ -81,7 +81,12 @@ class DiseaseExt:
                             "relationshipType": diseaseAssociationType,
                             #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
                             #are already handled in the disease.py, cypher query tx.
-                            "qualifier": qualifier
+                            "qualifier": qualifier,
+                            "doDisplayId": diseaseRecord.get('DOid'),
+                            "doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
+                            "doPrefix": "DOID",
+                            # doing the typing in neo, but this is for backwards compatibility in ES
+                            "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                         }
                 qualifier = None
 
