@@ -129,7 +129,7 @@ class DiseaseExt:
                                                        'conditiionIsStandard'),
                                                    "freeTextCondition": experimentalCondition.get('textCondition')})
 
-          
+
             if modifierQualifier is None and qualifier is None:
                 disease_annots[primaryId].append({
                     "diseaseObjectName": diseaseRecord.get('objectName'),
