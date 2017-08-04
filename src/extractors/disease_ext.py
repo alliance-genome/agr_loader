@@ -116,42 +116,7 @@ class DiseaseExt:
             release = disease_data['metaData']['release']
 
         for diseaseRecord in disease_data['data']:
-            experimentalConditions = []
-            objectRelationMap = {}
-            evidenceList = []
-            geneticModifiers = []
-            inferredFromGeneAssociations = []
-            modifier = {}
-            modifierQualifier = None;
-            qualifier = None;
-            primaryId = diseaseRecord.get('objectId')
 
-            if 'qualifier' in diseaseRecord:
-                qualifier = diseaseRecord.get('qualifier')
-            if 'evidence' in diseaseRecord:
-                for evidence in diseaseRecord['evidence']:
-                    pub = evidence.get('publication')
-                    
-                    publicationModId = pub.get('modPublicationId')
-                    if publicationModId is not None:
-                        localPubModId = publicationModId.split(":")[1]
-                        pubModUrl= self.get_complete_pub_url(localPubModId, publicationModId)
-                    if pubMedId is not None:
-                        pubMedId = pub.get('pubMedId')
-                        if ':' in pubMedId:
-                            localPubMedId = pubMedId.split(":")[1]
-                            pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-                    evidenceCodes =[]
-                    evidenceCodes = evidence.get('evidenceCodes')
-                    evidenceList.append({"pub": pub, "pubMedId": pubMedId, "pubMedUrl": pubMedUrl, "pubModId": publicationModId, "pubModUrl": pubModUrl, "evidenceCodes": evidenceCodes})
-
-            if 'objectRelation' in diseaseRecord:
-                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
-                diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
-                
-                #for gene in diseaseRecord['objectRelation']['inferredGeneAssociation']:
-                #        inferredFromGeneAssociations.append(gene.get('primaryId'))
-                objectRelationMap = {"diseaseObjectType": diseaseObjectType, "diseaseAssociationType": diseaseAssociationType}
 
             if 'experimentalConditions' in diseaseRecord:
                 for experimentalCondition in diseaseRecord['experimentalConditions']:
@@ -163,24 +128,8 @@ class DiseaseExt:
                                                    "experimentalConditionIsStandard": experimentalCondition.get(
                                                        'conditiionIsStandard'),
                                                    "freeTextCondition": experimentalCondition.get('textCondition')})
-            if 'modifier' in diseaseRecord:
-                associationType = diseaseRecord['modifier']['associationType']
-                if 'genetic' in diseaseRecord['modifier']:
-                    for geneticModifier in diseaseRecord['modifier'].get('genetic'):
-                        geneticModifier.append(diseaseRecord['modifier'].get('genetic'))
-                if 'experimentalConditionsText' in diseaseRecord['modifier']:
-                    experimentalConditionsText = diseaseRecord['modifier'].get('experimentalConditionsText')
 
-                modifierQualifier = diseaseRecord['modifier']['qualifier']
-                modifier = {"associationType": associationType,
-                            "geneticModifiers": geneticModifiers,
-                            "experimentalConditionsText": experimentalConditionsText,
-                            "modifierQualifier": modifierQualifier}
-
-            if primaryId not in disease_annots:
-                disease_annots[primaryId] = []
-            # many fields are commented out to fulfill 0.6 requirements only, but still parse the entire file.
-
+          
             if modifierQualifier is None and qualifier is None:
                 disease_annots[primaryId].append({
                     "diseaseObjectName": diseaseRecord.get('objectName'),

@@ -92,6 +92,9 @@ class DiseaseTransaction(Transaction):
                 //Create the Association node to be used for the object/doTerm
                 MERGE (da:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
 
+                //Create the Association node to be used for the object/doTerm
+                MERGE (da:DiseaseAssociation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
+
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
                 MERGE (f)-[fda:ASSOCIATION]->(da)
@@ -100,16 +103,21 @@ class DiseaseTransaction(Transaction):
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
-                CREATE (f)-[feca:ASSOCIATION]->(eca)
-
                 MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
                 SET pub.pubModId = row.pubModId
                 SET pub.pubMedId = row.pubMedId
                 SET pub.pubModUrl = row.pubModUrl
                 SET pub.pubMedUrl = row.pubMedUrl
+
+                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (da)-[dae:ANNOTATED]->(e)
+                MERGE (pub)-[pubEv:ANNOTATED]->(e)
+
+                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                MERGE (ecs)-[ecda:ANNOTATED]->(e)
+
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele {primaryKey:row.primaryId})
@@ -135,20 +143,14 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[fda:ASSOCIATION]->(da)
                 MERGE (da)-[dad:ASSOCIATION]->(d)
 
-                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
-                //of these separately.
+                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (da)-[dae:ANNOTATED]->(e)
+                MERGE (pub)-[pubEv:ANNOTATED]->(e)
 
-                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.
-                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
-                CREATE (f)-[feca:ASSOCIATION]->(eca)
-
-                MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
-                SET pub.pubModId = row.pubModId
-                SET pub.pubMedId = row.pubMedId
-                SET pub.pubModUrl = row.pubModUrl
-                SET pub.pubMedUrl = row.pubMedUrl
-
+                MERGE (ecs)-[ecda:ANNOTATED]->(e)
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                     MERGE (f)-[fa:IS_MARKER_FOR]->(d))
@@ -183,13 +185,14 @@ class DiseaseTransaction(Transaction):
                 MERGE (f)-[fda:ASSOCIATION]->(da)
                 MERGE (da)-[dad:ASSOCIATION]->(d)
 
-                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
-                //of these separately.
+                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (da)-[dae:ANNOTATED]->(e)
+                MERGE (pub)-[pubEv:ANNOTATED]->(e)
 
-                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.
-                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
-                CREATE (f)-[feca:ASSOCIATION]->(eca)
+                MERGE (ecs)-[ecda:ANNOTATED]->(e)
 
                 MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
                 SET pub.pubModId = row.pubModId
@@ -234,10 +237,14 @@ class DiseaseTransaction(Transaction):
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                CREATE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
+                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (da)-[dae:ANNOTATED]->(e)
+                MERGE (pub)-[pubEv:ANNOTATED]->(e)
+
+                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.
-                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
-                CREATE (f)-[feca:ASSOCIATION]->(eca)
+                MERGE (ecs)-[ecda:ANNOTATED]->(e)
 
                 MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
                 SET pub.pubModId = row.pubModId
