@@ -36,7 +36,7 @@ class DiseaseExt:
                     pubModUrl = None
                     pubMedUrl = None
                     evidence = diseaseRecord.get('evidence')
-                    evidenceCodes = {}
+                    #evidenceCodes = {}
                     if 'modPublicationId' in evidence:
                         publicationModId = evidence.get('modPublicationId')
                         localPubModId = publicationModId.split(":")[1]
@@ -46,13 +46,14 @@ class DiseaseExt:
                         localPubMedId = publicationModId.split(":")[1]
                         pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
                     #evidenceCodes = evidence.get('evidenceCodes')
-                    for ecode in evidence.get('evidenceCodes'):
-                        evidenceCodes = {"code": ecode}
-                        print (ecode)
+                    #for ecode in evidence.get('evidenceCodes'):
+                    #    evidenceCodes = {"code": ecode}
+                    #    print (ecode)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
+
 
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 if primaryId not in disease_features:
@@ -70,8 +71,11 @@ class DiseaseExt:
                             "pubModUrl": pubModUrl,
                             "release": release,
                             "dataProvider": dataProvider,
-                            "evidenceCodes": evidenceCodes,
-                            "relationshipType": diseaseAssociationType
+                            "evidenceCodes": diseaseRecord.get('evidenceCodes'),
+                            "relationshipType": diseaseAssociationType,
+                            #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
+                            #are already handled in the disease.py, cypher query tx.
+                            "qualifier": qualifier
                         }
                 qualifier = None
 

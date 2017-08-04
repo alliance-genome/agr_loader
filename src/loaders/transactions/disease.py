@@ -16,6 +16,7 @@ class DiseaseTransaction(Transaction):
 
         query = """
 
+
             UNWIND $data as row
 
             //WITH row.EvidenceCodes as codes
@@ -27,31 +28,45 @@ class DiseaseTransaction(Transaction):
 
                 MERGE (f:Gene:Gene {primaryKey:row.primaryId})
 
-                //MERGE (f)-[:FROM_SPECIES]->(spec)
-                //SET f.with = row.with
+                MERGE (f)-[:FROM_SPECIES]->(spec)
+                SET f.with = row.with
 
-                //MERGE (d:DOTerm {primaryKey:row.doId})
+                MERGE (d:DOTerm {primaryKey:row.doId})
 
-                //FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
-                    //MERGE (f)-[fa:IS_MODEL_OF]->(d))
+                FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_MODEL_OF]->(d))
 
-                //FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                    //MERGE (f)-[fa:IS_MARKER_FOR]->(d))
+                FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_MARKER_FOR]->(d))
 
-                //FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                    //MERGE (f)-[fa:IS_IMPLICATED_IN]->(d))
+                FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                    MERGE (f)-[fa:IS_IMPLICATED_IN]->(d))
+
+                FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
+                    MERGE (f)-[fq:IS_NOT_MODEL_OF]->(d))
+
+                FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
+                    MERGE (f)-[fq:IS_NOT_MARKER_OF]->(d))
+
+                 FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                    MERGE (f)-[fq:IS_NOT_IMPLICATED_IN]->(d))
+
 
                 //Create the Association node to be used for the object/doTerm
-                //MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                //MERGE (f)-[fda:ASSOCIATION]->(da)
-                //MERGE (da)-[dad:ASSOCIATION]->(d)
+                MERGE (f)-[fda:ASSOCIATION]->(da)
+                MERGE (da)-[dad:ASSOCIATION]->(d)
 
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
+                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (f)-[feca:ASSOCIATION]->(eca)
             )
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
@@ -68,8 +83,16 @@ class DiseaseTransaction(Transaction):
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                CREATE (f)-[r7:ASSOCIATION]->(da)
-                CREATE (da)-[r8:ASSOCIATION]->(d)
+                CREATE (f)-[fda:ASSOCIATION]->(da)
+                CREATE (da)-[dad:ASSOCIATION]->(d)
+
+                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
+                //of these separately.
+
+                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (f)-[r1:ASSOCIATION]->(eca)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele:Allele {primaryKey:row.primaryId})
@@ -84,8 +107,16 @@ class DiseaseTransaction(Transaction):
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                CREATE (f)-[r7:ASSOCIATION]->(da)
-                CREATE (da)-[r8:ASSOCIATION]->(d)
+                CREATE (f)-[fda:ASSOCIATION]->(da)
+                CREATE (da)-[dad:ASSOCIATION]->(d)
+
+                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
+                //of these separately.
+
+                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (f)-[feca:ASSOCIATION]->(eca)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene:Transgene {primaryKey:row.primaryId})
@@ -100,8 +131,16 @@ class DiseaseTransaction(Transaction):
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                CREATE (f)-[r7:ASSOCIATION]->(da)
-                CREATE (da)-[r8:ASSOCIATION]->(d)
+                CREATE (f)-[fda:ASSOCIATION]->(da)
+                CREATE (da)-[dad:ASSOCIATION]->(d)
+
+                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
+                //of these separately.
+
+                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (f)-[feca:ASSOCIATION]->(eca)
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
                 MERGE (f:Fish:Fish {primaryKey:row.primaryId})
@@ -116,8 +155,16 @@ class DiseaseTransaction(Transaction):
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
-                CREATE (f)-[r7:ASSOCIATION]->(da)
-                CREATE (da)-[r8:ASSOCIATION]->(d)
+                CREATE (f)-[fda:ASSOCIATION]->(da)
+                CREATE (da)-[dad:ASSOCIATION]->(d)
+
+                //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
+                //of these separately.
+
+                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                //Create Association nodes for other identifiers.
+                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (f)-[feca:ASSOCIATION]->(eca)
             )
 
 
