@@ -38,7 +38,6 @@ class DiseaseExt:
                     pubModUrl = None
                     pubMedUrl = None
                     evidence = diseaseRecord.get('evidence')
-                    #evidenceCodes = {}
                     if 'publication' in evidence:
                         if 'modPublicationId' in evidence['publication']:
                             publicationModId = evidence['publication'].get('modPublicationId')
@@ -48,12 +47,12 @@ class DiseaseExt:
                             pubMedId = evidence['publication'].get('pubMedId')
                             localPubMedId = publicationModId.split(":")[1]
                             pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-                    #evidenceCodes = evidence.get('evidenceCodes')
-                    #for ecode in evidence.get('evidenceCodes'):
-                    #    evidenceCodes = {"code": ecode}
-                    #    print (ecode)
-                    if publicationModId == "" and pubMedId == "":
-                        print (primaryId)
+                    evidenceCodes = evidence.get('evidenceCodes')
+                    ecodes = []
+                    for ecode in evidence.get('evidenceCodes'):
+                        code = {"code": ecode}
+                        ecodes.append(code)
+                    print (ecodes)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
@@ -61,8 +60,7 @@ class DiseaseExt:
 
 
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
-                if primaryId not in disease_features:
-                        disease_features = {
+                disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
                             "diseaseObjectType": diseaseObjectType,
@@ -77,7 +75,7 @@ class DiseaseExt:
                             "pubPrimaryKey": pubMedId+publicationModId,
                             "release": release,
                             "dataProvider": dataProvider,
-                            "evidenceCodes": diseaseRecord.get('evidenceCodes'),
+                            "evidenceCodes": ecode, #evidence.get('evidenceCodes'),
                             "relationshipType": diseaseAssociationType,
                             #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
                             #are already handled in the disease.py, cypher query tx.
@@ -89,7 +87,7 @@ class DiseaseExt:
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                         }
                 qualifier = None
-
+                print (disease_features)
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
                 #print (list_to_yield)

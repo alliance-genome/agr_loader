@@ -17,15 +17,12 @@ class DiseaseTransaction(Transaction):
         query = """
 
             UNWIND $data as row
-
-            //WITH row.EvidenceCodes as codes
-            //UNWIND codes as code
-            //    MERGE (ev:EvidenceCode {primaryKey: code.code})
+           // UNWIND row.ecode as codes
 
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
 
-                MERGE (f:Gene:Gene {primaryKey:row.primaryId, dataProvider:row.dataProvider, release:row.release})
+                MERGE (f:Gene {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -73,7 +70,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
 
-                MERGE (f:Genotype:Genotype {primaryKey:row.primaryId})
+                MERGE (f:Genotype {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -110,7 +107,7 @@ class DiseaseTransaction(Transaction):
                 SET pub.pubMedUrl = row.pubMedUrl
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
-                MERGE (f:Allele:Allele {primaryKey:row.primaryId})
+                MERGE (f:Allele {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -163,7 +160,7 @@ class DiseaseTransaction(Transaction):
 
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
-                MERGE (f:Transgene:Transgene {primaryKey:row.primaryId})
+                MERGE (f:Transgene {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -211,7 +208,7 @@ class DiseaseTransaction(Transaction):
 
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
-                MERGE (f:Fish:Fish {primaryKey:row.primaryId})
+                MERGE (f:Fish {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -232,7 +229,7 @@ class DiseaseTransaction(Transaction):
                 //Create nodes for other identifiers.  TODO- do this better. evidence code node needs to be linked up with each
                 //of these separately.
 
-                CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
+                CREATE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.
                 CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
                 CREATE (f)-[feca:ASSOCIATION]->(eca)
@@ -249,6 +246,9 @@ class DiseaseTransaction(Transaction):
                     MERGE (f)-[fq:IS_NOT_MODEL_OF]->(d))
             )
 
+
+           // FOREACH (code in codes |
+            //        MERGE (ec:EvidenceCode {primaryKey:code.code}))
 
 
         """
