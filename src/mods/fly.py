@@ -29,3 +29,7 @@ class FlyBase(MOD):
     def load_do_annots(self):
         gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
         return gene_disease_dict
+
+    def load_disease_objects(self, batch_size, test_set):
+        data = MOD.load_disease_objects(self, batch_size, test_set, self.diseaseName, self.loadFile)
+        return data

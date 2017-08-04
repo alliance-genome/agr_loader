@@ -101,3 +101,12 @@ class MOD(object):
         gene_disease_dict = DiseaseExt().get_data(disease_data)
 
         return gene_disease_dict
+
+    def load_disease_objects(self, batch_size, test_set, diseaseName, loadFile):
+        path = "tmp"
+        S3File("mod-datadumps", self.loadFile, path).download()
+        TARFile(path, self.loadFile).extract_all()
+        disease_data = JSONFile().get_data(path + diseaseName)
+        disease_dict = DiseaseExt().get_features(disease_data, batch_size, test_set)
+        #print (disease_dict)
+        return disease_dict

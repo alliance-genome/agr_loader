@@ -16,5 +16,7 @@ run:
 run_test:
 	docker-compose up agr_loader_test
 
+test: removedb startdb build run_test
+
 bash:
 	docker-compose up agr_loader bash

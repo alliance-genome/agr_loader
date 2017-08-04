@@ -8,14 +8,17 @@ import gc
 import os
 import time
 from neo4j.v1 import GraphDatabase
+from loaders.disease_loader import DiseaseLoader
+
 
 class AggregateLoader:
-
     def __init__(self):
         uri = "bolt://neo4j_nqc:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-        self.batch_size = 5000 # Set size of BGI batches extracted from MOD JSON file.
-        self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
+
+        self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
+        # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
+        self.mods = [WormBase(), MGI()]
 
     def create_indicies(self):
         print("Creating indicies.")
@@ -28,35 +31,40 @@ class AggregateLoader:
 
         for mod in self.mods:
             print("Loading BGI data into Neo4j.")
-            genes = mod.load_genes(self.batch_size, self.test_set) # generator object
+            genes = mod.load_genes(self.batch_size, self.test_set)  # generator object
 
             for gene_list_of_entries in genes:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
+
+            features = mod.load_disease_objects(self.batch_size, self.test_set)
+
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+
 
     def load_from_ontologies(self):
         print("Extracting GO data.")
         self.go_dataset = GOExt().get_data()
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
+        #
+        # def load_annotations(self):
+        #     print("Extracting GO annotations.")
+        #     for mod in self.mods:
+        #         print("Extracting GO annotations for %s." % (mod.__class__.__name__))
+        #         go_annots = mod.load_go_annots()
+        #         print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
+        #         GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-    def load_annotations(self):
-        print("Extracting GO annotations.")
-        for mod in self.mods:
-            print("Extracting GO annotations for %s." % (mod.__class__.__name__))
-            go_annots = mod.load_go_annots()
-            print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
-            GOAnnotLoader(self.graph).load_go_annot(go_annots)
+        # def create_indicies(self):
+        #     print("Creating index on Gene nodes via primary_key.")
+        #     self.graph.run("CREATE INDEX ON :Gene(primary_key)")
+        #     print("Done.")
 
-    # def create_indicies(self):
-    #     print("Creating index on Gene nodes via primary_key.")
-    #     self.graph.run("CREATE INDEX ON :Gene(primary_key)")
-    #     print("Done.")
-
-    #     print("Creating index on Disease nodes via primary_key.")
-    #     self.graph.run("CREATE INDEX ON :Disease(primary_key)")
-    #     print("Done.")
-
+        #     print("Creating index on Disease nodes via primary_key.")
+        #     self.graph.run("CREATE INDEX ON :Disease(primary_key)")
+        #     print("Done.")
 
 # class AggregateLoader:
 

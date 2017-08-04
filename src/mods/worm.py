@@ -4,9 +4,9 @@ class WormBase(MOD):
 
     def __init__(self):
         self.species = "Caenorhabditis elegans"
-        self.loadFile = "WB_0.6.1_1.tar.gz"
-        self.bgiName = "/WB_0.6.1_BGI.json"
-        self.diseaseName = "/WB_0.6.1_disease.json"
+        self.loadFile = "WB_1.0.3_1.tar.gz"
+        self.bgiName = "/WB_1.0.3_BGI.json"
+        self.diseaseName = "/WB_1.0.3_disease.json"
         self.geneAssociationFile = "gene_association.wb.gz"
         self.identifierPrefix = "WB:"
 
@@ -29,3 +29,7 @@ class WormBase(MOD):
     def load_do_annots(self):
         gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
         return gene_disease_dict
+
+    def load_disease_objects(self, batch_size, test_set):
+        data = MOD.load_disease_objects(self, batch_size, test_set, self.diseaseName, self.loadFile)
+        return data

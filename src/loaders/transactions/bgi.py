@@ -12,26 +12,32 @@ class BGITransaction(Transaction):
         Is name_key necessary with symbol?
 
         '''
+
         query = """
-            UNWIND $data as row 
+            UNWIND $data as row
 
             //Create the Gene node and set properties. primaryKey is required.
             CREATE (g:Gene {primaryKey:row.primaryId, dateProduced:row.dateProduced, dataProvider:row.dataProvider})
-            SET g.symbol = row.symbol 
-            SET g.taxonId = row.taxonId 
-            SET g.name = row.name 
-            SET g.description = row.description 
+            SET g.symbol = row.symbol
+            SET g.taxonId = row.taxonId
+            SET g.name = row.name
+            SET g.description = row.description
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
-            SET g.species = row.species
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
             SET g.gene_biological_process = row.gene_biological_process
             SET g.gene_molecular_function = row.gene_molecular_function
             SET g.gene_cellular_component = row.gene_cellular_component
 
+
             //Create nodes for other identifiers.
-            CREATE (second:SecondaryIds:Identifier {entries:row.secondaryIds})
-            CREATE (syn:Synonyms:Identifier {entries:row.synonyms})
-            CREATE (ext:ExternalIds:Identifier {entries:row.external_ids})
+
+            CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
+            CREATE (syn:Synonyms {synonyms:row.synonyms})
+            CREATE (ext:ExternalIds {externalIds:row.external_ids})
+            MERGE (spec:Species {primaryId: row.taxonId})
+            SET spec.species = row.species
+            SET spec.name = row.species
+            CREATE (g)-[:FROM_SPECIES]->(spec)
 
             //Create relationships for other identifiers.
             CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
@@ -44,13 +50,13 @@ class BGITransaction(Transaction):
             CREATE (a3:Association {link_from:row.primaryId, link_to:row.external_ids})
 
             //Create Association links for other identifiers.
-            CREATE (g)-[r1:ASSOC]->(a1)
-            CREATE (g)-[r2:ASSOC]->(a2)
-            CREATE (g)-[r3:ASSOC]->(a3)
+            CREATE (g)-[r1:ASSOCIATION]->(a1)
+            CREATE (g)-[r2:ASSOCIATION]->(a2)
+            CREATE (g)-[r3:ASSOCIATION]->(a3)
 
-            CREATE (a1)-[r4:ASSOC]->(second)
-            CREATE (a2)-[r5:ASSOC]->(syn)
-            CREATE (a3)-[r6:ASSOC]->(ext)
+            CREATE (a1)-[r4:ASSOCIATION]->(second)
+            CREATE (a2)-[r5:ASSOCIATION]->(syn)
+            CREATE (a3)-[r6:ASSOCIATION]->(ext)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
@@ -60,11 +66,11 @@ class BGITransaction(Transaction):
 
             //Create the relationship from the gene node to association node.
             //Create the relationship from the association node to the SOTerm node.
-            CREATE (g)-[r7:ASSOC]->(a4)
-            CREATE (a4)-[r8:ASSOC]->(s)
+            CREATE (g)-[r7:ASSOCIATION]->(a4)
+            CREATE (a4)-[r8:ASSOCIATION]->(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            CREATE (g)-[x:ANNOT_TO]->(s)
+            CREATE (g)-[x:ANNOTATED_TO]->(s)
 
             //Merge the entity node.
             MERGE (ent:Entity {primaryKey:row.dataProvider})

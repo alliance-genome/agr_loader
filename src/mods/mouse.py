@@ -4,9 +4,9 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_0.6.0_2.tar.gz"
-        self.bgiName = "/MGI_0.6_basicGeneInformation.json"
-        self.diseaseName = "/MGI_0.6_diseaseAnnotations.json"
+        self.loadFile = "MGI_1.0.1.tar.gz"
+        self.bgiName = "/MGI_1.0.1_basicGeneInformation.json"
+        self.diseaseName = "/MGI_1.0.1_diseaseAnnotations.json"
         self.geneAssociationFile = "gene_association.mgi.gz"
         self.identifierPrefix = "" # None for MGI.
 
@@ -30,3 +30,7 @@ class MGI(MOD):
     def load_do_annots(self):
         gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
         return gene_disease_dict
+
+    def load_disease_objects(self, batch_size, test_set):
+        data = MOD.load_disease_objects(self, batch_size, test_set, self.diseaseName, self.loadFile)
+        return data
