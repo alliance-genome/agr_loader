@@ -26,7 +26,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
 
-                MERGE (f:Gene:Gene {primaryKey:row.primaryId})
+                MERGE (f:Gene:Gene {primaryKey:row.primaryId, dataProvider:row.dataProvider, release:row.release})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -53,7 +53,7 @@ class DiseaseTransaction(Transaction):
 
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (da:Association {link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -65,8 +65,14 @@ class DiseaseTransaction(Transaction):
 
                 CREATE (ecs:EvicenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.
-                CREATE (eca:Association {link_from:row.primaryId, link_to:row.evidenceCodes})
+                CREATE (eca:EvidenceCodeAssociation {link_from:row.primaryId, link_to:row.evidenceCodes})
                 CREATE (f)-[feca:ASSOCIATION]->(eca)
+
+                MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
+                SET pub.pubModId = row.pubModId
+                SET pub.pubMedId = row.pubMedId
+                SET pub.pubModUrl = row.pubModUrl
+                SET pub.pubMedUrl = row.pubMedUrl
             )
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |

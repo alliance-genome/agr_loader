@@ -31,24 +31,29 @@ class DiseaseExt:
             if qualifier is None:
 
                 if 'evidence' in diseaseRecord:
-                    publicationModId = None
-                    pubMedId = None
+                    # this is purposeful for the moment, need to concantenate two strings, both of which has the possibility of being null -- so setting as an empty string
+                    # instead of none.
+                    publicationModId = ""
+                    pubMedId = ""
                     pubModUrl = None
                     pubMedUrl = None
                     evidence = diseaseRecord.get('evidence')
                     #evidenceCodes = {}
-                    if 'modPublicationId' in evidence:
-                        publicationModId = evidence.get('modPublicationId')
-                        localPubModId = publicationModId.split(":")[1]
-                        pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
-                    if 'pubMedId' in evidence:
-                        pubMedId = evidence.get('pubMedId')
-                        localPubMedId = publicationModId.split(":")[1]
-                        pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
+                    if 'publication' in evidence:
+                        if 'modPublicationId' in evidence['publication']:
+                            publicationModId = evidence['publication'].get('modPublicationId')
+                            localPubModId = publicationModId.split(":")[1]
+                            pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
+                        if 'pubMedId' in evidence['publication']:
+                            pubMedId = evidence['publication'].get('pubMedId')
+                            localPubMedId = publicationModId.split(":")[1]
+                            pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
                     #evidenceCodes = evidence.get('evidenceCodes')
                     #for ecode in evidence.get('evidenceCodes'):
                     #    evidenceCodes = {"code": ecode}
                     #    print (ecode)
+                    if publicationModId == "" and pubMedId == "":
+                        print (primaryId)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
@@ -69,6 +74,7 @@ class DiseaseExt:
                             "pubMedUrl": pubMedUrl,
                             "pubModId": publicationModId,
                             "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId+publicationModId,
                             "release": release,
                             "dataProvider": dataProvider,
                             "evidenceCodes": diseaseRecord.get('evidenceCodes'),
