@@ -1,4 +1,4 @@
-FROM agrdocker/agr_loader_env
+FROM agrdocker/agr_loader_env:develop
 
 WORKDIR /usr/src/app
 

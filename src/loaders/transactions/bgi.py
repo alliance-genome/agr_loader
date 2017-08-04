@@ -30,6 +30,7 @@ class BGITransaction(Transaction):
 
 
             //Create nodes for other identifiers.
+
             CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
             CREATE (syn:Synonyms {synonyms:row.synonyms})
             CREATE (ext:ExternalIds {externalIds:row.external_ids})
@@ -58,7 +59,7 @@ class BGITransaction(Transaction):
             CREATE (a3)-[r6:ASSOCIATION]->(ext)
 
             //MERGE the SOTerm node and set the primary key.
-            MERGE (s:SOTerm {primaryKey:row.soTermId})
+            MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
 
             //Create the Association node to be used for the gene / SOTerm
             CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
