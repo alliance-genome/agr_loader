@@ -1,4 +1,4 @@
-build:
+build: pull
 	docker build -t agrdocker/agr_loader_run:develop .
 
 startdb:
@@ -7,13 +7,16 @@ startdb:
 stopdb:
 	docker-compose stop neo4j_nqc
 
+pull:
+	docker pull agrdocker/agr_loader_env:develop
+
 removedb:
 	docker-compose down -v
 
-run:
+run: build
 	docker-compose up agr_loader
 
-run_test:
+run_test: build
 	docker-compose up agr_loader_test
 
 test: removedb startdb build run_test
