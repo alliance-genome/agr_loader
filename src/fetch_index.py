@@ -9,7 +9,7 @@ if test_set == "True":
 if __name__ == '__main__':
     al = AggregateLoader()
     al.create_indicies()
-    #al.load_from_mods(test_set=test_set)
+    al.load_from_mods(test_set=test_set)
     al.load_from_ontologies()
     #al.load_annotations()
 
