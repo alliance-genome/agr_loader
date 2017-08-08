@@ -23,7 +23,10 @@ class SOExt:
                     next_value = ("".join(":".join(next_line.split(":")[1:]))).strip()
                 else:
                     sys.exit("FATAL ERROR: Expected SO name not found for %s" % (key))
-                so_dataset = {value : next_value}
+                so_dataset = {
+                'id' : value,
+                'name' : next_value
+                }
                 so_list.append(so_dataset)
         return so_list
 
