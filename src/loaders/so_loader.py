@@ -1,5 +1,5 @@
 from neo4j.v1 import GraphDatabase
-from .transactions.go import SOTransaction
+from .transactions.so import SOTransaction
 # import pprint
 
 class SOLoader:
