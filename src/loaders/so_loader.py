@@ -1,6 +1,6 @@
 from neo4j.v1 import GraphDatabase
 from .transactions.go import GOTransaction
-import pprint
+# import pprint
 
 class SOLoader:
 
@@ -8,8 +8,8 @@ class SOLoader:
         self.graph = graph
 
     def load_so(self, data):
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(data)
-        quit()
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(data)
+        # quit()
         tx = SOTransaction(self.graph)
         tx.so_tx(data)

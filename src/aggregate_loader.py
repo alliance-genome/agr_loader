@@ -43,15 +43,16 @@ class AggregateLoader:
             #     DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     def load_from_ontologies(self):
-        # print("Extracting GO data.")
-        # self.go_dataset = GOExt().get_data()
-        # print("Loading GO data into Neo4j.")
-        # GOLoader(self.graph).load_go(self.go_dataset)
 
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
+
+        print("Extracting GO data.")
+        self.go_dataset = GOExt().get_data()
+        print("Loading GO data into Neo4j.")
+        GOLoader(self.graph).load_go(self.go_dataset)
 
         #
         # def load_annotations(self):
