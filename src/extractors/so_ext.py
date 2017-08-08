@@ -18,6 +18,8 @@ class SOExt:
             key = (current_line.split(":")[0]).strip()
             if key == "id":
                 value = ("".join(":".join(current_line.split(":")[1:]))).strip()
+                if not value.startswith('SO'):
+                    continue
                 next_key = (next_line.split(":")[0]).strip()
                 if next_key == "name":
                     next_value = ("".join(":".join(next_line.split(":")[1:]))).strip()
