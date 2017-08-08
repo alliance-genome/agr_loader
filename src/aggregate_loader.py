@@ -37,17 +37,22 @@ class AggregateLoader:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
-            features = mod.load_disease_objects(self.batch_size, self.test_set)
+            # features = mod.load_disease_objects(self.batch_size, self.test_set)
 
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
-
+            # for feature_list_of_entries in features:
+            #     DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     def load_from_ontologies(self):
-        print("Extracting GO data.")
-        self.go_dataset = GOExt().get_data()
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Extracting GO data.")
+        # self.go_dataset = GOExt().get_data()
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+
+        print ("Extracting SO data.")
+        self.so_dataset = SOExt().get_data()
+        print("Loading SO data into Neo4j.")
+        SoLoader(self.graph).load_go(self.so_dataset)
+
         #
         # def load_annotations(self):
         #     print("Extracting GO annotations.")

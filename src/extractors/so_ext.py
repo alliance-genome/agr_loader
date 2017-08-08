@@ -9,6 +9,7 @@ class SOExt:
         S3File("mod-datadumps/data", "so.obo", path).download()
         so_data = TXTFile(path + "/so.obo").get_data()
 
+        so_list = []
         so_dataset = {}
 
         creating_term = None
@@ -40,4 +41,7 @@ class SOExt:
                     else:
                         so_dataset[creating_term][key] = [value]
 
-        return so_dataset
+        # Convert the dictionary into a list of dictionaries for Neo4j.
+        for entry in so_dataset:
+            so_list.append(so_dataset[entry])
+        return so_list
