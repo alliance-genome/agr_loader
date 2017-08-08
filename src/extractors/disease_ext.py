@@ -88,7 +88,7 @@ class DiseaseExt:
                             "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
                             "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
                             "diseaseEvidenceCodePubAssociationId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId+ecode,
-                            "evidenceCodeId": ecode
+                            "ecodes": diseaseRecord.get('evidenceCodes')
                         }
                 qualifier = None
                 print (disease_features)

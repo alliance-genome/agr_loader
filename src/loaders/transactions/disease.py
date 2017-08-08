@@ -13,12 +13,12 @@ class DiseaseTransaction(Transaction):
         Nodes: merge object (gene, genotype, transgene, allele, etc..., merge disease term,
         '''
 
-
         query = """
 
             UNWIND $data as row
-           // UNWIND row.ecode as codes
 
+            FOREACH (entity in row.ecodes|
+                MERGE (ecode:EvidenceCode {primaryKey:entity}))
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
 
@@ -67,9 +67,10 @@ class DiseaseTransaction(Transaction):
                 MERGE (da)-[dae:ANNOTATED]->(e)
                 MERGE (pub)-[pubEv:ANNOTATED]->(e)
 
-                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                MERGE (ecs)-[ecda:ANNOTATED]->(e)
+                FOREACH (entity in row.evidenceCodes|
+                    MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                    MERGE (ecode1)-[ecode1e:ANNOTATED]->(e))
+
 
             )
 
