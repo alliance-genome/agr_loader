@@ -51,7 +51,7 @@ class AggregateLoader:
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Loading SO data into Neo4j.")
-        SoLoader(self.graph).load_go(self.so_dataset)
+        SOLoader(self.graph).load_so(self.so_dataset)
 
         #
         # def load_annotations(self):
