@@ -42,7 +42,6 @@ class AggregateLoader:
             #     DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     def load_from_ontologies(self):
-
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Loading SO data into Neo4j.")
@@ -53,23 +52,14 @@ class AggregateLoader:
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
 
-        #
-        # def load_annotations(self):
-        #     print("Extracting GO annotations.")
-        #     for mod in self.mods:
-        #         print("Extracting GO annotations for %s." % (mod.__class__.__name__))
-        #         go_annots = mod.load_go_annots()
-        #         print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
-        #         GOAnnotLoader(self.graph).load_go_annot(go_annots)
+    def load_annotations(self):
+        print("Extracting GO annotations.")
+        for mod in self.mods:
+            print("Extracting GO annotations for %s." % (mod.__class__.__name__))
+            go_annots = mod.load_go_annots()
+            print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
+            GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-        # def create_indicies(self):
-        #     print("Creating index on Gene nodes via primary_key.")
-        #     self.graph.run("CREATE INDEX ON :Gene(primary_key)")
-        #     print("Done.")
-
-        #     print("Creating index on Disease nodes via primary_key.")
-        #     self.graph.run("CREATE INDEX ON :Disease(primary_key)")
-        #     print("Done.")
 
 # class AggregateLoader:
 
