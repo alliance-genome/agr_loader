@@ -17,9 +17,6 @@ class DiseaseTransaction(Transaction):
 
             UNWIND $data as row
 
-            FOREACH (entity in row.ecodes|
-                MERGE (ecode:EvidenceCode {primaryKey:entity}))
-
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
 
                 MERGE (f:Gene {primaryKey:row.primaryId})
@@ -46,7 +43,7 @@ class DiseaseTransaction(Transaction):
 
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (da:DiseaseAssociation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:Association {primaryKey:row.AssociationId, link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -62,19 +59,19 @@ class DiseaseTransaction(Transaction):
                 SET pub.pubModUrl = row.pubModUrl
                 SET pub.pubMedUrl = row.pubMedUrl
 
-                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
-                MERGE (da)-[dapa:ANNOTATED]->(pub)
-                MERGE (da)-[dae:ANNOTATED]->(e)
-                MERGE (pub)-[pubEv:ANNOTATED]->(e)
-
                 FOREACH (entity in row.evidenceCodes|
-                    MERGE (ecode1:EvidenceCode {primaryKey:entity})
-                    MERGE (ecode1)-[ecode1e:ANNOTATED]->(e))
-
-
+                        MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                        MERGE (da)-[ecode1e:ANNOTATED]->(ecode1)
+                        MERGE (da)-[dae:ANNOTATED]->(ecode1)
+                )
+                MERGE (pub)-[pubEv:ANNOTATED]->(ecode1)
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
             )
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
+
+            FOREACH (entity in row.ecodes|
+                MERGE (gecode:EvidenceCode {primaryKey:entity}))
 
                 MERGE (f:Genotype {primaryKey:row.primaryId})
 
@@ -92,7 +89,7 @@ class DiseaseTransaction(Transaction):
                     MERGE (f)-[fq:IS_NOT_MODEL_OF]->(d))
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (gda:DiseaseAssociation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
+                MERGE (gda:Association {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -113,9 +110,9 @@ class DiseaseTransaction(Transaction):
                 MERGE (gda)-[dae:ANNOTATED]->(e)
                 MERGE (pubg)-[pubEv:ANNOTATED]->(e)
 
-                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                MERGE (ecs)-[ecda:ANNOTATED]->(e)
+                FOREACH (entity in row.evidenceCodes|
+                    MERGE (ecode2:EvidenceCode {primaryKey:entity})
+                    MERGE (gda)-[ecode2e:ANNOTATED]->(ecode2))
 
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
@@ -135,7 +132,7 @@ class DiseaseTransaction(Transaction):
                     MERGE (f)-[fq:IS_NOT_MODEL_OF]->(d))
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (ada:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
+                MERGE (ada:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -183,7 +180,7 @@ class DiseaseTransaction(Transaction):
                 SET d.doPrefix = row.doPrefix
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (tda:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
+                MERGE (tda:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -232,7 +229,7 @@ class DiseaseTransaction(Transaction):
                 SET d.doPrefix = row.doPrefix
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (fida:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
+                MERGE (fida:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
