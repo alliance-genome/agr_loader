@@ -10,15 +10,14 @@ import time
 from neo4j.v1 import GraphDatabase
 from loaders.disease_loader import DiseaseLoader
 
-
 class AggregateLoader:
     def __init__(self):
         uri = "bolt://neo4j_nqc:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
 
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
-        # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        self.mods = [WormBase(), MGI()]
+        self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
+        # self.mods = [WormBase(), MGI()]
 
     def create_indicies(self):
         print("Creating indicies.")
