@@ -24,50 +24,28 @@ class BGITransaction(Transaction):
             SET g.description = row.description
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
-            SET g.gene_biological_process = row.gene_biological_process
-            SET g.gene_molecular_function = row.gene_molecular_function
-            SET g.gene_cellular_component = row.gene_cellular_component
-
 
             //Create nodes for other identifiers.
 
-            CREATE (second:SecondaryIds {secondaryIds:row.secondaryIds})
-            CREATE (syn:Synonyms {synonyms:row.synonyms})
-            CREATE (ext:ExternalIds {externalIds:row.external_ids})
+            FOREACH (entry in row.secondaryIds |           
+                CREATE (second:SecondaryId:Identifier {name:entry})
+                CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second))
+
+            FOREACH (entry in row.synonyms |           
+                CREATE (syn:Synonym:Identifier {name:entry})
+                CREATE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
+
+            FOREACH (entry in row.external_ids |           
+                CREATE (ext:externalId:Identifier {name:entry})
+                CREATE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
+
             MERGE (spec:Species {primaryId: row.taxonId})
             SET spec.species = row.species
             SET spec.name = row.species
             CREATE (g)-[:FROM_SPECIES]->(spec)
 
-            //Create relationships for other identifiers.
-            CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second)
-            CREATE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
-            CREATE (g)-[aka3:ALSO_KNOWN_AS]->(ext)
-
-            //Create Association nodes for other identifiers.
-            CREATE (a1:Association {link_from:row.primaryId, link_to:row.secondaryIds})
-            CREATE (a2:Association {link_from:row.primaryId, link_to:row.synonyms})
-            CREATE (a3:Association {link_from:row.primaryId, link_to:row.external_ids})
-
-            //Create Association links for other identifiers.
-            CREATE (g)-[r1:ASSOCIATION]->(a1)
-            CREATE (g)-[r2:ASSOCIATION]->(a2)
-            CREATE (g)-[r3:ASSOCIATION]->(a3)
-
-            CREATE (a1)-[r4:ASSOCIATION]->(second)
-            CREATE (a2)-[r5:ASSOCIATION]->(syn)
-            CREATE (a3)-[r6:ASSOCIATION]->(ext)
-
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
-
-            //Create the Association node to be used for the gene / SOTerm
-            CREATE (a4:Association {link_from:row.primaryId, link_to:row.soTermId})
-
-            //Create the relationship from the gene node to association node.
-            //Create the relationship from the association node to the SOTerm node.
-            CREATE (g)-[r7:ASSOCIATION]->(a4)
-            CREATE (a4)-[r8:ASSOCIATION]->(s)
 
             //Create the relationship from the gene node to the SOTerm node.
             CREATE (g)-[x:ANNOTATED_TO]->(s)
@@ -77,12 +55,8 @@ class BGITransaction(Transaction):
             SET ent.dateProduced = row.dateProduced
             SET ent.release = row.release
 
-            //Create the entity relationship to the appropriate association nodes.
-            CREATE (a1)-[c1:CREATED_BY]->(ent)
-            CREATE (a2)-[c2:CREATED_BY]->(ent)
-            CREATE (a3)-[c3:CREATED_BY]->(ent)
-            CREATE (a4)-[c4:CREATED_BY]->(ent)
-
+            //Create the entity relationship to the gene node.
+            CREATE (g)-[c1:CREATED_BY]->(ent)
         """
         Transaction.execute_transaction(self, query, data)
 
