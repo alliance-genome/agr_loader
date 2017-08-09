@@ -84,7 +84,8 @@ class DiseaseExt:
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                             "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
                             "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
-                            "ecodes": ecodes
+                            "ecodes": ecodes,
+                            "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation')
                         }
                 qualifier = None
                 print (disease_features)
