@@ -43,7 +43,7 @@ class DiseaseTransaction(Transaction):
 
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (da:Association {primaryKey:row.AssociationId, link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:Association {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
