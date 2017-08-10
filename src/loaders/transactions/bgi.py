@@ -28,27 +28,27 @@ class BGITransaction(Transaction):
             //Create nodes for other identifiers.
 
             FOREACH (entry in row.secondaryIds |           
-                CREATE (second:SecondaryId:Identifier {name:entry})
-                CREATE (g)-[aka1:ALSO_KNOWN_AS]->(second))
+                MERGE (second:SecondaryId:Identifier {name:entry, primaryKey:entry})
+                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second))
 
             FOREACH (entry in row.synonyms |           
-                CREATE (syn:Synonym:Identifier {name:entry})
-                CREATE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
+                CREATE (syn:Synonym:Identifier {name:entry, primaryKey:entry})
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
 
             FOREACH (entry in row.external_ids |           
-                CREATE (ext:externalId:Identifier {name:entry})
-                CREATE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
+                MERGE (ext:externalId:Identifier {name:entry, primaryKey:entry})
+                MERGE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
 
             MERGE (spec:Species {primaryId: row.taxonId})
             SET spec.species = row.species
             SET spec.name = row.species
-            CREATE (g)-[:FROM_SPECIES]->(spec)
+            MERGE (g)-[:FROM_SPECIES]->(spec)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
 
             //Create the relationship from the gene node to the SOTerm node.
-            CREATE (g)-[x:ANNOTATED_TO]->(s)
+            MERGE (g)-[x:ANNOTATED_TO]->(s)
 
             //Merge the entity node.
             MERGE (ent:Entity {primaryKey:row.dataProvider})
@@ -56,15 +56,24 @@ class BGITransaction(Transaction):
             SET ent.release = row.release
 
             //Create the entity relationship to the gene node.
-            CREATE (g)-[c1:CREATED_BY]->(ent)
+            MERGE (g)-[c1:CREATED_BY]->(ent)
+
+            //TODO: WITH doesn't work with more than two unwinds -- need to figure this out.
+            //WITH row.genomeLocations as locations
+            //UNWIND locations as location
+            //    MERGE (chrm:Chromosome {primaryKey:location.chromosome})
+            //    MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
+            //    MERGE (lc:LocationObject:Association {chromosome:location.chromosome, start:location.start, end:location.end, assembly:location.assembly, strand:location.strand})
+            //    MERGE (g)-[gal:ANNOATED_TO]->(lc)
+
+            WITH row.crossReferences as events
+            UNWIND events as event
+                MERGE (id:CrossReference:Entity {primaryKey:event.id, name:event.id})
+                SET id.globalCrosssrefId = event.crossRef
+                SET id.localId = event.localId
+                SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+                MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
+
+
         """
         Transaction.execute_transaction(self, query, data)
-
-        # The properties below need to be assigned / resolved:
-        # "href": None,
-
-        # Both crossReferences and genomeLocations break the loader:
-        # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof
-        # SET g.genomeLocations = row.genomeLocations
-        # SET g.crossReferences = row.crossReferences 
-        # SET g.modCrossReference = row.modCrossReference
