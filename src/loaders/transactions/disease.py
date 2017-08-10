@@ -194,6 +194,9 @@ class DiseaseTransaction(Transaction):
                     MERGE (fenv)-[ef:ANNOTATED_TO]->(env)
                 )
 
+                MERGE (fig:Gene {primaryKey:row.inferredGene})
+                MERGE (fig)-[figg:INFERRED]->(f)
+
                 //species
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
