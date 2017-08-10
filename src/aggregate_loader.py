@@ -16,8 +16,8 @@ class AggregateLoader:
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
 
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
-        self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        # self.mods = [WormBase(), MGI()]
+       # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
+        self.mods = [WormBase(), MGI()]
 
     def create_indicies(self):
         print("Creating indicies.")
@@ -36,10 +36,10 @@ class AggregateLoader:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 print("Loaded %s nodes..." % (len(gene_list_of_entries)))
 
-            # features = mod.load_disease_objects(self.batch_size, self.test_set)
+            features = mod.load_disease_objects(self.batch_size, self.test_set)
 
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     def load_from_ontologies(self):
         print ("Extracting SO data.")

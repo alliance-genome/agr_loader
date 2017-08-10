@@ -47,17 +47,25 @@ class DiseaseExt:
                             pubMedId = evidence['publication'].get('pubMedId')
                             localPubMedId = publicationModId.split(":")[1]
                             pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-                    evidenceCodes = evidence.get('evidenceCodes')
-                    ecodes = []
-                    for ecode in evidence.get('evidenceCodes'):
-                        code = {"code": ecode}
-                        ecodes.append(code)
-                    print (ecodes)
+
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
 
+                    additionalGeneticComponents = []
+                    if 'additionalGeneticComponents' in diseaseRecord['objectRelation']:
+                        for component in diseaseRecord['objectRelation']['additionalGeneticComponents']:
+                            componentSymbol = component.get('componentSymbol')
+                            componentId = component.get('componentId')
+                            componentUrl = component.get('componentUrl')+componentId
+                            additionalGeneticComponents.append(
+                                {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
+                            )
+
+                if 'evidenceCodes' in diseaseRecord['evidence']:
+                    print (diseaseRecord['evidence']['evidenceCodes'])
+                    ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 disease_features = {
@@ -75,7 +83,6 @@ class DiseaseExt:
                             "pubPrimaryKey": pubMedId+publicationModId,
                             "release": release,
                             "dataProvider": dataProvider,
-                            "evidenceCodes": ecode, #evidence.get('evidenceCodes'),
                             "relationshipType": diseaseAssociationType,
                             #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
                             #are already handled in the disease.py, cypher query tx.
@@ -87,8 +94,8 @@ class DiseaseExt:
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                             "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
                             "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
-                            "diseaseEvidenceCodePubAssociationId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId+ecode,
-                            "evidenceCodeId": ecode
+                            "ecodes": ecodes,
+                            "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation')
                         }
                 qualifier = None
                 print (disease_features)
