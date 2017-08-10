@@ -28,15 +28,15 @@ class BGITransaction(Transaction):
             //Create nodes for other identifiers.
 
             FOREACH (entry in row.secondaryIds |           
-                MERGE (second:SecondaryId:Identifier {name:entry})
+                MERGE (second:SecondaryId:Identifier {name:entry, primaryKey:entry})
                 MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second))
 
             FOREACH (entry in row.synonyms |           
-                CREATE (syn:Synonym:Identifier {name:entry})
+                CREATE (syn:Synonym:Identifier {name:entry, primaryKey:entry})
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
 
             FOREACH (entry in row.external_ids |           
-                MERGE (ext:externalId:Identifier {name:entry})
+                MERGE (ext:externalId:Identifier {name:entry, primaryKey:entry})
                 MERGE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
 
             MERGE (spec:Species {primaryId: row.taxonId})
@@ -57,13 +57,22 @@ class BGITransaction(Transaction):
 
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
+
+
+            WITH row.crossReferences as events
+            UNWIND events as event
+                MERGE (id:CrossReference:Entity {primaryKey:event.id, name:event.id})
+                SET id.globalCrosssrefId = event.crossRef
+                SET id.localId = event.localId
+                SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+
         """
         Transaction.execute_transaction(self, query, data)
 
         # The properties below need to be assigned / resolved:
         # "href": None,
 
-        # Both crossReferences and genomeLocations break the loader:
+        # genomeLocations break the loader:
         # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof
         # SET g.genomeLocations = row.genomeLocations
         # SET g.crossReferences = row.crossReferences 
