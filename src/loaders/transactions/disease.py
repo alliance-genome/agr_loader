@@ -73,10 +73,8 @@ class DiseaseTransaction(Transaction):
 
                 MERGE (f:Genotype:DiseaseObject {primaryKey:row.primaryId})
 
-            FOREACH (entity in row.ecodes|
-                MERGE (gecode:EvidenceCode {primaryKey:entity}))
-
-                MERGE (f:Genotype {primaryKey:row.primaryId})
+                FOREACH (entity in row.ecodes|
+                    MERGE (gecode:EvidenceCode {primaryKey:entity}))
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
@@ -109,11 +107,13 @@ class DiseaseTransaction(Transaction):
 
                 FOREACH (entity in row.evidenceCodes|
                         MERGE (ecode1:EvidenceCode {primaryKey:entity})
-                        MERGE (da)-[ecode1e:ANNOTATED]->(ecode1)
-                        MERGE (da)-[dae:ANNOTATED]->(ecode1)
+                        MERGE (gda)-[ecode1e:ANNOTATED]->(ecode1)
+                        MERGE (gda)-[dae:ANNOTATED]->(ecode1)
                 )
                 MERGE (pub)-[pubEv:ANNOTATED]->(ecode1)
-                MERGE (da)-[dapa:ANNOTATED]->(pub)
+                MERGE (gda)-[gdapa:ANNOTATED]->(pub)
+
+                //inferred from gene
                 MERGE (ig:Gene {primaryKey:row.inferredGene})
                 MERGE (ig)-[igg:INFERRED]->(f)
 
@@ -138,39 +138,33 @@ class DiseaseTransaction(Transaction):
                 FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
                     MERGE (f)-[fq:IS_NOT_MARKER_OF]->(d))
 
-                 FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                     MERGE (f)-[fq:IS_NOT_IMPLICATED_IN]->(d))
 
+                MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
+                SET pub.pubModId = row.pubModId
+                SET pub.pubMedId = row.pubMedId
+                SET pub.pubModUrl = row.pubModUrl
+                SET pub.pubMedUrl = row.pubMedUrl
+
+                FOREACH (entity in row.evidenceCodes|
+                        MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                        MERGE (da)-[ecode1e:ANNOTATED]->(ecode1)
+                        MERGE (da)-[dae:ANNOTATED]->(ecode1)
+                )
+                MERGE (pub)-[pubEv:ANNOTATED]->(ecode1)
+                MERGE (da)-[dapa:ANNOTATED]->(pub)
+
+                //inferred from gene
+                MERGE (ig:Gene {primaryKey:row.inferredGene})
+                MERGE (ig)-[igg:INFERRED]->(f)
 
             )
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene {primaryKey:row.primaryId})
 
-                MERGE (f)-[:FROM_SPECIES]->(spec)
-                SET f.with = row.with
-
-                MERGE (d:DOTerm {primaryKey:row.doId})
-                SET d.doDisplayId = row.doDisplayId
-                SET d.doUrl = row.doUrl
-                SET d.doPrefix = row.doPrefix
-
-                //Create the Association node to be used for the object/doTerm
-                MERGE (tda:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
-
-                //Create the relationship from the object node to association node.
-                //Create the relationship from the association node to the DoTerm node.
-                MERGE (f)-[ftda:ASSOCIATION]->(tda)
-                MERGE (tda)-[dad:ASSOCIATION]->(d)
-
-                MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
-
-                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                MERGE (ecs)-[ecda:ANNOTATED]->(e)
-
                 MERGE (ig:Gene {primaryKey:row.inferredGene})
                 MERGE (ig)-[igg:INFERRED]->(f)
-
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                     MERGE (f)-[fa:IS_MARKER_FOR]->(d))
@@ -184,6 +178,7 @@ class DiseaseTransaction(Transaction):
                  FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                     MERGE (f)-[fq:IS_NOT_IMPLICATED_IN]->(d))
             )
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
                 MERGE (f:Fish {primaryKey:row.primaryId})
 
@@ -196,7 +191,7 @@ class DiseaseTransaction(Transaction):
                 SET d.doPrefix = row.doPrefix
 
                 //Create the Association node to be used for the object/doTerm
-                MERGE (fida:DiseaseAssociation {link_from:row.primaryId, link_to:row.doId})
+                MERGE (fida:Association {link_from:row.primaryId, link_to:row.doId})
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
@@ -213,11 +208,9 @@ class DiseaseTransaction(Transaction):
                 SET fpub.pubMedUrl = row.pubMedUrl
 
                 MERGE (e:Evidence {primaryKey:row.diseaseEvidenceCodePubAssociationId, link_from:row.pubPrimaryKey, link_to:row.diseaseAssociationId})
-                MERGE (fida)-[dapa:ANNOTATED]->(fpub)
+                MERGE (fida)-[fdapa:ANNOTATED]->(fpub)
                 MERGE (fida)-[dae:ANNOTATED]->(e)
                 MERGE (fpub)-[fpubEv:ANNOTATED]->(e)
-
-                MERGE (da)-[dapa:ANNOTATED]->(pub)
 
                 MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
                 //Create Association nodes for other identifiers.

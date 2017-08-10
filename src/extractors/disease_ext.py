@@ -15,7 +15,8 @@ class DiseaseExt:
         release = None
         publicationModId = None
         pubMedId = None
-
+        fishEnvId = None
+        conditions = None
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
 
@@ -29,6 +30,7 @@ class DiseaseExt:
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
+
 
                 if 'evidence' in diseaseRecord:
                     # this is purposeful for the moment, need to concantenate two strings, both of which has the possibility of being null -- so setting as an empty string
@@ -67,6 +69,17 @@ class DiseaseExt:
                     print (diseaseRecord['evidence']['evidenceCodes'])
                     ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
+                if 'experimentalConditions' in diseaseRecord:
+                    conditionId = None
+
+                    for condition in diseaseRecord['experimentalConditions']:
+                        if 'textCondition' in condition:
+                            if dataProvider == 'ZFIN':
+                                conditionId = conditionId + condition.get('textCondition')
+                        conditions.append(condition)
+                if dataProvider == 'ZFIN':
+                    fishEnvId = primaryId+conditionId
+
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 disease_features = {
                             "primaryId": primaryId,
@@ -95,9 +108,13 @@ class DiseaseExt:
                             "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
                             "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
                             "ecodes": ecodes,
-                            "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation')
+                            "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
+                            "experimentalConditions": conditions,
+                            "fishEnvId":fishEnvId
                         }
                 qualifier = None
+                fishEnvId = None
+
                 print (disease_features)
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
