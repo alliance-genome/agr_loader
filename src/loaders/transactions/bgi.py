@@ -58,6 +58,13 @@ class BGITransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
 
+            //TODO: WITH doesn't work with more than two unwinds -- need to figure this out.
+            //WITH row.genomeLocations as locations
+            //UNWIND locations as location
+            //    MERGE (chrm:Chromosome {primaryKey:location.chromosome})
+            //    MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
+            //    MERGE (lc:LocationObject:Association {chromosome:location.chromosome, start:location.start, end:location.end, assembly:location.assembly, strand:location.strand})
+            //    MERGE (g)-[gal:ANNOATED_TO]->(lc)
 
             WITH row.crossReferences as events
             UNWIND events as event
@@ -65,15 +72,8 @@ class BGITransaction(Transaction):
                 SET id.globalCrosssrefId = event.crossRef
                 SET id.localId = event.localId
                 SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+                MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
+
 
         """
         Transaction.execute_transaction(self, query, data)
-
-        # The properties below need to be assigned / resolved:
-        # "href": None,
-
-        # genomeLocations break the loader:
-        # neo4j.exceptions.CypherTypeError: Property values can only be of primitive types or arrays thereof
-        # SET g.genomeLocations = row.genomeLocations
-        # SET g.crossReferences = row.crossReferences 
-        # SET g.modCrossReference = row.modCrossReference
