@@ -23,7 +23,7 @@ class DiseaseTransaction(Transaction):
                 //TODO: test if adding "DiseaseObject" label breaks merge
                 MERGE (f:Gene {primaryKey:row.primaryId})
 
-                MERGE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
 
                 MERGE (d:DOTerm {primaryKey:row.doId})
@@ -80,7 +80,7 @@ class DiseaseTransaction(Transaction):
                 FOREACH (entity in row.ecodes|
                     MERGE (gecode:EvidenceCode {primaryKey:entity}))
 
-                MERGE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
 
                 MERGE (d:DOTerm {primaryKey:row.doId})
@@ -119,7 +119,7 @@ class DiseaseTransaction(Transaction):
 
                 //inferred from gene
                 MERGE (ig:Gene {primaryKey:row.inferredGene})
-                MERGE (ig)-[igg:INFERRED]->(f)
+                MERGE (ig)<-[igg:INFERRED]->(f)
 
             )
 
@@ -128,11 +128,11 @@ class DiseaseTransaction(Transaction):
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele {primaryKey:row.primaryId})
 
-                MERGE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
 
                 MERGE (aig:Gene {primaryKey:row.inferredGene})
-                MERGE (aig)-[aigg:INFERRED]->(f)
+                MERGE (aig)<-[aigg:INFERRED]->(f)
 
                 MERGE (d:DOTerm {primaryKey:row.doId})
                 SET d.doDisplayId = row.doDisplayId
@@ -197,7 +197,7 @@ class DiseaseTransaction(Transaction):
 
                 //Fish environments!
                 MERGE(fenv:Fish:Environment:DiseaseObject {primaryKey:row.fishEnvId})
-                MERGE(fenv)-[ffenv:ANNOTATED_TO]->(f)
+                MERGE(fenv)-[ffenv:ANNOTATED_TO]-(f)
 
                 FOREACH (condition in row.experimentalConditions |
                     MERGE (env:EnvironmentCondition {primaryKey: condition})
@@ -205,10 +205,10 @@ class DiseaseTransaction(Transaction):
                 )
 
                 MERGE (fig:Gene {primaryKey:row.inferredGene})
-                MERGE (fig)-[figg:INFERRED]->(f)
+                MERGE (fig)<-[figg:INFERRED]->(f)
 
                 //species
-                MERGE (f)-[:FROM_SPECIES]->(spec)
+                MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
 
                 //diseaseTerm
