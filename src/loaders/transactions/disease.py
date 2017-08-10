@@ -13,6 +13,10 @@ class DiseaseTransaction(Transaction):
         Nodes: merge object (gene, genotype, transgene, allele, etc..., merge disease term,
         '''
 
+        geneQuery = """
+
+            
+        """
         query = """
 
             UNWIND $data as row

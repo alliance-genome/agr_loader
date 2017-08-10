@@ -53,6 +53,16 @@ class DiseaseExt:
                     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
 
+                    additionalGeneticComponents = []
+                    if 'additionalGeneticComponents' in diseaseRecord['objectRelation']:
+                        for component in diseaseRecord['objectRelation']['additionalGeneticComponents']:
+                            componentSymbol = component.get('componentSymbol')
+                            componentId = component.get('componentId')
+                            componentUrl = component.get('componentUrl')+componentId
+                            additionalGeneticComponents.append(
+                                {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
+                            )
+
                 if 'evidenceCodes' in diseaseRecord['evidence']:
                     print (diseaseRecord['evidence']['evidenceCodes'])
                     ecodes = diseaseRecord['evidence'].get('evidenceCodes')
