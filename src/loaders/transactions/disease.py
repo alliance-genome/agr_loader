@@ -17,6 +17,8 @@ class DiseaseTransaction(Transaction):
 
             UNWIND $data as row
 
+            //   GENE  ***********
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
                 //TODO: test if adding "DiseaseObject" label breaks merge
                 MERGE (f:Gene {primaryKey:row.primaryId})
@@ -69,6 +71,9 @@ class DiseaseTransaction(Transaction):
 
             )
 
+
+            //   GENOTYPE  ***********
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
 
                 MERGE (f:Genotype:DiseaseObject {primaryKey:row.primaryId})
@@ -118,11 +123,17 @@ class DiseaseTransaction(Transaction):
                 MERGE (ig)-[igg:INFERRED]->(f)
 
             )
+
+            //   ALLELE  ***********
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele {primaryKey:row.primaryId})
 
                 MERGE (f)-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
+
+                MERGE (aig:Gene {primaryKey:row.inferredGene})
+                MERGE (aig)-[aigg:INFERRED]->(f)
 
                 MERGE (d:DOTerm {primaryKey:row.doId})
                 SET d.doDisplayId = row.doDisplayId
@@ -149,17 +160,15 @@ class DiseaseTransaction(Transaction):
 
                 FOREACH (entity in row.evidenceCodes|
                         MERGE (ecode1:EvidenceCode {primaryKey:entity})
-                        MERGE (da)-[ecode1e:ANNOTATED_TO]->(ecode1)
-                        MERGE (da)-[dae:ANNOTATED_TO]->(ecode1)
+                        MERGE (ada)-[adaecode1:ANNOTATED_TO]->(ecode1)
+                        MERGE (ada)-[adaae:ANNOTATED_TO]->(ecode1)
                 )
-                MERGE (pub)-[pubEv:ANNOTATED_TO]->(ecode1)
-                MERGE (da)-[dapa:ANNOTATED_TO]->(pub)
-
-                //inferred from gene
-                MERGE (ig:Gene {primaryKey:row.inferredGene})
-                MERGE (ig)-[igg:INFERRED]->(f)
 
             )
+
+            //   TRANSGENE  ***********
+
+
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene {primaryKey:row.primaryId})
 
@@ -178,6 +187,8 @@ class DiseaseTransaction(Transaction):
                  FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                     MERGE (f)-[fq:IS_NOT_IMPLICATED_IN]->(d))
             )
+
+            //    FISH  ************
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'fish' THEN [1] ELSE [] END |
 
@@ -218,9 +229,11 @@ class DiseaseTransaction(Transaction):
                 SET fpub.pubModUrl = row.pubModUrl
                 SET fpub.pubMedUrl = row.pubMedUrl
 
-                MERGE (ecs:EvidenceCodes {evidenceCodes:row.evidenceCodes})
-                //Create Association nodes for other identifiers.
-                MERGE (fida)-[ecda:ANNOTATED_TO]->(ecs)
+                FOREACH (entity in row.evidenceCodes|
+                        MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                        MERGE (fida)-[ecode1e:ANNOTATED_TO]->(ecode1)
+                        MERGE (fida)-[dae:ANNOTATED_TO]->(ecode1)
+                )
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
                     MERGE (fenv)-[fenvd:IS_MODEL_OF]->(d)
