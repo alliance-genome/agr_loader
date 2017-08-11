@@ -35,11 +35,14 @@ class DiseaseTransaction(Transaction):
              MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
         """
+        #TODO: handle null cases in inferredFrom
 
         inferredFromGeneQuery = """
-            // inferred from gene
+
+            FOREACH (ifg in (CASE row.inferredGene WHEN "" THEN [] ELSE [
                 MERGE(ig:Gene {primaryKey: row.inferredGene})
-                MERGE(ig) < -[igg:INFERRED]->(f)
+                MERGE(ig)<-[igg:INFERRED]->(f) ] END) |
+            )
                 """
 
 
@@ -213,7 +216,7 @@ class DiseaseTransaction(Transaction):
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
         executeGene = unwindQuery + speciesQuery + doTermQuery + pubQuery + geneQuery
-        #print (unwindQuery + speciesQuery + doTermQuery + pubQuery )
+        print (inferredFromGeneQuery)
         executeGenotype = unwindQuery + speciesQuery + doTermQuery + pubQuery + genotypeQuery
         executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + alleleQuery
         executeTransgene = unwindQuery + speciesQuery + doTermQuery + pubQuery + transgeneQuery

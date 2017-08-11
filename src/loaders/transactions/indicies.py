@@ -9,6 +9,17 @@ class Indicies():
         session = self.graph.session()
         session.run("CREATE INDEX ON :Gene(primaryKey)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
+        session.run("CREATE INDEX ON :Genotype(primaryKey)")
+        session.run("CREATE INDEX ON :SOTerm(primaryKey)")
+        session.run("CREATE INDEX ON :DOTerm(primaryKey)")
+        session.run("CREATE INDEX ON :Publication(primaryKey)")
+        session.run("CREATE INDEX ON :EvidenceCode(primaryKey)")
+        session.run("CREATE INDEX ON :Allele(primaryKey)")
+        session.run("CREATE INDEX ON :Transgene(primaryKey)")
+        session.run("CREATE INDEX ON :Fish(primaryKey)")
+        session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
+        session.run("CREATE INDEX ON :EnvironmentCondition(primaryKey)")
+        session.run("CREATE INDEX ON :Species(primaryKey)")
         session.close()
 
     # Property constraints require Enterprise Edition. :(
