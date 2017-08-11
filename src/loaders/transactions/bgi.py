@@ -36,7 +36,7 @@ class BGITransaction(Transaction):
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
 
             FOREACH (entry in row.external_ids |           
-                MERGE (ext:externalId:Identifier {name:entry, primaryKey:entry})
+                MERGE (ext:ExternalId:Identifier {name:entry, primaryKey:entry})
                 MERGE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
 
             MERGE (spec:Species {primaryId: row.taxonId})
