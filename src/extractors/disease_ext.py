@@ -66,7 +66,7 @@ class DiseaseExt:
                             )
 
                 if 'evidenceCodes' in diseaseRecord['evidence']:
-                    print (diseaseRecord['evidence']['evidenceCodes'])
+                    #print (diseaseRecord['evidence']['evidenceCodes'])
                     ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
                 if 'experimentalConditions' in diseaseRecord:
@@ -116,7 +116,7 @@ class DiseaseExt:
                 qualifier = None
                 fishEnvId = None
 
-                print (disease_features)
+               # print (disease_features)
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
                 #print (list_to_yield)
