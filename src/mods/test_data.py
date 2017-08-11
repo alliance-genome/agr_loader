@@ -16,10 +16,10 @@ Class TestObject(object):
             return False
 
     def add_go_ids(self, goIdList):
-        self.testGoTermSet = set(goIdList)
+        self.testGoTerms.extend(goIdList)
 
-    def check_for_test_go_entry(self, gotermId):
-        if gotermId in self.testGoTermSet:
+    def check_for_test_go_entry(self, goTermId):
+        if goTermId in self.testGoTerms:
             return True
         else:
             return False
