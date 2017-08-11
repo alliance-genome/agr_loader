@@ -12,21 +12,24 @@ from neo4j.v1 import GraphDatabase
 from loaders.disease_loader import DiseaseLoader
 
 class AggregateLoader:
-    def __init__(self):
+    def __init__(self, useTestObject):
         uri = "bolt://neo4j_nqc:7687"
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
        # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
         self.mods = [WormBase(), MGI()]
+        self.testObject = TestObject(useTestObject)
+
+        # Check for the use of test data.
+        if self.testObject.using_test_data() == True:
+            print("WARNING: Test data load enabled.")
+            time.sleep(1)
 
     def create_indicies(self):
         print("Creating indicies.")
         Indicies(self.graph).create_indicies()
 
-    def load_from_mods(self, useTestObject):
-        self.testObject = testObject(useTestObject)
-
+    def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:

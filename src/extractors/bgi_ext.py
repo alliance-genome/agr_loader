@@ -4,7 +4,7 @@ import re
 
 class BGIExt:
 
-    def get_data(self, gene_data, batch_size, testOject):
+    def get_data(self, gene_data, batch_size, testObject):
 
         gene_dataset = {}
         list_to_yield = []
@@ -30,7 +30,7 @@ class BGIExt:
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
-            if testOject.using_test_data == True:
+            if testObject.using_test_data() == True:
                 is_it_test_entry = testObject.check_for_test_entry(primary_id)
                 if is_it_test_entry == False:
                     continue
