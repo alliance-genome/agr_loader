@@ -20,6 +20,9 @@ class Indicies():
         session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
         session.run("CREATE INDEX ON :EnvironmentCondition(primaryKey)")
         session.run("CREATE INDEX ON :Species(primaryKey)")
+        session.run("CREATE INDEX ON :Annotation(primaryKey)")
+        session.run("CREATE INDEX ON :Entity(primaryKey)")
+        session.run("CREATE INDEX ON :Synonym(primaryKey)")
         session.close()
 
     # Property constraints require Enterprise Edition. :(
