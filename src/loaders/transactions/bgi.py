@@ -58,13 +58,6 @@ class BGITransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
 
-            //TODO: WITH doesn't work with more than two unwinds -- need to figure this out.
-            //WITH row.genomeLocations as locations
-            //UNWIND locations as location
-            //    MERGE (chrm:Chromosome {primaryKey:location.chromosome})
-            //    MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
-            //    MERGE (lc:LocationObject:Association {chromosome:location.chromosome, start:location.start, end:location.end, assembly:location.assembly, strand:location.strand})
-            //    MERGE (g)-[gal:ANNOATED_TO]->(lc)
 
             WITH row.crossReferences as events
             UNWIND events as event
@@ -76,4 +69,24 @@ class BGITransaction(Transaction):
 
 
         """
+
+        locationQuery = """
+
+            UNWIND $data as row
+
+                MERGE (g:Gene {primaryKey:row.primaryId})
+
+                WITH row.genomeLocations as locations
+                UNWIND locations as location
+                    MERGE (chrm:Chromosome {primaryKey:location.chromosome})
+                    MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
+                    //TODO: would be nice to have a key here -- to avoid duplicate nodes, merge doesn't have anything to merge on.
+                    CREATE (loc:Location {start:location.start, end:location.end, assembly:location.assembly, strand:location.strand})
+                    MERGE (lc:Association {chromosome:location.chromosome})
+                    MERGE (lc)-[locc:ANNOTATED_TO]->(loc)
+                    MERGE (lc)-[gal:ANNOATED_TO]->(g)
+                    MERGE (lc)-[chrmlc:ANNOTATED_TO]->(chrm)
+        """
+
         Transaction.execute_transaction(self, query, data)
+        Transaction.execute_transaction(self, locationQuery, data)
