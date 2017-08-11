@@ -48,7 +48,7 @@ class AggregateLoader:
         print("Extracting GO annotations.")
         for mod in self.mods:
             print("Extracting GO annotations for %s." % (mod.__class__.__name__))
-            go_annots = mod.extract_go_annots(testObject)
+            go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
@@ -59,7 +59,7 @@ class AggregateLoader:
         SOLoader(self.graph).load_so(self.so_dataset)
 
         print("Extracting GO data.")
-        self.go_dataset = GOExt().get_data(testObject)
+        self.go_dataset = GOExt().get_data(self.testObject)
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
 

@@ -26,17 +26,17 @@ class MOD(object):
             reader = csv.reader(file, delimiter='\t')
             if species == "Homo sapiens": # Special case for human GO annotations.
                 for row in reader:
-                gene = row[0]
-                go_terms = map(lambda s: s.strip(), row[1].split(","))
-                for term in go_terms:
-                    if gene in go_annot_dict:
-                        go_annot_dict[gene]['go_id'].append(go_id)
-                    else:
-                        go_annot_dict[gene] = {
-                            'gene_id': gene,
-                            'go_id': [go_id],
-                            'species': species
-                        }
+                    gene = row[0]
+                    go_terms = map(lambda s: s.strip(), row[1].split(","))
+                    for term in go_terms:
+                        if gene in go_annot_dict:
+                            go_annot_dict[gene]['go_id'].append(go_id)
+                        else:
+                            go_annot_dict[gene] = {
+                                'gene_id': gene,
+                                'go_id': [go_id],
+                                'species': species
+                            }
             else:
                 for line in reader:
                     if line[0].startswith('!'):

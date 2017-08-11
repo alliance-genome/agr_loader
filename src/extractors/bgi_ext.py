@@ -31,7 +31,7 @@ class BGIExt:
                 local_id = geneRecord['primaryId']
 
             if testObject.using_test_data() == True:
-                is_it_test_entry = testObject.check_for_test_entry(primary_id)
+                is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
                 if is_it_test_entry == False:
                     continue
 
