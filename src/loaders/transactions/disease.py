@@ -13,7 +13,7 @@ class DiseaseTransaction(Transaction):
         Nodes: merge object (gene, genotype, transgene, allele, etc..., merge disease term,
         '''
 
-        query = """
+        geneQuery = """
 
             UNWIND $data as row
 
@@ -70,7 +70,11 @@ class DiseaseTransaction(Transaction):
 
             )
 
+        """
 
+        genotypeQuery = """
+
+            UNWIND $data as row
             //   GENOTYPE  ***********
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
@@ -122,7 +126,11 @@ class DiseaseTransaction(Transaction):
                 MERGE (ig)<-[igg:INFERRED]->(f)
 
             )
+        """
 
+        alleleQuery = """
+
+            UNWIND $data as row
             //   ALLELE  ***********
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
@@ -164,6 +172,10 @@ class DiseaseTransaction(Transaction):
                 )
 
             )
+        """
+
+        transgeneQuery = """
+            UNWIND $data as row
 
             //   TRANSGENE  ***********
 
@@ -186,6 +198,10 @@ class DiseaseTransaction(Transaction):
                  FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                     MERGE (f)<-[fq:IS_NOT_IMPLICATED_IN]->(d))
             )
+        """
+
+        fishQuery = """
+            UNWIND $data as row
 
             //    FISH  ************
 
@@ -247,4 +263,8 @@ class DiseaseTransaction(Transaction):
 
 
         """
-        Transaction.execute_transaction(self, query, data)
+        Transaction.execute_transaction(self, geneQuery, data)
+        Transaction.execute_transaction(self, genotypeQuery, data)
+        Transaction.execute_transaction(self, alleleQuery, data)
+        Transaction.execute_transaction(self, transgeneQuery, data)
+        Transaction.execute_transaction(self, fishQuery, data)

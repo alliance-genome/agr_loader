@@ -59,8 +59,6 @@ class BGITransaction(Transaction):
             MERGE (g)-[c1:CREATED_BY]->(ent)
 
 
-
-
             WITH row.crossReferences as events
             UNWIND events as event
                 MERGE (id:CrossReference:Entity {primaryKey:event.id, name:event.id})
