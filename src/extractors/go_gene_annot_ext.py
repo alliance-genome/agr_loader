@@ -1,4 +1,5 @@
-from .test_check import check_for_test_entry
+from test import *
+
 class GOGeneAnnot:
 
     def __init__(self, annots, go_data, batch_size, test_set):

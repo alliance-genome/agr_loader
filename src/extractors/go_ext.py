@@ -6,7 +6,7 @@ import re
 class GOExt:
 
     @staticmethod
-    def get_data():
+    def get_data(testObject):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
         parsed_line = parseGOOBO(path + "/go.obo")
@@ -26,4 +26,13 @@ class GOExt:
             }
             list_to_return.append(dict_to_append)
 
-        return list_to_return
+        if testObject.using_test_data() == True:
+            filtered_dict = []
+            for entry in list_to_return:
+                if testObject.check_for_test_go_entry(entry['id']) == True:
+                    filtered_dict.append(entry)
+                else:
+                    continue
+            return filtered_dict
+        else:
+            return list_to_return

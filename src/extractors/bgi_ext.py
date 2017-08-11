@@ -1,10 +1,10 @@
 from files import *
-from .test_check import check_for_test_entry
+from test import *
 import re
 
 class BGIExt:
 
-    def get_data(self, gene_data, batch_size, test_set):
+    def get_data(self, gene_data, batch_size, testObject):
 
         gene_dataset = {}
         list_to_yield = []
@@ -30,8 +30,8 @@ class BGIExt:
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
-            if test_set == True:
-                is_it_test_entry = check_for_test_entry(primary_id)
+            if testObject.using_test_data() == True:
+                is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
                 if is_it_test_entry == False:
                     continue
 
