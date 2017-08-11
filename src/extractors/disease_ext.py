@@ -97,6 +97,7 @@ class DiseaseExt:
                             "release": release,
                             "dataProvider": dataProvider,
                             "relationshipType": diseaseAssociationType,
+                            "dateProduced":dateProduced,
                             #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
                             #are already handled in the disease.py, cypher query tx.
                             "qualifier": qualifier,
