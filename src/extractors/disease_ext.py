@@ -1,6 +1,6 @@
 from files import *
 import re
-from .test_check import check_for_test_entry
+from test import *
 
 class DiseaseExt:
 
