@@ -22,8 +22,8 @@ class ZFIN(MOD):
     def get_organism_names():
         return ["Danio rerio", "D. rerio", "DANRE"]
 
-    def load_go_annots(self):
-        go_annot_list = MOD.load_go_annots(self, self.geneAssociationFile, self.species, self.identifierPrefix)
+    def extract_go_annots(self, testObject):
+        go_annot_list = MOD.extract_go_annots(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
     def load_do_annots(self):

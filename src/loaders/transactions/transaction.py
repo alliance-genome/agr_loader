@@ -9,15 +9,13 @@ class Transaction(object):
         with self.graph.session() as session:
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
+        print("Processed %s entries." % (len(data)))
 
     def execute_transaction_batch(self, query, data, batch_size):
         print("Executing batch query. Please wait.")
-        total_submitted = 0
 
         for submission in self.split_into_chunks(data, batch_size):
             self.execute_transaction(query, submission)
-            # total_submitted = total_submitted + len(submission)
-            # print("Loaded %s/%s entries." % (total_submitted, len(data)))
         print("Finished batch loading.")
 
     def split_into_chunks(self, data, batch_size):

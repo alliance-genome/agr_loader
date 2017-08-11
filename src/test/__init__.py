@@ -1,1 +1,1 @@
-from .test_object import testObject
+from .test_object import TestObject
