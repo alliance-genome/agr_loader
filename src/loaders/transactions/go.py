@@ -20,10 +20,12 @@ class GOTransaction(Transaction):
             //Create the GOTerm node and set properties. primaryKey is required.
             CREATE (g:GOTerm:Ontology {primaryKey:row.id})
             SET g.description = row.description
-            SET g.synonyms = row.go_synonyms
             SET g.type = row.go_type
             SET g.href = row.href
             SET g.name = row.name 
             SET g.nameKey = row.name_key
+            FOREACH (entry in row.go_synonyms |           
+                MERGE (syn:Synonym:Identifier {name:entry})
+                MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
