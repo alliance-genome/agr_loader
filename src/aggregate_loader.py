@@ -39,9 +39,9 @@ class AggregateLoader:
             for gene_list_of_entries in genes:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
 
-            # features = mod.load_disease_objects(self.batch_size, self.testObject)
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+            features = mod.load_disease_objects(self.batch_size, self.testObject)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     # Load annotations before ontologies to restrict ontology data for testObject.
     def load_annotations(self):
