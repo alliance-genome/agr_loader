@@ -55,6 +55,16 @@ class DiseaseTransaction(Transaction):
 
         """
 
+        additionalGeneticComponentsQuery = """
+
+                WITH row.additionalGeneticComponents as components
+                UNWIND components as component
+                //TODO: do we need to type these nodes? For now, just one big multi-typed node.  Needs to be broken down to types, but need type in disease schema/submission first.
+                MERGE (ent:Entity {primaryKey: component.componentId})
+                SET ent.name = component.componentSymbol
+                SET ent.componentUrl = component.componentUrl
+
+        """
         pubQuery = """
 
          MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
@@ -229,7 +239,7 @@ class DiseaseTransaction(Transaction):
 
         executeGene = unwindQuery + speciesQuery + doTermQuery + pubQuery + geneQuery
         executeGenotype = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + genotypeQuery
-        executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + alleleQuery
+        executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + alleleQuery + additionalGeneticComponentsQuery
         executeTransgene = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + transgeneQuery
         executeFish = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + fishQuery
 
