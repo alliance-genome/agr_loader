@@ -12,5 +12,3 @@ if __name__ == '__main__':
     al.load_from_mods()
     al.load_annotations()
     al.load_from_ontologies()
-
-

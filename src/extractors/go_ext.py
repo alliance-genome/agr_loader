@@ -12,13 +12,16 @@ class GOExt:
         parsed_line = parseGOOBO(path + "/go.obo")
         list_to_return = []
         for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
+            go_synonyms = line.get('synonym')
+            if go_synonyms == None:
+                go_synonyms = [] # Set the synonyms to an empty array if None. Necessary for Neo4j parsing.
             dict_to_append = {
                 'go_genes': [],
                 'go_species': [],
                 'name': line['name'],
                 'description': line['def'],
                 'go_type': line['namespace'],
-                'go_synonyms': line.get('synonym'),
+                'go_synonyms': go_synonyms,
                 'name_key': line['name'],
                 'id': line['id'],
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],

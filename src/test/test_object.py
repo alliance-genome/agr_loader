@@ -15,7 +15,7 @@ class TestObject(object):
             'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015'}
 
         self.useTestObject = useTestObject
-        self.testGoTerms = []
+        self.testGoTerms = set()
 
     def using_test_data(self):
         return self.useTestObject
@@ -27,7 +27,7 @@ class TestObject(object):
             return False
 
     def add_go_ids(self, goIdList):
-        self.testGoTerms.extend(goIdList)
+        self.testGoTerms.update(goIdList)
 
     def check_for_test_go_entry(self, goTermId):
         if goTermId in self.testGoTerms:
