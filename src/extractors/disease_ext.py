@@ -111,7 +111,8 @@ class DiseaseExt:
                             "ecodes": ecodes,
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
                             "experimentalConditions": conditions,
-                            "fishEnvId": fishEnvId
+                            "fishEnvId": fishEnvId,
+                            "additionalGeneticComponents":additionalGeneticComponents
                         }
                 qualifier = None
                 fishEnvId = None
