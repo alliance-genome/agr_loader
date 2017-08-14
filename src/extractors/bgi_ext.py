@@ -69,6 +69,7 @@ class BGIExt:
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
+                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id),
                 "description": geneRecord.get('description'),
                 "synonyms": geneRecord.get('synonyms'),
                 "soTermId": geneRecord['soTermId'],

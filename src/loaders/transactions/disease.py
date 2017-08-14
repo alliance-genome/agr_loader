@@ -39,12 +39,21 @@ class DiseaseTransaction(Transaction):
 
         inferredFromGeneQuery = """
 
-            FOREACH (ifg in (CASE row.inferredGene WHEN "" THEN [] ELSE [
+            FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
                 MERGE(ig:Gene {primaryKey: row.inferredGene})
-                MERGE(ig)<-[igg:INFERRED]->(f) ] END) |
-            )
-                """
+                MERGE(ig)<-[igg:INFERRED]->(f) )
 
+                """
+        environmentQuery = """
+
+            FOREACH (condition in row.experimentalConditions |
+                MERGE (env:EnvironmentCondition {primaryKey: condition})
+                SET env.name = row.condition
+                MERGE (fenv)-[ef:ANNOTATED_TO]->(env)
+            )
+
+
+        """
 
         pubQuery = """
 
@@ -75,6 +84,8 @@ class DiseaseTransaction(Transaction):
                 MERGE (f:Gene {primaryKey:row.primaryId})
                 SET f.name = row.diseaseObjectName
 
+                //the foreach statments that represent relationships/associationType are not here for capitalization purposes.
+                //instead we mimic a conditional statement by creating a collection with 1 value, and an empty collection.
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                     MERGE (f)<-[fa:IS_MARKER_FOR]->(d))
@@ -191,6 +202,7 @@ class DiseaseTransaction(Transaction):
 
                 FOREACH (condition in row.experimentalConditions |
                     MERGE (env:EnvironmentCondition {primaryKey: condition})
+                    SET env.name = row.condition
                     MERGE (fenv)-[ef:ANNOTATED_TO]->(env)
                 )
 
@@ -216,11 +228,10 @@ class DiseaseTransaction(Transaction):
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
         executeGene = unwindQuery + speciesQuery + doTermQuery + pubQuery + geneQuery
-        print (inferredFromGeneQuery)
-        executeGenotype = unwindQuery + speciesQuery + doTermQuery + pubQuery + genotypeQuery
-        executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + alleleQuery
-        executeTransgene = unwindQuery + speciesQuery + doTermQuery + pubQuery + transgeneQuery
-        executeFish = unwindQuery + speciesQuery + doTermQuery + pubQuery + fishQuery
+        executeGenotype = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + genotypeQuery
+        executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + alleleQuery
+        executeTransgene = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + transgeneQuery
+        executeFish = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + fishQuery
 
 
         Transaction.execute_transaction(self, executeGene, data)

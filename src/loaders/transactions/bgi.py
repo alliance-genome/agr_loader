@@ -24,6 +24,7 @@ class BGITransaction(Transaction):
             SET g.description = row.description
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
+            SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
 
             //Create nodes for other identifiers.
 
