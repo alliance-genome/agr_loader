@@ -27,6 +27,7 @@ class DiseaseTransaction(Transaction):
                 SET d.doDisplayId = row.doDisplayId
                 SET d.doUrl = row.doUrl
                 SET d.doPrefix = row.doPrefix
+                SET d.doId = row.doId
 
         """
 
@@ -34,6 +35,7 @@ class DiseaseTransaction(Transaction):
              MERGE (spec:Species {primaryKey: row.taxonId})
              MERGE (f)<-[:FROM_SPECIES]->(spec)
                 SET f.with = row.with
+
         """
         #TODO: handle null cases in inferredFrom
 
@@ -41,7 +43,8 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
                 MERGE(ig:Gene {primaryKey: row.inferredGene})
-                MERGE(ig)<-[igg:INFERRED]->(f) )
+                MERGE(ig)<-[igg:INFERRED]->(f)
+                )
 
                 """
         environmentQuery = """
