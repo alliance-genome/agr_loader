@@ -27,7 +27,7 @@ class GOTransaction(Transaction):
             SET g.nameKey = row.name_key
 
             FOREACH (entry in row.go_synonyms |           
-                MERGE (syn:Synonym:Identifier {name:entry})
+                MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
