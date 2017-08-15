@@ -27,6 +27,7 @@ class BGITransaction(Transaction):
             SET g.name = row.name
             SET g.description = row.description
             SET g.geneSynopsisUrl = row.geneSynopsisUrl
+            SET g.geneSynopsis = row.geneSynopsis
             SET g.geneLiteratureUrl = row.geneLiteratureUrl
             SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
             SET g.dateProduced = row.dateProduced
