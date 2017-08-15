@@ -42,11 +42,12 @@ class DiseaseTransaction(Transaction):
         inferredFromGeneQuery = """
 
             FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
-                MERGE(ig:Gene {primaryKey: row.inferredGene})
-                MERGE(ig)<-[igg:INFERRED]->(f)
+                FOREACH (inferred in row.inferredGene |
+                    MERGE(ig:Gene {primaryKey: inferred})
+                    MERGE(ig)<-[igg:INFERRED]->(f)
                 )
-
-                """
+            )
+            """
         environmentQuery = """
 
             FOREACH (condition in row.experimentalConditions |
