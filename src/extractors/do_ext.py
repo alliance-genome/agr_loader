@@ -13,7 +13,7 @@ class DOExt:
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
             do_synonyms = line.get('synonym')
-            print (do_synonyms)
+            #print (do_synonyms)
             if do_synonyms == None:
                 do_synonyms = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             do_is_as = line.get('is_a')

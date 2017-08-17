@@ -18,8 +18,8 @@ class DOTransaction(Transaction):
 
             //Create the DOTerm node and set properties. primaryKey is required.
             MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
-            SET doterm.name = row.name
-            SET doterm.nameKey = row.name_key
+            ON CREATE SET doterm.name = row.name
+            ON CREATE SET doterm.nameKey = row.name_key
 
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
