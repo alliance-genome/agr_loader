@@ -34,7 +34,7 @@ class DiseaseTransaction(Transaction):
         speciesQuery = """
              MERGE (spec:Species {primaryKey: row.taxonId})
              MERGE (f)<-[:FROM_SPECIES]->(spec)
-                SET f.with = row.with
+             ON CREATE SET f.with = row.with
 
         """
         #TODO: handle null cases in inferredFrom
@@ -52,7 +52,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (condition in row.experimentalConditions |
                 MERGE (env:EnvironmentCondition {primaryKey: condition})
-                SET env.name = row.condition
+                ON CREATE SET env.name = row.condition
                 MERGE (fenv)-[ef:ANNOTATED_TO]->(env)
             )
 
@@ -65,17 +65,17 @@ class DiseaseTransaction(Transaction):
                 UNWIND components as component
                 //TODO: do we need to type these nodes? For now, just one big multi-typed node.  Needs to be broken down to types, but need type in disease schema/submission first.
                 MERGE (ent:Entity {primaryKey: component.componentId})
-                SET ent.name = component.componentSymbol
-                SET ent.componentUrl = component.componentUrl
+                ON CREATE SET ent.name = component.componentSymbol
+                ON CREATE SET ent.componentUrl = component.componentUrl
 
         """
         pubQuery = """
 
          MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
-                SET pub.pubModId = row.pubModId
-                SET pub.pubMedId = row.pubMedId
-                SET pub.pubModUrl = row.pubModUrl
-                SET pub.pubMedUrl = row.pubMedUrl
+                ON CREATE SET pub.pubModId = row.pubModId
+                ON CREATE SET pub.pubMedId = row.pubMedId
+                ON CREATE SET pub.pubModUrl = row.pubModUrl
+                ON CREATE SET pub.pubMedUrl = row.pubMedUrl
 
         MERGE (da:Annotation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
         MERGE (da)-[dapu:ANNOTATED_TO]->(pub)
@@ -95,7 +95,7 @@ class DiseaseTransaction(Transaction):
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
                 //TODO: test if adding "DiseaseObject" label breaks merge
                 MERGE (f:Gene {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+                ON CREATE SET f.name = row.diseaseObjectName
 
                 //the foreach statments that represent relationships/associationType are not here for capitalization purposes.
                 //instead we mimic a conditional statement by creating a collection with 1 value, and an empty collection.
@@ -130,7 +130,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'genotype' THEN [1] ELSE [] END |
                 MERGE (f:Genotype {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+                ON CREATE SET f.name = row.diseaseObjectName
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
                     MERGE (f)<-[fa:IS_MODEL_OF]->(d))
@@ -154,7 +154,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'allele' THEN [1] ELSE [] END |
                 MERGE (f:Allele {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+                ON CREATE SET f.name = row.diseaseObjectName
 
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
@@ -181,7 +181,7 @@ class DiseaseTransaction(Transaction):
 
             FOREACH (x IN CASE WHEN row.diseaseObjectType = 'transgene' THEN [1] ELSE [] END |
                 MERGE (f:Transgene {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+                ON CREATE SET f.name = row.diseaseObjectName
 
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
@@ -207,7 +207,7 @@ class DiseaseTransaction(Transaction):
 
                 //fish
                 MERGE (f:Fish {primaryKey:row.primaryId})
-                SET f.name = row.diseaseObjectName
+                ON CREATE SET f.name = row.diseaseObjectName
 
                 //Fish environments!
                 MERGE(fenv:Fish:Environment:DiseaseObject {primaryKey:row.fishEnvId})
