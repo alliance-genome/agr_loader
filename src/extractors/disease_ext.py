@@ -21,7 +21,9 @@ class DiseaseExt:
             qualifier = None
             publicationModId = None
             pubMedId = None
+
             primaryId = diseaseRecord.get('objectId')
+
             if testObject.using_test_data() == True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
                 if is_it_test_entry == False:
@@ -31,12 +33,14 @@ class DiseaseExt:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
                 if 'evidence' in diseaseRecord:
-                    # this is purposeful for the moment, need to concantenate two strings, both of which has the possibility of being null -- so setting as an empty string
-                    # instead of none.
+
                     publicationModId = ""
                     pubMedId = ""
                     pubModUrl = None
                     pubMedUrl = None
+                    diseaseAssociationType = None
+                    ecodes = []
+
                     evidence = diseaseRecord.get('evidence')
                     if 'publication' in evidence:
                         if 'modPublicationId' in evidence['publication']:
@@ -50,7 +54,6 @@ class DiseaseExt:
 
 
                 if 'objectRelation' in diseaseRecord:
-                    diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
 
                     additionalGeneticComponents = []
@@ -64,7 +67,6 @@ class DiseaseExt:
                             )
 
                 if 'evidenceCodes' in diseaseRecord['evidence']:
-                    #print (diseaseRecord['evidence']['evidenceCodes'])
                     ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
                 if 'experimentalConditions' in diseaseRecord:
@@ -96,8 +98,6 @@ class DiseaseExt:
                             "dataProvider": dataProvider,
                             "relationshipType": diseaseAssociationType,
                             "dateProduced": dateProduced,
-                            #note: for now we will never get this, because we're suppressing NOT qualifiers for 1.0 release TODO: let these back in -- relationships
-                            #are already handled in the disease.py, cypher query tx.
                             "qualifier": qualifier,
                             "doDisplayId": diseaseRecord.get('DOid'),
                             "doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
@@ -113,16 +113,13 @@ class DiseaseExt:
                             "additionalGeneticComponents":additionalGeneticComponents
                         }
 
-               # print (disease_features)
             list_to_yield.append(disease_features)
             if len(list_to_yield) == batch_size:
-                #print (list_to_yield)
                 yield list_to_yield
 
                 list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
-            #print (list_to_yield)
             yield list_to_yield
 
 
