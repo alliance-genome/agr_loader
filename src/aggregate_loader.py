@@ -10,6 +10,7 @@ import os
 import time
 from neo4j.v1 import GraphDatabase
 from loaders.disease_loader import DiseaseLoader
+from loaders.do_loader import DOLoader
 
 class AggregateLoader:
     def __init__(self, useTestObject):
@@ -55,13 +56,18 @@ class AggregateLoader:
     def load_from_ontologies(self):
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-
         print("Extracting GO data.")
         self.go_dataset = GOExt().get_data(self.testObject)
+        print("Extracting DO data.")
+        self.do_dataset = DOExt().get_data(self.testObject)
+        print (self.do_dataset)
+
+        print("Loading SO data into Neo4j.")
+        SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
+        print("Loading DO data into Neo4j.")
+        DOLoader(self.graph).load_do(self.do_dataset)
 
 # class AggregateLoader:
 

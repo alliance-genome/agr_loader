@@ -23,7 +23,7 @@ class DiseaseTransaction(Transaction):
 
         doTermQuery = """
 
-            MERGE (d:DOTerm {primaryKey:row.doId})
+            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
                 SET d.doDisplayId = row.doDisplayId
                 SET d.doUrl = row.doUrl
                 SET d.doPrefix = row.doPrefix
@@ -242,11 +242,10 @@ class DiseaseTransaction(Transaction):
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
         executeGene = unwindQuery + speciesQuery + doTermQuery + pubQuery + geneQuery
-        executeGenotype = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + genotypeQuery
-        executeAllele = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + alleleQuery + additionalGeneticComponentsQuery
-        executeTransgene = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + environmentQuery + transgeneQuery
-        executeFish = unwindQuery + speciesQuery + doTermQuery + pubQuery + inferredFromGeneQuery + fishQuery
-
+        executeGenotype = unwindQuery + speciesQuery + doTermQuery + genotypeQuery + pubQuery + inferredFromGeneQuery + environmentQuery
+        executeAllele = unwindQuery + speciesQuery + doTermQuery + alleleQuery + pubQuery + inferredFromGeneQuery + environmentQuery + additionalGeneticComponentsQuery
+        executeTransgene = unwindQuery + speciesQuery + doTermQuery + transgeneQuery + pubQuery + inferredFromGeneQuery + environmentQuery
+        executeFish = unwindQuery + speciesQuery + doTermQuery + fishQuery + pubQuery + inferredFromGeneQuery
 
         Transaction.execute_transaction(self, executeGene, data)
         Transaction.execute_transaction(self, executeGenotype, data)
