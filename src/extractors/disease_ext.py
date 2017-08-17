@@ -8,15 +8,10 @@ class DiseaseExt:
     def get_features(self, disease_data, batch_size, testObject):
         disease_features = {}
         list_to_yield = []
-        qualifier = None;
-
         dateProduced = disease_data['metaData']['dateProduced']
         dataProvider = disease_data['metaData']['dataProvider']
         release = None
-        publicationModId = None
-        pubMedId = None
-        fishEnvId = None
-        conditions = None
+
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
 
@@ -24,6 +19,8 @@ class DiseaseExt:
             fishEnvId = None
             conditions = None
             qualifier = None
+            publicationModId = None
+            pubMedId = None
             primaryId = diseaseRecord.get('objectId')
             if testObject.using_test_data() == True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
@@ -115,8 +112,6 @@ class DiseaseExt:
                             "fishEnvId": fishEnvId,
                             "additionalGeneticComponents":additionalGeneticComponents
                         }
-                qualifier = None
-                fishEnvId = None
 
                # print (disease_features)
             list_to_yield.append(disease_features)
@@ -130,56 +125,6 @@ class DiseaseExt:
             #print (list_to_yield)
             yield list_to_yield
 
-    def get_data(self, disease_data):
-
-        disease_annots = {}
-        list_to_yield = []
-
-        dateProduced = disease_data['metaData']['dateProduced']
-        dataProvider = disease_data['metaData']['dataProvider']
-        release = None
-
-        if 'release' in disease_data['metaData']:
-            release = disease_data['metaData']['release']
-
-        for diseaseRecord in disease_data['data']:
-
-
-            if 'experimentalConditions' in diseaseRecord:
-                for experimentalCondition in diseaseRecord['experimentalConditions']:
-                    experimentalConditions.append({"zecoId": experimentalCondition.get('zecoId'),
-                                                   "geneOntologyId": experimentalCondition.get('geneOntologyId'),
-                                                   "ncbiTaxonId": experimentalCondition.get('ncbiTaxonID'),
-                                                   "chebiOntologyId": experimentalCondition.get('chebiOntologyId'),
-                                                   "anatomicalId": experimentalCondition.get('anatomicalId'),
-                                                   "experimentalConditionIsStandard": experimentalCondition.get(
-                                                       'conditiionIsStandard'),
-                                                   "freeTextCondition": experimentalCondition.get('textCondition')})
-
-
-            if modifierQualifier is None and qualifier is None:
-                disease_annots[primaryId].append({
-                    "diseaseObjectName": diseaseRecord.get('objectName'),
-                    "qualifier": diseaseRecord.get('qualifier'),
-                    "with": diseaseRecord.get('with'),
-                    "taxonId": diseaseRecord.get('taxonId'),
-                    "geneticSex": diseaseRecord.get('geneticSex'),
-                    "dataAssigned": diseaseRecord.get('dateAssigned'),
-                    "experimentalConditions": experimentalConditions,
-                    "associationType": diseaseRecord.get('objectRelation').get('associationType'),
-                    "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
-                    #"evidenceList": evidenceList,
-                    "modifier": modifier,
-                    #"objectRelation": objectRelationMap,
-                    "evidence": evidenceList,
-                    "do_id": diseaseRecord.get('DOid'),
-                    "do_name": None,
-                    "dateProduced": dateProduced,
-                    "release": release,
-                    "dataProvider": dataProvider,
-                    "doIdDisplay": {"displayId": diseaseRecord.get('DOid'), "url": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'), "prefix": "DOID"}
-                })
-        return disease_annots
 
     def get_complete_pub_url(self, local_id, global_id):
 
