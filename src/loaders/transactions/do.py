@@ -6,20 +6,18 @@ class DOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 2000
+        self.batch_size = 5000
 
     def do_tx(self, data):
         '''
         Loads the DO data into Neo4j.
         '''
+
         query = """
             UNWIND $data as row
 
             //Create the DOTerm node and set properties. primaryKey is required.
             MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
-            SET doterm.description = row.description
-            SET doterm.type = row.do_type
-            SET doterm.href = row.href
             SET doterm.name = row.name
             SET doterm.nameKey = row.name_key
 

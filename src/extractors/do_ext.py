@@ -11,31 +11,23 @@ class DOExt:
         parsed_line = parseGOOBO(path + "/disease-ontology.obo")
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
-            go_synonyms = line.get('synonym')
-            if go_synonyms == None:
-                go_synonyms = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
+            do_synonyms = line.get('synonym')
+            if do_synonyms == None:
+                do_synonyms = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             #print (line)
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
                 'name': line['name'],
-                'do_synonyms': go_synonyms,
+                'do_synonyms': do_synonyms,
                 'name_key': line['name'],
                 'id': line['id'],
                 'category': 'do'
             }
             list_to_return.append(dict_to_append)
+        #print (list_to_return)
 
-        if testObject.using_test_data() == True:
-            filtered_dict = []
-            for entry in list_to_return:
-                if testObject.check_for_test_go_entry(entry['id']) == True:
-                    filtered_dict.append(entry)
-                else:
-                    continue
-            return filtered_dict
-        else:
-            return list_to_return
+        return list_to_return
 
 
         # creating_term = None
