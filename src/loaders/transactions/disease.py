@@ -246,8 +246,8 @@ class DiseaseTransaction(Transaction):
         executeTransgene = unwindQuery + speciesQuery + doTermQuery + transgeneQuery + pubQuery + inferredFromGeneQuery + environmentQuery
         executeFish = unwindQuery + speciesQuery + doTermQuery + fishQuery + pubQuery + inferredFromGeneQuery
 
-        Transaction.execute_transaction(self, executeGene, data)
         Transaction.execute_transaction(self, executeGenotype, data)
+        Transaction.execute_transaction(self, executeGene, data)
         Transaction.execute_transaction(self, executeAllele, data)
         Transaction.execute_transaction(self, executeTransgene, data)
         Transaction.execute_transaction(self, executeFish, data)

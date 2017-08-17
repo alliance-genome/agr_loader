@@ -21,6 +21,9 @@ class DiseaseExt:
             release = disease_data['metaData']['release']
 
         for diseaseRecord in disease_data['data']:
+            fishEnvId = None
+            conditions = None
+            qualifier = None
             primaryId = diseaseRecord.get('objectId')
             if testObject.using_test_data() == True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
@@ -30,8 +33,6 @@ class DiseaseExt:
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
             if qualifier is None:
-
-
                 if 'evidence' in diseaseRecord:
                     # this is purposeful for the moment, need to concantenate two strings, both of which has the possibility of being null -- so setting as an empty string
                     # instead of none.
