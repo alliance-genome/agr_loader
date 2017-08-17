@@ -11,10 +11,22 @@ class DOExt:
         parsed_line = parseGOOBO(path + "/disease-ontology.obo")
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
+            isasWithoutNames = []
             do_synonyms = line.get('synonym')
+            print (do_synonyms)
             if do_synonyms == None:
                 do_synonyms = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            #print (line)
+            do_is_as = line.get('is_a')
+            #print (do_is_as)
+            if do_is_as == None:
+                do_is_as = []
+                isasWithoutNames = []
+            else:
+                for isa in do_is_as:
+                    #print (isa)
+                    isaWithoutName = isa.split("!")[0]
+                    isasWithoutNames.append(isaWithoutName)
+
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
@@ -22,47 +34,10 @@ class DOExt:
                 'do_synonyms': do_synonyms,
                 'name_key': line['name'],
                 'id': line['id'],
-                'category': 'do'
+                'category': 'do',
+                'isas': do_is_as
             }
             list_to_return.append(dict_to_append)
-        #print (list_to_return)
 
         return list_to_return
 
-
-        # creating_term = None
-        #
-        # for line in do_data:
-        #     line = line.strip()
-        #
-        #     if line == "[Term]":
-        #         creating_term = True
-        #     elif line == '': # Skip blank lines
-        #         continue
-        #     elif creating_term:
-        #         key = (line.split(":")[0]).strip()
-        #         value = ("".join(":".join(line.split(":")[1:]))).strip()
-        #
-        #         if key == "id":
-        #             creating_term = value
-        #             do_dataset[creating_term] = {"id": value}
-        #             do_dataset[creating_term]['do_genes'] = [] # Empty dictionaries to receive entries later.
-        #             do_dataset[creating_term]['do_species'] = []
-        #         elif key == "name":
-        #             do_dataset[creating_term]['name'] = value
-        #         else:
-        #             if key == "synonym":
-        #                 if value.split(" ")[-2] == "EXACT":
-        #                     value = (" ".join(value.split(" ")[:-2]))[1:-1]
-        #                 else:
-        #                     continue
-        #             if key == "def":
-        #                 m = re.search('\"(.+)\"', value)
-        #                 value = m.group(1)
-        #
-        #             if key in do_dataset[creating_term]:
-        #                 do_dataset[creating_term][key].append(value)
-        #             else:
-        #                 do_dataset[creating_term][key] = [value]
-
-        return do_dataset

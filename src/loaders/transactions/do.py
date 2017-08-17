@@ -24,5 +24,9 @@ class DOTransaction(Transaction):
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
+
+            FOREACH (isa in row.isas |
+                MERGE (doterm2:DOTerm:Ontology {primaryKey:isa})
+                MERGE (doterm)-[aka:IS_A]->(doterm2))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
