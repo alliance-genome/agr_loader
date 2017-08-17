@@ -29,8 +29,6 @@ class DiseaseExt:
                 is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
                 if is_it_test_entry == False:
                     continue
-                else:
-                    print (primaryId)
 
             if 'qualifier' in diseaseRecord:
                 qualifier = diseaseRecord.get('qualifier')
@@ -84,7 +82,6 @@ class DiseaseExt:
                     fishEnvId = primaryId+conditionId
 
                 diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
-                print (diseaseObjectType)
                 disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
