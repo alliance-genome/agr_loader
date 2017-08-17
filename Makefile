@@ -23,3 +23,11 @@ test: removedb startdb build run_test
 
 bash:
 	docker-compose up agr_loader bash
+
+reload:
+	docker-compose stop neo4j_nqc
+	docker-compose down -v
+	docker-compose up -d neo4j_nqc
+	sleep 10
+	docker-compose up agr_loader
+
