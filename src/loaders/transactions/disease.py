@@ -44,7 +44,7 @@ class DiseaseTransaction(Transaction):
             FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
                 FOREACH (inferred in row.inferredGene |
                     MERGE(ig:Gene {primaryKey: inferred})
-                    MERGE(ig)<-[igg:INFERRED]->(f)
+                    MERGE(ig)<-[igg:INFERRED_FROM]->(f)
                 )
             )
             """
@@ -241,7 +241,7 @@ class DiseaseTransaction(Transaction):
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
         executeGene = unwindQuery + speciesQuery + doTermQuery + geneQuery + pubQuery
-        executeGenotype = unwindQuery + speciesQuery + doTermQuery + genotypeQuery + pubQuery + inferredFromGeneQuery + environmentQuery
+        executeGenotype = unwindQuery + speciesQuery + doTermQuery + genotypeQuery + inferredFromGeneQuery + pubQuery + environmentQuery
         executeAllele = unwindQuery + speciesQuery + doTermQuery + alleleQuery + pubQuery + inferredFromGeneQuery + environmentQuery + additionalGeneticComponentsQuery
         executeTransgene = unwindQuery + speciesQuery + doTermQuery + transgeneQuery + pubQuery + inferredFromGeneQuery + environmentQuery
         executeFish = unwindQuery + speciesQuery + doTermQuery + fishQuery + pubQuery + inferredFromGeneQuery
