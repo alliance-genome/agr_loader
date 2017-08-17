@@ -77,17 +77,16 @@ class DiseaseTransaction(Transaction):
                 SET pub.pubModUrl = row.pubModUrl
                 SET pub.pubMedUrl = row.pubMedUrl
 
-                MERGE (da)-[dapu:ANNOTATED_TO]->(pub)
+        MERGE (da:Annotation {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
+        MERGE (da)-[dapu:ANNOTATED_TO]->(pub)
 
-                FOREACH (entity in row.evidenceCodes|
-                        MERGE (ecode1:EvidenceCode {primaryKey:entity})
-                        MERGE (da)-[daecode1:ANNOTATED_TO]->(ecode1)
-                )
+        FOREACH (entity in row.ecodes|
+                MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                MERGE (da)-[daecode1:ANNOTATED_TO]->(ecode1)
                 MERGE (pub)-[pubEv:ANNOTATED_TO]->(ecode1)
-                MERGE (da)-[dapa:ANNOTATED_TO]->(pub)
+        )
+
         """
-
-
 
         ###  start of the object -specific- query sections ####
         geneQuery = """
@@ -241,7 +240,7 @@ class DiseaseTransaction(Transaction):
         """
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
-        executeGene = unwindQuery + speciesQuery + doTermQuery + pubQuery + geneQuery
+        executeGene = unwindQuery + speciesQuery + doTermQuery + geneQuery + pubQuery
         executeGenotype = unwindQuery + speciesQuery + doTermQuery + genotypeQuery + pubQuery + inferredFromGeneQuery + environmentQuery
         executeAllele = unwindQuery + speciesQuery + doTermQuery + alleleQuery + pubQuery + inferredFromGeneQuery + environmentQuery + additionalGeneticComponentsQuery
         executeTransgene = unwindQuery + speciesQuery + doTermQuery + transgeneQuery + pubQuery + inferredFromGeneQuery + environmentQuery
