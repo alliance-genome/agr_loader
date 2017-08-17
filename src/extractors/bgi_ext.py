@@ -63,8 +63,9 @@ class BGIExt:
                         strand = genomeLocation['strand']
                     else:
                         strand = None
+                    locPrimaryId = chromosome+str(start)+str(end)+str(strand)+str(assembly)
                     genomic_locations.append(
-                        {"chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
+                        {"geneLocPrimaryId": primary_id, "locPrimaryId": locPrimaryId, "chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
 
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
