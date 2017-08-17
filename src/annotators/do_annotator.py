@@ -18,7 +18,7 @@ class DOAnnotator:
                     gene['diseases'].append(disease_gene_entry)
 
                     # Add the gene symbol and species to the main DO dataset under the particular DO id.
-                    do_data = DoAnnotator().update_do_dataset(disease_gene_entry['do_id'], do_data, gene_symbol, species)
+                    do_data = self.update_do_dataset(disease_gene_entry['do_id'], do_data, gene_symbol, species)
 
         return gene, do_data
 
