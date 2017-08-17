@@ -60,7 +60,6 @@ class AggregateLoader:
         self.go_dataset = GOExt().get_data(self.testObject)
         print("Extracting DO data.")
         self.do_dataset = DOExt().get_data(self.testObject)
-        print (self.do_dataset)
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
