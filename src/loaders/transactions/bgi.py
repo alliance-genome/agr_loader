@@ -86,17 +86,27 @@ class BGITransaction(Transaction):
                     //TODO: this is super annoying -- without this second pass of merging gene, it creates new gene nodes!
                     MERGE (g:Gene {primaryKey:location.geneLocPrimaryId})
                     MERGE (chrm:Chromosome {primaryKey:location.chromosome})
+
+                    //gene->chromosome
                     MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
-                    //TODO: would be nice to have a key here -- to avoid duplicate nodes, merge doesn't have anything to merge on.
+
+                    //association btwn gene and chromosome to hold location
+                    MERGE (lc:Association:LocationObject {primaryKey:location.associationPrimaryId})
+
+                    //gene->locationAssociation
+                    MERGE (g)-[glc:ANNOTATED_TO]->(lc)
+                    //chromosome->locationAssociation
+                    MERGE (chrm)-[chrmlc:ANNOTATED_TO]->(lc)
+
+                    //location node to hold the start, end etc...
                     MERGE (loc:Location {primaryKey:location.locPrimaryId})
                     ON CREATE SET loc.start = location.start
                     ON CREATE SET loc.end = location.end
                     ON CREATE SET loc.assembly = location.assembly
                     ON CREATE SET loc.strand = location.strand
-                    MERGE (lc:Association {chromosome:location.chromosome})
-                    MERGE (lc)-[locc:ANNOTATED_TO]->(loc)
-                    MERGE (lc)-[gal:ANNOATED_TO]->(g)
-                    MERGE (lc)-[chrmlc:ANNOTATED_TO]->(chrm)
+
+                    //location->locationAssociation
+                    MERGE (loc)-[locc:ANNOTATED_TO]->(lc)
 
         """
         Transaction.execute_transaction(self, query, data)
