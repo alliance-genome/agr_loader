@@ -22,10 +22,18 @@ run_test: build
 bash:
 	docker-compose up agr_loader bash
 
-reload: stopdb removedb startdb
+reload: 
+	docker-compose up -d neo4j.nqc
+	docker-compose down -v
+	docker-compose up -d neo4j.nqc
 	sleep 10
-	make build run
+	docker build -t agrdocker/agr_loader_run:develop .
+	docker-compose up agr_loader
 
-reload_test: stopdb removedb startdb 
+reload_test: 
+	docker-compose up -d neo4j.nqc
+	docker-compose down -v
+	docker-compose up -d neo4j.nqc
 	sleep 10
-	make build run_test
+	docker build -t agrdocker/agr_loader_run:develop .
+	docker-compose up agr_loader_test
