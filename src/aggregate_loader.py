@@ -13,8 +13,7 @@ from loaders.disease_loader import DiseaseLoader
 from loaders.do_loader import DOLoader
 
 class AggregateLoader:
-    def __init__(self, useTestObject):
-        uri = "bolt://neo4j_nqc:7687"
+    def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
        # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
