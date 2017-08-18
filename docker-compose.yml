@@ -1,8 +1,8 @@
 version: "2"
 
 services:
-  neo4j_nqc:
-    container_name: neo4j_nqc
+  neo4j.nqc:
+    container_name: neo4j.nqc
     image: agrdocker/agr_neo4j_env:develop
     volumes:
       - dbstore:/data
@@ -19,14 +19,18 @@ services:
     networks:
       - esnet
     environment:
-      - TEST_SET=False
+     - TEST_SET=False
+     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_PORT=7687
 
   agr_loader_test:
     image: agrdocker/agr_loader_run:develop
     networks:
       - esnet
     environment:
-      - TEST_SET=True
+     - TEST_SET=True
+     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_PORT=7687
 
 networks:
   esnet:
