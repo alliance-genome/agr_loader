@@ -50,7 +50,7 @@ class BGITransaction(Transaction):
                 ON CREATE SET ext.name = entry
                 MERGE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
 
-            MERGE (spec:Species {primaryId: row.taxonId})
+            MERGE (spec:Species {primaryKey: row.taxonId})
             ON CREATE SET spec.species = row.species
             ON CREATE SET spec.name = row.species
             MERGE (g)-[:FROM_SPECIES]->(spec)
