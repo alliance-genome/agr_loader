@@ -137,7 +137,9 @@ class DiseaseTransaction(Transaction):
                 FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
                     MERGE (f)<-[fq:IS_NOT_MODEL_OF]->(d))
 
-                MERGE (da:Association {primaryKey:row.diseaseAssociationId, link_from:row.primaryId, link_to:row.doId})
+                MERGE (da:Association {primaryKey:row.diseaseAssociationId})
+                    ON CREATE SET link_from = row.primaryId
+                    ON CREATE SET link_to = row.doId
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
