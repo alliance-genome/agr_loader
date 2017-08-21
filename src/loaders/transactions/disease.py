@@ -138,8 +138,8 @@ class DiseaseTransaction(Transaction):
                     MERGE (f)<-[fq:IS_NOT_MODEL_OF]->(d))
 
                 MERGE (da:Association {primaryKey:row.diseaseAssociationId})
-                    ON CREATE SET link_from = row.primaryId
-                    ON CREATE SET link_to = row.doId
+                    ON CREATE SET da.link_from = row.primaryId
+                    ON CREATE SET da.link_to = row.doId
 
                 //Create the relationship from the object node to association node.
                 //Create the relationship from the association node to the DoTerm node.
