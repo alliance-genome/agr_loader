@@ -32,9 +32,9 @@ class DiseaseTransaction(Transaction):
         """
 
         speciesQuery = """
-             MERGE (spec:Species {primaryKey: row.taxonId})
-             MERGE (f)<-[:FROM_SPECIES]->(spec)
-             ON CREATE SET f.with = row.with
+            MERGE (spec:Species {primaryKey: row.taxonId})
+            MERGE (f)<-[:FROM_SPECIES]->(spec)
+            ON CREATE SET f.with = row.with
 
         """
         #TODO: handle null cases in inferredFrom
@@ -72,38 +72,34 @@ class DiseaseTransaction(Transaction):
         ###  start of the object -specific- query sections ####
         geneQuery = """
 
+            //TODO: test if adding "DiseaseObject" label breaks merge. Yes, it will -CT
+            MERGE (f:Gene {primaryKey:row.primaryId})
+            //TODO: Remove f.name? Might not be needed if name is originating from BGI JSON.
+            //ON CREATE SET f.name = row.diseaseObjectName
 
-            FOREACH (x IN CASE WHEN row.diseaseObjectType = 'gene' THEN [1] ELSE [] END |
-                //TODO: test if adding "DiseaseObject" label breaks merge. Yes, it will -CT
-                MERGE (f:Gene {primaryKey:row.primaryId})
-                //TODO: Remove f.name? Might not be needed if name is originating from BGI JSON.
-                //ON CREATE SET f.name = row.diseaseObjectName
+            //the foreach statments that represent relationships/associationType are not here for capitalization purposes.
+            //instead we mimic a conditional statement by creating a collection with 1 value, and an empty collection.
 
-                //the foreach statments that represent relationships/associationType are not here for capitalization purposes.
-                //instead we mimic a conditional statement by creating a collection with 1 value, and an empty collection.
+            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                MERGE (f)<-[fa:IS_MARKER_FOR:ANNOTATED_TO {uuid:row.uuid}]->(d))
 
-                FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fa:IS_MARKER_FOR:ANNOTATED_TO {uuid:row.uuid}]->(d))
+            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                MERGE (f)<-[fa:IS_IMPLICATED_IN:ANNOTATED_TO {uuid:row.uuid}]->(d))
 
-                FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fa:IS_IMPLICATED_IN:ANNOTATED_TO {uuid:row.uuid}]->(d))
+            FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
+                MERGE (f)<-[fq:IS_NOT_MARKER_OF:ANNOTATED_TO {uuid:row.uuid}]->(d))
 
-                FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fq:IS_NOT_MARKER_OF:ANNOTATED_TO {uuid:row.uuid}]->(d))
+             FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                MERGE (f)<-[fq:IS_NOT_IMPLICATED_IN:ANNOTATED_TO {uuid:row.uuid}]->(d))
 
-                 FOREACH (qualifier IN CASE when row.qualifier = 'NOT' and row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fq:IS_NOT_IMPLICATED_IN:ANNOTATED_TO {uuid:row.uuid}]->(d))
+            //Create the Association node to be used for the object/doTerm
+            MERGE (da:Association {primaryKey:row.uuid})
 
-                //Create the Association node to be used for the object/doTerm
-                MERGE (da:Association {primaryKey:row.uuid})
+            //Create the relationship from the object node to association node.
+            //Create the relationship from the association node to the DoTerm node.
 
-                //Create the relationship from the object node to association node.
-                //Create the relationship from the association node to the DoTerm node.
-
-                MERGE (f)-[fda:ASSOCIATION]->(da)
-                MERGE (da)-[dad:ASSOCIATION]->(d)
-
-            )
+            MERGE (f)-[fda:ASSOCIATION]->(da)
+            MERGE (da)-[dad:ASSOCIATION]->(d)
 
             // Publications
 
@@ -120,7 +116,7 @@ class DiseaseTransaction(Transaction):
                     MERGE (da)-[daecode1:ANNOTATED_TO:EVIDENCE]->(ecode1)
             )
 
-        """
+            """
 
         # genotypeQuery = """
 

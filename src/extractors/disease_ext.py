@@ -23,6 +23,11 @@ class DiseaseExt:
             publicationModId = None
             pubMedId = None
 
+            # Only processing genes for 1.0
+            diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            if diseaseObjectType is not 'gene':
+                continue
+
             primaryId = diseaseRecord.get('objectId')
 
             if testObject.using_test_data() == True:
@@ -81,7 +86,6 @@ class DiseaseExt:
                 if dataProvider == 'ZFIN':
                     fishEnvId = primaryId+conditionId
 
-                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
