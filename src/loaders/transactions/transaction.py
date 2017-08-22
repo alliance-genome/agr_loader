@@ -1,4 +1,5 @@
 from neo4j.v1 import GraphDatabase
+import time
 
 class Transaction(object):
 
@@ -6,10 +7,12 @@ class Transaction(object):
         self.graph = graph
 
     def execute_transaction(self, query, data):
+        start = time.time()
         with self.graph.session() as session:
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
-        print("Processed %s entries." % (len(data)))
+        end = time.time()
+        print("Processed %s entries. %s r/s" % (len(data), (len(data) / (end - start))))
 
     def execute_transaction_batch(self, query, data, batch_size):
         print("Executing batch query. Please wait.")
