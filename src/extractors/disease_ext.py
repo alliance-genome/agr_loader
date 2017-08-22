@@ -1,6 +1,7 @@
 from files import *
-import re
 from test import *
+import re
+import uuid
 
 class DiseaseExt:
 
@@ -111,6 +112,7 @@ class DiseaseExt:
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,
                             "additionalGeneticComponents":additionalGeneticComponents
+                            "uuid":uuid.uuid1()
                         }
 
             list_to_yield.append(disease_features)
