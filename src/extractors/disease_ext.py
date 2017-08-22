@@ -111,7 +111,7 @@ class DiseaseExt:
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,
-                            "additionalGeneticComponents":additionalGeneticComponents
+                            "additionalGeneticComponents":additionalGeneticComponents,
                             "uuid":uuid.uuid1()
                         }
 
