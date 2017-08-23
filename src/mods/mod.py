@@ -81,4 +81,5 @@ class MOD(object):
         TARFile(path, self.loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName)
         disease_dict = DiseaseExt().get_features(disease_data, batch_size, testObject)
+        
         return disease_dict

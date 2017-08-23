@@ -1,6 +1,7 @@
 from files import *
-import re
 from test import *
+import re
+import uuid
 
 class DiseaseExt:
 
@@ -21,6 +22,11 @@ class DiseaseExt:
             qualifier = None
             publicationModId = None
             pubMedId = None
+
+            # Only processing genes for 1.0 
+            diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            if diseaseObjectType != 'gene':
+                continue
 
             primaryId = diseaseRecord.get('objectId')
 
@@ -80,7 +86,6 @@ class DiseaseExt:
                 if dataProvider == 'ZFIN':
                     fishEnvId = primaryId+conditionId
 
-                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
                 disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
@@ -104,13 +109,12 @@ class DiseaseExt:
                             "doPrefix": "DOID",
                             # doing the typing in neo, but this is for backwards compatibility in ES
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
-                            "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
-                            "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
                             "ecodes": ecodes,
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,
-                            "additionalGeneticComponents":additionalGeneticComponents
+                            "additionalGeneticComponents":additionalGeneticComponents,
+                            "uuid":str(uuid.uuid1())
                         }
 
             list_to_yield.append(disease_features)
@@ -129,7 +133,6 @@ class DiseaseExt:
 
         if 'MGI' in global_id:
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-
         if 'RGD' in global_id:
             complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
         if 'SGD' in global_id:
