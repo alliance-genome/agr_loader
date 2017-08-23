@@ -20,8 +20,7 @@ class DiseaseTransaction(Transaction):
                 SET d.doId = row.doId
 
             MERGE (f:Gene {primaryKey:row.primaryId})
-            //TODO: Remove f.name? Might not be needed if name is originating from BGI JSON.
-            //ON CREATE SET f.name = row.diseaseObjectName
+                SET f :DiseaseObject
 
             MERGE (spec:Species {primaryKey: row.taxonId})
             MERGE (f)<-[:FROM_SPECIES]->(spec)
