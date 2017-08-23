@@ -35,9 +35,14 @@ class AggregateLoader:
         for mod in self.mods:
             print("Loading BGI data into Neo4j.")
             genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
-
+            
+            c = 0
+            start = time.time()
             for gene_list_of_entries in genes:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
+                c = c + len(gene_list_of_entries)
+            end = time.time()
+            print("Average: %sr/s" % (c / (end - start)))
 
             features = mod.load_disease_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
