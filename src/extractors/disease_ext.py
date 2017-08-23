@@ -110,6 +110,7 @@ class DiseaseExt:
                             # doing the typing in neo, but this is for backwards compatibility in ES
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                             "ecodes": ecodes,
+                            "definition": diseaseRecord.get('definition'),
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,

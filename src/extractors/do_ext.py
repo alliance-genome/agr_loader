@@ -27,6 +27,9 @@ class DOExt:
                     isaWithoutName = isa.split("!")[0]
                     isasWithoutNames.append(isaWithoutName)
 
+            definition = ''
+            if definition is not None:
+                definition = line.get('def')
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
@@ -34,6 +37,7 @@ class DOExt:
                 'do_synonyms': do_synonyms,
                 'name_key': line['name'],
                 'id': line['id'],
+                'definition': definition,
                 'category': 'do',
                 'isas': do_is_as
             }

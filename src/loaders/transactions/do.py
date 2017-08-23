@@ -20,6 +20,7 @@ class DOTransaction(Transaction):
             MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
             ON CREATE SET doterm.name = row.name
             ON CREATE SET doterm.nameKey = row.name_key
+            ON CREATE SET doterm.definition = row.definition
 
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
