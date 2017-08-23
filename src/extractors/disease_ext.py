@@ -25,7 +25,7 @@ class DiseaseExt:
 
             # Only processing genes for 1.0 
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
-            if diseaseObjectType is not 'gene':
+            if diseaseObjectType != 'gene':
                 continue
 
             primaryId = diseaseRecord.get('objectId')
@@ -114,7 +114,7 @@ class DiseaseExt:
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,
                             "additionalGeneticComponents":additionalGeneticComponents,
-                            "uuid":uuid.uuid1()
+                            "uuid":str(uuid.uuid1())
                         }
 
             list_to_yield.append(disease_features)
