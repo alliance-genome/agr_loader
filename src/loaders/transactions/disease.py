@@ -6,48 +6,23 @@ class DiseaseTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-
     def disease_object_tx(self, data):
         '''
         Loads the Disease data into Neo4j.
         Nodes: merge object (gene, genotype, transgene, allele, etc..., merge disease term,
         '''
 
-
-        ###  start of the object -generic- query sections ####
-
-        unwindQuery = """
-            UNWIND $data as row
-
-        """
-
-        doTermQuery = """
-
-            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
-                SET d.doDisplayId = row.doDisplayId
-                SET d.doUrl = row.doUrl
-                SET d.doPrefix = row.doPrefix
-                SET d.doId = row.doId
-
-        """
-
-        speciesQuery = """
-            MERGE (spec:Species {primaryKey: row.taxonId})
-            MERGE (f)<-[:FROM_SPECIES]->(spec)
-            ON CREATE SET f.with = row.with
-
-        """
         #TODO: handle null cases in inferredFrom
 
-        inferredFromGeneQuery = """
+        # inferredFromGeneQuery = """
 
-            FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
-                FOREACH (inferred in row.inferredGene |
-                    MERGE(ig:Gene {primaryKey: inferred})
-                    MERGE(ig)<-[igg:INFERRED_FROM]->(f)
-                )
-            )
-            """
+        #     FOREACH (ifg in CASE WHEN row.inferredGene IS NULL THEN [] ELSE [1] END |
+        #         FOREACH (inferred in row.inferredGene |
+        #             MERGE(ig:Gene {primaryKey: inferred})
+        #             MERGE(ig)<-[igg:INFERRED_FROM]->(f)
+        #         )
+        #     )
+        #     """
         # environmentQuery = """
 
         #     FOREACH (condition in row.experimentalConditions |
@@ -59,20 +34,30 @@ class DiseaseTransaction(Transaction):
 
         # """
 
-        additionalGeneticComponentsQuery = """
+        # additionalGeneticComponentsQuery = """
 
-                WITH row.additionalGeneticComponents as components
-                UNWIND components as component
-                //TODO: do we need to type these nodes? For now, just one big multi-typed node.  Needs to be broken down to types, but need type in disease schema/submission first.
-                MERGE (ent:Entity {primaryKey: component.componentId})
-                ON CREATE SET ent.name = component.componentSymbol
-                ON CREATE SET ent.componentUrl = component.componentUrl
+        #         WITH row.additionalGeneticComponents as components
+        #         UNWIND components as component
+        #         //TODO: do we need to type these nodes? For now, just one big multi-typed node.  Needs to be broken down to types, but need type in disease schema/submission first.
+        #         MERGE (ent:Entity {primaryKey: component.componentId})
+        #         ON CREATE SET ent.name = component.componentSymbol
+        #         ON CREATE SET ent.componentUrl = component.componentUrl
 
-        """
+        # """
         ###  start of the object -specific- query sections ####
-        geneQuery = """
+        executeGene = """
+            UNWIND $data as row
+            
+            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
+                SET d.doDisplayId = row.doDisplayId
+                SET d.doUrl = row.doUrl
+                SET d.doPrefix = row.doPrefix
+                SET d.doId = row.doId
 
-            //TODO: test if adding "DiseaseObject" label breaks merge. Yes, it will -CT
+            MERGE (spec:Species {primaryKey: row.taxonId})
+            MERGE (f)<-[:FROM_SPECIES]->(spec)
+                ON CREATE SET f.with = row.with
+
             MERGE (f:Gene {primaryKey:row.primaryId})
             //TODO: Remove f.name? Might not be needed if name is originating from BGI JSON.
             //ON CREATE SET f.name = row.diseaseObjectName
@@ -234,7 +219,7 @@ class DiseaseTransaction(Transaction):
         # """
         #TODO: add back inferredFromGene query - with checks to handle null cases.
 
-        executeGene = unwindQuery + speciesQuery + doTermQuery + geneQuery
+        # executeGene = unwindQuery + speciesQuery + doTermQuery + geneQuery
         # executeGenotype = unwindQuery + speciesQuery + doTermQuery + genotypeQuery + inferredFromGeneQuery + pubQuery + environmentQuery
         # executeAllele = unwindQuery + speciesQuery + doTermQuery + alleleQuery + pubQuery + inferredFromGeneQuery + environmentQuery + additionalGeneticComponentsQuery
         # executeTransgene = unwindQuery + speciesQuery + doTermQuery + transgeneQuery + pubQuery + inferredFromGeneQuery + environmentQuery

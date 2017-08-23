@@ -23,7 +23,7 @@ class DiseaseExt:
             publicationModId = None
             pubMedId = None
 
-            # Only processing genes for 1.0
+            # Only processing genes for 1.0 
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
             if diseaseObjectType is not 'gene':
                 continue
@@ -109,8 +109,6 @@ class DiseaseExt:
                             "doPrefix": "DOID",
                             # doing the typing in neo, but this is for backwards compatibility in ES
                             "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
-                            "diseaseAssociationId": primaryId+diseaseRecord.get('DOid'),
-                            "diseaseAssociationPubId": primaryId+diseaseRecord.get('DOid')+pubMedId+publicationModId,
                             "ecodes": ecodes,
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
                             "experimentalConditions": conditions,
@@ -135,7 +133,6 @@ class DiseaseExt:
 
         if 'MGI' in global_id:
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-
         if 'RGD' in global_id:
             complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
         if 'SGD' in global_id:
