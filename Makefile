@@ -8,6 +8,7 @@ stopdb:
 	docker-compose stop neo4j.nqc
 
 pull:
+	docker pull agrdocker/agr_neo4j_env:develop
 	docker pull agrdocker/agr_loader_env:develop
 
 removedb:
