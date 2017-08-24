@@ -12,7 +12,7 @@ class Transaction(object):
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
         end = time.time()
-        print("Processed %s entries. %s r/s" % (len(data), (len(data) / (end - start))))
+        print("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)),2) ))
 
     def execute_transaction_batch(self, query, data, batch_size):
         print("Executing batch query. Please wait.")
