@@ -84,30 +84,17 @@ class BGITransaction(Transaction):
                 WITH row.genomeLocations as locations
                 UNWIND locations as location
                     //TODO: this is super annoying -- without this second pass of merging gene, it creates new gene nodes!
-                    MERGE (g:Gene {primaryKey:location.geneLocPrimaryId})
+                    MATCH (g:Gene {primaryKey:location.geneLocPrimaryId})
+
                     MERGE (chrm:Chromosome {primaryKey:location.chromosome})
 
                     //gene->chromosome
                     MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
-
-                    //association btwn gene and chromosome to hold location
-                    MERGE (lc:Association:LocationObject {primaryKey:location.associationPrimaryId})
-
-                    //gene->locationAssociation
-                    MERGE (g)-[glc:ANNOTATED_TO]->(lc)
-                    //chromosome->locationAssociation
-                    MERGE (chrm)-[chrmlc:ANNOTATED_TO]->(lc)
-
-                    //location node to hold the start, end etc...
-                    MERGE (loc:Location {primaryKey:location.locPrimaryId})
-                    ON CREATE SET loc.start = location.start
-                    ON CREATE SET loc.end = location.end
-                    ON CREATE SET loc.assembly = location.assembly
-                    ON CREATE SET loc.strand = location.strand
-
-                    //location->locationAssociation
-                    MERGE (loc)-[locc:ANNOTATED_TO]->(lc)
-
+                        ON CREATE SET gchrm.start = location.start 
+                        ON CREATE SET gchrm.end = location.end 
+                        ON CREATE SET gchrm.assembly = location.assembly 
+                        ON CREATE SET gchrm.strand = location.strand
+                    
         """
         Transaction.execute_transaction(self, query, data)
         Transaction.execute_transaction(self, locationQuery, data)
