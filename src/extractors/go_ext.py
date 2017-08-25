@@ -19,13 +19,14 @@ class GOExt:
             if go_synonyms == None:
                 go_synonyms = []
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if isinstance(go_synonyms, (list, tuple)):
-                for syn in go_synonyms:
-                    syn = syn.split("\"")[1].strip()
+            if go_synonyms != None:
+                if isinstance(go_synonyms, (list, tuple)):
+                    for syn in go_synonyms:
+                        syn = syn.split("\"")[1].strip()
+                        syns.append(syn)
+                else:
+                    syn = go_synonyms.split("\"")[1].strip()
                     syns.append(syn)
-            else:
-                syn = go_synonyms.split("\"")[1].strip()
-                syns.append(syn)
             xrefs = line.get('xref')
             #print (do_synonyms)
             if xrefs == None:

@@ -12,20 +12,20 @@ class DOExt:
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
-            syns = line.get('synonym')
+            do_syns = line.get('synonym')
+            syns = []
             xrefs = []
             #print (do_synonyms)
             if syns == None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if isinstance(syns, (list, tuple)):
-                for syn in syns:
-                    syn = syn.split("\"")[1].strip()
-                    print (syn + "list")
+            if do_syns != None:
+                if isinstance(do_syns, (list, tuple)):
+                    for syn in do_syns:
+                        syn = syn.split("\"")[1].strip()
+                        syns.append(syn)
+                else:
+                    syn = do_syns.split("\"")[1].strip()
                     syns.append(syn)
-            else:
-                syn = syns.split("\"")[1].strip()
-                syns.append(syn)
-                print (syn)
             xrefs = line.get('xref')
             #print (do_synonyms)
             if xrefs == None:
@@ -66,7 +66,8 @@ class DOExt:
                 'category': 'do',
                 'isas': isasWithoutNames,
                 'is_obsolete':is_obsolete,
-                'subset':subset
+                'subset':subset,
+                'xrefs':xrefs
 
             }
             list_to_return.append(dict_to_append)
