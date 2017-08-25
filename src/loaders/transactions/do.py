@@ -22,7 +22,7 @@ class DOTransaction(Transaction):
             ON CREATE SET doterm.nameKey = row.name_key
             ON CREATE SET doterm.definition = row.definition
 
-            FOREACH (entry in row.do_crossreferences |
+            FOREACH (entry in row.xrefs |
                 MERGE (cr:ExternalId:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(cr))
 

@@ -12,25 +12,24 @@ class DOExt:
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
-            syns = []
-            do_synonyms = line.get('synonym')
+            syns = line.get('synonym')
+            xrefs = []
             #print (do_synonyms)
-            if do_synonyms == None:
-                do_synonyms = []
+            if syns == None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if isinstance(do_synonyms, (list, tuple)):
-                for syn in do_synonyms:
-                    syn = syn.split("[")[0]
+            if isinstance(syns, (list, tuple)):
+                for syn in syns:
+                    syn = syn.split("\"")[1].strip()
+                    print (syn + "list")
                     syns.append(syn)
             else:
-                syn = do_synonyms.split("[")[0]
+                syn = syns.split("\"")[1].strip()
                 syns.append(syn)
-
-            do_is_as = line.get('is_a')
-            do_crossreferences = line.get('dbxref')
+                print (syn)
+            xrefs = line.get('xref')
             #print (do_synonyms)
-            if do_crossreferences == None:
-                do_crossreferences = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
+            if xrefs == None:
+                xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             do_is_as = line.get('is_a')
             #print (do_is_as)
             if do_is_as == None:
@@ -40,15 +39,22 @@ class DOExt:
                 if isinstance(do_is_as, (list, tuple)):
                     for isa in do_is_as:
                         #print (isa)
-                        isaWithoutName = isa.split("!")[0]
+                        isaWithoutName = isa.split("!")[0].strip()
                         isasWithoutNames.append(isaWithoutName)
                 else:
-                    isaWithoutName = do_is_as.split("!")[0]
+                    isaWithoutName = do_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
 
-            definition = ''
-            if definition is not None:
-                definition = line.get('def')
+            definition = line.get('def')
+            if definition == None:
+                definition = ""
+            subset = line.get('subset')
+            if subset == None:
+                subset = ""
+            is_obsolete = line.get('is_obsolete')
+            if is_obsolete == None:
+                is_obsolete = ""
+
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
@@ -58,7 +64,10 @@ class DOExt:
                 'id': line['id'],
                 'definition': definition,
                 'category': 'do',
-                'isas': isasWithoutNames
+                'isas': isasWithoutNames,
+                'is_obsolete':is_obsolete,
+                'subset':subset
+
             }
             list_to_return.append(dict_to_append)
 
