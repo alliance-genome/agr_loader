@@ -6,7 +6,7 @@ class DOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 5000
+        self.batch_size = 2000
 
     def do_tx(self, data):
         '''
@@ -22,7 +22,11 @@ class DOTransaction(Transaction):
             ON CREATE SET doterm.nameKey = row.name_key
             ON CREATE SET doterm.definition = row.definition
 
-            FOREACH (entry in row.do_synonyms |
+            FOREACH (entry in row.do_crossreferences |
+                MERGE (cr:ExternalId:Identifier {primaryKey:entry})
+                MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(cr))
+
+            FOREACH (entry in row.syns |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
 

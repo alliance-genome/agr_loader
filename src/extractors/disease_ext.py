@@ -76,13 +76,13 @@ class DiseaseExt:
                     ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
                 if 'experimentalConditions' in diseaseRecord:
-                    conditionId = None
-
+                    conditionId = ""
                     for condition in diseaseRecord['experimentalConditions']:
                         if 'textCondition' in condition:
                             if dataProvider == 'ZFIN':
                                 conditionId = conditionId + condition.get('textCondition')
-                        conditions.append(condition)
+                        #if condition != None:
+                    conditions = diseaseRecord.get('experimentalConditions')
                 if dataProvider == 'ZFIN':
                     fishEnvId = primaryId+conditionId
 
