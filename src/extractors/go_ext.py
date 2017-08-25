@@ -59,8 +59,8 @@ class GOExt:
                 'id': line['id'],
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                 'category': 'go',
-                'is_a':isasWithoutNames,
-                'xrefs':xrefs
+                'is_a': isasWithoutNames,
+                'xrefs': xrefs
             }
             list_to_return.append(dict_to_append)
 
