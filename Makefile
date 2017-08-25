@@ -1,6 +1,9 @@
 build: pull
 	docker build -t agrdocker/agr_loader_run:develop .
 
+buildenv:
+	docker build -f Dockerfile_env -t agrdocker/agr_loader_env:develop .
+
 startdb:
 	docker-compose up -d neo4j.nqc
 
@@ -9,7 +12,6 @@ stopdb:
 
 pull:
 	docker pull agrdocker/agr_neo4j_env:develop
-	docker pull agrdocker/agr_loader_env:develop
 
 removedb:
 	docker-compose down -v
