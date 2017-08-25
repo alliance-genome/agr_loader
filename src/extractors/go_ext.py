@@ -45,12 +45,14 @@ class GOExt:
                 else:
                     isaWithoutName = go_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
-
+            definition = line.get('def')
+            if definition == None:
+                definition = ""
             dict_to_append = {
                 'go_genes': [],
                 'go_species': [],
                 'name': line['name'],
-                'description': line['def'],
+                'description': definition,
                 'go_type': line['namespace'],
                 'go_synonyms': syns,
                 'name_key': line['name'],
