@@ -63,8 +63,3 @@ class DOExt:
             list_to_return.append(dict_to_append)
 
         return list_to_return
-
-    def func(arg):
-        if not isinstance(arg, (list, tuple)):
-            arg = [arg]
-        return arg
