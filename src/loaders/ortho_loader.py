@@ -1,4 +1,4 @@
-from .transactions.bgi import OrthoTransaction
+from .transactions.orthology import OrthoTransaction
 
 class OrthoLoader:
 
