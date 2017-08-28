@@ -10,6 +10,7 @@ __author__    = "Uli Köhler"
 __copyright__ = "Copyright 2013 Uli Köhler"
 __license__   = "Apache v2.0"
 __version__   = "1.1"
+import codecs
 def processGOTerm(goTerm):
     """
     In an object representing a GO term, replace single-element lists with
@@ -28,7 +29,8 @@ def parseGOOBO(filename):
     Keyword arguments:
         filename: The filename to read
     """
-    with open(filename, "r") as infile:
+    #with codecs.open(self.filename, 'r', 'utf-8')
+    with codecs.open(filename, "r", 'utf-8') as infile:
         currentGOTerm = None
         for line in infile:
             line = line.strip()
