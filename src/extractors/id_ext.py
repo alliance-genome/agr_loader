@@ -25,9 +25,6 @@ class IdExt:
 			9606 : '' # No HGNC prefix
 		}
 
-		new_identifier = None
-
-		if identifier:
-			new_identifier = speciesDict[species] + identifier
+		new_identifier = speciesDict[species] + identifier
 
 		return new_identifier

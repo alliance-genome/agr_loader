@@ -30,11 +30,10 @@ class Indicies():
         session.run("CREATE INDEX ON :Identifier(primaryKey)")
         session.run("CREATE INDEX ON :ExternalId(primaryKey)")
         session.run("CREATE INDEX ON :Association(primaryKey)")
-        # session.run("CREATE INDEX ON :Association(linkTo)")
-        # session.run("CREATE INDEX ON :Association(linkFrom)")
         session.run("CREATE INDEX ON :CrossReference(primaryKey)")
         session.run("CREATE INDEX ON :SecondaryId(primaryKey)")
         session.run("CREATE INDEX ON :Chromosome(primaryKey)")
+        session.run("CREATE INDEX ON :OrthoAlgorithm (name)")
 
         session.close()
 

@@ -9,8 +9,8 @@ import gc
 import os
 import time
 from neo4j.v1 import GraphDatabase
-from loaders.disease_loader import DiseaseLoader
-from loaders.do_loader import DOLoader
+# from loaders.disease_loader import DiseaseLoader
+# from loaders.do_loader import DOLoader
 
 class AggregateLoader:
     def __init__(self, uri, useTestObject):
@@ -33,7 +33,7 @@ class AggregateLoader:
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:
-            print("Loading BGI data into Neo4j.")
+            print("Loading BGI data for %s into Neo4j." % (mod.species))
             genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
 
             c = 0
@@ -42,11 +42,17 @@ class AggregateLoader:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 c = c + len(gene_list_of_entries)
             end = time.time()
-            print("Average: %sr/s" % (c / (end - start)))
+            print("Average: %sr/s" % (round(c / (end - start),2) ))
 
+            print("Loading MOD disease data for %s into Neo4j." % (mod.species))
             features = mod.load_disease_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+
+            print("Loading Orthology data for %s into Neo4j." % (mod.species))
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
+            for ortholog_list_of_entries in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
     # Load annotations before ontologies to restrict ontology data for testObject.
     def load_annotations(self):
@@ -71,6 +77,12 @@ class AggregateLoader:
         GOLoader(self.graph).load_go(self.go_dataset)
         print("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
+
+    # def load_orthology(self):
+    #     print ("Loading Orthology data.")
+    #     ortholog_data = OrthoExt().get_data(self.testObject, batch_size) # generator object
+    #     for ortholog_list_of_entries in ortholog_data:
+    #         OrthoLoader(self.graph).load_orthology(ortholog_list_of_entries)
 
 # class AggregateLoader:
 
