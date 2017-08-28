@@ -33,7 +33,7 @@ class AggregateLoader:
         print("Extracting BGI data from each MOD.")
 
         for mod in self.mods:
-            print("Loading BGI data into Neo4j.")
+            print("Loading BGI data for %s into Neo4j." % (mod.species))
             genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
             
             c = 0
@@ -44,9 +44,15 @@ class AggregateLoader:
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start),2) ))
 
+            print("Loading MOD disease data for %s into Neo4j." % (mod.species))
             features = mod.load_disease_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+
+            print("Loading Orthology data for %s into Neo4j." % (mod.species))
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, batch_size) # generator object
+            for ortholog_list_of_entries in ortholog_data:
+                OrthoLoader(self.graph).load_orthology(ortholog_list_of_entries)
 
     # Load annotations before ontologies to restrict ontology data for testObject.
     def load_annotations(self):
@@ -72,11 +78,11 @@ class AggregateLoader:
         print("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
 
-    def load_orthology(self):
-        print ("Loading Orthology data.")
-        ortholog_data = OrthoExt().get_data(self.testObject, batch_size) # generator object
-        for ortholog_list_of_entries in ortholog_data:
-            OrthoLoader(self.graph).load_orthology(ortholog_list_of_entries)
+    # def load_orthology(self):
+    #     print ("Loading Orthology data.")
+    #     ortholog_data = OrthoExt().get_data(self.testObject, batch_size) # generator object
+    #     for ortholog_list_of_entries in ortholog_data:
+    #         OrthoLoader(self.graph).load_orthology(ortholog_list_of_entries)
 
 # class AggregateLoader:
 

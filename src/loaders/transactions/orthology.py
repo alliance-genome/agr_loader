@@ -19,6 +19,32 @@ class OrthoTransaction(Transaction):
         query = """
             UNWIND $data as row
 
-            MERGE(g:Gene {primaryKey:row.})
+            MERGE(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
+            MERGE(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
+            MERGE(g1)-[orth:ORTHOLOGOUS]-(g2)
+                SET orth.uuid:row.uuid
+                SET orth.isBestScore:row.isBestScore
+                SET orth.isBestRevScore:row.isBestRevScore
+                SET orth.confidence:row.confidence
+
+            //Create the Association node to be used for the object/doTerm
+            MERGE (oa:Association {primaryKey:row.uuid})
+            MERGE (g1)-[a1:ASSOCIATION]->(oa)
+            MERGE (oa)-[a2:ASSOCIATION]->(g2)
+
+            FOREACH (algorithm in row.matched|
+                MERGE (match:OrthoAlgorithm {name:algorithm})
+                MERGE (oa)-[m:MATCHED]->(match)
+            )
+
+            FOREACH (algorithm in row.notMatched|
+                MERGE (notmatch:OrthoAlgorithm {name:algorithm})
+                MERGE (oa)-[m:NOT_MATCHED]->(notmatch)
+            )
+
+            FOREACH (algorithm in row.notCalled|
+                MERGE (notcalled:OrthoAlgorithm {name:algorithm})
+                MERGE (oa)-[m:NOT_CALLED]->(notcalled)
+            )
         """
         Transaction.execute_transaction(self, query, data)

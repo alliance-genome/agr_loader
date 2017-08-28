@@ -3,12 +3,13 @@ from extractors import *
 import time
 import gc
 import json
+import uuid
 from test import *
 
 class OrthoExt:
 
     @staticmethod
-    def get_data(test_set, batch_size):
+    def get_data(test_set, mod_name, batch_size):
         path = "tmp"
         filename = None
         filename_comp = None
@@ -48,19 +49,22 @@ class OrthoExt:
                 'isBestScore': orthoRecord['isBestScore'],
                 'isBestRevScore': orthoRecord['isBestRevScore'],
 
-                'gene1Species': gene1Species,
-                'gene1SpeciesName': orthoRecord['gene1SpeciesName'],
+                'gene1AgrPrimaryId' : gene1AgrPrimaryId,
+                # 'gene1Species': gene1Species,
+                # 'gene1SpeciesName': orthoRecord['gene1SpeciesName'],
 
                 'gene2AgrPrimaryId': gene2AgrPrimaryId,
-                'gene2Symbol' : orthoRecord['gene2Symbol'],
-                'gene2Species': gene2Species,
-                'gene2SpeciesName': orthoRecord['gene2SpeciesName'],
+                # 'gene2Symbol' : orthoRecord['gene2Symbol'],
+                # 'gene2Species': gene2Species,
+                # 'gene2SpeciesName': orthoRecord['gene2SpeciesName'],
 
-                'predictionMethodsMatched': orthoRecord['predictionMethodsMatched'],
-                'predictionMethodsNotMatched': orthoRecord['predictionMethodsNotMatched'],
-                'predictionMethodsNotCalled': orthoRecord['predictionMethodsNotCalled'],
+                'matched': orthoRecord['predictionMethodsMatched'],
+                'notMatched': orthoRecord['predictionMethodsNotMatched'],
+                'notCalled': orthoRecord['predictionMethodsNotCalled'],
 
-                'confidence': orthoRecord['confidence']
+                'confidence': orthoRecord['confidence'],
+
+                'uuid': str(uuid.uuid1())
             }
 
             # Establishes the number of entries to yield (return) at a time.
