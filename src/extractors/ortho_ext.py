@@ -9,11 +9,11 @@ from test import *
 class OrthoExt:
 
     @staticmethod
-    def get_data(test_set, mod_name, batch_size):
+    def get_data(testObject, mod_name, batch_size):
         path = "tmp"
         filename = None
         filename_comp = None
-        if test_set == True:
+        if testObject.using_test_data() == True:
             filename = '/orthology_test_data_0.6.1_3.json'
             filename_comp = 'orthology_test_data_0.6.1_3.json.tar.gz'
         else:
@@ -36,42 +36,44 @@ class OrthoExt:
         for orthoRecord in ortho_data['data']:
 
             # Sort out identifiers and prefixes.
-            gene1 = IdLoader().process_identifiers(orthoRecord['gene1'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
-            gene2 = IdLoader().process_identifiers(orthoRecord['gene2'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
+            gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
+            gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
 
             gene1Species = orthoRecord['gene1Species']
             gene2Species = orthoRecord['gene2Species']
 
-            gene1AgrPrimaryId = IdLoader().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
-            gene2AgrPrimaryId = IdLoader().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
+            gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
+            gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
 
-            ortho_dataset = {
-                'isBestScore': orthoRecord['isBestScore'],
-                'isBestRevScore': orthoRecord['isBestRevScore'],
+            if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
-                'gene1AgrPrimaryId' : gene1AgrPrimaryId,
-                # 'gene1Species': gene1Species,
-                # 'gene1SpeciesName': orthoRecord['gene1SpeciesName'],
+                ortho_dataset = {
+                    'isBestScore': orthoRecord['isBestScore'],
+                    'isBestRevScore': orthoRecord['isBestRevScore'],
 
-                'gene2AgrPrimaryId': gene2AgrPrimaryId,
-                # 'gene2Symbol' : orthoRecord['gene2Symbol'],
-                # 'gene2Species': gene2Species,
-                # 'gene2SpeciesName': orthoRecord['gene2SpeciesName'],
+                    'gene1AgrPrimaryId' : gene1AgrPrimaryId,
+                    # 'gene1Species': gene1Species,
+                    # 'gene1SpeciesName': orthoRecord['gene1SpeciesName'],
 
-                'matched': orthoRecord['predictionMethodsMatched'],
-                'notMatched': orthoRecord['predictionMethodsNotMatched'],
-                'notCalled': orthoRecord['predictionMethodsNotCalled'],
+                    'gene2AgrPrimaryId': gene2AgrPrimaryId,
+                    # 'gene2Symbol' : orthoRecord['gene2Symbol'],
+                    # 'gene2Species': gene2Species,
+                    # 'gene2SpeciesName': orthoRecord['gene2SpeciesName'],
 
-                'confidence': orthoRecord['confidence'],
+                    'matched': orthoRecord['predictionMethodsMatched'],
+                    'notMatched': orthoRecord['predictionMethodsNotMatched'],
+                    'notCalled': orthoRecord['predictionMethodsNotCalled'],
 
-                'uuid': str(uuid.uuid1())
-            }
+                    'confidence': orthoRecord['confidence'],
 
-            # Establishes the number of entries to yield (return) at a time.
-            list_to_yield.append(ortho_dataset)
-            if len(list_to_yield) == batch_size:
-                yield list_to_yield
-                list_to_yield[:] = []  # Empty the list.
+                    'uuid': str(uuid.uuid1())
+                }
+
+                # Establishes the number of entries to yield (return) at a time.
+                list_to_yield.append(ortho_dataset)
+                if len(list_to_yield) == batch_size:
+                    yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
             yield list_to_yield

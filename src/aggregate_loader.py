@@ -50,9 +50,9 @@ class AggregateLoader:
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
             print("Loading Orthology data for %s into Neo4j." % (mod.species))
-            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, batch_size) # generator object
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
-                OrthoLoader(self.graph).load_orthology(ortholog_list_of_entries)
+                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
     # Load annotations before ontologies to restrict ontology data for testObject.
     def load_annotations(self):
