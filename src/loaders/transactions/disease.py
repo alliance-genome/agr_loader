@@ -20,7 +20,7 @@ class DiseaseTransaction(Transaction):
                 ON CREATE SET d.doId = row.doId
 
             MERGE (f:Gene {primaryKey:row.primaryId})
-                SET f :DiseaseObject
+                ON CREATE SET f :DiseaseObject
 
             MERGE (spec:Species {primaryKey: row.taxonId})
             MERGE (f)<-[:FROM_SPECIES]->(spec)

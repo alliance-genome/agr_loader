@@ -1,6 +1,7 @@
 from files import *
 from test import *
 import re
+import uuid
 
 class BGIExt:
 
@@ -91,7 +92,8 @@ class BGIExt:
                 "dateProduced": dateProduced,
                 "dataProvider": dataProvider,
                 "release": release,
-                "href": None
+                "href": None,
+                "uuid": str(uuid.uuid1())
             }
 
             

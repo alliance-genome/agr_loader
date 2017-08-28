@@ -17,8 +17,8 @@ class GOAnnotTransaction(Transaction):
             UNWIND $data as row
             MERGE (g:Gene {primaryKey:row.gene_id})
 
-            FOREACH (entry in row.go_id |
-                MERGE (go:GOTerm:Ontology {primaryKey:entry})
-                MERGE (g)-[x:ANNOTATED_TO]->(go))
+            FOREACH (entry in row.do_id |
+                MERGE (do:DOTerm:Ontology {primaryKey:entry})
+                MERGE (g)-[x:ANNOTATED_TO]->(do))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
