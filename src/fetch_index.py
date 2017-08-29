@@ -16,7 +16,7 @@ uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
     if runUnitTests == "True":
-        call(["pytest"])
+        call(["pytest", "-v"])
     else:
         al = AggregateLoader(uri, useTestObject)
         al.create_indicies()

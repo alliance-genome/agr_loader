@@ -1,7 +1,7 @@
 from neo4j.v1 import GraphDatabase
 import os
 
-def execute_transaction(self, query):
+def execute_transaction(query):
     host = os.environ['NEO4J_NQC_HOST']
     port = os.environ['NEO4J_NQC_PORT']
     uri = "bolt://" + host + ":" + port
@@ -14,8 +14,8 @@ def execute_transaction(self, query):
 
     return result
 
-def test_gene(self):
+def test_gene():
     query = "MATCH (g:Gene) WHERE g.primaryKey = 'MGI:107956' RETURN g.primaryKey AS primaryKey"
-    result = self.execute_transaction(query)
+    result = execute_transaction(query)
     for record in result:
         assert record["primaryKey"] == 'MGI:107956'
