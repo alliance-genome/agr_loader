@@ -55,6 +55,11 @@ class DOExt:
             if is_obsolete == None:
                 is_obsolete = ""
 
+            if (line['id'] == 'DOID:74'):
+                print (line['id'])
+                print (line['name'])
+                print (isasWithoutNames)
+
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
@@ -65,9 +70,9 @@ class DOExt:
                 'definition': definition,
                 'category': 'do',
                 'isas': isasWithoutNames,
-                'is_obsolete':is_obsolete,
-                'subset':subset,
-                'xrefs':xrefs
+                'is_obsolete': is_obsolete,
+                'subset': subset,
+                'xrefs': xrefs
 
             }
             list_to_return.append(dict_to_append)

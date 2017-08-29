@@ -14,10 +14,10 @@ class DiseaseTransaction(Transaction):
             UNWIND $data as row
 
             MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
-                ON CREATE SET d.doDisplayId = row.doDisplayId
-                ON CREATE SET d.doUrl = row.doUrl
-                ON CREATE SET d.doPrefix = row.doPrefix
-                ON CREATE SET d.doId = row.doId
+               ON CREATE SET d.doDisplayId = row.doDisplayId
+               ON CREATE SET d.doUrl = row.doUrl
+               ON CREATE SET d.doPrefix = row.doPrefix
+               ON CREATE SET d.doId = row.doId
 
             MERGE (f:Gene {primaryKey:row.primaryId})
                 ON CREATE SET f :DiseaseObject
