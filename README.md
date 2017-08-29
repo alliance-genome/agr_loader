@@ -9,8 +9,9 @@ Resources.
 ## Requirements
 - Docker
 - Docker-compose (can be installed via `pip`: `pip install docker-compose`).
-- neo4j-driver (can be installed via `pip`: `pip install neo4j-driver`).  
+
 ## Installation
+- Build the local environment image with `make buildenv`.
 - Build the local image with `make build`.
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
   - The Docker volume `agrloader_storedb` will be created (if it does not already exist).
@@ -19,7 +20,6 @@ Resources.
 ## Running the Loader
 - Initialize a full load with `make run`.
 - Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
-- make test runs removedb, startdb, build and run_test in one command.
 
 ## Accessing the Neo4j shell
 - From your command line: `docker exec -ti neo4j_nqc bin/cypher-shell`
@@ -28,3 +28,7 @@ Resources.
 ## Stopping and Removing the Database
 - Once finished, stop the database with `make stopdb`.
 - Optionally, remove the database with `make removedb`.
+
+## Shortcut Commands
+- `make reload` will re-run the `Installation` and `Running the Loader` steps from above.
+- `make reload_test` will re-run the same steps using a test subset of data.
