@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/alliance-genome/agr_loader.svg?branch=master)](https://travis-ci.org/alliance-genome/agr_loader)
+[![Build Status](https://travis-ci.org/alliance-genome/agr_loader.svg?branch=development)](https://travis-ci.org/alliance-genome/agr_loader)
 
 
 # Alliance of Genome Resources Loader
