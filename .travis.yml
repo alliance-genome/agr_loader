@@ -10,5 +10,5 @@ before_install:
   - docker build -f Dockerfile_env -t agrdocker/agr_loader_env:develop .
   - docker build -t agrdocker/agr_loader_run:develop .
   
-script:
+install:
   - docker-compose up agr_loader_test
