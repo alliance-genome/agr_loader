@@ -14,3 +14,4 @@ before_install:
   
 script:
   - docker-compose up agr_loader_test
+  - docker-compose run agr_loader_test pytest --verbose
