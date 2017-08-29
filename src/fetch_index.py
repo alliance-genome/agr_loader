@@ -8,14 +8,14 @@ useTestObject = os.environ['TEST_SET']
 if useTestObject == "True":
     useTestObject = True # Convert string to boolean. TODO a better method?
 
-runUnitTest = os.environ['UNIT_TEST']
+runUnitTests = os.environ['UNIT_TESTS']
 
 host = os.environ['NEO4J_NQC_HOST']
 port = os.environ['NEO4J_NQC_PORT']
 uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
-    if runUnitTest == "True":
+    if runUnitTests == "True":
         call(["pytest"])
     else:
         al = AggregateLoader(uri, useTestObject)

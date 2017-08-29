@@ -20,7 +20,7 @@ services:
       - esnet
     environment:
      - TEST_SET=False
-     - UNIT_TEST=False
+     - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 
@@ -30,17 +30,17 @@ services:
       - esnet
     environment:
      - TEST_SET=True
-     - UNIT_TEST=False
+     - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 
-  agr_loader_unit_test:
+  agr_loader_unit_tests:
     image: agrdocker/agr_loader_run:develop
     networks:
       - esnet
     environment:
      - TEST_SET=True
-     - UNIT_TEST=True
+     - UNIT_TESTS=True
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 

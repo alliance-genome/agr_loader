@@ -22,8 +22,8 @@ run: build
 run_test: build
 	docker-compose up agr_loader_test
 
-run_unit_test: build
-	docker-compose up agr_loader_unit_test
+run_unit_tests: build
+	docker-compose up agr_loader_unit_tests
 
 bash:
 	docker-compose up agr_loader bash
