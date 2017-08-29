@@ -13,5 +13,5 @@ before_install:
   - docker-compose up -d neo4j.nqc
   - docker pull agrdocker/agr_neo4j_env:develop
   - docker build -f Dockerfile_env -t agrdocker/agr_loader_env:develop .
-  - docker build -t agrdocker/agr_loader_run develop .
+  - docker build -f Dockerfile -t agrdocker/agr_loader_run develop .
   - docker-compose up agr_loader_test
