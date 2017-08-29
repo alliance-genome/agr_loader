@@ -1,25 +1,19 @@
 from test import *
 from loaders import *
 from aggregate_loader import AggregateLoader
-from subprocess import call
 import os
 
 useTestObject = os.environ['TEST_SET']
 if useTestObject == "True":
     useTestObject = True # Convert string to boolean. TODO a better method?
 
-runUnitTests = os.environ['UNIT_TESTS']
-
 host = os.environ['NEO4J_NQC_HOST']
 port = os.environ['NEO4J_NQC_PORT']
 uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
-    if runUnitTests == "True":
-        call(["pytest", "-v"])
-    else:
-        al = AggregateLoader(uri, useTestObject)
-        al.create_indicies()
-        al.load_from_ontologies()
-        al.load_from_mods()
-        al.load_annotations()
+    al = AggregateLoader(uri, useTestObject)
+    al.create_indicies()
+    al.load_from_ontologies()
+    al.load_from_mods()
+    al.load_annotations()

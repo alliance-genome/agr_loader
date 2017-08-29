@@ -34,16 +34,6 @@ services:
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 
-  agr_loader_unit_tests:
-    image: agrdocker/agr_loader_run:develop
-    networks:
-      - esnet
-    environment:
-     - TEST_SET=True
-     - UNIT_TESTS=True
-     - NEO4J_NQC_HOST=neo4j.nqc
-     - NEO4J_NQC_PORT=7687
-
 networks:
   esnet:
 

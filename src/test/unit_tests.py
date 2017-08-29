@@ -15,7 +15,7 @@ def execute_transaction(query):
     return result
 
 def test_gene():
-    query = "MATCH (g:Gene) WHERE g.primaryKey = 'MGI:107956' RETURN g.primaryKey AS primaryKey"
+    query = "MATCH (g:Gene) WHERE g.primaryKey = 'MGI:2676586' RETURN g.primaryKey AS primaryKey"
     result = execute_transaction(query)
-    for record in result:
-        assert record["primaryKey"] == 'MGI:107956'
+    record = result.single()
+    assert record["primaryKey"] == 'MGI:2676586'
