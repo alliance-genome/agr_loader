@@ -20,6 +20,7 @@ services:
       - esnet
     environment:
      - TEST_SET=False
+     - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 
@@ -29,6 +30,7 @@ services:
       - esnet
     environment:
      - TEST_SET=True
+     - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
 
