@@ -19,3 +19,9 @@ def test_gene():
     result = execute_transaction(query)
     record = result.single()
     assert record["primaryKey"] == 'MGI:2676586'
+
+def test_do():
+    query = "MATCH (n:DOTerm) WHERE n.name IS NULL RETURN count(n) AS count"
+    result = execute_transaction(query)
+    record = result.single()
+    assert record["count"] == 1
