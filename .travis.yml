@@ -1,6 +1,8 @@
 sudo: required
 dist: trusty
 
+language: python
+
 services:
   - docker
 
@@ -9,4 +11,6 @@ before_install:
   - docker pull agrdocker/agr_neo4j_env:develop
   - docker build -f Dockerfile_env -t agrdocker/agr_loader_env:develop .
   - docker build -t agrdocker/agr_loader_run:develop .
+  
+script:
   - docker-compose up agr_loader_test
