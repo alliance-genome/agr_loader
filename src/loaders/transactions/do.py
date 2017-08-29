@@ -18,11 +18,11 @@ class DOTransaction(Transaction):
 
             //Create the DOTerm node and set properties. primaryKey is required.
             MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
-            ON CREATE SET doterm.name = row.name
-            ON CREATE SET doterm.nameKey = row.name_key
-            ON CREATE SET doterm.definition = row.definition
-            ON CREATE SET doterm.is_obsolete = row.is_obsolete
-            ON CREATE SET doterm.subset = row.subset
+            SET doterm.name = row.name
+            SET doterm.nameKey = row.name_key
+            SET doterm.definition = row.definition
+            SET doterm.is_obsolete = row.is_obsolete
+            SET doterm.subset = row.subset
 
             FOREACH (entry in row.xrefs |
                 MERGE (cr:ExternalId:Identifier {primaryKey:entry})
