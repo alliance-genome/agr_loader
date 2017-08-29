@@ -21,17 +21,17 @@ class BGITransaction(Transaction):
             UNWIND $data as row
 
             //Create the Gene node and set properties. primaryKey is required.
-            CREATE (g:Gene {primaryKey:row.primaryId})
-                SET g.symbol = row.symbol
-                SET g.taxonId = row.taxonId
-                SET g.name = row.name
-                SET g.description = row.description
-                SET g.geneSynopsisUrl = row.geneSynopsisUrl
-                SET g.geneSynopsis = row.geneSynopsis
-                SET g.geneLiteratureUrl = row.geneLiteratureUrl
-                SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
-                SET g.dateProduced = row.dateProduced
-                SET g.dataProvider = row.dataProvider
+            MERGE (g:Gene {primaryKey:row.primaryId})
+                ON CREATE SET g.symbol = row.symbol
+                ON CREATE SET g.taxonId = row.taxonId
+                ON CREATE SET g.name = row.name
+                ON CREATE SET g.description = row.description
+                ON CREATE SET g.geneSynopsisUrl = row.geneSynopsisUrl
+                ON CREATE SET g.geneSynopsis = row.geneSynopsis
+                ON CREATE SET g.geneLiteratureUrl = row.geneLiteratureUrl
+                ON CREATE SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
+                ON CREATE SET g.dateProduced = row.dateProduced
+                ON CREATE SET g.dataProvider = row.dataProvider
 
             //Create nodes for other identifiers.
 
