@@ -1,6 +1,7 @@
 from test import *
 from loaders import *
 from aggregate_loader import AggregateLoader
+from subprocess import call
 import os
 
 useTestObject = os.environ['TEST_SET']
@@ -15,8 +16,7 @@ uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
     if runUnitTest == "True":
-        UnitTest() # Run all unit tests.
-        quit()
+        call(["pytest"])
     else:
         al = AggregateLoader(uri, useTestObject)
         al.create_indicies()

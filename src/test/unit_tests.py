@@ -1,12 +1,5 @@
 from neo4j.v1 import GraphDatabase
-import pytest
 import os
-
-class UnitTest(object):
-
-    def __init__(self):
-        # Run all unit tests.
-        self.test_gene()
 
     def execute_transaction(self, query):
         host = os.environ['NEO4J_NQC_HOST']
