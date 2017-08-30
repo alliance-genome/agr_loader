@@ -1,6 +1,4 @@
-from neo4j.v1 import GraphDatabase
 from .transaction import Transaction
-import pprint
 
 class OrthoTransaction(Transaction):
 

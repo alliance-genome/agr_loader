@@ -1,9 +1,6 @@
-from files import *
-from test import *
-import re
 import uuid
 
-class DiseaseExt:
+class DiseaseExt(object):
 
 
     def get_features(self, disease_data, batch_size, testObject):
@@ -30,9 +27,9 @@ class DiseaseExt:
 
             primaryId = diseaseRecord.get('objectId')
 
-            if testObject.using_test_data() == True:
+            if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
-                if is_it_test_entry == False:
+                if is_it_test_entry is False:
                     continue
 
             if 'qualifier' in diseaseRecord:
@@ -108,7 +105,6 @@ class DiseaseExt:
                             "doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
                             "doPrefix": "DOID",
                             # doing the typing in neo, but this is for backwards compatibility in ES
-                            "diseaseObjectType": diseaseRecord.get('objectRelation').get('objectType'),
                             "ecodes": ecodes,
                             "definition": diseaseRecord.get('definition'),
                             "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),

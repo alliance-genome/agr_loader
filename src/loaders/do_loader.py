@@ -1,7 +1,6 @@
-from neo4j.v1 import GraphDatabase
 from .transactions.do import DOTransaction
 
-class DOLoader:
+class DOLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

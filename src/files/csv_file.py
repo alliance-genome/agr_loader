@@ -2,7 +2,7 @@ from .comment_file import CommentFile
 import csv
 import codecs
 
-class CSVFile:
+class CSVFile(object):
 
     def __init__(self, filename):
         self.filename = filename

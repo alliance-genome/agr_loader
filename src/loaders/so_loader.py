@@ -1,7 +1,6 @@
-from neo4j.v1 import GraphDatabase
 from .transactions.so import SOTransaction
 
-class SOLoader:
+class SOLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

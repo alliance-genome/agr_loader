@@ -1,7 +1,7 @@
 import tarfile
 import os
 
-class TARFile:
+class TARFile(object):
 
     def __init__(self, path, tarfilename):
         self.path = path
@@ -16,5 +16,5 @@ class TARFile:
             if not os.path.exists(self.path + "/" + member.name):
                 print("Extracting (%s->%s/%s)" % (member.name, self.path, member.name))
                 extract = True
-        if extract == True:
+        if extract is True:
             tfile.extractall(self.path)

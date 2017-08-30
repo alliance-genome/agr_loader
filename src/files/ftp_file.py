@@ -1,7 +1,7 @@
 import urllib 
 import os
 
-class FTPFile:
+class FTPFile(object):
 
     def __init__(self, url, savepath, filename):
         self.url = url
@@ -13,4 +13,3 @@ class FTPFile:
         if not os.path.exists(self.savepath):
             os.makedirs(self.savepath)
         urllib.urlretrieve(self.url, self.savepath + "/" + self.filename)
-

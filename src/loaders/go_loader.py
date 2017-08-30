@@ -1,7 +1,6 @@
-from neo4j.v1 import GraphDatabase
 from .transactions.go import GOTransaction
 
-class GOLoader:
+class GOLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

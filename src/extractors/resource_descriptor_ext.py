@@ -2,9 +2,9 @@ import urllib
 import os
 import yaml
 
-class resourceDescriptor:
+class resourceDescriptor(object):
 
-    def __init__(self, bucket, filename, savepath):
+    def __init__(self, bucket, savepath):
         self.bucket = bucket
         self.filename = "resourceDescriptors.yaml"
         self.savepath = savepath

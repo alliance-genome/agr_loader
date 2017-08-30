@@ -1,4 +1,4 @@
-class DiseaseGeneAnnotExt:
+class DiseaseGeneAnnotExt(object):
     
     def __init__(self, genes, omim_data):
         self.diseases = {}

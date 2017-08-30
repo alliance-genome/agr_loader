@@ -1,6 +1,6 @@
 from .transactions.orthology import OrthoTransaction
 
-class OrthoLoader:
+class OrthoLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

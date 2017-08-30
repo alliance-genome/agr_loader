@@ -1,6 +1,6 @@
 import codecs
 
-class TXTFile:
+class TXTFile(object):
 
     def __init__(self, filename):
         self.filename = filename

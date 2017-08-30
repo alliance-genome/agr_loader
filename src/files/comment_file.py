@@ -1,5 +1,5 @@
 
-class CommentFile:
+class CommentFile(object):
     def __init__(self, f, commentstring="#"):
         self.f = f
         self.commentstring = commentstring

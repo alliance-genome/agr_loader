@@ -1,4 +1,3 @@
-from neo4j.v1 import GraphDatabase
 import time
 
 class Transaction(object):

@@ -1,7 +1,7 @@
 import json
 import codecs
 
-class JSONFile:
+class JSONFile(object):
 
     def get_data(self, filename):
         print("Loading json data from %s ..." % (filename))

@@ -1,5 +1,3 @@
-from test import *
-from loaders import *
 from aggregate_loader import AggregateLoader
 import os
 

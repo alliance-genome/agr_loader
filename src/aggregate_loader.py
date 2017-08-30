@@ -1,18 +1,15 @@
 from loaders import *
-from annotators import *
 from loaders.transactions import *
 from files import *
 from mods import *
 from extractors import *
 from test import *
-import gc
-import os
 import time
 from neo4j.v1 import GraphDatabase
 # from loaders.disease_loader import DiseaseLoader
 # from loaders.do_loader import DOLoader
 
-class AggregateLoader:
+class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.

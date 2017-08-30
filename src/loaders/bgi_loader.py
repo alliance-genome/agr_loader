@@ -1,6 +1,6 @@
 from .transactions.bgi import BGITransaction
 
-class BGILoader:
+class BGILoader(object):
 
     def __init__(self, graph):
         self.graph = graph
