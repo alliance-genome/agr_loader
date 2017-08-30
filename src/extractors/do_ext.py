@@ -1,9 +1,7 @@
-from files import *
-import sys
-import re
-from .obo_parser import *
+from files import S3File
+from .obo_parser import parseGOOBO
 
-class DOExt:
+class DOExt(object):
     @staticmethod
     def get_data(testObject):
         path = "tmp";
@@ -16,9 +14,9 @@ class DOExt:
             syns = []
             xrefs = []
             #print (do_synonyms)
-            if syns == None:
+            if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if do_syns != None:
+            if do_syns is not None:
                 if isinstance(do_syns, (list, tuple)):
                     for syn in do_syns:
                         syn = syn.split("\"")[1].strip()
@@ -28,11 +26,11 @@ class DOExt:
                     syns.append(syn)
             xrefs = line.get('xref')
             #print (do_synonyms)
-            if xrefs == None:
+            if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             do_is_as = line.get('is_a')
             #print (do_is_as)
-            if do_is_as == None:
+            if do_is_as is None:
                 do_is_as = []
                 isasWithoutNames = []
             else:
@@ -46,13 +44,13 @@ class DOExt:
                     isasWithoutNames.append(isaWithoutName)
 
             definition = line.get('def')
-            if definition == None:
+            if definition is None:
                 definition = ""
             subset = line.get('subset')
-            if subset == None:
+            if subset is None:
                 subset = ""
             is_obsolete = line.get('is_obsolete')
-            if is_obsolete == None:
+            if is_obsolete is None:
                 is_obsolete = ""
 
             if (line['id'] == 'DOID:74'):

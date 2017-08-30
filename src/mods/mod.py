@@ -53,9 +53,9 @@ class MOD(object):
                         }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.
-        if testObject.using_test_data() == True:
+        if testObject.using_test_data() is True:
             for entry in go_annot_dict:
-                if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) == True:
+                if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
                     go_annot_list.append(go_annot_dict[entry])
                     testObject.add_go_ids(go_annot_dict[entry]['go_id'])
                 else:

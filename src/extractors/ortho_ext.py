@@ -1,19 +1,14 @@
-from files import *
-from extractors import *
-import time
-import gc
-import json
+from files import S3File, TARFile
 import uuid
-from test import *
 
-class OrthoExt:
+class OrthoExt(object):
 
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
         path = "tmp"
         filename = None
         filename_comp = None
-        if testObject.using_test_data() == True:
+        if testObject.using_test_data() is True:
             filename = '/orthology_test_data_0.6.1_3.json'
             filename_comp = 'orthology_test_data_0.6.1_3.json.tar.gz'
         else:
@@ -24,12 +19,12 @@ class OrthoExt:
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + filename)
 
-        dateProduced = ortho_data['metaData']['dateProduced']
-        dataProvider = ortho_data['metaData']['dataProvider']
-        release = None
+        # dateProduced = ortho_data['metaData']['dateProduced']
+        # dataProvider = ortho_data['metaData']['dataProvider']
+        # release = None
 
-        if 'release' in ortho_data['metaData']:
-            release = ortho_data['metaData']['release']
+        # if 'release' in ortho_data['metaData']:
+        #     release = ortho_data['metaData']['release']
 
         list_to_yield = []
 
@@ -52,13 +47,7 @@ class OrthoExt:
                     'isBestRevScore': orthoRecord['isBestRevScore'],
 
                     'gene1AgrPrimaryId' : gene1AgrPrimaryId,
-                    # 'gene1Species': gene1Species,
-                    # 'gene1SpeciesName': orthoRecord['gene1SpeciesName'],
-
                     'gene2AgrPrimaryId': gene2AgrPrimaryId,
-                    # 'gene2Symbol' : orthoRecord['gene2Symbol'],
-                    # 'gene2Species': gene2Species,
-                    # 'gene2SpeciesName': orthoRecord['gene2SpeciesName'],
 
                     'matched': orthoRecord['predictionMethodsMatched'],
                     'notMatched': orthoRecord['predictionMethodsNotMatched'],

@@ -1,4 +1,3 @@
-from neo4j.v1 import GraphDatabase
 from .transaction import Transaction
 
 class DiseaseTransaction(Transaction):

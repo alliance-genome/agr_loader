@@ -1,8 +1,6 @@
-from files import *
+from files import S3File
 
-import re
-
-class OMIMExt:
+class OMIMExt(object):
 
     def __init__(self):
         path = "tmp";

@@ -1,7 +1,5 @@
-from files import *
+from files import S3File
 from itertools import islice, chain, tee
-
-import re
 
 class SOExt:
 

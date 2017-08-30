@@ -1,6 +1,4 @@
-from neo4j.v1 import GraphDatabase
-
-class Indicies():
+class Indicies(object):
 
     def __init__(self, graph):
         self.graph = graph

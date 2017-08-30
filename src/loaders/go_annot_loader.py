@@ -1,7 +1,6 @@
-from neo4j.v1 import GraphDatabase
 from .transactions.go_annot import GOAnnotTransaction
 
-class GOAnnotLoader:
+class GOAnnotLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

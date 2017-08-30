@@ -1,9 +1,6 @@
-from files import *
-from test import *
-import re
 import uuid
 
-class BGIExt:
+class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject):
 
@@ -27,13 +24,19 @@ class BGIExt:
 
             local_id = global_id.split(":")[1]
 
-            modCrossReference = {"id": global_id, "globalCrossRefId": global_id, "localId": local_id, "crossrefCompleteUrl": self.get_complete_url(local_id, global_id)}
+            modCrossReference = {
+                "id": global_id, 
+                "globalCrossRefId": global_id, 
+                "localId": local_id, 
+                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id)
+            }
+
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
-            if testObject.using_test_data() == True:
+            if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
-                if is_it_test_entry == False:
+                if is_it_test_entry is False:
                     continue
 
             if 'crossReferenceIds' in geneRecord:
@@ -42,7 +45,12 @@ class BGIExt:
                     #this can be simplified when GO YAML reused for AGR has helper fields.
                     if ':' in crossRef:
                         local_crossref_id = crossRef.split(":")[1]
-                        crossReferences.append({"id": crossRef, "globalCrossrefId": crossRef, "localId": local_crossref_id, "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef)})
+                        crossReferences.append({
+                            "id": crossRef, 
+                            "globalCrossrefId": crossRef, 
+                            "localId": local_crossref_id, 
+                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef)
+                            })
                     else:
                         local_crossref_id = crossRef
                         crossReferences.append(

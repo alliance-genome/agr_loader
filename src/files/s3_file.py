@@ -1,7 +1,7 @@
 import urllib.request
 import os
 
-class S3File:
+class S3File(object):
 
     def __init__(self, bucket, filename, savepath):
         self.bucket = bucket

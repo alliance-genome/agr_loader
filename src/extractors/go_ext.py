@@ -1,9 +1,7 @@
-from files import *
-from .obo_parser import *
+from files import S3File
+from .obo_parser import parseGOOBO
 
-import re
-
-class GOExt:
+class GOExt(object):
 
     @staticmethod
     def get_data(testObject):
@@ -16,10 +14,10 @@ class GOExt:
             syns = []
             go_synonyms = line.get('synonym')
             xrefs = []
-            if go_synonyms == None:
+            if go_synonyms is None:
                 go_synonyms = []
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if go_synonyms != None:
+            if go_synonyms is not None:
                 if isinstance(go_synonyms, (list, tuple)):
                     for syn in go_synonyms:
                         syn = syn.split("\"")[1].strip()
@@ -29,11 +27,11 @@ class GOExt:
                     syns.append(syn)
             xrefs = line.get('xref')
             #print (do_synonyms)
-            if xrefs == None:
+            if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             go_is_as = line.get('is_a')
             #print (do_is_as)
-            if go_is_as == None:
+            if go_is_as is None:
                 go_is_as = []
                 isasWithoutNames = []
             else:
@@ -46,7 +44,7 @@ class GOExt:
                     isaWithoutName = go_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
             definition = line.get('def')
-            if definition == None:
+            if definition is None:
                 definition = ""
             dict_to_append = {
                 'go_genes': [],
@@ -64,10 +62,10 @@ class GOExt:
             }
             list_to_return.append(dict_to_append)
 
-        if testObject.using_test_data() == True:
+        if testObject.using_test_data() is True:
             filtered_dict = []
             for entry in list_to_return:
-                if testObject.check_for_test_go_entry(entry['id']) == True:
+                if testObject.check_for_test_go_entry(entry['id']) is True:
                     filtered_dict.append(entry)
                 else:
                     continue
