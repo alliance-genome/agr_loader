@@ -21,7 +21,7 @@ class OrthoExt(object):
         ortho_data = JSONFile().get_data(path + filename)
 
         # dateProduced = ortho_data['metaData']['dateProduced']
-        # dataProvider = ortho_data['metaData']['dataProvider']
+        dataProvider = ortho_data['metaData']['dataProvider']
         # release = None
 
         # if 'release' in ortho_data['metaData']:
