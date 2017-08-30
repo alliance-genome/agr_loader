@@ -1,4 +1,4 @@
-from files import S3File, TARFile
+from files import S3File, TARFile, JSONFile
 import uuid
 
 class OrthoExt(object):

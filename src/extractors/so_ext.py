@@ -1,4 +1,4 @@
-from files import S3File
+from files import S3File, TXTFile
 from itertools import islice, chain, tee
 
 class SOExt:
