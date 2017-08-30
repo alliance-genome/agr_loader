@@ -1,7 +1,6 @@
 from .id_ext import IdExt
 from .go_ext import GOExt
 from .do_ext import DOExt
-from .homolog_ext import HomoLogExt
 from .so_ext import SOExt
 from .ortho_ext import OrthoExt
 from .omim_ext import OMIMExt
