@@ -17,8 +17,6 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Transgene(primaryKey)")
         session.run("CREATE INDEX ON :Fish(primaryKey)")
         session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
-        session.run("CREATE INDEX ON :LocationObject(primaryKey)")
-        session.run("CREATE INDEX ON :Location(primaryKey)")
         session.run("CREATE INDEX ON :EnvironmentCondition(primaryKey)")
         session.run("CREATE INDEX ON :Environment(primaryKey)")
         session.run("CREATE INDEX ON :Species(primaryKey)")

@@ -27,6 +27,8 @@ class OrthoTransaction(Transaction):
 
             //Create the Association node to be used for the object/doTerm
             MERGE (oa:Association {primaryKey:row.uuid})
+                ON CREATE SET oa :OrthologyGeneJoin
+                ON CREATE SET oa.joinType = 'orthologous'
             MERGE (g1)-[a1:ASSOCIATION]->(oa)
             MERGE (oa)-[a2:ASSOCIATION]->(g2)
 
