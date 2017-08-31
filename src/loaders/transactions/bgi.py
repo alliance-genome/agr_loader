@@ -69,7 +69,7 @@ class BGITransaction(Transaction):
 
             WITH row.crossReferences as events
             UNWIND events as event
-                MERGE (id:CrossReference:Entity {primaryKey:event.id})
+                MERGE (id:CrossReference {primaryKey:event.id})
                 ON CREATE SET id.name = event.id
                 ON CREATE SET id.globalCrosssrefId = event.crossRef
                 ON CREATE SET id.localId = event.localId
