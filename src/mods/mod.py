@@ -1,6 +1,6 @@
 from extractors.bgi_ext import BGIExt
 from extractors.disease_ext import DiseaseExt
-from files import *
+from files import S3File, TARFile, JSONFile
 import gzip
 import csv
 
@@ -25,16 +25,16 @@ class MOD(object):
         with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
             reader = csv.reader(file, delimiter='\t')
             if species == "Homo sapiens": # Special case for human GO annotations.
-                for row in reader:
-                    gene = row[0]
-                    go_terms = map(lambda s: s.strip(), row[1].split(","))
+                for line in reader:
+                    gene = line[0]
+                    go_terms = map(lambda s: s.strip(), line[1].split(","))
                     for term in go_terms:
                         if gene in go_annot_dict:
-                            go_annot_dict[gene]['go_id'].append(go_id)
+                            go_annot_dict[gene]['go_id'].append(term)
                         else:
                             go_annot_dict[gene] = {
                                 'gene_id': gene,
-                                'go_id': [go_id],
+                                'go_id': [term],
                                 'species': species
                             }
             else:
@@ -77,8 +77,8 @@ class MOD(object):
 
     def load_disease_objects(self, batch_size, testObject, diseaseName, loadFile):
         path = "tmp"
-        S3File("mod-datadumps", self.loadFile, path).download()
-        TARFile(path, self.loadFile).extract_all()
+        S3File("mod-datadumps", loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName)
         disease_dict = DiseaseExt().get_features(disease_data, batch_size, testObject)
         
