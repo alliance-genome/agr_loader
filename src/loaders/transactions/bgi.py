@@ -16,7 +16,7 @@ class BGITransaction(Transaction):
         # quit()
 
         query = """
-            UNWIND $data as row
+            UNWIND $data AS row
 
             //Create the Gene node and set properties. primaryKey is required.
             CREATE (g:Gene {primaryKey:row.primaryId})
@@ -67,8 +67,8 @@ class BGITransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
 
-            WITH row.crossReferences, g as events
-            UNWIND events as event
+            WITH g, row.crossReferences AS events
+            UNWIND events AS event
                 MERGE (id:CrossReference {primaryKey:event.id})
                 ON CREATE SET id.name = event.id
                 ON CREATE SET id.globalCrosssrefId = event.crossRef
@@ -78,9 +78,9 @@ class BGITransaction(Transaction):
         """
 
         locationQuery = """
-            UNWIND $data as row
-                WITH row.genomeLocations as locations
-                UNWIND locations as location
+            UNWIND $data AS row
+                WITH row.genomeLocations AS locations
+                UNWIND locations AS location
                     //TODO: this is super annoying -- without this second pass of merging gene, it creates new gene nodes!
                     MATCH (g:Gene {primaryKey:location.geneLocPrimaryId})
 
