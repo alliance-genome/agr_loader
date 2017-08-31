@@ -67,7 +67,7 @@ class BGITransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
 
-            WITH row.crossReferences as events
+            WITH row.crossReferences, g as events
             UNWIND events as event
                 MERGE (id:CrossReference {primaryKey:event.id})
                 ON CREATE SET id.name = event.id
