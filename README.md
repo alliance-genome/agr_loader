@@ -21,7 +21,10 @@ Resources.
 - Initialize a full load with `make run`.
 - Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
 
-## Accessing the Neo4j shell
+## Running Unit Tests
+- Once the loader has been run (either test load or full load), unit tests can be executed via `make unit_tests`.
+
+## Accessing the Neo4j Shell
 - From your command line: `docker exec -ti neo4j.nqc bin/cypher-shell`
   - A quick command to count the number of nodes in your db: `match (n) return count (n);`
 
