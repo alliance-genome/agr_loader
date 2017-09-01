@@ -22,7 +22,7 @@ run: build
 run_test: build
 	docker-compose up agr_loader_test
 
-unit_test:
+unit_tests:
 	docker-compose run agr_loader_test pytest --verbose
 
 bash:
