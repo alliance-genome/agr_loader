@@ -25,3 +25,9 @@ def test_do():
     result = execute_transaction(query)
     record = result.single()
     assert record["count"] == 1
+
+def test_for_dupe_genes():
+    query = "MATCH (n:Gene) WITH n.primaryKey AS prop, count(*) AS count WHERE count > 1 RETURN prop, count;"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] == 0
