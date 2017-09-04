@@ -18,6 +18,6 @@ class SOTransaction(Transaction):
 
             //Create the GOTerm node and set properties. primaryKey is required.
             MERGE (s:SOTerm:Ontology {primaryKey:row.id})
-            ON CREATE SET s.name = row.name
+                SET s.name = row.name
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
