@@ -1,6 +1,6 @@
-FROM agrdocker/agr_python_env:develop
+FROM agrdocker/agr_python_env:latest
 
-WORKDIR /workdir
+WORKDIR /usr/src/app
 
 ADD requirements.txt .
 
