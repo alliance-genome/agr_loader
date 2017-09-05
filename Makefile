@@ -1,5 +1,5 @@
 build: pull
-	docker build -t agrdocker/agr_loader_run:develop .
+	docker build -t agrdocker/agr_loader_run:latest .
 
 buildenv: build
 
@@ -10,7 +10,7 @@ stopdb:
 	docker-compose stop neo4j.nqc
 
 pull:
-	docker pull agrdocker/agr_neo4j_env:develop
+	docker pull agrdocker/agr_neo4j_env:latest
 
 removedb:
 	docker-compose down -v
@@ -32,7 +32,7 @@ reload:
 	docker-compose down -v
 	docker-compose up -d neo4j.nqc
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:develop .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader
 
 reload_test: 
@@ -40,5 +40,5 @@ reload_test:
 	docker-compose down -v
 	docker-compose up -d neo4j.nqc
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:develop .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader_test

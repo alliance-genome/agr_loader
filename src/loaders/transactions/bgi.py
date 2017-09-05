@@ -30,6 +30,11 @@ class BGITransaction(Transaction):
                 SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
                 SET g.dateProduced = row.dateProduced
                 SET g.dataProvider = row.dataProvider
+                SET g.modGlobalCrossRefId = row.modGlobalCrossRefId
+                SET g.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
+                SET g.modLocalId = row.localId
+                SET g.modGlobalId = row.modGlobalId
+                
 
             //Create nodes for other identifiers.
 
