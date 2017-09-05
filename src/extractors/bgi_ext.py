@@ -101,7 +101,11 @@ class BGIExt(object):
                 "dataProvider": dataProvider,
                 "release": release,
                 "href": None,
-                "uuid": str(uuid.uuid1())
+                "uuid": str(uuid.uuid1()),
+                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id),
+                "localId": local_id,
+                "modGlobalCrossRefId": global_id,
+                "modGlobalId": global_id
             }
 
             

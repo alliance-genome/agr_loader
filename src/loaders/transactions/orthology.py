@@ -19,8 +19,7 @@ class OrthoTransaction(Transaction):
 
             MERGE(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
             MERGE(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
-            MERGE(g1)-[orth:ORTHOLOGOUS]-(g2)
-                SET orth.uuid = row.uuid
+            MERGE (g1)-[orth:ORTHOLOGOUS {primaryKey:row.uuid}]->(g2)
                 SET orth.isBestScore = row.isBestScore
                 SET orth.isBestRevScore = row.isBestRevScore
                 SET orth.confidence = row.confidence

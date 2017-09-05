@@ -3,7 +3,7 @@ version: "2"
 services:
   neo4j.nqc:
     container_name: neo4j.nqc
-    image: agrdocker/agr_neo4j_env:develop
+    image: agrdocker/agr_neo4j_env:latest
     volumes:
       - dbstore:/data
       - dbstore:/logs
@@ -15,7 +15,7 @@ services:
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096
   agr_loader:
-    image: agrdocker/agr_loader_run:develop
+    image: agrdocker/agr_loader_run:latest
     networks:
       - esnet
     environment:
@@ -25,7 +25,7 @@ services:
      - NEO4J_NQC_PORT=7687
 
   agr_loader_test:
-    image: agrdocker/agr_loader_run:develop
+    image: agrdocker/agr_loader_run:latest
     networks:
       - esnet
     environment:
