@@ -53,11 +53,6 @@ class DOExt(object):
             if is_obsolete is None:
                 is_obsolete = ""
 
-            if (line['id'] == 'DOID:74'):
-                print (line['id'])
-                print (line['name'])
-                print (isasWithoutNames)
-
             dict_to_append = {
                 'do_genes': [],
                 'do_species': [],
