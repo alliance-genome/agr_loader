@@ -65,8 +65,13 @@ class DOExt(object):
                 'isas': isasWithoutNames,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
-                'xrefs': xrefs
-
+                'xrefs': xrefs,
+                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=rat&acc_id='+line['id'],
+                'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
+                'wormbase_link': 'no_link_yet',
+                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
+                'zfin_link': 'https://zfin.org/'+line['id'],
+                'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
             }
             list_to_return.append(dict_to_append)
 

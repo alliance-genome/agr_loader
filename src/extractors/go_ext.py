@@ -43,6 +43,12 @@ class GOExt(object):
                 else:
                     isaWithoutName = go_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
+            subset = line.get('subset')
+            if subset is None:
+                subset = ""
+            is_obsolete = line.get('is_obsolete')
+            if is_obsolete is None:
+                is_obsolete = ""
             definition = line.get('def')
             if definition is None:
                 definition = ""
@@ -58,6 +64,7 @@ class GOExt(object):
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                 'category': 'go',
                 'is_a': isasWithoutNames,
+                'is_obsolete': is_obsolete,
                 'xrefs': xrefs
             }
             list_to_return.append(dict_to_append)
