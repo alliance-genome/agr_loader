@@ -23,9 +23,18 @@ class GOTransaction(Transaction):
                 SET g.href = row.href
                 SET g.name = row.name 
                 SET g.nameKey = row.name_key
+                SET g.is_obsolete = row.is_obsolete
 
             FOREACH (entry in row.go_synonyms |           
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
+
+            FOREACH (isa in row.isas |
+                MERGE (g2:GOTerm:Ontology {primaryKey:isa})
+                MERGE (g)-[aka:IS_A]->(g2))
+
+            FOREACH (entry in row.xrefs |
+                MERGE (cr:ExternalId:Identifier {primaryKey:entry})
+                MERGE (g)-[aka:ALSO_KNOWN_AS]->(cr))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
