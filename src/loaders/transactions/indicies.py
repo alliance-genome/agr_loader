@@ -28,6 +28,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :ExternalId(primaryKey)")
         session.run("CREATE INDEX ON :Association(primaryKey)")
         session.run("CREATE INDEX ON :CrossReference(primaryKey)")
+        session.run("CREATE INDEX ON :OrthologyGeneJoin(primaryKey)")
         session.run("CREATE INDEX ON :SecondaryId(primaryKey)")
         session.run("CREATE INDEX ON :Chromosome(primaryKey)")
         session.run("CREATE INDEX ON :OrthoAlgorithm (name)")
