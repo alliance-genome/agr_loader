@@ -24,7 +24,7 @@ def test_do():
     query = "MATCH (n:DOTerm) WHERE n.name IS NULL RETURN count(n) AS count"
     result = execute_transaction(query)
     record = result.single()
-    assert record["count"] == 1
+    assert record["count"] < 10
 
 def test_for_dupe_genes():
     query = "MATCH (g:Gene) WHERE keys(g)[0] = 'primaryKey' and size(keys(g)) = 1 RETURN count(g) as count"
