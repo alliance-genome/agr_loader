@@ -41,15 +41,18 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start),2) ))
 
-            print("Loading MOD disease data for %s into Neo4j." % (mod.species))
-            features = mod.load_disease_objects(self.batch_size, self.testObject)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+        # a little weird here - the idea is to let BGI from all mods go in first before ortho (see above)
+        for mod in self.mods:
 
             print("Loading Orthology data for %s into Neo4j." % (mod.species))
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+
+            print("Loading MOD disease data for %s into Neo4j." % (mod.species))
+            features = mod.load_disease_objects(self.batch_size, self.testObject)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
     # Load annotations before ontologies to restrict ontology data for testObject.
     def load_annotations(self):
