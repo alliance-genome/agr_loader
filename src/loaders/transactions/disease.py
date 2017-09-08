@@ -67,5 +67,14 @@ class DiseaseTransaction(Transaction):
 
             """
 
+        deleteEmptyDONodes = """
+
+            MATCH (dd:DOTerm) WHERE keys(dd)[0] = 'primaryKey' and size(keys(dd)) = 1
+            DETACH DELETE (dd)
+
+        """
+
+
         Transaction.execute_transaction(self, termAdditions, data)
         Transaction.execute_transaction(self, executeGene, data)
+        #Transaction.execute_transaction(self, deleteEmptyDONodes, data)
