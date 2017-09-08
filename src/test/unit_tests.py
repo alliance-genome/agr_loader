@@ -27,7 +27,25 @@ def test_do():
     assert record["count"] == 1
 
 def test_for_dupe_genes():
-    query = "MATCH (n:Gene) WITH n.primaryKey AS prop, count(*) AS count WHERE count > 1 RETURN prop, count;"
+    query = "MATCH (g:Gene) WHERE keys(g)[0] = 'primaryKey' and size(keys(g)) = 1 RETURN g.primaryKey, keys(g)"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 0
+
+def test_fgf8a_exists():
+    query = "MATCH (g:Gene) WHERE g.symbol = 'fgf8a'"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+def test_hip1_exists():
+    query = "MATCH (g:Gene) WHERE g.symbol = 'Hip1'"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+def test_doterm_exists():
+    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0060348'"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] == 1

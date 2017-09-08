@@ -9,17 +9,25 @@ class DiseaseTransaction(Transaction):
         
         # Loads the Disease data into Neo4j.
 
+        termAdditions = """
+
+            UNWIND $data as row
+
+            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
+               ON MATCH SET d.doDisplayId = row.doDisplayId
+               ON MATCH SET d.doUrl = row.doUrl
+               ON MATCH SET d.doPrefix = row.doPrefix
+               ON MATCH SET d.doId = row.doId
+
+        """
+
         executeGene = """
             UNWIND $data as row
 
             MATCH(f:Gene {primaryKey:row.primaryId})
                 //SET f :DiseaseObject
 
-            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
-               SET d.doDisplayId = row.doDisplayId
-               SET d.doUrl = row.doUrl
-               SET d.doPrefix = row.doPrefix
-               SET d.doId = row.doId
+            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
 
                 MERGE (spec:Species {primaryKey: row.taxonId})
                 MERGE (f)<-[:FROM_SPECIES]->(spec)
@@ -59,4 +67,5 @@ class DiseaseTransaction(Transaction):
 
             """
 
+        Transaction.execute_transaction(self, termAdditions, data)
         Transaction.execute_transaction(self, executeGene, data)

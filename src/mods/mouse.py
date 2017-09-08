@@ -4,9 +4,9 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_1.0.1.tar.gz"
-        self.bgiName = "/MGI_1.0.1_basicGeneInformation.json"
-        self.diseaseName = "/MGI_1.0.1_diseaseAnnotations.json"
+        self.loadFile = "MGI_1.0.3.tar.gz"
+        self.bgiName = "/MGI_1.0.3_basicGeneInformation.json"
+        self.diseaseName = "/MGI_1.0.3_diseaseAnnotations.json"
         self.geneAssociationFile = "gene_association.mgi.gz"
         self.identifierPrefix = "" # None for MGI.
 
