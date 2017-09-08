@@ -77,4 +77,4 @@ class DiseaseTransaction(Transaction):
 
         Transaction.execute_transaction(self, termAdditions, data)
         Transaction.execute_transaction(self, executeGene, data)
-        #Transaction.execute_transaction(self, deleteEmptyDONodes, data)
+        Transaction.execute_transaction(self, deleteEmptyDONodes, data)
