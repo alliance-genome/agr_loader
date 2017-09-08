@@ -18,7 +18,7 @@ class DiseaseTransaction(Transaction):
                SET d.doPrefix = row.doPrefix
                SET d.doId = row.doId
 
-            MERGE (f:Gene {primaryKey:row.primaryId})
+            MATCH (f:Gene {primaryKey:row.primaryId})
                 SET f :DiseaseObject
 
             MERGE (spec:Species {primaryKey: row.taxonId})

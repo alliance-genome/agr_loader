@@ -17,8 +17,10 @@ class OrthoTransaction(Transaction):
         query = """
             UNWIND $data as row
 
-            MERGE(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
-            MERGE(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
+            //using match here to limit ortho set to genes that have already been loaded by bgi.
+            MATCH(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
+            MATCH(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
+
             MERGE (g1)-[orth:ORTHOLOGOUS {primaryKey:row.uuid}]->(g2)
                 SET orth.isBestScore = row.isBestScore
                 SET orth.isBestRevScore = row.isBestRevScore
