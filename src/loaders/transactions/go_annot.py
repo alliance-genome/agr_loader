@@ -13,7 +13,7 @@ class GOAnnotTransaction(Transaction):
         '''
         query = """
             UNWIND $data as row
-            MERGE (g:Gene {primaryKey:row.gene_id}) 
+            MATCH (g:Gene {primaryKey:row.gene_id})
 
             FOREACH (entry in row.go_id |           
                 MERGE (go:GOTerm:Ontology {primaryKey:entry})
