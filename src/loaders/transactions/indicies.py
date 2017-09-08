@@ -34,6 +34,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :OrthoAlgorithm (name)")
         session.run("CREATE INDEX ON :Gene(modGlobalId)")
         session.run("CREATE INDEX ON :Gene(localId)")
+        #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
         #session.run("CREATE CONSTRAINT ON (n:Gene) ASSERT n.primaryKey IS UNIQUE")
         #session.run("CREATE CONSTRAINT ON (n:GOTerm) ASSERT n.primaryKey IS UNIQUE")
