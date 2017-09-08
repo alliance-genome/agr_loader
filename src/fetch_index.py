@@ -14,6 +14,6 @@ if __name__ == '__main__':
 
     # The following order is required for testing.	
     al.create_indicies()
+    al.load_from_ontologies()
     al.load_from_mods()
     al.load_annotations()
-    al.load_from_ontologies()

@@ -9,57 +9,72 @@ class DiseaseTransaction(Transaction):
         
         # Loads the Disease data into Neo4j.
 
-        executeGene = """
+        termAdditions = """
+
             UNWIND $data as row
 
             MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
-               SET d.doDisplayId = row.doDisplayId
-               SET d.doUrl = row.doUrl
-               SET d.doPrefix = row.doPrefix
-               SET d.doId = row.doId
+               ON MATCH SET d.doDisplayId = row.doDisplayId
+               ON MATCH SET d.doUrl = row.doUrl
+               ON MATCH SET d.doPrefix = row.doPrefix
+               ON MATCH SET d.doId = row.doId
 
-            MERGE (f:Gene {primaryKey:row.primaryId})
-                SET f :DiseaseObject
+        """
 
-            MERGE (spec:Species {primaryKey: row.taxonId})
-            MERGE (f)<-[:FROM_SPECIES]->(spec)
-                SET f.with = row.with
+        executeGene = """
+            UNWIND $data as row
 
-            //the foreach statments that represent relationships/associationType are not here for capitalization purposes.
-            //instead we mimic a conditional statement by creating a collection with 1 value, and an empty collection.
-            //Create the Association node to be used for the object/doTerm
-            MERGE (da:Association {primaryKey:row.uuid})
-                SET da :DiseaseGeneJoin
+            MATCH(f:Gene {primaryKey:row.primaryId})
+                //SET f :DiseaseObject
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (f)<-[fa:IS_MARKER_FOR {uuid:row.uuid}]->(d))
-                SET da.joinType = 'is_marker_of'
+            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (f)<-[fa:IS_IMPLICATED_IN {uuid:row.uuid}]->(d))
-                SET da.joinType = 'is_implicated_in'
+                MERGE (spec:Species {primaryKey: row.taxonId})
+                MERGE (f)<-[:FROM_SPECIES]->(spec)
+                    //SET f.with = row.with
 
-            //Create the relationship from the object node to association node.
-            //Create the relationship from the association node to the DoTerm node.
+                MERGE (da:Association {primaryKey:row.uuid})
+                    SET da :DiseaseGeneJoin
 
-            MERGE (f)-[fda:ASSOCIATION]->(da)
-            MERGE (da)-[dad:ASSOCIATION]->(d)
+                FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                    MERGE (f)<-[fa:IS_MARKER_FOR {uuid:row.uuid}]->(d))
+                    SET da.joinType = 'is_marker_of'
 
-            // Publications
+                FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                    MERGE (f)<-[fa:IS_IMPLICATED_IN {uuid:row.uuid}]->(d))
+                    SET da.joinType = 'is_implicated_in'
 
-            MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
-                SET pub.pubModId = row.pubModId
-                SET pub.pubMedId = row.pubMedId
-                SET pub.pubModUrl = row.pubModUrl
-                SET pub.pubMedUrl = row.pubMedUrl
+                //Create the relationship from the object node to association node.
+                //Create the relationship from the association node to the DoTerm node.
 
-            MERGE (da)-[dapu:EVIDENCE]->(pub)
+                MERGE (f)-[fda:ASSOCIATION]->(da)
+                MERGE (da)-[dad:ASSOCIATION]->(d)
 
-            FOREACH (entity in row.ecodes|
-                    MERGE (ecode1:EvidenceCode {primaryKey:entity})
-                    MERGE (da)-[daecode1:EVIDENCE]->(ecode1)
-            )
+                // Publications
+
+                MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pub.pubModId = row.pubModId
+                    SET pub.pubMedId = row.pubMedId
+                    SET pub.pubModUrl = row.pubModUrl
+                    SET pub.pubMedUrl = row.pubMedUrl
+
+                MERGE (da)-[dapu:EVIDENCE]->(pub)
+
+                FOREACH (entity in row.ecodes|
+                        MERGE (ecode1:EvidenceCode {primaryKey:entity})
+                        MERGE (da)-[daecode1:EVIDENCE]->(ecode1)
+                )
 
             """
 
+        deleteEmptyDONodes = """
+
+            MATCH (dd:DOTerm) WHERE keys(dd)[0] = 'primaryKey' and size(keys(dd)) = 1
+            DETACH DELETE (dd)
+
+        """
+
+
+        Transaction.execute_transaction(self, termAdditions, data)
         Transaction.execute_transaction(self, executeGene, data)
+        #Transaction.execute_transaction(self, deleteEmptyDONodes, data)
