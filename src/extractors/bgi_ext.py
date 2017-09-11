@@ -27,7 +27,7 @@ class BGIExt(object):
                 "id": global_id, 
                 "globalCrossRefId": global_id, 
                 "localId": local_id, 
-                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id)
+                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id, primary_id)
             }
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
@@ -48,14 +48,14 @@ class BGIExt(object):
                             "id": crossRef, 
                             "globalCrossrefId": crossRef, 
                             "localId": local_crossref_id, 
-                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef),
+                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
                             "prefix": crossRef.split(":")[0]
                             })
                     else:
                         local_crossref_id = crossRef
                         crossReferences.append(
                             {"id": crossRef, "globalCrossrefId": crossRef, "localId": local_crossref_id,
-                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef), "prefix": prefix})
+                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
@@ -78,7 +78,7 @@ class BGIExt(object):
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id),
+                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id,primary_id),
                 "description": geneRecord.get('description'),
                 "synonyms": geneRecord.get('synonyms'),
                 "soTermId": geneRecord['soTermId'],
@@ -101,7 +101,7 @@ class BGIExt(object):
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid1()),
-                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id),
+                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id
@@ -135,37 +135,56 @@ class BGIExt(object):
         else:
             return None
 
-    def get_complete_url (self, local_id, global_id):
-
+    def get_complete_url (self, local_id, global_id, primary_id):
+        # Local and global are cross references, primary is the gene id.
+        # TODO Update to dispatch?
         complete_url = None
 
-        if 'MGI' in global_id:
+        if global_id.startswith('MGI'):
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        if 'RGD' in global_id:
+        if global_id.startswith('RGD'):
             complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        if 'SGD' in global_id:
+        if global_id.startswith('SGD'):
             complete_url = 'http://www.yeastgenome.org/locus/' + local_id
-        if 'FB' in global_id:
+        if global_id.startswith('FB'):
             complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        if 'ZFIN' in global_id:
+        if global_id.startswith('ZFIN'):
             complete_url = 'http://zfin.org/' + local_id
-        if 'WB:' in global_id:
+        if global_id.startswith('WB:'):
             complete_url = 'http://www.wormbase.org/species/c_elegans/gene/' + local_id
-        if 'HGNC:' in global_id:
+        if global_id.startswith('HGNC:'):
             complete_url = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=' + local_id
-        if 'NCBI_Gene' in global_id:
+        if global_id.startswith('NCBI_Gene'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/gene/' + local_id
-        if 'UniProtKB' in global_id:
+        if global_id.startswith('UniProtKB'):
             complete_url = 'http://www.uniprot.org/uniprot/' + local_id
-        if 'ENSEMBL' in global_id:
+        if global_id.startswith('ENSEMBL'):
             complete_url = 'http://www.ensembl.org/id/' + local_id
-        if 'RNAcentral' in global_id:
+        if global_id.startswith('RNAcentral'):
             complete_url = 'http://rnacentral.org/rna/' + local_id
-        if 'PMID' in global_id:
+        if global_id.startswith('PMID'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-        if 'SO:' in global_id:
+        if global_id.startswith('SO:'):
             complete_url = 'http://www.sequenceontology.org/browser/current_svn/term/' + local_id
-        if 'DRSC' in global_id:
+        if global_id.startswith('DRSC'):
             complete_url = None
+        if global_id.startswith('PANTHER'):
+            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
+            if primary_id.startswith('MGI'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
+            if primary_id.startswith('RGD'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=RGD=' + split_primary
+            if primary_id.startswith('SGD'):
+                complete_url = panther_url + '&seq=SGD=' + primary_id
+            if primary_id.startswith('FB'):
+                complete_url = panther_url + '&seq=FlyBase=' + primary_id
+            if primary_id.startswith('WB'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=WormBase=' + split_primary
+            if primary_id.startswith('ZFIN'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=ZFIN=' + split_primary
 
         return complete_url
