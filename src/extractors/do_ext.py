@@ -2,8 +2,8 @@ from files import S3File
 from .obo_parser import parseGOOBO
 
 class DOExt(object):
-    @staticmethod
-    def get_data(testObject):
+
+    def get_data(self, test_object):
         path = "tmp";
         S3File("mod-datadumps", "disease-ontology.obo", path).download()
         parsed_line = parseGOOBO(path + "/disease-ontology.obo")
@@ -13,7 +13,11 @@ class DOExt(object):
             do_syns = line.get('synonym')
             syns = []
             xrefs = []
-            #print (do_synonyms)
+            local_id = None
+            global_id = None
+            complete_url = None
+            xref = None
+            xref_urls = {}
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if do_syns is not None:
@@ -24,19 +28,32 @@ class DOExt(object):
                 else:
                     syn = do_syns.split("\"")[1].strip()
                     syns.append(syn)
-            xrefs = line.get('xref')
-            #print (do_synonyms)
+            do_xrefs = line.get('xref')
+            if do_xrefs is not None:
+                if isinstance(do_xrefs, (list, tuple)):
+                    for xrefId in do_xrefs:
+                        if ":" in xrefId:
+                            local_id = xrefId.split(":")[1].strip()
+                            prefix = xrefId.split(":")[0].strip()
+                            complete_url = self.get_complete_url(local_id, xrefId)
+                            xrefs.append(xref)
+                            xref_urls = {"doid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url}
+                else:
+                    if ":" in do_xrefs:
+                        local_id = do_xrefs.split(":")[1].strip()
+                        prefix = do_xrefs.split(":")[0].strip()
+                        xrefs.append(do_xrefs)
+                        complete_url = self.get_complete_url(local_id, do_xrefs)
+                        xref_urls = {"doid": line['id'], "xrefId": do_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url}
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             do_is_as = line.get('is_a')
-            #print (do_is_as)
             if do_is_as is None:
                 do_is_as = []
                 isasWithoutNames = []
             else:
                 if isinstance(do_is_as, (list, tuple)):
                     for isa in do_is_as:
-                        #print (isa)
                         isaWithoutName = isa.split("!")[0].strip()
                         isasWithoutNames.append(isaWithoutName)
                 else:
@@ -73,8 +90,29 @@ class DOExt(object):
                 'zfin_link': 'https://zfin.org/'+line['id'],
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
-                'doPrefix': "DOID"
+                'doPrefix': "DOID",
+                'xref_urls': xref_urls
+
             }
             list_to_return.append(dict_to_append)
 
         return list_to_return
+
+    def get_complete_url (self, local_id, global_id):
+
+        complete_url = None
+
+        if 'OMIM' in global_id:
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        if 'ORDO' in global_id:
+            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
+        if 'MESH' in global_id:
+            complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
+        if 'EFO' in global_id:
+            complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
+        if 'KEGG' in global_id:
+            complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
+        if 'NCI' in global_id:
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + global_id
+
+        return complete_url
