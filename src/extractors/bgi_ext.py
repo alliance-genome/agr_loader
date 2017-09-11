@@ -168,19 +168,22 @@ class BGIExt(object):
         if 'DRSC' in global_id:
             complete_url = None
         if 'PANTHER:' in global_id:
-            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id
+            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
             if 'MGI' in primary_id:
                 split_primary = primary_id.split(':')[1]
-                complete_url = panther_url + '&seq=MOUSE|MGI=MGI=' + split_primary
+                complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
             if 'RGD' in primary_id:
                 split_primary = primary_id.split(':')[1]
-                complete_url = panther_url + 'seq=RAT|RGD=' + split_primary
+                complete_url = panther_url + '&seq=RGD=' + split_primary
             if 'SGD' in primary_id:
-                complete_url = panther_url + 'seq=YEAST|SGD=' + primary_id
+                complete_url = panther_url + '&seq=SGD=' + primary_id
             if 'FB' in primary_id:
-                complete_url = panther_url + 'seq=DROME|FlyBase=' + primary_id
+                complete_url = panther_url + '&seq=FlyBase=' + primary_id
             if 'WB' in primary_id:
-                complete_url = panther_url + 'seq=CAEEL|WormBase=' + primary_id
-            # if 'ZFIN' in primary_id:
+                complete_url = panther_url + '&seq=WormBase=' + primary_id
+            if 'ZFIN' in primary_id:
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=ZFIN=' + split_primary
+
 
         return complete_url
