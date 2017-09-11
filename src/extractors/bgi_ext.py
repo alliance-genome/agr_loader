@@ -27,7 +27,7 @@ class BGIExt(object):
                 "id": global_id, 
                 "globalCrossRefId": global_id, 
                 "localId": local_id, 
-                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id)
+                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id, primary_id)
             }
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
@@ -78,7 +78,7 @@ class BGIExt(object):
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id),
+                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id,primary_id),
                 "description": geneRecord.get('description'),
                 "synonyms": geneRecord.get('synonyms'),
                 "soTermId": geneRecord['soTermId'],
@@ -101,7 +101,7 @@ class BGIExt(object):
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid1()),
-                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id),
+                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id
