@@ -48,7 +48,7 @@ class BGIExt(object):
                             "id": crossRef, 
                             "globalCrossrefId": crossRef, 
                             "localId": local_crossref_id, 
-                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef),
+                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
                             "prefix": crossRef.split(":")[0]
                             })
                     else:
@@ -135,8 +135,8 @@ class BGIExt(object):
         else:
             return None
 
-    def get_complete_url (self, local_id, global_id):
-
+    def get_complete_url (self, local_id, global_id, primary_id):
+        # Local and global are cross references, primary is the gene id.
         complete_url = None
 
         if 'MGI' in global_id:
@@ -167,5 +167,20 @@ class BGIExt(object):
             complete_url = 'http://www.sequenceontology.org/browser/current_svn/term/' + local_id
         if 'DRSC' in global_id:
             complete_url = None
+        if 'PANTHER:' in global_id:
+            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id
+            if 'MGI' in primary_id:
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=MOUSE|MGI=MGI=' + split_primary
+            if 'RGD' in primary_id:
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + 'seq=RAT|RGD=' + split_primary
+            if 'SGD' in primary_id:
+                complete_url = panther_url + 'seq=YEAST|SGD=' + primary_id
+            if 'FB' in primary_id:
+                complete_url = panther_url + 'seq=DROME|FlyBase=' + primary_id
+            if 'WB' in primary_id:
+                complete_url = panther_url + 'seq=CAEEL|WormBase=' + primary_id
+            # if 'ZFIN' in primary_id:
 
         return complete_url
