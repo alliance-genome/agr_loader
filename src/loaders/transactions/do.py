@@ -33,10 +33,6 @@ class DOTransaction(Transaction):
             SET doterm.doId = row.id
 
 
-            FOREACH (entry in row.xrefs |
-                MERGE (cr:ExternalId:Identifier {primaryKey:entry})
-                MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(cr))
-
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
@@ -46,4 +42,22 @@ class DOTransaction(Transaction):
                 MERGE (doterm)-[aka:IS_A]->(doterm2))
 
         """
+
+        queryXref = """
+
+            UNWIND $data as row
+             WITH row.xref_urls AS xrurls
+                UNWIND xrurls AS xref
+                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.doid})
+
+                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
+                     SET cr.localId = xref.local_id
+                     SET cr.prefix = xref.prefix
+                     SET cr.crossRefCompleteUrl = xref.complete_url
+
+                    MERGE (dt)-[aka:ALSO_KNOWN_AS]->(cr)
+
+
+        """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
