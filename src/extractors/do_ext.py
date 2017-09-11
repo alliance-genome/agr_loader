@@ -73,7 +73,7 @@ class DOExt(object):
                 'zfin_link': 'https://zfin.org/'+line['id'],
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
-                'doPrefix': "DO"
+                'doPrefix': "DOID"
             }
             list_to_return.append(dict_to_append)
 
