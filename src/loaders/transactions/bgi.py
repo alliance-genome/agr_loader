@@ -48,10 +48,6 @@ class BGITransaction(Transaction):
                 SET syn.name = entry
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
 
-            FOREACH (entry in row.external_ids |           
-                MERGE (ext:ExternalId:Identifier {primaryKey:entry})
-                SET ext.name = entry
-                MERGE (g)-[aka3:ALSO_KNOWN_AS]->(ext))
 
             MERGE (spec:Species {primaryKey: row.taxonId})
             SET spec.species = row.species
@@ -79,6 +75,7 @@ class BGITransaction(Transaction):
                 SET id.globalCrosssrefId = event.crossRef
                 SET id.localId = event.localId
                 SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+                SET id.prefix = event.prefix
                 MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
         """
 

@@ -16,7 +16,6 @@ class BGIExt(object):
 
         for geneRecord in gene_data['data']:
             crossReferences = []
-            external_ids = []
             genomic_locations = []
 
             primary_id = geneRecord['primaryId']
@@ -41,21 +40,22 @@ class BGIExt(object):
 
             if 'crossReferenceIds' in geneRecord:
                 for crossRef in geneRecord['crossReferenceIds']:
-                    external_ids.append(crossRef)
                     #this can be simplified when GO YAML reused for AGR has helper fields.
                     if ':' in crossRef:
                         local_crossref_id = crossRef.split(":")[1]
+                        prefix = crossRef.split(":")[0]
                         crossReferences.append({
                             "id": crossRef, 
                             "globalCrossrefId": crossRef, 
                             "localId": local_crossref_id, 
-                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef)
+                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef),
+                            "prefix": crossRef.split(":")[0]
                             })
                     else:
                         local_crossref_id = crossRef
                         crossReferences.append(
                             {"id": crossRef, "globalCrossrefId": crossRef, "localId": local_crossref_id,
-                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef)})
+                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef), "prefix": prefix})
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
@@ -89,7 +89,6 @@ class BGIExt(object):
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
                 "species": self.get_species(geneRecord['taxonId']),
-                "external_ids": external_ids,
                 "genomeLocations": genomic_locations,
                 "geneLiteratureUrl": geneRecord.get('geneLiteratureUrl'),
                 "name_key": geneRecord['symbol'],

@@ -9,18 +9,6 @@ class DiseaseTransaction(Transaction):
         
         # Loads the Disease data into Neo4j.
 
-        termAdditions = """
-
-            UNWIND $data as row
-
-            MERGE (d:DOTerm:Ontology {primaryKey:row.doId})
-               ON MATCH SET d.doDisplayId = row.doDisplayId
-               ON MATCH SET d.doUrl = row.doUrl
-               ON MATCH SET d.doPrefix = row.doPrefix
-               ON MATCH SET d.doId = row.doId
-
-        """
-
         executeGene = """
             UNWIND $data as row
 
@@ -74,7 +62,5 @@ class DiseaseTransaction(Transaction):
 
         """
 
-
-        Transaction.execute_transaction(self, termAdditions, data)
         Transaction.execute_transaction(self, executeGene, data)
         Transaction.execute_transaction(self, deleteEmptyDONodes, data)

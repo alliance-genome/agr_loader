@@ -27,6 +27,11 @@ class DOTransaction(Transaction):
             SET doterm.humanLink = row.human_link
             SET doterm.flybaseLink = row.flybase_link
             SET doterm.wormbaseLink = row.wormbase_link
+            SET doterm.doDisplayId = row.id
+            SET doterm.doUrl = row.doUrl
+            SET doterm.doPrefix = row.doPrefix
+            SET doterm.doId = row.id
+
 
             FOREACH (entry in row.xrefs |
                 MERGE (cr:ExternalId:Identifier {primaryKey:entry})
@@ -39,5 +44,6 @@ class DOTransaction(Transaction):
             FOREACH (isa in row.isas |
                 MERGE (doterm2:DOTerm:Ontology {primaryKey:isa})
                 MERGE (doterm)-[aka:IS_A]->(doterm2))
+
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
