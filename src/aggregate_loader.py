@@ -1,8 +1,7 @@
 from loaders import *
-from loaders.transactions import *
-from files import *
-from mods import *
-from extractors import *
+from loaders.transactions import Indicies
+from mods import MOD
+from extractors import GOExt, DOExt, SOExt, OrthoExt
 from test import *
 import time
 from neo4j.v1 import GraphDatabase
