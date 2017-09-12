@@ -1,5 +1,5 @@
 from files import S3File
-from .obo_parser import parseGOOBO
+from .obo_parser import parseGO
 import pprint
 
 class GOExt(object):
