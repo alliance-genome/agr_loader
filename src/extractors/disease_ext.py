@@ -51,11 +51,9 @@ class DiseaseExt(object):
                             localPubModId = publicationModId.split(":")[1]
                             pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
                         if 'pubMedId' in evidence['publication']:
-                            print (evidence['publication'].get('pubMedId'))
                             pubMedId = evidence['publication'].get('pubMedId')
                             localPubMedId = pubMedId.split(":")[1]
                             pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-                            print (pubMedUrl)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
