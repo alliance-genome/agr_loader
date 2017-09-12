@@ -8,7 +8,7 @@ class GOExt(object):
     def get_data(testObject):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
-        parsed_line = parseGOOBO(path + "/go.obo")
+        parsed_line = parseGO(path + "/go.obo")
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(parsed_line)
         quit()
