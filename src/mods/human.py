@@ -4,9 +4,9 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_0.6_1.tar.gz"
-        self.bgiName = "/RGD_0.6.2_basicGeneInformation.9606.json"
-        self.diseaseName = "/RGD_0.6.2_disease.9606.daf.json"
+        self.loadFile = "RGD_1.0.0.tar.gz"
+        self.bgiName = "/RGD_1.0.0_basicGeneInformation.9606.json"
+        self.diseaseName = "/RGD_1.0.0_disease.9606.daf.json"
         self.geneAssociationFile = "gene_association.human.gz"
         self.identifierPrefix = "" # None for Human.
 

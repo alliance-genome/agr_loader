@@ -51,10 +51,11 @@ class DiseaseExt(object):
                             localPubModId = publicationModId.split(":")[1]
                             pubModUrl = self.get_complete_pub_url(localPubModId, publicationModId)
                         if 'pubMedId' in evidence['publication']:
+                            print (evidence['publication'].get('pubMedId'))
                             pubMedId = evidence['publication'].get('pubMedId')
-                            localPubMedId = publicationModId.split(":")[1]
+                            localPubMedId = pubMedId.split(":")[1]
                             pubMedUrl = self.get_complete_pub_url(localPubMedId, pubMedId)
-
+                            print (pubMedUrl)
 
                 if 'objectRelation' in diseaseRecord:
                     diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
@@ -140,7 +141,7 @@ class DiseaseExt(object):
             complete_url = 'http://zfin.org/' + local_id
         if 'WB:' in global_id:
             complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
-        if 'PUBMED:' in global_id:
+        if 'PMID:' in global_id:
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
 
         return complete_url
