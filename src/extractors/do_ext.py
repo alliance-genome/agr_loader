@@ -3,7 +3,7 @@ from .obo_parser import parseGOOBO
 
 class DOExt(object):
 
-    def get_data(self, test_object):
+    def get_data(self):
         path = "tmp";
         S3File("mod-datadumps", "disease-ontology.obo", path).download()
         parsed_line = parseGOOBO(path + "/disease-ontology.obo")
@@ -14,7 +14,6 @@ class DOExt(object):
             syns = []
             xrefs = []
             local_id = None
-            global_id = None
             complete_url = None
             xref = None
             xref_urls = {}

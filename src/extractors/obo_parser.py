@@ -50,7 +50,7 @@ def parseGOOBO(filename):
         if currentGOTerm is not None:
             yield processGOTerm(currentGOTerm)
 if __name__ == "__main__":
-    """Print out the number of GO objects in the given GO OBO file"""
+    #Print out the number of GO objects in the given GO OBO file
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', help='The input file in GO OBO v1.2 format.')
