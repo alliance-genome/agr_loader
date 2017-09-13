@@ -6,7 +6,7 @@ class DOExt(object):
     def get_data(self, test_object):
         path = "tmp";
         S3File("mod-datadumps", "disease-ontology.obo", path).download()
-        do_data = TXTFile(path + "/go.obo").get_data()
+        do_data = TXTFile(path + "/disease-ontology.obo").get_data()
         parsed_line = parseOBO(do_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
