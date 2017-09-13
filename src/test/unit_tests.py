@@ -20,12 +20,6 @@ def test_gene():
     record = result.single()
     assert record["primaryKey"] == 'MGI:2676586'
 
-def test_do():
-    query = "MATCH (n:DOTerm) WHERE n.name IS NULL RETURN count(n) AS count"
-    result = execute_transaction(query)
-    record = result.single()
-    assert record["count"] < 10
-
 def test_for_dupe_genes():
     query = "MATCH (g:Gene) WHERE keys(g)[0] = 'primaryKey' and size(keys(g)) = 1 RETURN count(g) as count"
     result = execute_transaction(query)
@@ -45,7 +39,7 @@ def test_hip1_exists():
         assert record["count"] > 0
 
 def test_doterm_exists():
-    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0060348' RETURN count(n) AS count"
+    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0001816' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 1

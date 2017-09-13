@@ -49,7 +49,7 @@ class AggregateLoader(object):
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
-            print("Loading MOD disease data for %s into Neo4j." % (mod.species))
+            print("Loading MOD disease annotations for %s into Neo4j." % (mod.species))
             features = mod.load_disease_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
@@ -60,7 +60,7 @@ class AggregateLoader(object):
         for mod in self.mods:
             print("Extracting GO annotations for %s." % (mod.__class__.__name__))
             go_annots = mod.extract_go_annots(self.testObject)
-            print("Loading GO annotations into Neo4j for %s." % (mod.__class__.__name__))
+            print("Loading GO annotations for %s into Neo4j." % (mod.__class__.__name__))
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
     def load_from_ontologies(self):

@@ -12,7 +12,7 @@ uri = "bolt://" + host + ":" + port
 if __name__ == '__main__':
     al = AggregateLoader(uri, useTestObject)
 
-    # The following order is required for testing.	
+    # The following order is REQUIRED for proper loading.
     al.create_indicies()
     al.load_from_ontologies()
     al.load_from_mods()
