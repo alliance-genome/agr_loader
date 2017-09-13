@@ -43,3 +43,9 @@ def test_doterm_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 1
+
+def test_pubMedUrl_exists():
+    query = "MATCH(n:Publication) where n.pubMedUrl IS NOT NULL RETURN count(n) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
