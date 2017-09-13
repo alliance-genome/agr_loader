@@ -37,8 +37,7 @@ def process_line(line, go_dict, withinTerm):
         return go_dict, withinTerm # The go_dict should be fully populated at this point.
     else:
         k, v = line.strip().split(':', 1) # Split the lines on the first ':'
-        " ".join(k.split()) # Remove all extra whitespace characters at the ends of the string.
-        " ".join(v.split()) # Remove all extra whitespace characters at the ends of the string.
+        v = v[1:] # Remove erroneous first character from the split. TODO Typical whitespace removal doesn't work? Why?
         if k in go_dict:
             if (type(go_dict[k]) is str): # If it's an entry with a single string, turn it into a list.
                 temp_value = go_dict[k]

@@ -1,6 +1,5 @@
 from files import S3File, TXTFile
 from .obo_parser import parseOBO
-import pprint
 
 class GOExt(object):
 
