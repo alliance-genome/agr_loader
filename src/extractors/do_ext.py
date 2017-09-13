@@ -1,6 +1,5 @@
 from files import S3File, TXTFile
 from .obo_parser import parseOBO
-import pprint
 
 class DOExt(object):
 
@@ -11,9 +10,6 @@ class DOExt(object):
         parsed_line = parseOBO(do_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
-            # pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(line)
-            # quit()
             isasWithoutNames = []
             do_syns = line.get('synonym')
             syns = []
