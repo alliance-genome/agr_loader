@@ -39,7 +39,7 @@ def test_hip1_exists():
         assert record["count"] > 0
 
 def test_doterm_exists():
-    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0060348' RETURN count(n) AS count"
+    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0001816' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 1

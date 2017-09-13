@@ -37,6 +37,8 @@ def process_line(line, go_dict, withinTerm):
         return go_dict, withinTerm # The go_dict should be fully populated at this point.
     else:
         k, v = line.strip().split(':', 1) # Split the lines on the first ':'
+        " ".join(k.split()) # Remove all extra whitespace characters at the ends of the string.
+        " ".join(v.split()) # Remove all extra whitespace characters at the ends of the string.
         if k in go_dict:
             if (type(go_dict[k]) is str): # If it's an entry with a single string, turn it into a list.
                 temp_value = go_dict[k]

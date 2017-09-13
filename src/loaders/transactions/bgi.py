@@ -34,7 +34,6 @@ class BGITransaction(Transaction):
                 SET g.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
                 SET g.modLocalId = row.localId
                 SET g.modGlobalId = row.modGlobalId
-                
 
             //Create nodes for other identifiers.
 
@@ -48,10 +47,9 @@ class BGITransaction(Transaction):
                 SET syn.name = entry
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
 
-
             MERGE (spec:Species {primaryKey: row.taxonId})
-            SET spec.species = row.species
-            SET spec.name = row.species
+                SET spec.species = row.species
+                SET spec.name = row.species
             MERGE (g)-[:FROM_SPECIES]->(spec)
 
             //MERGE the SOTerm node and set the primary key.
@@ -62,8 +60,8 @@ class BGITransaction(Transaction):
 
             //Merge the entity node.
             MERGE (ent:Entity {primaryKey:row.dataProvider})
-            SET ent.dateProduced = row.dateProduced
-            SET ent.release = row.release
+                SET ent.dateProduced = row.dateProduced
+                SET ent.release = row.release
 
             //Create the entity relationship to the gene node.
             MERGE (g)-[c1:CREATED_BY]->(ent)
