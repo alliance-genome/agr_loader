@@ -1,5 +1,5 @@
-from files import S3File
-from .obo_parser import parseGO
+from files import S3File, TXTFile
+from .obo_parser import parseOBO
 import pprint
 
 class GOExt(object):
@@ -8,10 +8,8 @@ class GOExt(object):
     def get_data(testObject):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
-        parsed_line = parseGO(path + "/go.obo")
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(parsed_line)
-        quit()
+        go_data = TXTFile(path + "/go.obo").get_data()
+        parsed_line = parseOBO(go_data)
         list_to_return = []
         for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []

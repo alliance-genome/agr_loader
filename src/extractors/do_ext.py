@@ -1,12 +1,13 @@
-from files import S3File
-from .obo_parser import parseGO
+from files import S3File, TXTFile
+from .obo_parser import parseOBO
 
 class DOExt(object):
 
     def get_data(self, test_object):
         path = "tmp";
         S3File("mod-datadumps", "disease-ontology.obo", path).download()
-        parsed_line = parseGO(path + "/disease-ontology.obo")
+        do_data = TXTFile(path + "/go.obo").get_data()
+        parsed_line = parseOBO(do_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
