@@ -66,10 +66,11 @@ class DOExt(object):
             definition = line.get('def')
             if definition is not None:
                 defText = definition.split("\"")[1]
-                defLinksProcessed = definition.split("\"")[2]
-                # defLinksProcessed = []
-                # for defLink in defLinks.split("url:"):
-                #     defLinksProcessed.append(defLink.rstrip(','))
+                if "[" in definition:
+                    defLinksProcessed = definition.split("\"")[2]
+                    defLinksProcessed = defLinksProcessed.rstrip("]")[1:]
+                    defLinksProcessed = defLinksProcessed.split(",")
+
             else:
                 definition = ""
             subset = line.get('subset')

@@ -17,9 +17,11 @@ removedb:
 
 run: build
 	docker-compose up agr_loader
+	docker-compose run agr_loader_test pytest --verbose
 
 run_test: build
 	docker-compose up agr_loader_test
+	docker-compose run agr_loader_test pytest --verbose
 
 unit_tests:
 	docker-compose run agr_loader_test pytest --verbose
