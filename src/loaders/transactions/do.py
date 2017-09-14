@@ -18,7 +18,8 @@ class DOTransaction(Transaction):
             MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
             SET doterm.name = row.name
             SET doterm.nameKey = row.name_key
-            SET doterm.definition = row.definition
+            SET doterm.definition = row.defText
+            SET doterm.defLinks = row.defLinksProcessed
             SET doterm.is_obsolete = row.is_obsolete
             SET doterm.subset = row.subset
             SET doterm.doDisplayId = row.id

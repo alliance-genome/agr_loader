@@ -19,6 +19,8 @@ class DOExt(object):
             complete_url = None
             xref = None
             xref_urls = []
+            defLinksProcessed =[]
+            is_obsolete = "false"
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if do_syns is not None:
@@ -62,7 +64,13 @@ class DOExt(object):
                     isasWithoutNames.append(isaWithoutName)
 
             definition = line.get('def')
-            if definition is None:
+            if definition is not None:
+                defText = definition.split("\"")[1]
+                defLinksProcessed = definition.split("\"")[2]
+                # defLinksProcessed = []
+                # for defLink in defLinks.split("url:"):
+                #     defLinksProcessed.append(defLink.rstrip(','))
+            else:
                 definition = ""
             subset = line.get('subset')
             if subset is None:
@@ -92,7 +100,9 @@ class DOExt(object):
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
                 'doPrefix': "DOID",
-                'xref_urls': xref_urls
+                'xref_urls': xref_urls,
+                'defText': defText,
+                'defLinksProcessed': defLinksProcessed
 
             }
             list_to_return.append(dict_to_append)
