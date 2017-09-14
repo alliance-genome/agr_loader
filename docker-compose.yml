@@ -14,7 +14,6 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096
-      - NEO4J_AUTH=none
   agr_loader:
     image: agrdocker/agr_loader_run:latest
     networks:
