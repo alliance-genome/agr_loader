@@ -32,8 +32,6 @@ class DOTransaction(Transaction):
             SET doterm.humanLink = row.human_link
             SET doterm.flybaseLink = row.flybase_link
             SET doterm.wormbaseLink = row.wormbase_link
-            
-
 
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
