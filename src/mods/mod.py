@@ -10,7 +10,7 @@ class MOD(object):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + bgiName)
+        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
         gene_lists = BGIExt().get_data(gene_data, batch_size, testObject)
         return self.yield_gene_lists(gene_lists)
 
@@ -79,7 +79,7 @@ class MOD(object):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseName)
+        disease_data = JSONFile().get_data(path + diseaseName, 'disease')
         disease_dict = DiseaseExt().get_features(disease_data, batch_size, testObject)
         
         return disease_dict

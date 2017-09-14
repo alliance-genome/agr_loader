@@ -18,7 +18,7 @@ class OrthoExt(object):
 
         S3File("mod-datadumps/ORTHO", filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
-        ortho_data = JSONFile().get_data(path + filename)
+        ortho_data = JSONFile().get_data(path + filename, 'orthology')
 
         # dateProduced = ortho_data['metaData']['dateProduced']
         dataProvider = ortho_data['metaData']['dataProvider']
