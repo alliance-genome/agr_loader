@@ -56,4 +56,4 @@ def test_isobsolete_false():
     for record in result:
         assert record["count"] > 0
 
-def test_someterms_have_deflinks:
+
