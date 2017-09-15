@@ -179,7 +179,8 @@ class BGIExt(object):
             if primary_id.startswith('SGD'):
                 complete_url = panther_url + '&seq=SGD=' + primary_id
             if primary_id.startswith('FB'):
-                complete_url = panther_url + '&seq=FlyBase=' + primary_id
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=FlyBase=' + split_primary
             if primary_id.startswith('WB'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=WormBase=' + split_primary
