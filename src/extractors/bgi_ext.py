@@ -44,8 +44,13 @@ class BGIExt(object):
                     if ':' in crossRef:
                         local_crossref_id = crossRef.split(":")[1]
                         prefix = crossRef.split(":")[0]
+                        crossRefPrimaryId = None
+                        if prefix == 'PANTHER': # special Panther case to be addressed post 1.0
+                            crossRefPrimaryId = crossRef + '_' + primary_id
+                        else:
+                            crossRefPrimaryId = crossRef
                         crossReferences.append({
-                            "id": crossRef, 
+                            "id": crossRefPrimaryId, 
                             "globalCrossrefId": crossRef, 
                             "localId": local_crossref_id, 
                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
@@ -54,7 +59,7 @@ class BGIExt(object):
                     else:
                         local_crossref_id = crossRef
                         crossReferences.append(
-                            {"id": crossRef, "globalCrossrefId": crossRef, "localId": local_crossref_id,
+                            {"id": crossRefPrimaryId, "globalCrossrefId": crossRef, "localId": local_crossref_id,
                              "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
@@ -139,52 +144,54 @@ class BGIExt(object):
         # Local and global are cross references, primary is the gene id.
         # TODO Update to dispatch?
         complete_url = None
+        panther_url = None
+        split_primary = None
 
         if global_id.startswith('MGI'):
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        if global_id.startswith('RGD'):
+        elif global_id.startswith('RGD'):
             complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        if global_id.startswith('SGD'):
+        elif global_id.startswith('SGD'):
             complete_url = 'http://www.yeastgenome.org/locus/' + local_id
-        if global_id.startswith('FB'):
+        elif global_id.startswith('FB'):
             complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        if global_id.startswith('ZFIN'):
+        elif global_id.startswith('ZFIN'):
             complete_url = 'http://zfin.org/' + local_id
-        if global_id.startswith('WB:'):
+        elif global_id.startswith('WB:'):
             complete_url = 'http://www.wormbase.org/species/c_elegans/gene/' + local_id
-        if global_id.startswith('HGNC:'):
+        elif global_id.startswith('HGNC:'):
             complete_url = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=' + local_id
-        if global_id.startswith('NCBI_Gene'):
+        elif global_id.startswith('NCBI_Gene'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/gene/' + local_id
-        if global_id.startswith('UniProtKB'):
+        elif global_id.startswith('UniProtKB'):
             complete_url = 'http://www.uniprot.org/uniprot/' + local_id
-        if global_id.startswith('ENSEMBL'):
+        elif global_id.startswith('ENSEMBL'):
             complete_url = 'http://www.ensembl.org/id/' + local_id
-        if global_id.startswith('RNAcentral'):
+        elif global_id.startswith('RNAcentral'):
             complete_url = 'http://rnacentral.org/rna/' + local_id
-        if global_id.startswith('PMID'):
+        elif global_id.startswith('PMID'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-        if global_id.startswith('SO:'):
+        elif global_id.startswith('SO:'):
             complete_url = 'http://www.sequenceontology.org/browser/current_svn/term/' + local_id
-        if global_id.startswith('DRSC'):
+        elif global_id.startswith('DRSC'):
             complete_url = None
-        if global_id.startswith('PANTHER'):
+        elif global_id.startswith('PANTHER'):
             panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
             if primary_id.startswith('MGI'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
-            if primary_id.startswith('RGD'):
+            elif primary_id.startswith('RGD'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=RGD=' + split_primary
-            if primary_id.startswith('SGD'):
+            elif primary_id.startswith('SGD'):
                 complete_url = panther_url + '&seq=SGD=' + primary_id
-            if primary_id.startswith('FB'):
+            elif primary_id.startswith('FB'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=FlyBase=' + split_primary
-            if primary_id.startswith('WB'):
+            elif primary_id.startswith('WB'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=WormBase=' + split_primary
-            if primary_id.startswith('ZFIN'):
+            elif primary_id.startswith('ZFIN'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=ZFIN=' + split_primary
 
