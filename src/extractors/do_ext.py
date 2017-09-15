@@ -18,7 +18,9 @@ class DOExt(object):
             global_id = None
             complete_url = None
             xref = None
-            xref_urls = {}
+            xref_urls = []
+            defLinksProcessed =[]
+            is_obsolete = "false"
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if do_syns is not None:
@@ -38,14 +40,14 @@ class DOExt(object):
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url(local_id, xrefId)
                             xrefs.append(xref)
-                            xref_urls = {"doid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url}
+                            xref_urls.append({"doid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
                 else:
                     if ":" in do_xrefs:
                         local_id = do_xrefs.split(":")[1].strip()
                         prefix = do_xrefs.split(":")[0].strip()
                         xrefs.append(do_xrefs)
                         complete_url = self.get_complete_url(local_id, do_xrefs)
-                        xref_urls = {"doid": line['id'], "xrefId": do_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url}
+                        xref_urls.append({"doid": line['id'], "xrefId": do_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             do_is_as = line.get('is_a')
@@ -62,14 +64,21 @@ class DOExt(object):
                     isasWithoutNames.append(isaWithoutName)
 
             definition = line.get('def')
-            if definition is None:
+            if definition is not None:
+                defText = definition.split("\"")[1]
+                if "[" in definition:
+                    defLinksProcessed = definition.split("\"")[2]
+                    defLinksProcessed = defLinksProcessed.rstrip("]")[1:]
+                    defLinksProcessed = defLinksProcessed.split(",")
+
+            else:
                 definition = ""
             subset = line.get('subset')
             if subset is None:
                 subset = ""
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
-                is_obsolete = ""
+                is_obsolete = "false"
 
             dict_to_append = {
                 'do_genes': [],
@@ -92,7 +101,9 @@ class DOExt(object):
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
                 'doPrefix': "DOID",
-                'xref_urls': xref_urls
+                'xref_urls': xref_urls,
+                'defText': defText,
+                'defLinksProcessed': defLinksProcessed
 
             }
             list_to_return.append(dict_to_append)
