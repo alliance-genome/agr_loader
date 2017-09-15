@@ -69,7 +69,6 @@ class DOExt(object):
                 if "[" in definition:
                     defLinksProcessed = definition.split("\"")[2]
                     defLinksProcessed = defLinksProcessed.rstrip("]")[1:]
-                    defLinksProcessed = defLinksProcessed.split(",")
 
             else:
                 definition = ""
