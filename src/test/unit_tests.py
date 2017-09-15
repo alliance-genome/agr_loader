@@ -55,5 +55,11 @@ def test_isobsolete_false():
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
+#
+# def test_defLinks():
+#     query = "MATCH(n:DOTerm) WITH length(n.defLinksProcessed) as linkCount where n.primaryKey = 'DOID:1335' RETURN linkCount AS count"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["count"] > 1
 
 

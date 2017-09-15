@@ -20,6 +20,7 @@ class DOExt(object):
             xref = None
             xref_urls = []
             defLinksProcessed =[]
+            defLinks =[]
             is_obsolete = "false"
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -67,13 +68,26 @@ class DOExt(object):
             if definition is not None:
                 defText = definition.split("\"")[1]
                 if "[" in definition:
-                    defLinksProcessed = definition.split("\"")[2]
-                    defLinksProcessed = defLinksProcessed.rstrip("]")[1:]
-
+                    defLinks = definition.split("\"")[2]
+                    defLinks = defLinks.rstrip("]")[1:]
+                    defLinks = defLinks.replace("url:", "")
+                    defLinks = defLinks.replace("\:", "")
+                    if "," in defLinks:
+                        defLinks = defLinks.split(",")
+                        for link in defLinks:
+                            link = link[1:]
+                            link = link.replace("url:", "")
+                            link = link.replace("\:", ":")
+                            defLinksProcessed.append(link)
+                    else:
+                        defLinksProcessed.append(defLinks[4:])
             else:
                 definition = ""
             subset = line.get('subset')
-            if subset is None:
+            if subset is not None:
+                if "," in subset:
+                    subset = subset.split(",")
+            else:
                 subset = ""
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
