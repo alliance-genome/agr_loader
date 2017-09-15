@@ -49,3 +49,11 @@ def test_pubMedUrl_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
+
+def test_isobsolete_false():
+    query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+

@@ -49,7 +49,7 @@ class GOExt(object):
                 subset = ""
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
-                is_obsolete = ""
+                is_obsolete = "false"
             definition = line.get('def')
             if definition is None:
                 definition = ""
