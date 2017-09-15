@@ -71,16 +71,19 @@ class DOExt(object):
                     defLinks = definition.split("\"")[2]
                     defLinks = defLinks.rstrip("]")[1:]
                     defLinks = defLinks.replace("url:", "")
-                    defLinks = defLinks.replace("\:", "")
+                    defLinks = defLinks.replace("\\:", ":")
                     if "," in defLinks:
                         defLinks = defLinks.split(",")
                         for link in defLinks:
                             link = link[1:]
                             link = link.replace("url:", "")
-                            link = link.replace("\:", ":")
+                            link = link.replace("\\:", ":")
                             defLinksProcessed.append(link)
                     else:
-                        defLinksProcessed.append(defLinks[4:])
+                        defLinks = defLinks.replace("[", "")
+                        defLinks = defLinks.replace("url:", "")
+                        defLinks = defLinks.replace("\\:", ":")
+                        defLinksProcessed.append(defLinks)
             else:
                 definition = ""
             subset = line.get('subset')
