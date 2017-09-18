@@ -33,8 +33,24 @@ class GOTransaction(Transaction):
                 MERGE (g2:GOTerm:Ontology {primaryKey:isa})
                 MERGE (g)-[aka:IS_A]->(g2))
 
-            FOREACH (entry in row.xrefs |
-                MERGE (cr:ExternalId:Identifier {primaryKey:entry})
-                MERGE (g)-[aka:ALSO_KNOWN_AS]->(cr))
+
+        """
+
+        queryXref = """
+
+            UNWIND $data as row
+             WITH row.xref_urls AS xrurls
+                UNWIND xrurls AS xref
+                    MATCH (gt:GOTerm:Ontology {primaryKey:xref.goid})
+
+                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
+                     SET cr.localId = xref.local_id
+                     SET cr.prefix = xref.prefix
+                     SET cr.crossRefCompleteUrl = xref.complete_url
+
+                    MERGE (gt)-[aka:ALSO_KNOWN_AS]->(cr)
+
+
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

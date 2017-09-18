@@ -4,7 +4,7 @@ from .obo_parser import parseOBO
 class GOExt(object):
 
     @staticmethod
-    def get_data(testObject):
+    def get_data(self, testObject):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
         go_data = TXTFile(path + "/go.obo").get_data()
@@ -15,6 +15,8 @@ class GOExt(object):
             syns = []
             go_synonyms = line.get('synonym')
             xrefs = []
+            xref = None
+            xref_urls = []
             if go_synonyms is None:
                 go_synonyms = []
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -26,7 +28,26 @@ class GOExt(object):
                 else:
                     syn = go_synonyms.split("\"")[1].strip()
                     syns.append(syn)
-            xrefs = line.get('xref')
+            # TODO: lift these xref, synonym sections out into a callable method for both go and do and other ontologies.
+            go_xrefs = line.get('xref')
+            if go_xrefs is not None:
+                if isinstance(go_xrefs, (list, tuple)):
+                    for xrefId in go_xrefs:
+                        if ":" in xrefId:
+                            local_id = xrefId.split(":")[1].strip()
+                            prefix = xrefId.split(":")[0].strip()
+                            complete_url = self.get_complete_url(local_id, xrefId)
+                            xrefs.append(xref)
+                            xref_urls.append({"goid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
+                else:
+                    if ":" in go_xrefs:
+                        local_id = go_xrefs.split(":")[1].strip()
+                        prefix = go_xrefs.split(":")[0].strip()
+                        xrefs.append(go_xrefs)
+                        complete_url = self.get_complete_url(local_id, go_xrefs)
+                        xref_urls.append({"goid": line['id'], "xrefId": go_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
+            if xrefs is None:
+                xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             #print (do_synonyms)
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
