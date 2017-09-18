@@ -3,7 +3,6 @@ from .obo_parser import parseOBO
 
 class GOExt(object):
 
-    @staticmethod
     def get_data(self, testObject):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
@@ -101,3 +100,22 @@ class GOExt(object):
             return filtered_dict
         else:
             return list_to_return
+
+    def get_complete_url (self, local_id, global_id):
+
+        complete_url = None
+
+        if 'OMIM' in global_id:
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        if 'ORDO' in global_id:
+            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
+        if 'MESH' in global_id:
+            complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
+        if 'EFO' in global_id:
+            complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
+        if 'KEGG' in global_id:
+            complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
+        if 'NCI' in global_id:
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + global_id
+
+        return complete_url

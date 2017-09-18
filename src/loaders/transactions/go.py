@@ -47,8 +47,9 @@ class GOTransaction(Transaction):
                      SET cr.localId = xref.local_id
                      SET cr.prefix = xref.prefix
                      SET cr.crossRefCompleteUrl = xref.complete_url
+                     SET cr.name = xref.xrefId
 
-                    MERGE (gt)-[aka:ALSO_KNOWN_AS]->(cr)
+                    MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
 
 
         """
