@@ -7,7 +7,7 @@ class Human(MOD):
         self.loadFile = "RGD_1.0.1.tar.gz"
         self.bgiName = "/RGD_1.0.1_basicGeneInformation.9606.json"
         self.diseaseName = "/RGD_1.0.1_disease.9606.daf.json"
-        self.geneAssociationFile = "/GO/ANNOT/gene_association.human.gz"
+        self.geneAssociationFile = "gene_association.human.gz"
         self.identifierPrefix = "" # None for Human.
 
     def load_genes(self, batch_size, testObject):
