@@ -70,9 +70,9 @@ class BGITransaction(Transaction):
             UNWIND events AS event
                 MERGE (id:CrossReference {primaryKey:event.id})
                 SET id.name = event.id
-                SET id.globalCrosssrefId = event.crossRef
+                SET id.globalCrosssRefId = event.crossRef
                 SET id.localId = event.localId
-                SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+                SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
                 SET id.prefix = event.prefix
                 MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
         """
