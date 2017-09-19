@@ -90,7 +90,7 @@ class GOExt(object):
             }
             list_to_return.append(dict_to_append)
 
-    return list_to_return
+        return list_to_return
 
     def get_complete_url (self, local_id, global_id):
 
