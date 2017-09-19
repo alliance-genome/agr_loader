@@ -67,7 +67,7 @@ class AggregateLoader(object):
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
-        self.go_dataset = GOExt().get_data(self.testObject)
+        self.go_dataset = GOExt().get_data()
         print("Extracting DO data.")
         self.do_dataset = DOExt().get_data(self.testObject)
 
