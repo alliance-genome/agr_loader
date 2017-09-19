@@ -38,7 +38,7 @@ def execute_transaction(query):
     with graph.session() as session:
         result = session.run(query)
 
-    return result
+    return result    
 
 @pytest.mark.parametrize("data", nodeLabels)
 def test_node_labels(data):
