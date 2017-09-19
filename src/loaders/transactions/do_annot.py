@@ -8,12 +8,12 @@ class GOAnnotTransaction(Transaction):
 
     def do_annot_tx(self, data):
         '''
-        Loads the GO annotation data into Neo4j.
+        Loads the DO annotation data into Neo4j.
 
         '''
         query = """
             UNWIND $data as row
-            MERGE (g:Gene {primaryKey:row.gene_id})
+            MATCH (g:Gene {primaryKey:row.gene_id})
 
             FOREACH (entry in row.do_id |
                 MERGE (do:DOTerm:Ontology {primaryKey:entry})

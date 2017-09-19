@@ -15,23 +15,23 @@ class DOTransaction(Transaction):
             UNWIND $data as row
 
             //Create the DOTerm node and set properties. primaryKey is required.
-            MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
-            SET doterm.name = row.name
-            SET doterm.nameKey = row.name_key
-            SET doterm.definition = row.defText
-            SET doterm.defLinks = row.defLinksProcessed
-            SET doterm.is_obsolete = row.is_obsolete
-            SET doterm.subset = row.subset
-            SET doterm.doDisplayId = row.id
-            SET doterm.doUrl = row.doUrl
-            SET doterm.doPrefix = row.doPrefix
-            SET doterm.doId = row.id
-            SET doterm.rgdLink = row.rgd_link
-            SET doterm.mgiLink = row.mgi_link
-            SET doterm.zfinLink = row.zfin_link
-            SET doterm.humanLink = row.human_link
-            SET doterm.flybaseLink = row.flybase_link
-            SET doterm.wormbaseLink = row.wormbase_link
+            CREATE (doterm:DOTerm:Ontology {primaryKey:row.id})
+                SET doterm.name = row.name
+                SET doterm.nameKey = row.name_key
+                SET doterm.definition = row.defText
+                SET doterm.defLinks = row.defLinksProcessed
+                SET doterm.is_obsolete = row.is_obsolete
+                SET doterm.subset = row.subset
+                SET doterm.doDisplayId = row.id
+                SET doterm.doUrl = row.doUrl
+                SET doterm.doPrefix = row.doPrefix
+                SET doterm.doId = row.id
+                SET doterm.rgdLink = row.rgd_link
+                SET doterm.mgiLink = row.mgi_link
+                SET doterm.zfinLink = row.zfin_link
+                SET doterm.humanLink = row.human_link
+                SET doterm.flybaseLink = row.flybase_link
+                SET doterm.wormbaseLink = row.wormbase_link
 
             FOREACH (entry in row.do_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
