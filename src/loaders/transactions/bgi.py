@@ -72,7 +72,7 @@ class BGITransaction(Transaction):
                 SET id.name = event.id
                 SET id.globalCrosssrefId = event.crossRef
                 SET id.localId = event.localId
-                SET id.crossrefCompleteUrl = event.crossrefCompleteUrl
+                SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
                 SET id.prefix = event.prefix
                 MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
         """

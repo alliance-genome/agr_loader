@@ -59,8 +59,8 @@ class BGIExt(object):
                     else:
                         local_crossref_id = crossRef
                         crossReferences.append(
-                            {"id": crossRefPrimaryId, "globalCrossrefId": crossRef, "localId": local_crossref_id,
-                             "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
+                            {"id": crossRefPrimaryId, "globalCrossRefId": crossRef, "localId": local_crossref_id,
+                             "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']

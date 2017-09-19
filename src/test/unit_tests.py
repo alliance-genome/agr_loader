@@ -55,6 +55,12 @@ def test_isobsolete_false():
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
+
+def test_xref_exists_with_url():
+    query = "MATCH p=(g:Gene)--(c:CrossReference) WHERE g.primaryKey = 'RGD:61995' RETURN COUNT(p) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
 #
 # def test_defLinks():
 #     query = "MATCH(n:DOTerm) WITH length(n.defLinksProcessed) as linkCount where n.primaryKey = 'DOID:1335' RETURN linkCount AS count"
