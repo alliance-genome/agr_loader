@@ -6,8 +6,6 @@ from extractors import *
 from test import *
 import time
 from neo4j.v1 import GraphDatabase
-# from loaders.disease_loader import DiseaseLoader
-# from loaders.do_loader import DOLoader
 
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
@@ -67,9 +65,9 @@ class AggregateLoader(object):
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
-        self.go_dataset = GOExt().get_data(self.testObject)
+        self.go_dataset = OExt().get_data(self.testObject, "go.obo", "GO/")
         print("Extracting DO data.")
-        self.do_dataset = DOExt().get_data(self.testObject)
+        self.do_dataset = OExt().get_data(self.testObject, "disease-ontology.obo", "")
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)

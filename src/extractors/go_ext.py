@@ -5,8 +5,8 @@ class GOExt(object):
 
     def get_data(self, testObject):
         path = "tmp";
-        S3File("mod-datadumps/data", "go.obo", path).download()
-        go_data = TXTFile(path + "/go.obo").get_data()
+        S3File("mod-datadumps", "go.obo", path).download()
+        go_data = TXTFile(path + "go.obo").get_data()
         parsed_line = parseOBO(go_data)
         list_to_return = []
         for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
@@ -86,7 +86,8 @@ class GOExt(object):
                 'category': 'go',
                 'is_a': isasWithoutNames,
                 'is_obsolete': is_obsolete,
-                'xrefs': xrefs
+                'xrefs': xrefs,
+                'xref_urls': xref_urls
             }
             list_to_return.append(dict_to_append)
 
