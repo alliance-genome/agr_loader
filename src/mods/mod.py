@@ -24,33 +24,19 @@ class MOD(object):
         go_annot_list = []
         with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
             reader = csv.reader(file, delimiter='\t')
-            if species == "Homo sapiens": # Special case for human GO annotations.
-                for line in reader:
-                    gene = line[0]
-                    go_terms = map(lambda s: s.strip(), line[1].split(","))
-                    for term in go_terms:
-                        if gene in go_annot_dict:
-                            go_annot_dict[gene]['go_id'].append(term)
-                        else:
-                            go_annot_dict[gene] = {
-                                'gene_id': gene,
-                                'go_id': [term],
-                                'species': species
-                            }
-            else:
-                for line in reader:
-                    if line[0].startswith('!'):
-                        continue
-                    gene = identifierPrefix + line[1]
-                    go_id = line[4]
-                    if gene in go_annot_dict:
-                        go_annot_dict[gene]['go_id'].append(go_id)
-                    else:
-                        go_annot_dict[gene] = {
-                            'gene_id': gene,
-                            'go_id': [go_id],
-                            'species': species
-                        }
+            for line in reader:
+                if line[0].startswith('!'):
+                    continue
+                gene = identifierPrefix + line[1]
+                go_id = line[4]
+                if gene in go_annot_dict:
+                    go_annot_dict[gene]['go_id'].append(go_id)
+                else:
+                    go_annot_dict[gene] = {
+                        'gene_id': gene,
+                        'go_id': [go_id],
+                        'species': species
+                    }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.
         if testObject.using_test_data() is True:
