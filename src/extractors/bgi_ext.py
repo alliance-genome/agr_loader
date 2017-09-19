@@ -51,9 +51,9 @@ class BGIExt(object):
                             crossRefPrimaryId = crossRef
                         crossReferences.append({
                             "id": crossRefPrimaryId, 
-                            "globalCrossrefId": crossRef, 
+                            "globalCrossRefId": crossRef,
                             "localId": local_crossref_id, 
-                            "crossrefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
+                            "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
                             "prefix": crossRef.split(":")[0]
                             })
                     else:
