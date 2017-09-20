@@ -161,7 +161,22 @@ class TestClass(object):
                             dict(node='Publication', prop='pubModUrl'), \
                             dict(node='Publication', prop='primaryKey'), \
 
-                            dict(node='EvidenceCode', prop='primaryKey')]
+                            dict(node='EvidenceCode', prop='primaryKey')], \
+
+        'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
+                            dict(node='Publication', prop='primaryKey'), \
+                            dict(node='Association', prop='primaryKey'), \
+                            dict(node='DiseaseGeneJoin', prop='primaryKey'), \
+                            dict(node='Chromosome', prop='primaryKey'), \
+                            dict(node='Entity', prop='primaryKey'), \
+                            dict(node='Species', prop='primaryKey'), \
+                            dict(node='CrossReference', prop='primaryKey'), \
+                            dict(node='Synonym', prop='primaryKey'), \
+                            dict(node='Identifier', prop='primaryKey'), \
+                            dict(node='DOTerm', prop='primaryKey'), \
+                            dict(node='SOTerm', prop='primaryKey'), \
+                            dict(node='GOTerm', prop='primaryKey'), \
+                            dict(node='Gene', prop='primaryKey')]
     }
 
     # Query to return all distinct properties from all nodes of a certain type:
@@ -187,3 +202,10 @@ class TestClass(object):
         result = execute_transaction(query)
         for record in result:
             assert record["count"] == 0
+
+    def test_prop_unique(self, node, prop):
+        query = 'MATCH (n:%s) WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count RETURN count' % (node, prop)
+
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] == 1
