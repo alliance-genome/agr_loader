@@ -6,7 +6,7 @@ class OExt(object):
     def get_data(self, test_object, filename, prefix):
         path = "tmp";
         S3File("mod-datadumps", prefix+filename, path).download()
-        o_data = TXTFile(path + filename).get_data()
+        o_data = TXTFile(path + prefix+filename).get_data()
         parsed_line = parseOBO(o_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
