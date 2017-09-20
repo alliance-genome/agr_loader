@@ -3,7 +3,7 @@ from .obo_parser import parseOBO
 
 class GOExt(object):
 
-    def get_data(self, testObject):
+    def get_data(self):
         path = "tmp";
         S3File("mod-datadumps/data", "go.obo", path).download()
         go_data = TXTFile(path + "/go.obo").get_data()
@@ -90,16 +90,7 @@ class GOExt(object):
             }
             list_to_return.append(dict_to_append)
 
-        if testObject.using_test_data() is True:
-            filtered_dict = []
-            for entry in list_to_return:
-                if testObject.check_for_test_go_entry(entry['id']) is True:
-                    filtered_dict.append(entry)
-                else:
-                    continue
-            return filtered_dict
-        else:
-            return list_to_return
+        return list_to_return
 
     def get_complete_url (self, local_id, global_id):
 

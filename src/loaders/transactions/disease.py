@@ -12,7 +12,7 @@ class DiseaseTransaction(Transaction):
         executeGene = """
             UNWIND $data as row
 
-            MATCH(f:Gene {primaryKey:row.primaryId})
+            MATCH (f:Gene {primaryKey:row.primaryId})
                 //SET f :DiseaseObject
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
