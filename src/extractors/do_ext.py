@@ -141,6 +141,6 @@ class DOExt(object):
         if 'KEGG' in global_id:
             complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
         if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + global_id
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
 
         return complete_url
