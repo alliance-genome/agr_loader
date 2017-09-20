@@ -74,7 +74,6 @@ class TestClass(object):
                             dict(node='Identifier', prop='primaryKey'), \
 
                             dict(node='Synonym', prop='primaryKey'), \
-                            dict(node='Synonym', prop='name'), \
 
                             dict(node='CrossReference', prop='localId'), \
                             dict(node='CrossReference', prop='name'), \
@@ -136,7 +135,6 @@ class TestClass(object):
                             dict(node='Identifier', prop='primaryKey'), \
 
                             dict(node='Synonym', prop='primaryKey'), \
-                            dict(node='Synonym', prop='name'), \
 
                             dict(node='CrossReference', prop='localId'), \
                             dict(node='CrossReference', prop='name'), \
@@ -170,21 +168,21 @@ class TestClass(object):
     # MATCH (n:Gene) WITH DISTINCT keys(n) AS keys UNWIND keys AS keyslisting WITH DISTINCT keyslisting AS allfields RETURN allfields;
 
     def test_node_exists(self, node):
-        query = 'MATCH (n:%s) RETURN distinct count(n) as count' % (node)
+        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % (node)
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0
 
     def test_prop_exist(self, node, prop):
-        query = 'MATCH (n:%s) WHERE NOT EXISTS(n.%s) RETURN count(n) as count' % (node, prop)
+        query = 'MATCH (n:%s) WHERE NOT EXISTS(n.%s) RETURN COUNT(n) as count' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] == 0
 
     def test_prop_not_null(self, node, prop):
-        query = 'MATCH (n:%s) WHERE n.%s is NULL RETURN count(n) as count' % (node, prop)
+        query = 'MATCH (n:%s) WHERE n.%s is NULL RETURN COUNT(n) as count' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
