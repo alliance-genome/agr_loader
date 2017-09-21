@@ -85,10 +85,10 @@ class DOExt(object):
                         if "," in defLinks:
                             defLinks = defLinks.split(",")
                             for link in defLinks:
-                                if link.startsWith("http"):
+                                if link.startswith("http"):
                                     defLinksProcessed.append(link)
                         else:
-                            if defLinks.startsWith("http"):
+                            if defLinks.startswith("http"):
                                 defLinksProcessed.append(defLinks)
                 else:
                     definition = defText
