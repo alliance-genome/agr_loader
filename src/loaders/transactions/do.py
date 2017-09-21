@@ -29,7 +29,6 @@ class DOTransaction(Transaction):
             SET doterm.rgdLink = row.rgd_link
             SET doterm.mgiLink = row.mgi_link
             SET doterm.zfinLink = row.zfin_link
-            SET doterm.humanLink = row.human_link
             SET doterm.flybaseLink = row.flybase_link
             SET doterm.wormbaseLink = row.wormbase_link
             SET doterm.sgdLink = "SGD"
