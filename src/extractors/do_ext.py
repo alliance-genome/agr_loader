@@ -22,7 +22,7 @@ class DOExt(object):
             defLinksProcessed =[]
             defText = None
             subset = []
-            definition = ""
+            definition = None
             defLinks = []
             is_obsolete = "false"
             if syns is None:
@@ -66,28 +66,44 @@ class DOExt(object):
                 else:
                     isaWithoutName = do_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
-
             definition = line.get('def')
-            if definition is not None:
-                defText = definition.split("\"")[1]
-                if "[" in definition:
-                    defLinks = definition.split("\"")[2]
-                    defLinks = defLinks.rstrip("]")[1:]
-                    defLinks = defLinks.replace("url:", "")
-                    defLinks = defLinks.replace("\\:", ":")
-                    if "," in defLinks:
-                        defLinks = defLinks.split(",")
-                        for link in defLinks:
-                            link = link[1:]
-                            link = link.replace("url:", "")
-                            link = link.replace("\\:", ":")
-                            defLinksProcessed.append(link)
+            if definition is not None and "\"" in definition:
+                defText = definition.split("\"")[1].strip()
+                if "[" in definition.split("\"")[2].strip():
+                    if definition.split("\"")[2].strip() == "[ls:IEDB]":
+                        continue
                     else:
-                        defLinks = defLinks.replace("[", "")
+                        defLinks = definition.split("\"")[2].strip()
+                        defLinks = defLinks.rstrip("]")[1:]
+                        defLinks = defLinks.replace("url:www", "http://wwww")
                         defLinks = defLinks.replace("url:", "")
+                        defLinks = defLinks.replace("URL:", "")
                         defLinks = defLinks.replace("\\:", ":")
-                        defLinksProcessed.append(defLinks)
+
+                        if "," in defLinks:
+                            defLinks = defLinks.split(",")
+                            for link in defLinks:
+                                link = link[1:]
+                                link = link.replace("url:www", "http://www")
+                                link = link.replace("url:", "")
+                                link = link.replace("URL:", "")
+                                link = link.replace("\\:", ":")
+                                if link == "ls:IEDB":
+                                    continue
+                                else:
+                                    defLinksProcessed.append(link)
+                        else:
+                            defLinks = defLinks.replace("[", "")
+                            defLinks = defLinks.replace("url:", "http://www")
+                            defLinks = defLinks.replace("url:", "")
+                            defLinks = defLinks.replace("URL:", "")
+                            defLinks = defLinks.replace("\\:", ":")
+                            defLinksProcessed.append(defLinks)
+                else:
+                    definition = defText
             else:
+                definition = None
+            if definition is None:
                 definition = ""
             subset = line.get('subset')
             if subset is not None:

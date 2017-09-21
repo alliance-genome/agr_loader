@@ -16,6 +16,8 @@ class GOExt(object):
             xrefs = []
             xref = None
             xref_urls = []
+            definition = None
+            is_obsolete = "false"
             if go_synonyms is None:
                 go_synonyms = []
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
