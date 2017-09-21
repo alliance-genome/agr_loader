@@ -69,7 +69,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='name'), \
                             dict(node='DOTerm', prop='nameKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
-                            dict(node='DOTerm', prop='definition'), \
 
                             dict(node='Identifier', prop='primaryKey'), \
 
