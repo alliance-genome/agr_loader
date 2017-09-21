@@ -108,7 +108,6 @@ class TestClass(object):
                             dict(node='Gene', prop='geneticEntityExternalUrl'), \
                             dict(node='Gene', prop='modLocalId'), \
                             dict(node='Gene', prop='symbol'), \
-                            dict(node='Gene', prop='name'), \
                             dict(node='Gene', prop='primaryKey'), \
                             dict(node='Gene', prop='modGlobalId'), \
 
