@@ -13,8 +13,7 @@ class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
-       # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        self.mods = [Human(), MGI(), WormBase(), ZFIN(), FlyBase(), RGD()]
+        self.mods = [WormBase(), MGI(), ZFIN(), FlyBase(), RGD(), Human()] #SGD()
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
