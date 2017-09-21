@@ -23,6 +23,7 @@ class DOExt(object):
             defLinks = []
             do_is_as = []
             subset = []
+            definition = ""
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if do_syns is not None:
