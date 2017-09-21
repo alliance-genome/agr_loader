@@ -50,7 +50,6 @@ class TestClass(object):
                             dict(node='Gene', prop='geneticEntityExternalUrl'), \
                             dict(node='Gene', prop='modLocalId'), \
                             dict(node='Gene', prop='symbol'), \
-                            dict(node='Gene', prop='name'), \
                             dict(node='Gene', prop='primaryKey'), \
                             dict(node='Gene', prop='modGlobalId'), \
 
@@ -96,7 +95,6 @@ class TestClass(object):
 
                             dict(node='Publication', prop='pubMedId'), \
                             dict(node='Publication', prop='pubModId'), \
-                            dict(node='Publication', prop='pubModUrl'), \
                             dict(node='Publication', prop='primaryKey'), \
 
                             dict(node='EvidenceCode', prop='primaryKey')],
