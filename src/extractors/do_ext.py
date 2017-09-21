@@ -20,7 +20,10 @@ class DOExt(object):
             xref = None
             xref_urls = []
             defLinksProcessed =[]
-            defLinks =[]
+            defText = None
+            subset = []
+            definition = ""
+            defLinks = []
             is_obsolete = "false"
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -91,7 +94,7 @@ class DOExt(object):
                 if "," in subset:
                     subset = subset.split(",")
             else:
-                subset = ""
+                subset = []
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
                 is_obsolete = "false"
@@ -111,7 +114,7 @@ class DOExt(object):
                 'xrefs': xrefs,
                 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=rat&acc_id='+line['id'],
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
-                'wormbase_link': 'no_link_yet',
+                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
                 'zfin_link': 'https://zfin.org/'+line['id'],
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
