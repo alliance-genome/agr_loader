@@ -75,29 +75,20 @@ class DOExt(object):
                 if definition is not None and "\"" in definition:
                     defText = definition.split("\"")[1].strip()
                     if "[" in definition.split("\"")[2].strip():
-                        if definition.split("\"")[2].strip() == "[ls:IEDB]":
-                            continue
-                        else:
-                            defLinks = definition.split("\"")[2].strip()
-                            defLinks = defLinks.rstrip("]")[1:]
-                            defLinks = defLinks.replace("url:www", "http://wwww")
-                            defLinks = defLinks.replace("url:", "")
-                            defLinks = defLinks.replace("URL:", "")
-                            defLinks = defLinks.replace("\\:", ":")
+                        defLinks = definition.split("\"")[2].strip()
+                        defLinks = defLinks.rstrip("]").replace("[", "")
+                        defLinks = defLinks.replace("url:www", "http://wwww")
+                        defLinks = defLinks.replace("url:", "")
+                        defLinks = defLinks.replace("URL:", "")
+                        defLinks = defLinks.replace("\\:", ":")
 
-                            if "," in defLinks:
-                                defLinks = defLinks.split(",")
-                                for link in defLinks:
-                                    link = link.replace("[", "")
-                                    link = link.replace("url:www", "http://www")
-                                    link = link.replace("url:", "")
-                                    link = link.replace("URL:", "")
-                                    link = link.replace("\\:", ":")
-                                    if link == "ls:IEDB":
-                                        continue
-                                    else:
-                                        defLinksProcessed.append(link)
-                            else:
+                        if "," in defLinks:
+                            defLinks = defLinks.split(",")
+                            for link in defLinks:
+                                if link.startsWith("http"):
+                                    defLinksProcessed.append(link)
+                        else:
+                            if defLinks.startsWith("http"):
                                 defLinksProcessed.append(defLinks)
                 else:
                     definition = defText
