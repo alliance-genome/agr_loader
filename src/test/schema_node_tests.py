@@ -69,7 +69,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='name'), \
                             dict(node='DOTerm', prop='nameKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
-                            dict(node='DOTerm', prop='definition'), \
 
                             dict(node='Identifier', prop='primaryKey'), \
 
@@ -130,7 +129,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='name'), \
                             dict(node='DOTerm', prop='nameKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
-                            dict(node='DOTerm', prop='definition'), \
 
                             dict(node='Identifier', prop='primaryKey'), \
 
@@ -157,8 +155,6 @@ class TestClass(object):
                             dict(node='Association', prop='primaryKey'), \
 
                             dict(node='Publication', prop='pubMedId'), \
-                            dict(node='Publication', prop='pubModId'), \
-                            dict(node='Publication', prop='pubModUrl'), \
                             dict(node='Publication', prop='primaryKey'), \
 
                             dict(node='EvidenceCode', prop='primaryKey')], \
