@@ -110,6 +110,10 @@ class DOExt(object):
             if subset is not None:
                 if "," in subset:
                     subset = subset.split(",")
+                else:
+                    newSubset = []
+                    newSubset.append(subset)
+                    subset = newSubset
             else:
                 subset = []
             is_obsolete = line.get('is_obsolete')
