@@ -23,6 +23,7 @@ class DOExt(object):
             defLinks = []
             do_is_as = []
             subset = []
+            newSubset = None
             definition = ""
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -97,28 +98,21 @@ class DOExt(object):
                                     else:
                                         defLinksProcessed.append(link)
                             else:
-                                # defLinks = defLinks.replace("url:", "http://www")
-                                # defLinks = defLinks.replace("url:", "")
-                                # defLinks = defLinks.replace("URL:", "")
-                                # defLinks = defLinks.replace("\\:", ":")
                                 defLinksProcessed.append(defLinks)
                 else:
                     definition = defText
             if definition is None:
                 definition = ""
-            subset = line.get('subset')
-            if subset is not None:
-                if "," in subset:
-                    subset = subset.split(",")
-                else:
-                    newSubset = []
-                    newSubset.append(subset)
-                    subset = newSubset
+
+            newSubset = line.get('subset')
+            if isinstance(newSubset, (list, tuple)):
+                subset = newSubset
             else:
-                subset = []
+                if newSubset is not None:
+                    subset.append(newSubset)
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
-                is_obsolete = "false"
+                is_obsolete = 'false'
 
             dict_to_append = {
                 'do_genes': [],
@@ -140,7 +134,7 @@ class DOExt(object):
                 'zfin_link': 'https://zfin.org/'+line['id'],
                 'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
-                'doPrefix': "DOID",
+                'doPrefix': 'DOID',
                 'xref_urls': xref_urls,
                 'defText': defText,
                 'defLinksProcessed': defLinksProcessed

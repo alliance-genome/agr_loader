@@ -79,7 +79,7 @@ class GOExt(object):
                 'go_genes': [],
                 'go_species': [],
                 'name': line['name'],
-                'description': definition,
+                'definition': definition,
                 'go_type': line['namespace'],
                 'go_synonyms': syns,
                 'name_key': line['name'],
