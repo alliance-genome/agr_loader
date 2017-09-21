@@ -110,7 +110,8 @@ class DiseaseExt(object):
                             "experimentalConditions": conditions,
                             "fishEnvId": fishEnvId,
                             "additionalGeneticComponents":additionalGeneticComponents,
-                            "uuid":str(uuid.uuid1())
+                            "uuid":str(uuid.uuid1()),
+                            "loadKey": dataProvider+"_"+dateProduced+"_Disease"
                         }
 
             list_to_yield.append(disease_features)
