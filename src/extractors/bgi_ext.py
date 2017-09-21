@@ -109,7 +109,8 @@ class BGIExt(object):
                 "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
-                "modGlobalId": global_id
+                "modGlobalId": global_id,
+                "loadKey": dataProvider+"_"+dateProduced+"_BGI"
             }
 
             
