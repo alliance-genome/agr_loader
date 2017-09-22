@@ -20,7 +20,10 @@ class DiseaseTransaction(Transaction):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
 
             //Create the load node(s)
-            MERGE (l:Load {primaryKey:row.loadKey,dateProduced:row.dateProduced,dataProvider:row.dataProvider,loadName:"Disease"})
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced
+                SET l.dataProvider = row.dataProvider
+                SET l.loadName = "Disease"
 
                 //TODO: the species add should likely be MATCH
                 MERGE (spec:Species {primaryKey: row.taxonId})
