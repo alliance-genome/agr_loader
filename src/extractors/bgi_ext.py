@@ -195,5 +195,8 @@ class BGIExt(object):
             elif primary_id.startswith('ZFIN'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=ZFIN=' + split_primary
+            elif primary_id.startswith('HGNC'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=HGNC=' + split_primary
 
         return complete_url
