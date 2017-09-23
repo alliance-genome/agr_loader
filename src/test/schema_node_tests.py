@@ -77,6 +77,7 @@ class TestClass(object):
                             dict(node='CrossReference', prop='name'), \
                             dict(node='CrossReference', prop='primaryKey'), \
                             dict(node='CrossReference', prop='prefix'), \
+                            dict(node='CrossReference', prop='crossRefCompleteUrl'), \
 
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
