@@ -17,6 +17,6 @@ class GOAnnotTransaction(Transaction):
 
             FOREACH (entry in row.go_id |           
                 MERGE (go:GOTerm:Ontology {primaryKey:entry})
-                MERGE (g)-[x:ANNOTATED_TO]->(go))
+                MERGE (g)-[ggo:ANNOTATED_TO]->(go))
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)

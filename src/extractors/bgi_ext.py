@@ -109,7 +109,8 @@ class BGIExt(object):
                 "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
-                "modGlobalId": global_id
+                "modGlobalId": global_id,
+                "loadKey": dataProvider+"_"+dateProduced+"_BGI"
             }
 
             
@@ -132,6 +133,8 @@ class BGIExt(object):
         elif taxon_id in ("NCBITaxon:10116"):
             return "Rattus norvegicus"
         elif taxon_id in ("NCBITaxon:559292"):
+            return "Saccharomyces cerevisiae"
+        elif taxon_id in ("taxon:559292"):
             return "Saccharomyces cerevisiae"
         elif taxon_id in ("NCBITaxon:7227"):
             return "Drosophila melanogaster"
@@ -194,5 +197,8 @@ class BGIExt(object):
             elif primary_id.startswith('ZFIN'):
                 split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=ZFIN=' + split_primary
+            elif primary_id.startswith('HGNC'):
+                split_primary = primary_id.split(':')[1]
+                complete_url = panther_url + '&seq=HGNC=' + split_primary
 
         return complete_url

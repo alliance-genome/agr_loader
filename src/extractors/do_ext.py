@@ -14,14 +14,17 @@ class DOExt(object):
             do_syns = line.get('synonym')
             syns = []
             xrefs = []
-            local_id = None
-            global_id = None
             complete_url = None
             xref = None
             xref_urls = []
-            defLinksProcessed =[]
-            defLinks =[]
-            is_obsolete = "false"
+            local_id = None
+            defLinksProcessed = []
+            defText = None
+            defLinks = []
+            do_is_as = []
+            subset = []
+            newSubset = None
+            definition = ""
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if do_syns is not None:
@@ -63,38 +66,44 @@ class DOExt(object):
                 else:
                     isaWithoutName = do_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
-
             definition = line.get('def')
-            if definition is not None:
-                defText = definition.split("\"")[1]
-                if "[" in definition:
-                    defLinks = definition.split("\"")[2]
-                    defLinks = defLinks.rstrip("]")[1:]
-                    defLinks = defLinks.replace("url:", "")
-                    defLinks = defLinks.replace("\\:", ":")
-                    if "," in defLinks:
-                        defLinks = defLinks.split(",")
-                        for link in defLinks:
-                            link = link[1:]
-                            link = link.replace("url:", "")
-                            link = link.replace("\\:", ":")
-                            defLinksProcessed.append(link)
-                    else:
-                        defLinks = defLinks.replace("[", "")
-                        defLinks = defLinks.replace("url:", "")
-                        defLinks = defLinks.replace("\\:", ":")
-                        defLinksProcessed.append(defLinks)
-            else:
+            defLinks = ""
+            defLinksProcessed = []
+            if definition is None:
                 definition = ""
-            subset = line.get('subset')
-            if subset is not None:
-                if "," in subset:
-                    subset = subset.split(",")
             else:
-                subset = ""
+                if definition is not None and "\"" in definition:
+                    defText = definition.split("\"")[1].strip()
+                    if "[" in definition.split("\"")[2].strip():
+                        defLinks = definition.split("\"")[2].strip()
+                        defLinks = defLinks.rstrip("]").replace("[", "")
+                        defLinks = defLinks.replace("url:www", "http://wwww")
+                        defLinks = defLinks.replace("url:", "")
+                        defLinks = defLinks.replace("URL:", "")
+                        defLinks = defLinks.replace("\\:", ":")
+
+                        if "," in defLinks:
+                            defLinks = defLinks.split(",")
+                            for link in defLinks:
+                                if link.strip().startswith("http"):
+                                    defLinksProcessed.append(link)
+                        else:
+                            if defLinks.strip().startswith("http"):
+                                defLinksProcessed.append(defLinks)
+                else:
+                    definition = defText
+            if definition is None:
+                definition = ""
+
+            newSubset = line.get('subset')
+            if isinstance(newSubset, (list, tuple)):
+                subset = newSubset
+            else:
+                if newSubset is not None:
+                    subset.append(newSubset)
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
-                is_obsolete = "false"
+                is_obsolete = 'false'
 
             dict_to_append = {
                 'do_genes': [],
@@ -109,14 +118,13 @@ class DOExt(object):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
-                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=rat&acc_id='+line['id'],
+                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id='+line['id']+"#annot",
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
-                'wormbase_link': 'no_link_yet',
+                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
                 'zfin_link': 'https://zfin.org/'+line['id'],
-                'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'doUrl': "http://www.disease-ontology.org/?id=" + line['id'],
-                'doPrefix': "DOID",
+                'doPrefix': 'DOID',
                 'xref_urls': xref_urls,
                 'defText': defText,
                 'defLinksProcessed': defLinksProcessed
@@ -141,6 +149,6 @@ class DOExt(object):
         if 'KEGG' in global_id:
             complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
         if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + global_id
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
 
         return complete_url

@@ -12,11 +12,20 @@ class DiseaseTransaction(Transaction):
         executeGene = """
             UNWIND $data as row
 
+
             MATCH(f:Gene {primaryKey:row.primaryId})
                 //SET f :DiseaseObject
 
+
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
 
+            //Create the load node(s)
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced
+                SET l.dataProvider = row.dataProvider
+                SET l.loadName = "Disease"
+
+                //TODO: the species add should likely be MATCH
                 MERGE (spec:Species {primaryKey: row.taxonId})
                 MERGE (f)<-[:FROM_SPECIES]->(spec)
                     //SET f.with = row.with
@@ -25,11 +34,15 @@ class DiseaseTransaction(Transaction):
                     SET da :DiseaseGeneJoin
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fa:IS_MARKER_FOR {uuid:row.uuid}]->(d))
+                    MERGE (f)<-[fa:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                    SET fa.dataProvider = row.dataProvider
+                    SET fa.dateProduced = row.dateProduced)
                     SET da.joinType = 'is_marker_of'
 
                 FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                    MERGE (f)<-[fa:IS_IMPLICATED_IN {uuid:row.uuid}]->(d))
+                    MERGE (f)<-[fa:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                    SET fa.dataProvider = row.dataProvider
+                    SET fa.dateProduced = row.dateProduced)
                     SET da.joinType = 'is_implicated_in'
 
                 //Create the relationship from the object node to association node.
@@ -45,6 +58,8 @@ class DiseaseTransaction(Transaction):
                     SET pub.pubMedId = row.pubMedId
                     SET pub.pubModUrl = row.pubModUrl
                     SET pub.pubMedUrl = row.pubMedUrl
+
+                MERGE (l)-[loadAssociation:LOADED_FROM]-(pub)
 
                 MERGE (da)-[dapu:EVIDENCE]->(pub)
 

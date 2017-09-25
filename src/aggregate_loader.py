@@ -11,8 +11,7 @@ class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
-       # self.mods = [FlyBase(), MGI(), RGD(), SGD(), WormBase(), Human(), ZFIN()]
-        self.mods = [Human(), MGI(), WormBase(), ZFIN(), FlyBase(), RGD()]
+        self.mods = [WormBase(), MGI(), ZFIN(), FlyBase(), RGD(), Human(), SGD()] #SGD()
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
@@ -52,14 +51,19 @@ class AggregateLoader(object):
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
 
-    # Load annotations before ontologies to restrict ontology data for testObject.
-    def load_annotations(self):
-        print("Extracting GO annotations.")
-        for mod in self.mods:
             print("Extracting GO annotations for %s." % (mod.__class__.__name__))
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % (mod.__class__.__name__))
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
+
+    # Load annotations before ontologies to restrict ontology data for testObject.
+    def load_annotations(self):
+        print("Extracting GO annotations.")
+        # for mod in self.mods:
+        #     print("Extracting GO annotations for %s." % (mod.__class__.__name__))
+        #     go_annots = mod.extract_go_annots(self.testObject)
+        #     print("Loading GO annotations for %s into Neo4j." % (mod.__class__.__name__))
+        #     GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
     def load_from_ontologies(self):
         print ("Extracting SO data.")

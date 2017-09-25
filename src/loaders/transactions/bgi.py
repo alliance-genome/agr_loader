@@ -18,6 +18,12 @@ class BGITransaction(Transaction):
         query = """
             UNWIND $data AS row
 
+            //Create the load node(s)
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced
+                SET l.dataProvider = row.dataProvider
+                SET l.loadName = "BGI"
+
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (g:Gene {primaryKey:row.primaryId})
                 SET g.symbol = row.symbol
@@ -35,25 +41,30 @@ class BGITransaction(Transaction):
                 SET g.modLocalId = row.localId
                 SET g.modGlobalId = row.modGlobalId
 
+            MERGE (l)-[loadAssociation:LOADED_FROM]-(g)
             //Create nodes for other identifiers.
 
             FOREACH (entry in row.secondaryIds |           
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
-                SET second.name = entry
-                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second))
+                    SET second.name = entry
+                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second)
+                MERGE (l)-[las:LOADED_FROM]-(second))
 
             FOREACH (entry in row.synonyms |           
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                SET syn.name = entry
-                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn))
+                    SET syn.name = entry
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
+                MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
             MERGE (spec:Species {primaryKey: row.taxonId})
                 SET spec.species = row.species
                 SET spec.name = row.species
             MERGE (g)-[:FROM_SPECIES]->(spec)
+            MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
+            MERGE (l)-[laso:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
             MERGE (g)-[x:ANNOTATED_TO]->(s)
@@ -69,12 +80,13 @@ class BGITransaction(Transaction):
             WITH g, row.crossReferences AS events
             UNWIND events AS event
                 MERGE (id:CrossReference {primaryKey:event.id})
-                SET id.name = event.id
-                SET id.globalCrosssRefId = event.crossRef
-                SET id.localId = event.localId
-                SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
-                SET id.prefix = event.prefix
+                    SET id.name = event.id
+                    SET id.globalCrosssRefId = event.crossRef
+                    SET id.localId = event.localId
+                    SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
+                    SET id.prefix = event.prefix
                 MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
+                //MERGE (l)-[lacr:LOADED_FROM]-(id)
         """
 
         locationQuery = """

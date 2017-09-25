@@ -29,13 +29,18 @@ class MOD(object):
                     continue
                 gene = identifierPrefix + line[1]
                 go_id = line[4]
+                dateProduced = line[14]
+                dataProvider = line[15]
                 if gene in go_annot_dict:
                     go_annot_dict[gene]['go_id'].append(go_id)
                 else:
                     go_annot_dict[gene] = {
                         'gene_id': gene,
                         'go_id': [go_id],
-                        'species': species
+                        'species': species,
+                        'loadKey': dataProvider+"_"+dateProduced+"_"+"GAF",
+                        'dataProvider': dataProvider,
+                        'dateProduced': dateProduced
                     }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.

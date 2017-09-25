@@ -5,8 +5,8 @@ class GOExt(object):
 
     def get_data(self, testObject):
         path = "tmp";
-        S3File("mod-datadumps", "go.obo", path).download()
-        go_data = TXTFile(path + "go.obo").get_data()
+        S3File("mod-datadumps/GO", "go.obo", path).download()
+        go_data = TXTFile(path + "/go.obo").get_data()
         parsed_line = parseOBO(go_data)
         list_to_return = []
         for line in parsed_line: # Convert parsed obo term into a schema-friendly AGR dictionary.
@@ -16,6 +16,8 @@ class GOExt(object):
             xrefs = []
             xref = None
             xref_urls = []
+            definition = None
+            is_obsolete = "false"
             if go_synonyms is None:
                 go_synonyms = []
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -77,7 +79,7 @@ class GOExt(object):
                 'go_genes': [],
                 'go_species': [],
                 'name': line['name'],
-                'description': definition,
+                'definition': definition,
                 'go_type': line['namespace'],
                 'go_synonyms': syns,
                 'name_key': line['name'],
