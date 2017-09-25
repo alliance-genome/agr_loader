@@ -134,6 +134,8 @@ class BGIExt(object):
             return "Rattus norvegicus"
         elif taxon_id in ("NCBITaxon:559292"):
             return "Saccharomyces cerevisiae"
+        elif taxon_id in ("taxon:559292"):
+            return "Saccharomyces cerevisiae"
         elif taxon_id in ("NCBITaxon:7227"):
             return "Drosophila melanogaster"
         elif taxon_id in ("NCBITaxon:9606"):

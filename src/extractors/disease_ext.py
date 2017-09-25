@@ -82,11 +82,16 @@ class DiseaseExt(object):
                 if dataProvider == 'ZFIN':
                     fishEnvId = primaryId+conditionId
 
+                #TODO: get SGD to fix their disease file.
+                if diseaseRecord.get('taxonId')=='taxon:559292':
+                    taxonId = "NCBITaxon:559292"
+                else:
+                    taxonId = diseaseRecord.get('taxonId')
                 disease_features = {
                             "primaryId": primaryId,
                             "diseaseObjectName": diseaseRecord.get('objectName'),
                             "diseaseObjectType": diseaseObjectType,
-                            "taxonId": diseaseRecord.get('taxonId'),
+                            "taxonId": taxonId,
                             "diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
                             "with": diseaseRecord.get('with'),
                             "doId": diseaseRecord.get('DOid'),
