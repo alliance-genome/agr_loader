@@ -21,7 +21,6 @@ class OExt(object):
             defLinksProcessed = []
             defText = None
             defLinks = []
-            do_is_as = []
             subset = []
             newSubset = None
             definition = ""
@@ -119,6 +118,7 @@ class OExt(object):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
+                #TODO: fix links to not be passed for each ontology load.
                 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=rat&acc_id='+line['id'],
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
                 'wormbase_link': 'no_link_yet',
@@ -133,7 +133,6 @@ class OExt(object):
                 'oboFile': prefix,
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                 'category': 'go',
-                'name_key': line['name'],
                 'o_type': line.get('namespace'),
 
             }
