@@ -12,13 +12,17 @@ class TestObject(object):
             'MGI:1916172', 'MGI:96680', 'MGI:2175810', 'MGI:5437110', 'MGI:5437073','MGI:88525', 'MGI:1923696',
             'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445', 'ZFIN:ZDB-GENE-980526-388', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-FISH-150901-29235', 'ZFIN:ZDB-GENE-060117-5',
-            'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0033885', 'FB:FBgn0024320', 'FB:FBgn0283499',
+            'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0033885', 'FB:FBgn0024320', 'FB:FBgn0283499', 'FB:FBgn0285944',
             'WB:WBGene00044305', 'WB:WBGene00169423', 'WB:WBGene00000987', 'WB:WBGene00015146',
             'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
-            'DOID:0110741','DOID:0110739','DOID:10021','DOID:10030','DOID:0001816'}
+            'DOID:0110741','DOID:0110739','DOID:10021','DOID:10030','DOID:0001816',
+            'GO:0019899','GO:0005515','GO:0043393','GO:0022607','GO:0009952','GO:0005764','GO:0060271','GO:0048263','GO:0007492','GO:0030902',
+            'GO:0070121','GO:0030901','GO:0030182','GO:0042664','GO:0030916','GO:0021571','GO:0061195', 'GO:0048705','GO:0030335','GO:0048709'}
 
         self.useTestObject = useTestObject
-        self.testGoTerms = set()
+        self.testOntologyTerms = {'DOID:0110741','DOID:0110739','DOID:10021','DOID:10030','DOID:0001816','DOID:0060171',
+            'GO:0019899','GO:0005515','GO:0043393','GO:0022607','GO:0009952','GO:0005764','GO:0060271','GO:0048263','GO:0007492','GO:0030902',
+            'GO:0070121','GO:0030901','GO:0030182','GO:0042664','GO:0030916','GO:0021571','GO:0061195', 'GO:0048705','GO:0030335','GO:0048709'}
 
     def using_test_data(self):
         return self.useTestObject
@@ -29,11 +33,11 @@ class TestObject(object):
         else:
             return False
 
-    def add_go_ids(self, goIdList):
-        self.testGoTerms.update(goIdList)
+    def add_ontology_ids(self, oIdList):
+        self.testOntologyTerms.update(oIdList)
 
-    def check_for_test_go_entry(self, goTermId):
-        if goTermId in self.testGoTerms:
+    def check_for_test_ontology_entry(self, termId):
+        if termId in self.testOntologyTerms:
             return True
         else:
             return False

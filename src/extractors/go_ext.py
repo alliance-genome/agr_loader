@@ -96,7 +96,7 @@ class GOExt(object):
         if testObject.using_test_data() is True:
             filtered_dict = []
             for entry in list_to_return:
-                if testObject.check_for_test_go_entry(entry['id']) is True:
+                if testObject.check_for_test_ontology_entry(entry['id']) is True:
                     filtered_dict.append(entry)
                 else:
                     continue

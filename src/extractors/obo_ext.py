@@ -3,10 +3,10 @@ from .obo_parser import parseOBO
 
 class OExt(object):
 
-    def get_data(self, test_object, filename, prefix):
+    def get_data(self, testObject, filename, prefix):
         path = "tmp";
-        S3File("mod-datadumps", prefix+filename, path).download()
-        o_data = TXTFile(path + prefix+filename).get_data()
+        S3File("mod-datadumps"+prefix, filename, path).download()
+        o_data = TXTFile(path + "/"+filename).get_data()
         parsed_line = parseOBO(o_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
@@ -14,18 +14,20 @@ class OExt(object):
             o_syns = line.get('synonym')
             syns = []
             xrefs = []
-            local_id = None
-            global_id = None
             complete_url = None
             xref = None
             xref_urls = []
-            defLinksProcessed =[]
-            defLinks =[]
+            local_id = None
+            defLinksProcessed = []
+            defText = None
+            defLinks = []
+            do_is_as = []
+            subset = []
+            newSubset = None
+            definition = ""
             is_obsolete = "false"
             id = line['id']
-            print (id)
             prefix = id.split(":")[0]
-            print (prefix)
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if o_syns is not None:
@@ -67,38 +69,44 @@ class OExt(object):
                 else:
                     isaWithoutName = o_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
-
             definition = line.get('def')
-            if definition is not None:
-                defText = definition.split("\"")[1]
-                if "[" in definition:
-                    defLinks = definition.split("\"")[2]
-                    defLinks = defLinks.rstrip("]")[1:]
-                    defLinks = defLinks.replace("url:", "")
-                    defLinks = defLinks.replace("\\:", ":")
-                    if "," in defLinks:
-                        defLinks = defLinks.split(",")
-                        for link in defLinks:
-                            link = link[1:]
-                            link = link.replace("url:", "")
-                            link = link.replace("\\:", ":")
-                            defLinksProcessed.append(link)
-                    else:
-                        defLinks = defLinks.replace("[", "")
-                        defLinks = defLinks.replace("url:", "")
-                        defLinks = defLinks.replace("\\:", ":")
-                        defLinksProcessed.append(defLinks)
-            else:
+            defLinks = ""
+            defLinksProcessed = []
+            if definition is None:
                 definition = ""
-            subset = line.get('subset')
-            if subset is not None:
-                if "," in subset:
-                    subset = subset.split(",")
             else:
-                subset = ""
-            is_obsolete = line.get('is_obsolete')
+                if definition is not None and "\"" in definition:
+                    defText = definition.split("\"")[1].strip()
+                    if "[" in definition.split("\"")[2].strip():
+                        defLinks = definition.split("\"")[2].strip()
+                        defLinks = defLinks.rstrip("]").replace("[", "")
+                        defLinks = defLinks.replace("url:www", "http://wwww")
+                        defLinks = defLinks.replace("url:", "")
+                        defLinks = defLinks.replace("URL:", "")
+                        defLinks = defLinks.replace("\\:", ":")
+
+                        if "," in defLinks:
+                            defLinks = defLinks.split(",")
+                            for link in defLinks:
+                                if link.strip().startswith("http"):
+                                    defLinksProcessed.append(link)
+                        else:
+                            if defLinks.strip().startswith("http"):
+                                defLinksProcessed.append(defLinks)
+                else:
+                    definition = defText
+            if definition is None:
+                definition = ""
+
+            newSubset = line.get('subset')
+            if isinstance(newSubset, (list, tuple)):
+                subset = newSubset
+            else:
+                if newSubset is not None:
+                    subset.append(newSubset)
             if is_obsolete is None:
                 is_obsolete = "false"
+
 
             dict_to_append = {
                 'o_genes': [],
@@ -122,12 +130,26 @@ class OExt(object):
                 'oPrefix': prefix,
                 'xref_urls': xref_urls,
                 'defText': defText,
-                'defLinksProcessed': defLinksProcessed
+                'defLinksProcessed': defLinksProcessed,
+                'oboFile': prefix,
+                'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
+                'category': 'go',
+                'name_key': line['name'],
+                'o_type': line.get('namespace'),
 
             }
             list_to_return.append(dict_to_append)
 
-        return list_to_return
+        if testObject.using_test_data() is True:
+            filtered_dict = []
+            for entry in list_to_return:
+                if testObject.check_for_test_ontology_entry(entry['id']) is True:
+                    filtered_dict.append(entry)
+                else:
+                    continue
+            return filtered_dict
+        else:
+            return list_to_return
 
     def get_complete_url (self, local_id, global_id):
 
