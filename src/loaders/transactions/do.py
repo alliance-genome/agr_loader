@@ -23,8 +23,8 @@ class DOTransaction(Transaction):
             SET doterm.is_obsolete = row.is_obsolete
             SET doterm.subset = row.subset
             SET doterm.doDisplayId = row.id
-            SET doterm.doUrl = row.doUrl
-            SET doterm.doPrefix = row.doPrefix
+            SET doterm.doUrl = row.oUrl
+            SET doterm.doPrefix = "DOID"
             SET doterm.doId = row.id
             SET doterm.rgdLink = row.rgd_link
             SET doterm.mgiLink = row.mgi_link
@@ -33,7 +33,7 @@ class DOTransaction(Transaction):
             SET doterm.wormbaseLink = row.wormbase_link
             SET doterm.sgdLink = "SGD"
 
-            FOREACH (entry in row.do_synonyms |
+            FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
 
@@ -48,7 +48,7 @@ class DOTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS xrurls
                 UNWIND xrurls AS xref
-                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.doid})
+                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.oid})
 
                     MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
                      SET cr.localId = xref.local_id
@@ -60,5 +60,5 @@ class DOTransaction(Transaction):
 
 
         """
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        Transaction.execute_transaction(self, query, data)
+        Transaction.execute_transaction(self, queryXref, data)

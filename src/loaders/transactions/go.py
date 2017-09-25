@@ -41,7 +41,7 @@ class GOTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS xrurls
                 UNWIND xrurls AS xref
-                    MATCH (gt:GOTerm:Ontology {primaryKey:xref.goid})
+                    MATCH (gt:GOTerm:Ontology {primaryKey:xref.oid})
 
                     MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
                      SET cr.localId = xref.local_id
@@ -53,5 +53,5 @@ class GOTransaction(Transaction):
 
 
         """
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        Transaction.execute_transaction(self, query, data)
+        Transaction.execute_transaction(self, queryXref, data)

@@ -107,7 +107,6 @@ class OExt(object):
             if is_obsolete is None:
                 is_obsolete = "false"
 
-
             dict_to_append = {
                 'o_genes': [],
                 'o_species': [],
