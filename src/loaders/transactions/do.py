@@ -60,5 +60,5 @@ class DOTransaction(Transaction):
 
 
         """
-        Transaction.execute_transaction(self, query, data)
-        Transaction.execute_transaction(self, queryXref, data)
+        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
