@@ -7,7 +7,7 @@ class ZFIN(MOD):
         self.loadFile = "ZFIN_1.0_3.tar.gz"
         self.bgiName = "/ZFIN_1.0_basicGeneInformation.json"
         self.diseaseName = "/ZFIN_1.0_disease_daf.json"
-        self.geneAssociationFile = "gene_association.zfin.gz"
+        self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         
     def load_genes(self, batch_size, test_set):
