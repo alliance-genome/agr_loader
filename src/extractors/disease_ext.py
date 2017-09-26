@@ -2,7 +2,6 @@ import uuid
 
 class DiseaseExt(object):
 
-
     def get_features(self, disease_data, batch_size, testObject):
         disease_features = {}
         list_to_yield = []
