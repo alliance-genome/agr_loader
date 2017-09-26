@@ -88,14 +88,15 @@ class GOExt(object):
                 'category': 'go',
                 'is_a': isasWithoutNames,
                 'is_obsolete': is_obsolete,
-                'xrefs': xrefs
+                'xrefs': xrefs,
+                'xref_urls': xref_urls
             }
             list_to_return.append(dict_to_append)
 
         if testObject.using_test_data() is True:
             filtered_dict = []
             for entry in list_to_return:
-                if testObject.check_for_test_go_entry(entry['id']) is True:
+                if testObject.check_for_test_ontology_entry(entry['id']) is True:
                     filtered_dict.append(entry)
                 else:
                     continue
