@@ -48,7 +48,7 @@ class MOD(object):
             for entry in go_annot_dict:
                 if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
                     go_annot_list.append(go_annot_dict[entry])
-                    testObject.add_go_ids(go_annot_dict[entry]['go_id'])
+                    testObject.add_ontology_ids(go_annot_dict[entry]['go_id'])
                 else:
                     continue
             return go_annot_list

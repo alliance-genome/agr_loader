@@ -68,6 +68,15 @@ def test_gene_xref_url_exists():
     for record in result:
         assert record["count"] > 0
 
+def test_species_disease_pub_exists():
+    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseGeneJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+
+
+
 #
 # def test_defLinks():
 #     query = "MATCH(n:DOTerm) WITH length(n.defLinksProcessed) as linkCount where n.primaryKey = 'DOID:1335' RETURN linkCount AS count"
