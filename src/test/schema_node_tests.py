@@ -165,7 +165,6 @@ class TestClass(object):
                             dict(node='Species', prop='primaryKey'), \
                             dict(node='CrossReference', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
-                            dict(node='Identifier', prop='primaryKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
                             dict(node='SOTerm', prop='primaryKey'), \
                             dict(node='GOTerm', prop='primaryKey'), \
