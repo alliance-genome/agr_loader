@@ -7,7 +7,7 @@ class SGD(MOD):
         self.loadFile = "SGD_1.0.3.tar.gz"
         self.bgiName = "/SGD_1.0.3/SGD_1.0.2_basicGeneInformation.json"
         self.diseaseName = "/SGD_1.0.3/disease_association.SGD.1.0.2.json"
-        self.geneAssociationFile = "gene_association.sgd.gz"
+        self.geneAssociationFile = "gene_association_1.0.sgd.gz"
         self.identifierPrefix = "SGD:"
 
     def load_genes(self, batch_size, testObject):

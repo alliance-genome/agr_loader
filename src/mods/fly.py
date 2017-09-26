@@ -7,7 +7,7 @@ class FlyBase(MOD):
         self.loadFile = "FB_1.0.3_3.tar.gz"
         self.bgiName = "/FB_1.0.3_BGI.json"
         self.diseaseName = "/FB_1.0.3_disease.json"
-        self.geneAssociationFile = "gene_association.fb.gz"
+        self.geneAssociationFile = "gene_association_1.0.fb.gz"
         self.identifierPrefix = "FB:"
 
     def load_genes(self, batch_size, testObject):
