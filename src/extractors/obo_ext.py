@@ -138,16 +138,16 @@ class OExt(object):
             }
             list_to_return.append(dict_to_append)
 
-        if testObject.using_test_data() is True:
-            filtered_dict = []
-            for entry in list_to_return:
-                if testObject.check_for_test_ontology_entry(entry['id']) is True:
-                    filtered_dict.append(entry)
-                else:
-                    continue
-            return filtered_dict
-        else:
-            return list_to_return
+        # if testObject.using_test_data() is True:
+        #     filtered_dict = []
+        #     for entry in list_to_return:
+        #         if testObject.check_for_test_ontology_entry(entry['id']) is True:
+        #             filtered_dict.append(entry)
+        #         else:
+        #             continue
+        #     return filtered_dict
+        # else:
+        return list_to_return
 
     def get_complete_url (self, local_id, global_id):
 
