@@ -16,6 +16,8 @@ class BGITransaction(Transaction):
         # quit()
 
         query = """
+
+            EXPLAIN
             UNWIND $data AS row
 
             //Create the load node(s)
@@ -25,7 +27,7 @@ class BGITransaction(Transaction):
                 SET l.loadName = "BGI"
 
             //Create the Gene node and set properties. primaryKey is required.
-            MERGE (g:Gene {primaryKey:row.primaryId})
+            CREATE (g:Gene {primaryKey:row.primaryId})
                 SET g.symbol = row.symbol
                 SET g.taxonId = row.taxonId
                 SET g.name = row.name

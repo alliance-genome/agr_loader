@@ -10,14 +10,13 @@ class GOTransaction(Transaction):
         '''
         Loads the GO data into Neo4j.
         TODO: Need metadata for GO release version. Entity node?
-        TODO: Split out synonyms into nodes?
 
         '''
         query = """
             UNWIND $data as row 
 
             //Create the GOTerm node and set properties. primaryKey is required.
-            MERGE (g:GOTerm:Ontology {primaryKey:row.id})
+            CREATE (g:GOTerm:Ontology {primaryKey:row.id})
                 SET g.definition = row.definition
                 SET g.type = row.o_type
                 SET g.href = row.href
