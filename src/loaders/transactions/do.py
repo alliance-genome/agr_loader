@@ -15,7 +15,7 @@ class DOTransaction(Transaction):
             UNWIND $data as row
 
             //Create the DOTerm node and set properties. primaryKey is required.
-            CREATE (doterm:DOTerm:Ontology {primaryKey:row.id})
+            MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
                 SET doterm.name = row.name
                 SET doterm.nameKey = row.name_key
                 SET doterm.definition = row.defText

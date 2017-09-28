@@ -27,7 +27,7 @@ class BGITransaction(Transaction):
                 SET l.loadName = "BGI"
 
             //Create the Gene node and set properties. primaryKey is required.
-            CREATE (g:Gene {primaryKey:row.primaryId})
+            MERGE (g:Gene {primaryKey:row.primaryId})
                 SET g.symbol = row.symbol
                 SET g.taxonId = row.taxonId
                 SET g.name = row.name
