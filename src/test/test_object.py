@@ -6,6 +6,7 @@ class TestObject(object):
 
     def __init__(self, useTestObject):
         # TODO Separate gene ids from other forms of id?
+
         self.testIdSet = {'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553',
                           'HGNC:6560','HGNC:6551',
                           'RGD:70891', 'RGD:1306349', 'RGD:620796', 'RGD:61995', 'RGD:1309165', 'RGD:2322065','RGD:1309063',
@@ -27,10 +28,9 @@ class TestObject(object):
                           'WB:WBGene00044305', 'WB:WBGene00169423', 'WB:WBGene00000987', 'WB:WBGene00015146', 'WB:WBGene00015599',
                           'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015', 'SGD:S000002200', 'SGD:S000002386'}
 
-        self.useTestObject = useTestObject
 
-        #for now, these are not used per request from  indexer folks that they want all GO and DO terms in the test set.
-        self.testOntologyTerms = {'DOID:0110741','DOID:0110739','DOID:10021','DOID:10030','DOID:0001816','DOID:0060171','DOID:1115','DOID:0001816',
+        self.useTestObject = useTestObject
+        self.testOntologyTerms = {'DOID:0110741','DOID:0110739','DOID:10021','DOID:10030','DOID:0001816','DOID:0060171','DOID:1115','DOID:0001816','DOID:14330','DOID:9452','DOID:9455','DOID:1059',
             'GO:0019899','GO:0005515','GO:0043393','GO:0022607','GO:0009952','GO:0005764','GO:0060271','GO:0048263','GO:0007492','GO:0030902',
             'GO:0070121','GO:0030901','GO:0030182','GO:0042664','GO:0030916','GO:0021571','GO:0061195', 'GO:0048705','GO:0030335','GO:0048709'}
 
