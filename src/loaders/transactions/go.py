@@ -10,7 +10,6 @@ class GOTransaction(Transaction):
         '''
         Loads the GO data into Neo4j.
         TODO: Need metadata for GO release version. Entity node?
-        TODO: Split out synonyms into nodes?
 
         '''
         query = """

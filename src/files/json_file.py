@@ -1,7 +1,6 @@
 import json
 import codecs
 import jsonschema as js
-import sys
 import os
 
 class JSONFile(object):

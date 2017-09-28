@@ -6,7 +6,7 @@ import csv
 
 class MOD(object):
 
-    def load_genes(self, batch_size, testObject, bgiName, loadFile):
+    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
@@ -17,7 +17,7 @@ class MOD(object):
     def yield_gene_lists(self, gene_lists):
         yield from gene_lists
 
-    def extract_go_annots(self, geneAssociationFile, species, identifierPrefix, testObject):
+    def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
         S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
         go_annot_dict = {}
@@ -57,7 +57,7 @@ class MOD(object):
                 go_annot_list.append(go_annot_dict[entry])
             return go_annot_list
 
-    def load_do_annots(self, diseaseName):
+    def load_do_annots_mod(self, diseaseName):
         path = "tmp"
         S3File("mod-datadumps", self.loadFile, path).download()
         TARFile(path, self.loadFile).extract_all()
@@ -66,7 +66,7 @@ class MOD(object):
 
         return gene_disease_dict
 
-    def load_disease_objects(self, batch_size, testObject, diseaseName, loadFile):
+    def load_disease_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()

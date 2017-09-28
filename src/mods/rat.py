@@ -11,7 +11,7 @@ class RGD(MOD):
         self.identifierPrefix = "RGD:"
 
     def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes(self, batch_size, testObject, self.bgiName, self.loadFile)
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
         return data
 
     @staticmethod
@@ -23,13 +23,13 @@ class RGD(MOD):
         return ["Rattus norvegicus", "R. norvegicus", "RAT"]
 
     def extract_go_annots(self, testObject):
-        go_annot_list = MOD.extract_go_annots(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
+        go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
     def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
+        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
         return gene_disease_dict
 
     def load_disease_objects(self, batch_size, testObject):
-        data = MOD.load_disease_objects(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
