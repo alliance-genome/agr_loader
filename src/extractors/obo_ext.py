@@ -25,8 +25,8 @@ class OExt(object):
             newSubset = None
             definition = ""
             is_obsolete = "false"
-            id = line['id']
-            prefix = id.split(":")[0]
+            ident = line['id']
+            prefix = ident.split(":")[0]
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if o_syns is not None:
