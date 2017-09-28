@@ -82,7 +82,7 @@ class DiseaseExt(object):
                     fishEnvId = primaryId+conditionId
 
                 #TODO: get SGD to fix their disease file.
-                if diseaseRecord.get('taxonId')=='taxon:559292':
+                if diseaseRecord.get('taxonId') == 'taxon:559292':
                     taxonId = "NCBITaxon:559292"
                 else:
                     taxonId = diseaseRecord.get('taxonId')
