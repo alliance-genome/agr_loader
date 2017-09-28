@@ -17,7 +17,6 @@ class BGITransaction(Transaction):
 
         query = """
 
-            EXPLAIN
             UNWIND $data AS row
 
             //Create the load node(s)
