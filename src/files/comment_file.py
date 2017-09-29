@@ -10,4 +10,4 @@ class CommentFile(object):
         return line
 
     def __iter__(self):
-		return self
+        return self
