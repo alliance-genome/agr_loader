@@ -1,4 +1,3 @@
-
 class CommentFile(object):
     def __init__(self, f, commentstring="#"):
         self.f = f

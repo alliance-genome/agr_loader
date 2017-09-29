@@ -40,12 +40,12 @@ class BGIExt(object):
 
             if 'crossReferenceIds' in geneRecord:
                 for crossRef in geneRecord['crossReferenceIds']:
-                    #this can be simplified when GO YAML reused for AGR has helper fields.
+                    # TODO This can be simplified when GO YAML reused for AGR has helper fields.
                     if ':' in crossRef:
                         local_crossref_id = crossRef.split(":")[1]
                         prefix = crossRef.split(":")[0]
                         crossRefPrimaryId = None
-                        if prefix == 'PANTHER': # special Panther case to be addressed post 1.0
+                        if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
                             crossRefPrimaryId = crossRef + '_' + primary_id
                         else:
                             crossRefPrimaryId = crossRef
