@@ -10,8 +10,10 @@ from neo4j.v1 import GraphDatabase
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-        self.batch_size = 5000  # Set size of BGI,disease batches extracted from MOD JSON file.
-        self.mods = [WormBase(), MGI(), ZFIN(), FlyBase(), RGD(), Human(), SGD()] #SGD()
+        # Set size of BGI, disease batches extracted from MOD JSON file
+        # for creating Python data structure.
+        self.batch_size = 5000
+        self.mods = [WormBase(), MGI(), ZFIN(), FlyBase(), RGD(), Human(), SGD()]
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
@@ -22,6 +24,21 @@ class AggregateLoader(object):
     def create_indicies(self):
         print("Creating indicies.")
         Indicies(self.graph).create_indicies()
+
+    def load_from_ontologies(self):
+        print ("Extracting SO data.")
+        self.so_dataset = SOExt().get_data()
+        print("Extracting GO data.")
+        self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
+        print("Extracting DO data.")
+        self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
+
+        print("Loading SO data into Neo4j.")
+        SOLoader(self.graph).load_so(self.so_dataset)
+        print("Loading GO data into Neo4j.")
+        GOLoader(self.graph).load_go(self.go_dataset)
+        print("Loading DO data into Neo4j.")
+        DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -38,7 +55,7 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start),2) ))
 
-        # a little weird here - the idea is to let BGI from all mods go in first before ortho (see above)
+        # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
             print("Loading Orthology data for %s into Neo4j." % (mod.species))
@@ -55,27 +72,3 @@ class AggregateLoader(object):
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % (mod.__class__.__name__))
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
-
-    # Load annotations before ontologies to restrict ontology data for testObject.
-    def load_annotations(self):
-        print("Extracting GO annotations.")
-        # for mod in self.mods:
-        #     print("Extracting GO annotations for %s." % (mod.__class__.__name__))
-        #     go_annots = mod.extract_go_annots(self.testObject)
-        #     print("Loading GO annotations for %s into Neo4j." % (mod.__class__.__name__))
-        #     GOAnnotLoader(self.graph).load_go_annot(go_annots)
-
-    def load_from_ontologies(self):
-        print ("Extracting SO data.")
-        self.so_dataset = SOExt().get_data()
-        print("Extracting GO data.")
-        self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
-        print("Extracting DO data.")
-        self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)

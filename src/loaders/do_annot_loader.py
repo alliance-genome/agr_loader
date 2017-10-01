@@ -1,4 +1,3 @@
-from neo4j.v1 import GraphDatabase
 from .transactions.go_annot import DOAnnotTransaction
 
 class GOAnnotLoader(object):

@@ -25,8 +25,8 @@ class OExt(object):
             newSubset = None
             definition = ""
             is_obsolete = "false"
-            id = line['id']
-            prefix = id.split(":")[0]
+            ident = line['id']
+            prefix = ident.split(":")[0]
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if o_syns is not None:
@@ -119,12 +119,11 @@ class OExt(object):
                 'subset': subset,
                 'xrefs': xrefs,
                 #TODO: fix links to not be passed for each ontology load.
-                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=rat&acc_id='+line['id'],
+                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id='+line['id']+'#annot',
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
-                'wormbase_link': 'no_link_yet',
+                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
                 'zfin_link': 'https://zfin.org/'+line['id'],
-                'human_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=human&acc_id='+line['id'],
                 'oUrl': "http://www.disease-ontology.org/?id=" + line['id'],
                 'oPrefix': prefix,
                 'xref_urls': xref_urls,
@@ -164,6 +163,6 @@ class OExt(object):
         if 'KEGG' in global_id:
             complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
         if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + global_id
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
 
         return complete_url

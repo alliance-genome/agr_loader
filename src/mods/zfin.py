@@ -10,8 +10,8 @@ class ZFIN(MOD):
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         
-    def load_genes(self, batch_size, test_set):
-        data = MOD.load_genes(self, batch_size, test_set, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
         return data
 
     @staticmethod
@@ -23,13 +23,13 @@ class ZFIN(MOD):
         return ["Danio rerio", "D. rerio", "DANRE"]
 
     def extract_go_annots(self, testObject):
-        go_annot_list = MOD.extract_go_annots(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
+        go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
     def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots(self, self.diseaseName)
+        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
         return gene_disease_dict
 
-    def load_disease_objects(self, batch_size, test_set):
-        data = MOD.load_disease_objects(self, batch_size, test_set, self.diseaseName, self.loadFile)
+    def load_disease_objects(self, batch_size, testObject):
+        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
