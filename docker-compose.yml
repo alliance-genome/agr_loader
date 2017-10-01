@@ -1,0 +1,42 @@
+version: "2"
+
+services:
+  neo4j.nqc:
+    container_name: neo4j.nqc
+    image: agrdocker/agr_neo4j_env:latest
+    volumes:
+      - dbstore:/data
+      - dbstore:/logs
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    networks:
+      - esnet
+    environment:
+      - NEO4J_dbms_memory_heap_maxSize=4096
+  agr_loader:
+    image: agrdocker/agr_loader_run:latest
+    networks:
+      - esnet
+    environment:
+     - TEST_SET=False
+     - UNIT_TESTS=False
+     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_PORT=7687
+
+  agr_loader_test:
+    image: agrdocker/agr_loader_run:latest
+    networks:
+      - esnet
+    environment:
+     - TEST_SET=True
+     - UNIT_TESTS=False
+     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_PORT=7687
+
+networks:
+  esnet:
+
+volumes:
+  dbstore:
+    driver: local

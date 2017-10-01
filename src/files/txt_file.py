@@ -1,12 +1,12 @@
 import codecs
 
-class TXTFile:
+class TXTFile(object):
 
     def __init__(self, filename):
         self.filename = filename
 
     def get_data(self):
-        print "Loading txt data from (" + self.filename + ") ..."
+        print("Loading txt data from %s..." % (self.filename))
         lines = []
         with codecs.open(self.filename, 'r', 'utf-8') as f:
             for line in f:

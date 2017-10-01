@@ -1,0 +1,77 @@
+<ul class="graph-diagram-markup" data-internal-scale="1.21" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="-575.1868510115039" data-y="-305.21304657262397">
+    <span class="caption">:DOTerm</span>
+  </li>
+  <li class="node" data-node-id="1" data-x="-1347.52029446943" data-y="-275.14079003815255">
+    <span class="caption">:Association</span>
+  </li>
+  <li class="node" data-node-id="2" data-x="-1746.3628254461726" data-y="-203.9424785649012">
+    <span class="caption">:Pub</span>
+  </li>
+  <li class="node" data-node-id="3" data-x="-1225.151239517631" data-y="106.35272580767996">
+    <span class="caption">:Evidence</span>
+  </li>
+  <li class="node" data-node-id="5" data-x="-2014.8283680207164" data-y="-1172.8538247204708">
+    <span class="caption">:Genotype :DiseaseObject</span><dl class="properties"><dt>objectId</dt><dd>"MGI-genotype-identifier"</dd></dl></li>
+  <li class="node" data-node-id="6" data-x="-441.90328466739487" data-y="-1139.660927859511">
+    <span class="caption">:Fish :Environment :DiseaseObject</span><dl class="properties"><dt>objectId</dt><dd>"ZFIN-ZDB-FISH-150901-25611disease-enducing conditions"</dd></dl></li>
+  <li class="node" data-node-id="7" data-x="178.1896889886836" data-y="-715.4004315363612">
+    <span class="caption">:Association</span>
+  </li>
+  <li class="node" data-node-id="8" data-x="441.5719349216162" data-y="-1229.137920516864">
+    <span class="caption">:Pub</span>
+  </li>
+  <li class="node" data-node-id="9" data-x="737.7545208005148" data-y="-918.0956777598309">
+    <span class="caption">:Evidence</span>
+  </li>
+  <li class="node" data-node-id="11" data-x="-1449.5887068617644" data-y="-1938.6867933360804">
+    <span class="caption">:Gene :DiseaseObject</span>
+  </li>
+  <li class="node" data-node-id="12" data-x="603.1380014682034" data-y="343.96140400422564"></li>
+  <li class="node" data-node-id="13" data-x="104.43561416585187" data-y="-1721.2192876971897">
+    <span class="caption">:EnvironmentCondition</span>
+  </li>
+  <li class="node" data-node-id="14" data-x="-313.1662981017563" data-y="-1671.2112513106697">
+    <span class="caption">:Fish</span><dl class="properties"><dt>primaryId</dt><dd>"ZFIN-ZDB-FISH-150901-25611"</dd><dt>name</dt><dd>"Fishy fish"</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="1">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="1" data-to="2"></li>
+  <li class="relationship" data-from="1" data-to="3"></li>
+  <li class="relationship" data-from="5" data-to="1">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="5">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="7">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="6" data-to="7">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="7" data-to="8">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="7" data-to="9">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="6">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="11">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="6" data-to="11">
+    <span class="type">INFERRED_GENE ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="5" data-to="11">
+    <span class="type">INFERRED_GENE ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="6" data-to="13">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+  <li class="relationship" data-from="6" data-to="14">
+    <span class="type">ANNOTATED_TO</span>
+  </li>
+</ul>

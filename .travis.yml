@@ -3,10 +3,14 @@ dist: trusty
 
 language: python
 
-python:
-  - "3.4"
-
 services:
   - docker
 
- before_install:
+before_install:
+  - docker-compose up -d neo4j.nqc
+  - docker pull agrdocker/agr_neo4j_env:latest
+  - docker build -t agrdocker/agr_loader_run:latest .
+  
+script:
+  - docker-compose up agr_loader_test
+  - docker-compose run agr_loader_test pytest --verbose

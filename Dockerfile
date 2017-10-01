@@ -1,5 +1,11 @@
-CMD "rm -rf logs"
+FROM agrdocker/agr_python_env:latest
 
-FROM christabone/homeone:agr_loader_env_0.1
-FROM neo4j:3.2.1
+WORKDIR /usr/src/app
 
+ADD requirements.txt .
+
+RUN pip install -r requirements.txt
+
+ADD . .
+
+CMD ["python3", "-u", "src/fetch_index.py"]
