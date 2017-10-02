@@ -103,6 +103,7 @@ class OExt(object):
             else:
                 if newSubset is not None:
                     subset.append(newSubset)
+            is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
                 is_obsolete = "false"
 
