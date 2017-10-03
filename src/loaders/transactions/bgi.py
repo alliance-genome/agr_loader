@@ -100,7 +100,8 @@ class BGITransaction(Transaction):
                     MERGE (chrm:Chromosome {primaryKey:location.chromosome})
 
                     //gene->chromosome
-                    MERGE (g)-[gchrm:LOCATED_ON]->(chrm)
+                    //each location should be unique - if this is merge, then we mistakenly overwrite the relationship properties on each iteration
+                    CREATE (g)-[gchrm:LOCATED_ON]->(chrm)
                         SET gchrm.start = location.start 
                         SET gchrm.end = location.end 
                         SET gchrm.assembly = location.assembly 
