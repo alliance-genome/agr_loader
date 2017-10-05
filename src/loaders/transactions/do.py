@@ -28,8 +28,8 @@ class DOTransaction(Transaction):
                 SET doterm.doId = row.id
                 SET doterm.rgdLink = row.rgd_link
                 SET doterm.rgdLink = row.rgd_all_link
-                SET doterm.rat_only_rgd_link = row.rat_only_rgd_link
-                SET doterm.human_only_rgd_link = row.human_only_rgd_link
+                SET doterm.ratOnlyRgdLink = row.rat_only_rgd_link
+                SET doterm.humanOnlyRgdLink = row.human_only_rgd_link
                 SET doterm.mgiLink = row.mgi_link
                 SET doterm.zfinLink = row.zfin_link
                 SET doterm.flybaseLink = row.flybase_link
