@@ -121,6 +121,9 @@ class OExt(object):
                 'xrefs': xrefs,
                 #TODO: fix links to not be passed for each ontology load.
                 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id='+line['id']+'#annot',
+                'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id=' + line['id'] + '#annot',
+                'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&acc_id=' +line['id'] + '#annot<http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id=' +line['id'] + '#annot>',
+                'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&acc_id=' +line['id'] + '#annot<http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&acc_id=' +line['id'] + '#annot>',
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
                 'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
