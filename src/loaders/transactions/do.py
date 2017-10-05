@@ -27,6 +27,9 @@ class DOTransaction(Transaction):
                 SET doterm.doPrefix = "DOID"
                 SET doterm.doId = row.id
                 SET doterm.rgdLink = row.rgd_link
+                SET doterm.rgdLink = row.rgd_all_link
+                SET doterm.ratOnlyRgdLink = row.rat_only_rgd_link
+                SET doterm.humanOnlyRgdLink = row.human_only_rgd_link
                 SET doterm.mgiLink = row.mgi_link
                 SET doterm.zfinLink = row.zfin_link
                 SET doterm.flybaseLink = row.flybase_link
