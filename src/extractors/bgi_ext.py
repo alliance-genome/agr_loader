@@ -180,25 +180,20 @@ class BGIExt(object):
             complete_url = None
         elif global_id.startswith('PANTHER'):
             panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
+            split_primary = primary_id.split(':')[1]
             if primary_id.startswith('MGI'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
             elif primary_id.startswith('RGD'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=RGD=' + split_primary
             elif primary_id.startswith('SGD'):
-                complete_url = panther_url + '&seq=SGD=' + primary_id
+                complete_url = panther_url + '&seq=SGD=' + split_primary
             elif primary_id.startswith('FB'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=FlyBase=' + split_primary
             elif primary_id.startswith('WB'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=WormBase=' + split_primary
             elif primary_id.startswith('ZFIN'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=ZFIN=' + split_primary
             elif primary_id.startswith('HGNC'):
-                split_primary = primary_id.split(':')[1]
                 complete_url = panther_url + '&seq=HGNC=' + split_primary
 
         return complete_url
