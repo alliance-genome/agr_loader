@@ -58,6 +58,11 @@ class AggregateLoader(object):
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
+            # print("Loading MOD alleles for %s into Neo4j." % (mod.species))
+            # alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            # for allele_list_of_entries in features:
+            #     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+
             print("Loading Orthology data for %s into Neo4j." % (mod.species))
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:

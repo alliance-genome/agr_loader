@@ -1,0 +1,10 @@
+from .transactions.allele import AlleleTransaction
+
+class AlleleLoader(object):
+
+    def __init__(self, graph):
+        self.graph = graph
+
+    def load_allele(self, data):
+        tx = AlleleTransaction(self.graph)
+        tx.allele_tx(data)
