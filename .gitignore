@@ -1,3 +1,4 @@
 *.swp
 __pycache__
 .nfs00000000051f6bda00004ce7
+.vscode*
