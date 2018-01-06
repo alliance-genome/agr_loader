@@ -7,6 +7,7 @@ class RGD(MOD):
         self.loadFile = "RGD_1.0.3_7.tar.gz"
         self.bgiName = "/RGD_1.0.3_BGI.10116.json"
         self.diseaseName = "/RGD_1.0.3_disease.10116.daf.json"
+        self.alleleName = "/RGD_1.0.4_allele.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
 
@@ -32,4 +33,9 @@ class RGD(MOD):
 
     def load_disease_objects(self, batch_size, testObject):
         data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
+    def load_allele_objects(self, batch_size, testObject):
+        data = ""
+            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data

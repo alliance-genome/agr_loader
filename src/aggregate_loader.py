@@ -1,5 +1,6 @@
 from loaders import *
 from loaders.transactions import *
+from loaders.allele_loader import *
 from files import *
 from mods import *
 from extractors import *
@@ -13,7 +14,7 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [WormBase(), MGI(), ZFIN(), FlyBase(), RGD(), Human(), SGD()]
+        self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD()]
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
@@ -58,10 +59,10 @@ class AggregateLoader(object):
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
-            # print("Loading MOD alleles for %s into Neo4j." % (mod.species))
-            # alleles = mod.load_allele_objects(self.batch_size, self.testObject)
-            # for allele_list_of_entries in features:
-            #     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+            print("Loading MOD alleles for %s into Neo4j." % (mod.species))
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            for allele_list_of_entries in alleles:
+                AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
             print("Loading Orthology data for %s into Neo4j." % (mod.species))
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object

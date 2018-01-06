@@ -21,7 +21,7 @@ class AlleleTransaction(Transaction):
                 SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Allele"
 
-            //Create the Gene node and set properties. primaryKey is required.
+            //Create the Allele node and set properties. primaryKey is required.
             MERGE (a:Allele {primaryKey:row.primaryId})
                 SET a.symbol = row.symbol
                 SET a.taxonId = row.taxonId
