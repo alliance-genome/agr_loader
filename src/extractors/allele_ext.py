@@ -17,6 +17,11 @@ class AlleleExt(object):
             globalId = alleleRecord['primaryId']
             localId = globalId.split(":")[1]
 
+            if testObject.using_test_data() is True:
+                is_it_test_entry = testObject.check_for_test_id_entry(globalId)
+                if is_it_test_entry is False:
+                    continue
+
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),

@@ -14,7 +14,6 @@ class Indicies(object):
         session.run("CREATE INDEX ON :DOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Publication(primaryKey)")
         session.run("CREATE INDEX ON :EvidenceCode(primaryKey)")
-        session.run("CREATE INDEX ON :Allele(primaryKey)")
         session.run("CREATE INDEX ON :Transgene(primaryKey)")
         session.run("CREATE INDEX ON :Fish(primaryKey)")
         session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
@@ -34,6 +33,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Gene(modGlobalId)")
         session.run("CREATE INDEX ON :Gene(localId)")
         session.run("CREATE INDEX ON :Load(primaryKey)")
+        session.run("CREATE INDEX ON :Feature(primaryKey)")
         #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
         #session.run("CREATE CONSTRAINT ON (n:Gene) ASSERT n.primaryKey IS UNIQUE")

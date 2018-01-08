@@ -15,6 +15,9 @@ class AlleleTransaction(Transaction):
 
             UNWIND $data AS row
 
+            MATCH (g:Gene {primaryKey: row.geneId})
+            MATCH (s:Species {primaryKey: row.taxonId})
+
             //Create the load node(s)
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
@@ -22,7 +25,7 @@ class AlleleTransaction(Transaction):
                 SET l.loadName = "Allele"
 
             //Create the Allele node and set properties. primaryKey is required.
-            MERGE (a:Allele {primaryKey:row.primaryId})
+            MERGE (a:Feature {primaryKey:row.primaryId})
                 SET a.symbol = row.symbol
                 SET a.taxonId = row.taxonId
                 SET a.dateProduced = row.dateProduced
@@ -43,13 +46,9 @@ class AlleleTransaction(Transaction):
                 MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
                 MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
-            MERGE (spec:Species {primaryKey: row.taxonId})
-                SET spec.species = row.species
-                SET spec.name = row.species
             MERGE (a)-[:FROM_SPECIES]->(spec)
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
-            MERGE (g:Gene {primaryId: row.geneId})
             MERGE (a)<-[ag:IS_ALLELE_OF]->(g)
 
         """
