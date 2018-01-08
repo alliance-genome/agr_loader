@@ -7,6 +7,7 @@ class FlyBase(MOD):
         self.loadFile = "FB_1.0.3_6.tar.gz"
         self.bgiName = "/FB_1.0.3_BGI.json"
         self.diseaseName = "/FB_1.0.3_disease.json"
+        self.alleleName = "/FB_1.0.4_allele.json"
         self.geneAssociationFile = "gene_association_1.0.fb.gz"
         self.identifierPrefix = "FB:"
 
@@ -32,4 +33,9 @@ class FlyBase(MOD):
 
     def load_disease_objects(self, batch_size, testObject):
         data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
+    def load_allele_objects(self, batch_size, testObject):
+        data = ""
+            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
