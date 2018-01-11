@@ -7,7 +7,7 @@ class WormBase(MOD):
         self.loadFile = "WB_1.0.3_5.tar.gz"
         self.bgiName = "/WB_1.0.3_BGI.json"
         self.diseaseName = "/WB_1.0.3_disease.json"
-        self.alleleName = "/WB_1.0.4_allele.json"
+        self.alleleName = "/WB_1.0.4_feature.json"
         self.geneAssociationFile = "gene_association_1.0.wb.gz"
         self.identifierPrefix = "WB:"
 

@@ -4,10 +4,10 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.3_7.tar.gz"
-        self.bgiName = "/RGD_1.0.3_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.3_disease.9606.daf.json"
-        self.alleleName = "/RGD_1.0.4_allele.json"
+        self.loadFile = "RGD_1.0.4_1.tar.gz"
+        self.bgiName = "/RGD_1.0.4_BGI.9606.json"
+        self.diseaseName = "/RGD_1.0.4_disease.9606.json"
+        self.alleleName = "/RGD_1.0.4_feature.9606.json"
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
 
@@ -37,5 +37,5 @@ class Human(MOD):
 
     def load_allele_objects(self, batch_size, testObject):
         data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+        # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
