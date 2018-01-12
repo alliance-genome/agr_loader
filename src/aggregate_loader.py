@@ -1,6 +1,7 @@
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
+from extractors.resource_descriptor_ext import *
 from files import *
 from mods import *
 from extractors import *
@@ -16,6 +17,7 @@ class AggregateLoader(object):
         self.batch_size = 5000
         self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD(), MGI(), WormBase()]
         self.testObject = TestObject(useTestObject)
+        self.resourceDescriptors = ""
 
         # Check for the use of test data.
         if self.testObject.using_test_data() == True:
@@ -33,6 +35,10 @@ class AggregateLoader(object):
         self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
+
+        print("extracting resource descriptor")
+        self.resourceDescriptors = ResourceDescriptor().get_data()
+
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
