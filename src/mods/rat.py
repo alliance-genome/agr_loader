@@ -4,9 +4,10 @@ class RGD(MOD):
 
     def __init__(self):
         self.species = "Rattus norvegicus"
-        self.loadFile = "RGD_1.0.3_7.tar.gz"
-        self.bgiName = "/RGD_1.0.3_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.3_disease.10116.daf.json"
+        self.loadFile = "RGD_1.0.4_1.tar.gz"
+        self.bgiName = "/RGD_1.0.4_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.4_disease.10116.json"
+        self.alleleName = "/RGD_1.0.4_feature.10116.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
 
@@ -32,4 +33,8 @@ class RGD(MOD):
 
     def load_disease_objects(self, batch_size, testObject):
         data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
+    def load_allele_objects(self, batch_size, testObject):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data

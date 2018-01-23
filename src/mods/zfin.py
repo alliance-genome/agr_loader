@@ -4,9 +4,10 @@ class ZFIN(MOD):
 
     def __init__(self):
         self.species = "Danio rerio"
-        self.loadFile = "ZFIN_1.0.3_1.tar.gz"
-        self.bgiName = "/ZFIN_1.0.3_BGI.json"
-        self.diseaseName = "/ZFIN_1.0.3_disease.json"
+        self.loadFile = "ZFIN_1.0.4_2.tar.gz"
+        self.bgiName = "/ZFIN_1.0.4_BGI.json"
+        self.diseaseName = "/ZFIN_1.0.4_disease.json"
+        self.alleleName = "/ZFIN_1.0.4_feature.json"
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         
@@ -32,4 +33,8 @@ class ZFIN(MOD):
 
     def load_disease_objects(self, batch_size, testObject):
         data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
+    def load_allele_objects(self, batch_size, testObject):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data

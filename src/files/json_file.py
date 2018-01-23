@@ -16,13 +16,17 @@ class JSONFile(object):
     def validate_json(self, data, filename, jsonType):
         print("Validating %s JSON." % (jsonType))
 
+
         schema_file_name = None
         if jsonType == 'disease':
             schema_file_name = 'schemas/disease/diseaseMetaDataDefinition.json'
         elif jsonType == 'BGI':
-            schema_file_name = 'schemas/basicGeneInfoFile.json'
+            schema_file_name = 'schemas/gene/basicGeneInfoFile.json'
         elif jsonType == 'orthology':
             schema_file_name = 'schemas/orthology/orthoHeader.json'
+        elif jsonType == 'allele':
+            schema_file_name = 'schemas/feature/featureMetadata.json'
+
 
         with open(schema_file_name) as schema_file:
             schema = json.load(schema_file)

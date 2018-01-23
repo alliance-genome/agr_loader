@@ -39,7 +39,9 @@ class TestClass(object):
                             dict(node='DiseaseGeneJoin'), \
                             dict(node='Association'), \
                             dict(node='Publication'), \
-                            dict(node='EvidenceCode')],
+                            dict(node='EvidenceCode'), \
+                            dict(node='Feature'),
+                             ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                             dict(node='Gene', prop='dateProduced'), \
@@ -97,7 +99,13 @@ class TestClass(object):
                             dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
 
-                            dict(node='EvidenceCode', prop='primaryKey')],
+                            dict(node='EvidenceCode', prop='primaryKey'), \
+                            dict(node='Allele', prop='primaryKey'), \
+                            dict(node='Allele', prop='symbol'), \
+                            dict(node='Allele', prop='dataProvider'), \
+                            dict(node='Allele', prop='dateProduced'), \
+                             ],
+
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                             dict(node='Gene', prop='dateProduced'), \
@@ -154,7 +162,13 @@ class TestClass(object):
                             dict(node='Publication', prop='pubMedId'), \
                             dict(node='Publication', prop='primaryKey'), \
 
-                            dict(node='EvidenceCode', prop='primaryKey')], \
+                            dict(node='EvidenceCode', prop='primaryKey'), \
+                            dict(node='Allele', prop='primaryKey'), \
+                            dict(node='Allele', prop='symbol'), \
+                            dict(node='Allele', prop='dataProvider'), \
+                            dict(node='Allele', prop='dateProduced'), \
+                            dict(node='Allele', prop='gobaleId') \
+                               ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Publication', prop='primaryKey'), \
@@ -168,7 +182,9 @@ class TestClass(object):
                             dict(node='DOTerm', prop='primaryKey'), \
                             dict(node='SOTerm', prop='primaryKey'), \
                             dict(node='GOTerm', prop='primaryKey'), \
-                            dict(node='Gene', prop='primaryKey')]
+                            dict(node='Gene', prop='primaryKey'), \
+                            dict(node='Allele', prop='primaryKey') \
+                       ]
     }
 
     # Query to return all distinct properties from all nodes of a certain type:
