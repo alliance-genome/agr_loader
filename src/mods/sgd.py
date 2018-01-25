@@ -27,13 +27,14 @@ class SGD(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
-        return gene_disease_dict
-
     def load_disease_objects(self, batch_size, testObject):
-        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
+
+    def load_disease_feature_objects(self, batch_size, testObject):
+        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
 
     def load_allele_objects(self, batch_size, testObject):
         data = ""
