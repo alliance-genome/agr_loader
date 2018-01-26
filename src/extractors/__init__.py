@@ -6,3 +6,4 @@ from .bgi_ext import BGIExt
 from .allele_ext import AlleleExt
 from .disease_gene_ext import DiseaseGeneExt
 from .disease_feature_ext import DiseaseFeatureExt
+from .primary_data_object_type import PrimaryDataObjectType

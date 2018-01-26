@@ -1,10 +1,9 @@
 from .disease_ext import get_disease_record
-
+from .primary_data_object_type import PrimaryDataObjectType
 
 class DiseaseGeneExt(object):
 
     def get_gene_disease_data(self, disease_data, batch_size):
-        disease_features = {}
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
         dataProvider = disease_data['metaData']['dataProvider']
@@ -17,13 +16,7 @@ class DiseaseGeneExt(object):
 
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
-            if diseaseObjectType == 'allele':
-                continue
-            elif diseaseObjectType == 'strain':
-                continue
-            elif diseaseObjectType == 'fish':
-                continue
-            elif diseaseObjectType == 'genotype':
+            if diseaseObjectType != PrimaryDataObjectType.gene.name:
                 continue
             else:
 
