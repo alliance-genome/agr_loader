@@ -40,7 +40,7 @@ class TestObject(object):
                           'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133',
                           'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
                           'SGD:S000002200', 'SGD:S000002386',
-                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195','ZFIN:ZDB-ALT-050428-6'}
+                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6'}
 
 
         self.useTestObject = useTestObject

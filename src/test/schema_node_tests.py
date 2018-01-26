@@ -57,7 +57,7 @@ class TestClass(object):
                             dict(node='Gene', prop='primaryKey'), \
                             dict(node='Gene', prop='modGlobalId'), \
                             dict(node='GOTerm', prop='primaryKey'), \
-                            dict(node='SOTerm', prop='name'), \
+                            #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
                             dict(node='DOTerm', prop='doPrefix'), \
                             dict(node='DOTerm', prop='doId'), \
@@ -109,7 +109,7 @@ class TestClass(object):
                                dict(node='Gene', prop='primaryKey'), \
                                dict(node='Gene', prop='modGlobalId'), \
                                dict(node='GOTerm', prop='primaryKey'), \
-                               dict(node='SOTerm', prop='name'), \
+                               #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
                                dict(node='DOTerm', prop='doPrefix'), \
                                dict(node='DOTerm', prop='doId'), \

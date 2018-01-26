@@ -16,6 +16,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD(), MGI(), WormBase()]
+        #self.mods = [SGD()]
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
