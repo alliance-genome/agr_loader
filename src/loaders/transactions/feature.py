@@ -50,6 +50,14 @@ class AlleleTransaction(Transaction):
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
             MERGE (a)<-[ag:IS_ALLELE_OF]->(g)
+            //Merge the entity node.
+
+            MERGE (ent:Entity {primaryKey:row.dataProvider})
+                SET ent.dateProduced = row.dateProduced
+                SET ent.release = row.release
+
+            //Create the entity relationship to the gene node.
+            MERGE (a)-[c1:CREATED_BY]->(ent)
 
         """
 

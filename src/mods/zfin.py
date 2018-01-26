@@ -4,7 +4,7 @@ class ZFIN(MOD):
 
     def __init__(self):
         self.species = "Danio rerio"
-        self.loadFile = "ZFIN_1.0.4_2.tar.gz"
+        self.loadFile = "ZFIN_1.0.4_3.tar.gz"
         self.bgiName = "/ZFIN_1.0.4_BGI.json"
         self.diseaseName = "/ZFIN_1.0.4_disease.json"
         self.alleleName = "/ZFIN_1.0.4_feature.json"
@@ -27,12 +27,12 @@ class ZFIN(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
-        return gene_disease_dict
+    def load_disease_gene_objects(self, batch_size, testObject):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
 
-    def load_disease_objects(self, batch_size, testObject):
-        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_feature_objects(self, batch_size, testObject):
+        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
 
     def load_allele_objects(self, batch_size, testObject):

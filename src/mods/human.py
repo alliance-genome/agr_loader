@@ -4,7 +4,7 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.4_1.tar.gz"
+        self.loadFile = "RGD_1.0.4_2.tar.gz"
         self.bgiName = "/RGD_1.0.4_BGI.9606.json"
         self.diseaseName = "/RGD_1.0.4_disease.9606.json"
         self.alleleName = "/RGD_1.0.4_feature.9606.json"
@@ -27,12 +27,12 @@ class Human(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
-        return gene_disease_dict
+    def load_disease_gene_objects(self, batch_size, testObject):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
 
-    def load_disease_objects(self, batch_size, testObject):
-        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_feature_objects(self, batch_size, testObject):
+        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
 
     def load_allele_objects(self, batch_size, testObject):
