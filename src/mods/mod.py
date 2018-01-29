@@ -6,7 +6,6 @@ from files import S3File, TARFile, JSONFile
 import gzip
 import csv
 
-
 class MOD(object):
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
         path = "tmp"
