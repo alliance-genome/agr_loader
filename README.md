@@ -13,7 +13,7 @@ Resources.
 ## Installation
 - Build the local environment image with `make buildenv`.
 - Build the local image with `make build`.
-- This repository has the agr_schemas as a submodule
+- This repository has the agr_schemas as a submodule. Do the following the first time at checkout:
   - cd into schemas directory 
   - git init submodule
   - git submodule update (to fetch the actual data in this directory)
