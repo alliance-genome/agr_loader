@@ -15,7 +15,8 @@ class DiseaseFeatureTransaction(Transaction):
             // GET PRIMARY DATA OBJECTS
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
-            MATCH(feature:Feature {primaryKey:row.primaryId})
+            MATCH (feature:Feature {primaryKey:row.primaryId})
+            MATCH (g:Gene {primaryKey:row.allelicGeneId})
             // LOAD NODES
 
             MERGE (l:Load {primaryKey:row.loadKey})
@@ -27,8 +28,7 @@ class DiseaseFeatureTransaction(Transaction):
             MERGE (feature)<-[:FROM_SPECIES]->(spec)
 
             MERGE (dfa:Association {primaryKey:row.uuid})
-                SET dfa :DiseaseFeatureJoin
-
+                SET dfa :DiseaseEntityJoin
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
@@ -46,6 +46,7 @@ class DiseaseFeatureTransaction(Transaction):
 
             MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
+            MERGE (g)-[gadf:ASSOCIATION]->(dfa)
 
             // PUBLICATIONS FOR FEATURE
 

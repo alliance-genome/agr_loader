@@ -31,8 +31,8 @@ class RGD(MOD):
         data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
 
-    def load_disease_feature_objects(self, batch_size, testObject):
-        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_feature_objects(self, batch_size, testObject, graph):
+        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject):
