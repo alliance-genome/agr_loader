@@ -33,9 +33,9 @@ class SGD(MOD):
 
 # these are commented out because SGD has no allele data and no allele->disease data right now
 
-    def load_disease_feature_objects(self, batch_size, testObject):
+    def load_disease_feature_objects(self, batch_size, testObject, graph):
         data = ""
-            #MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+            #MOD.load_disease_feature_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject):

@@ -3,6 +3,7 @@ from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_feature_ext import DiseaseFeatureExt
 from extractors.allele_ext import AlleleExt
 from files import S3File, TARFile, JSONFile
+import uuid
 import gzip
 import csv
 
@@ -59,7 +60,7 @@ class MOD(object):
             return go_annot_list
 
 
-    def load_disease_gene_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
+    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
@@ -68,12 +69,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_disease_feature_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
+    def load_disease_feature_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseFeatureExt().get_feature_disease_data(disease_data, batch_size)
+        disease_dict = DiseaseFeatureExt().get_feature_disease_data(disease_data, batch_size, graph)
 
         return disease_dict
 

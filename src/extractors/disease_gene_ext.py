@@ -19,8 +19,9 @@ class DiseaseGeneExt(object):
             if diseaseObjectType != PrimaryDataObjectType.gene.name:
                 continue
             else:
-
-                disease_features = get_disease_record(diseaseRecord, dataProvider, dateProduced, release)
+                #TODO:fix this dependency - should be no need for allelicGeneId here.
+                allelicGeneId = ''
+                disease_features = get_disease_record(diseaseRecord, dataProvider, dateProduced, release, allelicGeneId)
 
                 list_to_yield.append(disease_features)
                 if len(list_to_yield) == batch_size:

@@ -33,7 +33,7 @@ class TestClass(object):
                             dict(node1='Ontology:DOTerm', node2='Identifier:Synonym'), \
                             # commented out because now we have alleles as well
                             # dict(node1='Ontology:DOTerm', node2='Gene'), \
-                            dict(node1='Ontology:DOTerm', node2='DiseaseGeneJoin:Association'), \
+                            dict(node1='Ontology:DOTerm', node2='DiseaseEntityJoin:Association'), \
                             dict(node1='Identifier:Synonym', node2='Ontology:DOTerm'), \
                             dict(node1='Identifier:CrossReference', node2='Ontology:DOTerm'), \
                             dict(node1='Gene', node2='Identifier:Synonym'), \
@@ -47,24 +47,21 @@ class TestClass(object):
                             dict(node1='Feature', node2='Entity'), \
                             dict(node1='Gene', node2='Chromosome'), \
                             # dict(node1='Gene', node2='Ontology:DOTerm'), \
-                            dict(node1='Gene', node2='DiseaseGeneJoin:Association'), \
+                            dict(node1='Gene', node2='DiseaseEntityJoin:Association'), \
                             dict(node1='Identifier:SecondaryId', node2='Gene'), \
                             dict(node1='Identifier:Synonym', node2='Gene'), \
                             dict(node1='Species', node2='Gene'), \
                             dict(node1='Entity', node2='Gene'), \
                             dict(node1='CrossReference', node2='Gene'), \
                             dict(node1='Chromosome', node2='Gene'), \
-                            dict(node1='DiseaseGeneJoin:Association', node2='Publication'), \
-                            dict(node1='DiseaseGeneJoin:Association', node2='EvidenceCode'), \
-                            dict(node1='DiseaseGeneJoin:Association', node2='Gene'), \
-                            dict(node1='DiseaseGeneJoin:Association', node2='Ontology:DOTerm'), \
-                            dict(node1='DiseaseFeatureJoin:Association', node2='Feature'), \
-                            dict(node1='DiseaseFeatureJoin:Association', node2='Publication'),
-                            dict(node1='DiseaseFeatureJoin:Association', node2='EvidenceCode'),
-                            dict(node1='DiseaseFeatureJoin:Association', node2='Ontology:DOTerm') ]
+                            dict(node1='DiseaseEntityJoin:Association', node2='Gene'), \
+                            dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'), \
+                            dict(node1='DiseaseEntityJoin:Association', node2='Publication'),
+                            dict(node1='DiseaseEntityJoin:Association', node2='EvidenceCode'),
+                            dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm')]
                             #TODO: convert to "or" tests  -- has either a gene or a feature, for example
-                            #dict(node1='Publication', node2='DiseaseGeneJoin:Association'), \
-                            #dict(node1='EvidenceCode', node2='DiseaseGeneJoin:Association'), \
+                            #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \
+                            #dict(node1='EvidenceCode', node2='DiseaseEntityJoin:Association'), \
                             #dict(node1='Ontology:GOTerm', node2='Gene')]
     }
 
