@@ -1,10 +1,10 @@
 from extractors.bgi_ext import BGIExt
-from extractors.disease_ext import DiseaseExt
+from extractors.disease_gene_ext import DiseaseGeneExt
+from extractors.disease_feature_ext import DiseaseFeatureExt
 from extractors.allele_ext import AlleleExt
 from files import S3File, TARFile, JSONFile
 import gzip
 import csv
-
 
 class MOD(object):
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
@@ -58,21 +58,22 @@ class MOD(object):
                 go_annot_list.append(go_annot_dict[entry])
             return go_annot_list
 
-    def load_do_annots_mod(self, diseaseName):
-        path = "tmp"
-        S3File("mod-datadumps", self.loadFile, path).download()
-        TARFile(path, self.loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseName)
-        gene_disease_dict = DiseaseExt().get_data(disease_data)
 
-        return gene_disease_dict
-
-    def load_disease_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
+    def load_disease_gene_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseExt().get_features(disease_data, batch_size, testObject)
+        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size)
+
+        return disease_dict
+
+    def load_disease_feature_objects_mod(self, batch_size, testObject, diseaseName, loadFile):
+        path = "tmp"
+        S3File("mod-datadumps", loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        disease_data = JSONFile().get_data(path + diseaseName, 'disease')
+        disease_dict = DiseaseFeatureExt().get_feature_disease_data(disease_data, batch_size)
 
         return disease_dict
 

@@ -1,5 +1,6 @@
 import uuid
 
+
 class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject):

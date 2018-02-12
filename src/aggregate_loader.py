@@ -1,6 +1,7 @@
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
+from loaders.disease_loader import *
 from files import *
 from mods import *
 from extractors import *
@@ -15,6 +16,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD(), MGI(), WormBase()]
+        #self.mods = [SGD()]
         self.testObject = TestObject(useTestObject)
 
         # Check for the use of test data.
@@ -69,10 +71,15 @@ class AggregateLoader(object):
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
-            print("Loading MOD disease annotations for %s into Neo4j." % (mod.species))
-            features = mod.load_disease_objects(self.batch_size, self.testObject)
+            print("Loading MOD gene disease annotations for %s into Neo4j." % (mod.species))
+            features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_objects(feature_list_of_entries)
+                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
+
+            print("Loading MOD gene disease annotations for %s into Neo4j." % (mod.species))
+            features = mod.load_disease_feature_objects(self.batch_size, self.testObject)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_feature_objects(feature_list_of_entries)
 
             print("Extracting GO annotations for %s." % (mod.__class__.__name__))
             go_annots = mod.extract_go_annots(self.testObject)

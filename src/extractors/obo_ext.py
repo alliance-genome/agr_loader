@@ -1,6 +1,7 @@
 from files import S3File, TXTFile
 from .obo_parser import parseOBO
 
+
 class OExt(object):
 
     def get_data(self, testObject, filename, prefix):

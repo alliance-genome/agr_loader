@@ -38,8 +38,14 @@ def test_isobsolete_false():
     for record in result:
         assert record["count"] > 0
 
-def test_species_disease_pub_exists():
+def test_species_disease_pub_gene_exists():
     query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseGeneJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+def test_species_disease_pub_feature_exists():
+    query = "MATCH (s:Species)--(f:Feature)--(dg:DiseaseFeatureJoin)--(p:Publication) RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
