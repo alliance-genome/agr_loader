@@ -10,7 +10,7 @@ class ZFIN(MOD):
         self.alleleName = "/ZFIN_1.0.4_feature.json"
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
-        
+
     def load_genes(self, batch_size, testObject):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
         return data
@@ -31,8 +31,8 @@ class ZFIN(MOD):
         data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
         return data
 
-    def load_disease_feature_objects(self, batch_size, testObject):
-        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_feature_objects(self, batch_size, testObject, graph):
+        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject):

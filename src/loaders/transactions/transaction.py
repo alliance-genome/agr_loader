@@ -11,7 +11,14 @@ class Transaction(object):
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
         end = time.time()
-        print("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)),2) ))
+        print("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
+
+    def run_single_parameter_query(self, query, parameter):
+
+        with self.graph.session() as session:
+            with session.begin_transaction() as tx:
+                returnSet = tx.run(query, parameter=parameter)
+        return returnSet
 
     def execute_transaction_batch(self, query, data, batch_size):
         print("Executing batch query. Please wait.")

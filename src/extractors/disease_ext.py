@@ -1,7 +1,7 @@
 import uuid
 
 
-def get_disease_record(diseaseRecord, dataProvider, dateProduced, release):
+def get_disease_record(diseaseRecord, dataProvider, dateProduced, release, allelicGeneId):
 
             fishEnvId = None
             conditions = None
@@ -98,7 +98,8 @@ def get_disease_record(diseaseRecord, dataProvider, dateProduced, release):
                     "fishEnvId": fishEnvId,
                     "additionalGeneticComponents": additionalGeneticComponents,
                     "uuid": str(uuid.uuid1()),
-                    "loadKey": dataProvider + "_" + dateProduced + "_Disease"
+                    "loadKey": dataProvider + "_" + dateProduced + "_Disease",
+                    "allelicGeneId": allelicGeneId
                 }
                 return disease_feature
 

@@ -37,8 +37,7 @@ class TestClass(object):
                              dict(node='Species'), \
                              dict(node='Entity'), \
                              dict(node='Chromosome'), \
-                             dict(node='DiseaseGeneJoin'), \
-                             dict(node='DiseaseFeatureJoin'), \
+                             dict(node='DiseaseEntityJoin'), \
                              dict(node='Association'), \
                              dict(node='Publication'), \
                              dict(node='EvidenceCode'), \
@@ -81,10 +80,8 @@ class TestClass(object):
                             dict(node='Entity', prop='dateProduced'), \
                             dict(node='Entity', prop='primaryKey'), \
                             dict(node='Chromosome', prop='primaryKey'), \
-                            dict(node='DiseaseGeneJoin', prop='joinType'), \
-                            dict(node='DiseaseGeneJoin', prop='primaryKey'), \
-                            dict(node='DiseaseFeatureJoin', prop='joinType'), \
-                            dict(node='DiseaseFeatureJoin', prop='primaryKey'), \
+                            dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                            dict(node='DiseaseEntityJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Publication', prop='pubMedId'), \
@@ -133,10 +130,10 @@ class TestClass(object):
                                dict(node='Entity', prop='dateProduced'), \
                                dict(node='Entity', prop='primaryKey'), \
                                dict(node='Chromosome', prop='primaryKey'), \
-                               dict(node='DiseaseGeneJoin', prop='joinType'), \
-                               dict(node='DiseaseGeneJoin', prop='primaryKey'), \
-                               dict(node='DiseaseFeatureJoin', prop='joinType'), \
-                               dict(node='DiseaseFeatureJoin', prop='primaryKey'), \
+                               dict(node='DiseaseEntityJoin', prop='joinType'), \
+                               dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                               dict(node='DiseaseEntityJoin', prop='joinType'), \
+                               dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
                                dict(node='Publication', prop='pubMedId'), \
@@ -152,8 +149,7 @@ class TestClass(object):
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
                              dict(node='Publication', prop='primaryKey'), \
                              dict(node='Association', prop='primaryKey'), \
-                             dict(node='DiseaseGeneJoin', prop='primaryKey'), \
-                             dict(node='DiseaseFeatureJoin', prop='primaryKey'), \
+                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
