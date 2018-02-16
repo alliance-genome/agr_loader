@@ -21,6 +21,9 @@ Resources.
   - The Docker volume `agrloader_storedb` will be created (if it does not already exist).
   - To initialize an empty database after previously using the loader, be sure to run `make removedb` **before** running `make startdb`.
 
+- git submodule update --init (on subsequent updates, run: git submodule update --remote` before merging changes to the `agr_loader` repo) 
+  - currently, this submodule is tracking the 1.0.4 release - we need to change .gitmodules to reflect the next version when appropriate.
+
 ## Running the Loader
 - Initialize a full load with `make run`.
 - Alternatively, `make run_test` will launch a much smaller test load; this is useful for development and testing.
