@@ -36,7 +36,7 @@ class AlleleExt(object):
                 "loadKey": dataProvider+"_"+dateProduced+"_allele",
                 "release": release,
                 "modGlobalCrossRefId": self.get_complete_url(localId, globalId, globalId),
-                "uuid": str(uuid.uuid1())
+                "uuid": str(uuid.uuid4())
             }
 
             list_to_yield.append(allele_dataset)
