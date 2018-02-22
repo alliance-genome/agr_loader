@@ -44,7 +44,7 @@ def test_species_disease_pub_gene_exists():
     for record in result:
         assert record["count"] > 0
 
-def test_species_disease_pub_feature_exists():
+def test_species_disease_pub_allele_exists():
     query = "MATCH (s:Species)--(f:Feature)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:

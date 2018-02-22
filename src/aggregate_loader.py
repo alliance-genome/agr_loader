@@ -76,10 +76,10 @@ class AggregateLoader(object):
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
 
-            print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_feature_objects(self.batch_size, self.testObject, self.graph)
+            print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
             for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_feature_objects(feature_list_of_entries)
+                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)

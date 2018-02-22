@@ -1,6 +1,6 @@
 from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
-from extractors.disease_feature_ext import DiseaseFeatureExt
+from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
 from files import S3File, TARFile, JSONFile
 import uuid
@@ -69,12 +69,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_disease_feature_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
+    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseFeatureExt().get_feature_disease_data(disease_data, batch_size, graph)
+        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph)
 
         return disease_dict
 
