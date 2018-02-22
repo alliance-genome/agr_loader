@@ -33,6 +33,7 @@ class AlleleTransaction(Transaction):
                 SET a.release = row.release
                 SET a.localId = row.localId
                 SET a.globalId = row.globalId
+                SET a.modCrossRefCompleteUrl = row.modGlobalCrossRefId
 
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
