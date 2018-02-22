@@ -97,7 +97,7 @@ def get_disease_record(diseaseRecord, dataProvider, dateProduced, release, allel
                     "experimentalConditions": conditions,
                     "fishEnvId": fishEnvId,
                     "additionalGeneticComponents": additionalGeneticComponents,
-                    "uuid": str(uuid.uuid1()),
+                    "uuid": str(uuid.uuid4()),
                     "loadKey": dataProvider + "_" + dateProduced + "_Disease",
                     "allelicGeneId": allelicGeneId
                 }
