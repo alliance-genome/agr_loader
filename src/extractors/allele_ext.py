@@ -35,7 +35,7 @@ class AlleleExt(object):
                 "dateProduced": dateProduced,
                 "loadKey": dataProvider+"_"+dateProduced+"_allele",
                 "release": release,
-                "uuid": str(uuid.uuid1())
+                "uuid": str(uuid.uuid4())
             }
 
             list_to_yield.append(allele_dataset)

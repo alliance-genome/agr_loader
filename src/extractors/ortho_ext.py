@@ -56,7 +56,7 @@ class OrthoExt(object):
 
                     'confidence': orthoRecord['confidence'],
 
-                    'uuid': str(uuid.uuid1())
+                    'uuid': str(uuid.uuid4())
                 }
 
                 # Establishes the number of entries to yield (return) at a time.
