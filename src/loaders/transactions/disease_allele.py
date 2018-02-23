@@ -1,11 +1,11 @@
 from .transaction import Transaction
 
-class DiseaseFeatureTransaction(Transaction):
+class DiseaseAlleleTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def disease_feature_object_tx(self, data):
+    def disease_allele_object_tx(self, data):
         
         # Loads the Disease data into Neo4j.
 

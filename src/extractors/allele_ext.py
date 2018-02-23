@@ -35,6 +35,7 @@ class AlleleExt(object):
                 "dateProduced": dateProduced,
                 "loadKey": dataProvider+"_"+dateProduced+"_allele",
                 "release": release,
+                "modGlobalCrossRefId": self.get_complete_url(localId, globalId, globalId),
                 "uuid": str(uuid.uuid4())
             }
 
@@ -48,3 +49,23 @@ class AlleleExt(object):
             yield list_to_yield
 
 
+    def get_complete_url (self, local_id, global_id, primary_id):
+        # Local and global are cross references, primary is the gene id.
+        # TODO Update to dispatch?
+        complete_url = None
+
+
+        if global_id.startswith('MGI'):
+            complete_url = 'http://www.informatics.jax.org/allele/' + global_id
+        elif global_id.startswith('RGD'):
+            complete_url = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:' + local_id
+        elif global_id.startswith('SGD'):
+            complete_url = 'http://www.yeastgenome.org/locus/' + local_id
+        elif global_id.startswith('FB'):
+            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
+        elif global_id.startswith('ZFIN'):
+            complete_url = 'http://zfin.org/' + local_id
+        elif global_id.startswith('WB:'):
+            complete_url = 'http://www.wormbase.org/db/get?name=' + local_id + ';class=Variation'
+
+        return complete_url

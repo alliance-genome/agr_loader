@@ -3,9 +3,9 @@ from .primary_data_object_type import PrimaryDataObjectType
 from loaders.transactions import Transaction
 
 
-class DiseaseFeatureExt(object):
+class DiseaseAlleleExt(object):
 
-    def get_feature_disease_data(self, disease_data, batch_size, graph):
+    def get_allele_disease_data(self, disease_data, batch_size, graph):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
         dataProvider = disease_data['metaData']['dataProvider']
