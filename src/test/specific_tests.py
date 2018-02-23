@@ -51,7 +51,7 @@ def test_species_disease_pub_allele_exists():
         assert record["count"] > 0
 
 def test_uuid_is_not_duplicated():
-    query = "MATCH (g) WITH g.uuid AS uuid, count(*) AS counter WHERE counter > 0 RETURN uuid, counter"
+    query = "MATCH (g) WITH g.uuid AS uuid, count(*) AS counter WHERE counter > 0 AND g.uuid IS NOT NULL RETURN uuid, counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 2
