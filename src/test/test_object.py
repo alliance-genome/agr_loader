@@ -30,7 +30,7 @@ class TestObject(object):
                           'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430','ZFIN:ZDB-GENE-060503-872',
                           'ZFIN:ZDB-GENE-060503-873','ZFIN:ZDB-GENE-010525-1',
                           'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11','ZFIN:ZDB-GENE-010525-1',
-                          'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5', 'ZFIN:ZDB-GENE-990415-270',
+                          'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5', 'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-GENE-040426-1716',
                           'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319', 'FB:FBgn0002369',
                           'FB:FBgn0033885', 'FB:FBgn0024320', 'FB:FBgn0283499',
                           'FB:FBgn0032465', 'FB:FBgn0285944', 'FB:FBgn0032728','FB:FBgn0000014',
@@ -41,7 +41,7 @@ class TestObject(object):
                           'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133',
                           'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
                           'SGD:S000002200', 'SGD:S000002386',
-                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6'}
+                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'}
 
 
         self.useTestObject = useTestObject
