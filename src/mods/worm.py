@@ -5,11 +5,11 @@ class WormBase(MOD):
 
     def __init__(self):
         self.species = "Caenorhabditis elegans"
-        self.loadFile = "WB_1.0.4_3.tar.gz"
-        self.bgiName = "/WB_1.0.4_BGI.json"
-        self.diseaseName = "/WB_1.0.4_disease.json"
-        self.alleleName = "/WB_1.0.4_feature.json"
-        self.geneAssociationFile = "gene_association_1.0.wb.gz"
+        self.loadFile = "WB_1.0.0.2_1.tar.gz"
+        self.bgiName = "/WB_1.0.0.2_BGI.json"
+        self.diseaseName = "/WB_1.0.0.2_disease.json"
+        self.alleleName = "/WB_1.0.0.2_feature.json"
+        self.geneAssociationFile = "WB_1.0.0.2_gff3.gff3"
         self.identifierPrefix = "WB:"
 
     def load_genes(self, batch_size, testObject):

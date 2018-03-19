@@ -21,11 +21,11 @@ class JSONFile(object):
         if jsonType == 'disease':
             schema_file_name = 'schemas/disease/diseaseMetaDataDefinition.json'
         elif jsonType == 'BGI':
-            schema_file_name = 'schemas/gene/basicGeneInfoFile.json'
+            schema_file_name = 'schemas/gene/geneMetaData.json'
         elif jsonType == 'orthology':
-            schema_file_name = 'schemas/orthology/orthoHeader.json'
+            schema_file_name = 'schemas/orthology/orthoMetaData.json'
         elif jsonType == 'allele':
-            schema_file_name = 'schemas/feature/featureMetadata.json'
+            schema_file_name = 'schemas/allele/alleleMetadata.json'
 
 
         with open(schema_file_name) as schema_file:

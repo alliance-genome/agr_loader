@@ -4,11 +4,11 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.4_4.tar.gz"
-        self.bgiName = "/FB_1.0.4_BGI.json"
-        self.diseaseName = "/FB_1.0.4_disease.json"
-        self.alleleName = "/FB_1.0.4_feature.json"
-        self.geneAssociationFile = "gene_association_1.0.fb.gz"
+        self.loadFile = "FB_1.0.0.0_2"
+        self.bgiName = "/FB_1.0.0.0_BGI.json"
+        self.diseaseName = "/FB_1.0.0.0_disease.json"
+        self.alleleName = "/FB_1.0.0.0_feature.json"
+        self.geneAssociationFile = "FB_1.0.0.0_GFF.gff"
         self.identifierPrefix = "FB:"
 
     def load_genes(self, batch_size, testObject):

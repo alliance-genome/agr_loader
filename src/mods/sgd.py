@@ -4,11 +4,11 @@ class SGD(MOD):
 
     def __init__(self):
         self.species = "Saccharomyces cerevisiae"
-        self.loadFile = "SGD_1.0.3.tar.gz"
-        self.bgiName = "/SGD_1.0.3/SGD_1.0.2_basicGeneInformation.json"
-        self.diseaseName = "/SGD_1.0.3/disease_association.SGD.1.0.2.json"
-        self.alleleName = "/SGD_1.0.4_allele.json"
-        self.geneAssociationFile = "gene_association_1.0.sgd.gz"
+        self.loadFile = "SGD_1.0.0.0_1.tar.gz"
+        self.bgiName = "/SGD_1.0.0.0_1/SGD_1.0.0.0_BGI.json"
+        self.diseaseName = "/SGD_1.0.0.0_1/SGD_1.0.0.0_DAF.json"
+        self.alleleName = ""
+        self.geneAssociationFile = "SGD_1.0.0.0_gff3.gff3"
         self.identifierPrefix = "SGD:"
 
     def load_genes(self, batch_size, testObject):
