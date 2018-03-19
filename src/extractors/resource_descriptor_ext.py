@@ -3,6 +3,8 @@ import codecs
 import shutil
 import os
 import yaml
+import uuid
+
 
 class ResourceDescriptor():
     list_to_yield = []
@@ -61,7 +63,9 @@ class ResourceDescriptor():
                                               "page_url_prefix": page_url_prefix,
                                               "page_url_suffix": page_url_suffix,
                                               "default_url_prefix": default_url_prefix,
-                                              "default_url_suffix": default_url_suffix}
+                                              "default_url_suffix": default_url_suffix,
+                                              "primaryKey": resource + page_name,
+                                              "uuid": str(uuid.uuid4())}
                     else:
                         stanza_map = {"resource": resource,
                                       "default_url": default_url,
@@ -70,8 +74,11 @@ class ResourceDescriptor():
                                       "default_url_suffix": default_url_suffix,
                                       # add empty strings to comply with UNWIND
                                       "page_url": "",
+                                      "page_name": "",
                                       "page_url_prefix": "",
                                       "page_url_suffix": "",
+                                      "primaryKey": resource + "default",
+                                      "uuid": str(uuid.uuid4())
                                       }
 
                     list_to_yield.append(stanza_map)

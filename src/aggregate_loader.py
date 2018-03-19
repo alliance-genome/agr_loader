@@ -41,7 +41,6 @@ class AggregateLoader(object):
         print("extracting resource descriptor")
         self.resourceDescriptors = ResourceDescriptor().get_data()
 
-
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")

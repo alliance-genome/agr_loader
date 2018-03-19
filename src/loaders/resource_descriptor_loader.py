@@ -8,4 +8,3 @@ class ResourceDescriptorLoader(object):
     def load_resource_descriptor(self, data):
         tx = ResourceDescriptorTransaction(self.graph)
         tx.resource_descriptor_tx(data)
-        
