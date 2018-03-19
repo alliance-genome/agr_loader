@@ -23,6 +23,6 @@ class ResourceDescriptor():
 
         with codecs.open(self.savepath + "/" + self.filename, 'r', 'utf-8') as stream:
             try:
-                print(yaml.dump(yaml.load(stream)))
+                #print(yaml.dump(yaml.load(stream)))
             except yaml.YAMLError as exc:
                 print(exc)
