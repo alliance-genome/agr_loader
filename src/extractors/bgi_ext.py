@@ -1,5 +1,6 @@
 import uuid
 
+
 class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject):
@@ -105,7 +106,7 @@ class BGIExt(object):
                 "dataProvider": dataProvider,
                 "release": release,
                 "href": None,
-                "uuid": str(uuid.uuid1()),
+                "uuid": str(uuid.uuid4()),
                 "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,

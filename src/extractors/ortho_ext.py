@@ -10,11 +10,11 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = '/orthology_test_data_1.0.0_2.json'
-            filename_comp = 'orthology_test_data_1.0.0_2.json.tar.gz'
+            filename = '/orthology_test_data_1.0.0.0_1.json'
+            filename_comp = 'orthology_test_data_1.0.0.0_1.json.tar.gz'
         else:
-            filename = "/orthology_" + mod_name + "_1.0.0_2.json"
-            filename_comp = "orthology_" + mod_name + "_1.0.0_2.json.tar.gz"
+            filename = "/orthology_" + mod_name + "_1.0.0.0_1.json"
+            filename_comp = "orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
 
         S3File("mod-datadumps/ORTHO", filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
@@ -56,7 +56,7 @@ class OrthoExt(object):
 
                     'confidence': orthoRecord['confidence'],
 
-                    'uuid': str(uuid.uuid1())
+                    'uuid': str(uuid.uuid4())
                 }
 
                 # Establishes the number of entries to yield (return) at a time.

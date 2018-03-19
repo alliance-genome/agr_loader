@@ -38,8 +38,20 @@ def test_isobsolete_false():
     for record in result:
         assert record["count"] > 0
 
-def test_species_disease_pub_exists():
-    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseGeneJoin)--(p:Publication) RETURN COUNT(p) AS count"
+def test_species_disease_pub_gene_exists():
+    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
+
+def test_species_disease_pub_allele_exists():
+    query = "MATCH (s:Species)--(f:Feature)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] > 0
+
+def test_uuid_is_not_duplicated():
+    query = "MATCH (g) WITH g.uuid AS uuid, count(*) AS counter WHERE counter > 0 AND g.uuid IS NOT NULL RETURN uuid, counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 2

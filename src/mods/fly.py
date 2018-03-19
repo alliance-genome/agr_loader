@@ -4,10 +4,10 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.3_6.tar.gz"
-        self.bgiName = "/FB_1.0.3_BGI.json"
-        self.diseaseName = "/FB_1.0.3_disease.json"
-        self.alleleName = "/FB_1.0.4_allele.json"
+        self.loadFile = "FB_1.0.4_4.tar.gz"
+        self.bgiName = "/FB_1.0.4_BGI.json"
+        self.diseaseName = "/FB_1.0.4_disease.json"
+        self.alleleName = "/FB_1.0.4_feature.json"
         self.geneAssociationFile = "gene_association_1.0.fb.gz"
         self.identifierPrefix = "FB:"
 
@@ -27,15 +27,14 @@ class FlyBase(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_do_annots(self):
-        gene_disease_dict = MOD.load_do_annots_mod(self, self.diseaseName)
-        return gene_disease_dict
+    def load_disease_gene_objects(self, batch_size, testObject):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
 
-    def load_disease_objects(self, batch_size, testObject):
-        data = MOD.load_disease_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject):
-        data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data

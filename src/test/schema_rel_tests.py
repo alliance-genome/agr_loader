@@ -28,36 +28,41 @@ class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
         'test_rel_exists': [dict(node1='Ontology:SOTerm', node2='Gene'), \
-                           dict(node1='Ontology:DOTerm', node2='Identifier:CrossReference'), \
-                           dict(node1='Ontology:DOTerm', node2='Ontology:DOTerm'), \
-                           dict(node1='Ontology:DOTerm', node2='Identifier:Synonym'), \
-                           dict(node1='Ontology:DOTerm', node2='Gene'), \
-                           dict(node1='Ontology:DOTerm', node2='DiseaseGeneJoin:Association'), \
-                           dict(node1='Identifier:Synonym', node2='Ontology:DOTerm'), \
-                           dict(node1='Identifier:CrossReference', node2='Ontology:DOTerm'), \
-                           dict(node1='Gene', node2='Identifier:Synonym'), \
-                           dict(node1='Gene', node2='Identifier:SecondaryId'), \
-                           dict(node1='Gene', node2='CrossReference'), \
-                           dict(node1='Gene', node2='Species'), \
-                           dict(node1='Gene', node2='Ontology:GOTerm'), \
-                           dict(node1='Gene', node2='Ontology:SOTerm'), \
-                           dict(node1='Gene', node2='Entity'), \
-                           dict(node1='Gene', node2='Chromosome'), \
-                           dict(node1='Gene', node2='Ontology:DOTerm'), \
-                           dict(node1='Gene', node2='DiseaseGeneJoin:Association'), \
-                           dict(node1='Identifier:SecondaryId', node2='Gene'), \
-                           dict(node1='Identifier:Synonym', node2='Gene'), \
-                           dict(node1='Species', node2='Gene'), \
-                           dict(node1='Entity', node2='Gene'), \
-                           dict(node1='CrossReference', node2='Gene'), \
-                           dict(node1='Chromosome', node2='Gene'), \
-                           dict(node1='DiseaseGeneJoin:Association', node2='Publication'), \
-                           dict(node1='DiseaseGeneJoin:Association', node2='EvidenceCode'), \
-                           dict(node1='DiseaseGeneJoin:Association', node2='Gene'), \
-                           dict(node1='DiseaseGeneJoin:Association', node2='Ontology:DOTerm'), \
-                           dict(node1='Publication', node2='DiseaseGeneJoin:Association'), \
-                           dict(node1='EvidenceCode', node2='DiseaseGeneJoin:Association'), \
-                           dict(node1='Ontology:GOTerm', node2='Gene')]
+                            dict(node1='Ontology:DOTerm', node2='Identifier:CrossReference'), \
+                            dict(node1='Ontology:DOTerm', node2='Ontology:DOTerm'), \
+                            dict(node1='Ontology:DOTerm', node2='Identifier:Synonym'), \
+                            # commented out because now we have alleles as well
+                            # dict(node1='Ontology:DOTerm', node2='Gene'), \
+                            dict(node1='Ontology:DOTerm', node2='DiseaseEntityJoin:Association'), \
+                            dict(node1='Identifier:Synonym', node2='Ontology:DOTerm'), \
+                            dict(node1='Identifier:CrossReference', node2='Ontology:DOTerm'), \
+                            dict(node1='Gene', node2='Identifier:Synonym'), \
+                            dict(node1='Gene', node2='Identifier:SecondaryId'), \
+                            dict(node1='Gene', node2='CrossReference'), \
+                            dict(node1='Gene', node2='Species'), \
+                            dict(node1='Feature', node2='Species'), \
+                            dict(node1='Gene', node2='Ontology:GOTerm'), \
+                            dict(node1='Gene', node2='Ontology:SOTerm'), \
+                            dict(node1='Gene', node2='Entity'), \
+                            dict(node1='Feature', node2='Entity'), \
+                            dict(node1='Gene', node2='Chromosome'), \
+                            # dict(node1='Gene', node2='Ontology:DOTerm'), \
+                            dict(node1='Gene', node2='DiseaseEntityJoin:Association'), \
+                            dict(node1='Identifier:SecondaryId', node2='Gene'), \
+                            dict(node1='Identifier:Synonym', node2='Gene'), \
+                            dict(node1='Species', node2='Gene'), \
+                            dict(node1='Entity', node2='Gene'), \
+                            dict(node1='CrossReference', node2='Gene'), \
+                            dict(node1='Chromosome', node2='Gene'), \
+                            dict(node1='DiseaseEntityJoin:Association', node2='Gene'), \
+                            dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'), \
+                            dict(node1='DiseaseEntityJoin:Association', node2='Publication'),
+                            dict(node1='DiseaseEntityJoin:Association', node2='EvidenceCode'),
+                            dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm')]
+                            #TODO: convert to "or" tests  -- has either a gene or a feature, for example
+                            #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \
+                            #dict(node1='EvidenceCode', node2='DiseaseEntityJoin:Association'), \
+                            #dict(node1='Ontology:GOTerm', node2='Gene')]
     }
 
     # Query to return all distinct properties from all nodes of a certain type:
