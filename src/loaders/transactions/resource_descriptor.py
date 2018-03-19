@@ -8,6 +8,8 @@ class ResourceDescriptorTransaction(Transaction):
     def resource_descriptor_tx(self, data):
         '''
         Loads the resource descriptor data into Neo4j.
+        Maps come in like this:
+
         "resource": resource,
         "default_url": default_url,
         "gid_pattern": gid_pattern,
@@ -20,9 +22,6 @@ class ResourceDescriptorTransaction(Transaction):
 
         '''
 
-
-
-
         query = """
 
             UNWIND $data AS row
@@ -34,10 +33,10 @@ class ResourceDescriptorTransaction(Transaction):
                 SET crm.gid_pattern = row.gid_pattern
                 SET crm.page_name = row.page_name
                 SET crm.page_url = row.page_url
-                SET page_url_prefix = row.page_url_prefix
-                SET page_url_suffix = row.page_url_suffix
-                SET default_url_prefix = row.page_url_prefix
-                SET default_url_suffix = row.page_url_suffix
+                SET crm.page_url_prefix = row.page_url_prefix
+                SET crm.page_url_suffix = row.page_url_suffix
+                SET crm.default_url_prefix = row.page_url_prefix
+                SET crm.default_url_suffix = row.page_url_suffix
 
         """
 

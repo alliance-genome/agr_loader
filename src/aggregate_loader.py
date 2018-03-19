@@ -1,8 +1,8 @@
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
-from extractors.resource_descriptor_ext import *
 from loaders.disease_loader import *
+from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
 from test import *
@@ -40,6 +40,8 @@ class AggregateLoader(object):
 
         print("extracting resource descriptor")
         self.resourceDescriptors = ResourceDescriptor().get_data()
+        print("loading resource descriptor")
+        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
