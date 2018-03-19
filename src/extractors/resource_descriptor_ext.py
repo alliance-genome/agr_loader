@@ -67,7 +67,12 @@ class ResourceDescriptor():
                                       "default_url": default_url,
                                       "gid_pattern": gid_pattern,
                                       "default_url_prefix": default_url_prefix,
-                                      "default_url_suffix": default_url_suffix}
+                                      "default_url_suffix": default_url_suffix,
+                                      # add empty strings to comply with UNWIND
+                                      "page_url": "",
+                                      "page_url_prefix": "",
+                                      "page_url_suffix": "",
+                                      }
 
                     list_to_yield.append(stanza_map)
 
