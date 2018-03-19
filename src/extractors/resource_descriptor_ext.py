@@ -69,7 +69,6 @@ class ResourceDescriptor():
                                       "default_url_prefix": default_url_prefix,
                                       "default_url_suffix": default_url_suffix}
 
-                    print (stanza_map)
                     list_to_yield.append(stanza_map)
 
             except yaml.YAMLError as exc:
