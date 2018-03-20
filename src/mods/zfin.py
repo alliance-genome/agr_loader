@@ -11,8 +11,8 @@ class ZFIN(MOD):
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod

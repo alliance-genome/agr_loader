@@ -55,7 +55,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
             print("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
 
             c = 0
             start = time.time()

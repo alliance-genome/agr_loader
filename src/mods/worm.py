@@ -12,8 +12,8 @@ class WormBase(MOD):
         self.geneAssociationFile = "WB_1.0.0.2_gff3.gff3"
         self.identifierPrefix = "WB:"
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod

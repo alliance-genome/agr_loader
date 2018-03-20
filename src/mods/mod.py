@@ -8,12 +8,12 @@ import gzip
 import csv
 
 class MOD(object):
-    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
+    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         gene_data = JSONFile().get_data(path + bgiName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject)
+        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, graph)
         return self.yield_gene_lists(gene_lists)
 
     def yield_gene_lists(self, gene_lists):

@@ -11,8 +11,8 @@ class SGD(MOD):
         self.geneAssociationFile = "SGD_1.0.0.0_gff3.gff3"
         self.identifierPrefix = "SGD:"
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod

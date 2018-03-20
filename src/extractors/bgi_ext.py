@@ -3,7 +3,7 @@ from loaders.transactions import Transaction
 
 class BGIExt(object):
 
-    def get_data(self, gene_data, batch_size, testObject):
+    def get_data(self, gene_data, batch_size, testObject, graph):
 
         gene_dataset = {}
         list_to_yield = []
@@ -137,7 +137,6 @@ class BGIExt(object):
                 "modGlobalId": global_id,
                 "loadKey": dataProvider+"_"+dateProduced+"_BGI"
             }
-
             
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
