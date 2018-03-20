@@ -55,9 +55,7 @@ class BGIExt(object):
                                 if page == 'gene':
                                     modCrossReference = self.get_complete_url(local_crossref_id, crossRef, primary_id)
 
-
                                 if page == 'gene/references':
-                                    #TODO: retrieve the url for the gene/references for each xref prefix
                                     query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter1} return crm.page_url_prefix, crm.page_url_suffix"
                                     crossReferenceMetaDataPrimaryKey = prefix + page
                                     tx = Transaction(graph)
@@ -123,7 +121,6 @@ class BGIExt(object):
                 "species": self.get_species(geneRecord['taxonId']),
                 "genomeLocations": genomic_locations,
                 "geneLiteratureUrl": geneLiteratureUrl,
-
                 "name_key": geneRecord['symbol'],
                 "primaryId": primary_id,
                 "crossReferences": crossReferences,
