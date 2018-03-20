@@ -32,6 +32,7 @@ class BGIExt(object):
                 if is_it_test_entry is False:
                     continue
 
+            #TODO: can we split this off into another class?  this file is getting very long.
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
 
