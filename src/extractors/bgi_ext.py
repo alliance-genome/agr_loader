@@ -24,13 +24,6 @@ class BGIExt(object):
 
             local_id = global_id.split(":")[1]
 
-            modCrossReference = {
-                "id": global_id, 
-                "globalCrossRefId": global_id, 
-                "localId": local_id, 
-                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id, primary_id)
-            }
-
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
@@ -39,29 +32,43 @@ class BGIExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if 'crossReferenceIds' in geneRecord:
-                for crossRef in geneRecord['crossReferenceIds']:
-                    # TODO This can be simplified when GO YAML reused for AGR has helper fields.
-                    if ':' in crossRef:
-                        local_crossref_id = crossRef.split(":")[1]
-                        prefix = crossRef.split(":")[0]
-                        crossRefPrimaryId = None
-                        if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
-                            crossRefPrimaryId = crossRef + '_' + primary_id
+            if 'crossReferences' in geneRecord:
+                for crossRef in geneRecord['crossReferences']:
+
+                    if ':' in crossRef.get('id'):
+                        local_crossref_id = crossRef.get('id').split(":")[1]
+                        prefix = crossRef.get('id').split(":")[0]
+                        pages = crossRef.get('pages')
+
+                        # some pages collection have 0 elements
+                        if pages is not None and len(pages) > 0:
+                            for page in pages:
+                                crossReferences.append({
+                                    "id": crossRef.get('id'),
+                                    "globalCrossRefId": crossRef.get('id'),
+                                    "localId": local_crossref_id,
+                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
+                                    "prefix": prefix,
+                                    "crossRefType": page
+                                })
+                                if page == 'gene/references':
+                                    #TODO: retrieve the url for the gene/references for each xref prefix
+                                    geneLiteratureUrlPrefix = 'todo'
                         else:
-                            crossRefPrimaryId = crossRef
-                        crossReferences.append({
-                            "id": crossRefPrimaryId, 
-                            "globalCrossRefId": crossRef,
-                            "localId": local_crossref_id, 
-                            "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
-                            "prefix": crossRef.split(":")[0]
-                            })
-                    else:
-                        local_crossref_id = crossRef
-                        crossReferences.append(
-                            {"id": crossRefPrimaryId, "globalCrossRefId": crossRef, "localId": local_crossref_id,
-                             "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
+                            crossRefPrimaryId = None
+                            if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
+                                crossRefPrimaryId = crossRef + '_' + primary_id
+                            else:
+                                crossRefPrimaryId = crossRef
+
+                            crossReferences.append({
+                                "id": crossRef.get('id'),
+                                "globalCrossRefId": crossRef.get('id'),
+                                "localId": local_crossref_id,
+                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
+                                "prefix": prefix
+                                })
+
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
@@ -96,7 +103,10 @@ class BGIExt(object):
                 "taxonId": geneRecord['taxonId'],
                 "species": self.get_species(geneRecord['taxonId']),
                 "genomeLocations": genomic_locations,
-                "geneLiteratureUrl": geneRecord.get('geneLiteratureUrl'),
+
+                #TODO: fix gene literature url to use the appropriate xref
+
+                "geneLiteratureUrl": "",
                 "name_key": geneRecord['symbol'],
                 "primaryId": primary_id,
                 "crossReferences": crossReferences,
