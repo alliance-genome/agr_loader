@@ -39,6 +39,7 @@ class BGIExt(object):
                         local_crossref_id = crossRef.get('id').split(":")[1]
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
+                        global_id = crossRef.get('id')
 
                         # some pages collection have 0 elements
                         if pages is not None and len(pages) > 0:
@@ -51,18 +52,36 @@ class BGIExt(object):
                                     "prefix": prefix,
                                     "crossRefType": page
                                 })
+                                if page == 'gene':
+                                    modCrossReference = self.get_complete_url(local_crossref_id, crossRef, primary_id)
+
+
                                 if page == 'gene/references':
                                     #TODO: retrieve the url for the gene/references for each xref prefix
-                                    geneLiteratureUrlPrefix = 'todo'
+                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter1} return crm.page_url_prefix, crm.page_url_suffix"
+                                    crossReferenceMetaDataPrimaryKey = prefix + page
+                                    tx = Transaction(graph)
+                                    returnSet = tx.run_single_parameter_query(query, crossReferenceMetaDataPrimaryKey)
+                                    counter = 0
+                                    for crm in returnSet:
+                                        counter += 1
+                                        page_url_prefix = crm['page_url_prefix']
+                                        page_url_suffix = crm['page_url_suffix']
+                                        print (page_url_prefix + local_crossref_id + page_url_suffix)
+                                    if counter > 1:
+                                        page_url_prefix = None
+                                        print ("returning more than one gene: this is an error")
+
+                                    geneLiteratureUrl = (page_url_prefix + local_crossref_id + page_url_suffix).strip()
                         else:
                             crossRefPrimaryId = None
                             if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
-                                crossRefPrimaryId = crossRef + '_' + primary_id
+                                crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                             else:
-                                crossRefPrimaryId = crossRef
+                                crossRefPrimaryId = crossRef.get('id')
 
                             crossReferences.append({
-                                "id": crossRef.get('id'),
+                                "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
                                 "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
@@ -103,10 +122,8 @@ class BGIExt(object):
                 "taxonId": geneRecord['taxonId'],
                 "species": self.get_species(geneRecord['taxonId']),
                 "genomeLocations": genomic_locations,
+                "geneLiteratureUrl": geneLiteratureUrl,
 
-                #TODO: fix gene literature url to use the appropriate xref
-
-                "geneLiteratureUrl": "",
                 "name_key": geneRecord['symbol'],
                 "primaryId": primary_id,
                 "crossReferences": crossReferences,
