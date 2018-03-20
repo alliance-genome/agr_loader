@@ -6,8 +6,8 @@ import yaml
 import uuid
 
 
-class ResourceDescriptor():
-    list_to_yield = []
+class ResourceDescriptor:
+    list_of_descriptor_maps_to_load = []
 
     def __init__(self, ):
         self.savepath = "schemas"
@@ -72,7 +72,6 @@ class ResourceDescriptor():
                                       "gid_pattern": gid_pattern,
                                       "default_url_prefix": default_url_prefix,
                                       "default_url_suffix": default_url_suffix,
-                                      # add empty strings to comply with UNWIND
                                       "page_url": "",
                                       "page_name": "",
                                       "page_url_prefix": "",
@@ -80,8 +79,9 @@ class ResourceDescriptor():
                                       "primaryKey": resource + "default",
                                       "uuid": str(uuid.uuid4())
                                       }
-
-                    list_to_yield.append(stanza_map)
+                    self.list_of_descriptor_maps_to_load.append(stanza_map)
 
             except yaml.YAMLError as exc:
                 print (exc)
+
+        return self.list_of_descriptor_maps_to_load

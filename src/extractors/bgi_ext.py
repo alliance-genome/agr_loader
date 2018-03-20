@@ -1,5 +1,5 @@
 import uuid
-
+from loaders.transactions import Transaction
 
 class BGIExt(object):
 
