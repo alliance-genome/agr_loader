@@ -33,7 +33,7 @@ class BGIExt(object):
                     continue
 
             #TODO: can we split this off into another class?  this file is getting very long.
-            
+
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
 
