@@ -33,6 +33,7 @@ class BGIExt(object):
                     continue
 
             #TODO: can we split this off into another class?  this file is getting very long.
+            
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
 
@@ -84,7 +85,8 @@ class BGIExt(object):
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
                                 "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
-                                "prefix": prefix
+                                "prefix": prefix,
+                                "crossRefType": "generic_cross_reference"
                                 })
 
             if 'genomeLocations' in geneRecord:
