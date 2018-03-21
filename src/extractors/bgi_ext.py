@@ -32,7 +32,7 @@ class BGIExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            #TODO: can we split this off into another class?  this file is getting very long.
+            #TODO: can we split this off into another class?
 
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
@@ -40,7 +40,6 @@ class BGIExt(object):
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')
                         local_crossref_id = crossRefId.split(":")[1]
-                        print (local_crossref_id)
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
                         global_id = crossRef.get('id')
@@ -59,11 +58,14 @@ class BGIExt(object):
                                 if page == 'gene':
                                     modCrossReference = self.get_complete_url(local_crossref_id, crossRefId, primary_id)
 
-                                if page == 'gene/references':
-                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {crossReferenceMetaDataPrimaryKey} return crm.page_url_prefix, crm.page_url_suffix"
-                                    crossReferenceMetaDataPrimaryKey = prefix + page
+
+                                if page == 'gene/references'
+                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {pk} return crm.page_url_prefix, crm.page_url_suffix"
+                                    pk = prefix + page
+                                    print (pk + " " + crossRef.get('id'))
+
                                     tx = Transaction(graph)
-                                    returnSet = tx.run_single_parameter_query(query, crossReferenceMetaDataPrimaryKey)
+                                    returnSet = tx.run_single_parameter_query(query, pk)
                                     counter = 0
                                     for crm in returnSet:
                                         counter += 1
