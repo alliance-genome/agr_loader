@@ -58,9 +58,10 @@ class BGIExt(object):
                                 if page == 'gene':
                                     modCrossReference = self.get_complete_url(local_crossref_id, crossRefId, primary_id)
 
-
-                                if page == 'gene/references'
-                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {pk} return crm.page_url_prefix, crm.page_url_suffix"
+                                if page == 'gene/references':
+                                    page_url_prefix = ""
+                                    page_url_suffix = ""
+                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
                                     pk = prefix + page
                                     print (pk + " " + crossRef.get('id'))
 
@@ -68,9 +69,10 @@ class BGIExt(object):
                                     returnSet = tx.run_single_parameter_query(query, pk)
                                     counter = 0
                                     for crm in returnSet:
+                                        print (crm)
                                         counter += 1
-                                        page_url_prefix = crm['page_url_prefix']
-                                        page_url_suffix = crm['page_url_suffix']
+                                        page_url_prefix = crm['crm.page_url_prefix']
+                                        page_url_suffix = crm['crm.page_url_suffix']
                                         print (page_url_prefix + local_crossref_id + page_url_suffix)
                                     if counter > 1:
                                         page_url_prefix = None
