@@ -23,7 +23,7 @@ class BGIExt(object):
             global_id = geneRecord['primaryId']
 
             local_id = global_id.split(":")[1]
-
+            geneLiteratureUrl = ""
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
@@ -38,7 +38,9 @@ class BGIExt(object):
                 for crossRef in geneRecord['crossReferences']:
 
                     if ':' in crossRef.get('id'):
-                        local_crossref_id = crossRef.get('id').split(":")[1]
+                        crossRefId = crossRef.get('id')
+                        local_crossref_id = crossRefId.split(":")[1]
+                        print (local_crossref_id)
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
                         global_id = crossRef.get('id')
@@ -50,15 +52,15 @@ class BGIExt(object):
                                     "id": crossRef.get('id'),
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
+                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id),
                                     "prefix": prefix,
                                     "crossRefType": page
                                 })
                                 if page == 'gene':
-                                    modCrossReference = self.get_complete_url(local_crossref_id, crossRef, primary_id)
+                                    modCrossReference = self.get_complete_url(local_crossref_id, crossRefId, primary_id)
 
                                 if page == 'gene/references':
-                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter1} return crm.page_url_prefix, crm.page_url_suffix"
+                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {crossReferenceMetaDataPrimaryKey} return crm.page_url_prefix, crm.page_url_suffix"
                                     crossReferenceMetaDataPrimaryKey = prefix + page
                                     tx = Transaction(graph)
                                     returnSet = tx.run_single_parameter_query(query, crossReferenceMetaDataPrimaryKey)
@@ -84,7 +86,7 @@ class BGIExt(object):
                                 "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
+                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id),
                                 "prefix": prefix,
                                 "crossRefType": "generic_cross_reference"
                                 })

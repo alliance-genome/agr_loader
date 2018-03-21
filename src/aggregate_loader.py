@@ -15,9 +15,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #TODO: add RGD, MGI back in once they submit a disease file.
-        self.mods = [ZFIN(), FlyBase(), Human(), SGD(), WormBase()] # MGI(),RGD() -- missing disease file at the moment.
-        #self.mods = [ZFIN()]
+        #TODO: add RGD, MGI, FlyBase back in as ready.
+        self.mods = [ZFIN(), SGD(), WormBase()] # MGI(),RGD(),FlyBase(),Human()
         self.testObject = TestObject(useTestObject)
         self.resourceDescriptors = ""
 
@@ -43,12 +42,12 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
+        # print("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
