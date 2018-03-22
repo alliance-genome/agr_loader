@@ -6,7 +6,6 @@ class TestObject(object):
 
     def __init__(self, useTestObject, modList):
         # TODO Separate gene ids from other forms of id?
-        # TODO Separate out test data by species so we can test subsets of MOD data as they become available.
 
         self.mgiIdSet = {
                           'MGI:5437116', 'MGI:1915135', 'MGI:109337', 'MGI:108202', 'MGI:2676586', 'MGI:88180','MGI:88467',
@@ -37,15 +36,16 @@ class TestObject(object):
         }
 
         self.zfinIdSet = {
-            'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445', 'ZFIN:ZDB-GENE-980526-388',
-            'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-060117-5',
-            'ZFIN:ZDB-GENE-050302-80', 'ZFIN:ZDB-GENE-060503-876',
-            'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430', 'ZFIN:ZDB-GENE-060503-872',
-            'ZFIN:ZDB-GENE-060503-873', 'ZFIN:ZDB-GENE-010525-1',
-            'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
-            'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5', 'ZFIN:ZDB-GENE-990415-270',
-            'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6',
-            'ZFIN:ZDB-ALT-151012-9'
+                          'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445', 'ZFIN:ZDB-GENE-980526-388',
+                          'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-060117-5',
+                          'ZFIN:ZDB-GENE-050302-80', 'ZFIN:ZDB-GENE-060503-876',
+                          'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430', 'ZFIN:ZDB-GENE-060503-872',
+                          'ZFIN:ZDB-GENE-060503-873', 'ZFIN:ZDB-GENE-010525-1',
+                          'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
+                          'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
+                          'ZFIN:ZDB-GENE-990415-270',
+                          'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
+                          'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'
 
         }
         self.flybaseIdSet = {
@@ -58,15 +58,16 @@ class TestObject(object):
                           'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309'
 
         }
-        self.rgdTestSet = {'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
+        self.rgdTestSet = {
+                           'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
                            'RGD:1581495',
                            'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
                            'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801'
         }
 
-        self.humanTestSet = {'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
-                          'HGNC:6560','HGNC:6551'
-
+        self.humanTestSet = {
+                          'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
+                          'HGNC:6560', 'HGNC:6551'
         }
 
         self.modMap = {"RGD": self.rgdTestSet,
@@ -78,25 +79,25 @@ class TestObject(object):
                        "Human": self.humanTestSet}
 
         self.useTestObject = useTestObject
-
+        self.modList = modList
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
                                   'DOID:0060171', 'DOID:1115', 'DOID:0001816', 'DOID:14330', 'DOID:9452',
                                   'DOID:9455', 'DOID:1059',
-                                  'GO:0019899','GO:0005515','GO:0043393','GO:0022607',
-                                  'GO:0009952','GO:0005764', 'GO:0060271', 'GO:0048263',
-                                  'GO:0007492','GO:0030902', 'GO:0070121', 'GO:0030901', 'GO:0030182',
+                                  'GO:0019899', 'GO:0005515', 'GO:0043393', 'GO:0022607',
+                                  'GO:0009952', 'GO:0005764', 'GO:0060271', 'GO:0048263',
+                                  'GO:0007492', 'GO:0030902', 'GO:0070121', 'GO:0030901', 'GO:0030182',
                                   'GO:0042664', 'GO:0030916', 'GO:0021571', 'GO:0061195', 'GO:0048705', 'GO:0030335',
                                   'GO:0048709'}
-        self.testIdSet = None
+        self.testIdSet = {}
 
     def using_test_data(self):
         return self.useTestObject
 
     def check_for_test_id_entry(self, primaryId):
-        for mod in self.modList:
-            for modToTest, modTestIdSet in self.modMop.iteritems():
-                if mod == modToTest:
+        for aggregateLoaderMOD in self.modList:
+            for modToTest, modTestIdSet in self.modMap.items():
+                if aggregateLoaderMOD == modToTest:
                     self.testIdSet.union(modTestIdSet)
         if primaryId in self.testIdSet:
             return True

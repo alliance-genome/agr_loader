@@ -24,6 +24,7 @@ class BGIExt(object):
 
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
+            geneticEntityExternalUrl = ""
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
@@ -51,12 +52,14 @@ class BGIExt(object):
                                     "id": crossRef.get('id'),
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id),
+                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page),
                                     "prefix": prefix,
                                     "crossRefType": page
                                 })
                                 if page == 'gene':
-                                    modCrossReference = self.get_complete_url(local_crossref_id, crossRefId, primary_id)
+                                    #TODO: should this be the complete url or the what?
+                                    modCrossReferenceCompleteUrl = self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
+                                    geneticEntityExternalUrl = self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
 
                                 if page == 'gene/references':
                                     page_url_prefix = ""
@@ -83,11 +86,12 @@ class BGIExt(object):
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
 
+
                             crossReferences.append({
                                 "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id),
+                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix),
                                 "prefix": prefix,
                                 "crossRefType": "generic_cross_reference"
                                 })
@@ -114,7 +118,7 @@ class BGIExt(object):
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id,primary_id),
+                "geneticEntityExternalUrl": geneticEntityExternalUrl,
                 "description": geneRecord.get('description'),
                 "synonyms": geneRecord.get('synonyms'),
                 "soTermId": geneRecord['soTermId'],
@@ -130,14 +134,13 @@ class BGIExt(object):
                 "name_key": geneRecord['symbol'],
                 "primaryId": primary_id,
                 "crossReferences": crossReferences,
-                "modCrossReference": modCrossReference,
                 "category": "gene",
                 "dateProduced": dateProduced,
                 "dataProvider": dataProvider,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),
-                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
+                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
@@ -173,12 +176,32 @@ class BGIExt(object):
         else:
             return None
 
-    def get_complete_url (self, local_id, global_id, primary_id):
+    def get_complete_url (self, local_id, global_id, primary_id, crossRefMetaDataPk, graph):
         # Local and global are cross references, primary is the gene id.
         # TODO Update to dispatch?
         complete_url = None
         panther_url = None
         split_primary = None
+
+        page_url_prefix = ""
+        page_url_suffix = ""
+        query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
+        pk = crossRefMetaDataPk
+
+        tx = Transaction(graph)
+        returnSet = tx.run_single_parameter_query(query, pk)
+        counter = 0
+        for crm in returnSet:
+            counter += 1
+            page_url_prefix = crm['crm.page_url_prefix']
+            page_url_suffix = crm['crm.page_url_suffix']
+        if counter > 1:
+            page_url_prefix = None
+            print ("returning more than one gene: this is an error")
+
+
+
+
 
         if global_id.startswith('MGI'):
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
