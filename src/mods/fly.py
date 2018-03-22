@@ -8,7 +8,7 @@ class FlyBase(MOD):
         self.bgiName = "/FB_1.0.0.0_BGI.json"
         self.diseaseName = "/FB_1.0.0.0_disease.json"
         self.alleleName = "/FB_1.0.0.0_feature.json"
-        self.geneAssociationFile = "FB_1.0.0.0_GFF.gff"
+        self.geneAssociationFile = "gene_association_1.0.fb.gz"
         self.identifierPrefix = "FB:"
 
     def load_genes(self, batch_size, testObject, graph):

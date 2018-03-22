@@ -8,8 +8,8 @@ class WormBase(MOD):
         self.loadFile = "WB_1.0.0.2_1.tar.gz"
         self.bgiName = "/WB_1.0.0.2_BGI.json"
         self.diseaseName = "/WB_1.0.0.2_disease.json"
-        self.alleleName = "/WB_1.0.0.2_feature.json"
-        self.geneAssociationFile = "WB_1.0.0.2_gff3.gff3"
+        self.alleleName = "/WB_1.0.0.2_allele.json"
+        self.geneAssociationFile = "gene_association_1.0.wb.gz"
         self.identifierPrefix = "WB:"
 
     def load_genes(self, batch_size, testObject, graph):

@@ -8,7 +8,7 @@ class RGD(MOD):
         self.bgiName = "/RGD_1.0.0.2_BGI.10116.json"
         self.diseaseName = "/RGD_1.0.0.2_disease.10116.json"
         self.alleleName = "/RGD_1.0.0.2_feature.10116.json"
-        self.geneAssociationFile = "RGD_1.0.0.2_gff3.10116.gff3"
+        self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
 
     def load_genes(self, batch_size, testObject, graph):
