@@ -1,8 +1,9 @@
 import uuid
+from services import UrlService
 
 class AlleleExt(object):
 
-    def get_alleles(self, allele_data, batch_size, testObject):
+    def get_alleles(self, allele_data, batch_size, testObject, graph):
 
         list_to_yield = []
         dateProduced = allele_data['metaData']['dateProduced']

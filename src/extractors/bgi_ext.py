@@ -1,7 +1,9 @@
 import uuid
-from loaders.transactions import Transaction
+from services import UrlService
+from services import SpeciesService
 
 class BGIExt(object):
+
 
     def get_data(self, gene_data, batch_size, testObject, graph):
 
@@ -25,6 +27,8 @@ class BGIExt(object):
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
+            modCrossReferenceCompleteUrl = ""
+
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
 
@@ -52,33 +56,16 @@ class BGIExt(object):
                                     "id": crossRef.get('id'),
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page),
+                                    "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page),
                                     "prefix": prefix,
                                     "crossRefType": page
                                 })
                                 if page == 'gene':
-                                    #TODO: should this be the complete url or the what?
-                                    modCrossReferenceCompleteUrl = self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
-                                    geneticEntityExternalUrl = self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
+                                    modCrossReferenceCompleteUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
+                                    geneticEntityExternalUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
 
                                 if page == 'gene/references':
-                                    page_url_prefix = ""
-                                    page_url_suffix = ""
-                                    query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
-                                    pk = prefix + page
-
-                                    tx = Transaction(graph)
-                                    returnSet = tx.run_single_parameter_query(query, pk)
-                                    counter = 0
-                                    for crm in returnSet:
-                                        counter += 1
-                                        page_url_prefix = crm['crm.page_url_prefix']
-                                        page_url_suffix = crm['crm.page_url_suffix']
-                                    if counter > 1:
-                                        page_url_prefix = None
-                                        print ("returning more than one gene: this is an error")
-
-                                    geneLiteratureUrl = (page_url_prefix + local_crossref_id + page_url_suffix).strip()
+                                    geneLiteratureUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
                         else:
                             crossRefPrimaryId = None
                             if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
@@ -86,12 +73,11 @@ class BGIExt(object):
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
 
-
                             crossReferences.append({
                                 "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix),
+                                "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix),
                                 "prefix": prefix,
                                 "crossRefType": "generic_cross_reference"
                                 })
@@ -128,7 +114,7 @@ class BGIExt(object):
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
-                "species": self.get_species(geneRecord['taxonId']),
+                "species": SpeciesService.get_species(geneRecord['taxonId']),
                 "genomeLocations": genomic_locations,
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord['symbol'],
@@ -155,98 +141,66 @@ class BGIExt(object):
 
         if len(list_to_yield) > 0:
             yield list_to_yield
+    #
+    # def get_species(self, taxon_id):
+    #     if taxon_id in ("NCBITaxon:7955"):
+    #         return "Danio rerio"
+    #     elif taxon_id in ("NCBITaxon:6239"):
+    #         return "Caenorhabditis elegans"
+    #     elif taxon_id in ("NCBITaxon:10090"):
+    #         return "Mus musculus"
+    #     elif taxon_id in ("NCBITaxon:10116"):
+    #         return "Rattus norvegicus"
+    #     elif taxon_id in ("NCBITaxon:559292"):
+    #         return "Saccharomyces cerevisiae"
+    #     elif taxon_id in ("taxon:559292"):
+    #         return "Saccharomyces cerevisiae"
+    #     elif taxon_id in ("NCBITaxon:7227"):
+    #         return "Drosophila melanogaster"
+    #     elif taxon_id in ("NCBITaxon:9606"):
+    #         return "Homo sapiens"
+    #     else:
+    #         return None
 
-    def get_species(self, taxon_id):
-        if taxon_id in ("NCBITaxon:7955"):
-            return "Danio rerio"
-        elif taxon_id in ("NCBITaxon:6239"):
-            return "Caenorhabditis elegans"
-        elif taxon_id in ("NCBITaxon:10090"):
-            return "Mus musculus"
-        elif taxon_id in ("NCBITaxon:10116"):
-            return "Rattus norvegicus"
-        elif taxon_id in ("NCBITaxon:559292"):
-            return "Saccharomyces cerevisiae"
-        elif taxon_id in ("taxon:559292"):
-            return "Saccharomyces cerevisiae"
-        elif taxon_id in ("NCBITaxon:7227"):
-            return "Drosophila melanogaster"
-        elif taxon_id in ("NCBITaxon:9606"):
-            return "Homo sapiens"
-        else:
-            return None
-
-    def get_complete_url (self, local_id, global_id, primary_id, crossRefMetaDataPk, graph):
-        # Local and global are cross references, primary is the gene id.
-        # TODO Update to dispatch?
-        complete_url = None
-        panther_url = None
-        split_primary = None
-
-        page_url_prefix = ""
-        page_url_suffix = ""
-        query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
-        pk = crossRefMetaDataPk
-
-        tx = Transaction(graph)
-        returnSet = tx.run_single_parameter_query(query, pk)
-        counter = 0
-        for crm in returnSet:
-            counter += 1
-            page_url_prefix = crm['crm.page_url_prefix']
-            page_url_suffix = crm['crm.page_url_suffix']
-        if counter > 1:
-            page_url_prefix = None
-            print ("returning more than one gene: this is an error")
-
-
-
-
-
-        if global_id.startswith('MGI'):
-            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        elif global_id.startswith('RGD'):
-            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        elif global_id.startswith('SGD'):
-            complete_url = 'http://www.yeastgenome.org/locus/' + local_id
-        elif global_id.startswith('FB'):
-            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        elif global_id.startswith('ZFIN'):
-            complete_url = 'http://zfin.org/' + local_id
-        elif global_id.startswith('WB:'):
-            complete_url = 'http://www.wormbase.org/species/c_elegans/gene/' + local_id
-        elif global_id.startswith('HGNC:'):
-            complete_url = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=' + local_id
-        elif global_id.startswith('NCBI_Gene'):
-            complete_url = 'https://www.ncbi.nlm.nih.gov/gene/' + local_id
-        elif global_id.startswith('UniProtKB'):
-            complete_url = 'http://www.uniprot.org/uniprot/' + local_id
-        elif global_id.startswith('ENSEMBL'):
-            complete_url = 'http://www.ensembl.org/id/' + local_id
-        elif global_id.startswith('RNAcentral'):
-            complete_url = 'http://rnacentral.org/rna/' + local_id
-        elif global_id.startswith('PMID'):
-            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-        elif global_id.startswith('SO:'):
-            complete_url = 'http://www.sequenceontology.org/browser/current_svn/term/' + local_id
-        elif global_id.startswith('DRSC'):
-            complete_url = None
-        elif global_id.startswith('PANTHER'):
-            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
-            split_primary = primary_id.split(':')[1]
-            if primary_id.startswith('MGI'):
-                complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
-            elif primary_id.startswith('RGD'):
-                complete_url = panther_url + '&seq=RGD=' + split_primary
-            elif primary_id.startswith('SGD'):
-                complete_url = panther_url + '&seq=SGD=' + split_primary
-            elif primary_id.startswith('FB'):
-                complete_url = panther_url + '&seq=FlyBase=' + split_primary
-            elif primary_id.startswith('WB'):
-                complete_url = panther_url + '&seq=WormBase=' + split_primary
-            elif primary_id.startswith('ZFIN'):
-                complete_url = panther_url + '&seq=ZFIN=' + split_primary
-            elif primary_id.startswith('HGNC'):
-                complete_url = panther_url + '&seq=HGNC=' + split_primary
-
-        return complete_url
+    # def get_complete_url (self, local_id, global_id, primary_id, crossRefMetaDataPk, graph):
+    #     # Local and global are cross references, primary is the gene id.
+    #     # TODO Update to dispatch?
+    #     complete_url = None
+    #
+    #     query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
+    #     pk = crossRefMetaDataPk
+    #
+    #     tx = Transaction(graph)
+    #     returnSet = tx.run_single_parameter_query(query, pk)
+    #     counter = 0
+    #     for crm in returnSet:
+    #         counter += 1
+    #         page_url_prefix = crm['crm.page_url_prefix']
+    #         page_url_suffix = crm['crm.page_url_suffix']
+    #     if counter > 1:
+    #         page_url_prefix = None
+    #         print ("returning more than one gene: this is an error")
+    #     complete_url = page_url_prefix + local_id + page_url_suffix
+    #     print (complete_url)
+    #
+    #     if global_id.startswith('DRSC'):
+    #         complete_url = None
+    #     elif global_id.startswith('PANTHER'):
+    #         panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
+    #         split_primary = primary_id.split(':')[1]
+    #         if primary_id.startswith('MGI'):
+    #             complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
+    #         elif primary_id.startswith('RGD'):
+    #             complete_url = panther_url + '&seq=RGD=' + split_primary
+    #         elif primary_id.startswith('SGD'):
+    #             complete_url = panther_url + '&seq=SGD=' + split_primary
+    #         elif primary_id.startswith('FB'):
+    #             complete_url = panther_url + '&seq=FlyBase=' + split_primary
+    #         elif primary_id.startswith('WB'):
+    #             complete_url = panther_url + '&seq=WormBase=' + split_primary
+    #         elif primary_id.startswith('ZFIN'):
+    #             complete_url = panther_url + '&seq=ZFIN=' + split_primary
+    #         elif primary_id.startswith('HGNC'):
+    #             complete_url = panther_url + '&seq=HGNC=' + split_primary
+    #
+    #     return complete_url

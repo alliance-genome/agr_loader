@@ -75,8 +75,8 @@ class ResourceDescriptor:
                                       "default_url_suffix": default_url_suffix,
                                       "page_url": "",
                                       "page_name": "",
-                                      "page_url_prefix": "",
-                                      "page_url_suffix": "",
+                                      "page_url_prefix": default_url_prefix,
+                                      "page_url_suffix": default_url_suffix,
                                       "primaryKey": resource + "default",
                                       "uuid": str(uuid.uuid4())
                                       }

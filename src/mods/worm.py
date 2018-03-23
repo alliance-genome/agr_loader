@@ -36,6 +36,6 @@ class WormBase(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
