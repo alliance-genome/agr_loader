@@ -91,14 +91,16 @@ class TestObject(object):
                                   'GO:0048709'}
         self.testIdSet = {}
 
-    def using_test_data(self):
-        return self.useTestObject
-
-    def check_for_test_id_entry(self, primaryId):
         for aggregateLoaderMOD in self.modList:
             for modToTest, modTestIdSet in self.modMap.items():
                 if aggregateLoaderMOD == modToTest:
                     self.testIdSet.union(modTestIdSet)
+                    print (self.testIdSet)
+
+    def using_test_data(self):
+        return self.useTestObject
+
+    def check_for_test_id_entry(self, primaryId):
         if primaryId in self.testIdSet:
             return True
         else:

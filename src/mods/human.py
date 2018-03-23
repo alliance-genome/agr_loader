@@ -35,7 +35,7 @@ class Human(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, graph):
         data = ""
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
