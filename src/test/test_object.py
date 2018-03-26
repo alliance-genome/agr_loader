@@ -89,13 +89,16 @@ class TestObject(object):
                                   'GO:0007492', 'GO:0030902', 'GO:0070121', 'GO:0030901', 'GO:0030182',
                                   'GO:0042664', 'GO:0030916', 'GO:0021571', 'GO:0061195', 'GO:0048705', 'GO:0030335',
                                   'GO:0048709'}
+
         self.testIdSet = {}
 
+
+    def assemble_test_data(self):
         for aggregateLoaderMOD in self.modList:
             for modToTest, modTestIdSet in self.modMap.items():
                 if aggregateLoaderMOD == modToTest:
                     self.testIdSet.union(modTestIdSet)
-                    print (self.testIdSet)
+                    print (aggregateLoaderMOD)
 
     def using_test_data(self):
         return self.useTestObject
