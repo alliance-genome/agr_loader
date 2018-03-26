@@ -47,14 +47,14 @@ class OExt(object):
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url(local_id, xrefId)
                             xrefs.append(xref)
-                            xref_urls.append({"oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
+                            xref_urls.append({"oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology-provided-cross-reference"})
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
                         prefix = o_xrefs.split(":")[0].strip()
                         xrefs.append(o_xrefs)
                         complete_url = self.get_complete_url(local_id, o_xrefs)
-                        xref_urls.append({"oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url})
+                        xref_urls.append({"oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology-provided-cross-reference"})
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')

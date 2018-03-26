@@ -35,6 +35,7 @@ class DOTransaction(Transaction):
                 SET doterm.wormbaseLink = row.wormbase_link
                 SET doterm.sgdLink = "SGD"
 
+
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
@@ -57,6 +58,7 @@ class DOTransaction(Transaction):
                      SET cr.prefix = xref.prefix
                      SET cr.crossRefCompleteUrl = xref.complete_url
                      SET cr.name = xref.xrefId
+                     SET cr.crossRefType = xref.crossRefType
 
                     MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
 

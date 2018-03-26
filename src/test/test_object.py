@@ -93,7 +93,7 @@ class TestObject(object):
         #TODO see below, or add more mods here as they become available.
         self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet))
 
-    #TODO: get this method working to establish a variable mod test id set.
+    #TODO: half-working -> get this method working instead of hard-code above.
     def assemble_test_data(self):
         for aggregateLoaderMOD in self.modList:
             for modToTest, modTestIdSet in self.modMap.items():

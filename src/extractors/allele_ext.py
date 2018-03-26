@@ -14,7 +14,7 @@ class AlleleExt(object):
             release = allele_data['metaData']['release']
 
         for alleleRecord in allele_data['data']:
-            crossReferences = {}
+            crossReferences = []
             globalId = alleleRecord['primaryId']
             localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""
