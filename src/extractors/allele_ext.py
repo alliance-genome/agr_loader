@@ -46,7 +46,9 @@ class AlleleExt(object):
                                 "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId,
                                                                                    global_id, prefix + page, graph),
                                 "prefix": prefix,
-                                "crossRefType": page
+                                "crossRefType": page,
+                                "uuid": str(uuid.uuid4()),
+                                "primaryKey": id + page
                             })
 
             allele_dataset = {

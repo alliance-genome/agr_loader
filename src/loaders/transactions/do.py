@@ -51,7 +51,7 @@ class DOTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS xrurls
                 UNWIND xrurls AS xref
-                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.oid})
+                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.primaryKey})
 
                     MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
                      SET cr.localId = xref.local_id
@@ -59,6 +59,7 @@ class DOTransaction(Transaction):
                      SET cr.crossRefCompleteUrl = xref.complete_url
                      SET cr.name = xref.xrefId
                      SET cr.crossRefType = xref.crossRefType
+                     SET cr.uuid = xref.uuid
 
                     MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
 

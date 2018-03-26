@@ -59,7 +59,9 @@ class BGIExt(object):
                                     "localId": local_crossref_id,
                                     "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph),
                                     "prefix": prefix,
-                                    "crossRefType": page
+                                    "crossRefType": page,
+                                    "uuid": str(uuid.uuid4()),
+                                    "primaryKey": id + page
                                 })
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
@@ -80,7 +82,9 @@ class BGIExt(object):
                                 "localId": local_crossref_id,
                                 "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix, graph),
                                 "prefix": prefix,
-                                "crossRefType": "generic_cross_reference"
+                                "crossRefType": "generic_cross_reference",
+                                "uuid": str(uuid.uuid4()),
+                                "primaryKey": id + "generic_cross_reference"
                                 })
 
             if 'genomeLocations' in geneRecord:
