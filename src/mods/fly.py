@@ -27,12 +27,12 @@ class FlyBase(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_disease_feature_objects(self, batch_size, testObject):
-        data = MOD.load_disease_feature_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
-        return data
-
     def load_disease_gene_objects(self, batch_size, testObject):
         data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+        return data
+
+    def load_disease_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject):

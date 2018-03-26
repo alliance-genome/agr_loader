@@ -21,26 +21,27 @@ class TestObject(object):
                           'MGI:1929183', 'MGI:2443198', 'MGI:1861441', 'HGNC:7218', 'MGI:1928478', 'MGI:1928761',
                           'MGI:1914047', 'MGI:88053', 'MGI:88054','MGI:1855948',
                           'MGI:88056', 'MGI:88456', 'MGI:88447', 'MGI:88587', 'MGI:1338803', 'MGI:94864', 'MGI:1915101',
-                          'MGI:1915112','MGI:1355324','MGI:3029164',
-                          'MGI:1915181', 'MGI:1915162', 'MGI:1915164', 'MGI:1929699',
+                          'MGI:1915112','MGI:1355324','MGI:3029164', 'MGI:1856330'
+                          'MGI:1915181', 'MGI:1915162', 'MGI:1915164', 'MGI:1929699', 'MGI:94909', 'MGI:1856331', 'MGI:2148260', 'MGI:1856328', 'MGI:2678393', 'MGI:2429942', 'MGI:1856332', 'MGI:5569634', 'MGI:3531484', 'MGI:3531484',
+                          'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259',
                           'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445', 'ZFIN:ZDB-GENE-980526-388',
                           'ZFIN:ZDB-GENE-010525-1','ZFIN:ZDB-GENE-010525-1','ZFIN:ZDB-GENE-060117-5',
                           'ZFIN:ZDB-GENE-050302-80', 'ZFIN:ZDB-GENE-060503-876',
                           'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430','ZFIN:ZDB-GENE-060503-872',
                           'ZFIN:ZDB-GENE-060503-873','ZFIN:ZDB-GENE-010525-1',
                           'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11','ZFIN:ZDB-GENE-010525-1',
-                          'ZFIN:ZDB-GENE-010320-1','ZFIN:ZDB-GENE-010525-1','ZFIN:ZDB-GENE-051127-5','ZFIN:ZDB-GENE-990415-270',
-                          'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296','FB:FBgn0032006','FB:FBgn0001319','FB:FBgn0002369',
+                          'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5', 'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-GENE-040426-1716',
+                          'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319', 'FB:FBgn0002369',
                           'FB:FBgn0033885', 'FB:FBgn0024320', 'FB:FBgn0283499',
                           'FB:FBgn0032465', 'FB:FBgn0285944', 'FB:FBgn0032728','FB:FBgn0000014',
                           'FB:FBgn0032729', 'FB:FBgn0065610', 'FB:FBgn0032730', 'FB:FBgn0032732','FB:FBgn0260987',
                           'FB:FBgn0032781', 'FB:FBgn0032782', 'FB:FBgn0032740',
                           'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309',
-                          'WB:WBGene00044305', 'WB:WBGene00169423', 'WB:WBGene00000987','WB:WBGene00021789','WB:WBGene00006750', 'WB:WBGene00000540','WB:WBGene00017866','WB:WBGene00001131',
+                          'WB:WBGene00044305', 'WB:WBGene00169423', 'WB:WBGene00000987','WB:WBGene00021789', 'WB:WBGene00006750', 'WB:WBGene00000540','WB:WBGene00017866','WB:WBGene00001131',
                           'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133',
                           'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
                           'SGD:S000002200', 'SGD:S000002386',
-                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6'}
+                          'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'}
 
 
         self.useTestObject = useTestObject

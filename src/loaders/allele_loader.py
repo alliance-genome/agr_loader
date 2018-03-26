@@ -1,4 +1,4 @@
-from .transactions.feature import AlleleTransaction
+from .transactions.allele import AlleleTransaction
 
 class AlleleLoader(object):
 

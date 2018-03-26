@@ -5,5 +5,5 @@ from .ortho_ext import OrthoExt
 from .bgi_ext import BGIExt
 from .allele_ext import AlleleExt
 from .disease_gene_ext import DiseaseGeneExt
-from .disease_feature_ext import DiseaseFeatureExt
+from .disease_allele_ext import DiseaseAlleleExt
 from .primary_data_object_type import PrimaryDataObjectType
