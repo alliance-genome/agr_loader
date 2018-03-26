@@ -28,6 +28,7 @@ class BGIExt(object):
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
             modCrossReferenceCompleteUrl = ""
+            taxonId = geneRecord.get("taxonId")
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
@@ -56,16 +57,16 @@ class BGIExt(object):
                                     "id": crossRef.get('id'),
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page),
+                                    "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph),
                                     "prefix": prefix,
                                     "crossRefType": page
                                 })
                                 if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
-                                    geneticEntityExternalUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
+                                    modCrossReferenceCompleteUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
+                                    geneticEntityExternalUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
 
                                 if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page)
+                                    geneLiteratureUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
                         else:
                             crossRefPrimaryId = None
                             if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
@@ -77,7 +78,7 @@ class BGIExt(object):
                                 "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix),
+                                "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix, graph),
                                 "prefix": prefix,
                                 "crossRefType": "generic_cross_reference"
                                 })
@@ -114,7 +115,7 @@ class BGIExt(object):
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
-                "species": SpeciesService.get_species(geneRecord['taxonId']),
+                "species": SpeciesService.get_species(taxonId),
                 "genomeLocations": genomic_locations,
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord['symbol'],
@@ -141,7 +142,7 @@ class BGIExt(object):
 
         if len(list_to_yield) > 0:
             yield list_to_yield
-    #
+
     # def get_species(self, taxon_id):
     #     if taxon_id in ("NCBITaxon:7955"):
     #         return "Danio rerio"

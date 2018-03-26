@@ -2,13 +2,15 @@ from loaders.transactions import Transaction
 
 class UrlService(object):
 
-    def get_complete_url(self, local_id, global_id, primary_id, crossRefMetaDataPk, graph):
+    def get_complete_url(local_id, global_id, primary_id, crossRefMetaDataPk, graph):
         # Local and global are cross references, primary is the gene id.
         # TODO Update to dispatch?
         complete_url = None
 
         query = "match (crm:CrossReferenceMetaData) where crm.primaryKey = {parameter} return crm.page_url_prefix, crm.page_url_suffix"
         pk = crossRefMetaDataPk
+        page_url_prefix = ""
+        page_url_suffix = ""
 
         tx = Transaction(graph)
         returnSet = tx.run_single_parameter_query(query, pk)
@@ -21,7 +23,6 @@ class UrlService(object):
             page_url_prefix = None
             print ("returning more than one gene: this is an error")
         complete_url = page_url_prefix + local_id + page_url_suffix
-        print (complete_url)
 
         if global_id.startswith('DRSC'):
             complete_url = None

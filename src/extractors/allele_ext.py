@@ -38,13 +38,13 @@ class AlleleExt(object):
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_complete_url(local_crossref_id, crossRefId,
-                                                                                   global_id, prefix + page)
+                                                                                   global_id, prefix + page, graph)
                             crossReferences.append({
                                 "id": crossRef.get('id'),
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
                                 "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId,
-                                                                                   global_id, prefix + page),
+                                                                                   global_id, prefix + page, graph),
                                 "prefix": prefix,
                                 "crossRefType": page
                             })
