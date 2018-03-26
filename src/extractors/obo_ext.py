@@ -49,7 +49,7 @@ class OExt(object):
                             #TODO UUID slows down DO loader to 10 r/s!!
                             uuid = str(id.uuid4())
                             xrefs.append(xref)
-                            xref_urls.append({"uuid": uuid, "primaryKey": xrefId + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                            xref_urls.append({"uuid": uuid, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
@@ -57,7 +57,7 @@ class OExt(object):
                         uuid = str(id.uuid4())
                         xrefs.append(o_xrefs)
                         complete_url = self.get_complete_url(local_id, o_xrefs)
-                        xref_urls.append({"uuid": uuid, "primaryKey": xrefId + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                        xref_urls.append({"uuid": uuid, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')
