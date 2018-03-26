@@ -1,6 +1,6 @@
+import uuid as id
 from files import S3File, TXTFile
 from .obo_parser import parseOBO
-import uuid
 
 class OExt(object):
 
@@ -46,17 +46,18 @@ class OExt(object):
                             local_id = xrefId.split(":")[1].strip()
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url(local_id, xrefId)
-                            uuid = str(uuid.uuid4())
+                            #TODO UUID slows down DO loader to 10 r/s!!
+                            uuid = str(id.uuid4())
                             xrefs.append(xref)
-                            xref_urls.append({"uuid": uuid, "primaryKey": line['id'] + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                            xref_urls.append({"uuid": uuid, "primaryKey": xrefId + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
                         prefix = o_xrefs.split(":")[0].strip()
-                        uuid = str(uuid.uuid4())
+                        uuid = str(id.uuid4())
                         xrefs.append(o_xrefs)
                         complete_url = self.get_complete_url(local_id, o_xrefs)
-                        xref_urls.append({"uuid": uuid, "primaryKey": line['id'] + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                        xref_urls.append({"uuid": uuid, "primaryKey": xrefId + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')
@@ -155,6 +156,7 @@ class OExt(object):
         # else:
         return list_to_return
 
+    #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     def get_complete_url (self, local_id, global_id):
 
         complete_url = None
