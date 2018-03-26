@@ -90,9 +90,10 @@ class TestObject(object):
                                   'GO:0042664', 'GO:0030916', 'GO:0021571', 'GO:0061195', 'GO:0048705', 'GO:0030335',
                                   'GO:0048709'}
 
-        self.testIdSet = {}
+        #TODO see below, or add more mods here as they become available.
+        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet))
 
-
+    #TODO: get this method working to establish a variable mod test id set.
     def assemble_test_data(self):
         for aggregateLoaderMOD in self.modList:
             for modToTest, modTestIdSet in self.modMap.items():
