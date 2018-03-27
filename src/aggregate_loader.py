@@ -19,8 +19,7 @@ class AggregateLoader(object):
         self.mods = [ZFIN(), SGD(), WormBase(), MGI()] # RGD(),FlyBase(),Human()
 
         self.testObject = TestObject(useTestObject, self.mods)
-        #TODO: try enabling this at class initialization instead of calling directly
-        self.testObject.assemble_test_data()
+
         self.resourceDescriptors = ""
 
         # Check for the use of test data.
