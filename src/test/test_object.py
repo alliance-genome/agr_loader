@@ -92,7 +92,7 @@ class TestObject(object):
                   "Human": self.humanTestSet}
 
         #TODO see below, or add more mods here as they become available.
-        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet))
+        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet).union(self.mgiIdSet))
 
     def assemble_test_data(modList, modMap):
         testIdSet = {}
