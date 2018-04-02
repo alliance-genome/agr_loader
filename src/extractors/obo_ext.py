@@ -162,6 +162,8 @@ class OExt(object):
         complete_url = None
 
         if 'OMIM' in global_id:
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        if 'OMIM:PS' in global_id:
             complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
         if 'ORDO' in global_id:
             complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
