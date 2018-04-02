@@ -18,6 +18,7 @@ def execute_transaction(query):
 
     return result    
 
+
 def pytest_generate_tests(metafunc):
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]

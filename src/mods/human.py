@@ -4,15 +4,15 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.4_2.tar.gz"
-        self.bgiName = "/RGD_1.0.4_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.4_disease.9606.json"
-        self.alleleName = "/RGD_1.0.4_feature.9606.json"
+        self.loadFile = "RGD_1.0.0.2_1.tar.gz"
+        self.bgiName = "/RGD_1.0.0.2_BGI.9606.json"
+        self.diseaseName = "/RGD_1.0.0.2_disease.9606.json"
+        self.alleleName = "/RGD_1.0.0.2_allele.9606.json"
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod
@@ -35,7 +35,7 @@ class Human(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, graph):
         data = ""
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data

@@ -4,15 +4,15 @@ class ZFIN(MOD):
 
     def __init__(self):
         self.species = "Danio rerio"
-        self.loadFile = "ZFIN_1.0.4_4.tar.gz"
-        self.bgiName = "/ZFIN_1.0.4_BGI.json"
-        self.diseaseName = "/ZFIN_1.0.4_disease.json"
-        self.alleleName = "/ZFIN_1.0.4_feature.json"
+        self.loadFile = "ZFIN_1.0.0.0_2.tar.gz"
+        self.bgiName = "/ZFIN_1.0.0.0_1_BGI.json"
+        self.diseaseName = "/ZFIN_1.0.0.0_1_disease.json"
+        self.alleleName = "/ZFIN_1.0.0.0_1_allele.json"
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod
@@ -35,6 +35,6 @@ class ZFIN(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data

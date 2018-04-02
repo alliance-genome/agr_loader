@@ -60,6 +60,18 @@ class AlleleTransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (a)-[c1:CREATED_BY]->(ent)
 
+            WITH a, row.crossReferences AS events
+            UNWIND events AS event
+                MERGE (id:CrossReference {primaryKey:event.primaryKey})
+                    SET id.name = event.id
+                    SET id.globalCrosssRefId = event.crossRef
+                    SET id.localId = event.localId
+                    SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
+                    SET id.prefix = event.prefix
+                    SET id.crossRefType = event.crossRefType
+                    SET id.uuid = event.uuid
+                MERGE (a)-[gcr:CROSS_REFERENCE]->(id)
+
         """
 
         Transaction.execute_transaction(self, alleleQuery, data)

@@ -2,7 +2,7 @@ from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
-from files import *
+from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
 from test import *
@@ -15,9 +15,12 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD(), MGI(), WormBase()]
-        #self.mods = [ZFIN()]
-        self.testObject = TestObject(useTestObject)
+        #TODO: add RGD, Human, FlyBase back in as ready.
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI()] # RGD(),FlyBase(),Human()
+
+        self.testObject = TestObject(useTestObject, self.mods)
+
+        self.resourceDescriptors = ""
 
         # Check for the use of test data.
         if self.testObject.using_test_data() == True:
@@ -36,6 +39,11 @@ class AggregateLoader(object):
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
 
+        print("extracting resource descriptor")
+        self.resourceDescriptors = ResourceDescriptor().get_data()
+        print("loading resource descriptor")
+        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
+
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")
@@ -48,7 +56,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
             print("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
 
             c = 0
             start = time.time()
@@ -62,7 +70,7 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 

@@ -5,15 +5,15 @@ class WormBase(MOD):
 
     def __init__(self):
         self.species = "Caenorhabditis elegans"
-        self.loadFile = "WB_1.0.4_3.tar.gz"
-        self.bgiName = "/WB_1.0.4_BGI.json"
-        self.diseaseName = "/WB_1.0.4_disease.json"
-        self.alleleName = "/WB_1.0.4_feature.json"
+        self.loadFile = "WB_1.0.0.2_1.tar.gz"
+        self.bgiName = "/WB_1.0.0.2_BGI.json"
+        self.diseaseName = "/WB_1.0.0.2_disease.json"
+        self.alleleName = "/WB_1.0.0.2_allele.json"
         self.geneAssociationFile = "gene_association_1.0.wb.gz"
         self.identifierPrefix = "WB:"
 
-    def load_genes(self, batch_size, testObject):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
         return data
 
     @staticmethod
@@ -36,6 +36,6 @@ class WormBase(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
