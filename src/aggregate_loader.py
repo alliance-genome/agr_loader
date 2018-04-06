@@ -21,6 +21,7 @@ class AggregateLoader(object):
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
+        self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
         if self.testObject.using_test_data() == True:
@@ -39,7 +40,7 @@ class AggregateLoader(object):
 
     def load_geo(self):
         print("extracting GEO data for mouse")
-        self.geoLinks = GeoExt.get_data()
+        self.geoMoEntrezIds = GeoExt().get_data()
 
     def load_from_ontologies(self):
         print ("Extracting SO data.")
@@ -49,12 +50,12 @@ class AggregateLoader(object):
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
 
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
+        # print("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -73,9 +74,6 @@ class AggregateLoader(object):
 
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
-
-            print("Loading MOD Geo links for %s.") % mod.species
-
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)

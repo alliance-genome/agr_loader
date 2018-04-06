@@ -8,8 +8,8 @@ class Download(object):
         self.urlToRetrieve = urlToRetieve
         self.filenameToSave = filenameToSave
 
-    def download(self):
-        print("Downloading data from NCBI efetch ..." % (self.savepath, self.url))
+    def get_downloaded_file(self):
+        print("Downloading data from ..." + self.urlToRetrieve)
         if not os.path.exists(self.savepath):
             print("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)

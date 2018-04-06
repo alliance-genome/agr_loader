@@ -4,4 +4,3 @@ pytest
 jsonschema
 pyyaml
 urllib3
-xml.etree.ElementTree
