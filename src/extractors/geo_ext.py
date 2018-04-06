@@ -1,7 +1,9 @@
-import uuid as id
-from files import S3File, TXTFile
-import xml.etree.ElementTree
+from files import Download, TXTFile, XMLFile
 
 class GeoExt():
 
-    def get_data():
+    def get_data(self):
+
+        path = "tmp";
+        XMLFile(path, url, "geo-mouse").download()
+        geo_data = XMLFile(path + "/geo-mouse").get_data()
