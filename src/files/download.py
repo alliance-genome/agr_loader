@@ -14,10 +14,14 @@ class Download(object):
             print("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
+            file = urllib.request.urlopen(self.urlToRetrieve)
+            data = file.read()
+            file.close()
+
+            #urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
         else:
             print("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
-        return self.savepath + "/" + self.filenameToSave
+        return data
 
     def list_files(self):
         pass

@@ -9,4 +9,6 @@ class XMLFile(object):
     def get_data(self):
         print("Parsing XML data from %s..." % self.filename)
         tree = ElementTree.parse(self.filename)
-        return tree
+        root = tree.getroot()
+
+        return root

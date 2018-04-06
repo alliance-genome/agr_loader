@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ElementTree
+import xmltodict, json
 from files import XMLFile, Download
 
 
@@ -8,16 +8,12 @@ class GeoExt(object):
 
         path = "tmp";
         url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?term=gene_geoprofiles%5Bfilter%5D+AND+%22Mus+musculus%22%5Borganism%5D&retmax=100000&db=gene"
-        geo_data_file = Download(path, url, "geno-mouse").get_downloaded_file()
-        print (geo_data_file)
 
-        geo_data = XMLFile(geo_data_file).get_data()
+        geo_data_file_contents = Download(path, url, "geno-mouse").get_downloaded_file()
 
-        root = geo_data.getroot()
-        for child in root:
-            print(child.tag, child.attrib)
-        for entrezIdList in root.iter('IdList'):
-            print(entrezIdList.attrib)
+        data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
+        for k, v in data.items():
+            print (k, v)
 
         return "test"
 
