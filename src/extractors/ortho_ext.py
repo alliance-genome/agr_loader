@@ -16,7 +16,7 @@ class OrthoExt(object):
             filename = "/orthology_" + mod_name + "_1.0.0.0_1.json"
             filename_comp = "orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
 
-        S3File("mod-datadumps/ORTHO", filename_comp, path).get_downloaded_file()
+        S3File("mod-datadumps/ORTHO", filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + filename, 'orthology')
 

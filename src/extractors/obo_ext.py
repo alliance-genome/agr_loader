@@ -6,7 +6,7 @@ class OExt(object):
 
     def get_data(self, testObject, filename, prefix):
         path = "tmp";
-        S3File("mod-datadumps"+prefix, filename, path).get_downloaded_file()
+        S3File("mod-datadumps"+prefix, filename, path).download()
         o_data = TXTFile(path + "/"+filename).get_data()
         parsed_line = parseOBO(o_data)
         list_to_return = []

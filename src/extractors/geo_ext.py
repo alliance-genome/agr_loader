@@ -16,8 +16,8 @@ class GeoExt(object):
         root = geo_data.getroot()
         for child in root:
             print(child.tag, child.attrib)
-        for entrezId in root.iter('IdList'):
-            print (entrezId.Id)
+        for entrezIdList in root.iter('IdList'):
+            print(entrezIdList.attrib)
 
         return "test"
 
