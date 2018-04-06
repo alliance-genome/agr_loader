@@ -31,6 +31,16 @@ class AggregateLoader(object):
         print("Creating indicies.")
         Indicies(self.graph).create_indicies()
 
+    def load_resource_descriptors(self):
+        print("extracting resource descriptor")
+        self.resourceDescriptors = ResourceDescriptor().get_data()
+        print("loading resource descriptor")
+        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
+
+    def load_geo(self):
+        print("extracting GEO data for mouse")
+        self.geoLinks = GeoExt.get_data()
+
     def load_from_ontologies(self):
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
@@ -38,11 +48,6 @@ class AggregateLoader(object):
         self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-
-        print("extracting resource descriptor")
-        self.resourceDescriptors = ResourceDescriptor().get_data()
-        print("loading resource descriptor")
-        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
@@ -68,6 +73,9 @@ class AggregateLoader(object):
 
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
+
+            print("Loading MOD Geo links for %s.") % mod.species
+
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)

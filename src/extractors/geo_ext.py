@@ -16,3 +16,6 @@ class GeoExt():
             print(child.tag, child.attrib)
         for entrezId in root.iter('IdList'):
             print (entrezId.Id)
+
+        return "test"
+
