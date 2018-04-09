@@ -1,4 +1,4 @@
-from .transactions.geo import GeoXrefTransaction
+from .transactions.geo_xref import GeoXrefTransaction
 
 class GeoLoader(object):
 

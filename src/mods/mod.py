@@ -109,5 +109,8 @@ class MOD(object):
                             entrezIds.append(entrezId)
                             global_id = "NCBI_Gene:"+entrezId
                             xrefs.append(RetrieveGeoXrefService().get_geo_xref(entrezId, global_id, graph))
+                        for xref in xrefs.items():
+                            for k, v in xref:
+                                print ("here is the xref" +  k + v)
 
         return xrefs

@@ -75,10 +75,11 @@ class AggregateLoader(object):
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
-            #TODO: move this to the bottom post testing.
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             for geo_xref in geo_xrefs:
+                for subMapKey, subMapValue in geo_xref.items():
+                    print (subMapKey + subMapValue)
                 GeoLoader(self.graph).load_geo_xrefs(geo_xref)
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
@@ -105,4 +106,11 @@ class AggregateLoader(object):
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
+
+            # print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
+            # geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            # for geo_xref in geo_xrefs:
+            #     for subMapKey, subMapValue in geo_xref.items():
+            #         print (subMapKey + subMapValue)
+            #     GeoLoader(self.graph).load_geo_xrefs(geo_xref)
 
