@@ -91,3 +91,4 @@ class MOD(object):
 
     def extract_entrez_ids_from_geo(geoSpecies):
         entrezIds = GeoExt(geoSpecies).get_entrez_ids()
+        return entrezIds
