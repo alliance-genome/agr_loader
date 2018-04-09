@@ -9,14 +9,15 @@ class RetrieveGeoXrefService(object):
         query = "match (g:Gene)-[]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId"
         pk = global_id
         geo_data = {}
-
+        print ("here is the global_id:"+ global_id)
         tx = Transaction(graph)
         returnSet = tx.run_single_parameter_query(query, pk)
         counter = 0
         for gene in returnSet:
+            print (gene['g.primaryKey'])
             counter += 1
-            genePrimaryKey = gene['primaryKey']
-            modLocalId = gene['modLocalId']
+            genePrimaryKey = gene['g.primaryKey']
+            modLocalId = gene['g.modLocalId']
             geo_data = {
                 "genePrimaryKey": genePrimaryKey,
                 "modLocalId": modLocalId,
@@ -29,8 +30,7 @@ class RetrieveGeoXrefService(object):
                 "primaryKey": global_id + "gene/geo",
                 "uuid": str(uuid.uuid4())
             }
-            for k, v in geo_data:
-                print ("here is the geo_data" + k + v)
+
 
         if counter > 1:
             genePrimaryKey = None

@@ -1,3 +1,4 @@
+import pprint
 from .mod import MOD
 
 class MGI(MOD):
@@ -10,7 +11,7 @@ class MGI(MOD):
         self.diseaseName = "/MGI_1.0.0.0_disease.json"
         self.geneAssociationFile = "gene_association_1.0.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
-        self.geoRetMax = "10"
+        self.geoRetMax = "100000"
         self.identifierPrefix = "" # None for MGI.
 
     def load_genes(self, batch_size, testObject, graph):
@@ -42,5 +43,8 @@ class MGI(MOD):
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
-        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        return entrezIds
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+        pprint.pprint("these are mouse xrefs")
+        for xref in xrefs:
+            pprint.pprint(xref)
+        return xrefs

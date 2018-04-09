@@ -12,7 +12,7 @@ class WormBase(MOD):
         self.geneAssociationFile = "gene_association_1.0.wb.gz"
         self.identifierPrefix = "WB:"
         self.geoSpecies = "Caenorhabditis+elegans"
-        self.geoRetMax = "10"
+        self.geoRetMax = "100000"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
@@ -43,5 +43,5 @@ class WormBase(MOD):
         return data
 
     def extract_geo_entrez_ids_from_geo(self):
-        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, self.graph)
-        return entrezIds
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, self.graph)
+        return xrefs
