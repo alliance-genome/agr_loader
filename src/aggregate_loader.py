@@ -102,8 +102,8 @@ class AggregateLoader(object):
 
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            for geo_xref in geo_xrefs:
-                for subMapKey, subMapValue in geo_xref.items():
-                    print (subMapKey + subMapValue)
+            # for geo_xref in geo_xrefs:
+            #     for subMapKey, subMapValue in geo_xref.items():
+            #         print (subMapKey + subMapValue)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 

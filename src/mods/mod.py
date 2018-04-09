@@ -100,7 +100,7 @@ class MOD(object):
         geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
 
         data = GeoExt().get_entrez_ids(geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
-        pprint.pprint(data)
+        # pprint.pprint(data)
 
         for efetchKey, efetchValue in data.items():
             # IdList is a value returned from efetch XML spec,
@@ -109,7 +109,7 @@ class MOD(object):
                 if subMapKey == 'IdList':
                     for idKey, idList in subMapValue.items():
                         for entrezId in idList:
-                            print ("here is the entrezid: " +entrezId)
+                            # print ("here is the entrezid: " +entrezId)
                             entrezIds.append(entrezId)
                             global_id = "NCBI_Gene:"+entrezId
                             xref = RetrieveGeoXrefService().get_geo_xref(entrezId, global_id, graph)
