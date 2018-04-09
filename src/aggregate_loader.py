@@ -76,7 +76,7 @@ class AggregateLoader(object):
 
             #TODO: move this to the bottom post testing.
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            geo_entrez_ids = mod.extract_geo_entrez_ids_from_geo()
+            geo_entrez_ids = mod.extract_geo_entrez_ids_from_geo(self.graph)
             for entrezId in geo_entrez_ids:
                 print ("geo entrez id: " + entrezId)
 

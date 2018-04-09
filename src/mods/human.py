@@ -11,6 +11,7 @@ class Human(MOD):
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
+        self.geoRetMax = "10"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
@@ -41,7 +42,6 @@ class Human(MOD):
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
 
-    def extract_geo_entrez_ids_from_geo(self):
-        entrezIds = ""
-        #MOD.extract_geo_entrez_ids_from_geo(self.geoSpecies)
+    def extract_geo_entrez_ids_from_geo(self, graph):
+        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, self.graph)
         return entrezIds

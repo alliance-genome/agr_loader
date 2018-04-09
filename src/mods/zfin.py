@@ -11,6 +11,7 @@ class ZFIN(MOD):
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
+        self.geoRetMax = "10"
 
 
     def load_genes(self, batch_size, testObject, graph):
@@ -42,5 +43,5 @@ class ZFIN(MOD):
         return data
 
     def extract_geo_entrez_ids_from_geo(self):
-        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self.geoSpecies)
+        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, self.graph)
         return entrezIds
