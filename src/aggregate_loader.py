@@ -80,6 +80,7 @@ class AggregateLoader(object):
             for entrezId in geo_entrez_ids:
                 print ("geo entrez id: " + entrezId)
 
+
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
             for allele_list_of_entries in alleles:

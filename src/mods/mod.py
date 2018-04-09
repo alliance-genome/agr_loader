@@ -4,6 +4,7 @@ from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
 from extractors.geo_ext import GeoExt
 from files import S3File, TARFile, JSONFile
+from services import RetrieveGeoXrefService
 import uuid
 import gzip
 import csv
@@ -89,6 +90,22 @@ class MOD(object):
 
         return alleleDict
 
-    def extract_geo_entrez_ids_from_geo(self, geoSpecies):
-        entrezIds = GeoExt().get_entrez_ids(geoSpecies)
-        return entrezIds
+    def extract_geo_entrez_ids_from_geo(self, geoSpecies, graph):
+        entrezIds = []
+        xrefs = []
+        geoTerm = "gene_geoprofiles"
+        geoDb = "gene"
+        geoRetMax = "10"
+        geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
+        data = GeoExt().get_entrez_ids(geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
+        for efetchKey, efetchValue in data.items():
+            # IdList is a value returned from efetch XML spec,
+            # within IdList, there is another map with "Id" as the key and the entrez local ids a list value.
+            for subMapKey, subMapValue in efetchValue.items():
+                if subMapKey == 'IdList':
+                    for idKey, idList in subMapValue.items():
+                        for entrezId in idList:
+                            entrezIds.append(entrezId)
+                            xrefs.append(RetrieveGeoXrefService().get_geo_xref(entrezId,"NCBI_Gene:"+entrezId, graph))
+
+        return xrefs

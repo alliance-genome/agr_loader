@@ -4,27 +4,17 @@ from .ncbi_efetch import NCBIEfetch
 
 class GeoExt(object):
 
-    def get_entrez_ids(self, geoSpecies):
+    def get_entrez_ids(self, geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix):
 
         path = "tmp"
-        url = NCBIEfetch(geoSpecies, "10", "gene_geoprofiles", "gene", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?").get_efetch_query_url()
+        url = NCBIEfetch(geoSpecies, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
         print ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo-mouse").get_downloaded_file()
+        geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
 
-        entrezIds = []
-        data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
+        # returns result from NCBI Efetch in JSON object.
+        return geo_data
 
-        print (data)
-        for efetchKey, efetchValue in data.items():
-            # IdList is a value returned from efetch XML spec,
-            # within IdList, there is another map with "Id" as the key and the entrez local ids a list value.
-            for subMapKey, subMapValue in efetchValue.items():
-                if subMapKey == 'IdList':
-                    for idKey, idList in subMapValue.items():
-                        for entrezId in idList:
-                            entrezIds.append(entrezId)
-
-        return entrezIds
 
 

@@ -1,3 +1,3 @@
 from .url_service import UrlService
 from .species_service import SpeciesService
-from .retrieve_gene_from_xref_id_service import RetrieveGeneFromXrefIdService
+from .retrieve_geo_xref_service import RetrieveGeoXrefService
