@@ -8,6 +8,7 @@ import gzip
 import csv
 
 class MOD(object):
+
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()

@@ -45,3 +45,4 @@ class UrlService(object):
                 complete_url = panther_url + '&seq=HGNC=' + split_primary
 
         return complete_url
+

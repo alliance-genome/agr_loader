@@ -9,6 +9,7 @@ class MGI(MOD):
         self.alleleName = "/MGI_1.0.0.0_allele.json"
         self.diseaseName = "/MGI_1.0.0.0_disease.json"
         self.geneAssociationFile = "gene_association_1.0.mgi.gz"
+        self.geoSpecies = 'Mus+musculus'
         self.identifierPrefix = "" # None for MGI.
 
     def load_genes(self, batch_size, testObject, graph):

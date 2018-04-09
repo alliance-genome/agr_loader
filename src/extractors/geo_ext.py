@@ -1,15 +1,17 @@
 import xmltodict, json
 from files import XMLFile, Download
-
+from extractors import NCBIEfetch
 
 class GeoExt(object):
 
     def get_data(self):
 
         path = "tmp";
-        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?term=gene_geoprofiles%5Bfilter%5D+AND+%22Mus+musculus%22%5Borganism%5D&retmax=100000&db=gene"
 
-        geo_data_file_contents = Download(path, url, "geno-mouse").get_downloaded_file()
+        url = NCBIEfetch("Mus+musculus", "100000", "gene_geoprofiles", "gene", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?").get_efetch_query_url()
+        print ("efetch url: " + url)
+
+        geo_data_file_contents = Download(path, url, "geo-mouse").get_downloaded_file()
         entrezIds = []
         data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
         for k, v in data.items():
@@ -19,4 +21,5 @@ class GeoExt(object):
                    entrezIds.append(entrezId)
 
         return entrezIds
+
 
