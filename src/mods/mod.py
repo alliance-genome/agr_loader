@@ -107,6 +107,7 @@ class MOD(object):
                     for idKey, idList in subMapValue.items():
                         for entrezId in idList:
                             entrezIds.append(entrezId)
-                            xrefs.append(RetrieveGeoXrefService().get_geo_xref(entrezId, "NCBI_Gene:"+entrezId, graph))
+                            global_id = "NCBI_Gene:"+entrezId
+                            xrefs.append(RetrieveGeoXrefService().get_geo_xref(entrezId, global_id, graph))
 
         return xrefs

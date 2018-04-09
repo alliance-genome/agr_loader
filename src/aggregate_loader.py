@@ -2,6 +2,7 @@ from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
+from loaders.geo_loader import *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
@@ -76,10 +77,9 @@ class AggregateLoader(object):
 
             #TODO: move this to the bottom post testing.
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            geo_entrez_ids = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            for entrezId in geo_entrez_ids:
-                print ("geo entrez id: " + entrezId)
-
+            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            for geo_xref in geo_xrefs:
+                GeoLoader(self.graph).load_geo_xrefs(geo_xref)
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)

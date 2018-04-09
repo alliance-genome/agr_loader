@@ -4,7 +4,7 @@ from loaders.transactions import Transaction
 
 class RetrieveGeoXrefService(object):
 
-    def get_geo_xref(local_id, global_id, graph):
+    def get_geo_xref(self, local_id, global_id, graph):
 
         query = "match (g:Gene)-[]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId"
         pk = global_id
@@ -25,11 +25,10 @@ class RetrieveGeoXrefService(object):
                 "globalCrossRefId": global_id,
                 "localId": local_id,
                 "prefix": "NCBI_Gene",
-                "crossRefType": "expression",
+                "crossRefType": "gene/geo",
                 "primaryKey": global_id + "gene/geo",
                 "uuid": str(uuid.uuid4())
             }
-            print ("geo_data_xref: " + geo_data)
         if counter > 1:
             genePrimaryKey = None
             modLocalId = None
