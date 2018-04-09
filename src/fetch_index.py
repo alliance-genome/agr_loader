@@ -17,4 +17,3 @@ if __name__ == '__main__':
     al.load_resource_descriptors()
     al.load_from_ontologies()
     al.load_from_mods()
-    al.load_geo()
