@@ -9,4 +9,4 @@ class NCBIEfetch(object):
 
     def get_efetch_query_url(self):
 
-        return self.urlPrefix + "term="+self.term + "[filter]" + "+AND+" + self.speciesString + "[organism]" + "&retmax=" + self.retmax + "&db=" + self.db
+        return self.urlPrefix + "term="+self.term + "[filter]" + "+AND+" + self.speciesString + "[Organism]" + "&retmax=" + self.retmax + "&db=" + self.db

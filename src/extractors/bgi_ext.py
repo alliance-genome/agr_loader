@@ -72,6 +72,7 @@ class BGIExt(object):
                         else:
                             crossRefPrimaryId = None
                             if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
+                                #TODO: add bucket for panther
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                             else:
                                 crossRefPrimaryId = crossRef.get('id')

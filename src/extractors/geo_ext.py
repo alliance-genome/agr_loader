@@ -11,12 +11,21 @@ class GeoExt(object):
         print ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo-mouse").get_downloaded_file()
+
         entrezIds = []
         data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
-        for efetchKeys, efetchValues in data.items():
-            if efetchKeys == 'IdList':
-                for entrezId in efetchKeys:
-                   entrezIds.append(entrezId)
+
+        print (data)
+        for efetchKey, efetchValue in data.items():
+            print (efetchKey)
+            # IdList is a value returned from efetch XML spec,
+            # within IdList, there is another map with "Id" as the key and the entrez local ids a list value.
+            if efetchKey == 'IdList':
+                print ("IDLIST FOUND")
+                for idKey, idList in efetchValue.items():
+                    for entrezId in idList:
+                        print (entrezId)
+                        entrezIds.append(entrezId)
 
         return entrezIds
 
