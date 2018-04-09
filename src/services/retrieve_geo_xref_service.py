@@ -29,6 +29,9 @@ class RetrieveGeoXrefService(object):
                 "primaryKey": global_id + "gene/geo",
                 "uuid": str(uuid.uuid4())
             }
+            for k, v in geo_data:
+                print ("here is the geo_data" + k + v)
+
         if counter > 1:
             genePrimaryKey = None
             modLocalId = None

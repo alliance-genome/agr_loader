@@ -75,13 +75,6 @@ class AggregateLoader(object):
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
-            print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            for geo_xref in geo_xrefs:
-                for subMapKey, subMapValue in geo_xref.items():
-                    print (subMapKey + subMapValue)
-                GeoLoader(self.graph).load_geo_xrefs(geo_xref)
-
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
             for allele_list_of_entries in alleles:
@@ -107,10 +100,10 @@ class AggregateLoader(object):
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-            # print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            # geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            # for geo_xref in geo_xrefs:
-            #     for subMapKey, subMapValue in geo_xref.items():
-            #         print (subMapKey + subMapValue)
-            #     GeoLoader(self.graph).load_geo_xrefs(geo_xref)
+            print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
+            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            for geo_xref in geo_xrefs:
+                for subMapKey, subMapValue in geo_xref.items():
+                    print (subMapKey + subMapValue)
+            GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
