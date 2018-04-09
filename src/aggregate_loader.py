@@ -16,7 +16,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         #TODO: add RGD, Human, FlyBase back in as ready.
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI()] # RGD(),FlyBase(),Human()
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()] # RGD(),FlyBase(),Human()
 
         self.testObject = TestObject(useTestObject, self.mods)
 

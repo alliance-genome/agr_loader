@@ -2,6 +2,7 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
+from extractors.geo_ext import GeoExt
 from files import S3File, TARFile, JSONFile
 import uuid
 import gzip
@@ -87,3 +88,6 @@ class MOD(object):
         alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
 
         return alleleDict
+
+    def extract_entrez_ids_from_geo(geoSpecies):
+        entrezIds = GeoExt(geoSpecies).get_entrez_ids()

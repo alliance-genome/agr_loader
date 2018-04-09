@@ -10,6 +10,8 @@ class ZFIN(MOD):
         self.alleleName = "/ZFIN_1.0.0.0_1_allele.json"
         self.geneAssociationFile = "gene_association_1.0.zfin.gz"
         self.identifierPrefix = "ZFIN:"
+        self.species = "Danio+rerio"
+
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
@@ -38,3 +40,7 @@ class ZFIN(MOD):
     def load_allele_objects(self, batch_size, testObject, graph):
         data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
+
+    def extract_geo_entrez_ids(self):
+        entrezIds = MOD.extract_entrez_ids_from_geo(self.geoSpecies)
+        return entrezIds
