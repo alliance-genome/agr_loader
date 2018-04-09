@@ -17,15 +17,13 @@ class GeoExt(object):
 
         print (data)
         for efetchKey, efetchValue in data.items():
-            print (efetchKey)
             # IdList is a value returned from efetch XML spec,
             # within IdList, there is another map with "Id" as the key and the entrez local ids a list value.
-            if efetchKey == 'IdList':
-                print ("IDLIST FOUND")
-                for idKey, idList in efetchValue.items():
-                    for entrezId in idList:
-                        print (entrezId)
-                        entrezIds.append(entrezId)
+            for subMapKey, subMapValue in efetchValue.items():
+                if subMapKey == 'IdList':
+                    for idKey, idList in subMapValue.items():
+                        for entrezId in idList:
+                            entrezIds.append(entrezId)
 
         return entrezIds
 
