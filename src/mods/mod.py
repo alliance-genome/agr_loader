@@ -89,6 +89,6 @@ class MOD(object):
 
         return alleleDict
 
-    def extract_entrez_ids_from_geo(geoSpecies):
-        entrezIds = GeoExt(geoSpecies).get_entrez_ids()
+    def extract_geo_entrez_ids_from_geo(self, geoSpecies):
+        entrezIds = GeoExt().get_entrez_ids(geoSpecies)
         return entrezIds

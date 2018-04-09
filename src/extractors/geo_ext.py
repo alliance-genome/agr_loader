@@ -1,16 +1,13 @@
 import xmltodict, json
 from files import XMLFile, Download
-from extractors import NCBIEfetch
+from .ncbi_efetch import NCBIEfetch
 
 class GeoExt(object):
-    def __init__(self, geoSpecies):
-        self.geoSpecies = geoSpecies
 
-    def get_entrez_ids(self):
+    def get_entrez_ids(self, geoSpecies):
 
-        path = "tmp";
-
-        url = NCBIEfetch(self.geoSpecies, "100000", "gene_geoprofiles", "gene", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?").get_efetch_query_url()
+        path = "tmp"
+        url = NCBIEfetch(geoSpecies, "100000", "gene_geoprofiles", "gene", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?").get_efetch_query_url()
         print ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo-mouse").get_downloaded_file()

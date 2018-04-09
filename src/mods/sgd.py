@@ -44,6 +44,6 @@ class SGD(MOD):
             #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile. graph)
         return data
 
-    def extract_geo_entrez_ids(self):
-        entrezIds = MOD.extract_entrez_ids_from_geo(self.geoSpecies)
+    def extract_geo_entrez_ids_from_geo(self):
+        entrezIds = MOD.extract_geo_entrez_ids_from_geo(self.geoSpecies)
         return entrezIds

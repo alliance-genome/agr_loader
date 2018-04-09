@@ -10,6 +10,7 @@ class Human(MOD):
         self.alleleName = "/RGD_1.0.0.2_allele.9606.json"
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
+        self.geoSpecies = "Homo+sapiens"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
@@ -39,3 +40,8 @@ class Human(MOD):
         data = ""
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
+
+    def extract_geo_entrez_ids_from_geo(self):
+        entrezIds = ""
+        #MOD.extract_geo_entrez_ids_from_geo(self.geoSpecies)
+        return entrezIds

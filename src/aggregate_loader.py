@@ -15,9 +15,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #TODO: add RGD, Human, FlyBase back in as ready.
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()] # RGD(),FlyBase(),Human()
-
+        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()] # RGD(),FlyBase(),Human()
+        self.mods = [MGI()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -77,7 +76,7 @@ class AggregateLoader(object):
 
             #TODO: move this to the bottom post testing.
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            geo_entrez_ids = mod.extract_entrez_ids_from_geo()
+            geo_entrez_ids = mod.extract_geo_entrez_ids_from_geo()
             for entrezId in geo_entrez_ids:
                 print ("geo entrez id: " + entrezId)
 
@@ -106,7 +105,3 @@ class AggregateLoader(object):
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-            print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
-            geo_entrez_ids = mod.extract_entrez_ids_from_geo()
-            for entrezId in geo_entrez_ids:
-                print ("geo entrez id: " + entrezId)
