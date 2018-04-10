@@ -70,6 +70,7 @@ def zfin_gene_has_expression_link():
     for record in result:
         assert record["counter"] > 0
 
+
 def xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http%'"
     result = execute_transaction(query)

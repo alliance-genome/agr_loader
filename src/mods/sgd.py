@@ -11,7 +11,7 @@ class SGD(MOD):
         self.geneAssociationFile = "gene_association_1.0.sgd.gz"
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
-        self.geoRetMax = "100000"
+        self.geoRetMax = "10000"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)

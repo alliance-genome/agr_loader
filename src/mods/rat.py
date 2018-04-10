@@ -6,12 +6,12 @@ class RGD(MOD):
         self.species = "Rattus norvegicus"
         self.loadFile = "RGD_1.0.0.2_5.tar.gz"
         self.bgiName = "/RGD_1.0.0.2_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.2_disease.10116.json"
+        self.diseaseName = "/RGD_1.0.0.2_disease.10116.daf.txt"
         self.alleleName = "/RGD_1.0.0.2_allele.10116.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
-        self.geoRetMax = "100000"
+        self.geoRetMax = "30000"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
