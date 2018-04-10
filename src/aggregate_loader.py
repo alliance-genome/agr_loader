@@ -105,5 +105,6 @@ class AggregateLoader(object):
             # for geo_xref in geo_xrefs:
             #     for subMapKey, subMapValue in geo_xref.items():
             #         print (subMapKey + subMapValue)
+            print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 

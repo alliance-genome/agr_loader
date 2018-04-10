@@ -17,9 +17,10 @@ class Transaction(object):
         with self.graph.session() as session:
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query, parameter=parameter)
-                if (query == "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.name = {parameter} return cr, g"):
-                    for x in returnSet:
-                        print (x[0])
+                if (query == "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId, cr.name"):
+                    #print(returnSet.keys())
+                    for record in returnSet:
+                        print(record.items())
         return returnSet
 
     def execute_transaction_batch(self, query, data, batch_size):
