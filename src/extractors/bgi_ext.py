@@ -42,35 +42,37 @@ class BGIExt(object):
 
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
-
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')
                         local_crossref_id = crossRefId.split(":")[1]
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
-                        global_id = crossRef.get('id')
+                        global_xref_id = crossRef.get('id')
 
                         # some pages collection have 0 elements
                         if pages is not None and len(pages) > 0:
                             for page in pages:
+                                modCrossReferenceCompleteUrl = ""
+                                geneticEntityExternalUrl = ""
+                                geneLiteratureUrl = ""
+
                                 crossReferences.append({
                                     "id": crossRef.get('id'),
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph),
+                                    "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph),
                                     "prefix": prefix,
                                     "crossRefType": page,
-                                    "primaryKey": global_id + page,
+                                    "primaryKey": global_xref_id + page,
                                     "uuid": str(uuid.uuid4())
                                 })
                                 if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
-                                    geneticEntityExternalUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
+                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
+                                    geneticEntityExternalUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
 
                                 if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix+page, graph)
+                                    geneLiteratureUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
                         else:
-                            crossRefPrimaryId = None
                             if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
                                 #TODO: add bucket for panther
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
@@ -81,7 +83,7 @@ class BGIExt(object):
                                 "id": crossRefPrimaryId,
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_complete_url(local_crossref_id, crossRefId, primary_id, prefix, graph),
+                                "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph),
                                 "prefix": prefix,
                                 "crossRefType": "generic_cross_reference",
                                 "primaryKey": crossRefPrimaryId + "generic_cross_reference",

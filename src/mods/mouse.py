@@ -5,13 +5,13 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_1.0.0.0_2.tar.gz"
-        self.bgiName = "/MGI_1.0.0.0_BGI.json"
-        self.alleleName = "/MGI_1.0.0.0_allele.json"
-        self.diseaseName = "/MGI_1.0.0.0_disease.json"
+        self.loadFile = "MGI_1.0.0.2_1.tar.gz"
+        self.bgiName = "/MGI_1.0.0.2_BGI.json"
+        self.alleleName = "/MGI_1.0.0.2_allele.json"
+        self.diseaseName = "/MGI_1.0.0.2_disease.json"
         self.geneAssociationFile = "gene_association_1.0.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
-        self.geoRetMax = "100000"
+        self.geoRetMax = "10"
         self.identifierPrefix = "" # None for MGI.
 
     def load_genes(self, batch_size, testObject, graph):

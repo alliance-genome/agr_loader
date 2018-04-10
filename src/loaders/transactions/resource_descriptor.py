@@ -30,6 +30,8 @@ class ResourceDescriptorTransaction(Transaction):
                 SET crm.uuid = row.uuid
                 SET crm.resource = row.resource
                 SET crm.default_url = row.default_url
+                SET crm.default_url_prefix = row.default_url_prefix
+                SET crm.default_url_suffix = row.default_url_suffix
                 SET crm.gid_pattern = row.gid_pattern
                 SET crm.page_name = row.page_name
                 SET crm.page_url = row.page_url

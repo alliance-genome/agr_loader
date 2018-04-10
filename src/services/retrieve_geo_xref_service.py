@@ -6,18 +6,18 @@ class RetrieveGeoXrefService(object):
 
     def get_geo_xref(self, local_id, global_id, graph):
 
-        query = "match (g:Gene)-[]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId"
-        pk = global_id
+        query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return cr, g"
         geo_data = {}
-        #print ("here is the global_id:"+ global_id)
         tx = Transaction(graph)
-        returnSet = tx.run_single_parameter_query(query, pk)
-        print (returnSet)
+        parameter = global_id
+        returnSet = tx.run_single_parameter_query(query, parameter)
         counter = 0
-        for gene in returnSet:
+
+        for x in returnSet:
+            print (x[0])
             counter += 1
-            genePrimaryKey = gene['g.primaryKey']
-            modLocalId = gene['g.modLocalId']
+            genePrimaryKey = x["g.primaryKey"]
+            modLocalId = x["g.modLocalId"]
             print ("here is the return value for genePrimaryKey" + genePrimaryKey)
             geo_data = {
                 "genePrimaryKey": genePrimaryKey,
