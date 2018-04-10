@@ -91,7 +91,7 @@ class TestObject(object):
                   "FlyBase": self.flybaseIdSet,
                   "Human": self.humanTestSet}
 
-        #TODO use method below, or add more mods here as they become available.
+        #TODO use method below, or add more mods here as they become available. add back in RGD human
         self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet).union(self.flybaseIdSet).union(self.rgdTestSet).union(self.humanTestSet))
         #self.testIdSet = self.mgiIdSet
 

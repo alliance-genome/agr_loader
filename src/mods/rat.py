@@ -7,7 +7,7 @@ class RGD(MOD):
         self.loadFile = "RGD_1.0.0.2_5.tar.gz"
         self.bgiName = "/RGD_1.0.0.2_BGI.10116.json"
         self.diseaseName = "/RGD_1.0.0.2_disease.10116.json"
-        self.alleleName = "/RGD_1.0.0.2_feature.10116.json"
+        self.alleleName = "/RGD_1.0.0.2_allele.10116.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
@@ -43,4 +43,7 @@ class RGD(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+        # pprint.pprint("these are mouse xrefs")
+        # for xref in xrefs:
+        #     pprint.pprint(xref)
         return xrefs
