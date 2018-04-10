@@ -12,14 +12,11 @@ class RetrieveGeoXrefService(object):
         returnSet = tx.run_single_parameter_query(query, global_id)
 
         counter = 0
-        print(returnSet.keys())
 
         for record in returnSet:
-            print (record.items())
             counter += 1
             genePrimaryKey = record["g.primaryKey"]
             modLocalId = record["g.modLocalId"]
-            print ("here is the return value for genePrimaryKey" + genePrimaryKey)
             geo_data = {
                 "genePrimaryKey": genePrimaryKey,
                 "modLocalId": modLocalId,

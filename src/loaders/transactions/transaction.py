@@ -19,7 +19,7 @@ class Transaction(object):
                 returnSet = tx.run(query, parameter=parameter)
                 if (query == "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId, cr.name"):
                     #print(returnSet.keys())
-                    for record in returnSet:
+                    for record in returnSet.records():
                         print(record.items())
         return returnSet
 

@@ -100,7 +100,7 @@ class MOD(object):
         geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
 
         data = GeoExt().get_entrez_ids(geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
-        # pprint.pprint(data)
+        pprint.pprint(data)
 
         for efetchKey, efetchValue in data.items():
             # IdList is a value returned from efetch XML spec,

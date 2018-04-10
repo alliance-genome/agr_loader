@@ -16,8 +16,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()] # RGD(),FlyBase(),Human()
-        self.mods = [MGI()]
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        #self.mods = [MGI()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -50,12 +50,12 @@ class AggregateLoader(object):
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
 
-        # print("Loading SO data into Neo4j.")
-        # SOLoader(self.graph).load_so(self.so_dataset)
-        # print("Loading GO data into Neo4j.")
-        # GOLoader(self.graph).load_go(self.go_dataset)
-        # print("Loading DO data into Neo4j.")
-        # DOLoader(self.graph).load_do(self.do_dataset)
+        print("Loading SO data into Neo4j.")
+        SOLoader(self.graph).load_so(self.so_dataset)
+        print("Loading GO data into Neo4j.")
+        GOLoader(self.graph).load_go(self.go_dataset)
+        print("Loading DO data into Neo4j.")
+        DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -75,36 +75,33 @@ class AggregateLoader(object):
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
-            # print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            # alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
-            # for allele_list_of_entries in alleles:
-            #     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
-            #
-            # print("Loading Orthology data for %s into Neo4j." % mod.species)
-            # ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            # for ortholog_list_of_entries in ortholog_data:
-            #     OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
-            #
-            # print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            # features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-            #
-            # print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            # features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
-            #
-            # print("Extracting GO annotations for %s." % mod.__class__.__name__)
-            # go_annots = mod.extract_go_annots(self.testObject)
-            # print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
-            # GOAnnotLoader(self.graph).load_go_annot(go_annots)
+            print("Loading MOD alleles for %s into Neo4j." % mod.species)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
+            for allele_list_of_entries in alleles:
+                AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+
+            print("Loading Orthology data for %s into Neo4j." % mod.species)
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
+            for ortholog_list_of_entries in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+
+            print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
+
+            print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
+
+            print("Extracting GO annotations for %s." % mod.__class__.__name__)
+            go_annots = mod.extract_go_annots(self.testObject)
+            print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
+            GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
             print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            # for geo_xref in geo_xrefs:
-            #     for subMapKey, subMapValue in geo_xref.items():
-            #         print (subMapKey + subMapValue)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 

@@ -11,7 +11,7 @@ class MGI(MOD):
         self.diseaseName = "/MGI_1.0.0.2_disease.json"
         self.geneAssociationFile = "gene_association_1.0.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
-        self.geoRetMax = "1000"
+        self.geoRetMax = "100000"
         self.identifierPrefix = "" # None for MGI.
 
     def load_genes(self, batch_size, testObject, graph):
