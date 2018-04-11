@@ -55,40 +55,62 @@ class BGIExt(object):
                                 modCrossReferenceCompleteUrl = ""
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
+                                crossRefCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
 
-                                crossReferences.append({
-                                    "id": crossRef.get('id'),
-                                    "globalCrossRefId": crossRef.get('id'),
-                                    "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph),
-                                    "prefix": prefix,
-                                    "crossRefType": page,
-                                    "primaryKey": global_xref_id + page,
-                                    "uuid": str(uuid.uuid4())
-                                })
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
                                     geneticEntityExternalUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
 
                                 if page == 'gene/references':
                                     geneLiteratureUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
+
+                                # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
+                                # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
+
+                                if page == 'generic_cross_reference':
+                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph)
+
+                                crossReferences.append({
+                                        "id": crossRef.get('id'),
+                                        "globalCrossRefId": crossRef.get('id'),
+                                        "localId": local_crossref_id,
+                                        "crossRefCompleteUrl": crossRefCompleteUrl,
+                                        "prefix": prefix,
+                                        "crossRefType": page,
+                                        "primaryKey": global_xref_id + page,
+                                        "uuid": str(uuid.uuid4())
+                                    })
                         else:
-                            if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
+                            if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
                                 #TODO: add bucket for panther
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
+                                crossReferences.append({
+                                    "id": crossRefPrimaryId,
+                                    "globalCrossRefId": crossRef.get('id'),
+                                    "localId": local_crossref_id,
+                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id,
+                                                                                               crossRefId, primary_id,
+                                                                                               prefix + "default",
+                                                                                               graph),
+                                    "prefix": prefix,
+                                    "crossRefType": "gene/panther",
+                                    "primaryKey": crossRefPrimaryId + "gene/panther",
+                                    "uuid": str(uuid.uuid4())
+                                })
+
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
 
-                            crossReferences.append({
-                                "id": crossRefPrimaryId,
-                                "globalCrossRefId": crossRef.get('id'),
-                                "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph),
-                                "prefix": prefix,
-                                "crossRefType": "generic_cross_reference",
-                                "primaryKey": crossRefPrimaryId + "generic_cross_reference",
-                                "uuid": str(uuid.uuid4())
-                                })
+                                crossReferences.append({
+                                    "id": crossRefPrimaryId,
+                                    "globalCrossRefId": crossRef.get('id'),
+                                    "localId": local_crossref_id,
+                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph),
+                                    "prefix": prefix,
+                                    "crossRefType": "generic_cross_reference",
+                                    "primaryKey": crossRefPrimaryId + "generic_cross_reference",
+                                    "uuid": str(uuid.uuid4())
+                                    })
 
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
