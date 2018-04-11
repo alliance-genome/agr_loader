@@ -70,6 +70,10 @@ class BGIExt(object):
                                 if page == 'generic_cross_reference':
                                     crossRefCompleteUrl = UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph)
 
+                                # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
+                                if page == 'gene/interaction':
+                                    page = 'gene/interactions'
+
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
                                         "globalCrossRefId": crossRef.get('id'),
