@@ -74,6 +74,10 @@ class BGIExt(object):
                                 if page == 'gene/interaction':
                                     page = 'gene/interactions'
 
+                                if page == 'gene/spell':
+                                    page = 'gene/generic_expression'
+
+
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
                                         "globalCrossRefId": crossRef.get('id'),
