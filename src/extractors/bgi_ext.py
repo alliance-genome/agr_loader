@@ -75,7 +75,7 @@ class BGIExt(object):
                                     page = 'gene/interactions'
 
                                 if page == 'gene/spell':
-                                    page = 'gene/generic_expression'
+                                    page = 'gene/other_expression'
 
 
                                 crossReferences.append({
