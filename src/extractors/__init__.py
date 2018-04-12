@@ -8,3 +8,5 @@ from .disease_gene_ext import DiseaseGeneExt
 from .disease_allele_ext import DiseaseAlleleExt
 from .primary_data_object_type import PrimaryDataObjectType
 from .resource_descriptor_ext import ResourceDescriptor
+from .geo_ext import GeoExt
+from .ncbi_efetch import NCBIEfetch

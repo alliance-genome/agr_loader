@@ -25,7 +25,7 @@ class TestObject(object):
             'MGI:94909', 'MGI:1856331', 'MGI:97490', 'MGI:108092', 'MGI:2156738',
             'MGI:2148260', 'MGI:1856328', 'MGI:2678393', 'MGI:2429942', 'MGI:1856332', 'MGI:5569634',
             'MGI:3531484', 'MGI:3531484',
-            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259'
+            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834'
         }
 
         self.wormbaseIdSet = {
@@ -91,8 +91,9 @@ class TestObject(object):
                   "FlyBase": self.flybaseIdSet,
                   "Human": self.humanTestSet}
 
-        #TODO see below, or add more mods here as they become available.
-        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet))
+        #TODO use method below, or add more mods here as they become available. add back in RGD human
+        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet).union(self.flybaseIdSet).union(self.rgdTestSet).union(self.humanTestSet))
+        #self.testIdSet = self.mgiIdSet
 
     def assemble_test_data(modList, modMap):
         testIdSet = {}

@@ -7,3 +7,4 @@ from .so import SOTransaction
 from .orthology import OrthoTransaction
 from .disease_gene import DiseaseGeneTransaction
 from .disease_allele import DiseaseAlleleTransaction
+from .geo_xref import GeoXrefTransaction

@@ -10,6 +10,8 @@ class SGD(MOD):
         self.alleleName = ""
         self.geneAssociationFile = "gene_association_1.0.sgd.gz"
         self.identifierPrefix = "SGD:"
+        self.geoSpecies = "Saccharomyces+cerevisiae"
+        self.geoRetMax = "10000"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
@@ -42,3 +44,10 @@ class SGD(MOD):
         data = ""
             #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile. graph)
         return data
+
+    def extract_geo_entrez_ids_from_geo(self, graph):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+        # pprint.pprint("these are mouse xrefs")
+        # for xref in xrefs:
+        #     pprint.pprint(xref)
+        return xrefs

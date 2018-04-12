@@ -1,14 +1,17 @@
+import pprint
 from .mod import MOD
 
 class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_1.0.0.0_2.tar.gz"
-        self.bgiName = "/MGI_1.0.0.0_BGI.json"
-        self.alleleName = "/MGI_1.0.0.0_allele.json"
-        self.diseaseName = "/MGI_1.0.0.0_disease.json"
+        self.loadFile = "MGI_1.0.0.2_1.tar.gz"
+        self.bgiName = "/MGI_1.0.0.2_BGI.json"
+        self.alleleName = "/MGI_1.0.0.2_allele.json"
+        self.diseaseName = "/MGI_1.0.0.2_disease.json"
         self.geneAssociationFile = "gene_association_1.0.mgi.gz"
+        self.geoSpecies = 'Mus+musculus'
+        self.geoRetMax = "50000"
         self.identifierPrefix = "" # None for MGI.
 
     def load_genes(self, batch_size, testObject, graph):
@@ -38,3 +41,10 @@ class MGI(MOD):
     def load_allele_objects(self, batch_size, testObject, graph):
         data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
+
+    def extract_geo_entrez_ids_from_geo(self, graph):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+        # pprint.pprint("these are mouse xrefs")
+        # for xref in xrefs:
+        #     pprint.pprint(xref)
+        return xrefs

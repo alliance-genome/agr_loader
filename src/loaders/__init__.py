@@ -5,3 +5,4 @@ from .go_annot_loader import GOAnnotLoader
 from .so_loader import SOLoader
 from .ortho_loader import OrthoLoader
 from .disease_loader import DiseaseLoader
+from .geo_loader import GeoLoader

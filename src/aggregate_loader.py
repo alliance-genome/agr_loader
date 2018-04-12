@@ -2,6 +2,7 @@ from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
+from loaders.geo_loader import *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
@@ -15,12 +16,12 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #TODO: add RGD, Human, FlyBase back in as ready.
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI()] # RGD(),FlyBase(),Human()
-
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), FlyBase(), RGD(), Human()]
+        #self.mods = [MGI()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
+        self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
         if self.testObject.using_test_data() == True:
@@ -31,6 +32,16 @@ class AggregateLoader(object):
         print("Creating indicies.")
         Indicies(self.graph).create_indicies()
 
+    def load_resource_descriptors(self):
+        print("extracting resource descriptor")
+        self.resourceDescriptors = ResourceDescriptor().get_data()
+        print("loading resource descriptor")
+        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
+
+    # def load_geo(self):
+    #     print("extracting GEO data for mouse")
+    #     self.geoMoEntrezIds = GeoExt().get_data()
+
     def load_from_ontologies(self):
         print ("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
@@ -38,11 +49,6 @@ class AggregateLoader(object):
         self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-
-        print("extracting resource descriptor")
-        self.resourceDescriptors = ResourceDescriptor().get_data()
-        print("loading resource descriptor")
-        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
@@ -93,3 +99,9 @@ class AggregateLoader(object):
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
+
+            print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
+            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            print("Loading GEO annotations for %s." % mod.__class__.__name__)
+            GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+
