@@ -25,8 +25,8 @@ class RetrieveGeoXrefService(object):
                 "globalCrossRefId": global_id,
                 "localId": local_id,
                 "prefix": "NCBI_Gene",
-                "crossRefType": "gene/geo",
-                "primaryKey": global_id + "gene/geo",
+                "crossRefType": "gene/other_expression",
+                "primaryKey": global_id + "gene/other_expression",
                 "uuid": str(uuid.uuid4())
             }
 
