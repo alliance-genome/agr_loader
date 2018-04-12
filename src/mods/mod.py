@@ -112,7 +112,6 @@ class MOD(object):
                             entrezIds.append("NCBI_Gene:"+entrezId)
 
 
-        xref = RetrieveGeoXrefService().get_geo_xref(entrezIds, graph)
-        xrefs.append(xref)
+        xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds, graph)
 
         return xrefs
