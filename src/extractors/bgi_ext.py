@@ -6,29 +6,41 @@ from .resource_descriptor_ext import ResourceDescriptor
 class BGIExt(object):
 
     def get_page_complete_url(self, local_id, xrefUrlMap, prefix, page):
+        complete_url = ""
 
-        individual_stanza_map = xrefUrlMap[prefix+page]
+        for rdstanza in xrefUrlMap:
+            for resourceKey, valueMap in rdstanza.items():
+                if resourceKey == page+prefix:
+                    print ("url generator")
+                    print (resourceKey)
+                    for (k,v) in valueMap.items():
+                        print (k + v)
+                    individual_stanza_map = rdstanza[prefix+page]
 
-        page_url_prefix = individual_stanza_map["page_url_prefix"]
-        page_url_suffix = individual_stanza_map["page_url_suffix"]
+                    page_url_prefix = individual_stanza_map["page_url_prefix"]
+                    page_url_suffix = individual_stanza_map["page_url_suffix"]
 
-        complete_url = page_url_prefix + local_id + page_url_suffix
+                    complete_url = page_url_prefix + local_id + page_url_suffix
 
         return complete_url
 
     def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, page):
-        individual_stanza_map = xrefUrlMap[prefix + page]
 
-        default_url_prefix = individual_stanza_map["default_url_prefix"]
-        default_url_suffix = individual_stanza_map["default_url_suffix"]
+        complete_url = ""
+        for rdstanza in xrefUrlMap:
+            for resourceKey, valueMap in rdstanza.items():
+                if resourceKey == page + prefix:
+                    individual_stanza_map = rdstanza[prefix + page]
 
-        complete_url = default_url_prefix + local_id + default_url_suffix
+                    default_url_prefix = individual_stanza_map["default_url_prefix"]
+                    default_url_suffix = individual_stanza_map["default_url_suffix"]
+
+                    complete_url = default_url_prefix + local_id + default_url_suffix
 
         return complete_url
 
     def get_data(self, gene_data, batch_size, testObject, graph):
-
-        xrefUrlMap = ResourceDescriptor.get_data()
+        xrefUrlMap = ResourceDescriptor().get_data()
         gene_dataset = {}
         list_to_yield = []
 

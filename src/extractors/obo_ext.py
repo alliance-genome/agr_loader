@@ -4,7 +4,9 @@ from .obo_parser import parseOBO
 
 class OExt(object):
 
+
     def get_data(self, testObject, filename, prefix):
+
         path = "tmp";
         S3File("mod-datadumps"+prefix, filename, path).download()
         o_data = TXTFile(path + "/"+filename).get_data()
@@ -49,7 +51,7 @@ class OExt(object):
                             #TODO UUID slows down DO loader to 10 r/s!!
                             uuid = str(id.uuid4())
                             xrefs.append(xref)
-                            xref_urls.append({"uuid": uuid, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                            xref_urls.append({"uuid": uuid, "globalCrossRefId": prefix+local_id, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
@@ -57,7 +59,7 @@ class OExt(object):
                         uuid = str(id.uuid4())
                         xrefs.append(o_xrefs)
                         complete_url = self.get_complete_url_ont(local_id, o_xrefs)
-                        xref_urls.append({"uuid": uuid, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                        xref_urls.append({"uuid": uuid, "globalCrossRefId": prefix+local_id, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')

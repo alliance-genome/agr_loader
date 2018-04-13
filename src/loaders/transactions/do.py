@@ -60,6 +60,7 @@ class DOTransaction(Transaction):
                      SET cr.name = xref.xrefId
                      SET cr.crossRefType = xref.crossRefType
                      SET cr.uuid = xref.uuid
+                     SET cr.globalCrossRefId = xref.globalCrossRefId
                     MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
 
 

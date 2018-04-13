@@ -6,10 +6,10 @@ import yaml
 import uuid
 
 
-class ResourceDescriptor:
+class ResourceDescriptor(object):
     list_of_descriptor_maps_to_load = []
 
-    def __init__(self, ):
+    def __init__(self):
         self.savepath = "schemas"
         self.filename = "resourceDescriptors.yaml"
 

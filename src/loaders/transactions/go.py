@@ -49,6 +49,7 @@ class GOTransaction(Transaction):
                      SET cr.name = xref.xrefId
                      SET cr.crossRefType = xref.crossRefType
                      SET cr.uuid = xref.uuid
+                     SET cr.globalCrossRefId = xref.globalCrossRefId
                     MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
 
 
