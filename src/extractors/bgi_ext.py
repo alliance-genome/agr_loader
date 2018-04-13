@@ -1,12 +1,34 @@
 import uuid
 from services import UrlService
 from services import SpeciesService
+from .resource_descriptor_ext import ResourceDescriptor
 
 class BGIExt(object):
 
+    def get_page_complete_url(self, local_id, xrefUrlMap, prefix, page):
+
+        individual_stanza_map = xrefUrlMap[prefix+page]
+
+        page_url_prefix = individual_stanza_map["page_url_prefix"]
+        page_url_suffix = individual_stanza_map["page_url_suffix"]
+
+        complete_url = page_url_prefix + local_id + page_url_suffix
+
+        return complete_url
+
+    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, page):
+        individual_stanza_map = xrefUrlMap[prefix + page]
+
+        default_url_prefix = individual_stanza_map["default_url_prefix"]
+        default_url_suffix = individual_stanza_map["default_url_suffix"]
+
+        complete_url = default_url_prefix + local_id + default_url_suffix
+
+        return complete_url
 
     def get_data(self, gene_data, batch_size, testObject, graph):
 
+        xrefUrlMap = ResourceDescriptor.get_data()
         gene_dataset = {}
         list_to_yield = []
 
@@ -63,7 +85,7 @@ class BGIExt(object):
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
 
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
+                                crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
@@ -76,8 +98,7 @@ class BGIExt(object):
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph)
-
+                                    crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
                                         "globalCrossRefId": crossRef.get('id'),
@@ -96,10 +117,7 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id,
-                                                                                               crossRefId, primary_id,
-                                                                                               prefix + "default",
-                                                                                               graph),
+                                    "crossRefCompleteUrl": self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
                                     "prefix": prefix,
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
@@ -113,7 +131,7 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph),
+                                    "crossRefCompleteUrl": self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
                                     "prefix": prefix,
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",

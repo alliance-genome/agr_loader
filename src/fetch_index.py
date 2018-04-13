@@ -12,14 +12,16 @@ uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
     al = AggregateLoader(uri, useTestObject)
-
-    start = time.time()
-    print("loader start time: " + start)
+    # start = time.localtime(time.time())
+    # print("loader start time: ")
+    # print(start)
     # The following order is REQUIRED for proper loading.
     al.create_indicies()
-    al.load_resource_descriptors()
+    #al.load_resource_descriptors()
     al.load_from_ontologies()
     al.load_from_mods()
-    end  = time.time()
-    print ("loader ent time: " + end)
-    print ("total time for loader: " + end - start)
+    # end = time.localtime(time.time())
+    # print ("loader ent time: ")
+    # print (end)
+    # print ("total time for loader: ")
+    # print (end - start)

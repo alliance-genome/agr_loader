@@ -55,7 +55,7 @@ class ResourceDescriptor:
                                 if len(page_url_parts) > 1:
                                     page_url_suffix = page_url_parts[1]
 
-                                stanza_map = {"resource": resource,
+                                stanza_map[resource+page_name] = {"resource": resource,
                                               "default_url": default_url,
                                               "gid_pattern": gid_pattern,
                                               "page_name": page_name,
@@ -68,7 +68,7 @@ class ResourceDescriptor:
                                               "uuid": str(uuid.uuid4())}
                                 self.list_of_descriptor_maps_to_load.append(stanza_map)
                     else:
-                        stanza_map = {"resource": resource,
+                        stanza_map[resource+"default"] = {"resource": resource,
                                       "default_url": default_url,
                                       "gid_pattern": gid_pattern,
                                       "default_url_prefix": default_url_prefix,
