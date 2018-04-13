@@ -1,5 +1,4 @@
 import uuid
-from services import UrlService
 from services import SpeciesService
 from .resource_descriptor_ext import ResourceDescriptor
 
@@ -9,11 +8,14 @@ class BGIExt(object):
         complete_url = ""
 
         for rdstanza in xrefUrlMap:
+
             for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == page+prefix:
+                print ("url generator")
+                print (resourceKey)
+                if resourceKey == prefix+page:
                     print ("url generator")
                     print (resourceKey)
-                    for (k,v) in valueMap.items():
+                    for (k, v) in valueMap.items():
                         print (k + v)
                     individual_stanza_map = rdstanza[prefix+page]
 
@@ -29,7 +31,7 @@ class BGIExt(object):
         complete_url = ""
         for rdstanza in xrefUrlMap:
             for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == page + prefix:
+                if resourceKey == prefix+page:
                     individual_stanza_map = rdstanza[prefix + page]
 
                     default_url_prefix = individual_stanza_map["default_url_prefix"]
@@ -97,14 +99,15 @@ class BGIExt(object):
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
 
+
                                 crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
-                                    geneticEntityExternalUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
+                                    modCrossReferenceCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
+                                    geneticEntityExternalUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
 
                                 if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
+                                    geneLiteratureUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
 
                                 # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
@@ -129,7 +132,7 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
                                     "prefix": prefix,
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
@@ -143,7 +146,7 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
                                     "prefix": prefix,
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",
