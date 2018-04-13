@@ -29,6 +29,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :CrossReference(globalCrossRefId)")
         session.run("CREATE INDEX ON :CrossReference(localId)")
         session.run("CREATE INDEX ON :CrossReference(crossRefType)")
+        session.run("CREATE INDEX on :CrossReferenceMetaData(primaryKey)")
         session.run("CREATE INDEX ON :OrthologyGeneJoin(primaryKey)")
         session.run("CREATE INDEX ON :GOGeneJoin(primaryKey)")
         session.run("CREATE INDEX ON :SecondaryId(primaryKey)")
