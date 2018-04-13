@@ -4,12 +4,12 @@ from loaders.transactions import Transaction
 
 class RetrieveGeoXrefService(object):
 
-    def get_geo_xref(self, local_id, global_id, graph):
+    def get_geo_xref(self, global_id_list, graph):
 
-        query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId = {parameter} return g.primaryKey, g.modLocalId, cr.name"
-        geo_data = {}
+        query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId in {parameter} return g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"
+        geo_data = []
         tx = Transaction(graph)
-        returnSet = tx.run_single_parameter_query(query, global_id)
+        returnSet = tx.run_single_parameter_query(query, global_id_list)
 
         counter = 0
 
@@ -17,23 +17,21 @@ class RetrieveGeoXrefService(object):
             counter += 1
             genePrimaryKey = record["g.primaryKey"]
             modLocalId = record["g.modLocalId"]
-            geo_data = {
+            globalCrossRefId = record["cr.globalCrossRefId"]
+
+            geo_xref = {
                 "genePrimaryKey": genePrimaryKey,
                 "modLocalId": modLocalId,
-                "crossRefCompleteUrl": "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+local_id,
-                "id": global_id,
-                "globalCrossRefId": global_id,
-                "localId": local_id,
+                "crossRefCompleteUrl": "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1],
+                "id": globalCrossRefId,
+                "globalCrossRefId": globalCrossRefId,
+                "localId": globalCrossRefId.split(":")[1],
                 "prefix": "NCBI_Gene",
                 "crossRefType": "gene/other_expression",
-                "primaryKey": global_id + "gene/other_expression",
+                "primaryKey": globalCrossRefId + "gene/other_expression",
                 "uuid": str(uuid.uuid4())
             }
-
-        if counter > 1:
-            genePrimaryKey = None
-            modLocalId = None
-            print ("returning more than one gene: this is an error")
+            geo_data.append(geo_xref)
 
         return geo_data
 
