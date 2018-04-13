@@ -38,9 +38,6 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-    # def load_geo(self):
-    #     print("extracting GEO data for mouse")
-    #     self.geoMoEntrezIds = GeoExt().get_data()
 
     def load_from_ontologies(self):
         print ("Extracting SO data.")
