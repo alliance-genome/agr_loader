@@ -10,13 +10,8 @@ class BGIExt(object):
         for rdstanza in xrefUrlMap:
 
             for resourceKey, valueMap in rdstanza.items():
-                print ("url generator")
-                print (resourceKey)
                 if resourceKey == prefix+page:
-                    print ("url generator")
-                    print (resourceKey)
-                    for (k, v) in valueMap.items():
-                        print (k + v)
+
                     individual_stanza_map = rdstanza[prefix+page]
 
                     page_url_prefix = individual_stanza_map["page_url_prefix"]
@@ -26,13 +21,13 @@ class BGIExt(object):
 
         return complete_url
 
-    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, page):
+    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix):
 
         complete_url = ""
         for rdstanza in xrefUrlMap:
             for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == prefix+page:
-                    individual_stanza_map = rdstanza[prefix + page]
+                if resourceKey == prefix:
+                    individual_stanza_map = rdstanza[prefix]
 
                     default_url_prefix = individual_stanza_map["default_url_prefix"]
                     default_url_suffix = individual_stanza_map["default_url_suffix"]
@@ -41,7 +36,7 @@ class BGIExt(object):
 
         return complete_url
 
-    def get_data(self, gene_data, batch_size, testObject, graph):
+    def get_data(self, gene_data, batch_size, testObject):
         xrefUrlMap = ResourceDescriptor().get_data()
         gene_dataset = {}
         list_to_yield = []
@@ -92,6 +87,18 @@ class BGIExt(object):
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
 
+                                crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
+
+                                if page == 'gene':
+                                    modCrossReferenceCompleteUrl = self.get_page_complete_url(local_crossref_id,
+                                                                                              xrefUrlMap, prefix,
+                                                                                              prefix + page)
+                                geneticEntityExternalUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap,
+                                                                                      prefix, prefix + page)
+                                if page == 'gene/references':
+                                    geneLiteratureUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap,
+                                                                                   prefix, prefix + page)
+
                                 # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
                                 if page == 'gene/interaction':
                                     page = 'gene/interactions'
@@ -99,21 +106,12 @@ class BGIExt(object):
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
 
-
-                                crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-
-                                if page == 'gene':
-                                    modCrossReferenceCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
-                                    geneticEntityExternalUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
-
-                                if page == 'gene/references':
-                                    geneLiteratureUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, prefix+page)
-
                                 # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
+                                    crossRefCompleteUrl = self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix)
+
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
                                         "globalCrossRefId": crossRef.get('id'),
@@ -132,11 +130,12 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
                                     "prefix": prefix,
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
-                                    "uuid": str(uuid.uuid4())
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "gene/panther"
                                 })
 
                             else:
@@ -146,11 +145,12 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": crossRef.get('id'),
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, "default"),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
                                     "prefix": prefix,
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",
-                                    "uuid": str(uuid.uuid4())
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "generic_cross_reference"
                                     })
 
             if 'genomeLocations' in geneRecord:
