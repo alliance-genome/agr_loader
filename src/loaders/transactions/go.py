@@ -55,4 +55,4 @@ class GOTransaction(Transaction):
 
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

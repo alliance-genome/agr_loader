@@ -48,7 +48,6 @@ class OExt(object):
                             local_id = xrefId.split(":")[1].strip()
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url_ont(local_id, xrefId)
-                            #TODO UUID slows down DO loader to 10 r/s!!
                             uuid = str(id.uuid4())
                             xrefs.append(xref)
                             xref_urls.append({"uuid": uuid, "globalCrossRefId": prefix+local_id, "primaryKey": prefix + local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})

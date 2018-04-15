@@ -114,7 +114,7 @@ class BGIExt(object):
 
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
-                                        "globalCrossRefId": crossRef.get('id'),
+                                        "globalCrossRefId": global_xref_id,
                                         "localId": local_crossref_id,
                                         "crossRefCompleteUrl": crossRefCompleteUrl,
                                         "prefix": prefix,
@@ -128,7 +128,7 @@ class BGIExt(object):
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
-                                    "globalCrossRefId": crossRef.get('id'),
+                                    "globalCrossRefId": global_xref_id,
                                     "localId": local_crossref_id,
                                     "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
                                     "prefix": prefix,
@@ -143,7 +143,7 @@ class BGIExt(object):
 
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
-                                    "globalCrossRefId": crossRef.get('id'),
+                                    "globalCrossRefId": global_xref_id,
                                     "localId": local_crossref_id,
                                     "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
                                     "prefix": prefix,
