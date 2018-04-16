@@ -21,9 +21,10 @@ class BGIExt(object):
 
         return complete_url
 
-    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix):
+    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, primaryId):
 
         complete_url = ""
+        global_id = prefix+local_id
         for rdstanza in xrefUrlMap:
             for resourceKey, valueMap in rdstanza.items():
                 if resourceKey == prefix:
@@ -31,6 +32,26 @@ class BGIExt(object):
 
                     default_url_prefix = individual_stanza_map["default_url_prefix"]
                     default_url_suffix = individual_stanza_map["default_url_suffix"]
+
+                    if global_id.startswith('DRSC'):
+                        complete_url = None
+                    elif global_id.startswith('PANTHER'):
+                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
+                        split_primary = primary_id.split(':')[1]
+                        if primary_id.startswith('MGI'):
+                            complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
+                        elif primary_id.startswith('RGD'):
+                            complete_url = panther_url + '&seq=RGD=' + split_primary
+                        elif primary_id.startswith('SGD'):
+                            complete_url = panther_url + '&seq=SGD=' + split_primary
+                        elif primary_id.startswith('FB'):
+                            complete_url = panther_url + '&seq=FlyBase=' + split_primary
+                        elif primary_id.startswith('WB'):
+                            complete_url = panther_url + '&seq=WormBase=' + split_primary
+                        elif primary_id.startswith('ZFIN'):
+                            complete_url = panther_url + '&seq=ZFIN=' + split_primary
+                        elif primary_id.startswith('HGNC'):
+                            complete_url = panther_url + '&seq=HGNC=' + split_primary
 
                     complete_url = default_url_prefix + local_id + default_url_suffix
 
@@ -87,6 +108,8 @@ class BGIExt(object):
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
 
+                                print ("initial cross ref id: " + global_xref_id)
+
                                 crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
@@ -110,7 +133,7 @@ class BGIExt(object):
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix)
+                                    crossRefCompleteUrl = self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, primary_id)
 
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
@@ -130,7 +153,7 @@ class BGIExt(object):
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": global_xref_id,
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, primary_id),
                                     "prefix": prefix,
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
@@ -140,12 +163,12 @@ class BGIExt(object):
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
-
+                                print ("cross ref id: " + global_xref_id)
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": global_xref_id,
                                     "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix),
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(local_crossref_id, xrefUrlMap, prefix, primary_id),
                                     "prefix": prefix,
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",

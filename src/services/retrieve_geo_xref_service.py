@@ -18,7 +18,6 @@ class RetrieveGeoXrefService(object):
             genePrimaryKey = record["g.primaryKey"]
             modLocalId = record["g.modLocalId"]
             globalCrossRefId = record["cr.globalCrossRefId"]
-
             geo_xref = {
                 "genePrimaryKey": genePrimaryKey,
                 "modLocalId": modLocalId,
