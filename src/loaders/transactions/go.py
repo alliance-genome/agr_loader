@@ -4,7 +4,7 @@ class GOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 2000
+        self.batch_size = 3000
 
     def go_tx(self, data):
         '''
@@ -49,9 +49,10 @@ class GOTransaction(Transaction):
                      SET cr.name = xref.xrefId
                      SET cr.crossRefType = xref.crossRefType
                      SET cr.uuid = xref.uuid
+                     SET cr.globalCrossRefId = xref.globalCrossRefId
                     MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
 
 
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

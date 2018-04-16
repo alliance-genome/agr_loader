@@ -12,6 +12,8 @@ class Indicies(object):
         session.run("CREATE INDEX ON :SOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Ontology(primaryKey)")
         session.run("CREATE INDEX ON :DOTerm(primaryKey)")
+        session.run("CREATE INDEX ON :DOTerm(oid)")
+        session.run("CREATE INDEX ON :GOTerm(oid)")
         session.run("CREATE INDEX ON :Publication(primaryKey)")
         session.run("CREATE INDEX ON :EvidenceCode(primaryKey)")
         session.run("CREATE INDEX ON :Transgene(primaryKey)")

@@ -13,7 +13,7 @@ class Human(MOD):
         self.geoRetMax = "40000"
 
     def load_genes(self, batch_size, testObject, graph):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, graph)
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
         return data
 
     @staticmethod

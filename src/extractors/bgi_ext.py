@@ -1,12 +1,65 @@
 import uuid
-from services import UrlService
 from services import SpeciesService
+from .resource_descriptor_ext import ResourceDescriptor
 
 class BGIExt(object):
 
+    def get_page_complete_url(self, localId, xrefUrlMap, prefix, page):
+        completeUrl = ""
 
-    def get_data(self, gene_data, batch_size, testObject, graph):
+        for rdstanza in xrefUrlMap:
 
+            for resourceKey, valueMap in rdstanza.items():
+                if resourceKey == prefix+page:
+
+                    individualStanzaMap = rdstanza[prefix+page]
+
+                    pageUrlPrefix = individualStanzaMap["page_url_prefix"]
+                    pageUrlSuffix = individualStanzaMap["page_url_suffix"]
+
+                    completeUrl = pageUrlPrefix + localId + pageUrlSuffix
+
+        return completeUrl
+
+    def get_no_page_complete_url(self, localId, xrefUrlMap, prefix, primaryId):
+
+        completeUrl = ""
+        globalId = prefix + localId
+        for rdstanza in xrefUrlMap:
+            for resourceKey, valueMap in rdstanza.items():
+                if resourceKey == prefix:
+                    individualStanzaMap = rdstanza[prefix]
+
+                    defaultUrlPrefix = individualStanzaMap["default_url_prefix"]
+                    defaultUrlSuffix= individualStanzaMap["default_url_suffix"]
+
+                    completeUrl = defaultUrlPrefix+ localId + defaultUrlSuffix
+
+                    if globalId.startswith('DRSC'):
+                        completeUrl = None
+                    elif globalId.startswith('PANTHER'):
+                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + localId + '&species=agr'
+                        split_primary = primaryId.split(':')[1]
+                        if primaryId.startswith('MGI'):
+                            completeUrl = panther_url + '&seq=MGI=MGI=' + split_primary
+                        elif primaryId.startswith('RGD'):
+                            completeUrl = panther_url + '&seq=RGD=' + split_primary
+                        elif primaryId.startswith('SGD'):
+                            completeUrl = panther_url + '&seq=SGD=' + split_primary
+                        elif primaryId.startswith('FB'):
+                            completeUrl = panther_url + '&seq=FlyBase=' + split_primary
+                        elif primaryId.startswith('WB'):
+                            completeUrl = panther_url + '&seq=WormBase=' + split_primary
+                        elif primaryId.startswith('ZFIN'):
+                            completeUrl = panther_url + '&seq=ZFIN=' + split_primary
+                        elif primaryId.startswith('HGNC'):
+                            completeUrl = panther_url + '&seq=HGNC=' + split_primary
+
+
+        return completeUrl
+
+    def get_data(self, gene_data, batch_size, testObject):
+        xrefUrlMap = ResourceDescriptor().get_data()
         gene_dataset = {}
         list_to_yield = []
 
@@ -44,10 +97,11 @@ class BGIExt(object):
                 for crossRef in geneRecord['crossReferences']:
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')
-                        local_crossref_id = crossRefId.split(":")[1]
+                        localCrossRefId =crossRefId.split(":")[1]
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
-                        global_xref_id = crossRef.get('id')
+                        globalXrefId = crossRef.get('id')
+                        displayName = globalXrefId
 
                         # some pages collection have 0 elements
                         if pages is not None and len(pages) > 0:
@@ -56,37 +110,43 @@ class BGIExt(object):
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
 
+                                crossRefCompleteUrl = self.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
+
+                                if page == 'gene':
+                                    modCrossReferenceCompleteUrl = self.get_page_complete_url(localCrossRefId,
+                                                                                              xrefUrlMap, prefix,
+                                                                                              prefix + page)
+                                geneticEntityExternalUrl = self.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                      prefix, prefix + page)
+                                if page == 'gene/references':
+                                    geneLiteratureUrl = self.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                   prefix, prefix + page)
+
                                 # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
                                 if page == 'gene/interaction':
                                     page = 'gene/interactions'
 
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
+                                    displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
-
-                                if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
-                                    geneticEntityExternalUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
-
-                                if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix + page, graph)
 
                                 # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph)
+                                    crossRefCompleteUrl = self.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
 
                                 crossReferences.append({
                                         "id": crossRef.get('id'),
-                                        "globalCrossRefId": crossRef.get('id'),
-                                        "localId": local_crossref_id,
+                                        "globalCrossRefId": globalXrefId,
+                                        "localId": localCrossRefId,
                                         "crossRefCompleteUrl": crossRefCompleteUrl,
                                         "prefix": prefix,
                                         "crossRefType": page,
-                                        "primaryKey": global_xref_id + page,
-                                        "uuid": str(uuid.uuid4())
+                                        "primaryKey": globalXrefId + page,
+                                        "uuid": str(uuid.uuid4()),
+                                        "displayName": displayName
                                     })
                         else:
                             if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
@@ -94,30 +154,30 @@ class BGIExt(object):
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
-                                    "globalCrossRefId": crossRef.get('id'),
-                                    "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id,
-                                                                                               crossRefId, primary_id,
-                                                                                               prefix + "default",
-                                                                                               graph),
+                                    "globalCrossRefId": globalXrefId,
+                                    "localId": localCrossRefId,
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id),
                                     "prefix": prefix,
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
-                                    "uuid": str(uuid.uuid4())
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "gene/panther",
+                                    "displayName": displayName
                                 })
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
-
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
-                                    "globalCrossRefId": crossRef.get('id'),
-                                    "localId": local_crossref_id,
-                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(local_crossref_id, crossRefId, primary_id, prefix+"default", graph),
+                                    "globalCrossRefId": globalXrefId,
+                                    "localId": localCrossRefId,
+                                    "crossRefCompleteUrl": self.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id),
                                     "prefix": prefix,
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",
-                                    "uuid": str(uuid.uuid4())
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "generic_cross_reference",
+                                    "displayName": displayName
                                     })
 
             if 'genomeLocations' in geneRecord:

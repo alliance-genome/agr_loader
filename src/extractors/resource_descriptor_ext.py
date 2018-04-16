@@ -6,10 +6,10 @@ import yaml
 import uuid
 
 
-class ResourceDescriptor:
+class ResourceDescriptor(object):
     list_of_descriptor_maps_to_load = []
 
-    def __init__(self, ):
+    def __init__(self):
         self.savepath = "schemas"
         self.filename = "resourceDescriptors.yaml"
 
@@ -55,7 +55,7 @@ class ResourceDescriptor:
                                 if len(page_url_parts) > 1:
                                     page_url_suffix = page_url_parts[1]
 
-                                stanza_map = {"resource": resource,
+                                stanza_map[resource+page_name] = {"resource": resource,
                                               "default_url": default_url,
                                               "gid_pattern": gid_pattern,
                                               "page_name": page_name,
@@ -68,7 +68,7 @@ class ResourceDescriptor:
                                               "uuid": str(uuid.uuid4())}
                                 self.list_of_descriptor_maps_to_load.append(stanza_map)
                     else:
-                        stanza_map = {"resource": resource,
+                        stanza_map[resource] = {"resource": resource,
                                       "default_url": default_url,
                                       "gid_pattern": gid_pattern,
                                       "default_url_prefix": default_url_prefix,
@@ -77,7 +77,7 @@ class ResourceDescriptor:
                                       "page_name": "",
                                       "page_url_prefix": default_url_prefix,
                                       "page_url_suffix": default_url_suffix,
-                                      "primaryKey": resource + "default",
+                                      "primaryKey": resource,
                                       "uuid": str(uuid.uuid4())
                                       }
                         self.list_of_descriptor_maps_to_load.append(stanza_map)

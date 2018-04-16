@@ -16,7 +16,7 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), FlyBase(), RGD(), Human()]
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human()] #FlyBase(),
         #self.mods = [MGI()]
         self.testObject = TestObject(useTestObject, self.mods)
 
@@ -38,9 +38,6 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-    # def load_geo(self):
-    #     print("extracting GEO data for mouse")
-    #     self.geoMoEntrezIds = GeoExt().get_data()
 
     def load_from_ontologies(self):
         print ("Extracting SO data.")
