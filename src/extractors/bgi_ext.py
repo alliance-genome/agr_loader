@@ -38,7 +38,7 @@ class BGIExt(object):
                     if globalId.startswith('DRSC'):
                         completeUrl = None
                     elif globalId.startswith('PANTHER'):
-                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
+                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + localId + '&species=agr'
                         split_primary = primaryId.split(':')[1]
                         if primaryId.startswith('MGI'):
                             completeUrl = panther_url + '&seq=MGI=MGI=' + split_primary
