@@ -21,7 +21,7 @@ class BGIExt(object):
 
         return complete_url
 
-    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, primaryId):
+    def get_no_page_complete_url(self, local_id, xrefUrlMap, prefix, primary_id):
 
         complete_url = ""
         global_id = prefix+local_id
@@ -32,6 +32,8 @@ class BGIExt(object):
 
                     default_url_prefix = individual_stanza_map["default_url_prefix"]
                     default_url_suffix = individual_stanza_map["default_url_suffix"]
+
+                    complete_url = default_url_prefix + local_id + default_url_suffix
 
                     if global_id.startswith('DRSC'):
                         complete_url = None
@@ -53,7 +55,6 @@ class BGIExt(object):
                         elif primary_id.startswith('HGNC'):
                             complete_url = panther_url + '&seq=HGNC=' + split_primary
 
-                    complete_url = default_url_prefix + local_id + default_url_suffix
 
         return complete_url
 
@@ -100,6 +101,7 @@ class BGIExt(object):
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
                         global_xref_id = crossRef.get('id')
+                        displayName = global_xref_id
 
                         # some pages collection have 0 elements
                         if pages is not None and len(pages) > 0:
@@ -107,8 +109,6 @@ class BGIExt(object):
                                 modCrossReferenceCompleteUrl = ""
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
-
-                                print ("initial cross ref id: " + global_xref_id)
 
                                 crossRefCompleteUrl = self.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
 
@@ -128,6 +128,8 @@ class BGIExt(object):
 
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
+                                    displayName='Serial Patterns of Expression Levels Locator (SPELL)'
+
 
                                 # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
                                 # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
@@ -143,7 +145,8 @@ class BGIExt(object):
                                         "prefix": prefix,
                                         "crossRefType": page,
                                         "primaryKey": global_xref_id + page,
-                                        "uuid": str(uuid.uuid4())
+                                        "uuid": str(uuid.uuid4()),
+                                        "displayName": displayName
                                     })
                         else:
                             if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
@@ -158,12 +161,12 @@ class BGIExt(object):
                                     "crossRefType": "gene/panther",
                                     "primaryKey": crossRefPrimaryId + "gene/panther",
                                     "uuid": str(uuid.uuid4()),
-                                    "page": "gene/panther"
+                                    "page": "gene/panther",
+                                    "displayName": displayName
                                 })
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
-                                print ("cross ref id: " + global_xref_id)
                                 crossReferences.append({
                                     "id": crossRefPrimaryId,
                                     "globalCrossRefId": global_xref_id,
@@ -173,7 +176,8 @@ class BGIExt(object):
                                     "crossRefType": "generic_cross_reference",
                                     "primaryKey": crossRefPrimaryId + "generic_cross_reference",
                                     "uuid": str(uuid.uuid4()),
-                                    "page": "generic_cross_reference"
+                                    "page": "generic_cross_reference",
+                                    "displayName": displayName
                                     })
 
             if 'genomeLocations' in geneRecord:
