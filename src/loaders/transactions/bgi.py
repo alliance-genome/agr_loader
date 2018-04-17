@@ -88,6 +88,7 @@ class BGITransaction(Transaction):
                     SET id.prefix = event.prefix
                     SET id.crossRefType = event.crossRefType
                     SET id.uuid = event.uuid
+                    SET id.displayName = event.displayName
                 MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
                 //MERGE (l)-[lacr:LOADED_FROM]-(id)
         """
