@@ -15,7 +15,7 @@ Resources.
 - Build the local image with `make build`.
 - This repository has the agr_schemas as a submodule. Do the following the first time at checkout:
   - cd into schemas directory 
-  - git init submodule
+  - git submodule init
   - git submodule update (to fetch the actual data in this directory)
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
   - The Docker volume `agrloader_storedb` will be created (if it does not already exist).
