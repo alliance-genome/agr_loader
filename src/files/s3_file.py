@@ -9,7 +9,7 @@ class S3File(object):
         self.savepath = savepath
 
     def download(self):
-        print("Downloading data from s3 (https://s3.amazonaws.com/%s/%s -> %s/%s) ..." % (self.bucket, self.filename, self.savepath, self.filename))
+        print("Downloading data from s3 (https://download.alliancegenome.org/%s/%s -> %s/%s) ..." % (self.bucket, self.filename, self.savepath, self.filename))
         if not os.path.exists(self.savepath):
             print("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
