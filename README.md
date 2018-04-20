@@ -8,7 +8,7 @@ Resources.
 
 ## Requirements
 - Docker
-- Docker-compose (can be installed via `pip`: `pip install docker-compose`).
+- Docker-compose
 
 ## Installation
 - Build the local environment image with `make buildenv`.
@@ -23,6 +23,8 @@ Resources.
 
 - git submodule update --init (on subsequent updates, run: git submodule update --remote` before merging changes to the `agr_loader` repo) 
   - currently, this submodule is tracking the 1.0.4 release - we need to change .gitmodules to reflect the next version when appropriate.
+
+- ensure that your local docker installation has access to at least 5G (preferentially 8G) of memory or else your run_test target will fail with a non-inituative error that "Cannot resolve address 'neo4j.nqc'" this can be done in the docker preferences.   
 
 ## Running the Loader
 - Initialize a full load with `make run`.
