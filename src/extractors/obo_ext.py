@@ -112,6 +112,9 @@ class OExt(object):
             if is_obsolete is None:
                 is_obsolete = "false"
 
+            # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
+
+
             dict_to_append = {
                 'o_genes': [],
                 'o_species': [],

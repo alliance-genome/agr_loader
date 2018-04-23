@@ -23,6 +23,7 @@ class GeoXrefTransaction(Transaction):
                     SET id.prefix = row.prefix
                     SET id.crossRefType = row.crossRefType
                     SET id.uuid = row.uuid
+                    SET id.displayName = row.displayName
 
                     MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
 

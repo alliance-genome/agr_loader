@@ -1,7 +1,7 @@
 class UrlService(object):
 
 
-    def get_page_complete_url(self, localId, xrefUrlMap, prefix, page):
+    def get_page_complete_url(localId, xrefUrlMap, prefix, page):
         completeUrl = ""
 
         for rdstanza in xrefUrlMap:
@@ -18,7 +18,7 @@ class UrlService(object):
 
         return completeUrl
 
-    def get_no_page_complete_url(self, localId, xrefUrlMap, prefix, primaryId):
+    def get_no_page_complete_url(localId, xrefUrlMap, prefix, primaryId):
 
         completeUrl = ""
         globalId = prefix + localId
