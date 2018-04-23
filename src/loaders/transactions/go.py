@@ -23,6 +23,7 @@ class GOTransaction(Transaction):
                 SET g.name = row.name 
                 SET g.nameKey = row.name_key
                 SET g.is_obsolete = row.is_obsolete
+                SET g.href = row.href
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
