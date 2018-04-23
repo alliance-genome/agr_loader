@@ -71,7 +71,7 @@ class TestObject(object):
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
-            'HGNC:6560', 'HGNC:6551'
+            'HGNC:6560', 'HGNC:6551', 'HGNC:6700'
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
