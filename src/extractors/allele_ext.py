@@ -40,7 +40,6 @@ class AlleleExt(object):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
-                                def get_page_complete_url(self, localId, xrefUrlMap, prefix, page):
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
                             crossReferences.append({
                                 "id": crossRef.get('id'),
