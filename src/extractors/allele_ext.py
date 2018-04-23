@@ -1,9 +1,12 @@
 import uuid
 from services import UrlService
+from .resource_descriptor_ext import ResourceDescriptor
 
 class AlleleExt(object):
 
     def get_alleles(self, allele_data, batch_size, testObject, graph):
+
+        xrefUrlMap = ResourceDescriptor().get_data()
 
         list_to_yield = []
         dateProduced = allele_data['metaData']['dateProduced']
@@ -37,14 +40,13 @@ class AlleleExt(object):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
-                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, crossRefId,
-                                                                                       global_id, prefix + page, graph)
+                                def get_page_complete_url(self, localId, xrefUrlMap, prefix, page):
+                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
                             crossReferences.append({
                                 "id": crossRef.get('id'),
                                 "globalCrossRefId": crossRef.get('id'),
                                 "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, crossRefId,
-                                                                                        global_id, prefix + page, graph),
+                                "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page),
                                 "prefix": prefix,
                                 "crossRefType": page,
                                 "primaryKey": global_id + page,
@@ -76,25 +78,3 @@ class AlleleExt(object):
 
         if len(list_to_yield) > 0:
             yield list_to_yield
-
-
-    # def get_complete_url (self, local_id, global_id, primary_id):
-    #     # Local and global are cross references, primary is the gene id.
-    #     # TODO Update to dispatch?
-    #     complete_url = None
-    #
-    #
-    #     if global_id.startswith('MGI'):
-    #         complete_url = 'http://www.informatics.jax.org/allele/' + global_id
-    #     elif global_id.startswith('RGD'):
-    #         complete_url = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:' + local_id
-    #     elif global_id.startswith('SGD'):
-    #         complete_url = 'http://www.yeastgenome.org/locus/' + local_id
-    #     elif global_id.startswith('FB'):
-    #         complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-    #     elif global_id.startswith('ZFIN'):
-    #         complete_url = 'http://zfin.org/' + local_id
-    #     elif global_id.startswith('WB:'):
-    #         complete_url = 'http://www.wormbase.org/db/get?name=' + local_id + ';class=Variation'
-    #
-    #     return complete_url
