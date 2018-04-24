@@ -38,36 +38,35 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-
     def load_from_ontologies(self):
-        print ("Extracting SO data.")
-        self.so_dataset = SOExt().get_data()
-        print("Extracting GO data.")
-        self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
-        print("Extracting DO data.")
-        self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-        #
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
+        print("Extracting SO data.")
+        # self.so_dataset = SOExt().get_data()
+        # print("Extracting GO data.")
+        # self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
+        # print("Extracting DO data.")
+        # self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
+        # #
+        # print("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
 
-        for mod in self.mods:
-            print("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
+        # for mod in self.mods:
+        #     print("Loading BGI data for %s into Neo4j." % mod.species)
+        #     genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
 
-            c = 0
-            start = time.time()
-            for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries)
-                c = c + len(gene_list_of_entries)
-            end = time.time()
-            print("Average: %sr/s" % (round(c / (end - start), 2)))
+        #     c = 0
+        #     start = time.time()
+        #     for gene_list_of_entries in genes:
+        #         BGILoader(self.graph).load_bgi(gene_list_of_entries)
+        #         c = c + len(gene_list_of_entries)
+        #     end = time.time()
+        #     print("Average: %sr/s" % (round(c / (end - start), 2)))
 
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
@@ -102,3 +101,9 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
+    def load_additiona_datasets(self):
+            print("Extracting and Loading IMEX data.")
+            imex_data = IMEXExt().get_data(self.batch_size)
+            for imex_list_of_entries in imex_data:
+                print(imex_list_of_entries)
+                #IMEXLoader(self.graph).load_imex(imex_list_of_entries)
