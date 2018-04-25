@@ -56,7 +56,7 @@ class AggregateLoader(object):
         # GOLoader(self.graph).load_go(self.go_dataset)
         # print("Loading DO data into Neo4j.")
         # DOLoader(self.graph).load_do(self.do_dataset)
-
+        quit()
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -106,7 +106,7 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-    def load_additiona_datasets(self):
+    def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
             imex_data = IMEXExt().get_data(self.batch_size)
             for imex_list_of_entries in imex_data:
