@@ -56,7 +56,6 @@ class AggregateLoader(object):
         # GOLoader(self.graph).load_go(self.go_dataset)
         # print("Loading DO data into Neo4j.")
         # DOLoader(self.graph).load_do(self.do_dataset)
-        quit()
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")

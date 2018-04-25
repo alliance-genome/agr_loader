@@ -60,11 +60,19 @@ class IMEXExt(object):
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
 
+                detection_method_re = re.search('"([^"]*)"', row[6]) # grab the MI identifier between two quotes ""
+                detection_method = detection_method_re.group(0)
+                detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
+
+                publication_re = re.search('pubmed:\d+', row[8])
+                publication = publication_re.group(0)
+
                 imex_dataset = {
                     'interactor_one' : interactor_one,
                     'interactor_two' : interactor_two,
                     'taxon_id_1' : taxon_id_1_to_load,
-                    'taxon_id_2' : taxon_id_2_to_load
+                    'taxon_id_2' : taxon_id_2_to_load,
+                    'detection_method' : detection_method
                 }
 
             # Establishes the number of entries to yield (return) at a time.
