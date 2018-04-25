@@ -67,6 +67,11 @@ class IMEXExt(object):
                 publication_re = re.search('pubmed:\d+', row[8])
                 publication = publication_re.group(0)
 
+
+                # Publication requires "pubMedId" : "PMID:1234"
+                # "pubMedUrl" : "https://www.ncbi.nlm.nih.gov/pubmed/11358670"
+                # "primaryKey" : "PMID:1234"
+
                 imex_dataset = {
                     'interactor_one' : interactor_one,
                     'interactor_two' : interactor_two,
