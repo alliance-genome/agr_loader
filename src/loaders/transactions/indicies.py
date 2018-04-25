@@ -41,6 +41,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Gene(localId)")
         session.run("CREATE INDEX ON :Load(primaryKey)")
         session.run("CREATE INDEX ON :Feature(primaryKey)")
+        session.run("CREATE INDEX ON :MITerm(primaryKey)")
         #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
         #session.run("CREATE CONSTRAINT ON (n:Gene) ASSERT n.primaryKey IS UNIQUE")
