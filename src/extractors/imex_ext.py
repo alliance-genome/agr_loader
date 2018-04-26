@@ -20,7 +20,22 @@ class IMEXExt(object):
 
             # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
             # TODO External configuration script for these types of filters? Not a fan of hard-coding.
-            taxon_species_set = ('taxid:10116', 'taxid:9606', 'taxid:10090', 'taxid:6239', 'taxid:559292', 'taxid:7955', '-')
+            taxon_species_set = (
+                'taxid:10116', 
+                'taxid:9606', 
+                'taxid:10090', 
+                'taxid:6239', 
+                'taxid:559292', 
+                'taxid:7955',
+                'taxid:4932',
+                'taxid:307796',
+                'taxid:643680',
+                'taxid:574961',
+                'taxid:285006',
+                'taxid:545124',
+                'taxid:764097',
+                '-')
+            possible_yeast_taxon_set = ('taxid:4932', 'taxid:307796', 'taxid:643680', 'taxid:574961', 'taxid:285006', 'taxid:545124', 'taxid:764097')
             interaction_exclusion_set = ('psi-mi:\"MI:0208\"')
             interactor_type_exclusion_set = ('psi-mi:\"MI:0328\"', 'psi-mi:\"MI:1302\"', 'psi-mi:\"MI:1304\"')
 
@@ -30,6 +45,11 @@ class IMEXExt(object):
 
                 if not taxon_id_1.startswith(taxon_species_set) or not taxon_id_2.startswith(taxon_species_set):
                     continue # Skip rows where we don't have Alliance species or a blank entry.
+                if taxon_id_1 in possible_yeast_taxon_set: # Handle multiple yeast taxon ids, temporary implementation.
+                    taxon_id_1 = 'taxid:559292'
+                if taxon_id_2 in possible_yeast_taxon_set: # Handle multiple yeast taxon ids, temporary implementation.
+                    taxon_id_2 = 'taxid:559292'
+
                 if row[0].startswith('uniprotkb') and row[1].startswith('uniprotkb'):
                     try:
                         interactor_one = row[0].split(':')[1]
@@ -64,9 +84,11 @@ class IMEXExt(object):
                 detection_method = detection_method_re.group(0)
                 detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
 
+                # TODO Replace this publication work with a service. Re-think publication implementation in Neo4j.
                 publication_re = re.search('pubmed:\d+', row[8])
                 publication = publication_re.group(0)
-
+                publication = publication.replace('pubmed', 'PMID')
+                publication_url = 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % (publication[5:])
 
                 # Publication requires "pubMedId" : "PMID:1234"
                 # "pubMedUrl" : "https://www.ncbi.nlm.nih.gov/pubmed/11358670"
@@ -77,8 +99,13 @@ class IMEXExt(object):
                     'interactor_two' : interactor_two,
                     'taxon_id_1' : taxon_id_1_to_load,
                     'taxon_id_2' : taxon_id_2_to_load,
-                    'detection_method' : detection_method
+                    'detection_method' : detection_method,
+                    'pub_med_id' : publication,
+                    'pub_med_url' : publication_url
                 }
+
+                print(imex_dataset)
+                quit()
 
             # Establishes the number of entries to yield (return) at a time.
             list_to_yield.append(imex_dataset)
