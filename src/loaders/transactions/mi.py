@@ -14,7 +14,9 @@ class MITransaction(Transaction):
         query = """
             UNWIND $data as row 
 
-            
+            //Create the MITerm node and set properties. primaryKey is required.
+            MERGE (g:MITerm:Ontology {primaryKey:row.identifier})
+                SET g.label = row.label
         """
 
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)

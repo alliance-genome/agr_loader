@@ -110,4 +110,4 @@ class AggregateLoader(object):
             imex_data = IMEXExt().get_data(self.batch_size)
             for imex_list_of_entries in imex_data:
                 print(imex_list_of_entries)
-                #IMEXLoader(self.graph).load_imex(imex_list_of_entries)
+                IMEXLoader(self.graph).load_imex(imex_list_of_entries)

@@ -99,7 +99,8 @@ class IMEXExt(object):
                     'taxon_id_2' : taxon_id_2_to_load,
                     'detection_method' : detection_method,
                     'pub_med_id' : publication,
-                    'pub_med_url' : publication_url
+                    'pub_med_url' : publication_url,
+                    'uuid' : str(uuid.uuid4())
                 }
 
                 print(imex_dataset)
