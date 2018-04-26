@@ -51,12 +51,8 @@ class IMEXExt(object):
                     taxon_id_2 = 'taxid:559292'
 
                 if row[0].startswith('uniprotkb') and row[1].startswith('uniprotkb'):
-                    try:
-                        interactor_one = row[0].split(':')[1]
-                        interactor_two = row[1].split(':')[1]
-                    except:
-                        IndexError() # Skipping cases where we don't find something like 'uniprot:identifier'.
-                        continue
+                    interactor_one = re.sub('uniprotkb', 'UniProtKB', row[0])
+                    interactor_two = re.sub('uniprotkb', 'UniProtKB', row[1])
                 else: # If we don't have uniprot ids, continue.
                     continue
 
@@ -90,13 +86,15 @@ class IMEXExt(object):
                 publication = publication.replace('pubmed', 'PMID')
                 publication_url = 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % (publication[5:])
 
-                # Publication requires "pubMedId" : "PMID:1234"
-                # "pubMedUrl" : "https://www.ncbi.nlm.nih.gov/pubmed/11358670"
-                # "primaryKey" : "PMID:1234"
+                # Other hardcoded values to be used for now.
+                interactor_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
+                molecule_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
 
                 imex_dataset = {
                     'interactor_one' : interactor_one,
                     'interactor_two' : interactor_two,
+                    'interactor_type' : interactor_type,
+                    'molecule_type' : molecule_type,
                     'taxon_id_1' : taxon_id_1_to_load,
                     'taxon_id_2' : taxon_id_2_to_load,
                     'detection_method' : detection_method,
