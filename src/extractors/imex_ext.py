@@ -81,10 +81,19 @@ class IMEXExt(object):
                 detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
 
                 # TODO Replace this publication work with a service. Re-think publication implementation in Neo4j.
-                publication_re = re.search('pubmed:\d+', row[8])
-                publication = publication_re.group(0)
-                publication = publication.replace('pubmed', 'PMID')
-                publication_url = 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % (publication[5:])
+                publication = None
+                publication_url = None
+                
+                if row[8] is not '-':
+                    publication_re = re.search('pubmed:\d+', row[8])
+                    if publication_re is not None:
+                        publication = publication_re.group(0)
+                        publication = publication.replace('pubmed', 'PMID')
+                        publication_url = 'https://www.ncbi.nlm.nih.gov/pubmed/%s' % (publication[5:])
+                    else:
+                        continue
+                else:
+                    continue
 
                 # Other hardcoded values to be used for now.
                 interactor_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
@@ -102,9 +111,6 @@ class IMEXExt(object):
                     'pub_med_url' : publication_url,
                     'uuid' : str(uuid.uuid4())
                 }
-
-                print(imex_dataset)
-                quit()
 
             # Establishes the number of entries to yield (return) at a time.
             list_to_yield.append(imex_dataset)

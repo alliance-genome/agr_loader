@@ -60,18 +60,19 @@ class AggregateLoader(object):
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
 
-        # for mod in self.mods:
-        #     print("Loading BGI data for %s into Neo4j." % mod.species)
-        #     genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
+        for mod in self.mods:
+            print("Loading BGI data for %s into Neo4j." % mod.species)
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
 
-        #     c = 0
-        #     start = time.time()
-        #     for gene_list_of_entries in genes:
-        #         BGILoader(self.graph).load_bgi(gene_list_of_entries)
-        #         c = c + len(gene_list_of_entries)
-        #     end = time.time()
-        #     print("Average: %sr/s" % (round(c / (end - start), 2)))
+            c = 0
+            start = time.time()
+            for gene_list_of_entries in genes:
+                BGILoader(self.graph).load_bgi(gene_list_of_entries)
+                c = c + len(gene_list_of_entries)
+            end = time.time()
+            print("Average: %sr/s" % (round(c / (end - start), 2)))
 
+        quit()
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
