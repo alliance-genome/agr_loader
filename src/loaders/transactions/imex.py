@@ -38,7 +38,7 @@ class IMEXTransaction(Transaction):
             MERGE (oa)-[ev:EVIDENCE]->(pn)
 
             //Link detection method to the MI ontology.
-            WITH row.detection_method as detection_method
+            WITH oa, row.detection_method as detection_method
                 MATCH (mi:MITerm) WHERE mi.primaryKey = detection_method
                 MERGE (oa)-[dm:DETECTION_METHOD]->(mi)
         """
