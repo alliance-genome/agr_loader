@@ -9,8 +9,8 @@ class IMEXExt(object):
         filename = '/intact.txt'
         filename_comp = 'intact.zip'
 
-        #S3File("mod-datadumps/IMEX", filename_comp, path).download()
-        #ZIPFile(path, filename_comp).extract_all()
+        S3File("mod-datadumps/IMEX", filename_comp, path).download()
+        ZIPFile(path, filename_comp).extract_all()
 
         list_to_yield = []
 
