@@ -72,7 +72,7 @@ class TestObject(object):
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
-            'HGNC:6560', 'HGNC:6551'
+            'HGNC:6560', 'HGNC:6551', 'HGNC:6700'
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
@@ -93,7 +93,7 @@ class TestObject(object):
                   "Human": self.humanTestSet}
 
         #TODO use method below, or add more mods here as they become available. add back in RGD human
-        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.sgdIdSet).union(self.rgdTestSet).union(self.humanTestSet))
+        self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.flybaseIdSet).union(self.sgdIdSet).union(self.rgdTestSet).union(self.humanTestSet))
         #self.testIdSet = self.mgiIdSet
 
     def assemble_test_data(modList, modMap):

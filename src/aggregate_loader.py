@@ -100,7 +100,7 @@ class AggregateLoader(object):
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-            print("Extracting GEO annotaitons for %s." % mod.__class__.__name__)
+            print("Extracting GEO annotations for %s." % mod.__class__.__name__)
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
