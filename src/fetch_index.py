@@ -17,9 +17,9 @@ if __name__ == '__main__':
     # print(start)
     # The following order is REQUIRED for proper loading.
     al.create_indicies()
-    #al.load_from_ontologies()
-    al.load_additional_datasets()
+    al.load_from_ontologies()
     al.load_from_mods()
+    al.load_additional_datasets()
     # end = time.localtime(time.time())
     # print ("loader ent time: ")
     # print (end)

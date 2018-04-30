@@ -16,8 +16,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human()] #FlyBase(),
-        #self.mods = [MGI()]
+        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        self.mods = [WormBase()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -72,7 +72,6 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start), 2)))
 
-        quit()
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -110,5 +109,4 @@ class AggregateLoader(object):
             print("Extracting and Loading IMEX data.")
             imex_data = IMEXExt().get_data(self.batch_size)
             for imex_list_of_entries in imex_data:
-                print(imex_list_of_entries)
                 IMEXLoader(self.graph).load_imex(imex_list_of_entries)

@@ -10,34 +10,34 @@ class IMEXExt(object):
         filename_comp = 'intact.zip'
 
         #S3File("mod-datadumps/IMEX", filename_comp, path).download()
-        ZIPFile(path, filename_comp).extract_all()
+        #ZIPFile(path, filename_comp).extract_all()
 
         list_to_yield = []
+
+        # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
+        # TODO External configuration script for these types of filters? Not a fan of hard-coding.
+        taxon_species_set = (
+            'taxid:10116', 
+            'taxid:9606', 
+            'taxid:10090', 
+            'taxid:6239', 
+            'taxid:559292', 
+            'taxid:7955',
+            'taxid:4932',
+            'taxid:307796',
+            'taxid:643680',
+            'taxid:574961',
+            'taxid:285006',
+            'taxid:545124',
+            'taxid:764097',
+            '-')
+        possible_yeast_taxon_set = ('taxid:4932', 'taxid:307796', 'taxid:643680', 'taxid:574961', 'taxid:285006', 'taxid:545124', 'taxid:764097')
+        interaction_exclusion_set = ('psi-mi:\"MI:0208\"')
+        interactor_type_exclusion_set = ('psi-mi:\"MI:0328\"', 'psi-mi:\"MI:1302\"', 'psi-mi:\"MI:1304\"')
 
         with open(path + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             next(tsvin, None) # Skip the headers
-
-            # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
-            # TODO External configuration script for these types of filters? Not a fan of hard-coding.
-            taxon_species_set = (
-                'taxid:10116', 
-                'taxid:9606', 
-                'taxid:10090', 
-                'taxid:6239', 
-                'taxid:559292', 
-                'taxid:7955',
-                'taxid:4932',
-                'taxid:307796',
-                'taxid:643680',
-                'taxid:574961',
-                'taxid:285006',
-                'taxid:545124',
-                'taxid:764097',
-                '-')
-            possible_yeast_taxon_set = ('taxid:4932', 'taxid:307796', 'taxid:643680', 'taxid:574961', 'taxid:285006', 'taxid:545124', 'taxid:764097')
-            interaction_exclusion_set = ('psi-mi:\"MI:0208\"')
-            interactor_type_exclusion_set = ('psi-mi:\"MI:0328\"', 'psi-mi:\"MI:1302\"', 'psi-mi:\"MI:1304\"')
 
             for row in tsvin:
                 taxon_id_1 = row[9]
@@ -111,12 +111,12 @@ class IMEXExt(object):
                     'pub_med_url' : publication_url,
                     'uuid' : str(uuid.uuid4())
                 }
+                
+                # Establishes the number of entries to yield (return) at a time.
+                list_to_yield.append(imex_dataset)
+                if len(list_to_yield) == batch_size:
+                    yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
 
-            # Establishes the number of entries to yield (return) at a time.
-            list_to_yield.append(imex_dataset)
-            if len(list_to_yield) == batch_size:
+            if len(list_to_yield) > 0:
                 yield list_to_yield
-                list_to_yield[:] = []  # Empty the list.
-
-        if len(list_to_yield) > 0:
-            yield list_to_yield

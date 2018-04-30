@@ -15,8 +15,8 @@ class IMEXTransaction(Transaction):
             UNWIND $data as row 
 
             //Lookup genes based on species and uniprot ids.
-            MATCH (s1:Species {primaryKey:row.taxon_id_1})-[fs1:FROM_SPECIES]-(g1:Gene)-[x1:CrossReference]-(y1:CrossReference {globalCrossRefId:row.interactor_one})
-            MATCH (s2:Species {primaryKey:row.taxon_id_2})-[fs2:FROM_SPECIES]-(g2:Gene)-[x2:CrossReference]-(y2:CrossReference {globalCrossRefId:row.interactor_two})
+            MATCH (s1:Species {primaryKey:row.taxon_id_1})-[fs1:FROM_SPECIES]-(g1:Gene)-[x1:CROSS_REFERENCE]-(y1:CrossReference {globalCrossRefId:row.interactor_one})
+            MATCH (s2:Species {primaryKey:row.taxon_id_2})-[fs2:FROM_SPECIES]-(g2:Gene)-[x2:CROSS_REFERENCE]-(y2:CrossReference {globalCrossRefId:row.interactor_two})
 
             //Create the relationship between the two genes.
             MERGE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
@@ -27,21 +27,20 @@ class IMEXTransaction(Transaction):
                 SET oa.joinType = 'physical_interaction'
             MERGE (g1)-[a1:ASSOCIATION]->(oa)
             MERGE (oa)-[a2:ASSOCIATION]->(g2)
-            
-            //Link detection method to the MI ontology.
-            MATCH (mi:MITerm {primaryKey:row.detection_method})
-            MERGE (oa)-[dm:DETECTION_METHOD]->(mi)
 
             //Create the additional nodes to hang off the Association node.
-            MERGE (ed:ExperimentalDetails)
-                SET ed.interactorType = row.interactor_type
-                SET ed.moleculeType = row.molecule_type
+            MERGE (ed:ExperimentalDetails {interactorType:row.interactor_type, moleculeType:row.molecule_type})
             MERGE (oa)-[si:SUPPORTING_INFORMATION]->(ed)
 
             //Create the publication nodes and link them to the Association node.
             MERGE (pn:Publication {primaryKey:row.pub_med_id})
-                SET pn.pubMedUrl:row.pub_med_url
+                SET pn.pubMedUrl = row.pub_med_url
             MERGE (oa)-[ev:EVIDENCE]->(pn)
+
+            //Link detection method to the MI ontology.
+            WITH row.detection_method as detection_method
+                MATCH (mi:MITerm) WHERE mi.primaryKey = detection_method
+                MERGE (oa)-[dm:DETECTION_METHOD]->(mi)
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
