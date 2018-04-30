@@ -85,13 +85,14 @@ class TestClass(object):
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Publication', prop='pubMedId'), \
-                            dict(node='Publication', prop='pubModId'), \
+                           #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
                             dict(node='Feature', prop='dataProvider'), \
                             dict(node='Feature', prop='dateProduced'), \
+                            dict(node='MITerm', prop='primaryKey') \
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -144,7 +145,8 @@ class TestClass(object):
                                dict(node='Feature', prop='symbol'), \
                                dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='dateProduced'), \
-                               dict(node='Feature', prop='globalId') \
+                               dict(node='Feature', prop='globalId'), \
+                               dict(node='MITerm', prop='primaryKey') \
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
@@ -160,7 +162,8 @@ class TestClass(object):
                              dict(node='SOTerm', prop='primaryKey'), \
                              dict(node='GOTerm', prop='primaryKey'), \
                              dict(node='Gene', prop='primaryKey'), \
-                             dict(node='Feature', prop='primaryKey') \
+                             dict(node='Feature', prop='primaryKey'), \
+                             dict(node='MITerm', prop='primaryKey') \
                              ]
     }
 

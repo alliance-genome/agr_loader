@@ -35,6 +35,7 @@ class IMEXTransaction(Transaction):
             //Create the publication nodes and link them to the Association node.
             MERGE (pn:Publication {primaryKey:row.pub_med_id})
                 SET pn.pubMedUrl = row.pub_med_url
+                SET pn.pubMedId = row.pub_med_id
             MERGE (oa)-[ev:EVIDENCE]->(pn)
 
             //Link detection method to the MI ontology.
