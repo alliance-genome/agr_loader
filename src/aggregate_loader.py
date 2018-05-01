@@ -17,6 +17,7 @@ from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
 from services.gene_descriptions.data_fetcher import Neo4jDataFetcher
 from test import TestObject
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
+from services.gene_descriptions.descriptions_generator import GeneDescGenerator
 
 
 class AggregateLoader(object):
@@ -81,23 +82,12 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start), 2)))
 
-        # Load configuration for gene descriptions - same conf for all MODs
-        this_dir = os.path.split(__file__)[0]
-        # read conf from file
-        conf_parser = GenedescConfigParser(os.path.join(this_dir, "services", "gene_descriptions",
-                                                        "genedesc_config.yml"))
-        exclusion_list = conf_parser.get_go_terms_exclusion_list()
-        go_prepostfix_sentences_map = conf_parser.get_go_prepostfix_sentences_map()
-        go_prepostfix_special_cases_sent_map = conf_parser.get_go_prepostfix_special_cases_sent_map()
-        go_annotations_priority = conf_parser.get_go_annotations_priority()
-        evidence_codes_groups_map = conf_parser.get_evidence_codes_groups_map()
-        evidence_groups_priority_list = conf_parser.get_evidence_groups_priority_list()
-        go_terms_replacement_dict = conf_parser.get_go_rename_terms()
-        go_truncate_others_aggregation_word = conf_parser.get_go_truncate_others_aggregation_word()
-        go_truncate_others_terms = conf_parser.get_go_truncate_others_terms()
-        go_trim_min_distance_from_root = conf_parser.get_go_trim_min_distance_from_root()
-        cached_go_ontology = None
 
+        this_dir = os.path.split(__file__)[0]
+        # initialize gene description generator from config file
+        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+                                                                             "genedesc_config.yml"),
+                                               go_dataset=self.go_dataset, graph_db=self.graph)
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -131,59 +121,9 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
+            # generate gene descriptions for mod
             if mod.dataProvider:
-                # Generate gene descriptions and save to db
-                desc_writer = Neo4jGDWriter()
-
-                df = Neo4jDataFetcher(go_terms_exclusion_list=exclusion_list,
-                                      go_terms_replacement_dict=go_terms_replacement_dict,
-                                      db_graph=self.graph, go_ontology=cached_go_ontology,
-                                      data_provider=mod.dataProvider)
-                df.load_go_data(go_terms_list=self.go_dataset, go_annotations=go_annots)
-                # load go ontology only for the first data provider, use cached data for the others
-                if not cached_go_ontology:
-                    cached_go_ontology = df.get_go_ontology()
-                for gene in df.get_gene_data():
-                    gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
-                    sentences = generate_go_sentences(df.get_go_annotations(
-                        gene.id, priority_list=go_annotations_priority, desc_stats=gene_desc.stats),
-                        go_ontology=df.get_go_ontology(),
-                        evidence_groups_priority_list=evidence_groups_priority_list,
-                        go_prepostfix_sentences_map=go_prepostfix_sentences_map,
-                        go_prepostfix_special_cases_sent_map=go_prepostfix_special_cases_sent_map,
-                        evidence_codes_groups_map=evidence_codes_groups_map,
-                        remove_parent_terms=True,
-                        merge_num_terms_threshold=3,
-                        merge_min_distance_from_root=go_trim_min_distance_from_root,
-                        desc_stats=gene_desc.stats, go_terms_replacement_dict=go_terms_replacement_dict,
-                        truncate_others_generic_word=go_truncate_others_aggregation_word,
-                        truncate_others_aspect_words=go_truncate_others_terms)
-                    if sentences:
-                        joined_sent = []
-                        func_sent = " and ".join([sentence.text for sentence in sentences.get_sentences(
-                            go_aspect='F', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                            desc_stats=gene_desc.stats)])
-                        if func_sent:
-                            joined_sent.append(func_sent)
-                        proc_sent = " and ".join([sentence.text for sentence in sentences.get_sentences(
-                            go_aspect='P', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                            desc_stats=gene_desc.stats)])
-                        if proc_sent:
-                            joined_sent.append(proc_sent)
-                        comp_sent = " and ".join([sentence.text for sentence in sentences.get_sentences(
-                            go_aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                            desc_stats=gene_desc.stats)])
-                        if comp_sent:
-                            joined_sent.append(comp_sent)
-
-                        go_desc = "; ".join(joined_sent) + "."
-                        if len(go_desc) > 0:
-                            gene_desc.description = go_desc[0].upper() + go_desc[1:]
-                    else:
-                        gene_desc.description = "No description available"
-                    desc_writer.add_gene_desc(gene_desc)
-
-                desc_writer.write(self.graph)
+                genedesc_generator.generate_descriptions(go_annotations=go_annots, data_provider=mod.dataProvider)
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
