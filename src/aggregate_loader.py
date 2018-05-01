@@ -16,8 +16,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()] #FlyBase(),
-        #self.mods = [MGI()]
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        #self.mods = [WormBase()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -38,15 +38,18 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-
     def load_from_ontologies(self):
-        print ("Extracting SO data.")
+        print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
         self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-        #
+        print("Downloading MI data.")
+        self.mi_dataset = MIExt().get_data()
+        # #
+        print("Loading MI data into Neo4j.")
+        MILoader(self.graph).load_mi(self.mi_dataset)
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")
@@ -102,3 +105,8 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
+    def load_additional_datasets(self):
+            print("Extracting and Loading IMEX data.")
+            imex_data = IMEXExt().get_data(self.batch_size)
+            for imex_list_of_entries in imex_data:
+                IMEXLoader(self.graph).load_imex(imex_list_of_entries)

@@ -17,7 +17,7 @@ class GeoXrefTransaction(Transaction):
                     MERGE (id:CrossReference {primaryKey:row.primaryKey})
 
                     SET id.name = row.id
-                    SET id.globalCrosssRefId = row.globalCrossRefId
+                    SET id.globalCrossRefId = row.globalCrossRefId
                     SET id.localId = row.localId
                     SET id.crossRefCompleteUrl = row.crossRefCompleteUrl
                     SET id.prefix = row.prefix

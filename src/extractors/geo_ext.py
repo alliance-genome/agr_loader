@@ -15,8 +15,3 @@ class GeoExt(object):
 
         # returns result from NCBI Efetch in JSON object.
         return geo_data
-
-
-
-
-
