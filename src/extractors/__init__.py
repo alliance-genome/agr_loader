@@ -10,3 +10,5 @@ from .primary_data_object_type import PrimaryDataObjectType
 from .resource_descriptor_ext import ResourceDescriptor
 from .geo_ext import GeoExt
 from .ncbi_efetch import NCBIEfetch
+from .imex_ext import IMEXExt
+from .mi_ext import MIExt
