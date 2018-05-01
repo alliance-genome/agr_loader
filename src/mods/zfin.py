@@ -12,7 +12,7 @@ class ZFIN(MOD):
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
         self.geoRetMax = "100000"
-
+        self.dataProvider = "ZFIN"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)

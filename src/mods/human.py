@@ -11,6 +11,7 @@ class Human(MOD):
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
         self.geoRetMax = "40000"
+        self.dataProvider = None
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)

@@ -38,16 +38,21 @@ class MOD(object):
                 go_id = line[4]
                 dateProduced = line[14]
                 dataProvider = line[15]
+                qualifier = line[3]
+                if not qualifier:
+                    qualifier = ""
                 if gene in go_annot_dict:
-                    go_annot_dict[gene]['go_id'].append(go_id)
+                    go_annot_dict[gene]['annotations'].append(
+                        {"go_id": go_id, "evidence_code": line[6], "aspect": line[8], "qualifier": qualifier})
                 else:
                     go_annot_dict[gene] = {
                         'gene_id': gene,
-                        'go_id': [go_id],
+                        'annotations': [{"go_id": go_id, "evidence_code": line[6], "aspect": line[8],
+                                         "qualifier": qualifier}],
                         'species': species,
                         'loadKey': dataProvider + "_" + dateProduced + "_" + "GAF",
                         'dataProvider': dataProvider,
-                        'dateProduced': dateProduced
+                        'dateProduced': dateProduced,
                     }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.
@@ -55,7 +60,8 @@ class MOD(object):
             for entry in go_annot_dict:
                 if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
                     go_annot_list.append(go_annot_dict[entry])
-                    testObject.add_ontology_ids(go_annot_dict[entry]['go_id'])
+                    testObject.add_ontology_ids([annotation["go_id"] for annotation in
+                                                 go_annot_dict[entry]['annotations']])
                 else:
                     continue
             return go_annot_list

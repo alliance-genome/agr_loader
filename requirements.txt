@@ -5,3 +5,4 @@ jsonschema
 pyyaml
 urllib3
 xmltodict
+-e git://github.com/alliance-genome/agr_genedescriptions.git#egg=genedescriptions
