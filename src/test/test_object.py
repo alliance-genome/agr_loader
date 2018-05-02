@@ -61,7 +61,7 @@ class TestObject(object):
             'FB:FBgn0032465', 'FB:FBgn0285944', 'FB:FBgn0032728', 'FB:FBgn0000014',
             'FB:FBgn0032729', 'FB:FBgn0065610', 'FB:FBgn0032730', 'FB:FBgn0032732', 'FB:FBgn0260987',
             'FB:FBgn0032781', 'FB:FBgn0032782', 'FB:FBgn0032740',
-            'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309'
+            'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309', 'FB:FBgn0003470', 'FB:FBal0000003', 'FB:FBal0000004'
 
         }
         self.rgdTestSet = {
