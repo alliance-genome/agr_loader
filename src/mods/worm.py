@@ -5,7 +5,7 @@ class WormBase(MOD):
 
     def __init__(self):
         self.species = "Caenorhabditis elegans"
-        self.loadFile = "WB_1.0.0.2_1.tar.gz"
+        self.loadFile = "WB_1.0.0.2_5.tar.gz"
         self.bgiName = "/WB_1.0.0.2_BGI.json"
         self.diseaseName = "/WB_1.0.0.2_disease.json"
         self.alleleName = "/WB_1.0.0.2_allele.json"
