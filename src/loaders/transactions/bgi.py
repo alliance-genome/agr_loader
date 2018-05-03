@@ -41,6 +41,7 @@ class BGITransaction(Transaction):
                 SET g.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
                 SET g.modLocalId = row.localId
                 SET g.modGlobalId = row.modGlobalId
+                SET g.uuid = row.uuid
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(g)
             //Create nodes for other identifiers.

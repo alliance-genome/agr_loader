@@ -55,6 +55,7 @@ class TestClass(object):
                             dict(node='Gene', prop='symbol'), \
                             dict(node='Gene', prop='primaryKey'), \
                             dict(node='Gene', prop='modGlobalId'), \
+                            dict(node='Gene', prop='uuid'), \
                             dict(node='GOTerm', prop='primaryKey'), \
                             #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
@@ -75,6 +76,9 @@ class TestClass(object):
                             dict(node='CrossReference', prop='primaryKey'), \
                             dict(node='CrossReference', prop='prefix'), \
                             dict(node='CrossReference', prop='crossRefType'), \
+                            dict(node='CrossReference', prop='displayName'), \
+                            dict(node='CrossReference', prop='globalCrossRefId'), \
+                            dict(node='CrossReference', prop='uuid'),\
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
@@ -93,6 +97,7 @@ class TestClass(object):
                             dict(node='Feature', prop='symbol'), \
                             dict(node='Feature', prop='dataProvider'), \
                             dict(node='Feature', prop='dateProduced'), \
+                            dict(node='Feature', prop='uuid'), \
                             dict(node='MITerm', prop='primaryKey') \
                             ],
 
@@ -107,6 +112,7 @@ class TestClass(object):
                                dict(node='Gene', prop='symbol'), \
                                dict(node='Gene', prop='primaryKey'), \
                                dict(node='Gene', prop='modGlobalId'), \
+                               dict(node='Gene', prop='uuid'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
@@ -127,6 +133,9 @@ class TestClass(object):
                                dict(node='CrossReference', prop='primaryKey'), \
                                dict(node='CrossReference', prop='prefix'), \
                                dict(node='CrossReference', prop='crossRefType'), \
+                               dict(node='CrossReference', prop='displayName'), \
+                               dict(node='CrossReference', prop='globalCrossRefId'), \
+                               dict(node='CrossReference', prop='uuid'),\
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
@@ -147,6 +156,7 @@ class TestClass(object):
                                dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
+                               dict(node='Feature', prop='uuid'), \
                                dict(node='MITerm', prop='primaryKey') \
                                ],
 
@@ -158,12 +168,15 @@ class TestClass(object):
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
                              dict(node='CrossReference', prop='primaryKey'), \
+                             dict(node='CrossReference', prop='uuid'), \
                              dict(node='Synonym', prop='primaryKey'), \
                              dict(node='DOTerm', prop='primaryKey'), \
                              dict(node='SOTerm', prop='primaryKey'), \
                              dict(node='GOTerm', prop='primaryKey'), \
                              dict(node='Gene', prop='primaryKey'), \
+                             dict(node='Gene', prop='uuid'), \
                              dict(node='Feature', prop='primaryKey'), \
+                             dict(node='Feature', prop='uuid'), \
                              dict(node='MITerm', prop='primaryKey') \
                              ]
     }
