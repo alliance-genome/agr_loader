@@ -1,6 +1,8 @@
 import uuid
 from services import UrlService
+from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+
 
 class AlleleExt(object):
 
@@ -41,17 +43,11 @@ class AlleleExt(object):
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                            crossReferences.append({
-                                "id": crossRef.get('id'),
-                                "globalCrossRefId": crossRef.get('id'),
-                                "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page),
-                                "prefix": prefix,
-                                "crossRefType": page,
-                                "primaryKey": global_id + page,
-                                "uuid": str(uuid.uuid4()),
-                                "displayName": crossRef.get('id')
-                            })
+                                crossReferences.append(
+                                    CreateCrossReference.get_xref(crossRef.get('id'), prefix, page,
+                                                                  page, crossRef.get('id'),
+                                                                  UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)))
+
 
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),

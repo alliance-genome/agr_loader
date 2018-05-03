@@ -3,7 +3,7 @@ import uuid
 
 class CreateCrossReference(object):
 
-    def get_xref(self, localId, prefix, primaryId, crossRefType, page, displayName):
+    def get_xref(self, localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl):
         crossRefPrimaryId = prefix+":"+localId
         crossReference = {
             "id": crossRefPrimaryId,
@@ -14,6 +14,7 @@ class CreateCrossReference(object):
             "primaryKey": crossRefPrimaryId,
             "uuid":  str(uuid.uuid4()),
             "page": page,
-            "displayNae": displayName
+            "displayNae": displayName,
+            "crossRefCompleteUrl": crossRefCompleteUrl
         }
         return crossReference
