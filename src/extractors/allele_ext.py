@@ -49,7 +49,8 @@ class AlleleExt(object):
                                 "prefix": prefix,
                                 "crossRefType": page,
                                 "primaryKey": global_id + page,
-                                "uuid": str(uuid.uuid4())
+                                "uuid": str(uuid.uuid4()),
+                                "displayName": crossRef.get('id')
                             })
 
             allele_dataset = {
