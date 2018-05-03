@@ -57,6 +57,11 @@ class BGIExt(object):
                                 modCrossReferenceCompleteUrl = ""
                                 geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
+                                displayName = ""
+
+                                # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
+                                if page == 'gene/interaction':
+                                    page = 'gene/interactions'
 
                                 crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
 
@@ -70,9 +75,6 @@ class BGIExt(object):
                                     geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                    prefix, prefix + page)
 
-                                # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
-                                if page == 'gene/interaction':
-                                    page = 'gene/interactions'
 
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
