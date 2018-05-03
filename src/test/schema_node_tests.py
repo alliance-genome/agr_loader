@@ -127,6 +127,7 @@ class TestClass(object):
                                dict(node='CrossReference', prop='primaryKey'), \
                                dict(node='CrossReference', prop='prefix'), \
                                dict(node='CrossReference', prop='crossRefType'), \
+                               dict(node='CrossReference', prop='displayName'), \
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
