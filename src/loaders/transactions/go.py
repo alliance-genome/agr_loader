@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 class GOTransaction(Transaction):
 
@@ -41,20 +42,9 @@ class GOTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS xrurls
                 UNWIND xrurls AS xref
-                    MATCH (gt:GOTerm:Ontology {primaryKey:xref.oid})
+                    MATCH (o:GOTerm:Ontology {primaryKey:xref.oid})
 
-                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
-                     SET cr.localId = xref.local_id
-                     SET cr.prefix = xref.prefix
-                     SET cr.crossRefCompleteUrl = xref.complete_url
-                     SET cr.name = xref.xrefId
-                     SET cr.crossRefType = xref.crossRefType
-                     SET cr.uuid = xref.uuid
-                     SET cr.globalCrossRefId = xref.globalCrossRefId
-                     SET cr.displayName = xref.displayName
-                    MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
+        """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
 
-
-        """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
