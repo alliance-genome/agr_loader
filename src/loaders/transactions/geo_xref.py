@@ -1,4 +1,4 @@
-import pprint
+from services import CreateCrossReference
 from .transaction import Transaction
 
 
@@ -13,24 +13,8 @@ class GeoXrefTransaction(Transaction):
         geoXrefQuery = """
 
                     UNWIND $data AS row
-                    MATCH (g:Gene) where g.primaryKey = row.genePrimaryKey
+                    MATCH (o:Gene) where g.primaryKey = row.genePrimaryKey
 
-                    MERGE (id:CrossReference {primaryKey:row.primaryKey})
-
-                    SET id.name = row.id
-                    SET id.globalCrossRefId = row.globalCrossRefId
-                    SET id.localId = row.localId
-                    SET id.crossRefCompleteUrl = row.crossRefCompleteUrl
-                    SET id.prefix = row.prefix
-                    SET id.crossRefType = row.crossRefType
-                    SET id.uuid = row.uuid
-                    SET id.displayName = row.displayName
-                    SET id.page = row.page
-                    SET id.primaryKey = row.primaryKey
-
-
-                    MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
-
-        """
+        """ + CreateCrossReference.get_cypher_xref_text("geo_xref")
 
         Transaction.execute_transaction(self, geoXrefQuery, data)
