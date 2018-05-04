@@ -80,7 +80,6 @@ class TestClass(object):
                             dict(node='CrossReference', prop='globalCrossRefId'), \
                             dict(node='CrossReference', prop='uuid'),\
                             dict(node='CrossReference', prop='page'), \
-                            dict(node='CrossReference', prop='id'), \
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
@@ -138,7 +137,6 @@ class TestClass(object):
                                dict(node='CrossReference', prop='displayName'), \
                                dict(node='CrossReference', prop='globalCrossRefId'), \
                                dict(node='CrossReference', prop='uuid'),\
-                               dict(node='CrossReference', prop='id'), \
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \

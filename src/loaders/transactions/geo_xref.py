@@ -12,8 +12,8 @@ class GeoXrefTransaction(Transaction):
         #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         geoXrefQuery = """
 
-                    UNWIND $data AS row
-                    MATCH (o:Gene) where g.primaryKey = row.genePrimaryKey
+                    UNWIND $data AS event
+                    MATCH (o:Gene) where o.primaryKey = event.genePrimaryKey
 
         """ + CreateCrossReference.get_cypher_xref_text("geo_xref")
 

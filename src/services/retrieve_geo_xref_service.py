@@ -1,7 +1,6 @@
 import uuid
-from loaders.transactions import Transaction
+from loaders.transactions.transaction import Transaction
 from .create_cross_reference_service import CreateCrossReference
-
 
 class RetrieveGeoXrefService(object):
 

@@ -40,11 +40,12 @@ class GOTransaction(Transaction):
         queryXref = """
 
             UNWIND $data as row
-             WITH row.xref_urls AS xrurls
-                UNWIND xrurls AS xref
-                    MATCH (o:GOTerm:Ontology {primaryKey:xref.oid})
+             WITH row.xref_urls AS events
+                UNWIND events AS event
+                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
 
-        """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
+
+        """ + CreateCrossReference.get_cypher_xref_text("gene_ontology")
 
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

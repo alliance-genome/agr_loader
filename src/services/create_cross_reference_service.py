@@ -20,6 +20,7 @@ class CreateCrossReference(object):
         }
         return crossReference
 
+    # make one place to create a cross reference node with consistent attributes
     def get_cypher_xref_text(objectType):
 
         return """
@@ -34,4 +35,5 @@ class CreateCrossReference(object):
                     SET id.page = event.page
                     SET id.primaryKey = event.primaryKey
                     SET id.displayName = event.displayName
+
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """

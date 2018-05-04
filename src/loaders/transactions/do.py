@@ -50,9 +50,9 @@ class DOTransaction(Transaction):
         queryXref = """
 
             UNWIND $data as row
-             WITH row.xref_urls AS xrurls
-                UNWIND xrurls AS xref
-                    MATCH (o:DOTerm:Ontology {primaryKey:xref.oid})
+             WITH row.xref_urls AS events
+                UNWIND events AS event
+                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
 
         """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
 
