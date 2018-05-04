@@ -11,6 +11,8 @@ class AlleleTransaction(Transaction):
         # pp.pprint(data)
         # quit()
 
+        #TODO: make one query for all xref stanzas instead of duplicating in 5 different files: go.py, do.py, bgi.py, allele.py, geo_xref.py
+
         alleleQuery = """
 
             UNWIND $data AS row
@@ -65,12 +67,14 @@ class AlleleTransaction(Transaction):
             UNWIND events AS event
                 MERGE (id:CrossReference {primaryKey:event.primaryKey})
                     SET id.name = event.id
-                    SET id.globalCrossRefId = event.crossRef
+                    SET id.globalCrossRefId = event.globalCrossRefId
                     SET id.localId = event.localId
                     SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
                     SET id.prefix = event.prefix
                     SET id.crossRefType = event.crossRefType
                     SET id.uuid = event.uuid
+                    SET id.page = event.page
+                    SET id.primaryKey = event.primaryKey
                     SET id.displayName = event.displayName
                 MERGE (a)-[gcr:CROSS_REFERENCE]->(id)
 

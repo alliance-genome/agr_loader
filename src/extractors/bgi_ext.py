@@ -46,7 +46,7 @@ class BGIExt(object):
                 for crossRef in geneRecord['crossReferences']:
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')
-                        localCrossRefId =crossRefId.split(":")[1]
+                        localCrossRefId = crossRefId.split(":")[1]
                         prefix = crossRef.get('id').split(":")[0]
                         pages = crossRef.get('pages')
                         globalXrefId = crossRef.get('id')
@@ -56,11 +56,9 @@ class BGIExt(object):
                         if pages is not None and len(pages) > 0:
                             for page in pages:
                                 modCrossReferenceCompleteUrl = ""
-                                geneticEntityExternalUrl = ""
                                 geneLiteratureUrl = ""
-                                displayName = ""
 
-                                # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
+                                # TODO: fix this as SGD fixes
                                 if page == 'gene/interaction':
                                     page = 'gene/interactions'
 
@@ -78,34 +76,36 @@ class BGIExt(object):
                                     geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                    prefix, prefix + page)
 
-
                                 if page == 'gene/spell':
                                     page = 'gene/other_expression'
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
 
-                                # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
-                                # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
+                                # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
                                     crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
 
                                 crossReferences.append(
                                     CreateCrossReference.get_xref(localCrossRefId, prefix, page,
-                                                                  page, displayName, crossRefCompleteUrl))
+                                                                  page, displayName, crossRefCompleteUrl, globalXrefId))
 
                         else:
                             if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
                                 #TODO: add bucket for panther
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
-                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl))
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                          prefix, primary_id)
+                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId))
 
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                          prefix, primary_id)
                                 crossReferences.append(
                                     CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
-                                                                  "generic_cross_reference", displayName, crossRefCompleteUrl))
+                                                                  "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId))
 
 
             if 'genomeLocations' in geneRecord:

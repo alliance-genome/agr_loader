@@ -84,5 +84,17 @@ def test_crossref_complete_url_exists_when_it_should():
     for record in result:
         assert record["counter"] < 1
 
+def test_spell_display_name():
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+def test_spell_crossRefType():
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.crossRefType <> 'gene/other_expression' return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
 
 

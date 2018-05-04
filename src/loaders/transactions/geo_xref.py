@@ -9,6 +9,7 @@ class GeoXrefTransaction(Transaction):
 
     def geo_xref_tx(self, data):
 
+        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         geoXrefQuery = """
 
                     UNWIND $data AS row
@@ -24,6 +25,9 @@ class GeoXrefTransaction(Transaction):
                     SET id.crossRefType = row.crossRefType
                     SET id.uuid = row.uuid
                     SET id.displayName = row.displayName
+                    SET id.page = row.page
+                    SET id.primaryKey = row.primaryKey
+
 
                     MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
 

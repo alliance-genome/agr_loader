@@ -45,7 +45,7 @@ class DOTransaction(Transaction):
                 MERGE (doterm)-[aka:IS_A]->(doterm2))
 
         """
-
+        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         queryXref = """
 
             UNWIND $data as row
@@ -54,14 +54,17 @@ class DOTransaction(Transaction):
                     MATCH (dt:DOTerm:Ontology {primaryKey:xref.oid})
 
                     MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
-                     SET cr.localId = xref.local_id
+                     SET cr.localId = xref.localId
                      SET cr.prefix = xref.prefix
-                     SET cr.crossRefCompleteUrl = xref.complete_url
+                     SET cr.crossRefCompleteUrl = xref.crossRefCompleteUrl
                      SET cr.name = xref.xrefId
                      SET cr.crossRefType = xref.crossRefType
                      SET cr.uuid = xref.uuid
                      SET cr.globalCrossRefId = xref.globalCrossRefId
                      SET cr.displayName = xref.displayName
+                     SET cr.page = xref.page
+                     SET cr.primaryKey = xref.primaryKey
+                     SET cr.id = xref.id
                     MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
 
 

@@ -3,18 +3,18 @@ import uuid
 
 class CreateCrossReference(object):
 
-    def get_xref(self, localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl):
-        crossRefPrimaryId = prefix+":"+localId
+    def get_xref(localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl, globalXrefId):
         crossReference = {
-            "id": crossRefPrimaryId,
-            "globalCrossRefId": crossRefPrimaryId,
+            "id": globalXrefId,
+            "globalCrossRefId": globalXrefId,
             "localId": localId,
             "prefix": prefix,
             "crossRefType": crossRefType,
-            "primaryKey": crossRefPrimaryId,
+            "primaryKey": globalXrefId,
             "uuid":  str(uuid.uuid4()),
             "page": page,
-            "displayNae": displayName,
-            "crossRefCompleteUrl": crossRefCompleteUrl
+            "displayName": displayName,
+            "crossRefCompleteUrl": crossRefCompleteUrl,
+            "name": globalXrefId
         }
         return crossReference
