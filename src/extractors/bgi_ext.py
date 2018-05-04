@@ -9,7 +9,6 @@ class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject):
         xrefUrlMap = ResourceDescriptor().get_data()
-        gene_dataset = {}
         list_to_yield = []
 
         dateProduced = gene_data['metaData']['dateProduced']
@@ -88,7 +87,7 @@ class BGIExt(object):
 
                                 crossReferences.append(
                                     CreateCrossReference.get_xref(localCrossRefId, prefix, page,
-                                                                  page, displayName, crossRefCompleteUrl, globalXrefId))
+                                                                  page, displayName, crossRefCompleteUrl, globalXrefId+page))
 
                         else:
                             if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
@@ -96,7 +95,8 @@ class BGIExt(object):
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                           prefix, primary_id)
-                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId))
+
+                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId+"gene/panther"))
 
 
                             else:
@@ -105,7 +105,7 @@ class BGIExt(object):
                                                                                           prefix, primary_id)
                                 crossReferences.append(
                                     CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
-                                                                  "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId))
+                                                                  "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId+"generic_cross_reference"))
 
 
             if 'genomeLocations' in geneRecord:

@@ -19,7 +19,7 @@ class RetrieveGeoXrefService(object):
             genePrimaryKey = record["g.primaryKey"]
             modLocalId = record["g.modLocalId"]
             globalCrossRefId = record["cr.globalCrossRefId"]
-            geo_xref = CreateCrossReference.get_xref(globalCrossRefId.split(":")[1], "NCBI_Gene", "gene/other_expression", "gene/other_expression", "GEO", "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1], globalCrossRefId)
+            geo_xref = CreateCrossReference.get_xref(globalCrossRefId.split(":")[1], "NCBI_Gene", "gene/other_expression", "gene/other_expression", "GEO", "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1], globalCrossRefId+"gene/other_expression")
             geo_xref["genePrimaryKey"] = genePrimaryKey
             geo_xref["modLocalId"] = modLocalId
 
