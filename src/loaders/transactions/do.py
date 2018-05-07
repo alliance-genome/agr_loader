@@ -50,7 +50,7 @@ class DOTransaction(Transaction):
         queryXref = """
 
             UNWIND $data as row
-             WITH row.xref_urls AS events
+             WITH row.crossReferences AS events
                 UNWIND events AS event
                     MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
 
