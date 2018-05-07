@@ -50,15 +50,20 @@ class OExt(object):
                             local_id = xrefId.split(":")[1].strip()
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url_ont(local_id, xrefId)
-                            xref_urls.append(CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", xrefId, complete_url, xrefId))
+                            generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference",
+                                                          "ontology_provided_cross_reference", xrefId, complete_url,
+                                                          xrefId + "ontology_provided_cross_reference")
+                            generated_xref["oid"] = ident
+                            xref_urls.append(generated_xref)
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
                         prefix = o_xrefs.split(":")[0].strip()
                         uuid = str(id.uuid4())
                         complete_url = self.get_complete_url_ont(local_id, o_xrefs)
-                        CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
-                        xref_urls.append(CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs))
+                        generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
+                        generated_xref["oid"] = ident
+                        xref_urls.append(generated_xref)
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')

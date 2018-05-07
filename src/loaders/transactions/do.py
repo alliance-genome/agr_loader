@@ -48,7 +48,7 @@ class DOTransaction(Transaction):
         """
         #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         queryXref = """
-
+                    
             UNWIND $data as row
              WITH row.crossReferences AS events
                 UNWIND events AS event
