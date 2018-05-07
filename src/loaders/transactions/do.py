@@ -23,10 +23,10 @@ class DOTransaction(Transaction):
                 SET doterm.defLinks = row.defLinksProcessed
                 SET doterm.is_obsolete = row.is_obsolete
                 SET doterm.subset = row.subset
-                SET doterm.doDisplayId = row.id
+                SET doterm.doDisplayId = row.oid
                 SET doterm.doUrl = row.oUrl
                 SET doterm.doPrefix = "DOID"
-                SET doterm.doId = row.id
+                SET doterm.doId = row.oid
                 SET doterm.rgdLink = row.rgd_link
                 SET doterm.ratOnlyRgdLink = row.rat_only_rgd_link
                 SET doterm.humanOnlyRgdLink = row.human_only_rgd_link

@@ -24,7 +24,7 @@ class CreateCrossReference(object):
     def get_cypher_xref_text(objectType):
 
         return """
-                MERGE (id:CrossReference {primaryKey:event.primaryKey})
+                MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
                     SET id.name = event.id
                     SET id.globalCrossRefId = event.globalCrossRefId
                     SET id.localId = event.localId
