@@ -1,9 +1,10 @@
 import uuid
 from services import UrlService
+from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
-class AlleleExt(object):
 
+class AlleleExt(object):
     def get_alleles(self, allele_data, batch_size, testObject, graph):
 
         xrefUrlMap = ResourceDescriptor().get_data()
@@ -34,25 +35,14 @@ class AlleleExt(object):
                     local_crossref_id = crossRefId.split(":")[1]
                     prefix = crossRef.get('id').split(":")[0]
                     pages = crossRef.get('pages')
-                    global_id = crossRef.get('id')
 
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                            crossReferences.append({
-                                "id": crossRef.get('id'),
-                                "globalCrossRefId": crossRef.get('id'),
-                                "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page),
-                                "prefix": prefix,
-                                "crossRefType": page,
-                                "primaryKey": global_id + page,
-                                "uuid": str(uuid.uuid4()),
-                                "displayName": crossRef.get('id')
-                            })
-
+                                crossReferences.append(
+                                    CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -64,7 +54,7 @@ class AlleleExt(object):
                 "secondaryIds": alleleRecord.get('secondaryIds'),
                 "dataProvider": dataProvider,
                 "dateProduced": dateProduced,
-                "loadKey": dataProvider+"_"+dateProduced+"_allele",
+                "loadKey": dataProvider + "_" + dateProduced + "_allele",
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),

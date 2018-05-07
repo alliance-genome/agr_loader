@@ -1,4 +1,4 @@
-import pprint
+from services import CreateCrossReference
 from .transaction import Transaction
 
 
@@ -9,24 +9,12 @@ class GeoXrefTransaction(Transaction):
 
     def geo_xref_tx(self, data):
 
+        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         geoXrefQuery = """
 
-                    UNWIND $data AS row
-                    MATCH (g:Gene) where g.primaryKey = row.genePrimaryKey
+                    UNWIND $data AS event
+                    MATCH (o:Gene) where o.primaryKey = event.genePrimaryKey
 
-                    MERGE (id:CrossReference {primaryKey:row.primaryKey})
-
-                    SET id.name = row.id
-                    SET id.globalCrossRefId = row.globalCrossRefId
-                    SET id.localId = row.localId
-                    SET id.crossRefCompleteUrl = row.crossRefCompleteUrl
-                    SET id.prefix = row.prefix
-                    SET id.crossRefType = row.crossRefType
-                    SET id.uuid = row.uuid
-                    SET id.displayName = row.displayName
-
-                    MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
-
-        """
+        """ + CreateCrossReference.get_cypher_xref_text("geo_xref")
 
         Transaction.execute_transaction(self, geoXrefQuery, data)
