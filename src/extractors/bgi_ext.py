@@ -1,10 +1,13 @@
 import uuid
-
+from services import SpeciesService
+from services import UrlService
+from .resource_descriptor_ext import ResourceDescriptor
 
 class BGIExt(object):
 
-    def get_data(self, gene_data, batch_size, testObject):
 
+    def get_data(self, gene_data, batch_size, testObject):
+        xrefUrlMap = ResourceDescriptor().get_data()
         gene_dataset = {}
         list_to_yield = []
 
@@ -23,13 +26,10 @@ class BGIExt(object):
             global_id = geneRecord['primaryId']
 
             local_id = global_id.split(":")[1]
-
-            modCrossReference = {
-                "id": global_id, 
-                "globalCrossRefId": global_id, 
-                "localId": local_id, 
-                "crossrefCompleteUrl": self.get_complete_url(local_id, global_id, primary_id)
-            }
+            geneLiteratureUrl = ""
+            geneticEntityExternalUrl = ""
+            modCrossReferenceCompleteUrl = ""
+            taxonId = geneRecord.get("taxonId")
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
@@ -39,29 +39,97 @@ class BGIExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if 'crossReferenceIds' in geneRecord:
-                for crossRef in geneRecord['crossReferenceIds']:
-                    # TODO This can be simplified when GO YAML reused for AGR has helper fields.
-                    if ':' in crossRef:
-                        local_crossref_id = crossRef.split(":")[1]
-                        prefix = crossRef.split(":")[0]
-                        crossRefPrimaryId = None
-                        if prefix == 'PANTHER': # TODO Special Panther case to be addressed post 1.0
-                            crossRefPrimaryId = crossRef + '_' + primary_id
+            #TODO: can we split this off into another class?
+
+            if 'crossReferences' in geneRecord:
+                for crossRef in geneRecord['crossReferences']:
+                    if ':' in crossRef.get('id'):
+                        crossRefId = crossRef.get('id')
+                        localCrossRefId =crossRefId.split(":")[1]
+                        prefix = crossRef.get('id').split(":")[0]
+                        pages = crossRef.get('pages')
+                        globalXrefId = crossRef.get('id')
+                        displayName = globalXrefId
+
+                        # some pages collection have 0 elements
+                        if pages is not None and len(pages) > 0:
+                            for page in pages:
+                                modCrossReferenceCompleteUrl = ""
+                                geneticEntityExternalUrl = ""
+                                geneLiteratureUrl = ""
+                                displayName = ""
+
+                                # special case yaml mismatch gene/interactions vs. gene/interaction from SGD TODO: fix this as SGD fixes
+                                if page == 'gene/interaction':
+                                    page = 'gene/interactions'
+
+                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
+
+                                if page == 'gene':
+                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
+                                                                                              xrefUrlMap, prefix,
+                                                                                              prefix + page)
+                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                      prefix, prefix + page)
+                                if page == 'gene/references':
+                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                                                                   prefix, prefix + page)
+
+
+                                if page == 'gene/spell':
+                                    page = 'gene/other_expression'
+                                    displayName='Serial Patterns of Expression Levels Locator (SPELL)'
+
+
+                                # some MODs were a bit confused about whether or not to use "generic_cross_reference" or not.
+                                # so we have to special case these for now.  TODO: fix generic_cross_reference in SGD, RGD
+
+                                if page == 'generic_cross_reference':
+                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+
+                                crossReferences.append({
+                                        "id": crossRef.get('id'),
+                                        "globalCrossRefId": globalXrefId,
+                                        "localId": localCrossRefId,
+                                        "crossRefCompleteUrl": crossRefCompleteUrl,
+                                        "prefix": prefix,
+                                        "crossRefType": page,
+                                        "primaryKey": globalXrefId + page,
+                                        "uuid": str(uuid.uuid4()),
+                                        "displayName": displayName
+                                    })
                         else:
-                            crossRefPrimaryId = crossRef
-                        crossReferences.append({
-                            "id": crossRefPrimaryId, 
-                            "globalCrossRefId": crossRef,
-                            "localId": local_crossref_id, 
-                            "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id),
-                            "prefix": crossRef.split(":")[0]
-                            })
-                    else:
-                        local_crossref_id = crossRef
-                        crossReferences.append(
-                            {"id": crossRefPrimaryId, "globalCrossRefId": crossRef, "localId": local_crossref_id,
-                             "crossRefCompleteUrl": self.get_complete_url(local_crossref_id, crossRef, primary_id), "prefix": prefix})
+                            if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
+                                #TODO: add bucket for panther
+                                crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
+                                crossReferences.append({
+                                    "id": crossRefPrimaryId,
+                                    "globalCrossRefId": globalXrefId,
+                                    "localId": localCrossRefId,
+                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id),
+                                    "prefix": prefix,
+                                    "crossRefType": "gene/panther",
+                                    "primaryKey": crossRefPrimaryId + "gene/panther",
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "gene/panther",
+                                    "displayName": displayName
+                                })
+
+                            else:
+                                crossRefPrimaryId = crossRef.get('id')
+                                crossReferences.append({
+                                    "id": crossRefPrimaryId,
+                                    "globalCrossRefId": globalXrefId,
+                                    "localId": localCrossRefId,
+                                    "crossRefCompleteUrl": UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id),
+                                    "prefix": prefix,
+                                    "crossRefType": "generic_cross_reference",
+                                    "primaryKey": crossRefPrimaryId + "generic_cross_reference",
+                                    "uuid": str(uuid.uuid4()),
+                                    "page": "generic_cross_reference",
+                                    "displayName": displayName
+                                    })
+
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
@@ -84,7 +152,7 @@ class BGIExt(object):
             gene_dataset = {
                 "symbol": geneRecord['symbol'],
                 "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": self.get_complete_url(local_id,global_id,primary_id),
+                "geneticEntityExternalUrl": geneticEntityExternalUrl,
                 "description": geneRecord.get('description'),
                 "synonyms": geneRecord.get('synonyms'),
                 "soTermId": geneRecord['soTermId'],
@@ -94,26 +162,24 @@ class BGIExt(object):
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
-                "species": self.get_species(geneRecord['taxonId']),
+                "species": SpeciesService.get_species(taxonId),
                 "genomeLocations": genomic_locations,
-                "geneLiteratureUrl": geneRecord.get('geneLiteratureUrl'),
+                "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord['symbol'],
                 "primaryId": primary_id,
                 "crossReferences": crossReferences,
-                "modCrossReference": modCrossReference,
                 "category": "gene",
                 "dateProduced": dateProduced,
                 "dataProvider": dataProvider,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),
-                "modCrossRefCompleteUrl": self.get_complete_url(local_id, global_id,primary_id),
+                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
                 "loadKey": dataProvider+"_"+dateProduced+"_BGI"
             }
-
             
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
@@ -124,77 +190,3 @@ class BGIExt(object):
         if len(list_to_yield) > 0:
             yield list_to_yield
 
-    def get_species(self, taxon_id):
-        if taxon_id in ("NCBITaxon:7955"):
-            return "Danio rerio"
-        elif taxon_id in ("NCBITaxon:6239"):
-            return "Caenorhabditis elegans"
-        elif taxon_id in ("NCBITaxon:10090"):
-            return "Mus musculus"
-        elif taxon_id in ("NCBITaxon:10116"):
-            return "Rattus norvegicus"
-        elif taxon_id in ("NCBITaxon:559292"):
-            return "Saccharomyces cerevisiae"
-        elif taxon_id in ("taxon:559292"):
-            return "Saccharomyces cerevisiae"
-        elif taxon_id in ("NCBITaxon:7227"):
-            return "Drosophila melanogaster"
-        elif taxon_id in ("NCBITaxon:9606"):
-            return "Homo sapiens"
-        else:
-            return None
-
-    def get_complete_url (self, local_id, global_id, primary_id):
-        # Local and global are cross references, primary is the gene id.
-        # TODO Update to dispatch?
-        complete_url = None
-        panther_url = None
-        split_primary = None
-
-        if global_id.startswith('MGI'):
-            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        elif global_id.startswith('RGD'):
-            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        elif global_id.startswith('SGD'):
-            complete_url = 'http://www.yeastgenome.org/locus/' + local_id
-        elif global_id.startswith('FB'):
-            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        elif global_id.startswith('ZFIN'):
-            complete_url = 'http://zfin.org/' + local_id
-        elif global_id.startswith('WB:'):
-            complete_url = 'http://www.wormbase.org/species/c_elegans/gene/' + local_id
-        elif global_id.startswith('HGNC:'):
-            complete_url = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=' + local_id
-        elif global_id.startswith('NCBI_Gene'):
-            complete_url = 'https://www.ncbi.nlm.nih.gov/gene/' + local_id
-        elif global_id.startswith('UniProtKB'):
-            complete_url = 'http://www.uniprot.org/uniprot/' + local_id
-        elif global_id.startswith('ENSEMBL'):
-            complete_url = 'http://www.ensembl.org/id/' + local_id
-        elif global_id.startswith('RNAcentral'):
-            complete_url = 'http://rnacentral.org/rna/' + local_id
-        elif global_id.startswith('PMID'):
-            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-        elif global_id.startswith('SO:'):
-            complete_url = 'http://www.sequenceontology.org/browser/current_svn/term/' + local_id
-        elif global_id.startswith('DRSC'):
-            complete_url = None
-        elif global_id.startswith('PANTHER'):
-            panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + local_id + '&species=agr'
-            split_primary = primary_id.split(':')[1]
-            if primary_id.startswith('MGI'):
-                complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
-            elif primary_id.startswith('RGD'):
-                complete_url = panther_url + '&seq=RGD=' + split_primary
-            elif primary_id.startswith('SGD'):
-                complete_url = panther_url + '&seq=SGD=' + split_primary
-            elif primary_id.startswith('FB'):
-                complete_url = panther_url + '&seq=FlyBase=' + split_primary
-            elif primary_id.startswith('WB'):
-                complete_url = panther_url + '&seq=WormBase=' + split_primary
-            elif primary_id.startswith('ZFIN'):
-                complete_url = panther_url + '&seq=ZFIN=' + split_primary
-            elif primary_id.startswith('HGNC'):
-                complete_url = panther_url + '&seq=HGNC=' + split_primary
-
-        return complete_url

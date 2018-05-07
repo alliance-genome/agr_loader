@@ -28,7 +28,7 @@ class DiseaseGeneTransaction(Transaction):
             MERGE (spec:Species {primaryKey: row.taxonId})
             MERGE (gene)<-[:FROM_SPECIES]->(spec)
 
-             MERGE (dga:Association {primaryKey:row.uuid}) 
+             MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 

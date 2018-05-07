@@ -2,12 +2,17 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
+from extractors.geo_ext import GeoExt
 from files import S3File, TARFile, JSONFile
+from services import RetrieveGeoXrefService
 import uuid
 import gzip
 import csv
+import json
+import pprint
 
 class MOD(object):
+
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
@@ -78,11 +83,35 @@ class MOD(object):
 
         return disease_dict
 
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile):
+    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject)
+        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
 
         return alleleDict
+
+    def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
+        entrezIds = []
+        xrefs = []
+        geoTerm = "gene_geoprofiles"
+        geoDb = "gene"
+        geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
+
+        data = GeoExt().get_entrez_ids(geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
+
+        for efetchKey, efetchValue in data.items():
+            # IdList is a value returned from efetch XML spec,
+            # within IdList, there is another map with "Id" as the key and the entrez local ids a list value.
+            for subMapKey, subMapValue in efetchValue.items():
+                if subMapKey == 'IdList':
+                    for idKey, idList in subMapValue.items():
+                        for entrezId in idList:
+                            # print ("here is the entrezid: " +entrezId)
+                            entrezIds.append("NCBI_Gene:"+entrezId)
+
+
+        xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds, graph)
+
+        return xrefs

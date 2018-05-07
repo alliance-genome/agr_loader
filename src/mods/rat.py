@@ -4,14 +4,16 @@ class RGD(MOD):
 
     def __init__(self):
         self.species = "Rattus norvegicus"
-        self.loadFile = "RGD_1.0.4_2.tar.gz"
-        self.bgiName = "/RGD_1.0.4_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.4_disease.10116.json"
-        self.alleleName = "/RGD_1.0.4_feature.10116.json"
+        self.loadFile = "RGD_1.0.0.2_5.tar.gz"
+        self.bgiName = "/RGD_1.0.0.2_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.2_disease.10116.daf.txt"
+        self.alleleName = "/RGD_1.0.0.2_allele.10116.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
+        self.geoSpecies = "Rattus+norvegicus"
+        self.geoRetMax = "30000"
 
-    def load_genes(self, batch_size, testObject):
+    def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
         return data
 
@@ -35,6 +37,13 @@ class RGD(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
+
+    def extract_geo_entrez_ids_from_geo(self, graph):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+        # pprint.pprint("these are mouse xrefs")
+        # for xref in xrefs:
+        #     pprint.pprint(xref)
+        return xrefs

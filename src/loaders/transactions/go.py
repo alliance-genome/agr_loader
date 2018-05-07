@@ -4,7 +4,7 @@ class GOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 2000
+        self.batch_size = 3000
 
     def go_tx(self, data):
         '''
@@ -23,6 +23,7 @@ class GOTransaction(Transaction):
                 SET g.name = row.name 
                 SET g.nameKey = row.name_key
                 SET g.is_obsolete = row.is_obsolete
+                SET g.href = row.href
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
@@ -42,15 +43,18 @@ class GOTransaction(Transaction):
                 UNWIND xrurls AS xref
                     MATCH (gt:GOTerm:Ontology {primaryKey:xref.oid})
 
-                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
+                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
                      SET cr.localId = xref.local_id
                      SET cr.prefix = xref.prefix
                      SET cr.crossRefCompleteUrl = xref.complete_url
                      SET cr.name = xref.xrefId
-
+                     SET cr.crossRefType = xref.crossRefType
+                     SET cr.uuid = xref.uuid
+                     SET cr.globalCrossRefId = xref.globalCrossRefId
+                     SET cr.displayName = xref.displayName
                     MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
 
 
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

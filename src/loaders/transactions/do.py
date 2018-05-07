@@ -35,6 +35,7 @@ class DOTransaction(Transaction):
                 SET doterm.wormbaseLink = row.wormbase_link
                 SET doterm.sgdLink = "SGD"
 
+
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                 MERGE (doterm)-[aka:ALSO_KNOWN_AS]->(syn))
@@ -52,12 +53,15 @@ class DOTransaction(Transaction):
                 UNWIND xrurls AS xref
                     MATCH (dt:DOTerm:Ontology {primaryKey:xref.oid})
 
-                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.xrefId})
+                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
                      SET cr.localId = xref.local_id
                      SET cr.prefix = xref.prefix
                      SET cr.crossRefCompleteUrl = xref.complete_url
                      SET cr.name = xref.xrefId
-
+                     SET cr.crossRefType = xref.crossRefType
+                     SET cr.uuid = xref.uuid
+                     SET cr.globalCrossRefId = xref.globalCrossRefId
+                     SET cr.displayName = xref.displayName
                     MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
 
 

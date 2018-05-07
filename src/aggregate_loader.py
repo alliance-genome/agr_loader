@@ -2,7 +2,8 @@ from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
-from files import *
+from loaders.geo_loader import *
+from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
 from test import *
@@ -15,9 +16,12 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), FlyBase(), RGD(), Human(), SGD(), MGI(), WormBase()]
-        #self.mods = [ZFIN()]
-        self.testObject = TestObject(useTestObject)
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        #self.mods = [WormBase()]
+        self.testObject = TestObject(useTestObject, self.mods)
+
+        self.resourceDescriptors = ""
+        self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
         if self.testObject.using_test_data() == True:
@@ -28,14 +32,24 @@ class AggregateLoader(object):
         print("Creating indicies.")
         Indicies(self.graph).create_indicies()
 
+    def load_resource_descriptors(self):
+        print("extracting resource descriptor")
+        self.resourceDescriptors = ResourceDescriptor().get_data()
+        print("loading resource descriptor")
+        ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
+
     def load_from_ontologies(self):
-        print ("Extracting SO data.")
+        print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
         self.go_dataset = OExt().get_data(self.testObject, "go_1.0.obo", "/GO")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "do_1.0.obo", "/DO")
-
+        print("Downloading MI data.")
+        self.mi_dataset = MIExt().get_data()
+        # #
+        print("Loading MI data into Neo4j.")
+        MILoader(self.graph).load_mi(self.mi_dataset)
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")
@@ -48,7 +62,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
             print("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes(self.batch_size, self.testObject)  # generator object
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
 
             c = 0
             start = time.time()
@@ -62,7 +76,7 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
@@ -85,3 +99,14 @@ class AggregateLoader(object):
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
             GOAnnotLoader(self.graph).load_go_annot(go_annots)
+
+            print("Extracting GEO annotations for %s." % mod.__class__.__name__)
+            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            print("Loading GEO annotations for %s." % mod.__class__.__name__)
+            GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+
+    def load_additional_datasets(self):
+            print("Extracting and Loading IMEX data.")
+            imex_data = IMEXExt().get_data(self.batch_size)
+            for imex_list_of_entries in imex_data:
+                IMEXLoader(self.graph).load_imex(imex_list_of_entries)
