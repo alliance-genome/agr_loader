@@ -17,7 +17,7 @@ class GOTransaction(Transaction):
             UNWIND $data as row 
 
             //Create the GOTerm node and set properties. primaryKey is required.
-            MERGE (g:GOTerm:Ontology {primaryKey:row.id})
+            MERGE (g:GOTerm:Ontology {primaryKey:row.oid})
                 SET g.definition = row.definition
                 SET g.type = row.o_type
                 SET g.href = row.href
