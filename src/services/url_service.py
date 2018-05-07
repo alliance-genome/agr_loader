@@ -1,6 +1,5 @@
 class UrlService(object):
 
-
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
         completeUrl = ""
 

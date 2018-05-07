@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 class DOTransaction(Transaction):
 
@@ -15,7 +16,7 @@ class DOTransaction(Transaction):
             UNWIND $data as row
 
             //Create the DOTerm node and set properties. primaryKey is required.
-            MERGE (doterm:DOTerm:Ontology {primaryKey:row.id})
+            MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
                 SET doterm.name = row.name
                 SET doterm.nameKey = row.name_key
                 SET doterm.definition = row.defText
@@ -45,26 +46,15 @@ class DOTransaction(Transaction):
                 MERGE (doterm)-[aka:IS_A]->(doterm2))
 
         """
-
+        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         queryXref = """
 
             UNWIND $data as row
-             WITH row.xref_urls AS xrurls
-                UNWIND xrurls AS xref
-                    MATCH (dt:DOTerm:Ontology {primaryKey:xref.oid})
+             WITH row.crossReferences AS events
+                UNWIND events AS event
+                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
 
-                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
-                     SET cr.localId = xref.local_id
-                     SET cr.prefix = xref.prefix
-                     SET cr.crossRefCompleteUrl = xref.complete_url
-                     SET cr.name = xref.xrefId
-                     SET cr.crossRefType = xref.crossRefType
-                     SET cr.uuid = xref.uuid
-                     SET cr.globalCrossRefId = xref.globalCrossRefId
-                     SET cr.displayName = xref.displayName
-                    MERGE (dt)-[aka:CROSS_REFERENCE]->(cr)
+        """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
 
-
-        """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
         Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

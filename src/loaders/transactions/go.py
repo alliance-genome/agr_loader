@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 class GOTransaction(Transaction):
 
@@ -16,7 +17,7 @@ class GOTransaction(Transaction):
             UNWIND $data as row 
 
             //Create the GOTerm node and set properties. primaryKey is required.
-            MERGE (g:GOTerm:Ontology {primaryKey:row.id})
+            MERGE (g:GOTerm:Ontology {primaryKey:row.oid})
                 SET g.definition = row.definition
                 SET g.type = row.o_type
                 SET g.href = row.href
@@ -39,22 +40,12 @@ class GOTransaction(Transaction):
         queryXref = """
 
             UNWIND $data as row
-             WITH row.xref_urls AS xrurls
-                UNWIND xrurls AS xref
-                    MATCH (gt:GOTerm:Ontology {primaryKey:xref.oid})
-
-                    MERGE (cr:CrossReference:Identifier {primaryKey:xref.primaryKey})
-                     SET cr.localId = xref.local_id
-                     SET cr.prefix = xref.prefix
-                     SET cr.crossRefCompleteUrl = xref.complete_url
-                     SET cr.name = xref.xrefId
-                     SET cr.crossRefType = xref.crossRefType
-                     SET cr.uuid = xref.uuid
-                     SET cr.globalCrossRefId = xref.globalCrossRefId
-                     SET cr.displayName = xref.displayName
-                    MERGE (gt)-[aka:CROSS_REFERENCE]->(cr)
+             WITH row.xref_urls AS events
+                UNWIND events AS event
+                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
 
 
-        """
+        """ + CreateCrossReference.get_cypher_xref_text("gene_ontology")
+
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

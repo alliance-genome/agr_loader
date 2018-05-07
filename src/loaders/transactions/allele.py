@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 class AlleleTransaction(Transaction):
 
@@ -10,6 +11,8 @@ class AlleleTransaction(Transaction):
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(data)
         # quit()
+
+        #TODO: make one query for all xref stanzas instead of duplicating in 5 different files: go.py, do.py, bgi.py, allele.py, geo_xref.py
 
         alleleQuery = """
 
@@ -25,15 +28,16 @@ class AlleleTransaction(Transaction):
                 SET l.loadName = "Allele"
 
             //Create the Allele node and set properties. primaryKey is required.
-            MERGE (a:Feature {primaryKey:row.primaryId})
-                SET a.symbol = row.symbol
-                SET a.taxonId = row.taxonId
-                SET a.dateProduced = row.dateProduced
-                SET a.dataProvider = row.dataProvider
-                SET a.release = row.release
-                SET a.localId = row.localId
-                SET a.globalId = row.globalId
-                SET a.modCrossRefCompleteUrl = row.modGlobalCrossRefId
+            MERGE (o:Feature {primaryKey:row.primaryId})
+                SET o.symbol = row.symbol
+                SET o.taxonId = row.taxonId
+                SET o.dateProduced = row.dateProduced
+                SET o.dataProvider = row.dataProvider
+                SET o.release = row.release
+                SET o.localId = row.localId
+                SET o.globalId = row.globalId
+                SET o.uuid = row.uuid
+                SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
 
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
@@ -44,13 +48,13 @@ class AlleleTransaction(Transaction):
             FOREACH (entry in row.synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                     SET syn.name = entry
-                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
                 MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
-            MERGE (a)-[aspec:FROM_SPECIES]->(spec)
+            MERGE (o)-[aspec:FROM_SPECIES]->(spec)
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
-            MERGE (a)<-[ag:IS_ALLELE_OF]->(g)
+            MERGE (o)<-[ag:IS_ALLELE_OF]->(g)
             //Merge the entity node.
 
             MERGE (ent:Entity {primaryKey:row.dataProvider})
@@ -58,21 +62,11 @@ class AlleleTransaction(Transaction):
                 SET ent.release = row.release
 
             //Create the entity relationship to the gene node.
-            MERGE (a)-[c1:CREATED_BY]->(ent)
+            MERGE (o)-[c1:CREATED_BY]->(ent)
 
-            WITH a, row.crossReferences AS events
+            WITH o, row.crossReferences AS events
             UNWIND events AS event
-                MERGE (id:CrossReference {primaryKey:event.primaryKey})
-                    SET id.name = event.id
-                    SET id.globalCrossRefId = event.crossRef
-                    SET id.localId = event.localId
-                    SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
-                    SET id.prefix = event.prefix
-                    SET id.crossRefType = event.crossRefType
-                    SET id.uuid = event.uuid
-                    SET id.displayName = event.displayName
-                MERGE (a)-[gcr:CROSS_REFERENCE]->(id)
 
-        """
+        """ + CreateCrossReference.get_cypher_xref_text("allele")
 
         Transaction.execute_transaction(self, alleleQuery, data)
