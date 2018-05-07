@@ -42,7 +42,7 @@ class GOTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS events
                 UNWIND events AS event
-                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
+                    MATCH (o:GOTerm:Ontology {primaryKey:event.oid})
 
 
         """ + CreateCrossReference.get_cypher_xref_text("gene_ontology")
