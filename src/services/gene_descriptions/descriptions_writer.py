@@ -1,5 +1,5 @@
 from genedescriptions.descriptions_writer import DescriptionsWriter
-from services.gene_descriptions.data_fetcher import Neo4jDataFetcher
+from loaders.transactions.gene_description import GeneDescriptionTransaction
 
 
 class Neo4jGDWriter(DescriptionsWriter):
@@ -9,14 +9,6 @@ class Neo4jGDWriter(DescriptionsWriter):
         super().__init__()
 
     def write(self, db_graph):
-        query = """
-            UNWIND $descriptions as row 
-
-            MATCH (g:Gene {primaryKey:row.gene_id})
-                SET g.automatedGeneSynopsis = row.description
-            """
-        Neo4jDataFetcher.query_db(db_graph=db_graph, query=query, parameters={
-            "descriptions": [{
-                "gene_id": gene_desc.gene_id,
-                "description": gene_desc.description
-            } for gene_desc in self.data]})
+        data = [{"gene_id": gene_desc.gene_id, "description": gene_desc.description} for gene_desc in self.data]
+        tx = GeneDescriptionTransaction(db_graph)
+        tx.gd_tx(data)
