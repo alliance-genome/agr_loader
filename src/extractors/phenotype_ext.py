@@ -48,7 +48,6 @@ class PhenotypeExt(object):
                     allelicGeneId = gene["g.primaryKey"]
 
                 if counter > 1:
-                    allelicGeneId = ''
                     print ("returning more than one gene: this is an error")
 
                 elif counter < 1:
@@ -65,7 +64,8 @@ class PhenotypeExt(object):
                         "pubPrimaryKey": pubMedId + pubModId,
                         "uuid": str(uuid.uuid4()),
                         "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
-                        "type": "gene"
+                        "type": "gene",
+                        "dataProviderType": dataProviderType
                     }
 
                 else:
@@ -84,7 +84,14 @@ class PhenotypeExt(object):
                         "uuid": str(uuid.uuid4()),
                         "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
                         "allelicGeneId": allelicGeneId,
-                        "type": "feature"
+                        "type": "feature",
+                        "dataProviderType": dataProviderType
                     }
 
-            return phenotype_feature
+            list_to_yield.append(phenotype_feature)
+            if len(list_to_yield) == batch_size:
+                    yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
+
+        if len(list_to_yield) > 0:
+            yield list_to_yield

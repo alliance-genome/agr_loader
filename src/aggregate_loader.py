@@ -3,6 +3,7 @@ from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
 from loaders.geo_loader import *
+from loaders.phenotype_loader import  *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
