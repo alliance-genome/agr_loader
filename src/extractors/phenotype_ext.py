@@ -2,8 +2,9 @@ import uuid
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+from loaders.transactions import Transaction
 
-def get_phenotype_record(phenotypeRecord, dataProvider, dateProduced, release, allelicGeneId):
+def get_phenotype_record(phenotypeRecord, dataProvider, dateProduced, release, graph):
     xrefUrlMap = ResourceDescriptor().get_data()
     primaryId = phenotypeRecord.get('objectId')
     phenotypeStatement = phenotypeRecord.get('phenotypeStatement')
@@ -17,6 +18,19 @@ def get_phenotype_record(phenotypeRecord, dataProvider, dateProduced, release, a
     pubModLocalId = pubModId.split(":")[1]
 
     dateAssigned = phenotypeRecord.get('dateAssigned')
+
+    query = "match (g:Gene)-[:IS_ALLELE_OF]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
+    tx = Transaction(graph)
+    returnSet = tx.run_single_parameter_query(query, primaryId)
+    counter = 0
+    allelicGeneId = ''
+
+    for gene in returnSet:
+        counter += 1
+        allelicGeneId = gene["g.primaryKey"]
+    if counter > 1:
+        allelicGeneId = ''
+        print ("returning more than one gene: this is an error")
 
 
     phenotype_feature = {
