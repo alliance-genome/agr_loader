@@ -3,6 +3,7 @@ from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
 from extractors.geo_ext import GeoExt
+from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
 import uuid
@@ -83,21 +84,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_phenotype_gene_objects_mod(self,batch_size, testObject, phenotypeName, loadFile):
+    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeGeneExt().get_gene_phenotype_data(phenotype_data, batch_size)
-
-        return phenotype_dict
-
-    def load_phenotype_allele_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, graph):
-        path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeAlleleExt().get_allele_phenotype_data(phenotype_data, batch_size, graph)
+        phenotype_dict = PhenotypeExt.get_phenotype_data(phenotype_data, batch_size, graph)
 
         return phenotype_dict
 

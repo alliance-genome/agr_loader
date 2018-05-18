@@ -43,14 +43,9 @@ class Human(MOD):
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
 
-    def load_phenotype_allele_objects(self, batch_size, testObject, graph):
+    def load_phenotype_objects(self, batch_size, testObject, graph):
         data = ""
-            #MOD.load_phenotype_allele_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
-        return data
-
-    def load_phenotype_gene_objects(self, batch_size, testObject):
-        data = ""
-           #MOD.load_phenotype_gene_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+               #MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
         return data
 
 

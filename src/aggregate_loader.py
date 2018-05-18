@@ -106,14 +106,9 @@ class AggregateLoader(object):
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
             print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
-            features = mod.load_phenotype_gene_objects(self.batch_size, self.testObject)
+            features = mod.load_phenotype_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
-                PhenotypeLoader(self.graph).load_phenotype_gene_objects(feature_list_of_entries)
-
-            print("Loading MOD allele phenotype annotations for %s into Neo4j." % mod.species)
-            features = mod.load_phenotype_allele_objects(self.batch_size, self.testObject, self.graph)
-            for feature_list_of_entries in features:
-                PhenotypeLoader(self.graph).load_phenotype_allele_objects(feature_list_of_entries)
+                PhenotypeLoader(self.graph).load_phenotype_objects(feature_list_of_entries)
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")

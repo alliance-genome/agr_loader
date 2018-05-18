@@ -39,12 +39,8 @@ class WormBase(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_phenotype_gene_objects(self, batch_size, testObject):
-        data = MOD.load_phenotype_gene_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
-        return data
-
-    def load_phenotype_allele_objects(self, batch_size, testObject, graph):
-        data = MOD.load_phenotype_allele_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
+    def load_phenotype_objects(self, batch_size, testObject, graph):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject, graph):
