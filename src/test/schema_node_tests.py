@@ -66,8 +66,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='defLinks'), \
                             dict(node='DOTerm', prop='is_obsolete'), \
                             dict(node='DOTerm', prop='subset'), \
-                            dict(node='DOTerm', prop='name'), \
-                            dict(node='DOTerm', prop='nameKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
                             dict(node='Identifier', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
@@ -124,8 +122,6 @@ class TestClass(object):
                                dict(node='DOTerm', prop='defLinks'), \
                                dict(node='DOTerm', prop='is_obsolete'), \
                                dict(node='DOTerm', prop='subset'), \
-                               dict(node='DOTerm', prop='name'), \
-                               dict(node='DOTerm', prop='nameKey'), \
                                dict(node='DOTerm', prop='primaryKey'), \
                                dict(node='Identifier', prop='primaryKey'), \
                                dict(node='Synonym', prop='primaryKey'), \

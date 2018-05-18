@@ -123,9 +123,9 @@ class OExt(object):
             dict_to_append = {
                 'o_genes': [],
                 'o_species': [],
-                'name': line['name'],
+                'name': line.get('name'),
                 'o_synonyms': syns,
-                'name_key': line['name'],
+                'name_key': line.get('name'),
                 'oid': line['id'],
                 'definition': definition,
                 'isas': isasWithoutNames,
