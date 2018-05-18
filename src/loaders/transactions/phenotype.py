@@ -25,13 +25,23 @@ class PhenotypeTransaction(Transaction):
                 SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Phenotype"
 
-            MERGE (pa:Association {primaryKey:row.uuid})
+            FOREACH (rel IN CASE when row.type = 'feature' THEN [1] ELSE [] END |
+                MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeFeatureAssociation
 
 
-            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
-            MERGE (pa)-[pad:ASSOCIATION]->(p)
-            MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+            )
+
+            FOREACH (rel IN CASE when row.type = 'gene' THEN [1] ELSE [] END |
+                MERGE (pa:Association {primaryKey:row.uuid})
+                SET pa :PhenotypeFeatureAssociation
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+            )
+
 
             // PUBLICATIONS FOR FEATURE
 
@@ -42,8 +52,7 @@ class PhenotypeTransaction(Transaction):
                 SET pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
-
-            MERGE (pa)-[papubf:EVIDENCE]->(pubf)
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
             """
 
