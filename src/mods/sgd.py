@@ -4,9 +4,10 @@ class SGD(MOD):
 
     def __init__(self):
         self.species = "Saccharomyces cerevisiae"
-        self.loadFile = "SGD_1.0.0.0_2.tar.gz"
-        self.bgiName = "/SGD_1.0.0.0_1/SGD_1.0.0.0_BGI.json"
-        self.diseaseName = "/SGD_1.0.0.0_1/SGD_1.0.0.0_DAF.json"
+        self.loadFile = "SGD_1.0.0.3_1.tar.gz"
+        self.bgiName = "/SGD_1.0.0.0_3/SGD_1.0.0.3_BGI.json"
+        self.diseaseName = "/SGD_1.0.0.0_3/SGD_1.0.0.3_DAF.json"
+        self.phenotypeName = "/SGD_1.0.0.3_phenotype.json"
         self.alleleName = ""
         self.geneAssociationFile = "gene_association_1.0.sgd.gz"
         self.identifierPrefix = "SGD:"
@@ -43,6 +44,14 @@ class SGD(MOD):
     def load_allele_objects(self, batch_size, testObject, graph):
         data = ""
             #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile. graph)
+        return data
+
+    def load_phenotype_gene_objects(self, batch_size, testObject):
+        data = MOD.load_phenotype_gene_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+        return data
+
+    def load_phenotype_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_phenotype_allele_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

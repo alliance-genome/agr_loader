@@ -4,9 +4,10 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.0.2_5.tar.gz"
-        self.bgiName = "/RGD_1.0.0.2_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.0.2_disease.9606.daf.txt"
+        self.loadFile = "RGD_1.0.0.3_1.tar.gz"
+        self.bgiName = "/RGD_1.0.0.3_BGI.9606.json"
+        self.diseaseName = "/RGD_1.0.0.3_disease.9606.daf.txt"
+        self.phenotypeName = "/RGD_1.0.0.3_phenotype.json"
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
@@ -41,6 +42,17 @@ class Human(MOD):
         data = ""
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
+
+    def load_phenotype_allele_objects(self, batch_size, testObject, graph):
+        data = ""
+            #MOD.load_phenotype_allele_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
+        return data
+
+    def load_phenotype_gene_objects(self, batch_size, testObject):
+        data = ""
+           #MOD.load_phenotype_gene_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+        return data
+
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

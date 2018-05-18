@@ -83,6 +83,24 @@ class MOD(object):
 
         return disease_dict
 
+    def load_phenotype_gene_objects_mod(self,batch_size, testObject, phenotypeName, loadFile):
+        path = "tmp"
+        S3File("mod-datadumps", loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
+        phenotype_dict = PhenotypeGeneExt().get_gene_phenotype_data(phenotype_data, batch_size)
+
+        return phenotype_dict
+
+    def load_phenotype_allele_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, graph):
+        path = "tmp"
+        S3File("mod-datadumps", loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
+        phenotype_dict = PhenotypeAlleleExt().get_allele_phenotype_data(phenotype_data, batch_size, graph)
+
+        return phenotype_dict
+
     def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()

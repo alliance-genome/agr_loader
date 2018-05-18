@@ -4,10 +4,11 @@ class RGD(MOD):
 
     def __init__(self):
         self.species = "Rattus norvegicus"
-        self.loadFile = "RGD_1.0.0.2_5.tar.gz"
-        self.bgiName = "/RGD_1.0.0.2_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.2_disease.10116.daf.txt"
-        self.alleleName = "/RGD_1.0.0.2_allele.10116.json"
+        self.loadFile = "RGD_1.0.0.3_1.tar.gz"
+        self.bgiName = "/RGD_1.0.0.3_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.3_disease.10116.daf.txt"
+        self.phenotypeName = "/RGD_1.0.0.3_phenotype.json"
+        self.alleleName = "/RGD_1.0.0.3_allele.10116.json"
         self.geneAssociationFile = "gene_association_1.0.rgd.gz"
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
@@ -35,6 +36,14 @@ class RGD(MOD):
 
     def load_disease_allele_objects(self, batch_size, testObject, graph):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
+        return data
+
+    def load_phenotype_gene_objects(self, batch_size, testObject):
+        data = MOD.load_phenotype_gene_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+        return data
+
+    def load_phenotype_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_phenotype_allele_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, graph)
         return data
 
     def load_allele_objects(self, batch_size, testObject, graph):
