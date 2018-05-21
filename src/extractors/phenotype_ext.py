@@ -9,13 +9,8 @@ class PhenotypeExt(object):
     def get_phenotype_data(phenotype_data, batch_size, graph):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
-        primaryId = phenotype_data.get('objectId')
-        phenotypeStatement = phenotype_data.get('phenotypeStatement')
         dateProduced = phenotype_data['metaData']['dateProduced']
-        pubMedUrl = None
-        pubMedId = None
-        pubModId = None
-        pubModUrl = None
+
 
         for dataProviderObject in phenotype_data['metaData']['dataProvider']:
 
@@ -31,7 +26,10 @@ class PhenotypeExt(object):
                     CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
 
-                for pheno in phenotype_data:
+                for pheno in phenotype_data['data']:
+
+                    pubMedUrl = None
+                    pubModUrl = None
                     primaryId = pheno.get('objectId')
                     phenotypeStatement = pheno.get('phenotypeStatement')
 
@@ -41,7 +39,7 @@ class PhenotypeExt(object):
                         pubMedLocalId = pubMedId.split(":")[1]
                         pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
-                        pubModId = phenotype_data.get('pubModId')
+                    pubModId = phenotype_data.get('pubModId')
                     if pubModId != None:
                         pubModPrefix = pubModId.split(":")[0]
                         pubModLocalId = pubModId.split(":")[1]
