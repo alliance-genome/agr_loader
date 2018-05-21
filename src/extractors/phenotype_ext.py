@@ -28,11 +28,8 @@ class PhenotypeExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
 
                 for pheno in phenotype_data['data']:
-                    print ("pheno" + pheno.get('objectId'))
                     pubMedUrl = None
                     pubModUrl = None
-                    pubMedId = ""
-                    pubModId = ""
                     primaryId = pheno.get('objectId')
                     phenotypeStatement = pheno.get('phenotypeStatement')
 
@@ -49,6 +46,12 @@ class PhenotypeExt(object):
                         pubModPrefix = pubModId.split(":")[0]
                         pubModLocalId = pubModId.split(":")[1]
                         pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+
+                    if pubMedId == None:
+                        pubMedId = ""
+
+                    if pubModId == None:
+                        pubModId = ""
 
                     dateAssigned = pheno.get('dateAssigned')
 
