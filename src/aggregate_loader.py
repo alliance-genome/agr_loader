@@ -17,8 +17,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        #self.mods = [WormBase()]
+        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -49,14 +49,14 @@ class AggregateLoader(object):
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
         # #
-        print("Loading MI data into Neo4j.")
-        MILoader(self.graph).load_mi(self.mi_dataset)
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
+        # print("Loading MI data into Neo4j.")
+        # MILoader(self.graph).load_mi(self.mi_dataset)
+        # print("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
