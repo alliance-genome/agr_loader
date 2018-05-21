@@ -6,10 +6,10 @@ class IMEXExt(object):
 
     def get_data(self, batch_size):
         path = 'tmp'
-        filename = '/intact.txt'
-        filename_comp = 'intact.zip'
+        filename = 'IMEX/intact.txt'
+        filename_comp = 'IMEX/intact.zip'
 
-        S3File("IMEX/" + filename_comp, path).download()
+        S3File(filename_comp, path).download()
         ZIPFile(path, filename_comp).extract_all()
 
         list_to_yield = []
@@ -35,7 +35,7 @@ class IMEXExt(object):
         interaction_exclusion_set = ('psi-mi:\"MI:0208\"')
         interactor_type_exclusion_set = ('psi-mi:\"MI:0328\"', 'psi-mi:\"MI:1302\"', 'psi-mi:\"MI:1304\"')
 
-        with open(path + filename, 'r', encoding='utf-8') as tsvin:
+        with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             next(tsvin, None) # Skip the headers
 
