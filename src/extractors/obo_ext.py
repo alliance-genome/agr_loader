@@ -7,11 +7,12 @@ from .obo_parser import parseOBO
 class OExt(object):
 
 
-    def get_data(self, testObject, filename, prefix):
+    def get_data(self, testObject, path):
 
-        path = "tmp";
-        S3File("mod-datadumps"+prefix, filename, path).download()
-        o_data = TXTFile(path + "/"+filename).get_data()
+        savepath = "tmp";
+        fullpath = savepath + "/" + path
+        S3File(path, savepath).download()
+        o_data = TXTFile(fullpath).get_data()
         parsed_line = parseOBO(o_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.

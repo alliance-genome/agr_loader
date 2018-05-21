@@ -6,8 +6,9 @@ class SOExt:
 
     def get_data(self):
         path = "tmp";
-        S3File("mod-datadumps/SO", "so_1.0.obo", path).download()
-        so_data = TXTFile(path + "/so_1.0.obo").get_data()
+        path_to_file = "SO/so_1.0.obo"
+        S3File(path_to_file, path).download()
+        so_data = TXTFile(path + "/" + path_to_file).get_data()
 
         so_list = []
 

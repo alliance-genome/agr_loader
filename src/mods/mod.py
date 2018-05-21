@@ -15,7 +15,7 @@ class MOD(object):
 
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
         path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
+        S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         gene_data = JSONFile().get_data(path + bgiName, 'BGI')
         gene_lists = BGIExt().get_data(gene_data, batch_size, testObject)
@@ -26,7 +26,7 @@ class MOD(object):
 
     def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
-        S3File("mod-datadumps/GO/ANNOT", geneAssociationFile, path).download()
+        S3File("GO/ANNOT/" + geneAssociationFile, path).download()
         go_annot_dict = {}
         go_annot_list = []
         with gzip.open(path + "/" + geneAssociationFile, 'rt') as file:
@@ -67,7 +67,7 @@ class MOD(object):
 
     def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile):
         path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
+        S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
         disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size)
@@ -76,7 +76,7 @@ class MOD(object):
 
     def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
         path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
+        S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
         disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph)
@@ -85,7 +85,7 @@ class MOD(object):
 
     def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
         path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
+        S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
         alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
