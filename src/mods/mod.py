@@ -89,7 +89,7 @@ class MOD(object):
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeExt.get_phenotype_data(phenotype_data, batch_size, graph)
+        phenotype_dict = PhenotypeExt.get_phenotype_data(phenotype_data, batch_size, testObject graph)
 
         return phenotype_dict
 

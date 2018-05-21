@@ -60,9 +60,6 @@ class PhenotypeTransaction(Transaction):
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeFeatureAssociation
-
-            MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeFeatureAssociation
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
 
@@ -81,4 +78,3 @@ class PhenotypeTransaction(Transaction):
 
         Transaction.execute_transaction(self, executeFeature, data)
         Transaction.execute_transaction(self, executeGene, data)
-        

@@ -6,7 +6,7 @@ from loaders.transactions import Transaction
 
 class PhenotypeExt(object):
 
-    def get_phenotype_data(phenotype_data, batch_size, graph):
+    def get_phenotype_data(phenotype_data, batch_size, testObject, graph):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
