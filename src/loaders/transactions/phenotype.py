@@ -13,10 +13,9 @@ class PhenotypeTransaction(Transaction):
 
             // GET PRIMARY DATA OBJECTS
 
-            MATCH (feature:Feature {primaryKey:row.primaryId})
-            MATCH (g:Gene {primaryKey:row.allelicGeneId})
-
             // LOAD NODES
+            MATCH (feature:Feature {primaryKey:row.primaryId})
+            MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
 
@@ -25,23 +24,47 @@ class PhenotypeTransaction(Transaction):
                 SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Phenotype"
 
-            FOREACH (rel IN CASE when row.type = 'feature' THEN [1] ELSE [] END |
-                MERGE (pa:Association {primaryKey:row.uuid})
+            MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeFeatureAssociation
 
+            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
+            MERGE (pa)-[pad:ASSOCIATION]->(p)
+            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
-                MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
-            )
 
-            FOREACH (rel IN CASE when row.type = 'gene' THEN [1] ELSE [] END |
-                MERGE (pa:Association {primaryKey:row.uuid})
+            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                SET pubf.pubModId = row.pubModId
+                SET pubf.pubMedId = row.pubMedId
+                SET pubf.pubModUrl = row.pubModUrl
+                SET pubf.pubMedUrl = row.pubMedUrl
+
+            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
+
+            """
+        executeGene = """
+
+        UNWIND $data as row
+
+            // GET PRIMARY DATA OBJECTS
+
+            // LOAD NODES
+            MATCH (g:Gene {primaryKey:row.primaryId})
+
+            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced
+                SET l.dataProvider = row.dataProvider
+                SET l.loadName = "Phenotype"
+
+            MERGE (pa:Association {primaryKey:row.uuid})
+                SET pa :PhenotypeFeatureAssociation
+
+            MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeFeatureAssociation
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
-            )
-
 
             // PUBLICATIONS FOR FEATURE
 
@@ -54,6 +77,8 @@ class PhenotypeTransaction(Transaction):
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
             MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
-            """
+        """
 
         Transaction.execute_transaction(self, executeFeature, data)
+        Transaction.execute_transaction(self, executeGene, data)
+        

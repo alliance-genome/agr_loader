@@ -50,8 +50,14 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
             'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
-            'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
-            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'
+            'ZFIN:ZDB-GENE-040426-1716','ZFIN:ZDB-GENE-000511-1', 'ZFIN:ZDB-GENE-031118-202',
+            # features with genes above, have disease
+            'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
+            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
+            # genes with phenotype
+            'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-000208-23', 'ZFIN:ZDB-GENE-000208-25',
+            # features with phenotype that also have genes above
+            'ZFIN:ZDB-ALT-991201-15', 'ZFIN:ZDB-ALT-991130-42'
 
         }
         self.flybaseIdSet = {

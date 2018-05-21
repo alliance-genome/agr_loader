@@ -58,21 +58,22 @@ class PhenotypeExt(object):
                     if pubModId == None and pubMedId == None:
                         print (primaryId + "is missing pubMed and pubMod id")
 
-                    query = "match (g:Gene)-[:IS_ALLELE_OF]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
-                    tx = Transaction(graph)
-                    returnSet = tx.run_single_parameter_query(query, primaryId)
-                    counter = 0
-                    allelicGeneId = ''
+                    # query = "match (g:Gene)-[:IS_ALLELE_OF]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
+                    # tx = Transaction(graph)
+                    # returnSet = tx.run_single_parameter_query(query, primaryId)
+                    # counter = 0
+                    # allelicGeneId = ''
+                    #
+                    # for gene in returnSet:
+                    #     counter += 1
+                    #     allelicGeneId = gene["g.primaryKey"]
+                    #     print ("allelicGeneId: " + allelicGeneId)
+                    #
+                    # if counter > 1:
+                    #     print ("returning more than one gene: this is an error")
 
-                    for gene in returnSet:
-                        counter += 1
-                        allelicGeneId = gene["g.primaryKey"]
-
-                    if counter > 1:
-                        print ("returning more than one gene: this is an error")
-
-                    elif counter < 1:
-                        phenotype_feature = {
+                    #elif counter < 1:
+                    phenotype_feature = {
                             "primaryId": primaryId,
                             "phenotypeStatement": phenotypeStatement,
                             "dateAssigned": dateAssigned,
@@ -85,30 +86,31 @@ class PhenotypeExt(object):
                             "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
                             "type": "gene",
                             "dataProviderType": dataProviderType
-                        }
-
-                    else:
-
-                        phenotype_feature = {
-                            "primaryId": primaryId,
-                            "phenotypeStatement": phenotypeStatement,
-                            "dateAssigned": dateAssigned,
-                            "pubMedId": pubMedId,
-                            "pubMedUrl": pubMedUrl,
-                            "pubModId": pubModId,
-                            "pubModUrl": pubModUrl,
-                            "pubPrimaryKey": pubMedId + pubModId,
-                            "uuid": str(uuid.uuid4()),
-                            "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
-                            "allelicGeneId": allelicGeneId,
-                            "type": "feature",
-                            "dataProviderType": dataProviderType
-                        }
+                    }
+                    #
+                    # else:
+                    #
+                    #     phenotype_feature = {
+                    #         "primaryId": primaryId,
+                    #         "phenotypeStatement": phenotypeStatement,
+                    #         "dateAssigned": dateAssigned,
+                    #         "pubMedId": pubMedId,
+                    #         "pubMedUrl": pubMedUrl,
+                    #         "pubModId": pubModId,
+                    #         "pubModUrl": pubModUrl,
+                    #         "pubPrimaryKey": pubMedId + pubModId,
+                    #         "uuid": str(uuid.uuid4()),
+                    #         "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
+                    #         "allelicGeneId": allelicGeneId,
+                    #         "type": "feature",
+                    #         "dataProviderType": dataProviderType
+                    #     }
 
                 list_to_yield.append(phenotype_feature)
                 if len(list_to_yield) == batch_size:
-                        yield list_to_yield
-                        list_to_yield[:] = []  # Empty the list.
+                    print ("yielding " + batch_size + "phenotype records")
+                    yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
 
             if len(list_to_yield) > 0:
                 yield list_to_yield
