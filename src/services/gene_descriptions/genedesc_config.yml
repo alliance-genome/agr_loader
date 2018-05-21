@@ -421,5 +421,67 @@ go_sentences_options:
         P: 5
         C: 5
 
+do_sentences_options:
+    evidence_codes:
+        IMP:
+            group: EXPERIMENTAL
+            priority: 1
+        IEP:
+            group: BIOMARKER
+            priority: 2
+        TAS:
+            group: INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 3
+        IC:
+            group: INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 4
+        ISS:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 5
+        IEA:
+            group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+            priority: 6
+    group_priority:
+        EXPERIMENTAL: 1
+        BIOMARKER: 2
+        INFERRED_BY_CURATORS_AND_AUTHORS: 3
+        PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS: 4
+        ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS: 5
+    do_prepostfix_sentences_map:
+        - aspect: "D"
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "used to study"
+          postfix: ""
+        - aspect: "D"
+          group: BIOMARKER
+          qualifier: ""
+          prefix: "is biomarker of"
+          postfix: ""
+        - aspect: "D"
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "used to study"
+          postfix: ""
+        - aspect: "D"
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: ""
+          prefix: "ortholog of this gene implicated in"
+          postfix: ""
+        - aspect: "D"
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: ""
+          prefix: "ortholog of this gene implicated in"
+          postfix: ""
 
+    remove_parents_if_children_are_present: true
+    trim_terms_by_common_ancestors: true
+    trim_if_more_than_terms: 3
+    trim_min_distance_from_root:
+        D: 3
+    do_truncate_others_aggregation_word: several
+    do_truncate_others_terms:
+        D: diseases
+    go_truncate_others_terms:
+        D: "diseases"
 

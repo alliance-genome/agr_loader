@@ -12,9 +12,9 @@ from test import *
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_rules import generate_go_sentences
+from genedescriptions.descriptions_rules import generate_sentences
 from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
-from services.gene_descriptions.data_fetcher import Neo4jDataFetcher
+from services.gene_descriptions.data_fetcher import AGRLoaderDataFetcher
 from test import TestObject
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
@@ -82,12 +82,12 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start), 2)))
 
-
         this_dir = os.path.split(__file__)[0]
         # initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
                                                                              "genedesc_config.yml"),
-                                               go_dataset=self.go_dataset, graph_db=self.graph)
+                                               go_dataset=self.go_dataset, do_dataset=self.do_dataset,
+                                               graph_db=self.graph)
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -123,7 +123,10 @@ class AggregateLoader(object):
 
             # generate gene descriptions for mod
             if mod.dataProvider:
-                genedesc_generator.generate_descriptions(go_annotations=go_annots, data_provider=mod.dataProvider)
+                genedesc_generator.generate_descriptions(go_annotations=go_annots,
+                                                         do_annotations=mod.load_disease_gene_objects(self.batch_size,
+                                                                                                      self.testObject),
+                                                         data_provider=mod.dataProvider)
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
