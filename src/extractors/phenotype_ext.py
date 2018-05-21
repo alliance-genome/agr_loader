@@ -73,6 +73,7 @@ class PhenotypeExt(object):
                     #     print ("returning more than one gene: this is an error")
 
                     #elif counter < 1:
+                    print (primaryId)
                     phenotype_feature = {
                             "primaryId": primaryId,
                             "phenotypeStatement": phenotypeStatement,
