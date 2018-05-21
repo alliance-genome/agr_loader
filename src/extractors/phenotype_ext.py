@@ -20,6 +20,7 @@ class PhenotypeExt(object):
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
 
+
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider, dataProviderPage)
                 dataProviderCrossRefSet.append(
@@ -27,25 +28,29 @@ class PhenotypeExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
 
                 for pheno in phenotype_data['data']:
-
+                    print ("pheno" + pheno.get('objectId'))
                     pubMedUrl = None
                     pubModUrl = None
+                    pubMedId = ""
+                    pubModId = ""
                     primaryId = pheno.get('objectId')
                     phenotypeStatement = pheno.get('phenotypeStatement')
 
-                    pubMedId = phenotype_data.get('pubMedId')
+                    pubMedId = pheno.get('pubMedId')
+
                     if pubMedId != None:
                         pubMedPrefix = pubMedId.split(":")[0]
                         pubMedLocalId = pubMedId.split(":")[1]
                         pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
-                    pubModId = phenotype_data.get('pubModId')
+                    pubModId = pheno.get('pubModId')
+
                     if pubModId != None:
                         pubModPrefix = pubModId.split(":")[0]
                         pubModLocalId = pubModId.split(":")[1]
                         pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
 
-                    dateAssigned = phenotype_data.get('dateAssigned')
+                    dateAssigned = pheno.get('dateAssigned')
 
                     if pubModId == None and pubMedId == None:
                         print (primaryId + "is missing pubMed and pubMod id")
