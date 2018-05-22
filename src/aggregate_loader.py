@@ -75,7 +75,7 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
