@@ -25,7 +25,10 @@ class TestObject(object):
             'MGI:94909', 'MGI:1856331', 'MGI:97490', 'MGI:108092', 'MGI:2156738',
             'MGI:2148260', 'MGI:1856328', 'MGI:2678393', 'MGI:2429942', 'MGI:1856332', 'MGI:5569634',
             'MGI:3531484', 'MGI:3531484',
-            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834'
+            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834',
+            # phenotype objects
+            'MGI:2670749', 'MGI:2656842'
+
         }
 
         self.wormbaseIdSet = {
@@ -33,12 +36,17 @@ class TestObject(object):
             'WB:WBGene00006750', 'WB:WBGene00000540', 'WB:WBGene00017866', 'WB:WBGene00001131',
             'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133', 'WB:WBGene00001115',
             'WB:WBGene00018468', 'WB:WBGene00019001', 'WB:WBGene00007438', 'WB:WBGene00001136', 'WB:WBGene00006742',
-            'WBVar:WBVar00000013', 'WBVar:WBVar00000012'
+            # phenotype and disease objects
+            'WBVar:WBVar00000012', 'WBVar:WBVar00000013',
         }
 
         self.sgdIdSet = {
             'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
-            'SGD:S000002200', 'SGD:S000002386'
+            'SGD:S000002200', 'SGD:S000002386',
+            # phenotypic genes
+            'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383'
+
+
         }
 
         self.zfinIdSet = {

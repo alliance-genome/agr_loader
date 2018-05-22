@@ -109,8 +109,6 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-
-
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
             imex_data = IMEXExt().get_data(self.batch_size)

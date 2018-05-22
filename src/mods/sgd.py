@@ -6,7 +6,7 @@ class SGD(MOD):
         self.species = "Saccharomyces cerevisiae"
         self.loadFile = "SGD_1.0.0.3_1.tar.gz"
         self.bgiName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_BGI.json"
-        self.diseaseName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_DAF.json"
+        self.diseaseName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_disease.daf.json"
         self.phenotypeName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_phenotype.json"
         self.alleleName = ""
         self.geneAssociationFile = "gene_association_1.0.sgd.gz"
