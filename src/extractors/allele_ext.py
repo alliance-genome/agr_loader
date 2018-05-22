@@ -42,11 +42,19 @@ class AlleleExt(object):
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
                                 crossReferences.append(CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
 
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                for dataProviderObject in allele_data['metaData']['dataProvider']:
+
+                    dataProviderCrossRef = dataProviderObject.get('crossReference')
+                    dataProviderType = dataProviderObject.get('type')
+                    dataProvider = dataProviderCrossRef.get('id')
+                    dataProviderPages = dataProviderCrossRef.get('pages')
+                    dataProviderCrossRefSet = []
+
+                    for dataProviderPage in dataProviderPages:
+                        crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                                dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                        dataProviderCrossRefSet.append(
+                            CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                           dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                           dataProvider + dataProviderPage))
 

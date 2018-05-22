@@ -6,8 +6,8 @@ class Human(MOD):
         self.species = "Homo sapiens"
         self.loadFile = "RGD_1.0.0.3_3.tar.gz"
         self.bgiName = "/RGD_1.0.0.3_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.0.3_disease.9606.daf.txt"
-        self.phenotypeName = "/RGD_1.0.0.3_phenotype.json"
+        self.diseaseName = "/RGD_1.0.0.3_disease.9606.json"
+        self.phenotypeName = "/RGD_1.0.0.3_phenotype.9606.json"
         self.geneAssociationFile = "gene_association_1.0.human.gz"
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
@@ -44,10 +44,8 @@ class Human(MOD):
         return data
 
     def load_phenotype_objects(self, batch_size, testObject):
-        data = ""
-               #MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
         return data
-
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
