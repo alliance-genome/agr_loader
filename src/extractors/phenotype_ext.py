@@ -64,7 +64,6 @@ class PhenotypeExt(object):
                                                       dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                       dataProvider + dataProviderPage))
 
-                    print (primaryId + " " + phenotypeStatement)
                     phenotype_feature = {
                         "primaryId": primaryId,
                         "phenotypeStatement": phenotypeStatement,

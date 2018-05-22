@@ -59,7 +59,7 @@ class PhenotypeTransaction(Transaction):
                 SET l.loadName = "Phenotype"
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeFeatureAssociation
+                SET pa :PhenotypeEntityAssociation
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
 
