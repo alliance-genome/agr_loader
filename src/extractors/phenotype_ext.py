@@ -5,11 +5,10 @@ from .resource_descriptor_ext import ResourceDescriptor
 
 class PhenotypeExt(object):
 
-    def get_phenotype_data(phenotype_data, batch_size, testObject):
+    def get_phenotype_data(self, phenotype_data, batch_size, testObject):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
-
 
         for pheno in phenotype_data['data']:
 
@@ -80,10 +79,11 @@ class PhenotypeExt(object):
                     }
 
                     list_to_yield.append(phenotype_feature)
+
                     if len(list_to_yield) == batch_size:
                         print ("yielding " + batch_size + "phenotype records")
                         yield list_to_yield
                         list_to_yield[:] = []  # Empty the list.
 
-                if len(list_to_yield) > 0:
-                    yield list_to_yield
+        if len(list_to_yield) > 0:
+            yield list_to_yield

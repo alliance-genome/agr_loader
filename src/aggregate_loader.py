@@ -14,11 +14,9 @@ from neo4j.v1 import GraphDatabase
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-        # Set size of BGI, disease batches extracted from MOD JSON file
-        # for creating Python data structure.
         self.batch_size = 5000
         #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        self.mods = [ZFIN()]
+        self.mods = [ZFIN(), MGI(), SGD(), WormBase(), RGD(), Human()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -96,6 +94,11 @@ class AggregateLoader(object):
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
+            print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
+            phenos = mod.load_phenotype_objects(self.batch_size, self.testObject)
+            for pheno_list_of_entries in phenos:
+                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries)
+
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
             print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
@@ -106,10 +109,7 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-            print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
-            features = mod.load_phenotype_objects(self.batch_size, self.testObject)
-            for feature_list_of_entries in features:
-                PhenotypeLoader(self.graph).load_phenotype_objects(feature_list_of_entries)
+
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
