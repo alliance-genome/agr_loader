@@ -44,8 +44,8 @@ class ZFIN(MOD):
         return data
 
 
-    def load_allele_objects(self, batch_size, testObject, graph):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
+    def load_allele_objects(self, batch_size, testObject):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

@@ -89,16 +89,16 @@ class MOD(object):
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeExt.get_phenotype_data(phenotype_data, batch_size, testObject)
+        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject)
 
         return phenotype_dict
 
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
+    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile):
         path = "tmp"
         S3File("mod-datadumps", loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
+        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject)
 
         return alleleDict
 

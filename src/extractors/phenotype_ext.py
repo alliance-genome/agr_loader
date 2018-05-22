@@ -3,6 +3,7 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
+
 class PhenotypeExt(object):
 
     def get_phenotype_data(self, phenotype_data, batch_size, testObject):

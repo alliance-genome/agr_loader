@@ -5,7 +5,8 @@ from .resource_descriptor_ext import ResourceDescriptor
 
 
 class AlleleExt(object):
-    def get_alleles(self, allele_data, batch_size, testObject, graph):
+
+    def get_alleles(self, allele_data, batch_size, testObject):
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
