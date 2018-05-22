@@ -2,91 +2,82 @@ import uuid
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
-from loaders.transactions import Transaction
 
 class PhenotypeExt(object):
 
-    def get_phenotype_data(phenotype_data, batch_size, testObject, graph):
+    def get_phenotype_data(phenotype_data, batch_size, testObject):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
 
 
-        for dataProviderObject in phenotype_data['metaData']['dataProvider']:
+        for pheno in phenotype_data['data']:
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
+            pubMedUrl = None
+            pubModUrl = None
+            primaryId = pheno.get('objectId')
+            phenotypeStatement = pheno.get('phenotypeStatement')
 
+            if testObject.using_test_data() is True:
+                is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
+                if is_it_test_entry is False:
+                    continue
 
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(
-                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+            pubMedId = pheno.get('pubMedId')
 
-                for pheno in phenotype_data['data']:
-                    pubMedUrl = None
-                    pubModUrl = None
-                    primaryId = pheno.get('objectId')
-                    phenotypeStatement = pheno.get('phenotypeStatement')
+            if pubMedId != None:
+                pubMedPrefix = pubMedId.split(":")[0]
+                pubMedLocalId = pubMedId.split(":")[1]
+                pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
-                    pubMedId = pheno.get('pubMedId')
+            pubModId = pheno.get('pubModId')
 
-                    if pubMedId != None:
-                        pubMedPrefix = pubMedId.split(":")[0]
-                        pubMedLocalId = pubMedId.split(":")[1]
-                        pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
+            if pubModId != None:
+                pubModPrefix = pubModId.split(":")[0]
+                pubModLocalId = pubModId.split(":")[1]
+                pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
 
-                    pubModId = pheno.get('pubModId')
+            if pubMedId == None:
+                pubMedId = ""
 
-                    if pubModId != None:
-                        pubModPrefix = pubModId.split(":")[0]
-                        pubModLocalId = pubModId.split(":")[1]
-                        pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+            if pubModId == None:
+                pubModId = ""
 
-                    if pubMedId == None:
-                        pubMedId = ""
+            dateAssigned = pheno.get('dateAssigned')
 
-                    if pubModId == None:
-                        pubModId = ""
+            if pubModId == None and pubMedId == None:
+                print (primaryId + "is missing pubMed and pubMod id")
 
-                    dateAssigned = pheno.get('dateAssigned')
+            for dataProviderObject in phenotype_data['metaData']['dataProvider']:
 
-                    if pubModId == None and pubMedId == None:
-                        print (primaryId + "is missing pubMed and pubMod id")
+                dataProviderCrossRef = dataProviderObject.get('crossReference')
+                dataProviderType = dataProviderObject.get('type')
+                dataProvider = dataProviderCrossRef.get('id')
+                dataProviderPages = dataProviderCrossRef.get('pages')
+                dataProviderCrossRefSet = []
 
-                    # query = "match (g:Gene)-[:IS_ALLELE_OF]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
-                    # tx = Transaction(graph)
-                    # returnSet = tx.run_single_parameter_query(query, primaryId)
-                    # counter = 0
-                    # allelicGeneId = ''
-                    #
-                    # for gene in returnSet:
-                    #     counter += 1
-                    #     allelicGeneId = gene["g.primaryKey"]
-                    #     print ("allelicGeneId: " + allelicGeneId)
-                    #
-                    # if counter > 1:
-                    #     print ("returning more than one gene: this is an error")
+                for dataProviderPage in dataProviderPages:
+                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                           dataProviderPage)
+                    dataProviderCrossRefSet.append(
+                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                      dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                      dataProvider + dataProviderPage))
 
-                    #elif counter < 1:
-                    print (primaryId)
+                    print (primaryId + " " + phenotypeStatement)
                     phenotype_feature = {
-                            "primaryId": primaryId,
-                            "phenotypeStatement": phenotypeStatement,
-                            "dateAssigned": dateAssigned,
-                            "pubMedId": pubMedId,
-                            "pubMedUrl": pubMedUrl,
-                            "pubModId": pubModId,
-                            "pubModUrl": pubModUrl,
-                            "pubPrimaryKey": pubMedId + pubModId,
-                            "uuid": str(uuid.uuid4()),
-                            "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
-                            "type": "gene",
-                            "dataProviderType": dataProviderType
+                        "primaryId": primaryId,
+                        "phenotypeStatement": phenotypeStatement,
+                        "dateAssigned": dateAssigned,
+                        "pubMedId": pubMedId,
+                        "pubMedUrl": pubMedUrl,
+                        "pubModId": pubModId,
+                        "pubModUrl": pubModUrl,
+                        "pubPrimaryKey": pubMedId + pubModId,
+                        "uuid": str(uuid.uuid4()),
+                        "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
+                        "type": "gene",
+                        "dataProviderType": dataProviderType
                     }
                     #
                     # else:
@@ -107,11 +98,11 @@ class PhenotypeExt(object):
                     #         "dataProviderType": dataProviderType
                     #     }
 
-                list_to_yield.append(phenotype_feature)
-                if len(list_to_yield) == batch_size:
-                    print ("yielding " + batch_size + "phenotype records")
-                    yield list_to_yield
-                    list_to_yield[:] = []  # Empty the list.
+                    list_to_yield.append(phenotype_feature)
+                    if len(list_to_yield) == batch_size:
+                        print ("yielding " + batch_size + "phenotype records")
+                        yield list_to_yield
+                        list_to_yield[:] = []  # Empty the list.
 
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+                if len(list_to_yield) > 0:
+                    yield list_to_yield
