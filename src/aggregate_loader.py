@@ -107,7 +107,7 @@ class AggregateLoader(object):
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
             print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
-            features = mod.load_phenotype_objects(self.batch_size, self.testObject, self.graph)
+            features = mod.load_phenotype_objects(self.batch_size, self.testObject)
             for feature_list_of_entries in features:
                 PhenotypeLoader(self.graph).load_phenotype_objects(feature_list_of_entries)
 

@@ -79,24 +79,6 @@ class PhenotypeExt(object):
                         "type": "gene",
                         "dataProviderType": dataProviderType
                     }
-                    #
-                    # else:
-                    #
-                    #     phenotype_feature = {
-                    #         "primaryId": primaryId,
-                    #         "phenotypeStatement": phenotypeStatement,
-                    #         "dateAssigned": dateAssigned,
-                    #         "pubMedId": pubMedId,
-                    #         "pubMedUrl": pubMedUrl,
-                    #         "pubModId": pubModId,
-                    #         "pubModUrl": pubModUrl,
-                    #         "pubPrimaryKey": pubMedId + pubModId,
-                    #         "uuid": str(uuid.uuid4()),
-                    #         "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
-                    #         "allelicGeneId": allelicGeneId,
-                    #         "type": "feature",
-                    #         "dataProviderType": dataProviderType
-                    #     }
 
                     list_to_yield.append(phenotype_feature)
                     if len(list_to_yield) == batch_size:
