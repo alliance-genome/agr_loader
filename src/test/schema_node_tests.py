@@ -44,6 +44,8 @@ class TestClass(object):
                              dict(node='Feature'), \
                              dict(node='Phenotype'), \
                              dict(node='PhenotypeEntityJoin'), \
+                             dict(node='OrthologyGeneJoin'), \
+                             dict(node='OrthoAlgorithm')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -89,6 +91,7 @@ class TestClass(object):
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
+                            dict(node='OrthologyGeneJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
@@ -147,6 +150,7 @@ class TestClass(object):
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                                dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                               dict(node='OrthologyGeneJoin', prop='joinType'), \
                                dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
