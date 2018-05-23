@@ -10,15 +10,15 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = '/orthology_test_data_1.0.0.0_1.json'
-            filename_comp = 'orthology_test_data_1.0.0.0_1.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.0_1.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.0_1.json.tar.gz'
         else:
-            filename = "/orthology_" + mod_name + "_1.0.0.0_1.json"
-            filename_comp = "orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.0_1.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
 
-        S3File("mod-datadumps/ORTHO", filename_comp, path).download()
+        S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
-        ortho_data = JSONFile().get_data(path + filename, 'orthology')
+        ortho_data = JSONFile().get_data(path + "/" + filename, 'orthology')
 
         # dateProduced = ortho_data['metaData']['dateProduced']
         dataProvider = ortho_data['metaData']['dataProvider']
