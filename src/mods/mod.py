@@ -86,7 +86,7 @@ class MOD(object):
 
     def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile):
         path = "tmp"
-        S3File("mod-datadumps", loadFile, path).download()
+        S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
         phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject)
