@@ -54,6 +54,7 @@ class PhenotypeTransaction(Transaction):
             MATCH (g:Gene {primaryKey:row.primaryId})
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
