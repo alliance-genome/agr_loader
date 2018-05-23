@@ -6,7 +6,7 @@ class PhenotypeTransaction(Transaction):
         Transaction.__init__(self, graph)
 
     def phenotype_object_tx(self, data):
-        # Loads the Disease data into Neo4j.
+        # Loads the Phenotype data into Neo4j.
 
         executeFeature = """
             UNWIND $data as row
