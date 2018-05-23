@@ -12,6 +12,7 @@ class AlleleExt(object):
 
         list_to_yield = []
         dateProduced = allele_data['metaData']['dateProduced']
+        release = ""
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
@@ -76,10 +77,10 @@ class AlleleExt(object):
                         "crossReferences": crossReferences
                     }
 
-                list_to_yield.append(allele_dataset)
-                if len(list_to_yield) == batch_size:
-                    yield list_to_yield
-                    list_to_yield[:] = []  # Empty the list.
+                    list_to_yield.append(allele_dataset)
+                    if len(list_to_yield) == batch_size:
+                        yield list_to_yield
+                        list_to_yield[:] = []  # Empty the list.
 
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+        if len(list_to_yield) > 0:
+            yield list_to_yield
