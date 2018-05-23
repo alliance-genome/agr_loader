@@ -18,6 +18,7 @@ class PhenotypeTransaction(Transaction):
             MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
@@ -25,7 +26,8 @@ class PhenotypeTransaction(Transaction):
                 SET l.loadName = "Phenotype"
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityAssociation
+                SET pa :PhenotypeEntityJoin
+                SET pa.joinType = 'phenotype'
 
             MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
             MERGE (pa)-[pad:ASSOCIATION]->(p)
@@ -59,7 +61,9 @@ class PhenotypeTransaction(Transaction):
                 SET l.loadName = "Phenotype"
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityAssociation
+                SET pa :PhenotypeEntityJoin
+                SET pa.joinType = 'phenotype'
+                
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
 
