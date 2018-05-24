@@ -11,4 +11,4 @@ class ZIPFile(object):
         print("Extracting file(s) from %s/%s ..." % (self.path, self.zipfilename))
 
         with zipfile.ZipFile(self.path + "/" + self.zipfilename, 'r') as zip_ref:
-            zip_ref.extractall(self.path)
+            zip_ref.extractall(os.path.dirname(self.path + "/" + self.zipfilename))
