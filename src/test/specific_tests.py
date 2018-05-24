@@ -91,7 +91,7 @@ def test_spell_display_name():
         assert record["counter"] < 1
 
 def test_spell_crossRefType():
-    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.crossRefType <> 'gene/other_expression' return count(cr) as counter"
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.crossRefType <> 'gene/spell' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
