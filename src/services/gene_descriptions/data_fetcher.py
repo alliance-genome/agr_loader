@@ -107,7 +107,7 @@ class AGRLoaderDataFetcher(DataFetcher):
         :rtype: List[Tuple[str, str, List[str]]"""
         terms_dict = {}
         for term in terms_list:
-            terms_dict[term["id"]] = term
+            terms_dict[term["oid"]] = term
         # get root terms
         result_set = self.query_db(db_graph=self.db_graph, query=db_query)
         root_terms = []
@@ -125,13 +125,13 @@ class AGRLoaderDataFetcher(DataFetcher):
         obsolete_terms = set()
         for term in terms_list:
             for parent_id in set().union(term["isas"], term["partofs"]):
-                node_parents_dict[term["id"]].append(parent_id)
-                node_children_dict[parent_id].append(term["id"])
-            node_names[term["id"]] = term["name"]
+                node_parents_dict[term["oid"]].append(parent_id)
+                node_children_dict[parent_id].append(term["oid"])
+            node_names[term["oid"]] = term["name"]
             for alt_id in term["alt_ids"]:
-                alt_ids[alt_id] = term["id"]
+                alt_ids[alt_id] = term["oid"]
             if term["is_obsolete"] == "true":
-                obsolete_terms.add(term["id"])
+                obsolete_terms.add(term["oid"])
         for root_term_id, root_term_name, root_term_alt_ids in root_terms:
             node_names[root_term_id] = root_term_name
             if root_term_alt_ids:
