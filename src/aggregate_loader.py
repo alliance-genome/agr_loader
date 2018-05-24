@@ -15,8 +15,7 @@ class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         self.batch_size = 5000
-        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        self.mods = [ZFIN(), MGI(), SGD(), WormBase(), RGD(), Human()]
+        self.mods = [ZFIN(), MGI(), SGD(), WormBase(), RGD(), Human(), FlyBase()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -79,10 +78,10 @@ class AggregateLoader(object):
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
-            # print("Loading Orthology data for %s into Neo4j." % mod.species)
-            # ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            # for ortholog_list_of_entries in ortholog_data:
-            #     OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+            print("Loading Orthology data for %s into Neo4j." % mod.species)
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
+            for ortholog_list_of_entries in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
