@@ -41,7 +41,7 @@ class GeneDescGenerator(object):
                                   db_graph=self.graph, go_ontology=self.cached_go_ontology,
                                   do_ontology=self.cached_do_ontology, data_provider=data_provider)
         df.load_go_data(go_terms_list=self.go_dataset, go_annotations=go_annotations)
-        df.load_disease_data(do_terms_list=self.do_dataset, disease_annotations=do_annotations)
+        # df.load_disease_data(do_terms_list=self.do_dataset, disease_annotations=do_annotations)
         # load go ontology only for the first data provider, use cached data for the others
         if not self.cached_go_ontology:
             self.cached_go_ontology = df.get_go_ontology()
@@ -79,25 +79,28 @@ class GeneDescGenerator(object):
                 if comp_sent:
                     joined_sent.append(comp_sent)
 
-            do_sentences = generate_sentences(df.get_annotations(
-                geneid=gene.id, annot_type=AnnotationType.DO,
-                priority_list=self.do_annotations_priority,
-                desc_stats=gene_desc.stats), ontology=df.get_do_ontology(),
-                evidence_groups_priority_list=self.do_evidence_groups_priority_list,
-                prepostfix_sentences_map=self.do_prepostfix_sentences_map,
-                evidence_codes_groups_map=self.do_evidence_codes_groups_map,
-                remove_parent_terms=True,
-                merge_num_terms_threshold=3,
-                merge_min_distance_from_root=self.do_trim_min_distance_from_root,
-                desc_stats=gene_desc.stats,
-                truncate_others_generic_word=self.do_truncate_others_aggregation_word,
-                truncate_others_aspect_words=self.do_truncate_others_terms)
-            if do_sentences:
-                disease_sent = " and ".join([sentence.text for sentence in do_sentences.get_sentences(
-                    aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                    desc_stats=gene_desc.stats)])
-                if disease_sent:
-                    joined_sent.append(disease_sent)
+            # exclude disease module for now
+
+            # do_sentences = generate_sentences(df.get_annotations(
+            #     geneid=gene.id, annot_type=AnnotationType.DO,
+            #     priority_list=self.do_annotations_priority,
+            #     desc_stats=gene_desc.stats), ontology=df.get_do_ontology(),
+            #     evidence_groups_priority_list=self.do_evidence_groups_priority_list,
+            #     prepostfix_sentences_map=self.do_prepostfix_sentences_map,
+            #     evidence_codes_groups_map=self.do_evidence_codes_groups_map,
+            #     remove_parent_terms=True,
+            #     merge_num_terms_threshold=3,
+            #     merge_min_distance_from_root=self.do_trim_min_distance_from_root,
+            #     desc_stats=gene_desc.stats,
+            #     truncate_others_generic_word=self.do_truncate_others_aggregation_word,
+            #     truncate_others_aspect_words=self.do_truncate_others_terms)
+            # if do_sentences:
+            #     disease_sent = " and ".join([sentence.text for sentence in do_sentences.get_sentences(
+            #         aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False,
+            #         desc_stats=gene_desc.stats)])
+            #
+            #    if disease_sent:
+            #        joined_sent.append(disease_sent)
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
