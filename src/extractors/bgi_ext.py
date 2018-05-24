@@ -91,9 +91,7 @@ class BGIExt(object):
                                                                                    prefix, prefix + page)
 
                                         if page == 'gene/spell':
-                                            page = 'gene/other_expression'
                                             displayName='Serial Patterns of Expression Levels Locator (SPELL)'
-
 
                                         # TODO: fix generic_cross_reference in SGD, RGD
 
