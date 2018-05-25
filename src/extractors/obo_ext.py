@@ -90,7 +90,7 @@ class OExt(object):
                     if "[" in definition.split("\"")[2].strip():
                         defLinks = definition.split("\"")[2].strip()
                         defLinks = defLinks.rstrip("]").replace("[", "")
-                        defLinks = defLinks.replace("url:www", "http://wwww")
+                        defLinks = defLinks.replace("url:www", "http://www")
                         defLinks = defLinks.replace("url:", "")
                         defLinks = defLinks.replace("URL:", "")
                         defLinks = defLinks.replace("\\:", ":")
