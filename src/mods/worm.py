@@ -5,11 +5,10 @@ class WormBase(MOD):
 
     def __init__(self):
         self.species = "Caenorhabditis elegans"
-        self.loadFile = "WB_1.0.0.3_1.tar.gz"
-        self.bgiName = "/WB_1.0.0.3_BGI.json"
-        self.diseaseName = "/WB_1.0.0.3_disease.json"
-        self.phenotypeName = "/WB_1.0.0.3_phenotype.json"
-        self.alleleName = "/WB_1.0.0.3_allele.json"
+        self.loadFile = "WB_1.0.0.2_5.tar.gz"
+        self.bgiName = "/WB_1.0.0.2_BGI.json"
+        self.diseaseName = "/WB_1.0.0.2_disease.json"
+        self.alleleName = "/WB_1.0.0.2_allele.json"
         self.geneAssociationFile = "gene_association_1.0.wb.gz"
         self.identifierPrefix = "WB:"
         self.geoSpecies = "Caenorhabditis+elegans"
@@ -39,12 +38,8 @@ class WormBase(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_phenotype_objects(self, batch_size, testObject):
-        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
-        return data
-
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

@@ -26,8 +26,6 @@ class JSONFile(object):
             schema_file_name = 'schemas/orthology/orthoMetaData.json'
         elif jsonType == 'allele':
             schema_file_name = 'schemas/allele/alleleMetaData.json'
-        elif jsonType == 'phenotype':
-            schema_file_name = 'schemas/phenotype/phenotypeMetaDataDefinition.json'
 
 
         with open(schema_file_name) as schema_file:

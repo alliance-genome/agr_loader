@@ -41,11 +41,7 @@ class TestClass(object):
                              dict(node='Association'), \
                              dict(node='Publication'), \
                              dict(node='EvidenceCode'), \
-                             dict(node='Feature'), \
-                             dict(node='Phenotype'), \
-                             dict(node='PhenotypeEntityJoin'), \
-                             dict(node='OrthologyGeneJoin'), \
-                             dict(node='OrthoAlgorithm')
+                             dict(node='Feature'),
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -90,13 +86,10 @@ class TestClass(object):
                             dict(node='Chromosome', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
-                            dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                            dict(node='OrthologyGeneJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
-                            dict(node='Phenotype', prop='primaryKey'), \
-                            dict(node='Phenotype', prop='phenotypeStatement'), \
                             dict(node='Publication', prop='pubMedId'), \
+                           #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
@@ -120,7 +113,6 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'), \
                                dict(node='Gene', prop='uuid'), \
                                dict(node='GOTerm', prop='primaryKey'), \
-                               #some ontology terms have no name, apparently: also happens for CL terms in the DO
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
                                dict(node='DOTerm', prop='doPrefix'), \
@@ -149,9 +141,8 @@ class TestClass(object):
                                dict(node='Chromosome', prop='primaryKey'), \
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                               dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                               dict(node='OrthologyGeneJoin', prop='joinType'), \
-                               dict(node='Phenotype', prop='phenotypeStatement'), \
+                               dict(node='DiseaseEntityJoin', prop='joinType'), \
+                               dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
                                dict(node='Publication', prop='pubMedId'), \
@@ -170,7 +161,6 @@ class TestClass(object):
                              dict(node='Publication', prop='primaryKey'), \
                              dict(node='Association', prop='primaryKey'), \
                              dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                             dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
