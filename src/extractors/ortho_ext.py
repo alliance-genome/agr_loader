@@ -1,76 +1,63 @@
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 import uuid
-from services import UrlService
-from services import CreateCrossReference
-from .resource_descriptor_ext import ResourceDescriptor
 
 class OrthoExt(object):
 
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
-
-        xrefUrlMap = ResourceDescriptor().get_data()
         path = "tmp"
-
+        filename = None
+        filename_comp = None
         if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.3.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.3.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.0_1.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.0_1.json.tar.gz'
         else:
-            filename = "orthology_" + mod_name + "_1.0.0.3.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.3.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.0_1.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + "/" + filename, 'orthology')
 
+        # dateProduced = ortho_data['metaData']['dateProduced']
+        dataProvider = ortho_data['metaData']['dataProvider']
+        # release = None
+
+        # if 'release' in ortho_data['metaData']:
+        #     release = ortho_data['metaData']['release']
+
         list_to_yield = []
 
         for orthoRecord in ortho_data['data']:
 
-            for dataProviderObject in ortho_data['metaData']['dataProvider']:
+            # Sort out identifiers and prefixes.
+            gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
+            gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
 
-                dataProviderCrossRef = dataProviderObject.get('crossReference')
-                dataProviderType = dataProviderObject.get('type')
-                dataProvider = dataProviderCrossRef.get('id')
-                dataProviderPages = dataProviderCrossRef.get('pages')
-                dataProviderCrossRefSet = []
+            gene1Species = orthoRecord['gene1Species']
+            gene2Species = orthoRecord['gene2Species']
 
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
-                                                                           dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                      dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                      dataProvider + dataProviderPage))
+            gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
+            gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
 
-                # Sort out identifiers and prefixes.
-                gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
-                gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProvider) # 'DRSC:'' removed, local ID, functions as display ID.
+            if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
-                gene1Species = orthoRecord['gene1Species']
-                gene2Species = orthoRecord['gene2Species']
+                ortho_dataset = {
+                    'isBestScore': orthoRecord['isBestScore'],
+                    'isBestRevScore': orthoRecord['isBestRevScore'],
 
-                gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
-                gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
+                    'gene1AgrPrimaryId' : gene1AgrPrimaryId,
+                    'gene2AgrPrimaryId': gene2AgrPrimaryId,
 
-                if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
+                    'matched': orthoRecord['predictionMethodsMatched'],
+                    'notMatched': orthoRecord['predictionMethodsNotMatched'],
+                    'notCalled': orthoRecord['predictionMethodsNotCalled'],
 
-                    ortho_dataset = {
-                        'isBestScore': orthoRecord['isBestScore'],
-                        'isBestRevScore': orthoRecord['isBestRevScore'],
+                    'confidence': orthoRecord['confidence'],
 
-                        'gene1AgrPrimaryId' : gene1AgrPrimaryId,
-                        'gene2AgrPrimaryId': gene2AgrPrimaryId,
-
-                        'matched': orthoRecord['predictionMethodsMatched'],
-                        'notMatched': orthoRecord['predictionMethodsNotMatched'],
-                        'notCalled': orthoRecord['predictionMethodsNotCalled'],
-
-                        'confidence': orthoRecord['confidence'],
-
-                        'uuid': str(uuid.uuid4())
-                    }
+                    'uuid': str(uuid.uuid4())
+                }
 
                 # Establishes the number of entries to yield (return) at a time.
                 list_to_yield.append(ortho_dataset)

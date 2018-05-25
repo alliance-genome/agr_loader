@@ -51,8 +51,8 @@ class AlleleTransaction(Transaction):
                 MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
                 MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
-            MERGE (o)-[aspec:FROM_SPECIES]->(s)
-            MERGE (l)-[laspec:LOADED_FROM]-(s)
+            MERGE (o)-[aspec:FROM_SPECIES]->(spec)
+            MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
             MERGE (o)<-[ag:IS_ALLELE_OF]->(g)
             //Merge the entity node.
