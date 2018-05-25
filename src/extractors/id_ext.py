@@ -1,15 +1,16 @@
 class IdExt(object):
     @staticmethod
-    def process_identifiers(identifier, dataProvider):
-        dataProviderDict = {
-            'DRSC': 'DRSC:'
-        }
+    def process_identifiers(identifier, dataProviders):
+        for dataProvider in dataProviders:
+            dataProviderDict = {
+                'DRSC': 'DRSC:'
+            }
 
-        # Remove the prefix of the identifier based on the dataProvider.
-        prefix = dataProviderDict[dataProvider]
+            # Remove the prefix of the identifier based on the dataProvider.
+            prefix = dataProviderDict[dataProvider]
 
-        if identifier.startswith(prefix):
-            return identifier[len(prefix):]
+            if identifier.startswith(prefix):
+                return identifier[len(prefix):]
 
     @staticmethod
     def add_agr_prefix_by_species(identifier, species):

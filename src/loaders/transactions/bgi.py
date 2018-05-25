@@ -23,7 +23,6 @@ class BGITransaction(Transaction):
             //Create the load node(s)
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "BGI"
 
             //Create the Gene node and set properties. primaryKey is required.
@@ -37,7 +36,6 @@ class BGITransaction(Transaction):
                 SET o.geneLiteratureUrl = row.geneLiteratureUrl
                 SET o.geneticEntityExternalUrl = row.geneticEntityExternalUrl
                 SET o.dateProduced = row.dateProduced
-                SET o.dataProvider = row.dataProvider
                 SET o.modGlobalCrossRefId = row.modGlobalCrossRefId
                 SET o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
                 SET o.modLocalId = row.localId
@@ -46,6 +44,11 @@ class BGITransaction(Transaction):
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.
+
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             FOREACH (entry in row.secondaryIds |           
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})

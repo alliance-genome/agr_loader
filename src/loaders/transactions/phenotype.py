@@ -22,7 +22,6 @@ class PhenotypeTransaction(Transaction):
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Phenotype"
 
             MERGE (pa:Association {primaryKey:row.uuid})
@@ -33,6 +32,11 @@ class PhenotypeTransaction(Transaction):
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
+
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId
@@ -58,7 +62,6 @@ class PhenotypeTransaction(Transaction):
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Phenotype"
 
             MERGE (pa:Association {primaryKey:row.uuid})
@@ -67,6 +70,11 @@ class PhenotypeTransaction(Transaction):
                 
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
+
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             // PUBLICATIONS FOR FEATURE
 

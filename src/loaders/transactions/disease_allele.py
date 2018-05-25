@@ -21,15 +21,16 @@ class DiseaseAlleleTransaction(Transaction):
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Disease"
+
+            MERGE (spec:Species {primaryKey: row.taxonId})
+            MERGE (feature)<-[:FROM_SPECIES]->(spec)
 
             MERGE (dfa:Association {primaryKey:row.uuid})
                 SET dfa :DiseaseEntityJoin
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                SET faf.dataProvider = row.dataProvider
                 SET faf.dateProduced = row.dateProduced
                 SET dfa.joinType = 'is_marker_of'
             )
@@ -40,6 +41,11 @@ class DiseaseAlleleTransaction(Transaction):
                 SET faf.dateProduced = row.dateProduced
                 SET dfa.joinType = 'is_implicated_in'
             )
+
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (dfa)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)

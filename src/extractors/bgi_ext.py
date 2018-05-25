@@ -20,7 +20,9 @@ class BGIExt(object):
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
+            dataProviders = []
             release = None
+            loadKey = dateProduced + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -30,154 +32,158 @@ class BGIExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                if 'release' in gene_data['metaData']:
-                    release = gene_data['metaData']['release']
+                dataProviders.append(dataProvider)
+                loadKey = dataProvider + loadKey
 
-                for geneRecord in gene_data['data']:
-                    crossReferences = []
-                    genomic_locations = []
+        if 'release' in gene_data['metaData']:
+            release = gene_data['metaData']['release']
 
-                    primary_id = geneRecord['primaryId']
-                    global_id = geneRecord['primaryId']
+        for geneRecord in gene_data['data']:
+            crossReferences = []
+            genomic_locations = []
 
-                    local_id = global_id.split(":")[1]
-                    geneLiteratureUrl = ""
-                    geneticEntityExternalUrl = ""
-                    modCrossReferenceCompleteUrl = ""
-                    taxonId = geneRecord.get("taxonId")
+            primary_id = geneRecord['primaryId']
+            global_id = geneRecord['primaryId']
 
-                    if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
-                        local_id = geneRecord['primaryId']
+            local_id = global_id.split(":")[1]
+            geneLiteratureUrl = ""
+            geneticEntityExternalUrl = ""
+            modCrossReferenceCompleteUrl = ""
+            taxonId = geneRecord.get("taxonId")
 
-                    if testObject.using_test_data() is True:
-                        is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
-                        if is_it_test_entry is False:
-                            continue
+            if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
+                local_id = geneRecord['primaryId']
 
-                    #TODO: can we split this off into another class?
+            if testObject.using_test_data() is True:
+                is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
+                if is_it_test_entry is False:
+                    continue
 
-                    if 'crossReferences' in geneRecord:
-                        for crossRef in geneRecord['crossReferences']:
-                            if ':' in crossRef.get('id'):
-                                crossRefId = crossRef.get('id')
-                                localCrossRefId = crossRefId.split(":")[1]
-                                prefix = crossRef.get('id').split(":")[0]
-                                pages = crossRef.get('pages')
-                                globalXrefId = crossRef.get('id')
-                                displayName = globalXrefId
+            #TODO: can we split this off into another class?
 
-                                # some pages collection have 0 elements
-                                if pages is not None and len(pages) > 0:
-                                    for page in pages:
-                                        modCrossReferenceCompleteUrl = ""
-                                        geneLiteratureUrl = ""
+            if 'crossReferences' in geneRecord:
+                for crossRef in geneRecord['crossReferences']:
+                    if ':' in crossRef.get('id'):
+                        crossRefId = crossRef.get('id')
+                        localCrossRefId = crossRefId.split(":")[1]
+                        prefix = crossRef.get('id').split(":")[0]
+                        pages = crossRef.get('pages')
+                        globalXrefId = crossRef.get('id')
+                        displayName = globalXrefId
 
-                                        # TODO: fix this as SGD fixes
-                                        if page == 'gene/interaction':
-                                            page = 'gene/interactions'
+                        # some pages collection have 0 elements
+                        if pages is not None and len(pages) > 0:
+                            for page in pages:
+                                modCrossReferenceCompleteUrl = ""
+                                geneLiteratureUrl = ""
 
-                                        crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
+                                # TODO: fix this as SGD fixes
+                                if page == 'gene/interaction':
+                                    page = 'gene/interactions'
 
-                                        if page == 'gene':
-                                            modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
-                                                                                              xrefUrlMap, prefix,
-                                                                                              prefix + page)
+                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
 
-                                        geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                if page == 'gene':
+                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
+                                                                                            xrefUrlMap, prefix,
+                                                                                            prefix + page)
+
+                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                       prefix, prefix + page)
 
-                                        if page == 'gene/references':
-                                            geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
+                                if page == 'gene/references':
+                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                    prefix, prefix + page)
 
-                                        if page == 'gene/spell':
-                                            displayName='Serial Patterns of Expression Levels Locator (SPELL)'
+                                if page == 'gene/spell':
+                                    page = 'gene/other_expression'
+                                    displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
-                                        # TODO: fix generic_cross_reference in SGD, RGD
 
-                                        if page == 'generic_cross_reference':
-                                            crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+                                # TODO: fix generic_cross_reference in SGD, RGD
 
-                                        crossReferences.append(
-                                            CreateCrossReference.get_xref(localCrossRefId, prefix, page,
+                                if page == 'generic_cross_reference':
+                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+
+                                crossReferences.append(
+                                        CreateCrossReference.get_xref(localCrossRefId, prefix, page,
                                                                   page, displayName, crossRefCompleteUrl, globalXrefId+page))
 
-                                else:
-                                    if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
-                                        #TODO: add bucket for panther
-                                        crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
-                                        crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
+                        else:
+                            if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
+                                #TODO: add bucket for panther
+                                crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                           prefix, primary_id)
 
-                                        crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId+"gene/panther"))
+                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId+"gene/panther"))
 
 
-                                    else:
-                                        crossRefPrimaryId = crossRef.get('id')
-                                        crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
+                            else:
+                                crossRefPrimaryId = crossRef.get('id')
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                           prefix, primary_id)
-                                        crossReferences.append(
-                                            CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
+                                crossReferences.append(
+                                    CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
                                                                   "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId+"generic_cross_reference"))
 
+            if 'genomeLocations' in geneRecord:
+                for genomeLocation in geneRecord['genomeLocations']:
+                    chromosome = genomeLocation['chromosome']
+                    assembly = genomeLocation['assembly']
+                    if 'startPosition' in genomeLocation:
+                        start = genomeLocation['startPosition']
+                    else:
+                        start = None
+                    if 'endPosition' in genomeLocation:
+                        end = genomeLocation['endPosition']
+                    else:
+                        end = None
+                    if 'strand' in geneRecord['genomeLocations']:
+                        strand = genomeLocation['strand']
+                    else:
+                        strand = None
+                    genomic_locations.append(
+                        {"geneLocPrimaryId": primary_id, "chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
 
-                    if 'genomeLocations' in geneRecord:
-                        for genomeLocation in geneRecord['genomeLocations']:
-                            chromosome = genomeLocation['chromosome']
-                            assembly = genomeLocation['assembly']
-                            if 'startPosition' in genomeLocation:
-                                start = genomeLocation['startPosition']
-                            else:
-                                start = None
-                            if 'endPosition' in genomeLocation:
-                                end = genomeLocation['endPosition']
-                            else:
-                                end = None
-                            if 'strand' in geneRecord['genomeLocations']:
-                                strand = genomeLocation['strand']
-                            else:
-                                strand = None
-                            genomic_locations.append(
-                                {"geneLocPrimaryId": primary_id, "chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
-
-                    gene_dataset = {
-                        "symbol": geneRecord['symbol'],
-                        "name": geneRecord.get('name'),
-                        "geneticEntityExternalUrl": geneticEntityExternalUrl,
-                        "description": geneRecord.get('description'),
-                        "synonyms": geneRecord.get('synonyms'),
-                        "soTermId": geneRecord['soTermId'],
-                        "soTermName": None,
-                        "diseases": [],
-                        "secondaryIds": geneRecord.get('secondaryIds'),
-                        "geneSynopsis": geneRecord.get('geneSynopsis'),
-                        "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
-                        "taxonId": geneRecord['taxonId'],
-                        "species": SpeciesService.get_species(taxonId),
-                        "genomeLocations": genomic_locations,
-                        "geneLiteratureUrl": geneLiteratureUrl,
-                        "name_key": geneRecord['symbol'],
-                        "primaryId": primary_id,
-                        "crossReferences": crossReferences,
-                        "category": "gene",
-                        "dateProduced": dateProduced,
-                        "dataProvider": dataProvider,
-                        "release": release,
-                        "href": None,
-                        "uuid": str(uuid.uuid4()),
-                        "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
-                        "localId": local_id,
-                        "modGlobalCrossRefId": global_id,
-                        "modGlobalId": global_id,
-                        "loadKey": dataProvider+"_"+dateProduced+"_BGI"
-                    }
+            gene_dataset = {
+                "symbol": geneRecord['symbol'],
+                "name": geneRecord.get('name'),
+                "geneticEntityExternalUrl": geneticEntityExternalUrl,
+                "description": geneRecord.get('description'),
+                "synonyms": geneRecord.get('synonyms'),
+                "soTermId": geneRecord['soTermId'],
+                "soTermName": None,
+                "diseases": [],
+                "secondaryIds": geneRecord.get('secondaryIds'),
+                "geneSynopsis": geneRecord.get('geneSynopsis'),
+                "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
+                "taxonId": geneRecord['taxonId'],
+                "species": SpeciesService.get_species(taxonId),
+                "genomeLocations": genomic_locations,
+                "geneLiteratureUrl": geneLiteratureUrl,
+                "name_key": geneRecord['symbol'],
+                "primaryId": primary_id,
+                "crossReferences": crossReferences,
+                "category": "gene",
+                "dateProduced": dateProduced,
+                "dataProvider": dataProviders,
+                "release": release,
+                "href": None,
+                "uuid": str(uuid.uuid4()),
+                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
+                "localId": local_id,
+                "modGlobalCrossRefId": global_id,
+                "modGlobalId": global_id,
+                "loadKey": loadKey
+            }
             
-                    # Establishes the number of genes to yield (return) at a time.
-                    list_to_yield.append(gene_dataset)
-                    if len(list_to_yield) == batch_size:
-                        yield list_to_yield
-                        list_to_yield[:] = []  # Empty the list.
+            # Establishes the number of genes to yield (return) at a time.
+            list_to_yield.append(gene_dataset)
+            if len(list_to_yield) == batch_size:
+                yield list_to_yield
+                list_to_yield[:] = []  # Empty the list.
 
-                if len(list_to_yield) > 0:
-                    yield list_to_yield
+        if len(list_to_yield) > 0:
+            yield list_to_yield
 

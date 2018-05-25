@@ -11,6 +11,28 @@ class PhenotypeExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
 
+        for dataProviderObject in phenotype_data['metaData']['dataProvider']:
+
+            dataProviderCrossRef = dataProviderObject.get('crossReference')
+            dataProviderType = dataProviderObject.get('type')
+            dataProvider = dataProviderCrossRef.get('id')
+            dataProviderPages = dataProviderCrossRef.get('pages')
+            dataProviderCrossRefSet = []
+            dataProviders = []
+            release = None
+            loadKey = dateProduced + "_BGI"
+
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                       dataProviderPage)
+                dataProviderCrossRefSet.append(
+                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                  dataProvider + dataProviderPage))
+
+                dataProviders.append(dataProvider)
+                loadKey = dataProvider + loadKey
+
         for pheno in phenotype_data['data']:
 
             pubMedUrl = None
@@ -48,43 +70,27 @@ class PhenotypeExt(object):
             if pubModId == None and pubMedId == None:
                 print (primaryId + "is missing pubMed and pubMod id")
 
-            for dataProviderObject in phenotype_data['metaData']['dataProvider']:
+            phenotype_feature = {
+                "primaryId": primaryId,
+                "phenotypeStatement": phenotypeStatement,
+                "dateAssigned": dateAssigned,
+                "pubMedId": pubMedId,
+                "pubMedUrl": pubMedUrl,
+                "pubModId": pubModId,
+                "pubModUrl": pubModUrl,
+                "pubPrimaryKey": pubMedId + pubModId,
+                "uuid": str(uuid.uuid4()),
+                "loadKey": loadKey,
+                "type": "gene",
+                "dataProviders": dataProviders,
+                "dataProviderType": dataProviderType
+             }
 
-                dataProviderCrossRef = dataProviderObject.get('crossReference')
-                dataProviderType = dataProviderObject.get('type')
-                dataProvider = dataProviderCrossRef.get('id')
-                dataProviderPages = dataProviderCrossRef.get('pages')
-                dataProviderCrossRefSet = []
+            list_to_yield.append(phenotype_feature)
 
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
-                                                                           dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                      dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                      dataProvider + dataProviderPage))
-
-                    phenotype_feature = {
-                        "primaryId": primaryId,
-                        "phenotypeStatement": phenotypeStatement,
-                        "dateAssigned": dateAssigned,
-                        "pubMedId": pubMedId,
-                        "pubMedUrl": pubMedUrl,
-                        "pubModId": pubModId,
-                        "pubModUrl": pubModUrl,
-                        "pubPrimaryKey": pubMedId + pubModId,
-                        "uuid": str(uuid.uuid4()),
-                        "loadKey": dataProvider + "_" + dateProduced + "_phenotype",
-                        "type": "gene",
-                        "dataProviderType": dataProviderType
-                    }
-
-                    list_to_yield.append(phenotype_feature)
-
-                    if len(list_to_yield) == batch_size:
-                        print ("yielding " + batch_size + "phenotype records")
-                        yield list_to_yield
-                        list_to_yield[:] = []  # Empty the list.
+            if len(list_to_yield) == batch_size:
+                yield list_to_yield
+                list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
             yield list_to_yield
