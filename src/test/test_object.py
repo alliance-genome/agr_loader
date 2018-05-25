@@ -20,12 +20,15 @@ class TestObject(object):
             'MGI:1929183', 'MGI:2443198', 'MGI:1861441', 'MGI:1928478', 'MGI:1928761',
             'MGI:1914047', 'MGI:88053', 'MGI:88054', 'MGI:1855948',
             'MGI:88056', 'MGI:88456', 'MGI:88447', 'MGI:88587', 'MGI:1338803', 'MGI:94864', 'MGI:1915101',
-            'MGI:1915112', 'MGI:1355324', 'MGI:3029164', 'MGI:1856330'
-                                                         'MGI:1915181', 'MGI:1915162', 'MGI:1915164', 'MGI:1929699',
+            'MGI:1915112', 'MGI:1355324', 'MGI:3029164', 'MGI:1856330',
+            'MGI:1915181', 'MGI:1915162', 'MGI:1915164', 'MGI:1929699',
             'MGI:94909', 'MGI:1856331', 'MGI:97490', 'MGI:108092', 'MGI:2156738',
             'MGI:2148260', 'MGI:1856328', 'MGI:2678393', 'MGI:2429942', 'MGI:1856332', 'MGI:5569634',
             'MGI:3531484', 'MGI:3531484',
-            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834'
+            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834',
+            # phenotype objects
+            'MGI:2670749', 'MGI:2656842'
+
         }
 
         self.wormbaseIdSet = {
@@ -33,12 +36,17 @@ class TestObject(object):
             'WB:WBGene00006750', 'WB:WBGene00000540', 'WB:WBGene00017866', 'WB:WBGene00001131',
             'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133', 'WB:WBGene00001115',
             'WB:WBGene00018468', 'WB:WBGene00019001', 'WB:WBGene00007438', 'WB:WBGene00001136', 'WB:WBGene00006742',
-            'WBVar:WBVar00000013', 'WBVar:WBVar00000012'
+            # phenotype and disease objects
+            'WBVar:WBVar00000012', 'WBVar:WBVar00000013',
         }
 
         self.sgdIdSet = {
             'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119', 'SGD:S000001015',
-            'SGD:S000002200', 'SGD:S000002386'
+            'SGD:S000002200', 'SGD:S000002386',
+            # phenotypic genes
+            'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383'
+
+
         }
 
         self.zfinIdSet = {
@@ -50,8 +58,14 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
             'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
-            'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
-            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'
+            'ZFIN:ZDB-GENE-040426-1716','ZFIN:ZDB-GENE-000511-1', 'ZFIN:ZDB-GENE-031118-202',
+            # features with genes above, have disease
+            'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
+            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
+            # genes with phenotype
+            'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-000208-23', 'ZFIN:ZDB-GENE-000208-25',
+            # features with phenotype that also have genes above
+            'ZFIN:ZDB-ALT-991201-15', 'ZFIN:ZDB-ALT-991130-42'
 
         }
         self.flybaseIdSet = {

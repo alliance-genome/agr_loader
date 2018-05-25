@@ -3,6 +3,7 @@ from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
 from loaders.geo_loader import *
+from loaders.phenotype_loader import  *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
@@ -13,11 +14,8 @@ from neo4j.v1 import GraphDatabase
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-        # Set size of BGI, disease batches extracted from MOD JSON file
-        # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        #self.mods = [WormBase()]
+        self.mods = [ZFIN(), MGI(), SGD(), WormBase(), RGD(), Human(), FlyBase()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -76,7 +74,7 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
@@ -94,6 +92,11 @@ class AggregateLoader(object):
             features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
+
+            print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
+            phenos = mod.load_phenotype_objects(self.batch_size, self.testObject)
+            for pheno_list_of_entries in phenos:
+                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries)
 
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)

@@ -31,6 +31,7 @@ class TestClass(object):
                             dict(node1='Ontology:DOTerm', node2='Identifier:CrossReference'), \
                             dict(node1='Ontology:DOTerm', node2='Ontology:DOTerm'), \
                             dict(node1='Ontology:DOTerm', node2='Identifier:Synonym'), \
+                            #TODO: convert to "or" tests  -- has either a gene or a feature, for example
                             # commented out because now we have alleles as well
                             # dict(node1='Ontology:DOTerm', node2='Gene'), \
                             dict(node1='Ontology:DOTerm', node2='DiseaseEntityJoin:Association'), \
@@ -60,11 +61,10 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='EvidenceCode'),
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'),
                             dict(node1='Feature', node2='CrossReference'),
-                            dict(node1='Feature', node2='CrossReference')]
-                            #TODO: convert to "or" tests  -- has either a gene or a feature, for example
-                            #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \
-                            #dict(node1='EvidenceCode', node2='DiseaseEntityJoin:Association'), \
-                            #dict(node1='Ontology:GOTerm', node2='Gene')]
+                            dict(node1='Feature', node2='CrossReference'),
+                            dict(node1='PhenotypeEntityJoin:Association', node2='Publication'),
+                            dict(node1='Phenotype', node2='PhenotypeEntityJoin')
+                            ]
     }
 
     # Query to return all distinct properties from all nodes of a certain type:

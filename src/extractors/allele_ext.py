@@ -5,13 +5,13 @@ from .resource_descriptor_ext import ResourceDescriptor
 
 
 class AlleleExt(object):
-    def get_alleles(self, allele_data, batch_size, testObject, graph):
+
+    def get_alleles(self, allele_data, batch_size, testObject):
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
         list_to_yield = []
         dateProduced = allele_data['metaData']['dateProduced']
-        dataProvider = allele_data['metaData']['dataProvider']
         release = ""
 
         if 'release' in allele_data['metaData']:
@@ -41,31 +41,46 @@ class AlleleExt(object):
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                                crossReferences.append(
-                                    CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
-            allele_dataset = {
-                "symbol": alleleRecord.get('symbol'),
-                "geneId": alleleRecord.get('gene'),
-                "primaryId": alleleRecord.get('primaryId'),
-                "globalId": globalId,
-                "localId": localId,
-                "taxonId": alleleRecord.get('taxonId'),
-                "synonyms": alleleRecord.get('synonyms'),
-                "secondaryIds": alleleRecord.get('secondaryIds'),
-                "dataProvider": dataProvider,
-                "dateProduced": dateProduced,
-                "loadKey": dataProvider + "_" + dateProduced + "_allele",
-                "release": release,
-                "modGlobalCrossRefId": modGlobalCrossRefId,
-                "uuid": str(uuid.uuid4()),
-                "crossReferences": crossReferences
-            }
+                                crossReferences.append(CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
 
-            list_to_yield.append(allele_dataset)
-            if len(list_to_yield) == batch_size:
-                yield list_to_yield
+                for dataProviderObject in allele_data['metaData']['dataProvider']:
 
-                list_to_yield[:] = []  # Empty the list.
+                    dataProviderCrossRef = dataProviderObject.get('crossReference')
+                    dataProviderType = dataProviderObject.get('type')
+                    dataProvider = dataProviderCrossRef.get('id')
+                    dataProviderPages = dataProviderCrossRef.get('pages')
+                    dataProviderCrossRefSet = []
+
+                    for dataProviderPage in dataProviderPages:
+                        crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                               dataProviderPage)
+                        dataProviderCrossRefSet.append(
+                            CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                          dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                          dataProvider + dataProviderPage))
+
+                    allele_dataset = {
+                        "symbol": alleleRecord.get('symbol'),
+                        "geneId": alleleRecord.get('gene'),
+                        "primaryId": alleleRecord.get('primaryId'),
+                        "globalId": globalId,
+                        "localId": localId,
+                        "taxonId": alleleRecord.get('taxonId'),
+                        "synonyms": alleleRecord.get('synonyms'),
+                        "secondaryIds": alleleRecord.get('secondaryIds'),
+                        "dataProvider": dataProvider,
+                        "dateProduced": dateProduced,
+                        "loadKey": dataProvider + "_" + dateProduced + "_allele",
+                        "release": release,
+                        "modGlobalCrossRefId": modGlobalCrossRefId,
+                        "uuid": str(uuid.uuid4()),
+                        "crossReferences": crossReferences
+                    }
+
+                    list_to_yield.append(allele_dataset)
+                    if len(list_to_yield) == batch_size:
+                        yield list_to_yield
+                        list_to_yield[:] = []  # Empty the list.
 
         if len(list_to_yield) > 0:
             yield list_to_yield

@@ -4,10 +4,11 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.0.2_4.tar.gz"
-        self.bgiName = "/FB_1.0.0.2_BGI.json"
-        self.diseaseName = "/FB_1.0.0.2_disease.json"
-        self.alleleName = "/FB_1.0.0.2_feature.json"
+        self.loadFile = "FB_1.0.0.3_1.tar.gz"
+        self.bgiName = "/FB_1.0.0.3_BGI.json"
+        self.diseaseName = "/FB_1.0.0.3_disease.json"
+        self.phenotypeName = "/FB_1.0.0.3_phenotype.json"
+        self.alleleName = "/FB_1.0.0.3_feature.json"
         self.geneAssociationFile = "gene_association_1.0.fb.gz"
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
@@ -37,8 +38,12 @@ class FlyBase(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject, graph):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
+    def load_phenotype_objects(self, batch_size, testObject):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+        return data
+
+    def load_allele_objects(self, batch_size, testObject):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
