@@ -47,8 +47,8 @@ class OrthoExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
+            dataProviders.append(dataProvider)
+            loadKey = dataProvider + loadKey
 
         list_to_yield = []
 

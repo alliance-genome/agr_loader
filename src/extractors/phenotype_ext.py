@@ -19,7 +19,6 @@ class PhenotypeExt(object):
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             dataProviders = []
-            release = None
             loadKey = dateProduced + "_BGI"
 
             for dataProviderPage in dataProviderPages:
@@ -30,8 +29,8 @@ class PhenotypeExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
+            dataProviders.append(dataProvider)
+            loadKey = dataProvider + loadKey
 
         for pheno in phenotype_data['data']:
 

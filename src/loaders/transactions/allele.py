@@ -45,7 +45,7 @@ class AlleleTransaction(Transaction):
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
                     SET second.name = entry
-                MERGE (a)-[aka1:ALSO_KNOWN_AS]->(second)
+                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
                 MERGE (l)-[las:LOADED_FROM]-(second))
 
             FOREACH (entry in row.synonyms |

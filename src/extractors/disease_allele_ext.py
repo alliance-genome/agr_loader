@@ -11,17 +11,16 @@ class DiseaseAlleleExt(object):
     def get_allele_disease_data(self, disease_data, batch_size, graph):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
+        print (dateProduced)
         xrefUrlMap = ResourceDescriptor().get_data()
 
         for dataProviderObject in disease_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             dataProviders = []
-            loadKey = dateProduced + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -31,9 +30,7 @@ class DiseaseAlleleExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
-
+            dataProviders.append(dataProvider)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
@@ -58,7 +55,7 @@ class DiseaseAlleleExt(object):
                         allelicGeneId = ''
                         print ("returning more than one gene: this is an error")
 
-                    disease_features = get_disease_record(diseaseRecord, dateProduced, dataProviders, release, allelicGeneId)
+                    disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId)
 
                     list_to_yield.append(disease_features)
                     if len(list_to_yield) == batch_size:

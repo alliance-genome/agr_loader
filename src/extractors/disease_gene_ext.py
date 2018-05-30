@@ -11,19 +11,16 @@ class DiseaseGeneExt(object):
     def get_gene_disease_data(self, disease_data, batch_size):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
-        release = None
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
         for dataProviderObject in disease_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             dataProviders = []
-            loadKey = dateProduced + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -33,9 +30,8 @@ class DiseaseGeneExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
-
+            dataProviders.append(dataProvider)
+            print (dataProvider)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']

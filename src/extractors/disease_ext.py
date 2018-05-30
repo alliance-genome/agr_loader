@@ -90,7 +90,7 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
             "pubModUrl": pubModUrl,
             "pubPrimaryKey": pubMedId + publicationModId,
             "release": release,
-            "dataProvider": dataProviders,
+            "dataProviders": dataProviders,
             "relationshipType": diseaseAssociationType,
             "dateProduced": dateProduced,
             "qualifier": qualifier,

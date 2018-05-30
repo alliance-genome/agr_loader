@@ -20,8 +20,8 @@ class AlleleExt(object):
         for dataProviderObject in allele_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
             dataProvider = dataProviderCrossRef.get('id')
+            print (dataProvider + "allele")
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             dataProviders = []
@@ -36,8 +36,8 @@ class AlleleExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
+            dataProviders.append(dataProvider)
+            loadKey = dataProvider + loadKey
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
@@ -77,7 +77,7 @@ class AlleleExt(object):
                 "taxonId": alleleRecord.get('taxonId'),
                 "synonyms": alleleRecord.get('synonyms'),
                 "secondaryIds": alleleRecord.get('secondaryIds'),
-                "dataProvider": dataProviders,
+                "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
                 "release": release,

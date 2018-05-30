@@ -32,8 +32,8 @@ class BGIExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-                dataProviders.append(dataProvider)
-                loadKey = dataProvider + loadKey
+            dataProviders.append(dataProvider)
+            loadKey = dataProvider + loadKey
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
@@ -167,7 +167,7 @@ class BGIExt(object):
                 "crossReferences": crossReferences,
                 "category": "gene",
                 "dateProduced": dateProduced,
-                "dataProvider": dataProviders,
+                "dataProviders": dataProviders,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),
