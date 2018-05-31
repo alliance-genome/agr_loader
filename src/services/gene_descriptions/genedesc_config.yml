@@ -424,23 +424,29 @@ go_sentences_options:
 do_sentences_options:
     evidence_codes:
         IMP:
-            group: EXPERIMENTAL
+            group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
             priority: 1
+        IDA:
+            group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 2
+        IAGP:
+            group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 3
         IEP:
             group: BIOMARKER
-            priority: 2
-        TAS:
-            group: INFERRED_BY_CURATORS_AND_AUTHORS
-            priority: 3
-        IC:
-            group: INFERRED_BY_CURATORS_AND_AUTHORS
-            priority: 4
-        ISS:
-            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
-            priority: 5
-        IEA:
-            group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
             priority: 6
+        TAS:
+            group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 4
+        IC:
+            group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 5
+        ISS:
+            group: ORTHOLOGY_BASED
+            priority: 7
+        IEA:
+            group: ORTHOLOGY_BASED
+            priority: 8
     group_priority:
         EXPERIMENTAL: 1
         BIOMARKER: 2
@@ -449,29 +455,35 @@ do_sentences_options:
         ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS: 5
     do_prepostfix_sentences_map:
         - aspect: "D"
-          group: EXPERIMENTAL
+          group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: ""
           prefix: "used to study"
           postfix: ""
         - aspect: "D"
           group: BIOMARKER
           qualifier: ""
-          prefix: "is biomarker of"
+          prefix: "is biomarker for"
           postfix: ""
         - aspect: "D"
-          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          group: ORTHOLOGY_BASED
           qualifier: ""
-          prefix: "used to study"
+          prefix: "ortholog is implicated in"
+          postfix: ""
+    do_prepostfix_sentences_map_human:
+        - aspect: "D"
+          group: EXPERIMENTAL_AND_INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "implicated in"
           postfix: ""
         - aspect: "D"
-          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          group: BIOMARKER
           qualifier: ""
-          prefix: "ortholog of this gene implicated in"
+          prefix: "is biomarker for"
           postfix: ""
         - aspect: "D"
-          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          group: ORTHOLOGY_BASED
           qualifier: ""
-          prefix: "ortholog of this gene implicated in"
+          prefix: "ortholog is implicated in"
           postfix: ""
 
     remove_parents_if_children_are_present: true

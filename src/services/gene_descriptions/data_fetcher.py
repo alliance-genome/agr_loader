@@ -1,4 +1,5 @@
 """retrieve data for gene descriptions (GD) from neo4j and generate data structures and objects for GD"""
+import re
 from collections import defaultdict
 from typing import List, Tuple, Dict, Set
 from genedescriptions.data_fetcher import DataFetcher, Gene, Ontology, OntoTerm
@@ -151,7 +152,11 @@ class AGRLoaderDataFetcher(DataFetcher):
         for gene_annotations in annotations:
             for annot in gene_annotations["annotations"]:
                 annotated_node = self.go_ontology.query_term(annot["go_id"])
-                if annotated_node and not annotated_node.is_obsolete:
+                if annotated_node and not annotated_node.is_obsolete and annotated_node.id not in \
+                        self.go_terms_exclusion_list:
+                    go_name = annotated_node.name
+                    for regex_to_substitute, regex_target in self.go_terms_replacement_dict.items():
+                        go_name = re.sub(regex_to_substitute, regex_target, go_name)
                     self.go_data[gene_annotations["gene_id"]].append({
                         "DB": gene_annotations["dataProvider"],
                         "DB_Object_ID": annot["go_id"],
@@ -170,7 +175,7 @@ class AGRLoaderDataFetcher(DataFetcher):
                         "Assigned_By": None,
                         "Annotation_Extension": None,
                         "Gene_Product_Form_ID": None,
-                        "GO_Name": annotated_node.name,
+                        "GO_Name": go_name,
                         "Is_Obsolete": False
                     })
 
