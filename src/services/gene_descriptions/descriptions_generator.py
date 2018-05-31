@@ -68,6 +68,11 @@ class GeneDescGenerator(object):
                     desc_stats=gene_desc.stats)])
                 if func_sent:
                     joined_sent.append(func_sent)
+                contributes_to_func_sent = " and ".join([sentence.text for sentence in go_sentences.get_sentences(
+                    aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True,
+                    keep_only_best_group=True, desc_stats=gene_desc.stats)])
+                if contributes_to_func_sent:
+                    joined_sent.append(contributes_to_func_sent)
                 proc_sent = " and ".join([sentence.text for sentence in go_sentences.get_sentences(
                     aspect='P', merge_groups_with_same_prefix=True, keep_only_best_group=True,
                     desc_stats=gene_desc.stats)])
@@ -78,6 +83,11 @@ class GeneDescGenerator(object):
                     desc_stats=gene_desc.stats)])
                 if comp_sent:
                     joined_sent.append(comp_sent)
+                colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in go_sentences.get_sentences(
+                    aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
+                    keep_only_best_group=True, desc_stats=gene_desc.stats)])
+                if colocalizes_with_comp_sent:
+                    joined_sent.append(colocalizes_with_comp_sent)
 
             # exclude disease module for now
 
