@@ -24,29 +24,26 @@ class DiseaseGeneTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
 
-            MERGE (spec:Species {primaryKey:row.taxonId})
-            MERGE (gene)<-[:FROM_SPECIES]->(spec)
-
              MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d) 
+                MERGE (gene)<-[fafg:IS_MARKER_FOR]->(d) 
                     SET fafg.dateProduced = row.dateProduced 
                     SET dga.joinType = 'is_marker_of' )  
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END | 
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d) 
+                MERGE (gene)<-[fafg:IS_IMPLICATED_IN]->(d) 
                     SET fafg.dateProduced = row.dateProduced 
                     SET dga.joinType = 'is_implicated_in' )
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga) 
             MERGE (dga)-[dadg:ASSOCIATION]->(d)  
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
-                MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+            //    MERGE (dp:DataProvider {primaryKey:dataProvider})
+            //    MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
+            //    MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             // PUBLICATIONS FOR GENE  
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey}) 
