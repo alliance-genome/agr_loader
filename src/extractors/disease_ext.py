@@ -15,11 +15,11 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
     primaryId = diseaseRecord.get('objectId')
-
     loadKey = dateProduced + "_Disease"
 
     for dataProvider in dataProviders:
         loadKey = dataProvider + loadKey
+        #print ("loadKey: " + loadKey)
 
     if 'qualifier' in diseaseRecord:
         qualifier = diseaseRecord.get('qualifier')

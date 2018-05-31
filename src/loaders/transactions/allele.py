@@ -38,6 +38,8 @@ class AlleleTransaction(Transaction):
                 SET o.uuid = row.uuid
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
 
+            MERGE (o)-[:FROM_SPECIES]-(s)
+
             FOREACH (dataProvider in row.dataProviders |
                 MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
                   SET dp.dataProduced = row.dateProduced
