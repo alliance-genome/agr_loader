@@ -4,6 +4,7 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
+
 def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId):
     fishEnvId = None
     conditions = None

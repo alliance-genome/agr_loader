@@ -25,6 +25,7 @@ class AlleleTransaction(Transaction):
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Allele"
+                SET l.release = row.release
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
@@ -38,7 +39,8 @@ class AlleleTransaction(Transaction):
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
 
             FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  SET dp.dataProduced = row.dateProduced
                 MERGE (o)-[odp:DATA_PROVIDER]-(dp)
                 MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
@@ -59,10 +61,6 @@ class AlleleTransaction(Transaction):
 
             MERGE (o)<-[ag:IS_ALLELE_OF]->(g)
             //Merge the entity node.
-
-            MERGE (ent:Entity {primaryKey:row.dataProvider})
-                SET ent.dateProduced = row.dateProduced
-                SET ent.release = row.release
 
             //Create the entity relationship to the gene node.
             MERGE (o)-[c1:CREATED_BY]->(ent)

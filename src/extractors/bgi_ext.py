@@ -33,6 +33,8 @@ class BGIExt(object):
                                                   dataProvider + dataProviderPage))
 
             dataProviders.append(dataProvider)
+            print ("data provider: " + dataProvider)
+            print ("load Key: " + loadKey)
             loadKey = dataProvider + loadKey
 
         if 'release' in gene_data['metaData']:

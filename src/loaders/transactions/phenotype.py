@@ -32,7 +32,6 @@ class PhenotypeTransaction(Transaction):
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
-
             FOREACH (dataProvider in row.dataProviders |
                 MERGE (dp:DataProvider {primaryKey:dataProvider})
                 MERGE (pa)-[odp:DATA_PROVIDER]-(dp)

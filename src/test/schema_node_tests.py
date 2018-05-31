@@ -51,7 +51,6 @@ class TestClass(object):
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                             dict(node='Gene', prop='dateProduced'), \
                             dict(node='Gene', prop='geneLiteratureUrl'), \
-                            dict(node='Gene', prop='dataProvider'), \
                             dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                             dict(node='Gene', prop='taxonId'), \
                             dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -101,16 +100,15 @@ class TestClass(object):
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='dataProvider'), \
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
+                            dict(node='DataProvider', prop='primaryKey'), \
                             dict(node='MITerm', prop='primaryKey') \
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                                dict(node='Gene', prop='dateProduced'), \
                                dict(node='Gene', prop='geneLiteratureUrl'), \
-                               dict(node='Gene', prop='dataProvider'), \
                                dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                                dict(node='Gene', prop='taxonId'), \
                                dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -122,6 +120,7 @@ class TestClass(object):
                                dict(node='GOTerm', prop='primaryKey'), \
                                #some ontology terms have no name, apparently: also happens for CL terms in the DO
                                #dict(node='SOTerm', prop='name'), \
+                               dict(node='DataProvider', prop='primaryKey'), \
                                dict(node='SOTerm', prop='primaryKey'), \
                                dict(node='DOTerm', prop='doPrefix'), \
                                dict(node='DOTerm', prop='doId'), \
@@ -159,7 +158,6 @@ class TestClass(object):
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \

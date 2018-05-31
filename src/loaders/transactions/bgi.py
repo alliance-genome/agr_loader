@@ -24,6 +24,7 @@ class BGITransaction(Transaction):
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "BGI"
+                SET l.release = row.release
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
@@ -46,7 +47,8 @@ class BGITransaction(Transaction):
             //Create nodes for other identifiers.
 
             FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  SET dp.dataProduced = row.dateProduced
                 MERGE (o)-[odp:DATA_PROVIDER]-(dp)
                 MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
@@ -75,13 +77,8 @@ class BGITransaction(Transaction):
             //Create the relationship from the gene node to the SOTerm node.
             MERGE (o)-[x:ANNOTATED_TO]->(s)
 
-            //Merge the entity node.
-            MERGE (ent:Entity {primaryKey:row.dataProvider})
-                SET ent.dateProduced = row.dateProduced
-                SET ent.release = row.release
-
             //Create the entity relationship to the gene node.
-            MERGE (o)-[c1:CREATED_BY]->(ent)
+            MERGE (o)-[c1:CREATED_BY]->(dp)
 
             WITH o, row.crossReferences AS events
             UNWIND events AS event
