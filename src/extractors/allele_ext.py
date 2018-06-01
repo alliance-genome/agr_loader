@@ -8,12 +8,9 @@ class AlleleExt(object):
     def get_alleles(self, allele_data, batch_size, testObject):
 
         xrefUrlMap = ResourceDescriptor().get_data()
-
+        dataProviders = []
         list_to_yield = []
-        dateProduced = allele_data['metaData']['dateProduced']
-        release = ""
-
-        list_to_yield = []
+        loadKey = ""
 
         dateProduced = allele_data['metaData']['dateProduced']
 
@@ -24,9 +21,8 @@ class AlleleExt(object):
             print (dataProvider + "allele")
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
-            dataProviders = []
             release = None
-            loadKey = dateProduced + "_BGI"
+            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -37,7 +33,6 @@ class AlleleExt(object):
                                                   dataProvider + dataProviderPage))
 
             dataProviders.append(dataProvider)
-            loadKey = dataProvider + loadKey
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']

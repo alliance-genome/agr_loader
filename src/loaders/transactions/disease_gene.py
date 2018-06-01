@@ -40,10 +40,10 @@ class DiseaseGeneTransaction(Transaction):
             MERGE (gene)-[fdag:ASSOCIATION]->(dga) 
             MERGE (dga)-[dadg:ASSOCIATION]->(d)  
 
-            //FOREACH (dataProvider in row.dataProviders |
-            //    MERGE (dp:DataProvider {primaryKey:dataProvider})
-            //    MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
-            //    MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             // PUBLICATIONS FOR GENE  
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey}) 

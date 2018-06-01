@@ -13,6 +13,7 @@ class DiseaseAlleleExt(object):
         dateProduced = disease_data['metaData']['dateProduced']
         print (dateProduced)
         xrefUrlMap = ResourceDescriptor().get_data()
+        dataProviders = []
 
         for dataProviderObject in disease_data['metaData']['dataProvider']:
 

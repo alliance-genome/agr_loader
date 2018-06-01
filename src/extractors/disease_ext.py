@@ -19,10 +19,10 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
 
     for dataProvider in dataProviders:
         loadKey = dataProvider + loadKey
-        #print ("loadKey: " + loadKey)
 
     if 'qualifier' in diseaseRecord:
         qualifier = diseaseRecord.get('qualifier')
+
     if qualifier is None:
         if 'evidence' in diseaseRecord:
 
@@ -60,18 +60,6 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
         if 'evidenceCodes' in diseaseRecord['evidence']:
             ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
-        # if 'experimentalConditions' in diseaseRecord:
-        #     conditionId = ""
-        #     for condition in diseaseRecord['experimentalConditions']:
-        #         if 'textCondition' in condition:
-        #             if dataProvider == 'ZFIN':
-        #                 conditionId = conditionId + condition.get('textCondition')
-        #                 # if condition != None:
-        #     conditions = diseaseRecord.get('experimentalConditions')
-        # if dataProvider == 'ZFIN':
-        #     fishEnvId = primaryId + conditionId
-
-        # TODO: get SGD to fix their disease file.
         if diseaseRecord.get('taxonId') == 'taxon:559292':
             taxonId = "NCBITaxon:559292"
         else:

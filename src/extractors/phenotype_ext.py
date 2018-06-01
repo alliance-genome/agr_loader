@@ -10,6 +10,8 @@ class PhenotypeExt(object):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
+        dataProviders = []
+        loadKey = ""
 
         for dataProviderObject in phenotype_data['metaData']['dataProvider']:
 
@@ -19,7 +21,7 @@ class PhenotypeExt(object):
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             dataProviders = []
-            loadKey = dateProduced + "_BGI"
+            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -30,7 +32,6 @@ class PhenotypeExt(object):
                                                   dataProvider + dataProviderPage))
 
             dataProviders.append(dataProvider)
-            loadKey = dataProvider + loadKey
 
         for pheno in phenotype_data['data']:
 

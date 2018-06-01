@@ -4,25 +4,25 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
-class BGIExt(object):
 
+class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject):
         xrefUrlMap = ResourceDescriptor().get_data()
         list_to_yield = []
 
         dateProduced = gene_data['metaData']['dateProduced']
+        dataProviders = []
+        release = None
 
         for dataProviderObject in gene_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
-            dataProviders = []
-            release = None
-            loadKey = dateProduced + "_BGI"
+
+            loadKey = dateProduced + dataProvider + "_BGI"
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -35,7 +35,6 @@ class BGIExt(object):
             dataProviders.append(dataProvider)
             print ("data provider: " + dataProvider)
             print ("load Key: " + loadKey)
-            loadKey = dataProvider + loadKey
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']

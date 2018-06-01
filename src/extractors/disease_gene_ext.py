@@ -13,6 +13,7 @@ class DiseaseGeneExt(object):
         dateProduced = disease_data['metaData']['dateProduced']
 
         xrefUrlMap = ResourceDescriptor().get_data()
+        dataProviders = []
 
         for dataProviderObject in disease_data['metaData']['dataProvider']:
 
@@ -20,7 +21,6 @@ class DiseaseGeneExt(object):
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
-            dataProviders = []
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -29,9 +29,8 @@ class DiseaseGeneExt(object):
                     CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
-
             dataProviders.append(dataProvider)
-            print (dataProvider)
+            print ("data provider gene ext: " + dataProvider)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
