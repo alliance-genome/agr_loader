@@ -17,6 +17,8 @@ class OExt(object):
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
+            relationships = line.get('relationship')
+            partofsWithoutNames = []
             o_syns = line.get('synonym')
             syns = []
             xrefs = []
@@ -79,6 +81,18 @@ class OExt(object):
                 else:
                     isaWithoutName = o_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
+            if relationships:
+                if isinstance(relationships, (list, tuple)):
+                    for relationship in relationships:
+                        relWithoutName = relationship.split("!")[0].strip()
+                        relType, relID = relWithoutName.split(" ")
+                        if relType == "part_of":
+                            partofsWithoutNames.append(relID)
+                else:
+                    relWithoutName = relationships.split("!")[0].strip()
+                    relType, relID = relWithoutName.split(" ")
+                    if relType == "part_of":
+                        partofsWithoutNames.append(relID)
             definition = line.get('def')
             defLinks = ""
             defLinksProcessed = []
@@ -121,6 +135,13 @@ class OExt(object):
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
 
+            alt_ids = line.get('alt_id')
+            if alt_ids:
+                if not isinstance(alt_ids, (list, tuple)):
+                    alt_ids = [alt_ids]
+            else:
+                alt_ids = []
+
             dict_to_append = {
                 'o_genes': [],
                 'o_species': [],
@@ -130,6 +151,7 @@ class OExt(object):
                 'oid': line['id'],
                 'definition': definition,
                 'isas': isasWithoutNames,
+                'partofs': partofsWithoutNames,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
@@ -151,7 +173,7 @@ class OExt(object):
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                 'category': 'go',
                 'o_type': line.get('namespace'),
-
+                'alt_ids': alt_ids
             }
             list_to_return.append(dict_to_append)
 

@@ -13,6 +13,7 @@ class WormBase(MOD):
         self.identifierPrefix = "WB:"
         self.geoSpecies = "Caenorhabditis+elegans"
         self.geoRetMax = "30000"
+        self.dataProvider = "WB"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)

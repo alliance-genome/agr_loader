@@ -13,6 +13,7 @@ class MGI(MOD):
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
         self.identifierPrefix = "" # None for MGI.
+        self.dataProvider = "MGI"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)

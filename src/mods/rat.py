@@ -12,6 +12,7 @@ class RGD(MOD):
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
         self.geoRetMax = "30000"
+        self.dataProvider = "RGD"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)

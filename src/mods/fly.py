@@ -12,6 +12,7 @@ class FlyBase(MOD):
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
         self.geoRetMax = "20000"
+        self.dataProvider = "FB"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
