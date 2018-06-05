@@ -23,8 +23,8 @@ class BGITransaction(Transaction):
             //Create the load node(s)
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "BGI"
+                SET l.release = row.release
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
@@ -37,7 +37,6 @@ class BGITransaction(Transaction):
                 SET o.geneLiteratureUrl = row.geneLiteratureUrl
                 SET o.geneticEntityExternalUrl = row.geneticEntityExternalUrl
                 SET o.dateProduced = row.dateProduced
-                SET o.dataProvider = row.dataProvider
                 SET o.modGlobalCrossRefId = row.modGlobalCrossRefId
                 SET o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
                 SET o.modLocalId = row.localId
@@ -46,6 +45,12 @@ class BGITransaction(Transaction):
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.
+
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  SET dp.dateProduced = row.dateProduced
+                MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             FOREACH (entry in row.secondaryIds |           
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
@@ -72,13 +77,8 @@ class BGITransaction(Transaction):
             //Create the relationship from the gene node to the SOTerm node.
             MERGE (o)-[x:ANNOTATED_TO]->(s)
 
-            //Merge the entity node.
-            MERGE (ent:Entity {primaryKey:row.dataProvider})
-                SET ent.dateProduced = row.dateProduced
-                SET ent.release = row.release
-
             //Create the entity relationship to the gene node.
-            MERGE (o)-[c1:CREATED_BY]->(ent)
+            MERGE (o)-[c1:CREATED_BY]->(dp)
 
             WITH o, row.crossReferences AS events
             UNWIND events AS event
