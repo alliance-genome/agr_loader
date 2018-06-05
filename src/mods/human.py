@@ -12,6 +12,7 @@ class Human(MOD):
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
         self.geoRetMax = "40000"
+        self.dataProvider = "RGD"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
@@ -38,7 +39,7 @@ class Human(MOD):
             #MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, graph):
         data = ""
         # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
         return data
@@ -46,6 +47,7 @@ class Human(MOD):
     def load_phenotype_objects(self, batch_size, testObject):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
         return data
+
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

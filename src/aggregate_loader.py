@@ -1,21 +1,34 @@
+import os
+
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
 from loaders.geo_loader import *
-from loaders.phenotype_loader import  *
+from loaders.phenotype_loader import *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
 from test import *
 import time
 from neo4j.v1 import GraphDatabase
+from genedescriptions.config_parser import GenedescConfigParser
+from genedescriptions.descriptions_rules import generate_sentences
+from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
+from services.gene_descriptions.data_fetcher import AGRLoaderDataFetcher
+from test import TestObject
+from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
+from services.gene_descriptions.descriptions_generator import GeneDescGenerator
+
 
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
+        # Set size of BGI, disease batches extracted from MOD JSON file
+        # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), MGI(), SGD(), WormBase(), RGD(), Human(), FlyBase()]
+        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
+        #self.mods = [WormBase()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -70,11 +83,17 @@ class AggregateLoader(object):
             end = time.time()
             print("Average: %sr/s" % (round(c / (end - start), 2)))
 
+        this_dir = os.path.split(__file__)[0]
+        # initialize gene description generator from config file
+        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+                                                                             "genedesc_config.yml"),
+                                               go_dataset=self.go_dataset, do_dataset=self.do_dataset,
+                                               graph_db=self.graph)
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
@@ -107,6 +126,13 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+
+            # generate gene descriptions for mod
+            if mod.dataProvider:
+                genedesc_generator.generate_descriptions(go_annotations=go_annots,
+                                                         do_annotations=mod.load_disease_gene_objects(self.batch_size,
+                                                                                                      self.testObject),
+                                                         data_provider=mod.dataProvider)
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")

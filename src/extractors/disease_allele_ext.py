@@ -1,10 +1,12 @@
 from .disease_ext import get_disease_record
 from .primary_data_object_type import PrimaryDataObjectType
 from loaders.transactions import Transaction
+
 from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+
 
 class DiseaseAlleleExt(object):
 
@@ -65,4 +67,3 @@ class DiseaseAlleleExt(object):
 
             if len(list_to_yield) > 0:
                 yield list_to_yield
-

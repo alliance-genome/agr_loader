@@ -24,6 +24,9 @@ class DiseaseGeneTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
 
+            MERGE (spec:Species {primaryKey: row.taxonId})
+            MERGE (gene)<-[:FROM_SPECIES]->(spec)
+
              MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
 

@@ -13,6 +13,7 @@ class SGD(MOD):
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
         self.geoRetMax = "10000"
+        self.dataProvider = "SGD"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
@@ -41,9 +42,9 @@ class SGD(MOD):
             #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, graph):
         data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile. graph)
         return data
 
     def load_phenotype_objects(self, batch_size, testObject):

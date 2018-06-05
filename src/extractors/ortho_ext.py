@@ -1,10 +1,12 @@
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 import uuid
+
 from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+
 
 class OrthoExt(object):
 
@@ -14,11 +16,11 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.3.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.3.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.0_1.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.0_1.json.tar.gz'
         else:
-            filename = "orthology_" + mod_name + "_1.0.0.3.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.3.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.0_1.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()

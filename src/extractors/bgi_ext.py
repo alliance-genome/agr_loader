@@ -13,7 +13,6 @@ class BGIExt(object):
 
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
-        release = None
 
         for dataProviderObject in gene_data['metaData']['dataProvider']:
 
@@ -97,7 +96,7 @@ class BGIExt(object):
                                                                                    prefix, prefix + page)
 
                                 if page == 'gene/spell':
-                                    page = 'gene/other_expression'
+
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
 

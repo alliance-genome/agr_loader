@@ -23,9 +23,6 @@ class DiseaseAlleleTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
 
-            //MERGE (spec:Species {primaryKey: row.taxonId})
-            //MERGE (feature)<-[:FROM_SPECIES]->(spec)
-
             MERGE (dfa:Association {primaryKey:row.uuid})
                 SET dfa :DiseaseEntityJoin
 

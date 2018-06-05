@@ -14,6 +14,7 @@ class AlleleExt(object):
 
         dateProduced = allele_data['metaData']['dateProduced']
 
+
         for dataProviderObject in allele_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')

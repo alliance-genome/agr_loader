@@ -14,6 +14,7 @@ class MGI(MOD):
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
         self.identifierPrefix = "" # None for MGI.
+        self.dataProvider = "MGI"
 
     def load_genes(self, batch_size, testObject, graph):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
@@ -39,12 +40,12 @@ class MGI(MOD):
         data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
         return data
 
-    def load_phenotype_objects(self, batch_size, testObject):
-        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+    def load_allele_objects(self, batch_size, testObject, graph):
+        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, graph)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
-        data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+    def load_phenotype_objects(self, batch_size, testObject):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

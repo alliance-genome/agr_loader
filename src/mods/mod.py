@@ -3,7 +3,6 @@ from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
 from extractors.geo_ext import GeoExt
-from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
 import uuid
@@ -39,16 +38,21 @@ class MOD(object):
                 go_id = line[4]
                 dateProduced = line[14]
                 dataProvider = line[15]
+                qualifier = line[3]
+                if not qualifier:
+                    qualifier = ""
                 if gene in go_annot_dict:
-                    go_annot_dict[gene]['go_id'].append(go_id)
+                    go_annot_dict[gene]['annotations'].append(
+                        {"go_id": go_id, "evidence_code": line[6], "aspect": line[8], "qualifier": qualifier})
                 else:
                     go_annot_dict[gene] = {
                         'gene_id': gene,
-                        'go_id': [go_id],
+                        'annotations': [{"go_id": go_id, "evidence_code": line[6], "aspect": line[8],
+                                         "qualifier": qualifier}],
                         'species': species,
                         'loadKey': dataProvider + "_" + dateProduced + "_" + "GAF",
                         'dataProvider': dataProvider,
-                        'dateProduced': dateProduced
+                        'dateProduced': dateProduced,
                     }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.
@@ -56,7 +60,8 @@ class MOD(object):
             for entry in go_annot_dict:
                 if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
                     go_annot_list.append(go_annot_dict[entry])
-                    testObject.add_ontology_ids(go_annot_dict[entry]['go_id'])
+                    testObject.add_ontology_ids([annotation["go_id"] for annotation in
+                                                 go_annot_dict[entry]['annotations']])
                 else:
                     continue
             return go_annot_list
@@ -84,21 +89,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject)
-
-        return phenotype_dict
-
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile):
+    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject)
+        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
 
         return alleleDict
 
