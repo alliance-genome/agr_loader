@@ -16,25 +16,23 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.0_1.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.0_1.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.3.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.3.json.tar.gz'
         else:
-            filename = "orthology_" + mod_name + "_1.0.0.0_1.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.0_1.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.3.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.3.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + "/" + filename, 'orthology')
 
         dateProduced = ortho_data['metaData']['dateProduced']
-        #dataProvider = ortho_data['metaData']['dataProvider']
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
         for dataProviderObject in ortho_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []

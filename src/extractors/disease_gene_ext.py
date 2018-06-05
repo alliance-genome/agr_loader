@@ -54,4 +54,3 @@ class DiseaseGeneExt(object):
 
             if len(list_to_yield) > 0:
                 yield list_to_yield
-

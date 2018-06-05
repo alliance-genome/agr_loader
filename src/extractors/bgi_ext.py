@@ -13,6 +13,7 @@ class BGIExt(object):
 
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
+        release = None
 
         for dataProviderObject in gene_data['metaData']['dataProvider']:
 
