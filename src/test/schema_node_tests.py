@@ -45,7 +45,9 @@ class TestClass(object):
                              dict(node='Phenotype'), \
                              dict(node='PhenotypeEntityJoin'), \
                              dict(node='OrthologyGeneJoin'), \
-                             dict(node='OrthoAlgorithm')
+                             dict(node='OrthoAlgorithm'), \
+                             dict(node='DataProvider'), \
+                             dict(node='Load')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -62,6 +64,7 @@ class TestClass(object):
                             dict(node='GOTerm', prop='primaryKey'), \
                             #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
+                            dict(node='DataProvider', prop='primaryKey'), \
                             dict(node='DOTerm', prop='doPrefix'), \
                             dict(node='DOTerm', prop='doId'), \
                             dict(node='DOTerm', prop='doDisplayId'), \
