@@ -100,11 +100,12 @@ go_sentences_options:
         - "GO:0005515"
         - "GO:0044877"
     rename_terms:
-        "molting cycle, collagen and cuticulin-based cuticle": "molting cycle"
-        "molting cycle, chitin-based cuticle": "molting cycle"
-        "multicellular organism growth": "growth"
-        "embryo development ending in birth or egg hatching": "embryo development"
-        "synaptic transmission, (\\w+)": "\\1 synaptic transmission"
+        "(.*)molting cycle, collagen and cuticulin-based cuticle(.*)": "\\1molting cycle\\2"
+        "(.*)molting cycle, chitin-based cuticle(.*)": "\\1molting cycle\\2"
+        "(.*)multicellular organism growth(.*)": "\\1growth\\2"
+        "(.*)embryo development ending in birth or egg hatching(.*)": "\\1embryo development\\2"
+        "(.*)synaptic transmission, (\\w+)(.*)": "\\1\\2 synaptic transmission\\3"
+        "(.*)postsynaptic synaptic(.*)": "\\1postsynaptic\\2"
     evidence_codes:
         EXP:
             group: EXPERIMENTAL

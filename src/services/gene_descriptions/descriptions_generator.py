@@ -117,9 +117,9 @@ class GeneDescGenerator(object):
                 if len(desc) > 0:
                     gene_desc.description = desc[0].upper() + desc[1:]
                 else:
-                    gene_desc.description = "No description available"
+                    gene_desc.description = None
             else:
-                gene_desc.description = "No description available"
+                gene_desc.description = None
             desc_writer.add_gene_desc(gene_desc)
 
         desc_writer.write(self.graph)
