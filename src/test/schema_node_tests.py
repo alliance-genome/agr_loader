@@ -46,7 +46,6 @@ class TestClass(object):
                              dict(node='PhenotypeEntityJoin'), \
                              dict(node='OrthologyGeneJoin'), \
                              dict(node='OrthoAlgorithm'), \
-                             dict(node='DataProvider'), \
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='Phenotype'), \
@@ -67,7 +66,6 @@ class TestClass(object):
                             dict(node='GOTerm', prop='primaryKey'), \
                             #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
-                            dict(node='DataProvider', prop='primaryKey'), \
                             dict(node='DOTerm', prop='doPrefix'), \
                             dict(node='DOTerm', prop='doId'), \
                             dict(node='DOTerm', prop='doDisplayId'), \
@@ -108,7 +106,6 @@ class TestClass(object):
                             dict(node='Feature', prop='symbol'), \
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
-                            dict(node='DataProvider', prop='primaryKey'), \
                             dict(node='MITerm', prop='primaryKey') \
                             ],
 
@@ -125,7 +122,6 @@ class TestClass(object):
                                dict(node='Gene', prop='uuid'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
-                               dict(node='DataProvider', prop='primaryKey'), \
                                dict(node='SOTerm', prop='primaryKey'), \
                                dict(node='DOTerm', prop='doPrefix'), \
                                dict(node='DOTerm', prop='doId'), \

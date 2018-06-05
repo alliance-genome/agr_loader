@@ -22,10 +22,11 @@ class AlleleTransaction(Transaction):
             MATCH (s:Species {primaryKey: row.taxonId})
 
             //Create the load node(s)
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Allele"
                 SET l.release = row.release
+                SET l.dataProviders = row.dataProviders
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
@@ -37,14 +38,15 @@ class AlleleTransaction(Transaction):
                 SET o.globalId = row.globalId
                 SET o.uuid = row.uuid
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
+                SET o.dataProviders = row.dataProviders
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
-                  SET dp.dateProduced = row.dateProduced
-                MERGE (o)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  //SET dp.dateProduced = row.dateProduced
+                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})

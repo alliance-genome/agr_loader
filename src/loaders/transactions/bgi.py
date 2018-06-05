@@ -21,10 +21,11 @@ class BGITransaction(Transaction):
             UNWIND $data AS row
 
             //Create the load node(s)
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "BGI"
                 SET l.release = row.release
+                SET l.dataProviders = row.dataProviders
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
@@ -42,15 +43,16 @@ class BGITransaction(Transaction):
                 SET o.modLocalId = row.localId
                 SET o.modGlobalId = row.modGlobalId
                 SET o.uuid = row.uuid
+                SET o.dataProviders = row.dataProviders
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
-                  SET dp.dateProduced = row.dateProduced
-                MERGE (o)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  //SET dp.dateProduced = row.dateProduced
+                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+               // MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             FOREACH (entry in row.secondaryIds |           
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})

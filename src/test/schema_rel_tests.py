@@ -41,9 +41,6 @@ class TestClass(object):
                             dict(node1='Gene', node2='CrossReference'), \
                             dict(node1='Gene', node2='Species'), \
                             dict(node1='Load', node2='Gene'), \
-                            dict(node1='Gene', node2='DataProvider'), \
-                            dict(node1='Feature', node2='DataProvider'), \
-                            dict(node1='Load', node2='DataProvider'), \
                             dict(node1='Feature', node2='Species'), \
                             dict(node1='Gene', node2='Ontology:GOTerm'), \
                             dict(node1='Gene', node2='Ontology:SOTerm'), \

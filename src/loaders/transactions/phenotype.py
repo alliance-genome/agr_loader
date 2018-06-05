@@ -20,13 +20,15 @@ class PhenotypeTransaction(Transaction):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Phenotype"
+                SET l.dataProviders = row.dataProviders
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
                 SET pa.joinType = 'phenotype'
+                SET pa.dataProviders = row.dataProviders
 
             MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
@@ -34,10 +36,10 @@ class PhenotypeTransaction(Transaction):
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
-                MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider {primaryKey:dataProvider})
+                //MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId

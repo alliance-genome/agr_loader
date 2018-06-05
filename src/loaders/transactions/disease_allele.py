@@ -17,13 +17,15 @@ class DiseaseAlleleTransaction(Transaction):
             MATCH (g:Gene {primaryKey:row.allelicGeneId})
 
             // LOAD NODES
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
+                SET l.dataProviders = row.dataProviders
 
 
             MERGE (dfa:Association {primaryKey:row.uuid})
                 SET dfa :DiseaseEntityJoin
+                SET dfa.dataProviders = row.dataProviders
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
@@ -37,10 +39,11 @@ class DiseaseAlleleTransaction(Transaction):
                 SET dfa.joinType = 'is_implicated_in'
             )
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
-                MERGE (dfa)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider {primaryKey:dataProvider})
+                //MERGE (dfa)-[odp:DATA_PROVIDER]-(dp)
+                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+
 
             MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)

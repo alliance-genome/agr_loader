@@ -18,12 +18,14 @@ class DiseaseGeneTransaction(Transaction):
             MATCH (gene:Gene {primaryKey:row.primaryId})
             
             // LOAD NODES
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
+                SET l.dataProviders = row.dataProviders
                 
              MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
+                SET dga.dataProviders = row.dataProviders
                 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d) 
@@ -38,10 +40,10 @@ class DiseaseGeneTransaction(Transaction):
             MERGE (gene)-[fdag:ASSOCIATION]->(dga) 
             MERGE (dga)-[dadg:ASSOCIATION]->(d)  
             
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
-                MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+               // MERGE (dp:DataProvider {primaryKey:dataProvider})
+               // MERGE (dga)-[odp:DATA_PROVIDER]-(dp)
+               // MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
                 
             // PUBLICATIONS FOR GENE  
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey}) 
