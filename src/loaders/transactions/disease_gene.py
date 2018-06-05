@@ -26,12 +26,12 @@ class DiseaseGeneTransaction(Transaction):
                 SET dga :DiseaseEntityJoin
                 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 
-                MERGE (gene)<-[fafg:IS_MARKER_FOR]->(d) 
+                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d) 
                     SET fafg.dateProduced = row.dateProduced 
                     SET dga.joinType = 'is_marker_of' )  
                     
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END | 
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN]->(d) 
+                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d) 
                     SET fafg.dateProduced = row.dateProduced 
                     SET dga.joinType = 'is_implicated_in' )
                     
