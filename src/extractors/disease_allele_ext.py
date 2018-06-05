@@ -11,7 +11,7 @@ class DiseaseAlleleExt(object):
     def get_allele_disease_data(self, disease_data, batch_size, graph):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
-        print (dateProduced)
+
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
 
@@ -21,7 +21,6 @@ class DiseaseAlleleExt(object):
             dataProvider = dataProviderCrossRef.get('id')
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
-            dataProviders = []
 
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -30,8 +29,8 @@ class DiseaseAlleleExt(object):
                     CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
-
             dataProviders.append(dataProvider)
+            print ("data provider allele ext: " + dataProvider)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']

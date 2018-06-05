@@ -30,21 +30,21 @@ class DiseaseAlleleTransaction(Transaction):
                 SET dfa :DiseaseEntityJoin
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_MARKER_FOR]->(d)
+                MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced
                 SET dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_IMPLICATED_IN]->(d)
+                MERGE (feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced
                 SET dfa.joinType = 'is_implicated_in'
             )
 
-            //FOREACH (dataProvider in row.dataProviders |
-                //MERGE (dp:DataProvider {primaryKey:dataProvider})
-                //MERGE (dfa)-[odp:DATA_PROVIDER]-(dp)
-                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            FOREACH (dataProvider in row.dataProviders |
+                MERGE (dp:DataProvider {primaryKey:dataProvider})
+                MERGE (dfa)-[odp:DATA_PROVIDER]-(dp)
+                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
