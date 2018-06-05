@@ -29,8 +29,8 @@ class PhenotypeTransaction(Transaction):
                 SET pa.joinType = 'phenotype'
 
             MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
-            MERGE (pa)-[pad:ASSOCIATION]->(p)
-            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
+            MERGE (pa)-[pad:ASSOCIATION  {uuid:row.uuid}]->(p)
+            MERGE (ag)-[agpa:ASSOCIATION {uuid:row.uuid}]->(pa)
 
             FOREACH (dataProvider in row.dataProviders |
                 MERGE (dp:DataProvider {primaryKey:dataProvider})
@@ -67,8 +67,8 @@ class PhenotypeTransaction(Transaction):
                 SET pa :PhenotypeEntityJoin
                 SET pa.joinType = 'phenotype'
                 
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (pa)-[pad:ASSOCIATION {uuid:row.uuid}]->(p)
+                MERGE (g)-[gpa:ASSOCIATION {uuid:row.uuid}]->(pa)
 
             FOREACH (dataProvider in row.dataProviders |
                 MERGE (dp:DataProvider {primaryKey:dataProvider})
