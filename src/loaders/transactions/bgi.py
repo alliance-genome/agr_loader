@@ -48,7 +48,7 @@ class BGITransaction(Transaction):
 
             FOREACH (dataProvider in row.dataProviders |
                 MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
-                  SET dp.dataProduced = row.dateProduced
+                  SET dp.dateProduced = row.dateProduced
                 MERGE (o)-[odp:DATA_PROVIDER]-(dp)
                 MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
