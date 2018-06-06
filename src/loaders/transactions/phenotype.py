@@ -97,5 +97,5 @@ class PhenotypeTransaction(Transaction):
 
         """
 
-        Transaction.execute_transaction(self, executeFeature, data)
         Transaction.execute_transaction(self, executeGene, data)
+        Transaction.execute_transaction(self, executeFeature, data)
