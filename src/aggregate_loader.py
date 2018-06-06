@@ -40,7 +40,7 @@ class AggregateLoader(object):
             time.sleep(1)
 
     def create_indices(self):
-        print("Creating indicies.")
+        print("Creating indices.")
         Indicies(self.graph).create_indices()
 
     def load_resource_descriptors(self):
