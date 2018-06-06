@@ -5,7 +5,7 @@ class PhenotypeTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def phenotype_object_tx(self, data):
+    def phenotype_object_tx(self, data, species):
         # Loads the Phenotype data into Neo4j.
 
         executeFeature = """
@@ -97,5 +97,14 @@ class PhenotypeTransaction(Transaction):
 
         """
 
-        Transaction.execute_transaction(self, executeGene, data)
-        Transaction.execute_transaction(self, executeFeature, data)
+        # this is to prevent SGD and Human from double running phenotype in order to get features.
+        # a bit of a hack to avoid checking if something is a feature before executing another query to
+        # get the gene of interest.
+        speciesWithFeatures = ['Mus musculus', 'Danio rerio', 'Caenorhabditis elegans', 'Rattus norvegicus', 'Drosophila melanogaster']
+
+        if species in speciesWithFeatures:
+            Transaction.execute_transaction(self, executeGene, data)
+            Transaction.execute_transaction(self, executeFeature, data)
+        else:
+            Transaction.execute_transaction(self, executeGene, data)
+

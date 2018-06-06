@@ -107,10 +107,10 @@ class AggregateLoader(object):
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
-            print("Loading MOD gene phenotype annotations for %s into Neo4j." % mod.species)
+            print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
             phenos = mod.load_phenotype_objects(self.batch_size, self.testObject)
             for pheno_list_of_entries in phenos:
-                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries)
+                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
