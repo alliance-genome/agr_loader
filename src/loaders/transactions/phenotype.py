@@ -70,6 +70,8 @@ class PhenotypeTransaction(Transaction):
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
                 SET pa.joinType = 'phenotype'
+            
+             MERGE (pa)-[dfal:LOADED_FROM]-(l)
                 
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)

@@ -27,6 +27,8 @@ class DiseaseGeneTransaction(Transaction):
                 SET dga :DiseaseEntityJoin
                 SET dga.dataProviders = row.dataProviders
                 
+            MERGE (dfa)-[dfal:LOADED_FROM]-(l)
+                
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d) 
                     SET fafg.dateProduced = row.dateProduced 

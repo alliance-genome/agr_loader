@@ -80,7 +80,7 @@ class BGITransaction(Transaction):
             MERGE (o)-[x:ANNOTATED_TO]->(s)
 
             //Create the entity relationship to the gene node.
-            MERGE (o)-[c1:CREATED_BY]->(dp)
+            //MERGE (o)-[c1:CREATED_BY]->(dp)
 
             WITH o, row.crossReferences AS events
             UNWIND events AS event
