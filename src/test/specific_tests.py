@@ -93,7 +93,7 @@ def test_spell_crossRefType():
 
 
 def test_gene_has_automated_description():
-    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' and g.automatedGeneSynopsis is not null return g"
+    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' and g.automatedGeneSynopsis is not null return count(g)"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1

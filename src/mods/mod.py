@@ -72,21 +72,21 @@ class MOD(object):
             return go_annot_list
 
 
-    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile):
+    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size)
+        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size, species)
 
         return disease_dict
 
-    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
+    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph)
+        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph, species)
 
         return disease_dict
 
@@ -99,12 +99,12 @@ class MOD(object):
 
         return alleleDict
 
-    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile):
+    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject)
+        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject, species)
 
         return phenotype_dict
 
