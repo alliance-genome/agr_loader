@@ -41,13 +41,20 @@ class TestClass(object):
                              dict(node='Association'), \
                              dict(node='Publication'), \
                              dict(node='EvidenceCode'), \
-                             dict(node='Feature'),
+                             dict(node='Feature'), \
+                             #dict(node='Phenotype'), \
+                             #dict(node='PhenotypeEntityJoin'), \
+                             dict(node='OrthologyGeneJoin'), \
+                             dict(node='OrthoAlgorithm'), \
+                             dict(node='Load'), \
+                             dict(node='Feature')#, \
+                             #dict(node='Phenotype'), \
+                             #dict(node='PhenotypeEntityJoin')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                             dict(node='Gene', prop='dateProduced'), \
                             dict(node='Gene', prop='geneLiteratureUrl'), \
-                            dict(node='Gene', prop='dataProvider'), \
                             dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                             dict(node='Gene', prop='taxonId'), \
                             dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -86,15 +93,17 @@ class TestClass(object):
                             dict(node='Chromosome', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
+                            #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
+                            #dict(node='Phenotype', prop='primaryKey'), \
+                            #dict(node='Phenotype', prop='phenotypeStatement'), \
                             dict(node='Publication', prop='pubMedId'), \
                            #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='dataProvider'), \
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='MITerm', prop='primaryKey') \
@@ -103,7 +112,6 @@ class TestClass(object):
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                                dict(node='Gene', prop='dateProduced'), \
                                dict(node='Gene', prop='geneLiteratureUrl'), \
-                               dict(node='Gene', prop='dataProvider'), \
                                dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                                dict(node='Gene', prop='taxonId'), \
                                dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -143,6 +151,8 @@ class TestClass(object):
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                               #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                               #dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
                                dict(node='Publication', prop='pubMedId'), \
@@ -150,7 +160,6 @@ class TestClass(object):
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
@@ -161,6 +170,7 @@ class TestClass(object):
                              dict(node='Publication', prop='primaryKey'), \
                              dict(node='Association', prop='primaryKey'), \
                              dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                             #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \

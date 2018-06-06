@@ -77,12 +77,6 @@ def test_xref_complete_url_is_formatted():
     for record in result:
         assert record["counter"] < 1
 
-# ontology xrefs don't have full urls intentionally ie: SNOMEDCT, but the rest of the xrefs should have complete urls.
-def test_crossref_complete_url_exists_when_it_should():
-    query = "MATCH (cr:CrossReference) where cr.crossRefType <> 'ontology_provided_cross_reference' and cr.crossRefCompleteUrl is null return count(cr) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
 
 def test_spell_display_name():
     query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
@@ -95,6 +89,4 @@ def test_spell_crossRefType():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
-
-
 

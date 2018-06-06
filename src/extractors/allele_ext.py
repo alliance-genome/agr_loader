@@ -5,14 +5,35 @@ from .resource_descriptor_ext import ResourceDescriptor
 
 
 class AlleleExt(object):
-    def get_alleles(self, allele_data, batch_size, testObject, graph):
+    def get_alleles(self, allele_data, batch_size, testObject):
 
         xrefUrlMap = ResourceDescriptor().get_data()
-
+        dataProviders = []
         list_to_yield = []
+        loadKey = ""
+
         dateProduced = allele_data['metaData']['dateProduced']
-        dataProvider = allele_data['metaData']['dataProvider']
-        release = ""
+
+
+        for dataProviderObject in allele_data['metaData']['dataProvider']:
+
+            dataProviderCrossRef = dataProviderObject.get('crossReference')
+            dataProvider = dataProviderCrossRef.get('id')
+            print (dataProvider + "allele")
+            dataProviderPages = dataProviderCrossRef.get('pages')
+            dataProviderCrossRefSet = []
+            release = None
+            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
+
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                       dataProviderPage)
+                dataProviderCrossRefSet.append(
+                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                  dataProvider + dataProviderPage))
+
+            dataProviders.append(dataProvider)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
@@ -52,9 +73,9 @@ class AlleleExt(object):
                 "taxonId": alleleRecord.get('taxonId'),
                 "synonyms": alleleRecord.get('synonyms'),
                 "secondaryIds": alleleRecord.get('secondaryIds'),
-                "dataProvider": dataProvider,
+                "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
-                "loadKey": dataProvider + "_" + dateProduced + "_allele",
+                "loadKey": loadKey,
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
