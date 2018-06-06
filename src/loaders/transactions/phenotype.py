@@ -24,6 +24,7 @@ class PhenotypeTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Phenotype"
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
@@ -67,11 +68,13 @@ class PhenotypeTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Phenotype"
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
                 SET pa.joinType = 'phenotype'
                 SET pa.dataProviders = row.dataProviders
+                SET pa.dataProvider = row.dataProvider
             
              MERGE (pa)-[dfal:LOADED_FROM]-(l)
                 

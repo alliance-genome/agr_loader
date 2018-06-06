@@ -64,6 +64,7 @@ class TestClass(object):
                             dict(node='Gene', prop='modGlobalId'), \
                             dict(node='Gene', prop='uuid'), \
                             dict(node='GOTerm', prop='primaryKey'), \
+                            dict(node='Gene', prop='dataProvider'), \
                             #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
                             dict(node='DOTerm', prop='doPrefix'), \
@@ -106,6 +107,7 @@ class TestClass(object):
                             dict(node='Feature', prop='symbol'), \
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
+                            dict(node='Feature', prop='dataProvider'), \
                             dict(node='MITerm', prop='primaryKey') \
                             ],
 
@@ -120,6 +122,8 @@ class TestClass(object):
                                dict(node='Gene', prop='primaryKey'), \
                                dict(node='Gene', prop='modGlobalId'), \
                                dict(node='Gene', prop='uuid'), \
+                               dict(node='Gene', prop='dataProvider'), \
+                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \

@@ -21,6 +21,7 @@ class DiseaseAlleleTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
 
             MERGE (dfa:Association {primaryKey:row.uuid})

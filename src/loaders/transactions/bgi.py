@@ -26,6 +26,7 @@ class BGITransaction(Transaction):
                 SET l.loadName = "BGI"
                 SET l.release = row.release
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
@@ -43,6 +44,7 @@ class BGITransaction(Transaction):
                 SET o.modLocalId = row.localId
                 SET o.modGlobalId = row.modGlobalId
                 SET o.uuid = row.uuid
+                SET o.dataProvider = row.dataProvider
                 SET o.dataProviders = row.dataProviders
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)

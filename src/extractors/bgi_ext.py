@@ -2,12 +2,14 @@ import uuid
 from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
+from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
 
 
 class BGIExt(object):
 
-    def get_data(self, gene_data, batch_size, testObject):
+
+    def get_data(self, gene_data, batch_size, testObject, species):
         xrefUrlMap = ResourceDescriptor().get_data()
         list_to_yield = []
 
@@ -35,6 +37,9 @@ class BGIExt(object):
             dataProviders.append(dataProvider)
             print ("data provider: " + dataProvider)
             print ("load Key: " + loadKey)
+
+        dataProviderSingle = DataProvider.get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
@@ -169,6 +174,7 @@ class BGIExt(object):
                 "category": "gene",
                 "dateProduced": dateProduced,
                 "dataProviders": dataProviders,
+                "dataProvider": dataProviderSingle,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),

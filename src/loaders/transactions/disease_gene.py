@@ -22,10 +22,12 @@ class DiseaseGeneTransaction(Transaction):
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Disease"
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
                 
              MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
                 SET dga.dataProviders = row.dataProviders
+                SET dga.dataProvider = row.dataProvider
                 
             MERGE (dfa)-[dfal:LOADED_FROM]-(l)
                 

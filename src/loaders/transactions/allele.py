@@ -27,6 +27,7 @@ class AlleleTransaction(Transaction):
                 SET l.loadName = "Allele"
                 SET l.release = row.release
                 SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
@@ -39,6 +40,7 @@ class AlleleTransaction(Transaction):
                 SET o.uuid = row.uuid
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
                 SET o.dataProviders = row.dataProviders
+                SET o.dataProvider = row.dataProvider
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
