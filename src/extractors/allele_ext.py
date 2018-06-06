@@ -83,7 +83,8 @@ class AlleleExt(object):
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
-                "crossReferences": crossReferences
+                "crossReferences": crossReferences,
+                "dataProvider": dataProviderSingle
             }
 
             list_to_yield.append(allele_dataset)
