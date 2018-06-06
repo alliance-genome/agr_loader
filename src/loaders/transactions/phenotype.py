@@ -66,10 +66,12 @@ class PhenotypeTransaction(Transaction):
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "Phenotype"
+                SET l.dataProviders = row.dataProviders
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
                 SET pa.joinType = 'phenotype'
+                SET pa.dataProviders = row.dataProviders
             
              MERGE (pa)-[dfal:LOADED_FROM]-(l)
                 
@@ -77,10 +79,10 @@ class PhenotypeTransaction(Transaction):
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
-            FOREACH (dataProvider in row.dataProviders |
-                MERGE (dp:DataProvider {primaryKey:dataProvider})
-                MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
-                MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            //FOREACH (dataProvider in row.dataProviders |
+              //  MERGE (dp:DataProvider {primaryKey:dataProvider})
+              //  MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+              //  MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             // PUBLICATIONS FOR FEATURE
 
