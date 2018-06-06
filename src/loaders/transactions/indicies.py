@@ -44,7 +44,8 @@ class Indicies(object):
         session.run("CREATE INDEX ON :MITerm(primaryKey)")
         session.run("CREATE INDEX ON :Phenotype(primaryKey)")
         session.run("CREATE INDEX ON :PhenotypeEntityJoin(primaryKey)")
-        
+        session.run("CREATE INDEX ON :Entity(primaryKey)")
+
         #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
         #session.run("CREATE CONSTRAINT ON (n:Gene) ASSERT n.primaryKey IS UNIQUE")
