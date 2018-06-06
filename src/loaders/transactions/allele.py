@@ -46,7 +46,7 @@ class AlleleTransaction(Transaction):
                 //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
                   //SET dp.dateProduced = row.dateProduced
                 //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
-                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            MERGE (l)-[ldp:DATA_PROVIDER]-(o))
 
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
