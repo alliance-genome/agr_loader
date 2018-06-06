@@ -3,7 +3,7 @@ class Indicies(object):
     def __init__(self, graph):
         self.graph = graph
 
-    def create_indicies(self):
+    def create_indices(self):
         session = self.graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")

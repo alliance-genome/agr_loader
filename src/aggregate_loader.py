@@ -39,9 +39,9 @@ class AggregateLoader(object):
             print("WARNING: Test data load enabled.")
             time.sleep(1)
 
-    def create_indicies(self):
+    def create_indices(self):
         print("Creating indicies.")
-        Indicies(self.graph).create_indicies()
+        Indicies(self.graph).create_indices()
 
     def load_resource_descriptors(self):
         print("extracting resource descriptor")
