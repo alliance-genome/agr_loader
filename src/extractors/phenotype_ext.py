@@ -83,7 +83,8 @@ class PhenotypeExt(object):
                 "loadKey": loadKey,
                 "type": "gene",
                 "dataProviders": dataProviders,
-                "dataProviderType": dataProviderType
+                "dataProviderType": dataProviderType,
+                "dateProduced": dateProduced
              }
 
             list_to_yield.append(phenotype_feature)
