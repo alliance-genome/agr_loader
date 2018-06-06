@@ -90,12 +90,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile):
+    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject)
+        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, species)
 
         return alleleDict
 

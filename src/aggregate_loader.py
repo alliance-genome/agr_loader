@@ -59,14 +59,14 @@ class AggregateLoader(object):
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
         # #
-        print("Loading MI data into Neo4j.")
-        MILoader(self.graph).load_mi(self.mi_dataset)
-        print("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        print("Loading GO data into Neo4j.")
-        GOLoader(self.graph).load_go(self.go_dataset)
-        print("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
+        # print("Loading MI data into Neo4j.")
+        # MILoader(self.graph).load_mi(self.mi_dataset)
+        # print("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # print("Loading GO data into Neo4j.")
+        # GOLoader(self.graph).load_go(self.go_dataset)
+        # print("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -93,22 +93,22 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
+            features = mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
 
             print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
+            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             # print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
-            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject)
+            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
             # for pheno_list_of_entries in phenos:
             #     PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 

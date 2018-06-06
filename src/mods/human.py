@@ -14,8 +14,8 @@ class Human(MOD):
         self.geoRetMax = "40000"
         self.dataProvider = "RGD"
 
-    def load_genes(self, batch_size, testObject, graph):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph, species):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
 
     @staticmethod
@@ -30,22 +30,22 @@ class Human(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_disease_gene_objects(self, batch_size, testObject):
-        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_gene_objects(self, batch_size, testObject, species):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
         return data
 
-    def load_disease_allele_objects(self, batch_size, testObject, graph):
+    def load_disease_allele_objects(self, batch_size, testObject, graph, species):
         data = ""
-            #MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph)
+            #MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph, species)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, species):
         data = ""
-        # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+        # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
         return data
 
-    def load_phenotype_objects(self, batch_size, testObject):
-        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+    def load_phenotype_objects(self, batch_size, testObject, species):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
         return data
 
 

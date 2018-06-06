@@ -5,7 +5,7 @@ from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
 
-def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId):
+def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
     fishEnvId = None
     conditions = None
     qualifier = None
@@ -80,6 +80,7 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
             "pubPrimaryKey": pubMedId + publicationModId,
             "release": release,
             "dataProviders": dataProviders,
+            "dataProvider": dataProviderSingle,
             "relationshipType": diseaseAssociationType,
             "dateProduced": dateProduced,
             "qualifier": qualifier,

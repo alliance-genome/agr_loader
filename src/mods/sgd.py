@@ -15,8 +15,8 @@ class SGD(MOD):
         self.geoRetMax = "10000"
         self.dataProvider = "SGD"
 
-    def load_genes(self, batch_size, testObject, graph):
-        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile)
+    def load_genes(self, batch_size, testObject, graph, species):
+        data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
 
     @staticmethod
@@ -31,24 +31,24 @@ class SGD(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_disease_gene_objects(self, batch_size, testObject):
-        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile)
+    def load_disease_gene_objects(self, batch_size, testObject, species):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
         return data
 
 # these are commented out because SGD has no allele data and no allele->disease data right now
 
-    def load_disease_allele_objects(self, batch_size, testObject, graph):
+    def load_disease_allele_objects(self, batch_size, testObject, graph, species):
         data = ""
-            #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph)
+            #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
         return data
 
-    def load_allele_objects(self, batch_size, testObject):
+    def load_allele_objects(self, batch_size, testObject, species):
         data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile)
+            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
         return data
 
-    def load_phenotype_objects(self, batch_size, testObject):
-        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile)
+    def load_phenotype_objects(self, batch_size, testObject, species):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

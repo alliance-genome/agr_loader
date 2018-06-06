@@ -1,11 +1,12 @@
 import uuid
 from services import UrlService
 from services import CreateCrossReference
+from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
 
 
 class AlleleExt(object):
-    def get_alleles(self, allele_data, batch_size, testObject):
+    def get_alleles(self, allele_data, batch_size, testObject, species):
 
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
@@ -34,6 +35,9 @@ class AlleleExt(object):
                                                   dataProvider + dataProviderPage))
 
             dataProviders.append(dataProvider)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']

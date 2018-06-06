@@ -5,10 +5,11 @@ from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+from services import DataProvider
 
 class DiseaseGeneExt(object):
 
-    def get_gene_disease_data(self, disease_data, batch_size):
+    def get_gene_disease_data(self, disease_data, batch_size, species):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -31,6 +32,9 @@ class DiseaseGeneExt(object):
                                                   dataProvider + dataProviderPage))
             dataProviders.append(dataProvider)
             print ("data provider gene ext: " + dataProvider)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']

@@ -5,10 +5,11 @@ from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+from services import DataProvider
 
 class DiseaseAlleleExt(object):
 
-    def get_allele_disease_data(self, disease_data, batch_size, graph):
+    def get_allele_disease_data(self, disease_data, batch_size, graph, species):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -31,6 +32,9 @@ class DiseaseAlleleExt(object):
                                                   dataProvider + dataProviderPage))
             dataProviders.append(dataProvider)
             print ("data provider allele ext: " + dataProvider)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
@@ -55,7 +59,7 @@ class DiseaseAlleleExt(object):
                         allelicGeneId = ''
                         print ("returning more than one gene: this is an error")
 
-                    disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId)
+                    disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 
                     list_to_yield.append(disease_features)
                     if len(list_to_yield) == batch_size:

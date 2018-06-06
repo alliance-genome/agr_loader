@@ -2,11 +2,12 @@ import uuid
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+from services import DataProvider
 
 
 class PhenotypeExt(object):
 
-    def get_phenotype_data(self, phenotype_data, batch_size, testObject):
+    def get_phenotype_data(self, phenotype_data, batch_size, testObject, species):
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
@@ -32,6 +33,9 @@ class PhenotypeExt(object):
                                                   dataProvider + dataProviderPage))
 
             dataProviders.append(dataProvider)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         for pheno in phenotype_data['data']:
 
@@ -84,7 +88,8 @@ class PhenotypeExt(object):
                 "type": "gene",
                 "dataProviders": dataProviders,
                 "dataProviderType": dataProviderType,
-                "dateProduced": dateProduced
+                "dateProduced": dateProduced,
+                "dataProvider": dataProviderSingle
              }
 
             list_to_yield.append(phenotype_feature)
