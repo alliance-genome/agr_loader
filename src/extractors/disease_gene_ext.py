@@ -31,7 +31,6 @@ class DiseaseGeneExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
             dataProviders.append(dataProvider)
-            print ("data provider gene ext: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
         print ("dataProvider found: " + dataProviderSingle)

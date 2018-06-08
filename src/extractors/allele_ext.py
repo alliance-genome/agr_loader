@@ -20,7 +20,6 @@ class AlleleExt(object):
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
             dataProvider = dataProviderCrossRef.get('id')
-            print (dataProvider + "allele")
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
             release = None
@@ -37,7 +36,6 @@ class AlleleExt(object):
             dataProviders.append(dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
-        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']

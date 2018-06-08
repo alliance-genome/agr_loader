@@ -27,8 +27,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        self.mods = [MGI(), RGD(), Human()]
+        self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
+
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""

@@ -31,7 +31,6 @@ class DiseaseAlleleExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
             dataProviders.append(dataProvider)
-            print ("data provider allele ext: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 

@@ -36,10 +36,8 @@ class BGIExt(object):
 
             dataProviders.append(dataProvider)
             print ("data provider: " + dataProvider)
-            print ("load Key: " + loadKey)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
-        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
