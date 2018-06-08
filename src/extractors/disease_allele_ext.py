@@ -34,7 +34,6 @@ class DiseaseAlleleExt(object):
             print ("data provider allele ext: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
-        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
