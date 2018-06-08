@@ -127,7 +127,7 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-            # generate gene descriptions for mod
+            print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 genedesc_generator.generate_descriptions(go_annotations=go_annots,
                                                          do_annotations=mod.load_disease_gene_objects(self.batch_size,
