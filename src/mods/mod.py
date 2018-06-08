@@ -3,6 +3,7 @@ from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
 from extractors.geo_ext import GeoExt
+from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
 import uuid
@@ -13,12 +14,12 @@ import pprint
 
 class MOD(object):
 
-    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile):
+    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         gene_data = JSONFile().get_data(path + bgiName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject)
+        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
         return self.yield_gene_lists(gene_lists)
 
     def yield_gene_lists(self, gene_lists):
@@ -71,32 +72,41 @@ class MOD(object):
             return go_annot_list
 
 
-    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile):
+    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size)
+        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size, species)
 
         return disease_dict
 
-    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph):
+    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph)
+        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph, species)
 
         return disease_dict
 
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, graph):
+    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, graph)
+        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, species)
 
         return alleleDict
+
+    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, species):
+        path = "tmp"
+        S3File(loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
+        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject, species)
+
+        return phenotype_dict
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []

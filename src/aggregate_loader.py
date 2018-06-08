@@ -5,6 +5,7 @@ from loaders.transactions import *
 from loaders.allele_loader import *
 from loaders.disease_loader import *
 from loaders.geo_loader import *
+from loaders.phenotype_loader import *
 from loaders.resource_descriptor_loader import *
 from mods import *
 from extractors import *
@@ -38,9 +39,9 @@ class AggregateLoader(object):
             print("WARNING: Test data load enabled.")
             time.sleep(1)
 
-    def create_indicies(self):
-        print("Creating indicies.")
-        Indicies(self.graph).create_indicies()
+    def create_indices(self):
+        print("Creating indices.")
+        Indicies(self.graph).create_indices()
 
     def load_resource_descriptors(self):
         print("extracting resource descriptor")
@@ -72,7 +73,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
             print("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes(self.batch_size, self.testObject, self.graph)  # generator object
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
 
             c = 0
             start = time.time()
@@ -92,24 +93,29 @@ class AggregateLoader(object):
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject, self.graph)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+
+            print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
+
+            print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
+
+            # print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
+            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
+            # for pheno_list_of_entries in phenos:
+            #     PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
-
-            print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_gene_objects(self.batch_size, self.testObject)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-
-            print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
@@ -125,7 +131,8 @@ class AggregateLoader(object):
             if mod.dataProvider:
                 genedesc_generator.generate_descriptions(go_annotations=go_annots,
                                                          do_annotations=mod.load_disease_gene_objects(self.batch_size,
-                                                                                                      self.testObject),
+                                                                                                      self.testObject,
+                                                                                                      mod.species),
                                                          data_provider=mod.dataProvider)
 
     def load_additional_datasets(self):

@@ -22,27 +22,38 @@ class AlleleTransaction(Transaction):
             MATCH (s:Species {primaryKey: row.taxonId})
 
             //Create the load node(s)
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Allele"
+                SET l.release = row.release
+                SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
                 SET o.symbol = row.symbol
                 SET o.taxonId = row.taxonId
                 SET o.dateProduced = row.dateProduced
-                SET o.dataProvider = row.dataProvider
                 SET o.release = row.release
                 SET o.localId = row.localId
                 SET o.globalId = row.globalId
                 SET o.uuid = row.uuid
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
+                SET o.dataProviders = row.dataProviders
+                SET o.dataProvider = row.dataProvider
+
+            MERGE (o)-[:FROM_SPECIES]-(s)
+
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  //SET dp.dateProduced = row.dateProduced
+                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+            MERGE (l)-[lo:LOADED_FROM]-(o)
 
             FOREACH (entry in row.secondaryIds |
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
                     SET second.name = entry
-                MERGE (a)-[aka1:ALSO_KNOWN_AS]->(second)
+                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
                 MERGE (l)-[las:LOADED_FROM]-(second))
 
             FOREACH (entry in row.synonyms |
@@ -56,10 +67,6 @@ class AlleleTransaction(Transaction):
 
             MERGE (o)<-[ag:IS_ALLELE_OF]->(g)
             //Merge the entity node.
-
-            MERGE (ent:Entity {primaryKey:row.dataProvider})
-                SET ent.dateProduced = row.dateProduced
-                SET ent.release = row.release
 
             //Create the entity relationship to the gene node.
             MERGE (o)-[c1:CREATED_BY]->(ent)

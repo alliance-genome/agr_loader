@@ -2,18 +2,44 @@ import uuid
 from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
+from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
+
 
 class BGIExt(object):
 
 
-    def get_data(self, gene_data, batch_size, testObject):
+    def get_data(self, gene_data, batch_size, testObject, species):
         xrefUrlMap = ResourceDescriptor().get_data()
         list_to_yield = []
 
         dateProduced = gene_data['metaData']['dateProduced']
-        dataProvider = gene_data['metaData']['dataProvider']
+        dataProviders = []
         release = None
+
+        for dataProviderObject in gene_data['metaData']['dataProvider']:
+
+            dataProviderCrossRef = dataProviderObject.get('crossReference')
+            dataProvider = dataProviderCrossRef.get('id')
+            dataProviderPages = dataProviderCrossRef.get('pages')
+            dataProviderCrossRefSet = []
+
+            loadKey = dateProduced + dataProvider + "_BGI"
+
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                       dataProviderPage)
+                dataProviderCrossRefSet.append(
+                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                  dataProvider + dataProviderPage))
+
+            dataProviders.append(dataProvider)
+            print ("data provider: " + dataProvider)
+            print ("load Key: " + loadKey)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
+        print ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
@@ -65,8 +91,8 @@ class BGIExt(object):
 
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
-                                                                                              xrefUrlMap, prefix,
-                                                                                              prefix + page)
+                                                                                            xrefUrlMap, prefix,
+                                                                                            prefix + page)
 
                                 geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                       prefix, prefix + page)
@@ -76,6 +102,7 @@ class BGIExt(object):
                                                                                    prefix, prefix + page)
 
                                 if page == 'gene/spell':
+
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
 
@@ -85,7 +112,7 @@ class BGIExt(object):
                                     crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
 
                                 crossReferences.append(
-                                    CreateCrossReference.get_xref(localCrossRefId, prefix, page,
+                                        CreateCrossReference.get_xref(localCrossRefId, prefix, page,
                                                                   page, displayName, crossRefCompleteUrl, globalXrefId+page))
 
                         else:
@@ -105,7 +132,6 @@ class BGIExt(object):
                                 crossReferences.append(
                                     CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
                                                                   "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId+"generic_cross_reference"))
-
 
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
@@ -147,7 +173,8 @@ class BGIExt(object):
                 "crossReferences": crossReferences,
                 "category": "gene",
                 "dateProduced": dateProduced,
-                "dataProvider": dataProvider,
+                "dataProviders": dataProviders,
+                "dataProvider": dataProviderSingle,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),
@@ -155,7 +182,7 @@ class BGIExt(object):
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
-                "loadKey": dataProvider+"_"+dateProduced+"_BGI"
+                "loadKey": loadKey
             }
             
             # Establishes the number of genes to yield (return) at a time.
