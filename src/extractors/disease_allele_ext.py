@@ -45,18 +45,20 @@ class DiseaseAlleleExt(object):
                 if diseaseObjectType != PrimaryDataObjectType.allele.name:
                      continue
                 else:
-                    query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
-                    featurePrimaryId = diseaseRecord.get('objectId')
-                    tx = Transaction(graph)
-                    returnSet = tx.run_single_parameter_query(query, featurePrimaryId)
-                    counter = 0
+                    # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
+                    # featurePrimaryId = diseaseRecord.get('objectId')
+                    # tx = Transaction(graph)
+                    # returnSet = tx.run_single_parameter_query(query, featurePrimaryId)
+                    # counter = 0
+                    # allelicGeneId = ''
+                    # for gene in returnSet:
+                    #     counter += 1
+                    #     allelicGeneId = gene["g.primaryKey"]
+                    # if counter > 1:
+                    #     allelicGeneId = ''
+                    #     print ("returning more than one gene: this is an error")
+
                     allelicGeneId = ''
-                    for gene in returnSet:
-                        counter += 1
-                        allelicGeneId = gene["g.primaryKey"]
-                    if counter > 1:
-                        allelicGeneId = ''
-                        print ("returning more than one gene: this is an error")
 
                     disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 

@@ -48,6 +48,7 @@ class DiseaseGeneExt(object):
                 else:
                     #TODO:fix this dependency - should be no need for allelicGeneId here.
                     allelicGeneId = ''
+
                     disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 
                     list_to_yield.append(disease_features)
