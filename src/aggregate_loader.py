@@ -27,8 +27,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [ZFIN(), SGD(), WormBase(), MGI(), RGD(), Human(), FlyBase()]
-        #self.mods = [WormBase()]
+        self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
+
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -98,7 +98,7 @@ class AggregateLoader(object):
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species)
+            features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
 
@@ -127,7 +127,7 @@ class AggregateLoader(object):
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-            # generate gene descriptions for mod
+            print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 genedesc_generator.generate_descriptions(go_annotations=go_annots,
                                                          do_annotations=mod.load_disease_gene_objects(self.batch_size,

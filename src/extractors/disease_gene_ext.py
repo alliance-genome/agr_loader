@@ -31,7 +31,6 @@ class DiseaseGeneExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
             dataProviders.append(dataProvider)
-            print ("data provider gene ext: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
         print ("dataProvider found: " + dataProviderSingle)
@@ -48,6 +47,7 @@ class DiseaseGeneExt(object):
                 else:
                     #TODO:fix this dependency - should be no need for allelicGeneId here.
                     allelicGeneId = ''
+
                     disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 
                     list_to_yield.append(disease_features)

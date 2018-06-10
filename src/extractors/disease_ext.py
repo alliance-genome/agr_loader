@@ -15,6 +15,7 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
     diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
     primaryId = diseaseRecord.get('objectId')
+
     loadKey = dateProduced + "_Disease"
 
     for dataProvider in dataProviders:
