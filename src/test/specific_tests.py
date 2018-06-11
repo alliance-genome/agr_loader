@@ -99,15 +99,22 @@ def test_gene_has_automated_description():
         assert record["counter"] == 1
 
 
-def test_diabetes_has_at_least_three_zfin_genes():
-    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'diabetes insipidus' and g.dataProvider = 'ZFIN' return count(g) as counter"
+def test_achondroplasia_has_at_least_one_zfin_gene():
+    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'achondroplasia' and g.dataProvider = 'ZFIN' return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 2
+        assert record["counter"] > 0
 
 
-def test_diabetes_has_at_least_one_zfin_feature():
-    query = "MATCH (d:DOTerm)-[]-(f:Feature) where d.name = 'diabetes insipidus' and f.dataProvider = 'ZFIN' return count(g) as counter"
+def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
+    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'nephrogenic diabetes insipidus' return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_ZDB_ALT_160129_6_has_at_least_one_disease():
+    query = "MATCH (d:DOTerm)-[]-(f:Feature) where f.dataProvider = 'ZFIN' and f.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(f) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0

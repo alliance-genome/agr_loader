@@ -14,7 +14,7 @@ class DiseaseAlleleTransaction(Transaction):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (feature:Feature {primaryKey:row.primaryId})
-            MATCH (g:Gene)-[]-(feature)
+            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             // LOAD NODES
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
