@@ -36,36 +36,37 @@ class DiseaseAlleleExt(object):
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
+        else:
+            release = ''
 
-            for diseaseRecord in disease_data['data']:
+        for diseaseRecord in disease_data['data']:
 
-                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
-                if diseaseObjectType != PrimaryDataObjectType.allele.name:
+            if diseaseObjectType != PrimaryDataObjectType.allele.name:
                      continue
-                else:
-                    # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
-                    # featurePrimaryId = diseaseRecord.get('objectId')
-                    # tx = Transaction(graph)
-                    # returnSet = tx.run_single_parameter_query(query, featurePrimaryId)
-                    # counter = 0
-                    # allelicGeneId = ''
-                    # for gene in returnSet:
-                    #     counter += 1
-                    #     allelicGeneId = gene["g.primaryKey"]
-                    # if counter > 1:
-                    #     allelicGeneId = ''
-                    #     print ("returning more than one gene: this is an error")
+            else:
+                # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
+                # featurePrimaryId = diseaseRecord.get('objectId')
+                # tx = Transaction(graph)
+                # returnSet = tx.run_single_parameter_query(query, featurePrimaryId)
+                # counter = 0
+                # allelicGeneId = ''
+                # for gene in returnSet:
+                #     counter += 1
+                #     allelicGeneId = gene["g.primaryKey"]
+                # if counter > 1:
+                #     allelicGeneId = ''
+                #     print ("returning more than one gene: this is an error")
+                allelicGeneId = ''
 
-                    allelicGeneId = ''
+                disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 
-                    disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
+                list_to_yield.append(disease_features)
+                if len(list_to_yield) == batch_size:
+                    yield list_to_yield
 
-                    list_to_yield.append(disease_features)
-                    if len(list_to_yield) == batch_size:
-                        yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
 
-                        list_to_yield[:] = []  # Empty the list.
-
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+        if len(list_to_yield) > 0:
+            yield list_to_yield

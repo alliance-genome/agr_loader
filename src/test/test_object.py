@@ -27,7 +27,9 @@ class TestObject(object):
             'MGI:3531484', 'MGI:3531484',
             'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834',
             # phenotype objects
-            'MGI:2670749', 'MGI:2656842'
+            'MGI:2670749', 'MGI:2656842',
+            # disease objects
+            'MGI:88123', 'MGI:2148259'
         }
 
         self.wormbaseIdSet = {
@@ -55,7 +57,11 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
             'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
-            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'
+            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
+            # disease specific test objects
+            'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-990415-122',
+            'ZFIN:ZDB-GENE-050517-20',
+            'ZFIN:ZDB-GENE-000816-1', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-ALT-160129-6'
 
         }
         self.flybaseIdSet = {
@@ -72,17 +78,21 @@ class TestObject(object):
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
             'RGD:1581495',
             'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
-            'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801'
+            'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801',
+            # disease specific test objects
+            'RGD:68936'
         }
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
-            'HGNC:6560', 'HGNC:6551', 'HGNC:6700'
+            'HGNC:6560', 'HGNC:6551', 'HGNC:6700',
+            # disease specific test objects
+            'HGNC:897'
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
                              'DOID:0060171', 'DOID:1115', 'DOID:0001816', 'DOID:14330', 'DOID:9452',
-                             'DOID:9455', 'DOID:1059',
+                             'DOID:9455', 'DOID:1059', 'DOID:9409',
                              'GO:0019899', 'GO:0005515', 'GO:0043393', 'GO:0022607',
                              'GO:0009952', 'GO:0005764', 'GO:0060271', 'GO:0048263',
                              'GO:0007492', 'GO:0030902', 'GO:0070121', 'GO:0030901', 'GO:0030182',
