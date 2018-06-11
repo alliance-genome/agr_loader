@@ -99,13 +99,6 @@ def test_gene_has_automated_description():
         assert record["counter"] == 1
 
 
-def test_diabetes_mellitus_has_at_least_one_zfin_gene():
-    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'diabetes mellitus' and g.dataProvider = 'ZFIN' return count(g) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
     query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'nephrogenic diabetes insipidus' return count(g) as counter"
     result = execute_transaction(query)
