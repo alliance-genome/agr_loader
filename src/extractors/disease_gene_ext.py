@@ -37,24 +37,25 @@ class DiseaseGeneExt(object):
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
+        else:
+            release = ''
 
-            for diseaseRecord in disease_data['data']:
+        for diseaseRecord in disease_data['data']:
 
-                diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            if diseaseObjectType != PrimaryDataObjectType.gene.name:
+                    continue
+            else:
+                #TODO:fix this dependency - should be no need for allelicGeneId here.
+                allelicGeneId = ''
 
-                if diseaseObjectType != PrimaryDataObjectType.gene.name:
-                        continue
-                else:
-                    #TODO:fix this dependency - should be no need for allelicGeneId here.
-                    allelicGeneId = ''
+                disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
 
-                    disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)
+                list_to_yield.append(disease_features)
+                if len(list_to_yield) == batch_size:
+                    yield list_to_yield
 
-                    list_to_yield.append(disease_features)
-                    if len(list_to_yield) == batch_size:
-                        yield list_to_yield
+                    list_to_yield[:] = []  # Empty the list.
 
-                        list_to_yield[:] = []  # Empty the list.
-
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+        if len(list_to_yield) > 0:
+            yield list_to_yield

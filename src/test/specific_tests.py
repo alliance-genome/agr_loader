@@ -98,3 +98,16 @@ def test_gene_has_automated_description():
     for record in result:
         assert record["counter"] == 1
 
+
+def test_diabetes_has_at_least_three_zfin_genes():
+    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'diabetes insipidus' and g.dataProvider = 'ZFIN' return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 2
+
+
+def test_diabetes_has_at_least_one_zfin_feature():
+    query = "MATCH (d:DOTerm)-[]-(f:Feature) where d.name = 'diabetes insipidus' and f.dataProvider = 'ZFIN' return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

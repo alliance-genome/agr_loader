@@ -55,7 +55,9 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
             'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
-            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9'
+            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
+            # disease/diabetes
+            'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-990415-122', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-160129-6'
 
         }
         self.flybaseIdSet = {
