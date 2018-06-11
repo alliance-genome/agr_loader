@@ -14,7 +14,7 @@ class DiseaseAlleleTransaction(Transaction):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (feature:Feature {primaryKey:row.primaryId})
-            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(feature)
+            MATCH (g:Gene {primaryKey:row.allelicGeneId})
 
             // LOAD NODES
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
@@ -33,12 +33,14 @@ class DiseaseAlleleTransaction(Transaction):
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced
+                SET faf.dataProvider = row.dataProvider
                 SET dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced
+                SET faf.dataProvider = row.dataProvider
                 SET dfa.joinType = 'is_implicated_in'
             )
 
