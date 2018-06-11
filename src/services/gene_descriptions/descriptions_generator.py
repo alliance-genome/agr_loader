@@ -95,17 +95,17 @@ class GeneDescGenerator(object):
                                          })
         return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=self.go_ontology)
 
-    def get_do_associations_from_loader_object(self, do_annotations):
+    def get_do_associations_from_loader_object(self, do_annotations, do_annotations_allele):
         associations = []
         for gene_annotations in do_annotations:
             for annot in gene_annotations:
-                if annot and "doId" in annot and self.go_ontology.has_node(annot["doId"]) and not \
+                if annot and "doId" in annot and self.do_ontology.has_node(annot["doId"]) and not \
                         self.do_ontology.is_obsolete(annot["doId"]):
                     associations.append({"source_line": "",
                                          "subject": {
                                              "id": annot["primaryId"],
-                                             "label": "",
-                                             "type": "",
+                                             "label": annot["diseaseObjectName"],
+                                             "type": annot["diseaseObjectType"],
                                              "fullname": "",
                                              "synonyms": [],
                                              "taxon": {"id": ""}
@@ -128,6 +128,37 @@ class GeneDescGenerator(object):
                                              "date": None
                                              }
                                          })
+        for gene_annotations in do_annotations_allele:
+            for annot in gene_annotations:
+                if annot and annot["inferredGene"] and len(annot["inferredGene"]) == 1 and "doId" in annot and \
+                        self.do_ontology.has_node(annot["doId"]) and not self.do_ontology.is_obsolete(annot["doId"]):
+                    associations.append({"source_line": "",
+                                         "subject": {
+                                             "id": annot["inferredGene"][0],
+                                             "label": annot["diseaseObjectName"],
+                                             "type": annot["diseaseObjectType"],
+                                             "fullname": "",
+                                             "synonyms": [],
+                                             "taxon": {"id": ""}
+
+                                         },
+                                         "object": {
+                                             "id": annot["doId"],
+                                             "taxon": ""
+                                         },
+                                         "qualifiers":
+                                             annot["qualifier"].split("|") if annot["qualifier"] is not None else "",
+                                         "aspect": "D",
+                                         "relation": {"id": None},
+                                         "negated": False,
+                                         "evidence": {
+                                             "type": annot["ecodes"][0],
+                                             "has_supporting_reference": "",
+                                             "with_support_from": [],
+                                             "provided_by": annot["dataProvider"],
+                                             "date": None
+                                         }
+                                         })
         return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=self.do_ontology)
 
     @staticmethod
@@ -144,7 +175,8 @@ class GeneDescGenerator(object):
         for result in result_set:
             yield Gene(result["g.primaryKey"], result["g.symbol"], False, False)
 
-    def generate_descriptions(self, go_annotations, do_annotations, data_provider, cached_data_fetcher) -> DataFetcher:
+    def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
+                              cached_data_fetcher, human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
         desc_writer = Neo4jGDWriter()
         if cached_data_fetcher:
@@ -158,7 +190,8 @@ class GeneDescGenerator(object):
                             associations=self.get_go_associations_from_loader_object(go_annotations),
                             exclusion_list=self.conf_parser.get_go_terms_exclusion_list())
         df.set_associations(associations_type=DataType.DO,
-                            associations=self.get_do_associations_from_loader_object(do_annotations),
+                            associations=self.get_do_associations_from_loader_object(do_annotations,
+                                                                                     do_annotations_allele),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
         for gene in self.get_gene_data_from_neo4j(data_provider=data_provider):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
@@ -203,11 +236,18 @@ class GeneDescGenerator(object):
             else:
                 gene_desc.go_description = None
 
+            prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
+            if human:
+                prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
             do_sentence_generator = SentenceGenerator(
                 df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
                                             priority_list=self.conf_parser.get_do_annotations_priority(),
                                             desc_stats=gene_desc.stats),
-                ontology=df.do_ontology, **self.do_sent_gen_common_prop)
+                ontology=df.do_ontology,
+                evidence_groups_priority_list=self.conf_parser.get_do_evidence_groups_priority_list(),
+                prepostfix_sentences_map=prepostfix_sent_map,
+                prepostfix_special_cases_sent_map=None,
+                evidence_codes_groups_map=self.conf_parser.get_do_evidence_codes_groups_map())
             disease_sent = "; ".join([sentence.text for sentence in do_sentence_generator.get_sentences(
                 aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False, desc_stats=gene_desc.stats,
                 **self.do_sent_common_props)])

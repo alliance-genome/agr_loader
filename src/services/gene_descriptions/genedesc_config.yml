@@ -542,17 +542,43 @@ do_sentences_options:
         - aspect: "D"
           group: EXPERIMENTAL
           qualifier: ""
-          prefix: "is used to study"
+          prefix: "used to study"
           postfix: ""
         - aspect: "D"
           group: BIOMARKER
           qualifier: ""
-          prefix: "is biomarker of"
+          prefix: "biomarker of"
           postfix: ""
         - aspect: "D"
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: ""
-          prefix: "is used to study"
+          prefix: "used to study"
+          postfix: ""
+        - aspect: "D"
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: ""
+          prefix: "ortholog of this gene implicated in"
+          postfix: ""
+        - aspect: "D"
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: ""
+          prefix: "ortholog of this gene implicated in"
+          postfix: ""
+    do_prepostfix_sentences_map_humans:
+        - aspect: "D"
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "implicated in"
+          postfix: ""
+        - aspect: "D"
+          group: BIOMARKER
+          qualifier: ""
+          prefix: "biomarker of"
+          postfix: ""
+        - aspect: "D"
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "used to study"
           postfix: ""
         - aspect: "D"
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS

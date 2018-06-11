@@ -132,7 +132,10 @@ class AggregateLoader(object):
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
                     go_annotations=go_annots,
                     do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
-                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher)
+                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+                                                                          self.graph, mod.species),
+                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
