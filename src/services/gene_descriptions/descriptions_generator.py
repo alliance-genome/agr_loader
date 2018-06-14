@@ -40,7 +40,7 @@ class GeneDescGenerator(object):
                                   go_terms_replacement_dict=self.go_terms_replacement_dict,
                                   db_graph=self.graph, go_ontology=self.cached_go_ontology,
                                   do_ontology=self.cached_do_ontology, data_provider=data_provider)
-        df.load_go_data(go_terms_list=self.go_dataset, go_annotations=go_annotations)
+        df.load_go_data(go_terms_list=self.go_dataset.graph, go_annotations=go_annotations)
         # df.load_disease_data(do_terms_list=self.do_dataset, disease_annotations=do_annotations)
         # load go ontology only for the first data provider, use cached data for the others
         if not self.cached_go_ontology:

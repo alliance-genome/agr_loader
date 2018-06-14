@@ -2,7 +2,7 @@ import uuid as id
 from files import S3File, TXTFile
 from services import CreateCrossReference
 from .obo_parser import parseOBO
-
+from ontobio import OntologyFactory
 
 class OExt(object):
 
@@ -11,9 +11,31 @@ class OExt(object):
 
         savepath = "tmp";
         fullpath = savepath + "/" + path
-        S3File(path, savepath).download()
-        o_data = TXTFile(fullpath).get_data()
-        parsed_line = parseOBO(o_data)
+        saved_path = S3File(path, savepath).download()
+        # o_data = TXTFile(fullpath).get_data()
+        # parsed_line = parseOBO(o_data)
+        ont = OntologyFactory().create(saved_path)
+        print("# of nodes: ", len(ont.nodes()))
+
+        # TODO: ontobio-specific node dicts to return
+        for n in ont.nodes():
+            node = ont.graph.node[n]
+            node["oid"] = n
+            if "def" in node:
+                node["definition"] = node["def"]
+            if "namespace" in node:
+                node["o_type"] = node["namespace"]
+            node["href"] = ""  # missing from node DS
+            if "label" in node:
+                node["name"] = node["label"]
+                node["name_key"] = node["name"]
+            node["is_obsolete"] = 'false'  # I think ontobio currently drops obsoleted terms
+            if "is_a" in node:
+                node["isas"] = node["is_a"]
+            ont.graph.node[n] = node
+        return ont
+
+        parsed_line = ont.graph.node
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
@@ -183,7 +205,9 @@ class OExt(object):
                 'o_type': line.get('namespace'),
                 'alt_ids': alt_ids
             }
-            list_to_return.append(dict_to_append)
+            line = {**line, **dict_to_append}
+            ont.graph.node[line["id"]] = line
+            # list_to_return.append(dict_to_append)
 
         # if testObject.using_test_data() is True:
         #     filtered_dict = []
@@ -194,7 +218,8 @@ class OExt(object):
         #             continue
         #     return filtered_dict
         # else:
-        return list_to_return
+        # return
+        return ont
 
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     def get_complete_url_ont (self, local_id, global_id):

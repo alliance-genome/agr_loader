@@ -8,4 +8,7 @@ class DOLoader(object):
 
     def load_do(self, data):
         tx = DOTransaction(self.graph)
-        tx.do_tx(data)
+        do_data = []
+        for n in data.nodes():
+            do_data.append(data.node(n))
+        tx.do_tx(do_data)

@@ -1,6 +1,21 @@
 from .transaction import Transaction
 from services import CreateCrossReference
 
+example = {'id': 'http://purl.obolibrary.org/obo/DOID_8718', 'meta': {'definition':
+                                                                {
+                                                                    'val': 'A carcinoma in situ that is characterized by the spread of cancer in the respiratory system and the lack of invasion of surrounding tissues.',
+                                                                    'xrefs': [
+                                                                        'url:http://en.wikipedia.org/wiki/Carcinoma_in_situ']},
+                                                            'synonyms': [{'pred': 'hasExactSynonym',
+                                                                          'val': 'carcinoma in situ of respiratory tract (disorder)',
+                                                                          'xrefs': ['SNOMEDCT_2005_07_31:92698005']}],
+                                                            'basicPropertyValues': [{'pred': 'OIO:hasOBONamespace',
+                                                                                     'val': 'disease_ontology'},
+                                                                                    {'pred': 'OIO:hasAlternativeId',
+                                                                                     'val': 'DOID:8965'}],
+                                                            'deprecated': True}, 'type': 'CLASS',
+ 'lbl': 'carcinoma in situ of respiratory system', 'label': 'carcinoma in situ of respiratory system'}
+
 class DOTransaction(Transaction):
 
     def __init__(self, graph):
