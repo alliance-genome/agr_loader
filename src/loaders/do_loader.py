@@ -10,5 +10,6 @@ class DOLoader(object):
         tx = DOTransaction(self.graph)
         do_data = []
         for n in data.nodes():
-            do_data.append(data.node(n))
+            if 'oid' in data.node(n):   # Primarily filters out the empty nodes
+                do_data.append(data.node(n))
         tx.do_tx(do_data)

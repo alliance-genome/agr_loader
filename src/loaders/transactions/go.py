@@ -33,6 +33,10 @@ class GOTransaction(Transaction):
             FOREACH (isa in row.isas |
                 MERGE (g2:GOTerm:Ontology {primaryKey:isa})
                 MERGE (g)-[aka:IS_A]->(g2))
+                
+            FOREACH (partof in row.partofs |
+                MERGE (g2:GOTerm:Ontology {primaryKey:partof})
+                MERGE (g)-[aka:PART_OF]->(g2))
 
 
         """
