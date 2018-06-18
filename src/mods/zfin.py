@@ -9,7 +9,7 @@ class ZFIN(MOD):
         self.diseaseName = "/ZFIN_1.0.0.3_1_disease.json"
         self.phenotypeName = "/ZFIN_1.0.0.3_1_phenotype.json"
         self.alleleName = "/ZFIN_1.0.0.3_1_allele.json"
-        self.geneAssociationFile = "gene_association_1.0.zfin.gz"
+        self.geneAssociationFile = "gene_association_1.6.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
         self.geoRetMax = "100000"
