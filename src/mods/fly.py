@@ -9,7 +9,7 @@ class FlyBase(MOD):
         self.diseaseName = "/FB_1.0.0.3_disease.json"
         self.phenotypeName = "/FB_1.0.0.3_phenotype.json"
         self.alleleName = "/FB_1.0.0.3_feature.json"
-        self.geneAssociationFile = "gene_association_1.0.fb.gz"
+        self.geneAssociationFile = "gene_association_1.6.fb.gz"
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
         self.geoRetMax = "20000"
