@@ -5,4 +5,5 @@ jsonschema
 pyyaml
 urllib3
 xmltodict
+ontobio
 git+git://github.com/alliance-genome/agr_genedescriptions.git@v1.0.1#egg=genedescriptions
