@@ -53,9 +53,9 @@ class AggregateLoader(object):
         print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
-        self.go_dataset = OExt().get_data(self.testObject, "GO/go_1.0.obo")
+        self.go_dataset = OExt().get_data(self.testObject, "GO/go_1.6.obo")
         print("Extracting DO data.")
-        self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.0.obo")
+        self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.6.obo")
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
         # #

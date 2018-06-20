@@ -9,7 +9,7 @@ class SGD(MOD):
         self.diseaseName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_disease.daf.json"
         self.phenotypeName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_phenotype.json"
         self.alleleName = ""
-        self.geneAssociationFile = "gene_association_1.0.sgd.gz"
+        self.geneAssociationFile = "gene_association_1.6.sgd.gz"
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
         self.geoRetMax = "10000"
