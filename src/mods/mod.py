@@ -30,7 +30,7 @@ class MOD(object):
         S3File("GO/ANNOT/" + geneAssociationFile, path).download()
         go_annot_dict = {}
         go_annot_list = []
-        with gzip.open(path + "/GO/ANNOT/" + geneAssociationFile, 'rt') as file:
+        with gzip.open(path + "/GO/ANNOT/" + geneAssociationFile, 'rt', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
