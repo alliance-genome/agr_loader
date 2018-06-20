@@ -114,7 +114,7 @@ def test_ZDB_ALT_160129_6_has_at_least_one_disease():
 
 
 def test_do_terms_have_parents():
-    query = "MATCH (d:DOTERM) WHERE NOT (d)-[:IS_A]->() return count(d) as counter"
+    query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
