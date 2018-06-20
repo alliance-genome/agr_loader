@@ -77,10 +77,18 @@ class OExt(object):
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
                         isaWithoutName = isa.split("!")[0].strip()
-                        isasWithoutNames.append(isaWithoutName)
+                        if '{' in isaWithoutName:
+                            isaWithoutName = isaWithoutName.split("{")[0].strip()
+                            isasWithoutNames.append(isaWithoutName)
+                        else:
+                            isasWithoutNames.append(isaWithoutName)
                 else:
                     isaWithoutName = o_is_as.split("!")[0].strip()
-                    isasWithoutNames.append(isaWithoutName)
+                    if '{' in isaWithoutName:
+                        isaWithoutName = isaWithoutName.split("{")[0].strip()
+                        isasWithoutNames.append(isaWithoutName)
+                    else:
+                        isasWithoutNames.append(isaWithoutName)
             if relationships:
                 if isinstance(relationships, (list, tuple)):
                     for relationship in relationships:
