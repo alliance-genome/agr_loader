@@ -1,17 +1,41 @@
 import uuid
 from services import UrlService
+from services import CreateCrossReference
+from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
 
-class AlleleExt(object):
 
-    def get_alleles(self, allele_data, batch_size, testObject, graph):
+class AlleleExt(object):
+    def get_alleles(self, allele_data, batch_size, testObject, species):
 
         xrefUrlMap = ResourceDescriptor().get_data()
-
+        dataProviders = []
         list_to_yield = []
+        loadKey = ""
+
         dateProduced = allele_data['metaData']['dateProduced']
-        dataProvider = allele_data['metaData']['dataProvider']
-        release = ""
+
+
+        for dataProviderObject in allele_data['metaData']['dataProvider']:
+
+            dataProviderCrossRef = dataProviderObject.get('crossReference')
+            dataProvider = dataProviderCrossRef.get('id')
+            dataProviderPages = dataProviderCrossRef.get('pages')
+            dataProviderCrossRefSet = []
+            release = None
+            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
+
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                                                                       dataProviderPage)
+                dataProviderCrossRefSet.append(
+                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
+                                                  dataProvider + dataProviderPage))
+
+            dataProviders.append(dataProvider)
+
+        dataProviderSingle = DataProvider().get_data_provider(species)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
@@ -34,25 +58,14 @@ class AlleleExt(object):
                     local_crossref_id = crossRefId.split(":")[1]
                     prefix = crossRef.get('id').split(":")[0]
                     pages = crossRef.get('pages')
-                    global_id = crossRef.get('id')
 
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                            crossReferences.append({
-                                "id": crossRef.get('id'),
-                                "globalCrossRefId": crossRef.get('id'),
-                                "localId": local_crossref_id,
-                                "crossRefCompleteUrl": UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page),
-                                "prefix": prefix,
-                                "crossRefType": page,
-                                "primaryKey": global_id + page,
-                                "uuid": str(uuid.uuid4()),
-                                "displayName": crossRef.get('id')
-                            })
-
+                                crossReferences.append(
+                                    CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -62,13 +75,14 @@ class AlleleExt(object):
                 "taxonId": alleleRecord.get('taxonId'),
                 "synonyms": alleleRecord.get('synonyms'),
                 "secondaryIds": alleleRecord.get('secondaryIds'),
-                "dataProvider": dataProvider,
+                "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
-                "loadKey": dataProvider+"_"+dateProduced+"_allele",
+                "loadKey": loadKey,
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
-                "crossReferences": crossReferences
+                "crossReferences": crossReferences,
+                "dataProvider": dataProviderSingle
             }
 
             list_to_yield.append(allele_dataset)

@@ -77,12 +77,44 @@ def test_xref_complete_url_is_formatted():
     for record in result:
         assert record["counter"] < 1
 
-# ontology xrefs don't have full urls intentionally ie: SNOMEDCT, but the rest of the xrefs should have complete urls.
-def test_crossref_complete_url_exists_when_it_should():
-    query = "MATCH (cr:CrossReference) where cr.crossRefType <> 'ontology_provided_cross_reference' and cr.crossRefCompleteUrl is null return count(cr) as counter"
+
+def test_spell_display_name():
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
+def test_spell_crossRefType():
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.crossRefType <> 'gene/spell' return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
 
+
+def test_gene_has_automated_description():
+    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' and g.automatedGeneSynopsis is not null return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
+    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'nephrogenic diabetes insipidus' return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_ZDB_ALT_160129_6_has_at_least_one_disease():
+    query = "MATCH (d:DOTerm)-[]-(f:Feature) where f.dataProvider = 'ZFIN' and f.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(f) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_do_terms_have_parents():
+    query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1

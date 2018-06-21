@@ -3,17 +3,16 @@ import os
 
 class S3File(object):
 
-    def __init__(self, bucket, filename, savepath):
-        self.bucket = bucket
+    def __init__(self, filename, savepath):
         self.filename = filename
         self.savepath = savepath
 
     def download(self):
-        print("Downloading data from s3 (https://download.alliancegenome.org/%s/%s -> %s/%s) ..." % (self.bucket, self.filename, self.savepath, self.filename))
-        if not os.path.exists(self.savepath):
+        print("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
+        if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
             print("Making temp file storage: %s" % (self.savepath))
-            os.makedirs(self.savepath)
-        url = "https://s3.amazonaws.com/" + self.bucket + "/" + self.filename
+            os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
+        url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:

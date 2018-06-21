@@ -13,20 +13,14 @@ class DiseaseGeneTransaction(Transaction):
 
             UNWIND $data as row
 
-            // GET PRIMARY DATA OBJECTS
-
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (gene:Gene {primaryKey:row.primaryId})
-
             // LOAD NODES
 
             MERGE (l:Load {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.dataProvider = row.dataProvider
                 SET l.loadName = "Disease"
-
-            MERGE (spec:Species {primaryKey: row.taxonId})
-            MERGE (gene)<-[:FROM_SPECIES]->(spec)
 
              MERGE (dga:Association {primaryKey:row.uuid})  
                 SET dga :DiseaseEntityJoin
@@ -54,11 +48,9 @@ class DiseaseGeneTransaction(Transaction):
                 SET pubg.pubMedUrl = row.pubMedUrl  
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubg)  
-
             MERGE (dga)-[dapug:EVIDENCE]->(pubg)  
 
             // EVIDENCE CODES FOR GENE  
-
             FOREACH (entity in row.ecodes| 
                 MERGE (ecode1g:EvidenceCode {primaryKey:entity}) 
                 MERGE (dga)-[daecode1g:EVIDENCE]->(ecode1g) 
@@ -67,10 +59,8 @@ class DiseaseGeneTransaction(Transaction):
             """
 
         deleteEmptyDONodes = """
-
             MATCH (dd:DOTerm) WHERE keys(dd)[0] = 'primaryKey' and size(keys(dd)) = 1
             DETACH DELETE (dd)
-
         """
 
         Transaction.execute_transaction(self, executeGene, data)

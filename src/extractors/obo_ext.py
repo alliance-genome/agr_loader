@@ -1,19 +1,24 @@
 import uuid as id
 from files import S3File, TXTFile
+from services import CreateCrossReference
 from .obo_parser import parseOBO
+
 
 class OExt(object):
 
 
-    def get_data(self, testObject, filename, prefix):
+    def get_data(self, testObject, path):
 
-        path = "tmp";
-        S3File("mod-datadumps"+prefix, filename, path).download()
-        o_data = TXTFile(path + "/"+filename).get_data()
+        savepath = "tmp";
+        fullpath = savepath + "/" + path
+        S3File(path, savepath).download()
+        o_data = TXTFile(fullpath).get_data()
         parsed_line = parseOBO(o_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
+            relationships = line.get('relationship')
+            partofsWithoutNames = []
             o_syns = line.get('synonym')
             syns = []
             xrefs = []
@@ -48,17 +53,20 @@ class OExt(object):
                             local_id = xrefId.split(":")[1].strip()
                             prefix = xrefId.split(":")[0].strip()
                             complete_url = self.get_complete_url_ont(local_id, xrefId)
-                            uuid = str(id.uuid4())
-                            xrefs.append(xref)
-                            xref_urls.append({"uuid": uuid, "displayName": prefix+":"+local_id, "globalCrossRefId": prefix+":"+local_id, "primaryKey": prefix +":"+ local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": xrefId, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                            generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference",
+                                                          "ontology_provided_cross_reference", xrefId, complete_url,
+                                                          xrefId + "ontology_provided_cross_reference")
+                            generated_xref["oid"] = ident
+                            xref_urls.append(generated_xref)
                 else:
                     if ":" in o_xrefs:
                         local_id = o_xrefs.split(":")[1].strip()
                         prefix = o_xrefs.split(":")[0].strip()
                         uuid = str(id.uuid4())
-                        xrefs.append(o_xrefs)
                         complete_url = self.get_complete_url_ont(local_id, o_xrefs)
-                        xref_urls.append({"uuid": uuid, "displayName": prefix+":"+local_id, "globalCrossRefId": prefix+":"+local_id, "primaryKey": prefix +":"+ local_id + "ontology_provided_cross_reference", "oid": line['id'], "xrefId": o_xrefs, "local_id": local_id, "prefix": prefix, "crossRefCompleteUrl": complete_url, "complete_url": complete_url, "crossRefType": "ontology_provided_cross_reference"})
+                        generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
+                        generated_xref["oid"] = ident
+                        xref_urls.append(generated_xref)
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')
@@ -69,10 +77,30 @@ class OExt(object):
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
                         isaWithoutName = isa.split("!")[0].strip()
-                        isasWithoutNames.append(isaWithoutName)
+                        if '{' in isaWithoutName:
+                            isaWithoutName = isaWithoutName.split("{")[0].strip()
+                            isasWithoutNames.append(isaWithoutName)
+                        else:
+                            isasWithoutNames.append(isaWithoutName)
                 else:
                     isaWithoutName = o_is_as.split("!")[0].strip()
-                    isasWithoutNames.append(isaWithoutName)
+                    if '{' in isaWithoutName:
+                        isaWithoutName = isaWithoutName.split("{")[0].strip()
+                        isasWithoutNames.append(isaWithoutName)
+                    else:
+                        isasWithoutNames.append(isaWithoutName)
+            if relationships:
+                if isinstance(relationships, (list, tuple)):
+                    for relationship in relationships:
+                        relWithoutName = relationship.split("!")[0].strip()
+                        relType, relID = relWithoutName.split(" ")
+                        if relType == "part_of":
+                            partofsWithoutNames.append(relID)
+                else:
+                    relWithoutName = relationships.split("!")[0].strip()
+                    relType, relID = relWithoutName.split(" ")
+                    if relType == "part_of":
+                        partofsWithoutNames.append(relID)
             definition = line.get('def')
             defLinks = ""
             defLinksProcessed = []
@@ -84,7 +112,7 @@ class OExt(object):
                     if "[" in definition.split("\"")[2].strip():
                         defLinks = definition.split("\"")[2].strip()
                         defLinks = defLinks.rstrip("]").replace("[", "")
-                        defLinks = defLinks.replace("url:www", "http://wwww")
+                        defLinks = defLinks.replace("url:www", "http://www")
                         defLinks = defLinks.replace("url:", "")
                         defLinks = defLinks.replace("URL:", "")
                         defLinks = defLinks.replace("\\:", ":")
@@ -115,15 +143,23 @@ class OExt(object):
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
 
+            alt_ids = line.get('alt_id')
+            if alt_ids:
+                if not isinstance(alt_ids, (list, tuple)):
+                    alt_ids = [alt_ids]
+            else:
+                alt_ids = []
+
             dict_to_append = {
                 'o_genes': [],
                 'o_species': [],
-                'name': line['name'],
+                'name': line.get('name'),
                 'o_synonyms': syns,
-                'name_key': line['name'],
-                'id': line['id'],
+                'name_key': line.get('name'),
+                'oid': line['id'],
                 'definition': definition,
                 'isas': isasWithoutNames,
+                'partofs': partofsWithoutNames,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
@@ -138,14 +174,14 @@ class OExt(object):
                 'zfin_link': 'https://zfin.org/'+line['id'],
                 'oUrl': "http://www.disease-ontology.org/?id=" + line['id'],
                 'oPrefix': prefix,
-                'xref_urls': xref_urls,
+                'crossReferences': xref_urls,
                 'defText': defText,
                 'defLinksProcessed': defLinksProcessed,
                 'oboFile': prefix,
                 'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                 'category': 'go',
                 'o_type': line.get('namespace'),
-
+                'alt_ids': alt_ids
             }
             list_to_return.append(dict_to_append)
 

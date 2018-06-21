@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 class BGITransaction(Transaction):
 
@@ -20,47 +21,57 @@ class BGITransaction(Transaction):
             UNWIND $data AS row
 
             //Create the load node(s)
-            MERGE (l:Load {primaryKey:row.loadKey})
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
                 SET l.loadName = "BGI"
+                SET l.release = row.release
+                SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
 
             //Create the Gene node and set properties. primaryKey is required.
-            MERGE (g:Gene {primaryKey:row.primaryId})
-                SET g.symbol = row.symbol
-                SET g.taxonId = row.taxonId
-                SET g.name = row.name
-                SET g.description = row.description
-                SET g.geneSynopsisUrl = row.geneSynopsisUrl
-                SET g.geneSynopsis = row.geneSynopsis
-                SET g.geneLiteratureUrl = row.geneLiteratureUrl
-                SET g.geneticEntityExternalUrl = row.geneticEntityExternalUrl
-                SET g.dateProduced = row.dateProduced
-                SET g.dataProvider = row.dataProvider
-                SET g.modGlobalCrossRefId = row.modGlobalCrossRefId
-                SET g.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
-                SET g.modLocalId = row.localId
-                SET g.modGlobalId = row.modGlobalId
+            MERGE (o:Gene {primaryKey:row.primaryId})
+                SET o.symbol = row.symbol
+                SET o.taxonId = row.taxonId
+                SET o.name = row.name
+                SET o.description = row.description
+                SET o.geneSynopsisUrl = row.geneSynopsisUrl
+                SET o.geneSynopsis = row.geneSynopsis
+                SET o.geneLiteratureUrl = row.geneLiteratureUrl
+                SET o.geneticEntityExternalUrl = row.geneticEntityExternalUrl
+                SET o.dateProduced = row.dateProduced
+                SET o.modGlobalCrossRefId = row.modGlobalCrossRefId
+                SET o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
+                SET o.modLocalId = row.localId
+                SET o.modGlobalId = row.modGlobalId
+                SET o.uuid = row.uuid
+                SET o.dataProvider = row.dataProvider
+                SET o.dataProviders = row.dataProviders
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(g)
+            MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.
+
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
+                  //SET dp.dateProduced = row.dateProduced
+                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
+               // MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             FOREACH (entry in row.secondaryIds |           
                 MERGE (second:SecondaryId:Identifier {primaryKey:entry})
                     SET second.name = entry
-                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second)
+                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
                 MERGE (l)-[las:LOADED_FROM]-(second))
 
             FOREACH (entry in row.synonyms |           
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
                     SET syn.name = entry
-                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
+                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
                 MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
             MERGE (spec:Species {primaryKey: row.taxonId})
                 SET spec.species = row.species
                 SET spec.name = row.species
-            MERGE (g)-[:FROM_SPECIES]->(spec)
+            MERGE (o)-[:FROM_SPECIES]->(spec)
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
 
             //MERGE the SOTerm node and set the primary key.
@@ -68,43 +79,29 @@ class BGITransaction(Transaction):
             MERGE (l)-[laso:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            MERGE (g)-[x:ANNOTATED_TO]->(s)
-
-            //Merge the entity node.
-            MERGE (ent:Entity {primaryKey:row.dataProvider})
-                SET ent.dateProduced = row.dateProduced
-                SET ent.release = row.release
+            MERGE (o)-[x:ANNOTATED_TO]->(s)
 
             //Create the entity relationship to the gene node.
-            MERGE (g)-[c1:CREATED_BY]->(ent)
+            //MERGE (o)-[c1:CREATED_BY]->(dp)
 
-            WITH g, row.crossReferences AS events
+            WITH o, row.crossReferences AS events
             UNWIND events AS event
-                MERGE (id:CrossReference {primaryKey:event.primaryKey})
-                    SET id.name = event.id
-                    SET id.globalCrossRefId = event.globalCrossRefId
-                    SET id.localId = event.localId
-                    SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
-                    SET id.prefix = event.prefix
-                    SET id.crossRefType = event.crossRefType
-                    SET id.uuid = event.uuid
-                    SET id.displayName = event.displayName
-                MERGE (g)-[gcr:CROSS_REFERENCE]->(id)
-                //MERGE (l)-[lacr:LOADED_FROM]-(id)
-        """
+        """ + CreateCrossReference.get_cypher_xref_text("gene")
+
+        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py, geo_xref.py
 
         locationQuery = """
             UNWIND $data AS row
                 WITH row.genomeLocations AS locations
                 UNWIND locations AS location
                     //TODO: this is super annoying -- without this second pass of merging gene, it creates new gene nodes!
-                    MATCH (g:Gene {primaryKey:location.geneLocPrimaryId})
+                    MATCH (o:Gene {primaryKey:location.geneLocPrimaryId})
 
                     MERGE (chrm:Chromosome {primaryKey:location.chromosome})
 
                     //gene->chromosome
                     //each location should be unique - if this is merge, then we mistakenly overwrite the relationship properties on each iteration
-                    CREATE (g)-[gchrm:LOCATED_ON]->(chrm)
+                    CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
                         SET gchrm.start = location.start 
                         SET gchrm.end = location.end 
                         SET gchrm.assembly = location.assembly 

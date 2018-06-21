@@ -41,13 +41,20 @@ class TestClass(object):
                              dict(node='Association'), \
                              dict(node='Publication'), \
                              dict(node='EvidenceCode'), \
-                             dict(node='Feature'),
+                             dict(node='Feature'), \
+                             #dict(node='Phenotype'), \
+                             #dict(node='PhenotypeEntityJoin'), \
+                             dict(node='OrthologyGeneJoin'), \
+                             dict(node='OrthoAlgorithm'), \
+                             dict(node='Load'), \
+                             dict(node='Feature')#, \
+                             #dict(node='Phenotype'), \
+                             #dict(node='PhenotypeEntityJoin')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                             dict(node='Gene', prop='dateProduced'), \
                             dict(node='Gene', prop='geneLiteratureUrl'), \
-                            dict(node='Gene', prop='dataProvider'), \
                             dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                             dict(node='Gene', prop='taxonId'), \
                             dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -55,7 +62,9 @@ class TestClass(object):
                             dict(node='Gene', prop='symbol'), \
                             dict(node='Gene', prop='primaryKey'), \
                             dict(node='Gene', prop='modGlobalId'), \
+                            dict(node='Gene', prop='uuid'), \
                             dict(node='GOTerm', prop='primaryKey'), \
+                            dict(node='Gene', prop='dataProvider'), \
                             #dict(node='SOTerm', prop='name'), \
                             dict(node='SOTerm', prop='primaryKey'), \
                             dict(node='DOTerm', prop='doPrefix'), \
@@ -65,8 +74,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='defLinks'), \
                             dict(node='DOTerm', prop='is_obsolete'), \
                             dict(node='DOTerm', prop='subset'), \
-                            dict(node='DOTerm', prop='name'), \
-                            dict(node='DOTerm', prop='nameKey'), \
                             dict(node='DOTerm', prop='primaryKey'), \
                             dict(node='Identifier', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
@@ -75,6 +82,10 @@ class TestClass(object):
                             dict(node='CrossReference', prop='primaryKey'), \
                             dict(node='CrossReference', prop='prefix'), \
                             dict(node='CrossReference', prop='crossRefType'), \
+                            dict(node='CrossReference', prop='displayName'), \
+                            dict(node='CrossReference', prop='globalCrossRefId'), \
+                            dict(node='CrossReference', prop='uuid'),\
+                            dict(node='CrossReference', prop='page'), \
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
@@ -83,23 +94,26 @@ class TestClass(object):
                             dict(node='Chromosome', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
+                            #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
+                            #dict(node='Phenotype', prop='primaryKey'), \
+                            #dict(node='Phenotype', prop='phenotypeStatement'), \
                             dict(node='Publication', prop='pubMedId'), \
                            #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='dataProvider'), \
                             dict(node='Feature', prop='dateProduced'), \
+                            dict(node='Feature', prop='uuid'), \
+                            dict(node='Feature', prop='dataProvider'), \
                             dict(node='MITerm', prop='primaryKey') \
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
                                dict(node='Gene', prop='dateProduced'), \
                                dict(node='Gene', prop='geneLiteratureUrl'), \
-                               dict(node='Gene', prop='dataProvider'), \
                                dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                                dict(node='Gene', prop='taxonId'), \
                                dict(node='Gene', prop='geneticEntityExternalUrl'), \
@@ -107,6 +121,9 @@ class TestClass(object):
                                dict(node='Gene', prop='symbol'), \
                                dict(node='Gene', prop='primaryKey'), \
                                dict(node='Gene', prop='modGlobalId'), \
+                               dict(node='Gene', prop='uuid'), \
+                               dict(node='Gene', prop='dataProvider'), \
+                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
@@ -117,8 +134,6 @@ class TestClass(object):
                                dict(node='DOTerm', prop='defLinks'), \
                                dict(node='DOTerm', prop='is_obsolete'), \
                                dict(node='DOTerm', prop='subset'), \
-                               dict(node='DOTerm', prop='name'), \
-                               dict(node='DOTerm', prop='nameKey'), \
                                dict(node='DOTerm', prop='primaryKey'), \
                                dict(node='Identifier', prop='primaryKey'), \
                                dict(node='Synonym', prop='primaryKey'), \
@@ -127,6 +142,9 @@ class TestClass(object):
                                dict(node='CrossReference', prop='primaryKey'), \
                                dict(node='CrossReference', prop='prefix'), \
                                dict(node='CrossReference', prop='crossRefType'), \
+                               dict(node='CrossReference', prop='displayName'), \
+                               dict(node='CrossReference', prop='globalCrossRefId'), \
+                               dict(node='CrossReference', prop='uuid'),\
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
@@ -137,6 +155,8 @@ class TestClass(object):
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
                                dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                               #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                               #dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
                                dict(node='Publication', prop='pubMedId'), \
@@ -144,9 +164,9 @@ class TestClass(object):
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
+                               dict(node='Feature', prop='uuid'), \
                                dict(node='MITerm', prop='primaryKey') \
                                ],
 
@@ -154,16 +174,20 @@ class TestClass(object):
                              dict(node='Publication', prop='primaryKey'), \
                              dict(node='Association', prop='primaryKey'), \
                              dict(node='DiseaseEntityJoin', prop='primaryKey'), \
+                             #dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
                              dict(node='CrossReference', prop='primaryKey'), \
+                             dict(node='CrossReference', prop='uuid'), \
                              dict(node='Synonym', prop='primaryKey'), \
                              dict(node='DOTerm', prop='primaryKey'), \
                              dict(node='SOTerm', prop='primaryKey'), \
                              dict(node='GOTerm', prop='primaryKey'), \
                              dict(node='Gene', prop='primaryKey'), \
+                             dict(node='Gene', prop='uuid'), \
                              dict(node='Feature', prop='primaryKey'), \
+                             dict(node='Feature', prop='uuid'), \
                              dict(node='MITerm', prop='primaryKey') \
                              ]
     }

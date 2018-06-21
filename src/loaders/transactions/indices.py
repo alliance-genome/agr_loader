@@ -3,7 +3,7 @@ class Indicies(object):
     def __init__(self, graph):
         self.graph = graph
 
-    def create_indicies(self):
+    def create_indices(self):
         session = self.graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")
@@ -42,6 +42,9 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Load(primaryKey)")
         session.run("CREATE INDEX ON :Feature(primaryKey)")
         session.run("CREATE INDEX ON :MITerm(primaryKey)")
+        session.run("CREATE INDEX ON :Phenotype(primaryKey)")
+        session.run("CREATE INDEX ON :PhenotypeEntityJoin(primaryKey)")
+
         #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
         #session.run("CREATE CONSTRAINT ON (n:Gene) ASSERT n.primaryKey IS UNIQUE")

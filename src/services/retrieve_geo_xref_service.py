@@ -1,6 +1,6 @@
 import uuid
-from loaders.transactions import Transaction
-
+from loaders.transactions.transaction import Transaction
+from .create_cross_reference_service import CreateCrossReference
 
 class RetrieveGeoXrefService(object):
 
@@ -18,19 +18,10 @@ class RetrieveGeoXrefService(object):
             genePrimaryKey = record["g.primaryKey"]
             modLocalId = record["g.modLocalId"]
             globalCrossRefId = record["cr.globalCrossRefId"]
-            geo_xref = {
-                "genePrimaryKey": genePrimaryKey,
-                "modLocalId": modLocalId,
-                "crossRefCompleteUrl": "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1],
-                "id": globalCrossRefId,
-                "globalCrossRefId": globalCrossRefId,
-                "localId": globalCrossRefId.split(":")[1],
-                "prefix": "NCBI_Gene",
-                "crossRefType": "gene/other_expression",
-                "primaryKey": globalCrossRefId + "gene/other_expression",
-                "uuid": str(uuid.uuid4()),
-                "displayName": "GEO"
-            }
+            geo_xref = CreateCrossReference.get_xref(globalCrossRefId.split(":")[1], "NCBI_Gene", "gene/other_expression", "gene/other_expression", "GEO", "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1], globalCrossRefId+"gene/other_expression")
+            geo_xref["genePrimaryKey"] = genePrimaryKey
+            geo_xref["modLocalId"] = modLocalId
+
             geo_data.append(geo_xref)
 
         return geo_data
