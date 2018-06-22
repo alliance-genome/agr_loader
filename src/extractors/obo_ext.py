@@ -17,7 +17,6 @@ class OExt(object):
         ont = OntologyFactory().create(saved_path)
 
         parsed_line = ont.graph.copy().node
-        # list_to_return = []
         for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
             node = ont.graph.node[k]
             if len(node) == 0:
@@ -87,29 +86,9 @@ class OExt(object):
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
-            rel_lists = {}
             all_parents = ont.parents(k)
             all_parents.append(k)
             all_parents_subont = ont.subontology(all_parents) # Improves performance when traversing relations
-            # for relation in relations_to_search:
-            #     if relation in ["subPropertyOf", "inverseOf"]:
-            #         continue
-            #     parents = all_parents_subont.parents(k, relations=[relation])
-            #     if len(parents) > 0:
-            #         if relation == "subClassOf":
-            #             rel_label = "IS_A"
-            #         else:
-            #             try:
-            #                 rel_label = ont.label(relation)
-            #                 if rel_label is not None:
-            #                     rel_label = rel_label.replace(" ", "_").upper()
-            #                 else:
-            #                     continue
-            #             except:
-            #                 print(relation)
-            #                 print(relations_to_search)
-            #                 rel_label = ont.label(relation).replace(" ", "_").upper()
-            #         rel_lists[rel_label] = parents
 
             # o_is_as = node.get('is_a')
             # if o_is_as is None:
@@ -123,7 +102,6 @@ class OExt(object):
             #     else:
             #         isaWithoutName = o_is_as.split("!")[0].strip()
             #         isasWithoutNames.append(isaWithoutName)
-            isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
             # if relationships:
             #     if isinstance(relationships, (list, tuple)):
             #         for relationship in relationships:
@@ -136,6 +114,7 @@ class OExt(object):
             #         relType, relID = relWithoutName.split(" ")
             #         if relType == "part_of":
             #             partofsWithoutNames.append(relID)
+            isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
             partofsWithoutNames = all_parents_subont.parents(k, relations=['BFO:0000050'])
             regulates = all_parents_subont.parents(k, relations=['RO:0002211'])
             negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
@@ -229,7 +208,6 @@ class OExt(object):
             }
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node
-            # list_to_return.append(dict_to_append)
 
         # if testObject.using_test_data() is True:
         #     filtered_dict = []
