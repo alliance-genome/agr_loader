@@ -86,7 +86,7 @@ class AggregateLoader(object):
         # initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
                                                                              "genedesc_config.yml"),
-                                               go_dataset=self.go_dataset, do_dataset=self.do_dataset,
+                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
         # Loading annotation data for all MODs after completion of BGI data.

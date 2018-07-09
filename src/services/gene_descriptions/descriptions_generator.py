@@ -10,11 +10,11 @@ from ontobio.ontol import Ontology
 
 class GeneDescGenerator(object):
 
-    def __init__(self, config_file_path: str, go_dataset, do_dataset, graph_db):
+    def __init__(self, config_file_path: str, go_ontology, do_ontology, graph_db):
         self.conf_parser = GenedescConfigParser(config_file_path)
         self.graph = graph_db
-        self.go_ontology = self.get_ontology_from_loader_object(go_dataset)
-        self.do_ontology = self.get_ontology_from_loader_object(do_dataset)
+        self.go_ontology = go_ontology
+        self.do_ontology = do_ontology
         self.go_sent_gen_common_props = {
             "evidence_groups_priority_list": self.conf_parser.get_go_evidence_groups_priority_list(),
             "prepostfix_sentences_map": self.conf_parser.get_go_prepostfix_sentences_map(),
@@ -198,8 +198,7 @@ class GeneDescGenerator(object):
             joined_sent = []
             go_sent_generator = SentenceGenerator(
                 annotations=df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
-                                                        priority_list=self.conf_parser.get_go_annotations_priority(),
-                                                        desc_stats=gene_desc.stats),
+                                                        priority_list=self.conf_parser.get_go_annotations_priority()),
                 ontology=df.go_ontology, **self.go_sent_gen_common_props)
 
             func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
@@ -208,22 +207,22 @@ class GeneDescGenerator(object):
                 joined_sent.append(func_sent)
             contributes_to_func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
                 aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, desc_stats=gene_desc.stats, **self.go_sent_common_props)])
+                keep_only_best_group=True, **self.go_sent_common_props)])
             if contributes_to_func_sent:
                 joined_sent.append(contributes_to_func_sent)
             proc_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
                 aspect='P', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                desc_stats=gene_desc.stats, **self.go_sent_common_props)])
+                **self.go_sent_common_props)])
             if proc_sent:
                 joined_sent.append(proc_sent)
             comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
                 aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                desc_stats=gene_desc.stats, **self.go_sent_common_props)])
+                **self.go_sent_common_props)])
             if comp_sent:
                 joined_sent.append(comp_sent)
             colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
                 aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
-                desc_stats=gene_desc.stats, keep_only_best_group=True, **self.go_sent_common_props)])
+                keep_only_best_group=True, **self.go_sent_common_props)])
             if colocalizes_with_comp_sent:
                 joined_sent.append(colocalizes_with_comp_sent)
 
@@ -241,15 +240,14 @@ class GeneDescGenerator(object):
                 prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
             do_sentence_generator = SentenceGenerator(
                 df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
-                                            priority_list=self.conf_parser.get_do_annotations_priority(),
-                                            desc_stats=gene_desc.stats),
+                                            priority_list=self.conf_parser.get_do_annotations_priority()),
                 ontology=df.do_ontology,
                 evidence_groups_priority_list=self.conf_parser.get_do_evidence_groups_priority_list(),
                 prepostfix_sentences_map=prepostfix_sent_map,
                 prepostfix_special_cases_sent_map=None,
                 evidence_codes_groups_map=self.conf_parser.get_do_evidence_codes_groups_map())
             disease_sent = "; ".join([sentence.text for sentence in do_sentence_generator.get_sentences(
-                aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False, desc_stats=gene_desc.stats,
+                aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False,
                 **self.do_sent_common_props)])
             if disease_sent and len(disease_sent) > 0:
                 gene_desc.disease_description = disease_sent[0].upper() + disease_sent[1:]
