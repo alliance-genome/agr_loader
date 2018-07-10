@@ -16,7 +16,5 @@ class GeneDescriptionTransaction(Transaction):
             MATCH (g:Gene {primaryKey:row.gene_id})
                 WHERE g.automatedGeneSynopsis is NULL
                 SET g.automatedGeneSynopsis = row.description
-                SET g.goDescription = row.go_description
-                SET g.diseaseDescription = row.disease_description 
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
