@@ -8,7 +8,7 @@ class Human(MOD):
         self.bgiName = "/RGD_1.0.0.3_BGI.9606.json"
         self.diseaseName = "/RGD_1.0.0.3_disease.9606.json"
         self.phenotypeName = "/RGD_1.0.0.3_phenotype.9606.json"
-        self.geneAssociationFile = "gene_association_1.7.human.gz"
+        self.geneAssociationFile = "gene_association_1.7.1.human.gz"
 
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
