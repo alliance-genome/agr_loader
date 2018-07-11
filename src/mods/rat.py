@@ -10,6 +10,7 @@ class RGD(MOD):
         self.phenotypeName = "/RGD_1.0.0.3_phenotype.10116.json"
         self.alleleName = "/RGD_1.0.0.3_allele.10116.json"
         self.geneAssociationFile = "gene_association_1.7.rgd.gz"
+
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
         self.geoRetMax = "30000"

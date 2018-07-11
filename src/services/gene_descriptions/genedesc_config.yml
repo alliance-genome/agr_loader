@@ -198,6 +198,16 @@ go_sentences_options:
                 prefix: "contributes as a"
                 postfix: ""
         - aspect: F
+          group: EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "contributes as a"
+                postfix: ""
+        - aspect: F
           group: HIGH_THROUGHPUT_EXPERIMENTAL
           qualifier: ""
           prefix: "exhibits"
@@ -218,6 +228,16 @@ go_sentences_options:
                 prefix: "a"
                 postfix: ""
         - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "colocalizes with a"
+                postfix: ""
+        - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: ""
           prefix: "predicted to have"
@@ -236,6 +256,16 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to contribute as a"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
                 postfix: ""
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
@@ -258,6 +288,16 @@ go_sentences_options:
                 prefix: "predicted to contribute as a"
                 postfix: ""
         - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
+                postfix: ""
+        - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: ""
           prefix: "predicted to have"
@@ -276,11 +316,27 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to contribute as a"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
                 postfix: ""
         - aspect: P
           group: EXPERIMENTAL
           qualifier: ""
           prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
           postfix: ""
           special_cases:
         - aspect: P
@@ -290,9 +346,21 @@ go_sentences_options:
           postfix: ""
           special_cases:
         - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+        - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: ""
           prefix: "predicted to be involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
         - aspect: P
@@ -302,9 +370,21 @@ go_sentences_options:
           postfix: ""
           special_cases:
         - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+        - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: ""
           prefix: "predicted to be involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
         - aspect: C
