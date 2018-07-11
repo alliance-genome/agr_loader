@@ -10,7 +10,7 @@ class MGI(MOD):
         self.alleleName = "/MGI_1.0.0.3_allele.json"
         self.diseaseName = "/MGI_1.0.0.3_disease.json"
         self.phenotypeName = "/MGI_1.0.0.3_phenotype.json"
-        self.geneAssociationFile = "gene_association_1.6.mgi.gz"
+        self.geneAssociationFile = "gene_association_1.7.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
         self.identifierPrefix = "" # None for MGI.
