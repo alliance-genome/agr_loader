@@ -6,7 +6,7 @@ class SOExt:
 
     def get_data(self):
         path = "tmp";
-        path_to_file = "SO/so_1.0.obo"
+        path_to_file = "SO/so_1.7.obo"
         S3File(path_to_file, path).download()
         so_data = TXTFile(path + "/" + path_to_file).get_data()
 
