@@ -60,7 +60,7 @@ class TestObject(object):
             'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
             # disease specific test objects
             'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-990415-122',
-            'ZFIN:ZDB-GENE-050517-20',
+            'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-980203-1091',
             'ZFIN:ZDB-GENE-000816-1', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-ALT-160129-6'
 
         }
