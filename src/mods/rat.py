@@ -4,11 +4,12 @@ class RGD(MOD):
 
     def __init__(self):
         self.species = "Rattus norvegicus"
-        self.loadFile = "RGD_1.0.0.3_4.tar.gz"
-        self.bgiName = "/RGD_1.0.0.3_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.3_disease.10116.json"
-        self.phenotypeName = "/RGD_1.0.0.3_phenotype.10116.json"
-        self.alleleName = "/RGD_1.0.0.3_allele.10116.json"
+        self.loadFile = "RGD_1.0.0.4_1.tar.gz"
+        self.bgiName = "/RGD_1.0.0.4_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.4_disease.10116.json"
+        self.phenotypeName = "/RGD_1.0.0.4_phenotype.10116.json"
+        self.alleleName = "/RGD_1.0.0.4_allele.10116.json"
+        self.wtExpressionName = "/RGD_1.0.0.4_expression.10116.json"
         self.geneAssociationFile = "gene_association_1.7.rgd.gz"
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
@@ -46,6 +47,11 @@ class RGD(MOD):
     def load_phenotype_objects(self, batch_size, testObject, species):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
         return data
+
+    def load_wt_expression_objects(self, batch_size, testObject, species):
+        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
+        return data
+
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

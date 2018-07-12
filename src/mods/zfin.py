@@ -4,11 +4,12 @@ class ZFIN(MOD):
 
     def __init__(self):
         self.species = "Danio rerio"
-        self.loadFile = "ZFIN_1.0.0.3_1.tar.gz"
-        self.bgiName = "/ZFIN_1.0.0.3_1_BGI.json"
-        self.diseaseName = "/ZFIN_1.0.0.3_1_disease.json"
-        self.phenotypeName = "/ZFIN_1.0.0.3_1_phenotype.json"
-        self.alleleName = "/ZFIN_1.0.0.3_1_allele.json"
+        self.loadFile = "ZFIN_1.0.0.4_1.tar.gz"
+        self.bgiName = "/ZFIN_1.0.0.4_1_BGI.json"
+        self.diseaseName = "/ZFIN_1.0.0.4_1_disease.json"
+        self.phenotypeName = "/ZFIN_1.0.0.4_1_phenotype.json"
+        self.alleleName = "/ZFIN_1.0.0.4_1_allele.json"
+        self.wtExpressionName = "/ZFIN_1.0.0.4_1_allele.json"
         self.geneAssociationFile = "gene_association_1.7.zfin.gz"
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
@@ -45,6 +46,10 @@ class ZFIN(MOD):
 
     def load_phenotype_objects(self, batch_size, testObject, species):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
+        return data
+
+    def load_wt_expression_objects(self, batch_size, testObject, species):
+        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

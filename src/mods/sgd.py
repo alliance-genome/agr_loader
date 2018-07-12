@@ -4,11 +4,12 @@ class SGD(MOD):
 
     def __init__(self):
         self.species = "Saccharomyces cerevisiae"
-        self.loadFile = "SGD_1.0.0.3_1.tar.gz"
-        self.bgiName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_BGI.json"
-        self.diseaseName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_disease.daf.json"
-        self.phenotypeName = "/SGD_1.0.0.3_1/SGD_1.0.0.3_phenotype.json"
+        self.loadFile = "SGD_1.0.0.4_1.tar.gz"
+        self.bgiName = "/SGD_1.0.0.4_1/SGD_1.0.0.4_BGI.json"
+        self.diseaseName = "/SGD_1.0.0.4_1/SGD_1.0.0.4_disease.daf.json"
+        self.phenotypeName = "/SGD_1.0.0.4_1/SGD_1.0.0.4_phenotype.json"
         self.alleleName = ""
+        self.wtExpressionName = "/SGD_1.0.0.4_1/SGD_1.0.0.4_expression.json"
         self.geneAssociationFile = "gene_association_1.7.sgd.gz"
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
@@ -50,6 +51,11 @@ class SGD(MOD):
     def load_phenotype_objects(self, batch_size, testObject, species):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
         return data
+
+    def load_wt_expression_objects(self, batch_size, testObject, species):
+        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
+        return data
+
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

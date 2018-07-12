@@ -2,6 +2,7 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
+from extractors.expression_ext import ExpressionExt
 from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
@@ -107,6 +108,15 @@ class MOD(object):
         phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject, species)
 
         return phenotype_dict
+
+    def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile, species):
+        path = "tmp"
+        S3File(loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        wt_expression_data = JSONFile().get_data(path + expressionName, 'expression')
+        wt_expression_dict = ExpressionExt().get_phenotype_data(wt_expression_data, batch_size, testObject, species)
+
+        return wt_expression_dict
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []

@@ -9,3 +9,4 @@ from .geo_loader import GeoLoader
 from .mi_loader import MILoader
 from .imex_loader import IMEXLoader
 from .phenotype_loader import PhenotypeLoader
+from .wt_expression_loader import WTExpressionLoader
