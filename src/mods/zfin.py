@@ -10,6 +10,7 @@ class ZFIN(MOD):
         self.phenotypeName = "/ZFIN_1.0.0.3_1_phenotype.json"
         self.alleleName = "/ZFIN_1.0.0.3_1_allele.json"
         self.geneAssociationFile = "gene_association_1.7.zfin.gz"
+
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
         self.geoRetMax = "100000"
