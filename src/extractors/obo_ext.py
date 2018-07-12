@@ -83,6 +83,10 @@ class OExt(object):
                                 generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
+                if node["meta"].get('is_obsolete'):
+                    is_obsolete = "true"
+                elif node["meta"].get('deprecated'):
+                    is_obsolete = "true"
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
@@ -156,9 +160,6 @@ class OExt(object):
             else:
                 if newSubset is not None:
                     subset.append(newSubset)
-            is_obsolete = node.get('is_obsolete')
-            if is_obsolete is None:
-                is_obsolete = "false"
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
