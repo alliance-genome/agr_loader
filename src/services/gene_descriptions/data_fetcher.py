@@ -68,20 +68,7 @@ class AGRLoaderDataFetcher(DataFetcher):
         self.do_ontology = do_ontology
         self.data_provider = data_provider
 
-    @staticmethod
-    def query_db(db_graph, query: str, parameters: Dict = None):
-        """query the neo4j db
 
-        :param db_graph: a neo4j graph database
-        :param query: a cypher
-        :type query: str
-        :param parameters: a dictionary of the parameters of the query
-        :type parameters: Dict
-        """
-        with db_graph.session() as session:
-            with session.begin_transaction() as tx:
-                return_set = tx.run(query, parameters=parameters)
-        return return_set
 
     def get_gene_data(self):
         """get all gene data from the fetcher, returning one gene per call

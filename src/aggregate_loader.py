@@ -13,9 +13,7 @@ from test import *
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_rules import generate_sentences
 from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
-from services.gene_descriptions.data_fetcher import AGRLoaderDataFetcher
 from test import TestObject
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
@@ -88,8 +86,9 @@ class AggregateLoader(object):
         # initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
                                                                              "genedesc_config.yml"),
-                                               go_dataset=self.go_dataset, do_dataset=self.do_dataset,
+                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
+        cached_data_fetcher = None
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -130,11 +129,13 @@ class AggregateLoader(object):
 
             print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
-                genedesc_generator.generate_descriptions(go_annotations=go_annots,
-                                                         do_annotations=mod.load_disease_gene_objects(self.batch_size,
-                                                                                                      self.testObject,
-                                                                                                      mod.species),
-                                                         data_provider=mod.dataProvider)
+                cached_data_fetcher = genedesc_generator.generate_descriptions(
+                    go_annotations=go_annots,
+                    do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+                                                                          self.graph, mod.species),
+                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
