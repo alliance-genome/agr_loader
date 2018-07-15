@@ -51,6 +51,8 @@ class BGIExt(object):
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
 
+            if dataProvider == 'ZFIN':
+                print (global_id)
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
