@@ -49,14 +49,25 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            pubMedId = pheno.get('pubMedId')
+            if dataProviderSingle != 'MGI':
+
+                evidence = pheno.get('evidence')
+                if 'publication' in evidence:
+                    if 'modPublicationId' in evidence['publication']:
+                        pubModId = evidence['publication'].get('modPublicationId')
+
+                    if 'pubMedId' in evidence['publication']:
+                        pubMedId = evidence['publication'].get('pubMedId')
+            else:
+                pubMedId = pheno.get('pubMedId')
+                pubModId = pheno.get('pubModId')
 
             if pubMedId != None:
                 pubMedPrefix = pubMedId.split(":")[0]
                 pubMedLocalId = pubMedId.split(":")[1]
                 pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
-            pubModId = pheno.get('pubModId')
+                pubModId = pheno.get('pubModId')
 
             if pubModId != None:
                 pubModPrefix = pubModId.split(":")[0]
