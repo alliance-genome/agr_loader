@@ -45,14 +45,13 @@ class BGIExt(object):
             release = gene_data['metaData']['release']
 
         for geneRecord in gene_data['data']:
+
             crossReferences = []
             genomic_locations = []
 
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
 
-            if dataProvider == 'ZFIN':
-                print (global_id)
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
