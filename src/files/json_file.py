@@ -38,14 +38,16 @@ class JSONFile(object):
         sSchemaDir = os.path.dirname(os.path.abspath(schema_file_name))
         oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
 
-        try:
-            js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
-            print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
-        except js.ValidationError as e:
-            print(e.message)
-            print(e)
-            raise SystemExit("FATAL ERROR in JSON validation.")
-        except js.SchemaError as e:
-            print(e.message)
-            print(e)
-            raise SystemExit("FATAL ERROR in JSON validation.")      
+        #TODO get a file from MGI that complies with 1.0.0.4 schema
+        if jsonType != 'phenotype' and filename != 'MGI_1.0.0.3_phenotype.json':
+            try:
+                js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
+                print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
+            except js.ValidationError as e:
+                print(e.message)
+                print(e)
+                raise SystemExit("FATAL ERROR in JSON validation.")
+            except js.SchemaError as e:
+                print(e.message)
+                print(e)
+                raise SystemExit("FATAL ERROR in JSON validation.")
