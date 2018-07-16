@@ -56,10 +56,10 @@ class PhenotypeExt(object):
 
                 evidence = pheno.get('evidence')
                 if 'modPublicationId' in evidence:
-                    pubModId = evidence['publication'].get('modPublicationId')
+                    pubModId = evidence.get('modPublicationId')
 
                 if 'pubMedId' in evidence:
-                    pubMedId = evidence['publication'].get('pubMedId')
+                    pubMedId = evidence.get('pubMedId')
             else:
                 pubMedId = pheno.get('pubMedId')
                 pubModId = pheno.get('pubModId')
