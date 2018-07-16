@@ -151,9 +151,9 @@ class ExpressionExt(object):
                 "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
                 "whereExpressedStatement": whereExpressedStatement,
                 "expressionEntityUuid": str(uuid.uuid4()),
-                "espressionEntityPk": primaryId+cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId+pubModId+pubMedId+assay,
+                "espressionEntityPk": cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId,
                 "pubPrimaryKey": pubMedId + pubModId,
-                "uuid": str(uuid.uuid4())
+                "uuidGenExpressionJoin": str(uuid.uuid4())
              }
 
             list_to_yield.append(phenotype_feature)

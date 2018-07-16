@@ -1,4 +1,5 @@
 from .transaction import Transaction
+from services import CreateCrossReference
 
 
 class WTExpressionTransaction(Transaction):
@@ -22,12 +23,20 @@ class WTExpressionTransaction(Transaction):
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
             MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
 
-            MERGE (stage:Stage {primaryKey:row.whenExpressedStage}
+            MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
+            MERGE (e:ExpressionBioEntity {primaryKey: row.expressionEntityPk})
+            MERGE (assay:Assay {primaryKey:row.assay})
 
-            MERGE (e:Expression {primaryKey: row.expressionEntityPk})
-            SET e.uuid = row.expressionEntityUuid
+            MERGE (g)-[gex:EXPRESSED_IN]-(e)
+               SET gex:uuid = row.uuidGeneExpressionJoin
 
-            MERGE (g)-[ge:
+            MERGE (e)-[:HAS_PART]-(otast)
+            MERGE (e)-[:HAS_PART]-(otast)
+            MERGE (e)-[:HAS_PART]-(otast)
+            MERGE (otast)-[:SUB_STRUCTURE]-(otasst)
+            MERGE (otast)-[:QUALIFIED_BY]-(otastq)
+            MERGE (otast)-[:QUALIFIED_BY]-(otasstq)
+            MERGE (otcct)-[:QUALIFIED_BY]-(otcctq)
 
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
@@ -35,12 +44,15 @@ class WTExpressionTransaction(Transaction):
                 SET l.dataProviders = row.dataProviders
                 SET l.dataProvider = row.dataProvider
 
-            MERGE (wtea:Association {primaryKey:row.uuid})
-                SET wtea :ExpressionEntityJoin
-                SET wtea.joinType = 'expression'
-                SET wtea.dataProviders = row.dataProviders
+            MERGE (gej:GeneExpressionJoin {primaryKey: row.uuidGeneExpressionJoin})
+                SET gej.joinType = 'expression'
+                SET gej.dataProviders = row.dataProviders
 
-            MERGE (g)-[gwtea:ASSOCIATION]->(wtea)
+            MERGE (g)-[ggej:ASSOCIATION]->(gej)
+            MERGE (e)-[egej:ASSOCIATION]->(gej)
+
+            MERGE (gej)-[gejs:EXPRESSED_DURING]-(stage)
+            MERGE (gej)-[geja:ASSAY]-(assay)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId
@@ -49,9 +61,13 @@ class WTExpressionTransaction(Transaction):
                 SET pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
-            MERGE (wtea)-[wteapubf:EVIDENCE]->(pubf)
+            MERGE (gej)-[gejpubf:EVIDENCE]->(pubf)
 
-            """
+            WITH o, row.crossReferences AS events
+            UNWIND events AS event
+
+        """ + CreateCrossReference.get_cypher_xref_text("expression")
+
 
         Transaction.execute_transaction(self, WTExpression, data)
 
