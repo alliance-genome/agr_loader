@@ -9,6 +9,7 @@ class Neo4jGDWriter(DescriptionsWriter):
         super().__init__()
 
     def write(self, db_graph):
-        data = [{"gene_id": gene_desc.gene_id, "description": gene_desc.description} for gene_desc in self.data]
+        data = [{"gene_id": gene_desc.gene_id,
+                 "description": gene_desc.description} for gene_desc in self.data]
         tx = GeneDescriptionTransaction(db_graph)
         tx.gd_tx(data)

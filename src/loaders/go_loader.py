@@ -7,4 +7,10 @@ class GOLoader(object):
 
     def load_go(self, data):
         tx = GOTransaction(self.graph)
-        tx.go_tx(data)
+        go_data = []
+        for n in data.nodes():
+            node = data.node(n)
+            if node.get('type') == "PROPERTY":
+                continue
+            go_data.append(node)
+        tx.go_tx(go_data)
