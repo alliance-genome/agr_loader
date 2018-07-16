@@ -1,8 +1,10 @@
+import datetime
 from typing import Dict
 
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.data_fetcher import DataFetcher, Gene, DataType
 from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator
+from genedescriptions.descriptions_writer import JsonGDWriter
 from ontobio import AssociationSetFactory
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from ontobio.ontol import Ontology
@@ -187,6 +189,7 @@ class GeneDescGenerator(object):
                               cached_data_fetcher, human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
         desc_writer = Neo4jGDWriter()
+        json_desc_writer = JsonGDWriter()
         if cached_data_fetcher:
             df = cached_data_fetcher
         else:
@@ -258,10 +261,10 @@ class GeneDescGenerator(object):
                 aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False,
                 **self.do_sent_common_props)])
             if disease_sent and len(disease_sent) > 0:
-                gene_desc.disease_description = disease_sent[0].upper() + disease_sent[1:]
+                gene_desc.do_description = disease_sent[0].upper() + disease_sent[1:]
                 joined_sent.append(disease_sent)
             else:
-                gene_desc.disease_description = None
+                gene_desc.do_description = None
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -272,6 +275,15 @@ class GeneDescGenerator(object):
             else:
                 gene_desc.description = None
             desc_writer.add_gene_desc(gene_desc)
+            json_desc_writer.add_gene_desc(gene_desc)
 
         desc_writer.write(self.graph)
+        gd_file_name = data_provider
+        if human:
+            gd_file_name = "HUMAN"
+        json_desc_writer.overall_properties.species = gd_file_name
+        json_desc_writer.overall_properties.release_version = "1.6"
+        json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")
+        json_desc_writer.write("tmp/" + gd_file_name + "_with_stats.json", pretty=True, include_single_gene_stats=True)
+        json_desc_writer.write("tmp/" + gd_file_name + "_no_stats.json", pretty=True, include_single_gene_stats=False)
         return df
