@@ -15,6 +15,19 @@ class WTExpressionTransaction(Transaction):
 
             // LOAD NODES
             MATCH (g:Gene {primaryKey: row.geneId})
+            MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
+            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+            MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+            MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+
+            MERGE (stage:Stage {primaryKey:row.whenExpressedStage}
+
+            MERGE (e:Expression {primaryKey: row.expressionEntityPk})
+            SET e.uuid = row.expressionEntityUuid
+
+            MERGE (g)-[ge:
 
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced

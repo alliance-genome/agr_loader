@@ -123,6 +123,8 @@ class ExpressionExt(object):
                 if whereExpressedStatement == None:
                     whereExpressedStatement = ""
 
+            assay = xpat.get('assay')
+
             phenotype_feature = {
                 "primaryId": primaryId,
                 "phenotypeStatement": whenExpressedStage,
@@ -139,7 +141,7 @@ class ExpressionExt(object):
                 "dataProviderType": dataProviderType,
                 "dateProduced": dateProduced,
                 "dataProvider": dataProviderSingle,
-                "assay": xpat.get('assay'),
+                "assay": assay,
                 "crossReferences": crossReferences,
                 "cellularComponentQualifierTermId": cellularComponentQualifierTermId,
                 "cellularComponentTermId": cellularComponentTermId,
@@ -148,6 +150,8 @@ class ExpressionExt(object):
                 "anatomicalSubStructureTermId": anatomicalSubStructureTermId,
                 "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
                 "whereExpressedStatement": whereExpressedStatement,
+                "expressionEntityUuid": str(uuid.uuid4()),
+                "espressionEntityPk": primaryId+cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId+pubModId+pubMedId+assay,
                 "pubPrimaryKey": pubMedId + pubModId,
                 "uuid": str(uuid.uuid4())
              }
