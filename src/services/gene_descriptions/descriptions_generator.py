@@ -130,11 +130,12 @@ class GeneDescGenerator(object):
                                          })
         for gene_annotations in do_annotations_allele:
             for annot in gene_annotations:
-                if annot and annot["inferredGene"] and len(annot["inferredGene"]) == 1 and "doId" in annot and \
-                        self.do_ontology.has_node(annot["doId"]) and not self.do_ontology.is_obsolete(annot["doId"]):
+                inferred_genes = self.get_inferred_genes_for_allele(annot["primaryId"])
+                if len(inferred_genes) == 1 and annot and "doId" in annot and self.do_ontology.has_node(annot["doId"]) \
+                        and not self.do_ontology.is_obsolete(annot["doId"]):
                     associations.append({"source_line": "",
                                          "subject": {
-                                             "id": annot["inferredGene"][0],
+                                             "id": inferred_genes[0].id,
                                              "label": annot["diseaseObjectName"],
                                              "type": annot["diseaseObjectType"],
                                              "fullname": "",
@@ -174,6 +175,13 @@ class GeneDescGenerator(object):
                                    parameters={"dataProvider": data_provider})
         for result in result_set:
             yield Gene(result["g.primaryKey"], result["g.symbol"], False, False)
+
+    def get_inferred_genes_for_allele(self, allele_primary_key):
+        db_query = "match (o:Feature)-[:IS_ALLELE_OF]-(g:Gene) where o.primaryKey = {allelePrimaryKey} return " \
+                   "g.symbol, g.primaryKey"
+        result_set = self.query_db(db_graph=self.graph, query=db_query,
+                                   parameters={"allelePrimaryKey": allele_primary_key})
+        return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
                               cached_data_fetcher, human=False) -> DataFetcher:
