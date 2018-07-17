@@ -42,6 +42,8 @@ class PhenotypeExt(object):
 
         for pheno in phenotype_data['data']:
 
+            pubMedId = None
+            pubModId = None
             pubMedUrl = None
             pubModUrl = None
             primaryId = pheno.get('objectId')
