@@ -154,6 +154,11 @@ class OExt(object):
             if definition is None:
                 definition = ""
 
+            print(node['id'])
+            print(defText)
+            print(defLinksProcessed)
+            print(definition)
+
             newSubset = node.get('subset')
             if isinstance(newSubset, (list, tuple)):
                 subset = newSubset
