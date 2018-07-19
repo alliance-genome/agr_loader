@@ -129,7 +129,9 @@ class OExt(object):
             defLinksProcessed = []
             if definition is None:
                 definition = ""
+                print('definition is None')
             else:
+                print(definition)
                 if definition is not None and "\"" in definition:
                     defText = definition.split("\"")[1].strip()
                     if "[" in definition.split("\"")[2].strip():
@@ -142,6 +144,11 @@ class OExt(object):
 
                         if "," in defLinks:
                             defLinks = defLinks.split(",")
+                            for link in defLinks:
+                                if link.strip().startswith("http"):
+                                    defLinksProcessed.append(link)
+                        elif "." in defLinks:
+                            defLinks = defLinks.split(".")
                             for link in defLinks:
                                 if link.strip().startswith("http"):
                                     defLinksProcessed.append(link)
@@ -158,6 +165,8 @@ class OExt(object):
             print(defText)
             print(defLinksProcessed)
             print(definition)
+            if defText is None:
+                quit()
 
             newSubset = node.get('subset')
             if isinstance(newSubset, (list, tuple)):
