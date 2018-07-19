@@ -39,7 +39,7 @@ class JSONFile(object):
         oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
 
         #TODO get a file from MGI that complies with 1.0.0.4 schema
-        if jsonType != 'phenotype' and filename != 'MGI_1.0.0.3_phenotype.json':
+        if jsonType != 'phenotype' and filename != 'MGI_1.0.0.3_phenotype.json' and filename != 'SGD_1.0.0.3_phenotype.json':
             try:
                 js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
                 print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
