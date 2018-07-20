@@ -130,7 +130,6 @@ class OExt(object):
             defLinksProcessed = []
             if definition is None:
                 definition = ""
-                print('definition is None')
             else:
                 # print(definition)
                 if definition is not None and "\"" in definition:
