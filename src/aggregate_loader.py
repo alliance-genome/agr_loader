@@ -314,9 +314,9 @@ class AggregateLoader(object):
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
                     human=isinstance(mod, Human),
                     go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
-                    go_association_url="https://download.alliancegenome.org/" + mod.geneAssociationFile,
+                    go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
                     do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
-                    do_association_url="https://download.alliancegenome.org" + mod.diseaseName)
+                    do_association_url="")
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")
