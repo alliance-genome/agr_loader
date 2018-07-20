@@ -37,8 +37,9 @@ class TestObject(object):
             'WB:WBGene00006750', 'WB:WBGene00000540', 'WB:WBGene00017866', 'WB:WBGene00001131',
             'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133', 'WB:WBGene00001115',
             'WB:WBGene00018468', 'WB:WBGene00019001', 'WB:WBGene00007438', 'WB:WBGene00001136', 'WB:WBGene00006742',
+            'WB:WBGene00003883',
             # phenotype and disease objects
-            'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001'
+            'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490'
         }
 
         self.sgdIdSet = {
