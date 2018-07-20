@@ -87,6 +87,8 @@ class OExt(object):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
                     is_obsolete = "true"
+                if "definition" in node["meta"]:
+                    definition = node["meta"]["definition"]["val"]
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
@@ -124,35 +126,39 @@ class OExt(object):
             negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
             positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
 
-            definition = node.get('def')
             defLinks = ""
             defLinksProcessed = []
             if definition is None:
                 definition = ""
             else:
+                # print(definition)
                 if definition is not None and "\"" in definition:
-                    defText = definition.split("\"")[1].strip()
-                    if "[" in definition.split("\"")[2].strip():
-                        defLinks = definition.split("\"")[2].strip()
-                        defLinks = defLinks.rstrip("]").replace("[", "")
-                        defLinks = defLinks.replace("url:www", "http://www")
-                        defLinks = defLinks.replace("url:", "")
-                        defLinks = defLinks.replace("URL:", "")
-                        defLinks = defLinks.replace("\\:", ":")
+                    split_definition = definition.split("\"")
+                    if len(split_definition) > 1:
+                        defText = split_definition[1].strip()
+                        if len(split_definition) > 2 and "[" in split_definition[2].strip():
+                            defLinks = split_definition[2].strip()
+                            defLinks = defLinks.rstrip("]").replace("[", "")
+                            defLinks = defLinks.replace("url:www", "http://www")
+                            defLinks = defLinks.replace("url:", "")
+                            defLinks = defLinks.replace("URL:", "")
+                            defLinks = defLinks.replace("\\:", ":")
 
-                        if "," in defLinks:
-                            defLinks = defLinks.split(",")
-                            for link in defLinks:
-                                if link.strip().startswith("http"):
-                                    defLinksProcessed.append(link)
-                        else:
-                            if defLinks.strip().startswith("http"):
-                                defLinksProcessed.append(defLinks)
+                            if "," in defLinks:
+                                defLinks = defLinks.split(",")
+                                for link in defLinks:
+                                    if link.strip().startswith("http"):
+                                        defLinksProcessed.append(link)
+                            elif "." in defLinks:
+                                defLinks = defLinks.split(".")
+                                for link in defLinks:
+                                    if link.strip().startswith("http"):
+                                        defLinksProcessed.append(link)
+                            else:
+                                if defLinks.strip().startswith("http"):
+                                    defLinksProcessed.append(defLinks)
                 else:
-                    definition = defText
-            definition = node.get("def")
-            if definition is None:
-                definition = ""
+                    defText = definition
 
             newSubset = node.get('subset')
             if isinstance(newSubset, (list, tuple)):
