@@ -54,7 +54,7 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if dataProviderSingle != 'MGI' and dataProviderSingle != 'SGD':
+            if dataProviderSingle != 'MGI':
 
                 evidence = pheno.get('evidence')
                 if 'modPublicationId' in evidence:

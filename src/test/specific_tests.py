@@ -118,3 +118,12 @@ def test_do_terms_have_parents():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
+
+
+def test_phenotype_for_all_species_exists():
+    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
+
+
