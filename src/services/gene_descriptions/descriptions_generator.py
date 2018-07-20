@@ -186,7 +186,8 @@ class GeneDescGenerator(object):
         return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
-                              cached_data_fetcher, human=False) -> DataFetcher:
+                              cached_data_fetcher, go_ontology_url, go_association_url,
+                              do_ontology_url, do_association_url, human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
         desc_writer = Neo4jGDWriter()
         json_desc_writer = JsonGDWriter()
@@ -207,35 +208,91 @@ class GeneDescGenerator(object):
         for gene in self.get_gene_data_from_neo4j(data_provider=data_provider):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
+            go_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
+                                                         priority_list=self.conf_parser.get_go_annotations_priority())
             go_sent_generator = SentenceGenerator(
-                annotations=df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
-                                                        priority_list=self.conf_parser.get_go_annotations_priority()),
-                ontology=df.go_ontology, **self.go_sent_gen_common_props)
-
-            func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='F', merge_groups_with_same_prefix=True, keep_only_best_group=True, )])
+                annotations=go_annotations, ontology=df.go_ontology, **self.go_sent_gen_common_props)
+            gene_desc.stats.total_number_go_annotations = len(go_annotations)
+            gene_desc.stats.set_initial_go_ids_f = list(set().union(
+                [elem for key, sets in go_sent_generator.terms_groups[('F', '')].items() for elem in sets if
+                 ('F', key, '') in
+                 self.conf_parser.get_go_prepostfix_sentences_map()],
+                [elem for key, sets in go_sent_generator.terms_groups[('F', 'contributes_to')].items() for elem in
+                 sets if
+                 ('F', key, 'contributes_to') in self.conf_parser.get_go_prepostfix_sentences_map()]))
+            gene_desc.stats.set_initial_go_ids_p = [elem for key, sets in
+                                                    go_sent_generator.terms_groups[('P', '')].items() for
+                                                    elem in sets if ('P', key, '') in
+                                                    self.conf_parser.get_go_prepostfix_sentences_map()]
+            gene_desc.stats.set_initial_go_ids_c = list(set().union(
+                [elem for key, sets in go_sent_generator.terms_groups[('C', '')].items() for elem in sets if
+                 ('C', key, '') in
+                 self.conf_parser.get_go_prepostfix_sentences_map()],
+                [elem for key, sets in go_sent_generator.terms_groups[('C', 'colocalizes_with')].items() for elem in
+                 sets if
+                 ('C', key, 'colocalizes_with') in self.conf_parser.get_go_prepostfix_sentences_map()]))
+            raw_func_sent = go_sent_generator.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
+                                                            keep_only_best_group=True, **self.go_sent_common_props)
+            func_sent = " and ".join([sentence.text for sentence in raw_func_sent])
             if func_sent:
                 joined_sent.append(func_sent)
-            contributes_to_func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, **self.go_sent_common_props)])
+                gene_desc.go_function_description = func_sent
+            contributes_to_raw_func_sent = go_sent_generator.get_sentences(
+                aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True, keep_only_best_group=True,
+                **self.go_sent_common_props)
+            gene_desc.stats.set_final_go_ids_f = list(set().union([term_id for sentence in raw_func_sent for
+                                                                   term_id in sentence.terms_ids],
+                                                                  [term_id for sentence in contributes_to_raw_func_sent
+                                                                   for
+                                                                   term_id in sentence.terms_ids]))
+            contributes_to_func_sent = " and ".join([sentence.text for sentence in contributes_to_raw_func_sent])
             if contributes_to_func_sent:
                 joined_sent.append(contributes_to_func_sent)
-            proc_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='P', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                **self.go_sent_common_props)])
+                if not gene_desc.go_function_description:
+                    gene_desc.go_function_description = contributes_to_func_sent
+                else:
+                    gene_desc.go_function_description += " " + contributes_to_func_sent
+                if not gene_desc.go_description:
+                    gene_desc.go_description = contributes_to_func_sent
+                else:
+                    gene_desc.go_description += " " + contributes_to_func_sent
+            raw_proc_sent = go_sent_generator.get_sentences(aspect='P', merge_groups_with_same_prefix=True,
+                                                            keep_only_best_group=True, **self.go_sent_common_props)
+            gene_desc.stats.set_final_go_ids_p = [term_id for sentence in raw_proc_sent for term_id in
+                                                  sentence.terms_ids]
+            proc_sent = " and ".join([sentence.text for sentence in raw_proc_sent])
             if proc_sent:
                 joined_sent.append(proc_sent)
-            comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                **self.go_sent_common_props)])
+                gene_desc.go_process_description = proc_sent
+            raw_comp_sent = go_sent_generator.get_sentences(
+                aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True, **self.go_sent_common_props)
+            comp_sent = " and ".join([sentence.text for sentence in raw_comp_sent])
             if comp_sent:
                 joined_sent.append(comp_sent)
-            colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
+                gene_desc.go_component_description = comp_sent
+                if not gene_desc.go_description:
+                    gene_desc.go_description = comp_sent
+                else:
+                    gene_desc.go_description += " " + comp_sent
+            colocalizes_with_raw_comp_sent = go_sent_generator.get_sentences(
                 aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, **self.go_sent_common_props)])
+                keep_only_best_group=True, **self.go_sent_common_props)
+            gene_desc.stats.set_final_go_ids_c = list(set().union([term_id for sentence in raw_comp_sent for
+                                                                   term_id in sentence.terms_ids],
+                                                                  [term_id for sentence in
+                                                                   colocalizes_with_raw_comp_sent for
+                                                                   term_id in sentence.terms_ids]))
+            colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in colocalizes_with_raw_comp_sent])
             if colocalizes_with_comp_sent:
                 joined_sent.append(colocalizes_with_comp_sent)
+                if not gene_desc.go_component_description:
+                    gene_desc.go_component_description = colocalizes_with_comp_sent
+                else:
+                    gene_desc.go_component_description += " " + colocalizes_with_comp_sent
+                if not gene_desc.go_description:
+                    gene_desc.go_description = colocalizes_with_comp_sent
+                else:
+                    gene_desc.go_description += " " + colocalizes_with_comp_sent
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -249,22 +306,31 @@ class GeneDescGenerator(object):
             prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
             if human:
                 prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
+            do_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
+                                                         priority_list=self.conf_parser.get_do_annotations_priority())
             do_sentence_generator = SentenceGenerator(
-                df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
-                                            priority_list=self.conf_parser.get_do_annotations_priority()),
-                ontology=df.do_ontology,
+                annotations=do_annotations, ontology=df.do_ontology,
                 evidence_groups_priority_list=self.conf_parser.get_do_evidence_groups_priority_list(),
                 prepostfix_sentences_map=prepostfix_sent_map,
                 prepostfix_special_cases_sent_map=None,
                 evidence_codes_groups_map=self.conf_parser.get_do_evidence_codes_groups_map())
-            disease_sent = "; ".join([sentence.text for sentence in do_sentence_generator.get_sentences(
-                aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False,
-                **self.do_sent_common_props)])
+            gene_desc.stats.total_number_do_annotations = len(do_annotations)
+            gene_desc.stats.set_initial_do_ids = [term_id for terms in do_sentence_generator.terms_groups.values() for
+                                                  tvalues in terms.values() for term_id in tvalues]
+            raw_disease_sent = do_sentence_generator.get_sentences(aspect='D', merge_groups_with_same_prefix=True,
+                                                                   keep_only_best_group=False,
+                                                                   **self.do_sent_common_props)
+            disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent])
             if disease_sent and len(disease_sent) > 0:
                 gene_desc.do_description = disease_sent[0].upper() + disease_sent[1:]
                 joined_sent.append(disease_sent)
             else:
                 gene_desc.do_description = None
+            gene_desc.stats.set_final_do_ids = [term_id for sentence in raw_disease_sent for term_id in
+                                                sentence.terms_ids]
+            if "(multiple)" in disease_sent:
+                gene_desc.stats.number_final_do_term_covering_multiple_initial_do_terms = \
+                    disease_sent.count("(multiple)")
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -282,8 +348,11 @@ class GeneDescGenerator(object):
         if human:
             gd_file_name = "HUMAN"
         json_desc_writer.overall_properties.species = gd_file_name
-        json_desc_writer.overall_properties.release_version = "1.6"
+        json_desc_writer.overall_properties.release_version = "1.7"
         json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")
+        json_desc_writer.overall_properties.go_ontology_url = go_ontology_url
+        json_desc_writer.overall_properties.go_association_url = go_association_url
+        json_desc_writer.overall_properties.do_ontology_url = do_ontology_url
+        json_desc_writer.overall_properties.do_association_url = do_association_url
         json_desc_writer.write("tmp/" + gd_file_name + "_with_stats.json", pretty=True, include_single_gene_stats=True)
-        json_desc_writer.write("tmp/" + gd_file_name + "_no_stats.json", pretty=True, include_single_gene_stats=False)
         return df

@@ -312,7 +312,11 @@ class AggregateLoader(object):
                     do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
                                                                           self.graph, mod.species),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human))
+                    human=isinstance(mod, Human),
+                    go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
+                    go_association_url="https://download.alliancegenome.org/" + mod.geneAssociationFile,
+                    do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
+                    do_association_url="https://download.alliancegenome.org" + mod.diseaseName)
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")
