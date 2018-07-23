@@ -13,3 +13,4 @@ from .ncbi_efetch import NCBIEfetch
 from .imex_ext import IMEXExt
 from .mi_ext import MIExt
 from .phenotype_ext import PhenotypeExt
+from .wt_expression_ext import WTExpressionExt

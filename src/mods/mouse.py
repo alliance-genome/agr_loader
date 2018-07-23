@@ -5,12 +5,12 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_1.0.0.4_1.tar.gz"
-        self.bgiName = "/MGI_1.0.0.4_BGI.json"
-        self.alleleName = "/MGI_1.0.0.4_allele.json"
-        self.diseaseName = "/MGI_1.0.0.4_disease.json"
-        self.phenotypeName = "/MGI_1.0.0.4_phenotype.json"
-        self.wtExpressionName = "/MGI_1.0.0.4_expression.json"
+        self.loadFile = "MGI_1.0.0.3_1.tar.gz"
+        self.bgiName = "/MGI_1.0.0.3_BGI.json"
+        self.alleleName = "/MGI_1.0.0.3_allele.json"
+        self.diseaseName = "/MGI_1.0.0.3_disease.json"
+        self.phenotypeName = "/MGI_1.0.0.3_phenotype.json"
+        #self.wtExpressionName = "/MGI_1.0.0.3_expression.json"
         self.geneAssociationFile = "gene_association_1.7.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
@@ -46,7 +46,8 @@ class MGI(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
+        data = ""
+    #     data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
@@ -55,3 +56,7 @@ class MGI(MOD):
         # for xref in xrefs:
         #     pprint.pprint(xref)
         return xrefs
+
+    def load_phenotype_objects(self, batch_size, testObject, species):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
+        return data

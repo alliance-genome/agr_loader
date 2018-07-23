@@ -2,7 +2,7 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
-from extractors.expression_ext import ExpressionExt
+from extractors.wt_expression_ext import WTExpressionExt
 from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile

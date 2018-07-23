@@ -11,3 +11,4 @@ from .geo_xref import GeoXrefTransaction
 from .mi import MITransaction
 from .imex import IMEXTransaction
 from .phenotype import PhenotypeTransaction
+from .wt_expression import WTExpressionTransaction
