@@ -41,6 +41,7 @@ class OExt(object):
             subset = []
             newSubset = None
             definition = ""
+            namespace = ""
             is_obsolete = "false"
             ident = k
             prefix = ident.split(":")[0]
@@ -87,6 +88,28 @@ class OExt(object):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
                     is_obsolete = "true"
+                if "definition" in node["meta"]:
+                    definition = node["meta"]["definition"]["val"]
+                if "subsets" in node["meta"]:
+                    newSubset = node['meta'].get('subsets')
+                    if isinstance(newSubset, (list, tuple)):
+                        subset = newSubset
+                    else:
+                        if newSubset is not None:
+                            subset.append(newSubset)
+                if len(subset) > 1:
+                    converted_subsets = []
+                    for s in subset:
+                        if "#" in s:
+                            s = s.split("#")[-1]
+                        converted_subsets.append(s)
+                    subset = converted_subsets
+                    print(subset)
+                if "basicPropertyValues" in node['meta']:
+                    for bpv in node['meta']['basicPropertyValues']:
+                        if bpv.get('pred') == 'OIO:hasOBONamespace':
+                            namespace = bpv.get('val')
+                            break
             if xrefs is None:
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
@@ -94,72 +117,44 @@ class OExt(object):
             all_parents.append(k)
             all_parents_subont = ont.subontology(all_parents) # Improves performance when traversing relations
 
-            # o_is_as = node.get('is_a')
-            # if o_is_as is None:
-            #     o_is_as = []
-            #     isasWithoutNames = []
-            # else:
-            #     if isinstance(o_is_as, (list, tuple)):
-            #         for isa in o_is_as:
-            #             isaWithoutName = isa.split("!")[0].strip()
-            #             isasWithoutNames.append(isaWithoutName)
-            #     else:
-            #         isaWithoutName = o_is_as.split("!")[0].strip()
-            #         isasWithoutNames.append(isaWithoutName)
-            # if relationships:
-            #     if isinstance(relationships, (list, tuple)):
-            #         for relationship in relationships:
-            #             relWithoutName = relationship.split("!")[0].strip()
-            #             relType, relID = relWithoutName.split(" ")
-            #             if relType == "part_of":
-            #                 partofsWithoutNames.append(relID)
-            #     else:
-            #         relWithoutName = relationships.split("!")[0].strip()
-            #         relType, relID = relWithoutName.split(" ")
-            #         if relType == "part_of":
-            #             partofsWithoutNames.append(relID)
             isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
             partofsWithoutNames = all_parents_subont.parents(k, relations=['BFO:0000050'])
             regulates = all_parents_subont.parents(k, relations=['RO:0002211'])
             negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
             positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
 
-            definition = node.get('def')
             defLinks = ""
             defLinksProcessed = []
             if definition is None:
                 definition = ""
             else:
                 if definition is not None and "\"" in definition:
-                    defText = definition.split("\"")[1].strip()
-                    if "[" in definition.split("\"")[2].strip():
-                        defLinks = definition.split("\"")[2].strip()
-                        defLinks = defLinks.rstrip("]").replace("[", "")
-                        defLinks = defLinks.replace("url:www", "http://www")
-                        defLinks = defLinks.replace("url:", "")
-                        defLinks = defLinks.replace("URL:", "")
-                        defLinks = defLinks.replace("\\:", ":")
+                    split_definition = definition.split("\"")
+                    if len(split_definition) > 1:
+                        defText = split_definition[1].strip()
+                        if len(split_definition) > 2 and "[" in split_definition[2].strip():
+                            defLinks = split_definition[2].strip()
+                            defLinks = defLinks.rstrip("]").replace("[", "")
+                            defLinks = defLinks.replace("url:www", "http://www")
+                            defLinks = defLinks.replace("url:", "")
+                            defLinks = defLinks.replace("URL:", "")
+                            defLinks = defLinks.replace("\\:", ":")
 
-                        if "," in defLinks:
-                            defLinks = defLinks.split(",")
-                            for link in defLinks:
-                                if link.strip().startswith("http"):
-                                    defLinksProcessed.append(link)
-                        else:
-                            if defLinks.strip().startswith("http"):
-                                defLinksProcessed.append(defLinks)
+                            if "," in defLinks:
+                                defLinks = defLinks.split(",")
+                                for link in defLinks:
+                                    if link.strip().startswith("http"):
+                                        defLinksProcessed.append(link)
+                            elif "." in defLinks:
+                                defLinks = defLinks.split(".")
+                                for link in defLinks:
+                                    if link.strip().startswith("http"):
+                                        defLinksProcessed.append(link)
+                            else:
+                                if defLinks.strip().startswith("http"):
+                                    defLinksProcessed.append(defLinks)
                 else:
-                    definition = defText
-            definition = node.get("def")
-            if definition is None:
-                definition = ""
-
-            newSubset = node.get('subset')
-            if isinstance(newSubset, (list, tuple)):
-                subset = newSubset
-            else:
-                if newSubset is not None:
-                    subset.append(newSubset)
+                    defText = definition
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
@@ -204,7 +199,7 @@ class OExt(object):
                 'oboFile': prefix,
                 'href': 'http://amigo.geneontology.org/amigo/term/' + node['id'],
                 'category': 'go',
-                'o_type': node.get('namespace'),
+                'o_type': namespace,
                 'alt_ids': alt_ids,
             }
             node = {**node, **dict_to_append}
