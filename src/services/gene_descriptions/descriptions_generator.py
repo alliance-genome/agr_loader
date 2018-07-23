@@ -118,7 +118,8 @@ class GeneDescGenerator(object):
                                              "taxon": ""
                                          },
                                          "qualifiers":
-                                             annot["qualifier"].split("|") if annot["qualifier"] is not None else "",
+                                             annot["qualifier"].lower().split("|") if annot["qualifier"] is not None
+                                             else "",
                                          "aspect": "D",
                                          "relation": {"id": None},
                                          "negated": False,
@@ -150,7 +151,8 @@ class GeneDescGenerator(object):
                                              "taxon": ""
                                          },
                                          "qualifiers":
-                                             annot["qualifier"].split("|") if annot["qualifier"] is not None else "",
+                                             annot["qualifier"].lower().split("|") if annot["qualifier"] is not None
+                                             else "",
                                          "aspect": "D",
                                          "relation": {"id": None},
                                          "negated": False,
@@ -184,6 +186,15 @@ class GeneDescGenerator(object):
         result_set = self.query_db(db_graph=self.graph, query=db_query,
                                    parameters={"allelePrimaryKey": allele_primary_key})
         return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
+
+    def get_human_orthologs_from_neo4j(self, data_provider: str, min_number_methods: int = 1):
+        db_query = "match (g1:Gene)-[:ASSOCIATION]-(oa:OrthologyGeneJoin)-[:ASSOCIATION]->(g2:Gene) where " \
+                   "g1.dataProvider = '{dataProvider}' and g2.taxonId = 'NCBITaxon:9606' match (oa)-[:MATCHED]->(m) " \
+                   "with g1, g2, count(m) as numMethods where numMethods > 1 return g1.primaryKey, g2.primaryKey, " \
+                   "numMethods"
+        result_set = self.query_db(db_graph=self.graph, query=db_query,
+                                   parameters={"minNumMethods": min_number_methods, "dataProvider": data_provider})
+        return result_set
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
                               cached_data_fetcher, go_ontology_url, go_association_url,
