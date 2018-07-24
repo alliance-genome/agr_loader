@@ -4,7 +4,7 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.0.4_2.tar.gz"
+        self.loadFile = "RGD_1.0.0.4_4.tar.gz"
         self.bgiName = "/RGD_1.0.0.4_BGI.9606.json"
         self.diseaseName = "/RGD_1.0.0.4_disease.9606.json"
         self.phenotypeName = "/RGD_1.0.0.4_phenotype.9606.json"
