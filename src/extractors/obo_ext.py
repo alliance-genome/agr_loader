@@ -104,7 +104,6 @@ class OExt(object):
                             s = s.split("#")[-1]
                         converted_subsets.append(s)
                     subset = converted_subsets
-                    print(subset)
                 if "basicPropertyValues" in node['meta']:
                     for bpv in node['meta']['basicPropertyValues']:
                         if bpv.get('pred') == 'OIO:hasOBONamespace':
