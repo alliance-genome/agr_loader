@@ -14,7 +14,7 @@ class GeneDescriptionTransaction(Transaction):
             UNWIND $data as row 
 
             MATCH (g:Gene {primaryKey:row.gene_id})
-                WHERE g.automatedGeneSynopsis is NULL or g.automatedGeneSynopsis = "No description available"
+                WHERE g.automatedGeneSynopsis is NULL
                 SET g.automatedGeneSynopsis = row.description
         """
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)

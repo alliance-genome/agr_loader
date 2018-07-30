@@ -4,12 +4,12 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.0.3_3.tar.gz"
-        self.bgiName = "/FB_1.0.0.3_BGI.json"
-        self.diseaseName = "/FB_1.0.0.3_disease.json"
-        self.phenotypeName = "/FB_1.0.0.3_phenotype.json"
-        self.alleleName = "/FB_1.0.0.3_feature.json"
-        self.geneAssociationFile = "gene_association_1.6.fb.gz"
+        self.loadFile = "FB_1.0.0.4_3.tar.gz"
+        self.bgiName = "/FB_1.0.0.4_BGI.json"
+        self.diseaseName = "/FB_1.0.0.4_disease.json"
+        self.phenotypeName = "/FB_1.0.0.4_phenotype.json"
+        self.alleleName = "/FB_1.0.0.4_feature.json"
+        self.geneAssociationFile = "gene_association_1.7.fb.gz"
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
         self.geoRetMax = "20000"

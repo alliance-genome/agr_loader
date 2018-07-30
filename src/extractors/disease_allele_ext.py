@@ -23,14 +23,18 @@ class DiseaseAlleleExt(object):
             dataProviderPages = dataProviderCrossRef.get('pages')
             dataProviderCrossRefSet = []
 
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+            #TODO: get SGD to fix their files.
+            if dataProviderPages is not None:
+                for dataProviderPage in dataProviderPages:
+                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                dataProviderCrossRefSet.append(
-                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                    dataProviderCrossRefSet.append(
+                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
-            dataProviders.append(dataProvider)
+
+                dataProviders.append(dataProvider)
+                print ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 

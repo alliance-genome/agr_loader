@@ -4,11 +4,12 @@ class Human(MOD):
 
     def __init__(self):
         self.species = "Homo sapiens"
-        self.loadFile = "RGD_1.0.0.3_4.tar.gz"
-        self.bgiName = "/RGD_1.0.0.3_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.0.3_disease.9606.json"
-        self.phenotypeName = "/RGD_1.0.0.3_phenotype.9606.json"
-        self.geneAssociationFile = "gene_association_1.6.human.gz"
+        self.loadFile = "RGD_1.0.0.4_4.tar.gz"
+        self.bgiName = "/RGD_1.0.0.4_BGI.9606.json"
+        self.diseaseName = "/RGD_1.0.0.4_disease.9606.json"
+        self.phenotypeName = "/RGD_1.0.0.4_phenotype.9606.json"
+        self.geneAssociationFile = "gene_association_1.7.1.human.gz"
+
         self.identifierPrefix = "" # None for Human.
         self.geoSpecies = "Homo+sapiens"
         self.geoRetMax = "40000"

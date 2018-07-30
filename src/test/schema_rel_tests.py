@@ -62,9 +62,9 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
-                            dict(node1='Feature', node2='CrossReference')#x, \
-                            #dict(node1='PhenotypeEntityJoin:Association', node2='Publication'), \
-                            #dict(node1='Phenotype', node2='PhenotypeEntityJoin')
+                            dict(node1='Feature', node2='CrossReference'), \
+                            dict(node1='PhenotypeEntityJoin:Association', node2='Publication'), \
+                            dict(node1='Phenotype', node2='PhenotypeEntityJoin')
                             ]
                             #TODO: convert to "or" tests  -- has either a gene or a feature, for example
                             #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \

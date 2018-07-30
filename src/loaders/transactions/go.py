@@ -33,7 +33,22 @@ class GOTransaction(Transaction):
             FOREACH (isa in row.isas |
                 MERGE (g2:GOTerm:Ontology {primaryKey:isa})
                 MERGE (g)-[aka:IS_A]->(g2))
-
+                
+            FOREACH (partof in row.partofs |
+                MERGE (g2:GOTerm:Ontology {primaryKey:partof})
+                MERGE (g)-[aka:PART_OF]->(g2))
+            
+            FOREACH (regulates in row.regulates |
+                MERGE (g2:GOTerm:Ontology {primaryKey:regulates})
+                MERGE (g)-[aka:REGULATES]->(g2))
+                
+            FOREACH (negatively_regulates in row.negatively_regulates |
+                MERGE (g2:GOTerm:Ontology {primaryKey:negatively_regulates})
+                MERGE (g)-[aka:NEGATIVELY_REGULATES]->(g2))
+                
+            FOREACH (positively_regulates in row.positively_regulates |
+                MERGE (g2:GOTerm:Ontology {primaryKey:positively_regulates})
+                MERGE (g)-[aka:POSITIVELY_REGULATES]->(g2))
 
         """
 

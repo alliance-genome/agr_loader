@@ -13,9 +13,7 @@ from test import *
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_rules import generate_sentences
 from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
-from services.gene_descriptions.data_fetcher import AGRLoaderDataFetcher
 from test import TestObject
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
@@ -28,7 +26,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
 
         self.resourceDescriptors = ""
@@ -53,9 +51,10 @@ class AggregateLoader(object):
         print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
-        self.go_dataset = OExt().get_data(self.testObject, "GO/go_1.6.obo")
+        self.go_dataset = OExt().get_data(self.testObject, "GO/go_1.7.obo")
         print("Extracting DO data.")
-        self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.6.obo")
+        self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.7.obo")
+
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
         # #
@@ -87,8 +86,9 @@ class AggregateLoader(object):
         # initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
                                                                              "genedesc_config.yml"),
-                                               go_dataset=self.go_dataset, do_dataset=self.do_dataset,
+                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
+        cached_data_fetcher = None
         # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -107,10 +107,10 @@ class AggregateLoader(object):
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
-            # print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
-            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
-            # for pheno_list_of_entries in phenos:
-            #     PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
+            print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
+            phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
+            for pheno_list_of_entries in phenos:
+                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
@@ -129,11 +129,13 @@ class AggregateLoader(object):
 
             print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
-                genedesc_generator.generate_descriptions(go_annotations=go_annots,
-                                                         do_annotations=mod.load_disease_gene_objects(self.batch_size,
-                                                                                                      self.testObject,
-                                                                                                      mod.species),
-                                                         data_provider=mod.dataProvider)
+                cached_data_fetcher = genedesc_generator.generate_descriptions(
+                    go_annotations=go_annots,
+                    do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+                                                                          self.graph, mod.species),
+                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")

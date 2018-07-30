@@ -5,12 +5,12 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
-        self.loadFile = "MGI_1.0.0.3_1.tar.gz"
-        self.bgiName = "/MGI_1.0.0.3_BGI.json"
-        self.alleleName = "/MGI_1.0.0.3_allele.json"
-        self.diseaseName = "/MGI_1.0.0.3_disease.json"
-        self.phenotypeName = "/MGI_1.0.0.3_phenotype.json"
-        self.geneAssociationFile = "gene_association_1.6.mgi.gz"
+        self.loadFile = "MGI_1.0.0.4_1.tar.gz"
+        self.bgiName = "/MGI_1.0.0.4_BGI.json"
+        self.alleleName = "/MGI_1.0.0.4_allele.json"
+        self.diseaseName = "/MGI_1.0.0.4_disease.json"
+        self.phenotypeName = "/MGI_1.0.0.4_phenotype.json"
+        self.geneAssociationFile = "gene_association_1.7.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
         self.identifierPrefix = "" # None for MGI.
