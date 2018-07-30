@@ -1,14 +1,14 @@
 from .transaction import Transaction
 
-class IMEXTransaction(Transaction):
+class PhysIntTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
         self.batch_size = 3000
 
-    def imex_tx(self, data):
+    def phys_int_tx(self, data):
         '''
-        Loads the IMEX data into Neo4j.
+        Loads the Physical Interaction data into Neo4j.
 
         '''
         query = """

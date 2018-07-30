@@ -138,7 +138,7 @@ class AggregateLoader(object):
                     human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
-            print("Extracting and Loading IMEX data.")
-            imex_data = IMEXExt().get_data(self.batch_size)
-            for imex_list_of_entries in imex_data:
-                IMEXLoader(self.graph).load_imex(imex_list_of_entries)
+            print("Extracting and Loading Physical Interaction data.")
+            phys_int_data = PhysIntExt().get_data(self.batch_size)
+            for phys_int_list_of_entries in phys_int_data:
+                PhysIntLoader(self.graph).load_phys_int(phys_int_list_of_entries)

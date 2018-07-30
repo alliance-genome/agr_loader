@@ -2,7 +2,7 @@ from files import S3File, ZIPFile
 import uuid, csv, re
 import urllib.request, json
 
-class IMEXExt(object):
+class PhysIntExt(object):
 
     def get_data(self, batch_size):
         path = 'tmp'

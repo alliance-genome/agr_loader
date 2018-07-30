@@ -7,5 +7,5 @@ from .ortho_loader import OrthoLoader
 from .disease_loader import DiseaseLoader
 from .geo_loader import GeoLoader
 from .mi_loader import MILoader
-from .imex_loader import IMEXLoader
+from .phys_int_loader import PhysIntLoader
 from .phenotype_loader import PhenotypeLoader

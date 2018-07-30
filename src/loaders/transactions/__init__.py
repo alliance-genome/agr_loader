@@ -9,5 +9,5 @@ from .disease_gene import DiseaseGeneTransaction
 from .disease_allele import DiseaseAlleleTransaction
 from .geo_xref import GeoXrefTransaction
 from .mi import MITransaction
-from .imex import IMEXTransaction
+from .phys_int import PhysIntTransaction
 from .phenotype import PhenotypeTransaction
