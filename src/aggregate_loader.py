@@ -138,7 +138,7 @@ class AggregateLoader(object):
                     human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
-            print("Extracting and Loading Physical Interaction data.")
-            phys_int_data = PhysIntExt().get_data(self.batch_size)
-            for phys_int_list_of_entries in phys_int_data:
-                PhysIntLoader(self.graph).load_phys_int(phys_int_list_of_entries)
+            print("Extracting and Loading Molecular Interaction data.")
+            mol_int_data = MolIntExt().get_data(self.batch_size)
+            for mol_int_list_of_entries in mol_int_data:
+                MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)

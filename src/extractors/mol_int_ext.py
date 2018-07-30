@@ -1,4 +1,4 @@
-from files import S3File, ZIPFile
+from files import S3File, TARFile
 import uuid, csv, re
 import urllib.request, json
 
@@ -10,7 +10,7 @@ class MolIntExt(object):
         filename_comp = 'INT/Alliance_molecular_interactions.tar.gz'
 
         S3File(filename_comp, path).download()
-        ZIPFile(path, filename_comp).extract_all()
+        TARFile(path, loadFile).extract_all()
 
         list_to_yield = []
 

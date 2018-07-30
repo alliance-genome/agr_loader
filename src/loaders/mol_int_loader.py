@@ -1,4 +1,4 @@
-from .transactions.imex import MolIntTransaction
+from .transactions.mol_int import MolIntTransaction
 
 class MolIntLoader(object):
 
