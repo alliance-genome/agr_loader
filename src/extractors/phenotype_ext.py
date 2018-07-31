@@ -42,6 +42,8 @@ class PhenotypeExt(object):
 
         for pheno in phenotype_data['data']:
 
+            pubMedId = None
+            pubModId = None
             pubMedUrl = None
             pubModUrl = None
             primaryId = pheno.get('objectId')
@@ -52,7 +54,7 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if dataProviderSingle != 'MGI' and dataProviderSingle != 'SGD':
+            if dataProviderSingle != 'SGD':
 
                 evidence = pheno.get('evidence')
                 if 'modPublicationId' in evidence:
