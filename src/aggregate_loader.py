@@ -55,9 +55,28 @@ class AggregateLoader(object):
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.7.obo")
 
+        # anatomy ontologies
+        print("Extracting ZFA data.")
+        self.zfa_dataset = OExt().get_data(self.testObject, "ZFA/zfa_1.7.obo")
+        print("Extracting WBBT data.")
+        self.wbbt_dataset = OExt().get_data(self.testObject, "WBBT/wbbt_1.7.obo")
+        print("Extracting Cell data.")
+        self.cell_dataset = OExt().get_data(self.testObject, "CL/CL_1.7.obo")
+        print("Extracting FBDV data.")
+        self.fbdv_dataset = OExt().get_data(self.testObject, "FBDV/fbdv_1.7.obo")
+        print("Extracting FBBT data.")
+        self.fbbt_dataset = OExt().get_data(self.testObject, "FBBT/fbbt_1.7.obo")
+        print("Extracting MA data.")
+        self.ma_dataset = OExt().get_data(self.testObject, "MA/ma_1.7.obo")
+        print("Extracting EMAPA data.")
+        self.emapa_dataset = OExt().get_data(self.testObject, "EMAPA/emapa_1.7.obo")
+        print("Extracting UBERON data.")
+        self.uberon_dataset = OExt().get_data(self.testObject, "UBERON/uberon_1.7.obo")
+
+
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
-        # #
+
         print("Loading MI data into Neo4j.")
         MILoader(self.graph).load_mi(self.mi_dataset)
         print("Loading SO data into Neo4j.")
@@ -66,6 +85,27 @@ class AggregateLoader(object):
         GOLoader(self.graph).load_go(self.go_dataset)
         print("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
+
+        print("Loading ZFA data into Neo4j.")
+        ZFALoader(self.graph).load_do(self.zfa_dataset)
+        print("Loading WBBT data into Neo4j.")
+        WBBTLoader(self.graph).load_do(self.wbbt_dataset)
+        print("Loading CL data into Neo4j.")
+        CLLoader(self.graph).load_do(self.cell_dataset)
+        print("Loading FBDV data into Neo4j.")
+        FBDVLoader(self.graph).load_do(self.fbdv_dataset)
+        print("Loading FBBT data into Neo4j.")
+        FBBTLoader(self.graph).load_do(self.fbbt_dataset)
+
+        print("Loading MA data into Neo4j.")
+        MALoader(self.graph).load_do(self.ma_dataset)
+        print("Loading EMAPA data into Neo4j.")
+        EMAPALoader(self.graph).load_do(self.emapa_dataset)
+        print("Loading UBERON data into Neo4j.")
+        UBERONLoader(self.graph).load_do(self.uberon_dataset)
+
+
+
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
