@@ -11,3 +11,11 @@ from .geo_xref import GeoXrefTransaction
 from .mi import MITransaction
 from .imex import IMEXTransaction
 from .phenotype import PhenotypeTransaction
+from .cl import CLTransaction
+from .emapa import EMAPATransaction
+from .fbbt import FBBTTransaction
+from .fbdv import FBDVTransaction
+from .ma import MATransaction
+from .uberon import UBERONTransaction
+from .wbbt import WBBTTransaction
+from .zfa import ZFATransaction
