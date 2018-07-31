@@ -83,7 +83,7 @@ class GeneDescGenerator(object):
                                              "id": annot["go_id"],
                                              "taxon": ""
                                          },
-                                         "qualifiers": annot["qualifier"].split("|"),
+                                         "qualifiers": annot["qualifier"].lower().split("|"),
                                          "aspect": annot["aspect"],
                                          "relation": {"id": None},
                                          "negated": False,
@@ -365,5 +365,6 @@ class GeneDescGenerator(object):
         json_desc_writer.overall_properties.go_association_url = go_association_url
         json_desc_writer.overall_properties.do_ontology_url = do_ontology_url
         json_desc_writer.overall_properties.do_association_url = do_association_url
-        json_desc_writer.write("tmp/" + gd_file_name + "_with_stats.json", pretty=True, include_single_gene_stats=True)
+        json_desc_writer.write("tmp/" + gd_file_name + "_gene_desc.json", pretty=True,
+                               include_single_gene_stats=True)
         return df
