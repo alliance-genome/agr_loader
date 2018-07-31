@@ -1,7 +1,7 @@
 from .transactions.wt_expression import WTExpressionTransaction
 
 
-class ExpressionLoader(object):
+class WTExpressionLoader(object):
 
     def __init__(self, graph):
         self.graph = graph

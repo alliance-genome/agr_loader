@@ -10,11 +10,4 @@ from .mi_loader import MILoader
 from .imex_loader import IMEXLoader
 from .phenotype_loader import PhenotypeLoader
 from .wt_expression_loader import WTExpressionLoader
-from .cl_loader import CLLoader
-from emapa_loader import EMAPALoader
-from fbbt_loader import FBBTLoader
-from fbdv_loader import FBDVLoader
-from ma_loader import MALoader
-from uberon_loader import UBERONLoader
-from wbbt_loader import WBBTLoader
-from zfa_loader import ZFALoader
+from .generic_anatomical_structure_ontology_loader import GenericAnatomicalStructureOntologyLoader

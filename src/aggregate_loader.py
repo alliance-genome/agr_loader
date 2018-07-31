@@ -8,6 +8,7 @@ from loaders.geo_loader import *
 from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
+from loaders.generic_anatomical_structure_ontology_loader import *
 from mods import *
 from extractors import *
 from test import *
@@ -87,25 +88,22 @@ class AggregateLoader(object):
         DOLoader(self.graph).load_do(self.do_dataset)
 
         print("Loading ZFA data into Neo4j.")
-        ZFALoader(self.graph).load_do(self.zfa_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfa_dataset)
         print("Loading WBBT data into Neo4j.")
-        WBBTLoader(self.graph).load_do(self.wbbt_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbbt_dataset)
         print("Loading CL data into Neo4j.")
-        CLLoader(self.graph).load_do(self.cell_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.cell_dataset)
         print("Loading FBDV data into Neo4j.")
-        FBDVLoader(self.graph).load_do(self.fbdv_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset)
         print("Loading FBBT data into Neo4j.")
-        FBBTLoader(self.graph).load_do(self.fbbt_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbbt_dataset)
 
         print("Loading MA data into Neo4j.")
-        MALoader(self.graph).load_do(self.ma_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.ma_dataset)
         print("Loading EMAPA data into Neo4j.")
-        EMAPALoader(self.graph).load_do(self.emapa_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.emapa_dataset)
         print("Loading UBERON data into Neo4j.")
-        UBERONLoader(self.graph).load_do(self.uberon_dataset)
-
-
-
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.uberon_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -155,7 +153,7 @@ class AggregateLoader(object):
             print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
-                ExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
+                WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
