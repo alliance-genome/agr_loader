@@ -31,7 +31,6 @@ class JSONFile(object):
         elif jsonType == 'expression':
             schema_file_name = 'schemas/phenotype/wildtypeExpressionMetaDataDefinition.json'
 
-
         with open(schema_file_name) as schema_file:
             schema = json.load(schema_file)
 
@@ -40,8 +39,8 @@ class JSONFile(object):
         sSchemaDir = os.path.dirname(os.path.abspath(schema_file_name))
         oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
 
-        #TODO get a file from MGI that complies with 1.0.0.4 schema
-        if filename != 'MGI_1.0.0.3_phenotype.json':
+        if jsonType != 'phenotype' and filename != 'SGD.1.0.0.4_phenotype.json':
+
             try:
                 js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
                 print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
