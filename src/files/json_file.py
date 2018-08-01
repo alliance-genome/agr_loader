@@ -31,7 +31,6 @@ class JSONFile(object):
         elif jsonType == 'expression':
             schema_file_name = 'schemas/phenotype/wildtypeExpressionMetaDataDefinition.json'
 
-
         with open(schema_file_name) as schema_file:
             schema = json.load(schema_file)
 

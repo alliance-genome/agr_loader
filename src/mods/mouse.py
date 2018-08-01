@@ -5,6 +5,7 @@ class MGI(MOD):
 
     def __init__(self):
         self.species = "Mus musculus"
+
         self.loadFile = "MGI_1.0.0.4_2.tar.gz"
 
         self.bgiName = "/MGI_1.0.0.4_BGI.json"
@@ -48,7 +49,8 @@ class MGI(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
+        data = ""
+    #     data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
@@ -57,3 +59,7 @@ class MGI(MOD):
         # for xref in xrefs:
         #     pprint.pprint(xref)
         return xrefs
+
+    def load_phenotype_objects(self, batch_size, testObject, species):
+        data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
+        return data

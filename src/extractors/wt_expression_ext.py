@@ -5,7 +5,7 @@ from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 
 
-class ExpressionExt(object):
+class WTExpressionExt(object):
 
     def get_wt_expression_data(self, wt_expression_data, batch_size, testObject, species):
         list_to_yield = []
