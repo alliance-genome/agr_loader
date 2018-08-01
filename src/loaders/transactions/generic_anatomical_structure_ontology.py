@@ -7,7 +7,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
         Transaction.__init__(self, graph)
         self.batch_size = 3000
 
-    def generic_anatomical_structure_ontology_tx(self, data):
+    def gaso_tx(self, data):
         '''
         Loads the various structure ontology data into Neo4j.
 

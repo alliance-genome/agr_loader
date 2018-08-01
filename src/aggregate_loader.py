@@ -11,6 +11,7 @@ from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from mods import *
 from extractors import *
+from extractors.ontology_extractor import *
 from test import *
 import time
 from neo4j.v1 import GraphDatabase
@@ -52,28 +53,33 @@ class AggregateLoader(object):
         print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
-        self.go_dataset = OExt().get_data(self.testObject, "GO/go_1.7.obo")
+        self.go_dataset = OExt().get_data("http://purl.obolibrary.org/obo/go.obo", "GOTerm")
         print("Extracting DO data.")
-        self.do_dataset = OExt().get_data(self.testObject, "DO/do_1.7.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "DOTerm")
 
-        # anatomy ontologies
+        # structure ontologies
         print("Extracting ZFA data.")
-        self.zfa_dataset = OExt().get_data(self.testObject, "ZFA/zfa_1.7.obo")
+        self.zfa_dataset = OExt().get_data("http://purl.obolibrary.org/obo/zfa.obo", "ZFATerm")
         print("Extracting WBBT data.")
-        self.wbbt_dataset = OExt().get_data(self.testObject, "WBBT/wbbt_1.7.obo")
+        self.wbbt_dataset = OExt().get_data("http://purl.obolibrary.org/obo/wbbt.obo", "WBBTTerm")
         print("Extracting Cell data.")
-        self.cell_dataset = OExt().get_data(self.testObject, "CL/CL_1.7.obo")
+        self.cell_dataset = OExt().get_data("http://purl.obolibrary.org/obo/cl.obo", "CLTerm")
         print("Extracting FBDV data.")
-        self.fbdv_dataset = OExt().get_data(self.testObject, "FBDV/fbdv_1.7.obo")
+        self.fbdv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbdv/fbbt-simple.obo", "FBDVTerm")
         print("Extracting FBBT data.")
-        self.fbbt_dataset = OExt().get_data(self.testObject, "FBBT/fbbt_1.7.obo")
+        self.fbbt_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbbt.obo", "FBBTTerm")
         print("Extracting MA data.")
-        self.ma_dataset = OExt().get_data(self.testObject, "MA/ma_1.7.obo")
+        self.ma_dataset = OExt().get_data("http://data.bioontology.org/ontologies/MA/submissions/126/download?apikey=8b5b7825-538d-40e0-9e9e-5ab9274a9aeb", "MATerm")
         print("Extracting EMAPA data.")
-        self.emapa_dataset = OExt().get_data(self.testObject, "EMAPA/emapa_1.7.obo")
+        self.emapa_dataset = OExt().get_data("http://purl.obolibrary.org/obo/emapa.obo", "EMAPATerm")
         print("Extracting UBERON data.")
-        self.uberon_dataset = OExt().get_data(self.testObject, "UBERON/uberon_1.7.obo")
-
+        self.uberon_dataset = OExt().get_data("http://ontologies.berkeleybop.org/uberon/basic.obo", "UBERONTerm")
+        print("Extracting FBCV data.")
+        self.fbcv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbcv.obo", "FBVCTerm")
+        print("Extracting MMUSDV data.")
+        self.mmusdv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmusdv.obo", "MMUSDVTerm")
+        print("Extracting BPSO data.")
+        self.bspo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/bspo.obo", "BPSOTerm")
 
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()

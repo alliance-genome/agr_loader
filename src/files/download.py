@@ -17,8 +17,6 @@ class Download(object):
             file = urllib.request.urlopen(self.urlToRetrieve)
             data = file.read()
             file.close()
-
-            #urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
         else:
             print("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
         return data

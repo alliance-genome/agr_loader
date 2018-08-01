@@ -1,19 +1,13 @@
-import uuid as id
-from files import S3File, TXTFile
 from services import CreateCrossReference
-from .obo_parser import parseOBO
+from files import XMLFile, Download
 from ontobio import OntologyFactory
 
 class OExt(object):
 
 
-    def get_data(self, testObject, path):
+    def get_data(self, path, url, filename):
 
-        savepath = "tmp";
-        fullpath = savepath + "/" + path
-        saved_path = S3File(path, savepath).download()
-        # o_data = TXTFile(fullpath).get_data()
-        # parsed_line = parseOBO(o_data)
+        saved_path = Download(path, url, filename).get_downloaded_file()
         ont = OntologyFactory().create(saved_path)
 
         parsed_line = ont.graph.copy().node
@@ -26,20 +20,12 @@ class OExt(object):
             node["uri"] = node["id"]
             node["id"] = k
 
-            isasWithoutNames = []
             relationships = node.get('relationship')
-            partofsWithoutNames = []
             syns = []
             xrefs = []
-            complete_url = None
-            xref = None
             xref_urls = []
-            local_id = None
-            defLinksProcessed = []
             defText = None
-            defLinks = []
             subset = []
-            newSubset = None
             definition = ""
             namespace = ""
             is_obsolete = "false"
@@ -50,20 +36,11 @@ class OExt(object):
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
-                    # if isinstance(o_syns, (list, tuple)):
-                    #     for syn in o_syns:
-                    #         syn = syn.split("\"")[1].strip()
-                    #         syns.append(syn)
-                    # else:
-                    #     syn = o_syns.split("\"")[1].strip()
-                    #     syns.append(syn)
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                 if "xrefs" in node["meta"]:
 
                     o_xrefs = node["meta"].get('xrefs')
                     if o_xrefs is not None:
-                        # if isinstance(o_xrefs, (list, tuple)):
-                        # if isinstance(o_xrefs, list):
                         for xrefIdDict in o_xrefs:
                             xrefId = xrefIdDict["val"]
                             if ":" in xrefId:
@@ -79,7 +56,6 @@ class OExt(object):
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
-                                uuid = str(id.uuid4())
                                 complete_url = self.get_complete_url_ont(local_id, o_xrefs)
                                 generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
@@ -122,7 +98,6 @@ class OExt(object):
             negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
             positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
 
-            defLinks = ""
             defLinksProcessed = []
             if definition is None:
                 definition = ""
@@ -181,6 +156,7 @@ class OExt(object):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
+                'ontologyLabel': filename,
                 #TODO: fix links to not be passed for each ontology load.
                 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
                 'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
@@ -204,16 +180,6 @@ class OExt(object):
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node
 
-        # if testObject.using_test_data() is True:
-        #     filtered_dict = []
-        #     for entry in list_to_return:
-        #         if testObject.check_for_test_ontology_entry(entry['id']) is True:
-        #             filtered_dict.append(entry)
-        #         else:
-        #             continue
-        #     return filtered_dict
-        # else:
-        # return
         return ont
 
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
