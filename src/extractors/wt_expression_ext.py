@@ -13,7 +13,7 @@ class WTExpressionExt(object):
         dateProduced = wt_expression_data['metaData']['dateProduced']
         dataProviders = []
         loadKey = ""
-
+        crossReferences = []
         for dataProviderObject in wt_expression_data['metaData']['dataProvider']:
 
             dataProviderCrossRef = dataProviderObject.get('crossReference')
@@ -81,7 +81,6 @@ class WTExpressionExt(object):
                 print (primaryId + "is missing pubMed and pubMod id")
 
             if 'crossReference' in xpat:
-                crossReferences = []
                 crossRef = xpat.get('crossReference')
                 crossRefId = crossRef.get('id')
                 local_crossref_id = crossRefId.split(":")[1]

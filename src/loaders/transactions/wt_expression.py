@@ -28,7 +28,7 @@ class WTExpressionTransaction(Transaction):
             MERGE (assay:Assay {primaryKey:row.assay})
 
             MERGE (g)-[gex:EXPRESSED_IN]-(e)
-               SET gex:uuid = row.uuidGeneExpressionJoin
+               SET gex.uuid = row.uuidGeneExpressionJoin
 
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
@@ -60,11 +60,11 @@ class WTExpressionTransaction(Transaction):
                 
             MERGE (gej)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
             MERGE (asj:AnatomicalStructureJoin {primaryKey:row.uuidASJoin})
-            MERGE (gej)[gejasj:ASSOCIATION]-(asj)
+            MERGE (gej)-[gejasj:ASSOCIATION]-(asj)
                 SET gejasj.uuid = row.uuidASJoin
                 
             MERGE (otast)-[otastasj:ASSOCIATION]-(asj)
-                SET otastasj:uuid = row.uuidASJoin
+                SET otastasj.uuid = row.uuidASJoin
             MERGE (asj)-[asjotastq:QUALIFIED_BY]-(otastq)
             
             MERGE (gej)-[gejotasst:ANATOMICAL_SUBSTRUCTURE]-(otasst)
@@ -72,9 +72,9 @@ class WTExpressionTransaction(Transaction):
             MERGE (assj:AnatomicalSubStructureJoin {primaryKey:row.uuidASSJoin})
             
             MERGE (assj)-[assjotasst:ASSOCIATION]-(otasst)
-                SET assjotasst:uuid = row.uuidASSJoin
+                SET assjotasst.uuid = row.uuidASSJoin
             MERGE (gej)-[gejassj:ASSOCIATION]-(assj)
-                SET gejassj:uuid = row.uuidASSJoin
+                SET gejassj.uuid = row.uuidASSJoin
             
             MERGE (assj)-[assjotasstq:QUALIFIED_BY]-(otasstq)
             
@@ -90,11 +90,8 @@ class WTExpressionTransaction(Transaction):
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
             MERGE (gej)-[gejpubf:EVIDENCE]->(pubf)
 
-            WITH o, row.crossReferences AS events
-            UNWIND events AS event
 
-        """ #+ CreateCrossReference.get_cypher_xref_text("expression")
-
+        """
 
         Transaction.execute_transaction(self, WTExpression, data)
 
