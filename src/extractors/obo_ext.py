@@ -1,13 +1,16 @@
 from services import CreateCrossReference
-from files import XMLFile, Download
+from files import XMLFile, Download, S3File
 from ontobio import OntologyFactory
+import urllib.request
 
 class OExt(object):
 
 
-    def get_data(self, path, url, filename):
+    def get_data(self, url, filename):
 
-        saved_path = Download(path, url, filename).get_downloaded_file()
+        savepath = "tmp";
+        saved_path = Download(savepath, url, filename).download_file()
+        print (saved_path)
         ont = OntologyFactory().create(saved_path)
 
         parsed_line = ont.graph.copy().node

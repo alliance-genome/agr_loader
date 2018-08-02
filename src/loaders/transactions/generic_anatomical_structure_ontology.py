@@ -16,7 +16,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
             UNWIND $data as row
 
             //Create the Term node and set properties. primaryKey is required.
-            MERGE (g:row.ontologyLabel:Ontology {primaryKey:row.oid})
+            MERGE (g:Ontology {primaryKey:row.oid})
                 SET g.definition = row.definition
                 SET g.type = row.o_type
                 SET g.href = row.href
@@ -44,7 +44,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS events
                 UNWIND events AS event
-                    MATCH (o:event.ontologyLabel:Ontology {primaryKey:event.oid})
+                    MATCH (o:Ontology {primaryKey:event.oid})
 
 
         """

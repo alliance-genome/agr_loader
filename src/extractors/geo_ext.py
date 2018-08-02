@@ -10,7 +10,7 @@ class GeoExt(object):
         url = NCBIEfetch(geoSpecies, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
         print ("efetch url: " + url)
 
-        geo_data_file_contents = Download(path, url, "geo").get_downloaded_file()
+        geo_data_file_contents = Download(path, url, "geo").get_downloaded_data()
         geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
 
         # returns result from NCBI Efetch in JSON object.
