@@ -114,7 +114,7 @@ class MOD(object):
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         wt_expression_data = JSONFile().get_data(path + expressionName, 'expression')
-        wt_expression_dict = ExpressionExt().get_phenotype_data(wt_expression_data, batch_size, testObject, species)
+        wt_expression_dict = WTExpressionExt().get_wt_expression_data(wt_expression_data, batch_size, testObject, species)
 
         return wt_expression_dict
 

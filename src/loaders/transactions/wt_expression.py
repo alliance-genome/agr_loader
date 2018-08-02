@@ -30,21 +30,13 @@ class WTExpressionTransaction(Transaction):
             MERGE (g)-[gex:EXPRESSED_IN]-(e)
                SET gex:uuid = row.uuidGeneExpressionJoin
 
-            MERGE (e)-[:HAS_PART]-(otast)
-            MERGE (e)-[:HAS_PART]-(otast)
-            MERGE (e)-[:HAS_PART]-(otast)
-            MERGE (otast)-[:SUB_STRUCTURE]-(otasst)
-            MERGE (otast)-[:QUALIFIED_BY]-(otastq)
-            MERGE (otast)-[:QUALIFIED_BY]-(otasstq)
-            MERGE (otcct)-[:QUALIFIED_BY]-(otcctq)
-
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
                 SET l.dateProduced = row.dateProduced
                 SET l.loadName = "WT-Expression"
                 SET l.dataProviders = row.dataProviders
                 SET l.dataProvider = row.dataProvider
 
-            MERGE (gej:GeneExpressionJoin {primaryKey: row.uuidGeneExpressionJoin})
+            MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey: row.uuidGeneExpressionJoin})
                 SET gej.joinType = 'expression'
                 SET gej.dataProviders = row.dataProviders
 
@@ -53,6 +45,41 @@ class WTExpressionTransaction(Transaction):
 
             MERGE (gej)-[gejs:EXPRESSED_DURING]-(stage)
             MERGE (gej)-[geja:ASSAY]-(assay)
+            
+            MERGE (ccj:CellularComponentBioEntityJoin {primaryKey:row.uuidCCJoin})
+            MERGE (gej)-[gejccj:ASSOCIATION]-(ccj)
+                SET gejccj.uuid = row.uuidCCJoin
+                
+            MERGE (otcct)-[otcctccj:ASSOCIATION]-(ccj)
+            MERGE (gej)-[gejotcct:CELLULAR_COMPONENT]-(otcct)
+                SET gejotcct.uuid = row.uuidCCJoin
+            
+            MERGE (ccj)-[ccjotcctq:QUALIFIED_BY]-(otcctq)
+            MERGE (otcct)-[otcctotast:PART_OF]-(otast)
+                SET otcctotast.uuid = row.uuidGeneExpressionJoin
+                
+            MERGE (gej)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
+            MERGE (asj:AnatomicalStructureJoin {primaryKey:row.uuidASJoin})
+            MERGE (gej)[gejasj:ASSOCIATION]-(asj)
+                SET gejasj.uuid = row.uuidASJoin
+                
+            MERGE (otast)-[otastasj:ASSOCIATION]-(asj)
+                SET otastasj:uuid = row.uuidASJoin
+            MERGE (asj)-[asjotastq:QUALIFIED_BY]-(otastq)
+            
+            MERGE (gej)-[gejotasst:ANATOMICAL_SUBSTRUCTURE]-(otasst)
+            
+            MERGE (assj:AnatomicalSubStructureJoin {primaryKey:row.uuidASSJoin})
+            
+            MERGE (assj)-[assjotasst:ASSOCIATION]-(otasst)
+                SET assjotasst:uuid = row.uuidASSJoin
+            MERGE (gej)-[gejassj:ASSOCIATION]-(assj)
+                SET gejassj:uuid = row.uuidASSJoin
+            
+            MERGE (assj)-[assjotasstq:QUALIFIED_BY]-(otasstq)
+            
+            MERGE (otasst)-[otasstotast:PART_OF]-(otast)
+                SET otasstotast.uuid = row.uuidGeneExpressionJoin
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId

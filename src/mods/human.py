@@ -5,7 +5,7 @@ class Human(MOD):
     def __init__(self):
         self.species = "Homo sapiens"
 
-        self.wtExpressionfile = "/RGD_1.0.0.4_expression.9606.json"
+        self.wtExpressionName = "/RGD_1.0.0.4_expression.9606.json"
         self.loadFile = "RGD_1.0.0.4_4.tar.gz"
 
         self.bgiName = "/RGD_1.0.0.4_BGI.9606.json"
@@ -53,7 +53,8 @@ class Human(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
+        data = ""
+        #MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):

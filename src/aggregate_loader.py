@@ -116,7 +116,7 @@ class AggregateLoader(object):
         print("Loading MMUSDV data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset)
         print("Loading BPSO data into Neo4j.")
-        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bpso_dataset)
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
