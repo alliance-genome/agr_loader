@@ -93,7 +93,7 @@ class WTExpressionTransaction(Transaction):
             WITH o, row.crossReferences AS events
             UNWIND events AS event
 
-        """ + CreateCrossReference.get_cypher_xref_text("expression")
+        """ #+ CreateCrossReference.get_cypher_xref_text("expression")
 
 
         Transaction.execute_transaction(self, WTExpression, data)
