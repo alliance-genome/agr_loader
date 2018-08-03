@@ -47,7 +47,13 @@ class TestClass(object):
                              dict(node='OrthologyGeneJoin'), \
                              dict(node='OrthoAlgorithm'), \
                              dict(node='Load'), \
-                             dict(node='Feature')#, \
+                             dict(node='Feature'), \
+                             dict(node='ExpressionBioEntity'), \
+                             dict(node='Stage'), \
+                             dict(node='Assay'), \
+                             dict(node='AnatomicalStructureJoin'), \
+                             dict(node='AnatomicalSubStructureJoin'), \
+                             dict(node='CellularComponentBioEntityJoin')#, \
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -110,7 +116,17 @@ class TestClass(object):
                             dict(node='GOTerm', prop='definition'), \
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
-                            dict(node='DOTerm', prop='subset') \
+                            dict(node='DOTerm', prop='subset'), \
+                            dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
+                            dict(node='Assay', prop='primaryKey'), \
+                            dict(node='Stage', prop='primaryKey'), \
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                            dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
+                            dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
+                            dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
+ \
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -169,7 +185,16 @@ class TestClass(object):
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
-                               dict(node='MITerm', prop='primaryKey') \
+                               dict(node='MITerm', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='Assay', prop='primaryKey'), \
+                               dict(node='Stage', prop='primaryKey'), \
+                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                               dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
+                               dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
+                               dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
@@ -191,7 +216,8 @@ class TestClass(object):
                              dict(node='Gene', prop='uuid'), \
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
-                             dict(node='MITerm', prop='primaryKey') \
+                             dict(node='MITerm', prop='primaryKey'),
+                             dict(node='Ontology', prop='primaryKey') \
                              ]
     }
 

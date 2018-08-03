@@ -150,7 +150,7 @@ class WTExpressionExt(object):
                 "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
                 "whereExpressedStatement": whereExpressedStatement,
                 "expressionEntityUuid": str(uuid.uuid4()),
-                "espressionEntityPk": cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId,
+                "expressionEntityPk": cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId,
                 "pubPrimaryKey": pubMedId + pubModId,
                 "uuidGeneExpressionJoin": str(uuid.uuid4()),
                 "uuidCCJoin": str(uuid.uuid4()),

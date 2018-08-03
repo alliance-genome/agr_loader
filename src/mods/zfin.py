@@ -11,7 +11,7 @@ class ZFIN(MOD):
         self.diseaseName = "/ZFIN_1.0.0.4_1_disease.json"
         self.phenotypeName = "/ZFIN_1.0.0.4_1_phenotype.json"
         self.alleleName = "/ZFIN_1.0.0.4_1_allele.json"
-        self.wtExpressionName = "/ZFIN_1.0.0.4_1_allele.json"
+        self.wtExpressionName = "/ZFIN_1.0.0.4_1_expression.json"
 
         self.geneAssociationFile = "gene_association_1.7.zfin.gz"
 

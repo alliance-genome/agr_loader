@@ -15,7 +15,7 @@ class WTExpressionTransaction(Transaction):
             // GET PRIMARY DATA OBJECTS
 
             // LOAD NODES
-            MATCH (g:Gene {primaryKey: row.geneId})
+            MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
             MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
@@ -25,6 +25,7 @@ class WTExpressionTransaction(Transaction):
 
             MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
             MERGE (e:ExpressionBioEntity {primaryKey: row.expressionEntityPk})
+                SET e.whereExpressedStatement = row.whereExpressedStatement
             MERGE (assay:Assay {primaryKey:row.assay})
 
             MERGE (g)-[gex:EXPRESSED_IN]-(e)

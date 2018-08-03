@@ -64,7 +64,17 @@ class TestClass(object):
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='PhenotypeEntityJoin:Association', node2='Publication'), \
-                            dict(node1='Phenotype', node2='PhenotypeEntityJoin')
+                            dict(node1='Gene', node2='ExpressionBioEntity'), \
+                            dict(node1='Gene', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='ExpressionBioEntity', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Stage'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Assay'), \
+                            dict(node1='CellularComponentBioEntityJoin', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='AnatomicalStructureJoin', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='AnatomicalSubStructureJoin', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='Ontology', node2='AnatomicalStructureJoin'), \
+                            dict(node1='Ontology', node2='CellularComponentBioEntityJoin')
+ \
                             ]
                             #TODO: convert to "or" tests  -- has either a gene or a feature, for example
                             #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \

@@ -43,7 +43,14 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Feature(primaryKey)")
         session.run("CREATE INDEX ON :MITerm(primaryKey)")
         session.run("CREATE INDEX ON :Phenotype(primaryKey)")
-        session.run("CREATE INDEX ON :PhenotypeEntityJoin(primaryKey)")
+        session.run("CREATE INDEX ON :ExpressionBioEntity(primaryKey)")
+        session.run("CREATE INDEX ON :Assay(primaryKey)")
+        session.run("CREATE INDEX ON :Stage(primaryKey)")
+        session.run("CREATE INDEX ON :Ontology(primaryKey)")
+        session.run("CREATE INDEX ON :BioEntityGeneExpressionJoin(primaryKey)")
+        session.run("CREATE INDEX ON :CellularComponentBioEntityJoin(primaryKey)")
+        session.run("CREATE INDEX ON :AnatomicalStructureJoin(primaryKey)")
+        session.run("CREATE INDEX ON :AnatomicalSubStructureJoin(primaryKey)")
 
         #session.run("CREATE CONSTRAINT ON (g:Gene) ASSERT g.primaryKey IS UNIQUE;")
 
