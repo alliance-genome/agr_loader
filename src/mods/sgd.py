@@ -10,7 +10,7 @@ class SGD(MOD):
         self.phenotypeName = "/SGD_1.0.0.4/SGD.1.0.0.4_phenotype.json"
         self.expressionName = "/SGD_1.0.0.4/SGD.1.0.0.4_expression.json"
         self.alleleName = ""
-        self.wtExpressionName = "/SGD_1.0.0.4_1/SGD_1.0.0.4_expression.json"
+        self.wtExpressionName = "/SGD_1.0.0.4/SGD.1.0.0.4_expression.json"
         self.geneAssociationFile = "gene_association_1.7.sgd.gz"
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
