@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 from typing import Dict
 
 from genedescriptions.config_parser import GenedescConfigParser
@@ -188,13 +189,22 @@ class GeneDescGenerator(object):
         return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
 
     def get_human_orthologs_from_neo4j(self, data_provider: str, min_number_methods: int = 1):
-        db_query = "match (g1:Gene)-[:ASSOCIATION]-(oa:OrthologyGeneJoin)-[:ASSOCIATION]->(g2:Gene) where " \
-                   "g1.dataProvider = '{dataProvider}' and g2.taxonId = 'NCBITaxon:9606' match (oa)-[:MATCHED]->(m) " \
-                   "with g1, g2, count(m) as numMethods where numMethods > 1 return g1.primaryKey, g2.primaryKey, " \
-                   "numMethods"
+        db_query = "match (g1:Gene)-[:ASSOCIATION]-(oa:OrthologyGeneJoin)-[:ASSOCIATION]->(g2:Gene) " \
+                   "where g1.dataProvider = {dataProvider} and g2.taxonId = 'NCBITaxon:9606' " \
+                   "with distinct g1, g2 match (g1)-[orth:ORTHOLOGOUS]-(g2) " \
+                   "where orth.strictFilter = true with distinct g1, g2 " \
+                   "match (oa)-[:MATCHED]->(m) " \
+                   "with distinct g1, g2, m with g1, g2, count(m) as numMethods " \
+                   "where numMethods > 1 " \
+                   "return g1.primaryKey, g2.primaryKey, g2.symbol, numMethods"
         result_set = self.query_db(db_graph=self.graph, query=db_query,
                                    parameters={"minNumMethods": min_number_methods, "dataProvider": data_provider})
         return result_set
+
+    @staticmethod
+    def get_best_orthologs(ortholog_list):
+        max_num_methods = max([orth[2] for orth in ortholog_list])
+        return [ortholog for ortholog in ortholog_list if ortholog[2] == max_num_methods]
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
                               cached_data_fetcher, go_ontology_url, go_association_url,
@@ -216,9 +226,17 @@ class GeneDescGenerator(object):
                             associations=self.get_do_associations_from_loader_object(do_annotations,
                                                                                      do_annotations_allele),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
+        df.orthologs = defaultdict(list)
+        for result in self.get_human_orthologs_from_neo4j(data_provider=data_provider):
+            df.orthologs[result[0]].append([result[1], result[2], result[3]])
+        df.orthologs = {gene_id: self.get_best_orthologs(orthologs) for gene_id, orthologs in df.orthologs.items()}
+        print("Number of genes with more than 3 best orthologs: " + str(len(
+            {gene_id: orth for gene_id, orth in df.orthologs.items() if len(orth) > 3})))
+
         for gene in self.get_gene_data_from_neo4j(data_provider=data_provider):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
+
             go_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
                                                          priority_list=self.conf_parser.get_go_annotations_priority())
             go_sent_generator = SentenceGenerator(
