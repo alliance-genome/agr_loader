@@ -124,9 +124,9 @@ class WTExpressionExt(object):
 
             assay = xpat.get('assay')
 
-            phenotype_feature = {
-                "primaryId": primaryId,
-                "phenotypeStatement": whenExpressedStage,
+            expression = {
+                "geneId": primaryId,
+                "whenExpressedStage": whenExpressedStage,
                 "dateAssigned": dateAssigned,
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
@@ -158,7 +158,7 @@ class WTExpressionExt(object):
                 "uuidASJoin": str(uuid.uuid4())
              }
 
-            list_to_yield.append(phenotype_feature)
+            list_to_yield.append(expression)
 
             if len(list_to_yield) == batch_size:
                 yield list_to_yield

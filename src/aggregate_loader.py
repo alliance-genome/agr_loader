@@ -81,6 +81,8 @@ class AggregateLoader(object):
         self.mmusdv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmusdv.obo", "mmusdv.obo")
         print("Extracting BPSO data.")
         self.bspo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/bspo.obo", "bpso.obo")
+        print("Extracting MMO data.")
+        self.mmp_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
 
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
@@ -118,6 +120,8 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset)
         print("Loading BPSO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset)
+        print("Loading MMO data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset)
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
