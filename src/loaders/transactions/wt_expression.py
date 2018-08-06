@@ -17,14 +17,14 @@ class WTExpressionTransaction(Transaction):
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
             
-            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+            // MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
             
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
             MATCH (assay:Ontology {primaryKey:row.assay})
     
             MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
             
-            MERGE (e:ExpressionBioEntity {primaryKey:row.expressionEntityPk})
+            MERGE (e:ExpressionBioEntity {primaryKey:row.uuidGeneExpressionJoin})
                 SET e.whereExpressedStatement = row.whereExpressedStatement
 
             MERGE (g)-[gex:EXPRESSED_IN]-(e)

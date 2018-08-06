@@ -41,7 +41,7 @@ class WTExpressionExt(object):
 
             pubMedUrl = None
             pubModUrl = None
-            primaryId = xpat.get('geneId')
+            geneId = xpat.get('geneId')
             whenExpressedStage = xpat.get('whenExpressedStage')
 
             if testObject.using_test_data() is True:
@@ -78,7 +78,7 @@ class WTExpressionExt(object):
             dateAssigned = xpat.get('dateAssigned')
 
             if pubModId == None and pubMedId == None:
-                print (primaryId + "is missing pubMed and pubMod id")
+                print (geneId + "is missing pubMed and pubMod id")
 
             if 'crossReference' in xpat:
                 crossRef = xpat.get('crossReference')
@@ -101,8 +101,9 @@ class WTExpressionExt(object):
                 wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
                 cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
                 cellularComponentTermId =  wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
+                print ("first cellular component: " + cellularComponentTermId)
                 anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
-                anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureQualifierTermId')
+                anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get('acnatomicalStructureQualifierTermId')
                 anatomicalSubStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureTermId')
                 anatomicalSubStructureQualifierTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureQualifierTermId')
                 whereExpressedStatement = wildtypeExpressionTermIdentifers.get('whereExpressedStatement')
@@ -122,10 +123,13 @@ class WTExpressionExt(object):
                 if whereExpressedStatement == None:
                     whereExpressedStatement = ""
 
+                print ("second cellular component: " + cellularComponentTermId)
+
             assay = xpat.get('assay')
+            print ("assay: " + assay)
 
             expression = {
-                "geneId": primaryId,
+                "geneId": geneId,
                 "whenExpressedStage": whenExpressedStage,
                 "dateAssigned": dateAssigned,
                 "pubMedId": pubMedId,
