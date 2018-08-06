@@ -45,7 +45,7 @@ class WTExpressionExt(object):
             whenExpressedStage = xpat.get('whenExpressedStage')
 
             if testObject.using_test_data() is True:
-                is_it_test_entry = testObject.check_for_test_id_entry(primaryId)
+                is_it_test_entry = testObject.check_for_test_id_entry(geneId)
                 if is_it_test_entry is False:
                     continue
 
