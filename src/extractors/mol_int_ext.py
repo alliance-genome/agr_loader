@@ -6,34 +6,16 @@ class MolIntExt(object):
 
     def get_data(self, batch_size):
         path = 'tmp'
-        filename = 'INT/Alliance_molecular_interactions.txt'
+        filename = 'Alliance_molecular_interactions.txt'
         filename_comp = 'INT/Alliance_molecular_interactions.tar.gz'
 
         S3File(filename_comp, path).download()
-        TARFile(path, loadFile).extract_all()
+        TARFile(path, filename_comp).extract_all()
 
         list_to_yield = []
 
         # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
-        taxon_species_set = (
-            'taxid:10116', 
-            'taxid:9606', 
-            'taxid:10090', 
-            'taxid:6239', 
-            'taxid:559292', 
-            'taxid:7955',
-            'taxid:4932',
-            'taxid:307796',
-            'taxid:643680',
-            'taxid:574961',
-            'taxid:285006',
-            'taxid:545124',
-            'taxid:764097',
-            '-')
-        possible_yeast_taxon_set = ('taxid:4932', 'taxid:307796', 'taxid:643680', 'taxid:574961', 'taxid:285006', 'taxid:545124', 'taxid:764097')
-        interaction_exclusion_set = ('psi-mi:\"MI:0208\"')
-        interactor_type_exclusion_set = ('psi-mi:\"MI:0328\"', 'psi-mi:\"MI:1302\"', 'psi-mi:\"MI:1304\"')
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
@@ -42,28 +24,6 @@ class MolIntExt(object):
             for row in tsvin:
                 taxon_id_1 = row[9]
                 taxon_id_2 = row[10]
-
-                if not taxon_id_1.startswith(taxon_species_set) or not taxon_id_2.startswith(taxon_species_set):
-                    continue # Skip rows where we don't have Alliance species or a blank entry.
-                if taxon_id_1 in possible_yeast_taxon_set: # Handle multiple yeast taxon ids, temporary implementation.
-                    taxon_id_1 = 'taxid:559292'
-                if taxon_id_2 in possible_yeast_taxon_set: # Handle multiple yeast taxon ids, temporary implementation.
-                    taxon_id_2 = 'taxid:559292'
-
-                if row[0].startswith('uniprotkb') and row[1].startswith('uniprotkb'):
-                    interactor_one = re.sub('uniprotkb', 'UniProtKB', row[0])
-                    interactor_two = re.sub('uniprotkb', 'UniProtKB', row[1])
-                else: # If we don't have uniprot ids, continue.
-                    continue
-
-                if row[11].startswith(interaction_exclusion_set):
-                    continue
-
-                if row[12].startswith(interactor_type_exclusion_set):
-                    continue
-
-                if row[15] is not '-':
-                    continue
 
                 # After we pass all our filtering / continue opportunities, we start working with the variables.
                 taxon_id_1_re = re.search('\d+', taxon_id_1)
