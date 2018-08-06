@@ -82,7 +82,7 @@ class AggregateLoader(object):
         print("Extracting BPSO data.")
         self.bspo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/bspo.obo", "bpso.obo")
         print("Extracting MMO data.")
-        self.mmp_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
+        self.mmo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
 
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()

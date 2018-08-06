@@ -17,20 +17,15 @@ class WTExpressionTransaction(Transaction):
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
             
-            FOREACH (rel IN CASE when row.cellularComponentTermId is not null THEN [1] ELSE [] END |
-                MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
-                
-            )
-            // MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
             
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+            MATCH (assay:Ontology {primaryKey:row.assay})
     
             MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
             
             MERGE (e:ExpressionBioEntity {primaryKey:row.expressionEntityPk})
                 SET e.whereExpressedStatement = row.whereExpressedStatement
-                
-            MATCH (assay:Ontology {primaryKey:row.assay})
 
             MERGE (g)-[gex:EXPRESSED_IN]-(e)
                SET gex.uuid = row.uuidGeneExpressionJoin
