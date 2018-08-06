@@ -68,7 +68,7 @@ class TestClass(object):
                             dict(node1='Gene', node2='BioEntityGeneExpressionJoin'), \
                             dict(node1='ExpressionBioEntity', node2='BioEntityGeneExpressionJoin'), \
                             dict(node1='BioEntityGeneExpressionJoin', node2='Stage'), \
-                            dict(node1='BioEntityGeneExpressionJoin', node2='Assay'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Ontology'), \
                             dict(node1='CellularComponentBioEntityJoin', node2='BioEntityGeneExpressionJoin'), \
                             dict(node1='AnatomicalStructureJoin', node2='BioEntityGeneExpressionJoin'), \
                             dict(node1='AnatomicalSubStructureJoin', node2='BioEntityGeneExpressionJoin'), \

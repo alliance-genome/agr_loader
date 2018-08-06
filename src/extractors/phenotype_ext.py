@@ -24,7 +24,6 @@ class PhenotypeExt(object):
             dataProviders = []
             loadKey = loadKey + dateProduced + dataProvider + "_BGI"
 
-            #TODO: get SGD to fix their files.
             if dataProviderPages is not None:
                 for dataProviderPage in dataProviderPages:
                     crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -54,14 +53,12 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if dataProviderSingle != 'SGD':
+            evidence = pheno.get('evidence')
+            if 'modPublicationId' in evidence:
+                pubModId = evidence.get('modPublicationId')
 
-                evidence = pheno.get('evidence')
-                if 'modPublicationId' in evidence:
-                    pubModId = evidence.get('modPublicationId')
-
-                if 'pubMedId' in evidence:
-                    pubMedId = evidence.get('pubMedId')
+            if 'pubMedId' in evidence:
+                pubMedId = evidence.get('pubMedId')
             else:
                 pubMedId = pheno.get('pubMedId')
                 pubModId = pheno.get('pubModId')

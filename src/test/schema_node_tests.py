@@ -26,7 +26,8 @@ def pytest_generate_tests(metafunc):
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
-        'test_node_exists': [dict(node='Ontology'), \
+        'test_node_exists': [dict(node='Assay'), \
+                             dict(node='Ontology'), \
                              dict(node='SOTerm'), \
                              dict(node='DOTerm'), \
                              dict(node='GOTerm'), \
@@ -49,8 +50,6 @@ class TestClass(object):
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='ExpressionBioEntity'), \
-                             dict(node='Stage'), \
-                             dict(node='Assay'), \
                              dict(node='AnatomicalStructureJoin'), \
                              dict(node='AnatomicalSubStructureJoin'), \
                              dict(node='CellularComponentBioEntityJoin')#, \
@@ -120,7 +119,6 @@ class TestClass(object):
                             dict(node='ExpressionBioEntity', prop='primaryKey'), \
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
                             dict(node='Assay', prop='primaryKey'), \
-                            dict(node='Stage', prop='primaryKey'), \
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                             dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
                             dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
@@ -188,7 +186,6 @@ class TestClass(object):
                                dict(node='MITerm', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='Assay', prop='primaryKey'), \
-                               dict(node='Stage', prop='primaryKey'), \
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
                                dict(node='AnatomicalStructureJoin', prop='primaryKey'), \

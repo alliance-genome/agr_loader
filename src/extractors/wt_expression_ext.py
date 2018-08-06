@@ -101,7 +101,6 @@ class WTExpressionExt(object):
                 wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
                 cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
                 cellularComponentTermId =  wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
-                print ("first cellular component: " + cellularComponentTermId)
                 anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
                 anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get('acnatomicalStructureQualifierTermId')
                 anatomicalSubStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureTermId')
@@ -123,10 +122,10 @@ class WTExpressionExt(object):
                 if whereExpressedStatement == None:
                     whereExpressedStatement = ""
 
-                print ("second cellular component: " + cellularComponentTermId)
+            print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
             assay = xpat.get('assay')
-            print ("assay: " + assay)
+            #print ("assay: " + assay)
 
             expression = {
                 "geneId": geneId,

@@ -7,7 +7,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
         Transaction.__init__(self, graph)
         self.batch_size = 3000
 
-    def gaso_tx(self, data):
+    def gaso_tx(self, data, nodeLabel):
         '''
         Loads the various structure ontology data into Neo4j.
 
@@ -16,7 +16,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
             UNWIND $data as row
 
             //Create the Term node and set properties. primaryKey is required.
-            MERGE (g:Ontology {primaryKey:row.oid})
+            MERGE (g:%s:Ontology {primaryKey:row.oid})
                 SET g.definition = row.definition
                 SET g.type = row.o_type
                 SET g.href = row.href
@@ -37,7 +37,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
                 MERGE (g2:CLTerm:Ontology {primaryKey:partof})
                 MERGE (g)-[aka:PART_OF]->(g2))
 
-        """
+        """ % nodeLabel
 
         queryXref = """
 

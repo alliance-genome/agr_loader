@@ -6,7 +6,7 @@ class GenericAnatomicalStructureOntologyLoader(object):
     def __init__(self, graph):
         self.graph = graph
 
-    def load_ontology(self, data):
+    def load_ontology(self, data, nodeLabel):
         tx = GenericAnatomicalStructureOntologyTransaction(self.graph)
         gaso_data = []
         for n in data.nodes():
@@ -15,4 +15,4 @@ class GenericAnatomicalStructureOntologyLoader(object):
                 continue
             if 'oid' in node:   # Primarily filters out the empty nodes
                 gaso_data.append(node)
-        tx.gaso_tx(gaso_data)
+        tx.gaso_tx(gaso_data, nodeLabel)

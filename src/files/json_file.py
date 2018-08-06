@@ -39,16 +39,15 @@ class JSONFile(object):
         sSchemaDir = os.path.dirname(os.path.abspath(schema_file_name))
         oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
 
-        if jsonType != 'phenotype' and filename != 'SGD.1.0.0.4_phenotype.json':
 
-            try:
-                js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
-                print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
-            except js.ValidationError as e:
-                print(e.message)
-                print(e)
-                raise SystemExit("FATAL ERROR in JSON validation.")
-            except js.SchemaError as e:
-                print(e.message)
-                print(e)
-                raise SystemExit("FATAL ERROR in JSON validation.")
+        try:
+            js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
+            print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
+        except js.ValidationError as e:
+            print(e.message)
+            print(e)
+            raise SystemExit("FATAL ERROR in JSON validation.")
+        except js.SchemaError as e:
+            print(e.message)
+            print(e)
+            raise SystemExit("FATAL ERROR in JSON validation.")
