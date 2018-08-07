@@ -26,6 +26,9 @@ run_test: build
 unit_tests:
 	docker-compose run agr_loader_test pytest --verbose
 
+local: build
+	docker-compose up agr_loader_local
+
 bash:
 	docker-compose up agr_loader bash
 
