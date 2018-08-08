@@ -119,11 +119,16 @@ def test_do_terms_have_parents():
     for record in result:
         assert record["counter"] < 1
 
+        
+def test_every_species_has_phenotype_has_pub():
+    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype)-[]-(pa:PhenotypeEntityJoin)-[]-(pub:Publication) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
+
 
 def test_phenotype_for_all_species_exists():
     query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
-
-
