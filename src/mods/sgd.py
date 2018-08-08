@@ -4,7 +4,7 @@ class SGD(MOD):
 
     def __init__(self):
         self.species = "Saccharomyces cerevisiae"
-        self.loadFile = "SGD_1.0.0.4_2.tar.gz"
+        self.loadFile = "SGD_1.0.0.4_3.tar.gz"
         self.bgiName = "/SGD_1.0.0.4/SGD.1.0.0.4_basicGeneInformation.json"
         self.diseaseName = "/SGD_1.0.0.4/SGD_1.0.0.4_disease.daf.json"
         self.phenotypeName = "/SGD_1.0.0.4/SGD.1.0.0.4_phenotype.json"
