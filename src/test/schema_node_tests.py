@@ -2,6 +2,7 @@ from neo4j.v1 import GraphDatabase
 import os
 import pytest
 
+
 def execute_transaction(query):
     host = os.environ['NEO4J_NQC_HOST']
     port = os.environ['NEO4J_NQC_PORT']
@@ -15,6 +16,7 @@ def execute_transaction(query):
 
     return result    
 
+
 def pytest_generate_tests(metafunc):
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
@@ -26,8 +28,7 @@ def pytest_generate_tests(metafunc):
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
-        'test_node_exists': [dict(node='Assay'), \
-                             dict(node='Ontology'), \
+        'test_node_exists': [dict(node='Ontology'), \
                              dict(node='SOTerm'), \
                              dict(node='DOTerm'), \
                              dict(node='GOTerm'), \
@@ -52,7 +53,8 @@ class TestClass(object):
                              dict(node='ExpressionBioEntity'), \
                              dict(node='AnatomicalStructureJoin'), \
                              dict(node='AnatomicalSubStructureJoin'), \
-                             dict(node='CellularComponentBioEntityJoin')#, \
+                             dict(node='CellularComponentBioEntityJoin'), \
+                             dict(node='Stage')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -118,12 +120,12 @@ class TestClass(object):
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='ExpressionBioEntity', prop='primaryKey'), \
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
-                            dict(node='Assay', prop='primaryKey'), \
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                             dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
                             dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
                             dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
+                            dict(node='Stage', prop='primaryKey')
  \
                             ],
 
@@ -185,13 +187,13 @@ class TestClass(object):
                                dict(node='Feature', prop='uuid'), \
                                dict(node='MITerm', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
-                               dict(node='Assay', prop='primaryKey'), \
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
                                dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
                                dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
+                               dict(node='Stage', prop='primaryKey')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
@@ -214,7 +216,8 @@ class TestClass(object):
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
                              dict(node='MITerm', prop='primaryKey'),
-                             dict(node='Ontology', prop='primaryKey') \
+                             dict(node='Ontology', prop='primaryKey'), \
+                             dict(node='Stage', prop='primaryKey')
                              ]
     }
 

@@ -125,26 +125,25 @@ class AggregateLoader(object):
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
-
+        #
         for mod in self.mods:
              print("Loading BGI data for %s into Neo4j." % mod.species)
              genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
-
-            c = 0
-            start = time.time()
-            for gene_list_of_entries in genes:
+             c = 0
+             start = time.time()
+             for gene_list_of_entries in genes:
                 BGILoader(self.graph).load_bgi(gene_list_of_entries)
                 c = c + len(gene_list_of_entries)
-            end = time.time()
-            print("Average: %sr/s" % (round(c / (end - start), 2)))
+             end = time.time()
+             print("Average: %sr/s" % (round(c / (end - start), 2)))
 
         this_dir = os.path.split(__file__)[0]
         # initialize gene description generator from config file
-        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
-                                                                             "genedesc_config.yml"),
-                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
-                                               graph_db=self.graph)
-        cached_data_fetcher = None
+        # genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+        #                                                                      "genedesc_config.yml"),
+        #                                        go_ontology=self.go_dataset, do_ontology=self.do_dataset,
+        #                                        graph_db=self.graph)
+        # cached_data_fetcher = None
         # # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
@@ -187,16 +186,16 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-
-            print("generate gene descriptions for %s." % mod.__class__.__name__)
-            if mod.dataProvider:
-                cached_data_fetcher = genedesc_generator.generate_descriptions(
-                    go_annotations=go_annots,
-                    do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
-                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
-                                                                          self.graph, mod.species),
-                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human))
+            #
+            # print("generate gene descriptions for %s." % mod.__class__.__name__)
+            # if mod.dataProvider:
+            #     cached_data_fetcher = genedesc_generator.generate_descriptions(
+            #         go_annotations=go_annots,
+            #         do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+            #         do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+            #                                                               self.graph, mod.species),
+            #         data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+            #         human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")

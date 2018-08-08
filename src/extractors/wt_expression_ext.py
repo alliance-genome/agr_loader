@@ -125,7 +125,36 @@ class WTExpressionExt(object):
             print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
             assay = xpat.get('assay')
-            #print ("assay: " + assay)
+
+            general_expression = {
+                "geneId": geneId,
+                "whenExpressedStage": whenExpressedStage,
+                "dateAssigned": dateAssigned,
+                "pubMedId": pubMedId,
+                "pubMedUrl": pubMedUrl,
+                "pubModId": pubModId,
+                "pubModUrl": pubModUrl,
+                "pubPrimaryKey": pubMedId + pubModId,
+                "uuid": str(uuid.uuid4()),
+                "loadKey": loadKey,
+                "type": "gene",
+                "dataProviders": dataProviders,
+                "dataProviderType": dataProviderType,
+                "dateProduced": dateProduced,
+                "dataProvider": dataProviderSingle,
+                "assay": assay,
+                "crossReferences": crossReferences,
+                "whereExpressedStatement": whereExpressedStatement,
+                "expressionEntityUuid": str(uuid.uuid4()),
+                "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
+                "pubPrimaryKey": pubMedId + pubModId,
+                "uuidGeneExpressionJoin": str(uuid.uuid4()),
+                "uuidCCJoin": str(uuid.uuid4()),
+                "uuidASSJoin": str(uuid.uuid4()),
+                "uuidASJoin": str(uuid.uuid4())
+            }
+            anatsubstructure_expression = {"anatomicalStructureTermId": anatomicalStructureTermId,}
+            cellular_expression = {}
 
             expression = {
                 "geneId": geneId,

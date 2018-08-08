@@ -16,12 +16,14 @@ class WTExpressionTransaction(Transaction):
 
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
-            
-            //MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
-            //MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-            //MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-            //MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+            
+            WITH g, otast 
+                OPTIONAL MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+            //MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+            WITH g, otast, otasst
+                OPTIONAL MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+            //MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
             
             MATCH (assay:Ontology {primaryKey:row.assay})
     
