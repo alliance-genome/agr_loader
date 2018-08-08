@@ -139,6 +139,6 @@ class AggregateLoader(object):
 
     def load_additional_datasets(self):
             print("Extracting and Loading Molecular Interaction data.")
-            mol_int_data = MolIntExt().get_data(self.batch_size)
+            mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)

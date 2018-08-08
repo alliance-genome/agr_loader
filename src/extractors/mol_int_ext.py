@@ -4,6 +4,130 @@ import urllib.request, json
 
 class MolIntExt(object):
 
+    def __init__(self, graph):
+        self.graph = graph
+
+    def populate_genes(self, graph):
+
+        master_gene_set = set()
+
+        query = "MATCH (g:Gene) RETURN g.primaryKey"
+
+        with graph.session() as session:
+            print('Querying for master gene set.')
+            with session.begin_transaction() as tx:
+                result = tx.run(query)
+                for record in result:
+                    master_gene_set.add(record['g.primaryKey'])
+
+        return master_gene_set
+
+    def query_crossreferences(self, graph, crossref_prefix):
+
+        query = "MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference) WHERE cr.prefix = $crossref_to_query RETURN g.primaryKey, cr.globalCrossRefId"
+
+        with graph.session() as session:
+            with session.begin_transaction() as tx:
+                result = tx.run(query, crossref_to_query=crossref_prefix)
+                return result
+
+    def populate_crossreference_dictionary(self, graph):
+        # We're populating a rather large dictionary to use for looking up Alliance genes by their crossreferences.
+        # Edit the list below if you'd like to add more crossreferences to the dictionary.
+        # The key of the dictionary is the crossreference and the value is the Alliance gene to which it resolves.
+
+        master_crossreference_dictionary = dict()
+
+        master_crossreference_dictionary['UniprotKB'] = dict()
+        master_crossreference_dictionary['ENSEMBL'] = dict()
+        master_crossreference_dictionary['NCBI_Gene'] = dict()
+
+        for key in master_crossreference_dictionary.keys():
+            print('Querying for %s cross references.' % (key))
+            result = self.query_crossreferences(graph, key)
+            for record in result:
+                cross_ref_record = None
+                # Modify the cross reference ID to match the PSI MITAB format if necessary.
+                if record['cr.globalCrossRefId'].startswith('NCBI_Gene'):
+                    cross_ref_record_split = record['cr.globalCrossRefId'].split(':')[1]
+                    cross_ref_record = 'entrez gene/locuslink:' + cross_ref_record_split
+                else:
+                    cross_ref_record = record['cr.globalCrossRefId']
+                master_crossreference_dictionary[key][cross_ref_record.lower()] = record['g.primaryKey'] 
+                # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
+
+        return master_crossreference_dictionary
+
+    def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
+        interactor_A_rows = [0, 2, 4, 22]
+        interactor_B_rows = [1, 3, 5, 23]
+
+        interactor_A_resolved = None
+        interactor_B_resolved = None
+
+        for row_entry in interactor_A_rows:
+            try:
+                interactor_A_resolved = self.resolve_identifier(row[row_entry], master_gene_set, master_crossreference_dictionary)
+                if interactor_A_resolved is not None:
+                    continue
+            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+                continue
+
+        for row_entry in interactor_B_rows:
+            try:
+                interactor_B_resolved = self.resolve_identifier(row[row_entry], master_gene_set, master_crossreference_dictionary)
+                if interactor_B_resolved is not None:
+                    continue
+            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+                continue
+
+        return interactor_A_resolved, interactor_B_resolved
+
+    def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):
+        
+        list_of_crossref_regex_to_search = [
+            'uniprotkb:[\\w\\d_-]*$',
+            'ensembl:[\\w\\d_-]*$',
+            'entrez gene/locuslink:[\\w\\d_-]*$'
+        ]
+
+        # For use in wormbase / flybase lookups.
+        # If we run into an IndexError, there's no identifier to resolve and we return False.
+        # All valid identifiers in the PSI-MI TAB file should be "splittable".
+        try:
+            entry_stripped = row_entry.split(':')[1]
+        except IndexError:
+            return None
+
+        prefixed_identifier = None
+
+        if row_entry.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
+            prefixed_identifier = 'WB:' + entry_stripped
+            if prefixed_identifier in master_gene_set:
+                return prefixed_identifier
+            else:
+                return None
+        elif row_entry.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
+            prefixed_identifier = 'FB:' + entry_stripped
+            if prefixed_identifier in master_gene_set:
+                return prefixed_identifier
+            else:
+                return None
+
+        for regex_entry in list_of_crossref_regex_to_search:
+            regex_output = re.search(regex_entry, row_entry)
+            if regex_output is not None:
+                identifier = regex_output.group(0)
+
+                for crossreference_type in master_crossreference_dictionary.keys():
+                    # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
+                    if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
+                        print(crossreference_type[identifier.lower()])
+                        return crossreference_type[identifier.lower()] # Return the corresponding Alliance gene.
+
+        # If we can't resolve any of the crossReferences, return None
+        return None            
+
     def get_data(self, batch_size):
         path = 'tmp'
         filename = 'Alliance_molecular_interactions.txt'
@@ -16,6 +140,12 @@ class MolIntExt(object):
 
         # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
+
+        # Populate our master dictionary for resolving cross references.
+        master_crossreference_dictionary = self.populate_crossreference_dictionary(self.graph)
+
+        # Populate our master gene set for filtering Alliance genes.
+        master_gene_set = self.populate_genes(self.graph)
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
@@ -59,12 +189,20 @@ class MolIntExt(object):
                 interactor_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
                 molecule_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
 
-                interactor_one = None
-                interactor_two = None
+                interactor_A_resolved = None
+                interactor_B_resolved = None
 
+                interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
+
+                if interactor_A_resolved is None or interactor_B_resolved is None:
+                    print('Unable to resolve identifier!')
+                    print(interactor_A_resolved)
+                    print(interactor_B_resolved)
+                    continue # Skip this entry.
+                
                 imex_dataset = {
-                    'interactor_one' : interactor_one,
-                    'interactor_two' : interactor_two,
+                    'interactor_one' : interactor_A_resolved,
+                    'interactor_two' : interactor_B_resolved,
                     'interactor_type' : interactor_type,
                     'molecule_type' : molecule_type,
                     'taxon_id_1' : taxon_id_1_to_load,
