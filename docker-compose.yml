@@ -14,6 +14,7 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096m
+
   agr_loader:
     image: agrdocker/agr_loader_run:latest
     networks:
@@ -32,14 +33,6 @@ services:
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
-     - NEO4J_NQC_PORT=7687
-
-  agr_loader_local:
-    image: agrdocker/agr_loader_run:latest
-    environment:
-     - TEST_SET=False
-     - UNIT_TESTS=False
-     - NEO4J_NQC_HOST=localhost
      - NEO4J_NQC_PORT=7687
 
 networks:
