@@ -122,8 +122,7 @@ class MolIntExt(object):
                 for crossreference_type in master_crossreference_dictionary.keys():
                     # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
                     if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
-                        print(crossreference_type[identifier.lower()])
-                        return crossreference_type[identifier.lower()] # Return the corresponding Alliance gene.
+                        return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene.
 
         # If we can't resolve any of the crossReferences, return None
         return None            
@@ -166,9 +165,14 @@ class MolIntExt(object):
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
 
+                detection_method = None
                 detection_method_re = re.search('"([^"]*)"', row[6]) # grab the MI identifier between two quotes ""
-                detection_method = detection_method_re.group(0)
-                detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
+                if detection_method_re is not None:
+                    detection_method = detection_method_re.group(0)
+                    detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
+
+                if detection_method is None:
+                    continue
 
                 # TODO Replace this publication work with a service. Re-think publication implementation in Neo4j.
                 publication = None
@@ -195,9 +199,7 @@ class MolIntExt(object):
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
                 if interactor_A_resolved is None or interactor_B_resolved is None:
-                    print('Unable to resolve identifier!')
-                    print(interactor_A_resolved)
-                    print(interactor_B_resolved)
+                    # print(row)
                     continue # Skip this entry.
                 
                 imex_dataset = {
