@@ -37,7 +37,7 @@ class TestObject(object):
             'WB:WBGene00006750', 'WB:WBGene00000540', 'WB:WBGene00017866', 'WB:WBGene00001131',
             'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133', 'WB:WBGene00001115',
             'WB:WBGene00018468', 'WB:WBGene00019001', 'WB:WBGene00007438', 'WB:WBGene00001136', 'WB:WBGene00006742',
-            'WB:WBGene00003883',
+            'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490'
         }
@@ -56,7 +56,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-060503-873', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-990415-72',
             'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
-            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
+            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1', 'ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
             'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
             # disease specific test objects
@@ -67,7 +67,7 @@ class TestObject(object):
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
-            'FB:FBgn0002369',
+            'FB:FBgn0002369', 'FB:FBgn0026379',
             'FB:FBgn0033885', 'FB:FBgn0024320', 'FB:FBgn0283499',
             'FB:FBgn0032465', 'FB:FBgn0285944', 'FB:FBgn0032728', 'FB:FBgn0000014',
             'FB:FBgn0032729', 'FB:FBgn0065610', 'FB:FBgn0032730', 'FB:FBgn0032732', 'FB:FBgn0260987',
@@ -86,7 +86,7 @@ class TestObject(object):
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
-            'HGNC:6560', 'HGNC:6551', 'HGNC:6700',
+            'HGNC:6560', 'HGNC:6551', 'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
             'HGNC:897', 'HGNC:869'
         }
