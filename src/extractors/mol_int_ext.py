@@ -59,6 +59,9 @@ class MolIntExt(object):
                 interactor_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
                 molecule_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
 
+                interactor_one = None
+                interactor_two = None
+
                 imex_dataset = {
                     'interactor_one' : interactor_one,
                     'interactor_two' : interactor_two,
