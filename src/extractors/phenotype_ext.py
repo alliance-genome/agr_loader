@@ -54,17 +54,13 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            if dataProviderSingle != 'SGD':
+            evidence = pheno.get('evidence')
 
-                evidence = pheno.get('evidence')
-                if 'modPublicationId' in evidence:
-                    pubModId = evidence.get('modPublicationId')
+            if 'modPublicationId' in evidence:
+                pubModId = evidence.get('modPublicationId')
 
-                if 'pubMedId' in evidence:
-                    pubMedId = evidence.get('pubMedId')
-            else:
-                pubMedId = pheno.get('pubMedId')
-                pubModId = pheno.get('pubModId')
+            if 'pubMedId' in evidence:
+                pubMedId = evidence.get('pubMedId')
 
             if pubMedId != None:
                 pubMedPrefix = pubMedId.split(":")[0]
