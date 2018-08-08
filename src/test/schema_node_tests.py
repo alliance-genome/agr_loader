@@ -106,7 +106,11 @@ class TestClass(object):
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
-                            dict(node='MITerm', prop='primaryKey') \
+                            dict(node='MITerm', prop='primaryKey'), \
+                            dict(node='GOTerm', prop='definition'), \
+                            dict(node='DOTerm', prop='definition'), \
+                            dict(node='GOTerm', prop='type'), \
+                            dict(node='DOTerm', prop='subset') \
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \

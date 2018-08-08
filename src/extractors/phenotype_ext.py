@@ -24,21 +24,26 @@ class PhenotypeExt(object):
             dataProviders = []
             loadKey = loadKey + dateProduced + dataProvider + "_BGI"
 
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+            #TODO: get SGD to fix their files.
+            if dataProviderPages is not None:
+                for dataProviderPage in dataProviderPages:
+                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                dataProviderCrossRefSet.append(
-                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                    dataProviderCrossRefSet.append(
+                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-            dataProviders.append(dataProvider)
+                dataProviders.append(dataProvider)
+                print ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
         print ("dataProvider found: " + dataProviderSingle)
 
         for pheno in phenotype_data['data']:
 
+            pubMedId = None
+            pubModId = None
             pubMedUrl = None
             pubModUrl = None
             primaryId = pheno.get('objectId')
@@ -49,14 +54,20 @@ class PhenotypeExt(object):
                 if is_it_test_entry is False:
                     continue
 
-            pubMedId = pheno.get('pubMedId')
+            evidence = pheno.get('evidence')
+
+            if 'modPublicationId' in evidence:
+                pubModId = evidence.get('modPublicationId')
+
+            if 'pubMedId' in evidence:
+                pubMedId = evidence.get('pubMedId')
 
             if pubMedId != None:
                 pubMedPrefix = pubMedId.split(":")[0]
                 pubMedLocalId = pubMedId.split(":")[1]
                 pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
-            pubModId = pheno.get('pubModId')
+                pubModId = pheno.get('pubModId')
 
             if pubModId != None:
                 pubModPrefix = pubModId.split(":")[0]

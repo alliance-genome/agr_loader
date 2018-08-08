@@ -37,8 +37,9 @@ class TestObject(object):
             'WB:WBGene00006750', 'WB:WBGene00000540', 'WB:WBGene00017866', 'WB:WBGene00001131',
             'WB:WBGene00015146', 'WB:WBGene00015599', 'WB:WBGene00001133', 'WB:WBGene00001115',
             'WB:WBGene00018468', 'WB:WBGene00019001', 'WB:WBGene00007438', 'WB:WBGene00001136', 'WB:WBGene00006742',
+            'WB:WBGene00003883',
             # phenotype and disease objects
-            'WBVar:WBVar00000012', 'WBVar:WBVar00000013',
+            'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490'
         }
 
         self.sgdIdSet = {
@@ -71,7 +72,7 @@ class TestObject(object):
             'FB:FBgn0032465', 'FB:FBgn0285944', 'FB:FBgn0032728', 'FB:FBgn0000014',
             'FB:FBgn0032729', 'FB:FBgn0065610', 'FB:FBgn0032730', 'FB:FBgn0032732', 'FB:FBgn0260987',
             'FB:FBgn0032781', 'FB:FBgn0032782', 'FB:FBgn0032740',
-            'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309', 'FB:FBgn0003470', 'FB:FBal0000003', 'FB:FBal0000004'
+            'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309', 'FB:FBgn0003470', 'FB:FBal0161187','FB:FBal0000003', 'FB:FBal0000004', 'FB:FBgn0039156'
 
         }
         self.rgdTestSet = {
@@ -79,15 +80,15 @@ class TestObject(object):
             'RGD:1581495',
             'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
             'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801',
-            # disease specific test objects
-            'RGD:68936'
+            # disease pheno specific test objects
+            'RGD:68936', 'RGD:3886'
         }
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
             'HGNC:6560', 'HGNC:6551', 'HGNC:6700',
-            # disease specific test objects
-            'HGNC:897'
+            # disease pheno specific test objects
+            'HGNC:897', 'HGNC:869'
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',

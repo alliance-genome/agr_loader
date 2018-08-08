@@ -48,4 +48,4 @@ class JSONFile(object):
         except js.SchemaError as e:
             print(e.message)
             print(e)
-            raise SystemExit("FATAL ERROR in JSON validation.")      
+            raise SystemExit("FATAL ERROR in JSON validation.")
