@@ -48,6 +48,7 @@ class MolIntExt(object):
             for record in result:
                 cross_ref_record = None
                 # Modify the cross reference ID to match the PSI MITAB format if necessary.
+                # So far, this is just converting 'NCBI_Gene' to 'entrez gene/locuslink'.
                 if record['cr.globalCrossRefId'].startswith('NCBI_Gene'):
                     cross_ref_record_split = record['cr.globalCrossRefId'].split(':')[1]
                     cross_ref_record = 'entrez gene/locuslink:' + cross_ref_record_split
@@ -203,8 +204,8 @@ class MolIntExt(object):
                     continue # Skip this entry.
                 
                 imex_dataset = {
-                    'interactor_one' : interactor_A_resolved,
-                    'interactor_two' : interactor_B_resolved,
+                    'interactor_A' : interactor_A_resolved,
+                    'interactor_B' : interactor_B_resolved,
                     'interactor_type' : interactor_type,
                     'molecule_type' : molecule_type,
                     'taxon_id_1' : taxon_id_1_to_load,

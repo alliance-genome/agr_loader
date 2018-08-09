@@ -15,8 +15,8 @@ class MolIntTransaction(Transaction):
             UNWIND $data as row 
 
             //Lookup genes based on species and uniprot ids.
-            MATCH (s1:Species {primaryKey:row.taxon_id_1})-[fs1:FROM_SPECIES]-(g1:Gene)-[x1:CROSS_REFERENCE]-(y1:CrossReference {globalCrossRefId:row.interactor_one})
-            MATCH (s2:Species {primaryKey:row.taxon_id_2})-[fs2:FROM_SPECIES]-(g2:Gene)-[x2:CROSS_REFERENCE]-(y2:CrossReference {globalCrossRefId:row.interactor_two})
+            MATCH (g1:Gene {primaryKey:row.interactor_A})
+            MATCH (g2:Gene {primaryKey:row.interactor_B})
 
             //Create the relationship between the two genes.
             MERGE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
