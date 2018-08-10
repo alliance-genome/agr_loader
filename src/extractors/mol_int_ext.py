@@ -1,7 +1,8 @@
 from files import S3File, TARFile
-import uuid, csv, re
+import uuid, csv, re, sys
 import urllib.request, json, pprint
 from services import ResourceDescriptor
+from types import ModuleType
 
 class MolIntExt(object):
 
@@ -9,6 +10,8 @@ class MolIntExt(object):
         self.graph = graph
         # Initialize an instance of ResourceDescriptor for processing external links.
         self.resource_descriptor_dict = ResourceDescriptor()
+        self.missed_database_linkouts = set()
+        self.successful_database_linkouts = set()
 
     def populate_genes(self, graph):
 
@@ -61,6 +64,58 @@ class MolIntExt(object):
                 # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
 
         return master_crossreference_dictionary
+
+    def process_interaction_identifier(self, entry):
+        # Create cross references for all the external identifiers.
+
+        xref_main_list = []
+        entries = None
+        ignored_identifier_database_list = [
+            'brenda',
+            'psi-mi',
+            'chebi', # TODO Implement efo/chebi support, identifier contains extra colon: chebi:"CHEBI:495055"
+            'efo' # TODO Implement efo support, identifier contains extra colon: efo:"EFO:0000305"
+        ]
+
+        if '|' in entry:
+            entries = entry.split('|')
+        else:
+            entries = [entry]
+
+        for individual in entries:
+
+            xref_dict = {}
+            xref_dict['uuid'] = None
+            xref_dict['globalCrossRefId'] = individual
+            xref_dict['name'] = individual
+            xref_dict['displayName'] = individual
+            xref_dict['primaryKey'] = individual
+            xref_dict['crossRefType'] = 'interaction'
+
+            if not individual.startswith(tuple(ignored_identifier_database_list)):
+                try:
+                    individual_prefix, individual_body = individual.split(':')
+                    xref_dict['prefix'] = individual_prefix
+                    xref_dict['localId'] = individual_body
+                except ValueError:
+                    print(ValueError)
+                    print('Fatal Error: Unrecognized external database for identifier: %s' % (individual))
+                    print('Cannot parse, exiting.')
+                    sys.exit(-1)
+                page = None
+                xref_dict[page] = page
+                try: 
+                    individual_url = self.resource_descriptor_dict.return_url(individual_prefix, individual_body, page)
+                    xref_dict['crossRefCompleteUrl'] = individual_url
+                    self.successful_database_linkouts.add(individual_prefix)
+                except KeyError:
+                    self.missed_database_linkouts.add(individual_prefix)
+                    continue
+
+            xref_main_list.append(xref_dict)
+
+        return xref_main_list
+
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
         interactor_A_rows = [0, 2, 4, 22]
@@ -176,6 +231,8 @@ class MolIntExt(object):
                     taxon_id_2_to_load = 'NCBITaxon:' + taxon_id_2_re.group(0)
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
+                
+                identifier_linkout_list = self.process_interaction_identifier(row[13])
 
                 detection_method = None
                 detection_method_re = re.search('"([^"]*)"', row[6]) # grab the MI identifier between two quotes ""
@@ -220,9 +277,10 @@ class MolIntExt(object):
                     'detection_method' : detection_method,
                     'pub_med_id' : publication,
                     'pub_med_url' : publication_url,
-                    'uuid' : str(uuid.uuid4())
+                    'uuid' : str(uuid.uuid4()),
+                    'interactor_id_and_linkout' : identifier_linkout_list
                 }
-                
+
                 if interactor_A_resolved is not None and interactor_B_resolved is not None:
                     resolved_a_b_list.append(mol_int_dataset)
                 
@@ -240,7 +298,12 @@ class MolIntExt(object):
             if len(list_to_yield) > 0:
                 yield list_to_yield
 
+        pp = pprint.PrettyPrinter(indent=4)
+
         print('Resolved identifiers and loaded %s interactions' % len(resolved_a_b_list))
-        #pp = pprint.PrettyPrinter(indent=4)
-        #pp.pprint(unresolved_a_b_list)
+        print('Successfully created linkouts for the following identifier databases:')
+        pp.pprint(self.successful_database_linkouts)
+
         print('Could not resolve [and subsequently did not load] %s interactions' % len(unresolved_a_b_list))
+        print('Could not create linkouts for the following identifier databases:')
+        pp.pprint(self.missed_database_linkouts)

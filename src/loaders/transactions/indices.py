@@ -27,6 +27,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :Synonym(primaryKey)")
         session.run("CREATE INDEX ON :Identifier(primaryKey)")
         session.run("CREATE INDEX ON :Association(primaryKey)")
+        session.run("CREATE INDEX ON :InteractionGeneJoin(primaryKey)")
         session.run("CREATE INDEX ON :CrossReference(primaryKey)")
         session.run("CREATE INDEX ON :CrossReference(globalCrossRefId)")
         session.run("CREATE INDEX ON :CrossReference(localId)")

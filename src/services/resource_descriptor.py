@@ -36,7 +36,7 @@ class ResourceDescriptor(object):
 
         regex_output = re.match(gid_pattern, identifier)
         if regex_output is None:
-            print('Fatal error: Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
+            print('Fatal Error: Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
             print('Identifier: %s' % (identifier))
             print('gid pattern: %s' % (gid_pattern))
             sys.exit(-1)
@@ -44,7 +44,7 @@ class ResourceDescriptor(object):
         if page is None and default_url is not None:
             complete_url = default_url.replace('[%s]', identifier)
         elif page is None and default_url is None:
-            print('Fatal error: Cross Reference page is specified as None but the default url is not specified in the YAML.')
+            print('Fatal Error: Cross Reference page is specified as None but the default url is not specified in the YAML.')
             print('Database prefix: %s' % (db_prefix))
             print('Identifier: %s' % (identifier))
             sys.exit(-1)
@@ -52,7 +52,7 @@ class ResourceDescriptor(object):
             try:
                 page_url = self.resource_descriptor_dict[db_prefix]['pages'][page]['url']
             except KeyError:
-                print('Fatal error: The specified Cross Reference page or database prefix does not appear to exist.')
+                print('Fatal Error: The specified Cross Reference page or database prefix does not appear to exist.')
                 print('Database prefix: %s' % (db_prefix))
                 print('Page: %s' % (page))
                 print('Identifier: %s' % (identifier))
