@@ -103,14 +103,13 @@ class MolIntExt(object):
                     print('Cannot parse, exiting.')
                     sys.exit(-1)
                 page = None
-                xref_dict[page] = page
+                xref_dict['page'] = page
                 try: 
                     individual_url = self.resource_descriptor_dict.return_url(individual_prefix, individual_body, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
                     self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
                     self.missed_database_linkouts.add(individual_prefix)
-                    continue
 
             xref_main_list.append(xref_dict)
 
