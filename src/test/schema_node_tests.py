@@ -22,7 +22,6 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
                                     for funcargs in funcarglist])
 
-
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
@@ -30,6 +29,7 @@ class TestClass(object):
                              dict(node='SOTerm'), \
                              dict(node='DOTerm'), \
                              dict(node='GOTerm'), \
+                             dict(node='MITerm'), \
                              dict(node='Identifier'), \
                              dict(node='Gene'), \
                              dict(node='Synonym'), \
@@ -47,7 +47,9 @@ class TestClass(object):
                              dict(node='OrthologyGeneJoin'), \
                              dict(node='OrthoAlgorithm'), \
                              dict(node='Load'), \
-                             dict(node='Feature')#, \
+                             dict(node='Feature'), \
+                             dict(node='InteractionGeneJoin'), \
+                             dict(node='ExperimentalDetails')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -73,6 +75,7 @@ class TestClass(object):
                             dict(node='DOTerm', prop='is_obsolete'), \
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='DOTerm', prop='primaryKey'), \
+                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='Identifier', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
                             dict(node='CrossReference', prop='localId'), \
@@ -93,6 +96,7 @@ class TestClass(object):
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                            dict(node='InteractionGeneJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
@@ -106,11 +110,10 @@ class TestClass(object):
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
-                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='GOTerm', prop='definition'), \
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
-                            dict(node='DOTerm', prop='subset') \
+                            dict(node='DOTerm', prop='subset')
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
