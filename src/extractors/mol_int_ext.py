@@ -91,6 +91,8 @@ class MolIntExt(object):
             xref_dict['displayName'] = individual
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
+            page = None
+            xref_dict['page'] = page
 
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
