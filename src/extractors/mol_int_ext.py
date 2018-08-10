@@ -1,11 +1,14 @@
 from files import S3File, TARFile
 import uuid, csv, re
-import urllib.request, json
+import urllib.request, json, pprint
+from services import ResourceDescriptor
 
 class MolIntExt(object):
 
     def __init__(self, graph):
         self.graph = graph
+        # Initialize an instance of ResourceDescriptor for processing external links.
+        self.resource_descriptor_dict = ResourceDescriptor()
 
     def populate_genes(self, graph):
 
@@ -38,7 +41,7 @@ class MolIntExt(object):
 
         master_crossreference_dictionary = dict()
 
-        master_crossreference_dictionary['UniprotKB'] = dict()
+        master_crossreference_dictionary['UniProtKB'] = dict()
         master_crossreference_dictionary['ENSEMBL'] = dict()
         master_crossreference_dictionary['NCBI_Gene'] = dict()
 
@@ -70,7 +73,7 @@ class MolIntExt(object):
             try:
                 interactor_A_resolved = self.resolve_identifier(row[row_entry], master_gene_set, master_crossreference_dictionary)
                 if interactor_A_resolved is not None:
-                    continue
+                    break
             except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
 
@@ -78,9 +81,12 @@ class MolIntExt(object):
             try:
                 interactor_B_resolved = self.resolve_identifier(row[row_entry], master_gene_set, master_crossreference_dictionary)
                 if interactor_B_resolved is not None:
-                    continue
+                    break
             except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
+        
+        # if interactor_A_resolved is None or interactor_B_resolved is None:
+        #     print(row[0],row[1],row[2],row[3],row[4],row[5])
 
         return interactor_A_resolved, interactor_B_resolved
 
@@ -97,6 +103,7 @@ class MolIntExt(object):
         # All valid identifiers in the PSI-MI TAB file should be "splittable".
         try:
             entry_stripped = row_entry.split(':')[1]
+            # print('entry_stripped: %s' % (entry_stripped))
         except IndexError:
             return None
 
@@ -123,6 +130,7 @@ class MolIntExt(object):
                 for crossreference_type in master_crossreference_dictionary.keys():
                     # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
                     if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
+                        # print('Found crossref: %s for gene: %s' % (identifier.lower(), master_crossreference_dictionary[crossreference_type][identifier.lower()]))
                         return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene.
 
         # If we can't resolve any of the crossReferences, return None
@@ -146,6 +154,9 @@ class MolIntExt(object):
 
         # Populate our master gene set for filtering Alliance genes.
         master_gene_set = self.populate_genes(self.graph)
+
+        resolved_a_b_list = []
+        unresolved_a_b_list = []
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
@@ -199,11 +210,7 @@ class MolIntExt(object):
 
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
-                if interactor_A_resolved is None or interactor_B_resolved is None:
-                    # print(row)
-                    continue # Skip this entry.
-                
-                imex_dataset = {
+                mol_int_dataset = {
                     'interactor_A' : interactor_A_resolved,
                     'interactor_B' : interactor_B_resolved,
                     'interactor_type' : interactor_type,
@@ -216,11 +223,24 @@ class MolIntExt(object):
                     'uuid' : str(uuid.uuid4())
                 }
                 
+                if interactor_A_resolved is not None and interactor_B_resolved is not None:
+                    resolved_a_b_list.append(mol_int_dataset)
+                
+                if interactor_A_resolved is None or interactor_B_resolved is None:
+                    # print(row)
+                    unresolved_a_b_list.append(mol_int_dataset)
+                    continue # Skip this entry.
+
                 # Establishes the number of entries to yield (return) at a time.
-                list_to_yield.append(imex_dataset)
+                list_to_yield.append(mol_int_dataset)
                 if len(list_to_yield) == batch_size:
                     yield list_to_yield
                     list_to_yield[:] = []  # Empty the list.
 
             if len(list_to_yield) > 0:
                 yield list_to_yield
+
+        print('Resolved identifiers and loaded %s interactions' % len(resolved_a_b_list))
+        #pp = pprint.PrettyPrinter(indent=4)
+        #pp.pprint(unresolved_a_b_list)
+        print('Could not resolve [and subsequently did not load] %s interactions' % len(unresolved_a_b_list))
