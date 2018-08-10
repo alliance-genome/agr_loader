@@ -25,6 +25,8 @@ class OrthoTransaction(Transaction):
                 SET orth.isBestScore = row.isBestScore
                 SET orth.isBestRevScore = row.isBestRevScore
                 SET orth.confidence = row.confidence
+                SET orth.strictFilter = row.strictFilter
+                SET orth.moderateFilter = row.moderateFilter
 
             //Create the Association node to be used for the object/doTerm
             MERGE (oa:Association {primaryKey:row.uuid})
