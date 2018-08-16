@@ -15,6 +15,20 @@ services:
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096m
 
+  neo4j.test:
+    container_name: neo4j.test
+    image: mol_int
+    volumes:
+      - dbstore:/data
+      - dbstore:/logs
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    networks:
+      - esnet
+    environment:
+      - NEO4J_dbms_memory_heap_maxSize=4096m
+
   neo4j.qc:
     container_name: neo4j.qc
     image: agrdocker/agr_neo4j_qc_data_image:build
@@ -36,7 +50,7 @@ services:
     environment:
      - TEST_SET=False
      - UNIT_TESTS=False
-     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_HOST=neo4j.test
      - NEO4J_NQC_PORT=7687
 
   agr_loader_test:

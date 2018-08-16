@@ -74,7 +74,9 @@ class MolIntExt(object):
             'brenda',
             'psi-mi',
             'chebi', # TODO Implement efo/chebi support, identifier contains extra colon: chebi:"CHEBI:495055"
-            'efo' # TODO Implement efo support, identifier contains extra colon: efo:"EFO:0000305"
+            'efo', # TODO Implement efo support, identifier contains extra colon: efo:"EFO:0000305"
+            'flybase', # Difficult to filter interaction identifier. TODO Needs work.
+            'go' # TODO Not in resource descriptor yaml?
         ]
 
         if '|' in entry:
@@ -85,18 +87,19 @@ class MolIntExt(object):
         for individual in entries:
 
             xref_dict = {}
-            xref_dict['uuid'] = None
+            xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
             xref_dict['name'] = individual
             xref_dict['displayName'] = individual
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
-            page = None
+            page = 'gene/interactions'
             xref_dict['page'] = page
 
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
-                    individual_prefix, individual_body = individual.split(':')
+                    individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+                    # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
                     xref_dict['prefix'] = individual_prefix
                     xref_dict['localId'] = individual_body
                 except ValueError:
@@ -104,10 +107,8 @@ class MolIntExt(object):
                     print('Fatal Error: Unrecognized external database for identifier: %s' % (individual))
                     print('Cannot parse, exiting.')
                     sys.exit(-1)
-                page = None
-                xref_dict['page'] = page
                 try: 
-                    individual_url = self.resource_descriptor_dict.return_url(individual_prefix, individual_body, page)
+                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
                     self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
@@ -116,7 +117,6 @@ class MolIntExt(object):
             xref_main_list.append(xref_dict)
 
         return xref_main_list
-
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
         interactor_A_rows = [0, 2, 4, 22]
