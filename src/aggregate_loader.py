@@ -100,7 +100,7 @@ class AggregateLoader(object):
         print("Loading SO data into Neo4j.")
         SOLoader(self.graph).load_so(self.so_dataset)
         print("Loading GO data into Neo4j.")
-        #GOLoader(self.graph).load_go(self.go_dataset)
+        GOLoader(self.graph).load_go(self.go_dataset)
         print("Loading DO data into Neo4j.")
         #DOLoader(self.graph).load_do(self.do_dataset)
 

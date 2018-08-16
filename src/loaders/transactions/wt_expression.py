@@ -93,7 +93,7 @@ class WTExpressionTransaction(Transaction):
         EASQualified = """
             
             UNWIND $data as row
-                MATCH (asj:AnatomicalStructureJoin {primaryKey:row.uuidASJoin}))
+                MATCH (asj:AnatomicalStructureJoin {primaryKey:row.uuidASJoin})
                 MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
                 
                 MERGE (asj)-[asjotastq:QUALIFIED_BY]-(otastq)
