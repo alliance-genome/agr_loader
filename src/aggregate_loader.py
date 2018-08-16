@@ -51,6 +51,7 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
+
     def load_from_ont(self, ontology_path, ontology_to_load, obo_file_name):
         print ("Extraction % data", ontology_to_load)
         self.dataset = OExt().get_data(ontology_path, obo_file_name)
@@ -64,7 +65,7 @@ class AggregateLoader(object):
         print("Extracting GO data.")
         self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
         print("Extracting DO data.")
-        #self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
 
         # structure ontologies
         print("Extracting ZFA data.")
@@ -102,33 +103,33 @@ class AggregateLoader(object):
         print("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
         print("Loading DO data into Neo4j.")
-        #DOLoader(self.graph).load_do(self.do_dataset)
+        DOLoader(self.graph).load_do(self.do_dataset)
 
         print("Loading ZFA data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfa_dataset, "ZFATerm")
-        # print("Loading WBBT data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbbt_dataset, "WBBTTerm")
-        # print("Loading CL data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.cell_dataset, "CLTerm")
-        # # print("Loading FBDV data into Neo4j.")
-        # # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset)
-        # print("Loading FBBT data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbbt_dataset, "FBBTTerm")
-        #
-        # print("Loading MA data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.ma_dataset, "MATerm")
-        # print("Loading EMAPA data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.emapa_dataset, "EMAPATerm")
-        # print("Loading UBERON data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.uberon_dataset, "UBERONTerm")
-        #
-        # print("Loading FBCV data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbcv_dataset, "FBCVTerm")
-        # print("Loading MMUSDV data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset, "MMUSDVTerm")
-        # print("Loading BPSO data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset, "BSPOTerm")
-        # print("Loading MMO data into Neo4j.")
+        print("Loading WBBT data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbbt_dataset, "WBBTTerm")
+        print("Loading CL data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.cell_dataset, "CLTerm")
+        # print("Loading FBDV data into Neo4j.")
+        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset)
+        print("Loading FBBT data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbbt_dataset, "FBBTTerm")
+
+        print("Loading MA data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.ma_dataset, "MATerm")
+        print("Loading EMAPA data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.emapa_dataset, "EMAPATerm")
+        print("Loading UBERON data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.uberon_dataset, "UBERONTerm")
+
+        print("Loading FBCV data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbcv_dataset, "FBCVTerm")
+        print("Loading MMUSDV data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset, "MMUSDVTerm")
+        print("Loading BPSO data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset, "BSPOTerm")
+        print("Loading MMO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset, "MMOTerm")
 
     def load_from_mods(self):
@@ -148,72 +149,72 @@ class AggregateLoader(object):
 
         this_dir = os.path.split(__file__)[0]
         # initialize gene description generator from config file
-        # genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
-        #                                                                      "genedesc_config.yml"),
-        #                                       go_ontology=self.go_dataset, do_ontology=self.do_dataset,
-        #                                        graph_db=self.graph)
+        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+                                                                          "genedesc_config.yml"),
+                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
+                                               graph_db=self.graph)
         cached_data_fetcher = None
-        # # Loading annotation data for all MODs after completion of BGI data.
+        # Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
+
+            print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
+
+            print("Loading MOD alleles for %s into Neo4j." % mod.species)
+            alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
+            for allele_list_of_entries in alleles:
+                AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+
+            xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+            for xpat_list_of_entries in xpats:
+                WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
+
+            print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
+
+            print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
+            for feature_list_of_entries in features:
+                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
+
+            print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
+            phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
+            for pheno_list_of_entries in phenos:
+                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 
             print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
 
+            print("Loading Orthology data for %s into Neo4j." % mod.species)
+            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
+            for ortholog_list_of_entries in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
 
-            # print("Loading MOD alleles for %s into Neo4j." % mod.species)
-            # alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
-            # for allele_list_of_entries in alleles:
-            #     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+            print("Extracting GO annotations for %s." % mod.__class__.__name__)
+            go_annots = mod.extract_go_annots(self.testObject)
+            print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
+            GOAnnotLoader(self.graph).load_go_annot(go_annots)
 
-            # print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            # features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-            #
-            # print("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            # features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
-            # for feature_list_of_entries in features:
-            #     DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
-            #
-            # print("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
-            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
-            # for pheno_list_of_entries in phenos:
-            #     PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
-            #
-            # print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            # xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-            # for xpat_list_of_entries in xpats:
-            #     WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
-            #
-            # print("Loading Orthology data for %s into Neo4j." % mod.species)
-            # ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            # for ortholog_list_of_entries in ortholog_data:
-            #     OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
-            #
-            # print("Extracting GO annotations for %s." % mod.__class__.__name__)
-            # go_annots = mod.extract_go_annots(self.testObject)
-            # print("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
-            # GOAnnotLoader(self.graph).load_go_annot(go_annots)
-            #
-            # print("Extracting GEO annotations for %s." % mod.__class__.__name__)
-            # geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            # print("Loading GEO annotations for %s." % mod.__class__.__name__)
-            # GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-            #
-            # print("generate gene descriptions for %s." % mod.__class__.__name__)
-            # if mod.dataProvider:
-            #     cached_data_fetcher = genedesc_generator.generate_descriptions(
-            #         go_annotations=go_annots,
-            #         do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
-            #         do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
-            #                                                               self.graph, mod.species),
-            #         data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-            #         human=isinstance(mod, Human))
+            print("Extracting GEO annotations for %s." % mod.__class__.__name__)
+            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            print("Loading GEO annotations for %s." % mod.__class__.__name__)
+            GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+
+            print("generate gene descriptions for %s." % mod.__class__.__name__)
+            if mod.dataProvider:
+                cached_data_fetcher = genedesc_generator.generate_descriptions(
+                    go_annotations=go_annots,
+                    do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+                                                                          self.graph, mod.species),
+                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             print("Extracting and Loading IMEX data.")
-            # imex_data = IMEXExt().get_data(self.batch_size)
-            # for imex_list_of_entries in imex_data:
-            #     IMEXLoader(self.graph).load_imex(imex_list_of_entries)
+            imex_data = IMEXExt().get_data(self.batch_size)
+            for imex_list_of_entries in imex_data:
+                IMEXLoader(self.graph).load_imex(imex_list_of_entries)
