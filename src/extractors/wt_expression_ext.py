@@ -57,17 +57,16 @@ class WTExpressionExt(object):
                 pubMedUrl = None
 
                 evidence = xpat.get('evidence')
-                if 'publication' in evidence:
-                    if 'modPublicationId' in evidence['publication']:
-                        publicationModId = evidence['publication'].get('modPublicationId')
-                        pubModLocalId = publicationModId.split(":")[1]
-                        pubModPrefix = publicationModId.split(":")[0]
-                        pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
-                    if 'pubMedId' in evidence['publication']:
-                        pubMedId = evidence['publication'].get('pubMedId')
-                        localPubMedId = pubMedId.split(":")[1]
-                        pubMedPrefix = pubMedId.split(":")[0]
-                        pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, geneId)
+                if 'modPublicationId' in evidence:
+                    publicationModId = evidence.get('modPublicationId')
+                    pubModLocalId = publicationModId.split(":")[1]
+                    pubModPrefix = publicationModId.split(":")[0]
+                    pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+                if 'pubMedId' in evidence:
+                    pubMedId = evidence.get('pubMedId')
+                    localPubMedId = pubMedId.split(":")[1]
+                    pubMedPrefix = pubMedId.split(":")[0]
+                    pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, geneId)
 
             if pubMedId == None:
                 pubMedId = ""
