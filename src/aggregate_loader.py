@@ -28,8 +28,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-        self.mods = [ZFIN()]
+        self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -92,10 +92,10 @@ class AggregateLoader(object):
         self.bspo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/bspo.obo", "bpso.obo")
         print("Extracting MMO data.")
         self.mmo_dataset = OExt().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
-
+        #
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
-
+        #
         print("Loading MI data into Neo4j.")
         MILoader(self.graph).load_mi(self.mi_dataset)
         print("Loading SO data into Neo4j.")
@@ -154,16 +154,15 @@ class AggregateLoader(object):
                                                go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
-        # Loading annotation data for all MODs after completion of BGI data.
+        Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
-
-            print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
+            print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
