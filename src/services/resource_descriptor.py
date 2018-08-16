@@ -3,9 +3,11 @@ import pprint
 
 class ResourceDescriptor(object):
 
-    def __init__(self):       
-        local_resource_descriptors_file = 'schemas/resourceDescriptors.yaml'
-        resource_descriptor_file = open(local_resource_descriptors_file, 'r')
+    def __init__(self):
+
+        # TODO This should eventually be tied to the schemas submodule.       
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/develop/resourceDescriptors.yaml'
+        resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_file()
 
         self.yaml_list = yaml.load(resource_descriptor_file)
         
