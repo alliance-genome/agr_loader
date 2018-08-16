@@ -67,7 +67,7 @@ class WTExpressionExt(object):
                         pubMedId = evidence['publication'].get('pubMedId')
                         localPubMedId = pubMedId.split(":")[1]
                         pubMedPrefix = pubMedId.split(":")[0]
-                        pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, primaryId)
+                        pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, geneId)
 
             if pubMedId == None:
                 pubMedId = ""
@@ -122,7 +122,7 @@ class WTExpressionExt(object):
                 if whereExpressedStatement == None:
                     whereExpressedStatement = ""
 
-            print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
+            #print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
             assay = xpat.get('assay')
             #print ("assay: " + assay)
@@ -160,6 +160,8 @@ class WTExpressionExt(object):
                 "uuidASSJoin": str(uuid.uuid4()),
                 "uuidASJoin": str(uuid.uuid4())
              }
+
+
 
             list_to_yield.append(expression)
 
