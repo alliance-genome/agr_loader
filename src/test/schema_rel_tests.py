@@ -26,6 +26,7 @@ def pytest_generate_tests(metafunc):
 
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
+    # test_rel_exists checks for the existence of *at least one count* of the relationship specified below.
     params = {
         'test_rel_exists': [dict(node1='Ontology:SOTerm', node2='Gene'), \
                             dict(node1='Ontology:DOTerm', node2='Identifier:CrossReference'), \
@@ -60,6 +61,11 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='Publication'), \
                             dict(node1='DiseaseEntityJoin:Association', node2='EvidenceCode'), \
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Gene'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Publication'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Identifier:CrossReference'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='ExperimentalDetails'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
