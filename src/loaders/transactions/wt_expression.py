@@ -52,7 +52,7 @@ class WTExpressionTransaction(Transaction):
                 MERGE (e)-[gejasj:ASSOCIATION]-(asj)
                     SET gejasj.uuid = row.s_uuid
 
-                MERGE (asj)<-[eotast:ASSOCIATION]-(otast)
+                MERGE (asj)<-[asjotast:ASSOCIATION]-(otast)
                     SET asjotast.uuid = row.s_uuid
                 
                 MERGE (l:Load:Entity {primaryKey:row.loadKey})
