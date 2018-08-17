@@ -22,7 +22,7 @@ class WTExpressionTransaction(Transaction):
             
             WITH g, assay, otast, otcct, row WHERE otcct IS NULL
 
-                MERGE (e:ExpressionBioEntity {primaryKey:row.expressionEntityPk})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     SET e.uuid = row.ebe_uuid
                     
@@ -31,7 +31,7 @@ class WTExpressionTransaction(Transaction):
             
                 MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.uuidGeneExpressionJoin})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                     SET gej.uuid = row.ebe_uuid 
@@ -89,7 +89,7 @@ class WTExpressionTransaction(Transaction):
 
             WITH g, assay, otcct, otast, row WHERE otast IS NULL 
     
-                MERGE (e:ExpressionBioEntity {primaryKey:row.cc_uuid})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     SET e.uuid = row.cc_uuid  
                 
@@ -155,7 +155,7 @@ class WTExpressionTransaction(Transaction):
             WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
    
-                MERGE (e:ExpressionBioEntity {primaryKey:row.cc_uuid})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     SET e.uuid = row.cc_uuid  
                 
@@ -217,7 +217,6 @@ class WTExpressionTransaction(Transaction):
         EASSubstructure = """
                 UNWIND $data as row
         
-                    MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.uuidGeneExpressionJoin})
                     MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                     MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
                     MATCH (asj:AnatomicalStructureExpressionBioEntityJoin:Association {uuid:row.s_uuid})
