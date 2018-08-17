@@ -154,7 +154,7 @@ class AggregateLoader(object):
                                                go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
-        Loading annotation data for all MODs after completion of BGI data.
+        #Loading annotation data for all MODs after completion of BGI data.
         for mod in self.mods:
 
             print("Loading MOD alleles for %s into Neo4j." % mod.species)

@@ -34,7 +34,7 @@ class DOTransaction(Transaction):
                 SET doterm.zfinLink = row.zfin_link
                 SET doterm.flybaseLink = row.flybase_link
                 SET doterm.wormbaseLink = row.wormbase_link
-                SET doterm.sgdLink = "SGD"
+                SET doterm.sgdLink = row.sgd_link
 
 
             FOREACH (entry in row.o_synonyms |
