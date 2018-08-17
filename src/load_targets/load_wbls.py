@@ -12,5 +12,4 @@ uri = "bolt://" + host + ":" + port
 
 if __name__ == '__main__':
     al = AggregateLoader(uri, useTestObject)
-    al.load_from_ont("http://purl.obolibrary.org/obo/fbdv/fbbt-simple.obo", "FDBV", "fbbt-simple.obo")
-
+    al.load_from_ont("http://purl.obolibrary.org/obo/wbls.obo", "WBLS", "wbls.obo")

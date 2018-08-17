@@ -51,13 +51,12 @@ class AggregateLoader(object):
         print("loading resource descriptor")
         ResourceDescriptorLoader(self.graph).load_resource_descriptor(self.resourceDescriptors)
 
-
+    #TODO load_from_ontologies could be consolidated into this method, perhaps
     def load_from_ont(self, ontology_path, ontology_to_load, obo_file_name):
         print ("Extraction % data", ontology_to_load)
         self.dataset = OExt().get_data(ontology_path, obo_file_name)
         print("Loading % data into Neo4j.", ontology_to_load)
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.dataset, ontology_to_load+"TERM")
-
 
     def load_from_ontologies(self):
         print("Extracting SO data.")
@@ -75,9 +74,11 @@ class AggregateLoader(object):
         print("Extracting Cell data.")
         self.cell_dataset = OExt().get_data("http://purl.obolibrary.org/obo/cl.obo", "cl.obo")
         print("Extracting FBDV data.")
-        #self.fbdv_dataset = OExt().get_data("https://github.com/FlyBase/drosophila-anatomy-developmental-ontology/blob/master/fbdv/releases/fbdv-simple.obo", "fbdv-simple.obo")
-        #print("Extracting FBBT data.")
+        self.fbdv_dataset = OExt().get_data("https://raw.githubusercontent.com/FlyBase/drosophila-anatomy-developmental-ontology/master/fbdv/releases/fbdv-simple.obo", "fbdv-simple.obo")
+        print("Extracting FBBT data.")
         self.fbbt_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbbt.obo", "fbbt.obo")
+        print("Extracting FBCV data.")
+        self.fbcv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbcv.obo", "fbcv.obo")
         print("Extracting MA data.")
         self.ma_dataset = OExt().get_data("http://www.informatics.jax.org/downloads/reports/adult_mouse_anatomy.obo", "ma.obo")
         print("Extracting EMAPA data.")
@@ -113,11 +114,12 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbbt_dataset, "WBBTTerm")
         print("Loading CL data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.cell_dataset, "CLTerm")
-        #print("Loading FBDV data into Neo4j.")
-        #GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset)
+        print("Loading FBDV data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset, "FBDVTerm")
         print("Loading FBBT data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbbt_dataset, "FBBTTerm")
-
+        print("Loading FBCV data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbcv_dataset, "FBCVTerm")
         print("Loading MA data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.ma_dataset, "MATerm")
         print("Loading EMAPA data into Neo4j.")
