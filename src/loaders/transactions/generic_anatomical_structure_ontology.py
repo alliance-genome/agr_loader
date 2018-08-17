@@ -30,11 +30,11 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
                 MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
 
             FOREACH (isa in row.isas |
-                MERGE (g2:CLTerm:Ontology {primaryKey:isa})
+                MERGE (g2:%s:Ontology {primaryKey:isa})
                 MERGE (g)-[aka:IS_A]->(g2))
 
             FOREACH (partof in row.partofs |
-                MERGE (g2:CLTerm:Ontology {primaryKey:partof})
+                MERGE (g2:%s:Ontology {primaryKey:partof})
                 MERGE (g)-[aka:PART_OF]->(g2))
 
         """ % nodeLabel
@@ -44,7 +44,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
             UNWIND $data as row
              WITH row.xref_urls AS events
                 UNWIND events AS event
-                    MATCH (o:Ontology {primaryKey:event.oid})
+                    MATCH (o:%s:Ontology {primaryKey:event.oid})
 
 
         """
