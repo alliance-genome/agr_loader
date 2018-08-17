@@ -56,10 +56,10 @@ class ResourceDescriptor(object):
         separator = None
         
         if ':' in identifier:
-            prefix, identifier_processed = identifier.split(':')
+            prefix, identifier_processed = identifier.split(':', 1) # Split on the first occurrence
             separator = ':'
         elif '-' in identifier:
-            prefix, identifier_processed = identifier.split('-')
+            prefix, identifier_processed = identifier.split('-', 1)  # Split on the first occurrence
             separator = '-'
         else:
             print('Fatal Error: Identifier does not contain \':\' or \'-\' characters.')

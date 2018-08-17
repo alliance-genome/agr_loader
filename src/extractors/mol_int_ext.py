@@ -95,18 +95,13 @@ class MolIntExt(object):
             xref_dict['crossRefType'] = 'interaction'
             page = 'gene/interactions'
             xref_dict['page'] = page
+            
+            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+            # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
+            xref_dict['prefix'] = individual_prefix
+            xref_dict['localId'] = individual_body
 
             if not individual.startswith(tuple(ignored_identifier_database_list)):
-                try:
-                    individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
-                    # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
-                    xref_dict['prefix'] = individual_prefix
-                    xref_dict['localId'] = individual_body
-                except ValueError:
-                    print(ValueError)
-                    print('Fatal Error: Unrecognized external database for identifier: %s' % (individual))
-                    print('Cannot parse, exiting.')
-                    sys.exit(-1)
                 try: 
                     individual_url = self.resource_descriptor_dict.return_url(individual, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
