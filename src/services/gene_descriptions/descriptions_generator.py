@@ -4,7 +4,7 @@ from typing import Dict
 
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.data_fetcher import DataFetcher, Gene, DataType
-from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator
+from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator, generate_orthology_sentence_alliance_human
 from genedescriptions.descriptions_writer import JsonGDWriter
 from ontobio import AssociationSetFactory
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
@@ -201,12 +201,20 @@ class GeneDescGenerator(object):
                                    parameters={"minNumMethods": min_number_methods, "dataProvider": data_provider})
         return result_set
 
+    def get_gene_symbols_from_id_list(self, id_list):
+        db_query = "match (g:Gene) " \
+                   "where g.primaryKey in {idList} " \
+                   "return g.primaryKey, g.symbol, g.name"
+        result_set = self.query_db(db_graph=self.graph, query=db_query,
+                                   parameters={"idList": id_list})
+        return result_set
+
     @staticmethod
     def get_best_orthologs(ortholog_list):
-        max_num_methods = max([orth[2] for orth in ortholog_list])
-        return [ortholog for ortholog in ortholog_list if ortholog[2] == max_num_methods]
+        max_num_methods = max([orth[3] for orth in ortholog_list])
+        return [ortholog for ortholog in ortholog_list if ortholog[3] == max_num_methods]
 
-    def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
+    def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, ortho_data, data_provider,
                               cached_data_fetcher, go_ontology_url, go_association_url,
                               do_ontology_url, do_association_url, human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
@@ -227,18 +235,37 @@ class GeneDescGenerator(object):
                                                                                      do_annotations_allele),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
         df.orthologs = defaultdict(list)
-        for result in self.get_human_orthologs_from_neo4j(data_provider=data_provider):
-            df.orthologs[result[0]].append([result[1], result[2], result[3]])
-        df.orthologs = {gene_id: self.get_best_orthologs(orthologs) for gene_id, orthologs in df.orthologs.items()}
-        print("Number of genes with more than 3 best orthologs: " + str(len(
-            {gene_id: orth for gene_id, orth in df.orthologs.items() if len(orth) > 3})))
+        for orth_list in ortho_data:
+            for orth in orth_list:
+                if len(orth['matched']) > 0 and orth['strictFilter'] is True:
+                    if orth['gene2AgrPrimaryId'].startswith('HGNC') and orth['gene1AgrPrimaryId']\
+                            .startswith(data_provider):
+                        df.orthologs[orth['gene1AgrPrimaryId']].append([orth['gene2AgrPrimaryId'],
+                                                                        len(orth['matched'])])
+                    elif orth['gene1AgrPrimaryId'].startswith('HGNC') and \
+                            orth['gene2AgrPrimaryId'].startswith(data_provider):
+                        df.orthologs[orth['gene2AgrPrimaryId']].append([orth['gene1AgrPrimaryId'],
+                                                                        len(orth['matched'])])
+        #for result in self.get_human_orthologs_from_neo4j(data_provider=data_provider):
+        #    df.orthologs[result[0]].append([result[1], result[2], result[3]])
+        orth_id_symbol_and_name = {gene[0]: [gene[1], gene[2]] for gene in self.get_gene_symbols_from_id_list(
+            [ortholog[0] for orthologs in df.orthologs.values() for ortholog in orthologs])}
+        df.orthologs = {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
+                                  in orth_id_symbol_and_name] for gene_id, orthologs in df.orthologs.items()}
+        df.orthologs = {gene_id: self.get_best_orthologs(orthologs) for gene_id, orthologs in df.orthologs.items() if
+                        len(orthologs) > 0}
 
         for gene in self.get_gene_data_from_neo4j(data_provider=data_provider):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
-
             go_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
                                                          priority_list=self.conf_parser.get_go_annotations_priority())
+            go_sent_gen_common_props_exp = self.go_sent_gen_common_props.copy()
+            go_sent_gen_common_props_exp["evidence_codes_groups_map"] = {
+                evcode: group for evcode, group in self.go_sent_gen_common_props["evidence_codes_groups_map"].items() if
+                "EXPERIMENTAL" in self.go_sent_gen_common_props["evidence_codes_groups_map"][evcode]}
+            go_sent_generator_exp = SentenceGenerator(annotations=go_annotations, ontology=df.go_ontology,
+                                                      **go_sent_gen_common_props_exp)
             go_sent_generator = SentenceGenerator(
                 annotations=go_annotations, ontology=df.go_ontology, **self.go_sent_gen_common_props)
             gene_desc.stats.total_number_go_annotations = len(go_annotations)
@@ -260,15 +287,20 @@ class GeneDescGenerator(object):
                 [elem for key, sets in go_sent_generator.terms_groups[('C', 'colocalizes_with')].items() for elem in
                  sets if
                  ('C', key, 'colocalizes_with') in self.conf_parser.get_go_prepostfix_sentences_map()]))
-            raw_func_sent = go_sent_generator.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
-                                                            keep_only_best_group=True, **self.go_sent_common_props)
+            contributes_to_raw_func_sent = go_sent_generator.get_sentences(
+                aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True, keep_only_best_group=True,
+                **self.go_sent_common_props)
+            if contributes_to_raw_func_sent:
+                raw_func_sent = go_sent_generator_exp.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
+                                                                    keep_only_best_group=True,
+                                                                    **self.go_sent_common_props)
+            else:
+                raw_func_sent = go_sent_generator.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
+                                                                keep_only_best_group=True, **self.go_sent_common_props)
             func_sent = " and ".join([sentence.text for sentence in raw_func_sent])
             if func_sent:
                 joined_sent.append(func_sent)
                 gene_desc.go_function_description = func_sent
-            contributes_to_raw_func_sent = go_sent_generator.get_sentences(
-                aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                **self.go_sent_common_props)
             gene_desc.stats.set_final_go_ids_f = list(set().union([term_id for sentence in raw_func_sent for
                                                                    term_id in sentence.terms_ids],
                                                                   [term_id for sentence in contributes_to_raw_func_sent
@@ -280,11 +312,11 @@ class GeneDescGenerator(object):
                 if not gene_desc.go_function_description:
                     gene_desc.go_function_description = contributes_to_func_sent
                 else:
-                    gene_desc.go_function_description += " " + contributes_to_func_sent
+                    gene_desc.go_function_description += "; " + contributes_to_func_sent
                 if not gene_desc.go_description:
                     gene_desc.go_description = contributes_to_func_sent
                 else:
-                    gene_desc.go_description += " " + contributes_to_func_sent
+                    gene_desc.go_description += "; " + contributes_to_func_sent
             raw_proc_sent = go_sent_generator.get_sentences(aspect='P', merge_groups_with_same_prefix=True,
                                                             keep_only_best_group=True, **self.go_sent_common_props)
             gene_desc.stats.set_final_go_ids_p = [term_id for sentence in raw_proc_sent for term_id in
@@ -293,8 +325,16 @@ class GeneDescGenerator(object):
             if proc_sent:
                 joined_sent.append(proc_sent)
                 gene_desc.go_process_description = proc_sent
-            raw_comp_sent = go_sent_generator.get_sentences(
-                aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True, **self.go_sent_common_props)
+            colocalizes_with_raw_comp_sent = go_sent_generator.get_sentences(
+                aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
+                keep_only_best_group=True, **self.go_sent_common_props)
+            if colocalizes_with_raw_comp_sent:
+                raw_comp_sent = go_sent_generator_exp.get_sentences(aspect='C', merge_groups_with_same_prefix=True,
+                                                                    keep_only_best_group=True,
+                                                                    **self.go_sent_common_props)
+            else:
+                raw_comp_sent = go_sent_generator.get_sentences(aspect='C', merge_groups_with_same_prefix=True,
+                                                                keep_only_best_group=True, **self.go_sent_common_props)
             comp_sent = " and ".join([sentence.text for sentence in raw_comp_sent])
             if comp_sent:
                 joined_sent.append(comp_sent)
@@ -303,9 +343,6 @@ class GeneDescGenerator(object):
                     gene_desc.go_description = comp_sent
                 else:
                     gene_desc.go_description += " " + comp_sent
-            colocalizes_with_raw_comp_sent = go_sent_generator.get_sentences(
-                aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, **self.go_sent_common_props)
             gene_desc.stats.set_final_go_ids_c = list(set().union([term_id for sentence in raw_comp_sent for
                                                                    term_id in sentence.terms_ids],
                                                                   [term_id for sentence in
@@ -317,11 +354,11 @@ class GeneDescGenerator(object):
                 if not gene_desc.go_component_description:
                     gene_desc.go_component_description = colocalizes_with_comp_sent
                 else:
-                    gene_desc.go_component_description += " " + colocalizes_with_comp_sent
+                    gene_desc.go_component_description += "; " + colocalizes_with_comp_sent
                 if not gene_desc.go_description:
                     gene_desc.go_description = colocalizes_with_comp_sent
                 else:
-                    gene_desc.go_description += " " + colocalizes_with_comp_sent
+                    gene_desc.go_description += "; " + colocalizes_with_comp_sent
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -361,6 +398,16 @@ class GeneDescGenerator(object):
                 gene_desc.stats.number_final_do_term_covering_multiple_initial_do_terms = \
                     disease_sent.count("(multiple)")
 
+            best_orthologs_ids = [orth[0] for orth in df.orthologs[gene.id]] if gene.id in df.orthologs else []
+            best_orthologs = [[orth[0][5:], *orth[1:]] for orth in df.orthologs[gene.id]] if gene.id in df.orthologs \
+                else []
+            gene_desc.stats.set_best_orthologs = best_orthologs_ids
+            if len(best_orthologs) > 0:
+                orth_sent = generate_orthology_sentence_alliance_human(best_orthologs)
+                if orth_sent:
+                    joined_sent.append(orth_sent)
+                    gene_desc.orthology_description = orth_sent
+
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
                 if len(desc) > 0:
@@ -369,8 +416,9 @@ class GeneDescGenerator(object):
                     gene_desc.description = None
             else:
                 gene_desc.description = None
-            desc_writer.add_gene_desc(gene_desc)
-            json_desc_writer.add_gene_desc(gene_desc)
+            if (not human and not gene.id.startswith("HGNC")) or (human and gene.id.startswith("HGNC")):
+                desc_writer.add_gene_desc(gene_desc)
+                json_desc_writer.add_gene_desc(gene_desc)
 
         desc_writer.write(self.graph)
         gd_file_name = data_provider

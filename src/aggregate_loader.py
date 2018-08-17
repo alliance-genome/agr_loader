@@ -1,5 +1,6 @@
 import os
 import gc
+from genedescriptions.data_fetcher import DataFetcher
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
@@ -311,6 +312,7 @@ class AggregateLoader(object):
 
                     do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
                                                                           self.graph, mod.species),
+                    ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
                     human=isinstance(mod, Human),
                     go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
