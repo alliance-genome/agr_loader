@@ -114,10 +114,10 @@ class WTExpressionTransaction(Transaction):
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
                     SET ecej.uuid = row.cc_uuid
-                MERGE (e)-[eocct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     SET eotcct.uuid = row.cc_uuid
                 MERGE (otcct)-[otcctcej:ASSOCIATION]->(cej)
-                    SET otcttcej.uuid = row.cc_uuid
+                    SET otcctcej.uuid = row.cc_uuid
                     
 
                 MERGE (l:Load:Entity {primaryKey:row.loadKey})
@@ -180,10 +180,10 @@ class WTExpressionTransaction(Transaction):
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
                     SET ecej.uuid = row.cc_uuid
-                MERGE (e)-[eocct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     SET eotcct.uuid = row.cc_uuid
                 MERGE (otcct)-[otcctcej:ASSOCIATION]->(cej)
-                    SET otcttcej.uuid = row.cc_uuid
+                    SET otcctcej.uuid = row.cc_uuid
                     
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
                 MERGE (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})

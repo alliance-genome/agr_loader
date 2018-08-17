@@ -49,9 +49,10 @@ class TestClass(object):
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='ExpressionBioEntity'), \
-                             dict(node='AnatomicalStructureJoin'), \
-                             dict(node='AnatomicalSubStructureJoin'), \
-                             dict(node='CellularComponentBioEntityJoin')#, \
+                             dict(node='CellularComponentExpressionBioEntityJoin'), \
+                             dict(node='AnatomicalStructureExpressionBioEntityJoin'), \
+                             dict(node='AnatomicalSubStructureExpressionBioEntityJoin'),
+                             dict(node='BioEntityGeneExpressionJoin')#, \
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -117,11 +118,10 @@ class TestClass(object):
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='ExpressionBioEntity', prop='primaryKey'), \
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
-                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
-                            dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
-                            dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
-                            dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
+                            dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
+                            dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
+                            dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='whereExpressedStatement'), \
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey')
  \
                             ],
 
@@ -184,10 +184,9 @@ class TestClass(object):
                                dict(node='MITerm', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
-                               dict(node='CellularComponentBioEntityJoin', prop='primaryKey'), \
-                               dict(node='AnatomicalStructureJoin', prop='primaryKey'), \
-                               dict(node='AnatomicalSubStructureJoin', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                               dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
+                               dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
+                               dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
@@ -211,7 +210,12 @@ class TestClass(object):
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
                              dict(node='MITerm', prop='primaryKey'),
-                             dict(node='Ontology', prop='primaryKey') \
+                             dict(node='Ontology', prop='primaryKey'),
+                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                             dict(node='ExpressionBioEntity', prop='primaryKey'),
+                             dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'),
+                             dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'),
+                             dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey')
                              ]
     }
 
