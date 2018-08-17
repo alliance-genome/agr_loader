@@ -1,5 +1,6 @@
 import yaml, re, sys
 import pprint
+from files import Download
 
 class ResourceDescriptor(object):
 
