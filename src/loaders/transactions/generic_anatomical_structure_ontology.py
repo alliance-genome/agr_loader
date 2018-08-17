@@ -37,7 +37,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
                 MERGE (g2:%s:Ontology {primaryKey:partof})
                 MERGE (g)-[aka:PART_OF]->(g2))
 
-        """ % nodeLabel
+        """ % (nodeLabel, nodeLabel, nodeLabel)
 
         queryXref = """
 
@@ -47,7 +47,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
                     MATCH (o:%s:Ontology {primaryKey:event.oid})
 
 
-        """
+        """ % nodeLabel
         # TODO: make this generic and add it above
         # + CreateCrossReference.get_cypher_xref_text("cell_ontology")
 

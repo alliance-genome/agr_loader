@@ -154,10 +154,11 @@ class WTExpressionExt(object):
                 "expressionEntityUuid": str(uuid.uuid4()),
                 "expressionEntityPk": cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId,
                 "pubPrimaryKey": pubMedId + pubModId,
-                "uuidGeneExpressionJoin": str(uuid.uuid4()),
-                "uuidCCJoin": str(uuid.uuid4()),
-                "uuidASSJoin": str(uuid.uuid4()),
-                "uuidASJoin": str(uuid.uuid4())
+                "ei_uuid": str(uuid.uuid4()),
+                "s_uuid": str(uuid.uuid4()),
+                "ss_uuid": str(uuid.uuid4()),
+                "cc_uuid": str(uuid.uuid4()),
+                "ebe_uuid": str(uuid.uuid4())
              }
 
 
