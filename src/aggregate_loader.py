@@ -188,11 +188,6 @@ class AggregateLoader(object):
             for pheno_list_of_entries in phenos:
                 PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
 
-            print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-            for xpat_list_of_entries in xpats:
-                WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
-
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
