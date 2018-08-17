@@ -48,6 +48,7 @@ class WTExpressionTransaction(Transaction):
         
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
                 MERGE (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})
+                SET asj.joinType = 'expression'
                 
                 MERGE (e)-[gejasj:ASSOCIATION]-(asj)
                     SET gejasj.uuid = row.s_uuid
@@ -112,6 +113,7 @@ class WTExpressionTransaction(Transaction):
                     SET egej.uuid = row.ei_uuid
                 
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
+                    SET cej.joinType = 'expression'
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
                     SET ecej.uuid = row.cc_uuid
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
@@ -178,6 +180,7 @@ class WTExpressionTransaction(Transaction):
                     SET egej.uuid = row.ei_uuid
                 
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
+                SET cej.joinType = 'expression'
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
                     SET ecej.uuid = row.cc_uuid
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
@@ -187,6 +190,7 @@ class WTExpressionTransaction(Transaction):
                     
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
                 MERGE (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})
+                SET asj.joinType = 'expression'
                 
                 MERGE (e)-[gejasj:ASSOCIATION]-(asj)
                     SET gejasj.uuid = row.s_uuid
@@ -224,6 +228,7 @@ class WTExpressionTransaction(Transaction):
                     MERGE (assj:AnatomicalSubStructureExpressionBioEntityJoin:Association {primaryKey:row.ss_uuid})
                     MERGE (assj)-[assjotasst:ASSOCIATION]->(otasst)
                         SET assjotasst.uuid = row.ss_uuid
+                        SET assj.joinType = 'expression'
                 
                     MERGE (asj)-[asjotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
                         SET asjotasst.uuid = row.ss_uuid
