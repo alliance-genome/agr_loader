@@ -106,54 +106,24 @@ class WTExpressionExt(object):
                 anatomicalSubStructureQualifierTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureQualifierTermId')
                 whereExpressedStatement = wildtypeExpressionTermIdentifers.get('whereExpressedStatement')
 
-                if cellularComponentQualifierTermId == None:
+                if cellularComponentQualifierTermId is None:
                     cellularComponentQualifierTermId = ""
-                if cellularComponentTermId== None:
+                if cellularComponentTermId is None:
                     cellularComponentTermId = ""
-                if  anatomicalStructureTermId== None:
+                if  anatomicalStructureTermId is None:
                     anatomicalStructureTermId = ""
-                if anatomicalStructureQualifierTermId == None:
+                if anatomicalStructureQualifierTermId is None:
                     anatomicalStructureQualifierTermId = ""
-                if anatomicalSubStructureTermId == None:
-                    anatomicalSubStructureTermId  = ""
-                if anatomicalSubStructureQualifierTermId == None:
+                if anatomicalSubStructureTermId is None:
+                    anatomicalSubStructureTermId = ""
+                if anatomicalSubStructureQualifierTermId is None:
                     anatomicalSubStructureQualifierTermId = ""
-                if whereExpressedStatement == None:
+                if whereExpressedStatement is None:
                     whereExpressedStatement = ""
 
             #print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
             assay = xpat.get('assay')
-
-            general_expression = {
-                "geneId": geneId,
-                "whenExpressedStage": whenExpressedStage,
-                "dateAssigned": dateAssigned,
-                "pubMedId": pubMedId,
-                "pubMedUrl": pubMedUrl,
-                "pubModId": pubModId,
-                "pubModUrl": pubModUrl,
-                "pubPrimaryKey": pubMedId + pubModId,
-                "uuid": str(uuid.uuid4()),
-                "loadKey": loadKey,
-                "type": "gene",
-                "dataProviders": dataProviders,
-                "dataProviderType": dataProviderType,
-                "dateProduced": dateProduced,
-                "dataProvider": dataProviderSingle,
-                "assay": assay,
-                "crossReferences": crossReferences,
-                "whereExpressedStatement": whereExpressedStatement,
-                "expressionEntityUuid": str(uuid.uuid4()),
-                "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
-                "pubPrimaryKey": pubMedId + pubModId,
-                "uuidGeneExpressionJoin": str(uuid.uuid4()),
-                "uuidCCJoin": str(uuid.uuid4()),
-                "uuidASSJoin": str(uuid.uuid4()),
-                "uuidASJoin": str(uuid.uuid4())
-            }
-            anatsubstructure_expression = {"anatomicalStructureTermId": anatomicalStructureTermId,}
-            cellular_expression = {}
 
             expression = {
                 "geneId": geneId,
@@ -180,7 +150,6 @@ class WTExpressionExt(object):
                 "anatomicalSubStructureTermId": anatomicalSubStructureTermId,
                 "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
                 "whereExpressedStatement": whereExpressedStatement,
-                "expressionEntityUuid": str(uuid.uuid4()),
                 "expressionEntityPk": cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId,
                 "pubPrimaryKey": pubMedId + pubModId,
                 "ei_uuid": str(uuid.uuid4()),
@@ -189,9 +158,6 @@ class WTExpressionExt(object):
                 "cc_uuid": str(uuid.uuid4()),
                 "ebe_uuid": str(uuid.uuid4())
              }
-
-
-
             list_to_yield.append(expression)
 
             if len(list_to_yield) == batch_size:

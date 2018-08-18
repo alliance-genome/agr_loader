@@ -23,39 +23,34 @@ class WTExpressionTransaction(Transaction):
             
             WITH g, assay, otast, otcct, row WHERE otcct IS NULL
 
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
-                    SET e.uuid = row.ebe_uuid
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
                     SET gex.uuid = row.ebe_uuid
             
                 MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
-                    SET gej.uuid = row.ebe_uuid 
                 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
-                    SET ggej.uuid = row.ebe_uuid
                     
                 MERGE (e)-[egej:ASSOCATION]->(gej)
-                    SET egej.uuid = row.ebe_uuid
                     
                 MERGE (gej)-[gejs:DURING]-(stage)
                 
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
+                    SET gejotast.uuid = row.s_uuid
+                
                 MERGE (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})
-                SET asj.joinType = 'expression'
+                    SET asj.joinType = 'expression'
                 
                 MERGE (e)-[gejasj:ASSOCIATION]-(asj)
-                    SET gejasj.uuid = row.s_uuid
-
                 MERGE (asj)<-[asjotast:ASSOCIATION]-(otast)
-                    SET asjotast.uuid = row.s_uuid
                 
                 MERGE (l:Load:Entity {primaryKey:row.loadKey})
                     SET l.dateProduced = row.dateProduced
@@ -91,15 +86,13 @@ class WTExpressionTransaction(Transaction):
 
             WITH g, assay, otcct, otast, row WHERE otast IS NULL 
     
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
-                    SET e.uuid = row.cc_uuid  
                     
-                
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
-                    SET gex.uuid = row.ei_uuid
+                    SET gex.uuid = row.ebe_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
@@ -109,21 +102,19 @@ class WTExpressionTransaction(Transaction):
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
-                    SET ggej.uuid = row.ei_uuid
                     
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
-                    SET egej.uuid = row.ei_uuid
                 
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
                     SET cej.joinType = 'expression'
+               
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
-                    SET ecej.uuid = row.cc_uuid
+                    
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     SET eotcct.uuid = row.cc_uuid
-                MERGE (otcct)-[otcctcej:ASSOCIATION]->(cej)
-                    SET otcctcej.uuid = row.cc_uuid
                     
-
+                MERGE (otcct)-[otcctcej:ASSOCIATION]->(cej)
+                
                 MERGE (l:Load:Entity {primaryKey:row.loadKey})
                     SET l.dateProduced = row.dateProduced
                     SET l.loadName = "WT-Expression"
@@ -159,14 +150,13 @@ class WTExpressionTransaction(Transaction):
             WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
    
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
-                    SET e.uuid = row.cc_uuid  
                 
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
-                    SET gex.uuid = row.ei_uuid
+                    SET gex.uuid = row.ebe_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
@@ -176,29 +166,28 @@ class WTExpressionTransaction(Transaction):
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
-                    SET ggej.uuid = row.ei_uuid
                     
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
-                    SET egej.uuid = row.ei_uuid
                 
                 MERGE (cej:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
-                SET cej.joinType = 'expression'
+                    SET cej.joinType = 'expression'
+                
                 MERGE (e)-[ecej:ASSOCIATION]->(cej)
-                    SET ecej.uuid = row.cc_uuid
+                
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     SET eotcct.uuid = row.cc_uuid
+                    
                 MERGE (otcct)-[otcctcej:ASSOCIATION]->(cej)
-                    SET otcctcej.uuid = row.cc_uuid
                     
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
+                    SET gejotast.uuid = row.s_uuid
+                    
                 MERGE (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})
                 SET asj.joinType = 'expression'
                 
                 MERGE (e)-[gejasj:ASSOCIATION]-(asj)
-                    SET gejasj.uuid = row.s_uuid
 
                 MERGE (asj)<-[eotast:ASSOCIATION]-(otast)
-                    SET eotast.uuid = row.s_uuid
 
                 MERGE (l:Load:Entity {primaryKey:row.loadKey})
                     SET l.dateProduced = row.dateProduced
@@ -225,18 +214,17 @@ class WTExpressionTransaction(Transaction):
         
                     MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                     MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
-                    MATCH (asj:AnatomicalStructureExpressionBioEntityJoin:Association {uuid:row.s_uuid})
+                    MATCH (asj:AnatomicalStructureExpressionBioEntityJoin:Association {primaryKey:row.s_uuid})
                 
                     MERGE (assj:AnatomicalSubStructureExpressionBioEntityJoin:Association {primaryKey:row.ss_uuid})
+                         SET assj.joinType = 'expression'
+                         
                     MERGE (assj)-[assjotasst:ASSOCIATION]->(otasst)
-                        SET assjotasst.uuid = row.ss_uuid
-                        SET assj.joinType = 'expression'
                 
                     MERGE (asj)-[asjotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
                         SET asjotasst.uuid = row.ss_uuid
                         
                     MERGE (asj)-[asjassj:ASSOCIATION]->(assj)
-                        SET asjassj.uuid = row.ss_uuid
                         
         """
         EASQualified = """
