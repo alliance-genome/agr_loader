@@ -167,6 +167,7 @@ class OExt(object):
                 'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
                 'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
+                'sgd_link': 'https:/yeastgenome.org/disease/'+node['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
                 'zfin_link': 'https://zfin.org/'+node['id'],
                 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
