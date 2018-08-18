@@ -51,7 +51,7 @@ class TestClass(object):
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='ExpressionBioEntity'), \
-                             dict(node='Stage')
+                             dict(node='Stage'), \
                              dict(node='CellularComponentExpressionBioEntityJoin'), \
                              dict(node='AnatomicalStructureExpressionBioEntityJoin'), \
                              dict(node='AnatomicalSubStructureExpressionBioEntityJoin'),
@@ -186,7 +186,7 @@ class TestClass(object):
                                dict(node='MITerm', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
-                               dict(node='Stage', prop='primaryKey')
+                               dict(node='Stage', prop='primaryKey'), \
                                dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
                                dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
                                dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
