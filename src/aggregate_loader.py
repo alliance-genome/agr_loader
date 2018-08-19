@@ -100,7 +100,7 @@ class AggregateLoader(object):
 
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
-
+        #
         print("Loading MI data into Neo4j.")
         MILoader(self.graph).load_mi(self.mi_dataset)
         print("Loading SO data into Neo4j.")
@@ -118,8 +118,8 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbbt_dataset, "WBBTTerm")
         print("Loading CL data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.cell_dataset, "CLTerm")
-        #print("Loading FBDV data into Neo4j.")
-        #GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset, "FBDVTerm")
+        print("Loading FBDV data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbdv_dataset, "FBDVTerm")
         print("Loading FBBT data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.fbbt_dataset, "FBBTTerm")
         print("Loading FBCV data into Neo4j.")
