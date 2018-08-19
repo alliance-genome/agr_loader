@@ -123,7 +123,7 @@ class TestClass(object):
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
                             dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
                             dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
-                            dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='whereExpressedStatement'), \
+                            dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey')
                             ],
 
@@ -213,9 +213,10 @@ class TestClass(object):
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
                              dict(node='MITerm', prop='primaryKey'),
-                             dict(node='Ontology', prop='primaryKey'), \
                              dict(node='Stage', prop='primaryKey'), \
-                             dict(node='Ontology', prop='primaryKey'),
+                             # with uberon, this can not be unique any longer, unless
+                             # every term is just 'ontology' not ontology-specific node labels.
+                             #dict(node='Ontology', prop='primaryKey'),
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
                              dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'),
