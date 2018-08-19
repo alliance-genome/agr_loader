@@ -3,3 +3,4 @@ from .species_service import SpeciesService
 from .retrieve_geo_xref_service import RetrieveGeoXrefService
 from .create_cross_reference_service import CreateCrossReference
 from .data_provider import DataProvider
+from .resource_descriptor import ResourceDescriptor

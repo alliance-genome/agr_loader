@@ -27,6 +27,10 @@ class OExt(object):
             syns = []
             xrefs = []
             xref_urls = []
+
+            local_id = None
+            defLinksUnprocessed = []
+            defLinksProcessed = []
             defText = None
             subset = []
             definition = ""
@@ -69,6 +73,7 @@ class OExt(object):
                     is_obsolete = "true"
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
+                    defLinksUnprocessed = node["meta"]["definition"]["xrefs"]
                 if "subsets" in node["meta"]:
                     newSubset = node['meta'].get('subsets')
                     if isinstance(newSubset, (list, tuple)):
@@ -102,6 +107,7 @@ class OExt(object):
             positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
 
             defLinksProcessed = []
+            defLinks = ""
             if definition is None:
                 definition = ""
             else:
@@ -111,27 +117,29 @@ class OExt(object):
                         defText = split_definition[1].strip()
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
-                            defLinks = defLinks.rstrip("]").replace("[", "")
-                            defLinks = defLinks.replace("url:www", "http://www")
-                            defLinks = defLinks.replace("url:", "")
-                            defLinks = defLinks.replace("URL:", "")
-                            defLinks = defLinks.replace("\\:", ":")
-
-                            if "," in defLinks:
-                                defLinks = defLinks.split(",")
-                                for link in defLinks:
-                                    if link.strip().startswith("http"):
-                                        defLinksProcessed.append(link)
-                            elif "." in defLinks:
-                                defLinks = defLinks.split(".")
-                                for link in defLinks:
-                                    if link.strip().startswith("http"):
-                                        defLinksProcessed.append(link)
-                            else:
-                                if defLinks.strip().startswith("http"):
-                                    defLinksProcessed.append(defLinks)
+                            defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
                 else:
                     defText = definition
+
+            for dl in defLinksUnprocessed:
+                dl = dl.replace("url:www", "http://www")
+                dl = dl.replace("url:", "")
+                dl = dl.replace("URL:", "")
+                dl = dl.replace("\\:", ":")
+
+                if "," in dl:
+                    dl = dl.split(",")
+                    for link in dl:
+                        if link.strip().startswith("http"):
+                            defLinksProcessed.append(link)
+                # elif "." in dl:
+                #     dl = dl.split(".")
+                #     for link in dl:
+                #         if link.strip().startswith("http"):
+                #             defLinksProcessed.append(link)
+                else:
+                    if dl.strip().startswith("http"):
+                        defLinksProcessed.append(dl)
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 

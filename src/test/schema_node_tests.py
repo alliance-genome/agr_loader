@@ -24,7 +24,6 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
                                     for funcargs in funcarglist])
 
-
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
@@ -32,6 +31,7 @@ class TestClass(object):
                              dict(node='SOTerm'), \
                              dict(node='DOTerm'), \
                              dict(node='GOTerm'), \
+                             dict(node='MITerm'), \
                              dict(node='Identifier'), \
                              dict(node='Gene'), \
                              dict(node='Synonym'), \
@@ -55,7 +55,9 @@ class TestClass(object):
                              dict(node='CellularComponentExpressionBioEntityJoin'), \
                              dict(node='AnatomicalStructureExpressionBioEntityJoin'), \
                              dict(node='AnatomicalSubStructureExpressionBioEntityJoin'),
-                             dict(node='BioEntityGeneExpressionJoin')
+                             dict(node='BioEntityGeneExpressionJoin'), \
+                             dict(node='InteractionGeneJoin'), \
+                             dict(node='ExperimentalDetails')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -81,6 +83,7 @@ class TestClass(object):
                             dict(node='DOTerm', prop='is_obsolete'), \
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='DOTerm', prop='primaryKey'), \
+                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='Identifier', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
                             dict(node='CrossReference', prop='localId'), \
@@ -90,8 +93,8 @@ class TestClass(object):
                             dict(node='CrossReference', prop='crossRefType'), \
                             dict(node='CrossReference', prop='displayName'), \
                             dict(node='CrossReference', prop='globalCrossRefId'), \
-                            dict(node='CrossReference', prop='uuid'),\
-                            dict(node='CrossReference', prop='page'), \
+                            #dict(node='CrossReference', prop='uuid'),\
+                            #dict(node='CrossReference', prop='page'), \
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
@@ -101,6 +104,7 @@ class TestClass(object):
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                            dict(node='InteractionGeneJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
@@ -114,7 +118,6 @@ class TestClass(object):
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
-                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='GOTerm', prop='definition'), \
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
@@ -124,7 +127,8 @@ class TestClass(object):
                             dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
                             dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
                             dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
-                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey')
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                            dict(node='DOTerm', prop='defLinks')
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -160,7 +164,7 @@ class TestClass(object):
                                dict(node='CrossReference', prop='crossRefType'), \
                                dict(node='CrossReference', prop='displayName'), \
                                dict(node='CrossReference', prop='globalCrossRefId'), \
-                               dict(node='CrossReference', prop='uuid'),\
+                               #dict(node='CrossReference', prop='uuid'),\
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
@@ -203,7 +207,7 @@ class TestClass(object):
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
                              dict(node='CrossReference', prop='primaryKey'), \
-                             dict(node='CrossReference', prop='uuid'), \
+                             #dict(node='CrossReference', prop='uuid'), \
                              dict(node='Synonym', prop='primaryKey'), \
                              dict(node='DOTerm', prop='primaryKey'), \
                              dict(node='SOTerm', prop='primaryKey'), \
@@ -216,7 +220,9 @@ class TestClass(object):
                              dict(node='Stage', prop='primaryKey'), \
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
-                             #dict(node='Ontology', prop='primaryKey'),
+                             # dict(node='Ontology', prop='primaryKey'),
+                             # TODO refactor ontology transaction to use id prefix to name node labels so
+                             # we can turn this back on
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
                              dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'),

@@ -54,14 +54,12 @@ class PhenotypeExt(object):
                     continue
 
             evidence = pheno.get('evidence')
+
             if 'modPublicationId' in evidence:
                 pubModId = evidence.get('modPublicationId')
 
             if 'pubMedId' in evidence:
                 pubMedId = evidence.get('pubMedId')
-            else:
-                pubMedId = pheno.get('pubMedId')
-                pubModId = pheno.get('pubModId')
 
             if pubMedId != None:
                 pubMedPrefix = pubMedId.split(":")[0]

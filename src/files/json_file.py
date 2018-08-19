@@ -39,7 +39,6 @@ class JSONFile(object):
         sSchemaDir = os.path.dirname(os.path.abspath(schema_file_name))
         oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
 
-
         try:
             js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
             print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
