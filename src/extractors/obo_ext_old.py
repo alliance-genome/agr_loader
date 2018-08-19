@@ -2,6 +2,7 @@ import uuid as id
 from files import S3File, TXTFile, Download
 from .obo_parser import parseOBO
 
+
 class ObExto(object):
 
     def get_data(self, url, filename):
@@ -9,7 +10,7 @@ class ObExto(object):
         savepath = "tmp";
         saved_path = Download(savepath, url, filename).download_file()
         o_data = TXTFile(saved_path).get_data()
-
+        dict_to_append = {}
         parsed_line = parseOBO(o_data)
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
@@ -173,7 +174,7 @@ class ObExto(object):
             #             continue
             #     return filtered_dict
             # else:
-            return list_to_return
+        return list_to_return
 
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     def get_complete_url_ont (self, local_id, global_id):
