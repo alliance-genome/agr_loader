@@ -76,7 +76,7 @@ class AggregateLoader(object):
         print("Extracting Cell data.")
         self.cell_dataset = OExt().get_data("http://purl.obolibrary.org/obo/cl.obo", "cl.obo")
         print("Extracting FBDV data.")
-        self.fbdv_dataset = OExt().get_data("https://raw.githubusercontent.com/FlyBase/drosophila-anatomy-developmental-ontology/master/fbdv/releases/fbdv-simple.obo", "fbdv-simple.obo")
+        self.fbdv_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbdv.obo", "fbdv-simple.obo")
         print("Extracting FBBT data.")
         self.fbbt_dataset = OExt().get_data("http://purl.obolibrary.org/obo/fbbt.obo", "fbbt.obo")
         print("Extracting FBCV data.")
