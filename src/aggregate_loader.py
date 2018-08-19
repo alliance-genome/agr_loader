@@ -65,7 +65,7 @@ class AggregateLoader(object):
         self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
-        #
+
         # # structure ontologies
         print("Extracting ZFA data.")
         self.zfa_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfa.obo", "zfa.obo")

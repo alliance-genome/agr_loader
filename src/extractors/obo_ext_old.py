@@ -14,6 +14,7 @@ class ObExto(object):
         list_to_return = []
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
             isasWithoutNames = []
+            posWithoutNames = []
             o_syns = line.get('synonym')
             syns = []
             xrefs = []
@@ -63,7 +64,6 @@ class ObExto(object):
                 xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             o_is_as = line.get('is_a')
             if o_is_as is None:
-                o_is_as = []
                 isasWithoutNames = []
             else:
                 if isinstance(o_is_as, (list, tuple)):
@@ -73,6 +73,17 @@ class ObExto(object):
                 else:
                     isaWithoutName = o_is_as.split("!")[0].strip()
                     isasWithoutNames.append(isaWithoutName)
+            o_part_of = line.get('part_of')
+            if o_part_of is None:
+                posWithoutNames = []
+            else:
+                if isinstance(o_part_of, (list, tuple)):
+                    for po in o_part_of:
+                        poWithoutName = po.split("!")[0].strip()
+                        posWithoutNames.append(poWithoutName)
+                else:
+                    poWithoutName = po.split("!")[0].strip()
+                    posWithoutNames.append(poWithoutName)
             definition = line.get('def')
             defLinks = ""
             defLinksProcessed = []
@@ -114,52 +125,55 @@ class ObExto(object):
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
+            if line['id'] is None or line['id'] == '':
+               print ("missing oid")
+            else:
+                dict_to_append = {
+                    'o_genes': [],
+                    'o_species': [],
+                    'name': line.get('name'),
+                    'o_synonyms': syns,
+                    'name_key': line.get('name'),
+                    'oid': line['id'],
+                    'definition': definition,
+                    'isas': isasWithoutNames,
+                    'partofs': posWithoutNames,
+                    'is_obsolete': is_obsolete,
+                    'subset': subset,
+                    'xrefs': xrefs,
+                    #TODO: fix links to not be passed for each ontology load.
+                    'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+line['id']+'#annot',
+                    'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + line['id'] + '#annot',
+                    'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +line['id'] + '#annot',
+                    'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +line['id'] + '#annot',
+                    'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
+                    'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
+                    'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
+                    'zfin_link': 'https://zfin.org/'+line['id'],
+                    'sgd_link': 'https:/yeastgenome.org/disease/' + line['id'],
+                    'oUrl': "http://www.disease-ontology.org/?id=" + line['id'],
+                    'oPrefix': prefix,
+                    'xref_urls': xref_urls,
+                    'defText': defText,
+                    'defLinksProcessed': defLinksProcessed,
+                    'oboFile': prefix,
+                    'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
+                    'category': 'go',
+                    'o_type': line.get('namespace'),
 
-            dict_to_append = {
-                'o_genes': [],
-                'o_species': [],
-                'name': line.get('name'),
-                'o_synonyms': syns,
-                'name_key': line.get('name'),
-                'id': line['id'],
-                'definition': definition,
-                'isas': isasWithoutNames,
-                'is_obsolete': is_obsolete,
-                'subset': subset,
-                'xrefs': xrefs,
-                #TODO: fix links to not be passed for each ontology load.
-                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+line['id']+'#annot',
-                'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + line['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +line['id'] + '#annot',
-                'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +line['id'] + '#annot',
-                'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
-                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
-                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
-                'zfin_link': 'https://zfin.org/'+line['id'],
-                'sgd_link': 'https:/yeastgenome.org/disease/' + line['id'],
-                'oUrl': "http://www.disease-ontology.org/?id=" + line['id'],
-                'oPrefix': prefix,
-                'xref_urls': xref_urls,
-                'defText': defText,
-                'defLinksProcessed': defLinksProcessed,
-                'oboFile': prefix,
-                'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
-                'category': 'go',
-                'o_type': line.get('namespace'),
+                }
+                list_to_return.append(dict_to_append)
 
-            }
-            list_to_return.append(dict_to_append)
-
-        # if testObject.using_test_data() is True:
-        #     filtered_dict = []
-        #     for entry in list_to_return:
-        #         if testObject.check_for_test_ontology_entry(entry['id']) is True:
-        #             filtered_dict.append(entry)
-        #         else:
-        #             continue
-        #     return filtered_dict
-        # else:
-        return list_to_return
+            # if testObject.using_test_data() is True:
+            #     filtered_dict = []
+            #     for entry in list_to_return:
+            #         if testObject.check_for_test_ontology_entry(entry['id']) is True:
+            #             filtered_dict.append(entry)
+            #         else:
+            #             continue
+            #     return filtered_dict
+            # else:
+            return list_to_return
 
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     def get_complete_url_ont (self, local_id, global_id):
