@@ -5,7 +5,7 @@ from services import CreateCrossReference
 class GenericAnatomicalStructureOntologyTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 3000
+        self.batch_size = 1500
 
     def gaso_tx(self, data, nodeLabel):
         '''
