@@ -36,10 +36,6 @@ class MolIntTransaction(Transaction):
             MERGE (g1)-[a1:ASSOCIATION]->(oa)
             MERGE (oa)-[a2:ASSOCIATION]->(g2)
 
-            //Create the additional nodes to hang off the Association node.
-            MERGE (ed:ExperimentalDetails {interactorType:row.interactor_type, moleculeType:row.molecule_type})
-            MERGE (oa)-[si:SUPPORTING_INFORMATION]->(ed)
-
             //Create the publication nodes and link them to the Association node.
             MERGE (pn:Publication {primaryKey:row.pub_med_id})
                 SET pn.pubMedUrl = row.pub_med_url

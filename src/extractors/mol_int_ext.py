@@ -276,8 +276,6 @@ class MolIntExt(object):
                 interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
                 interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
 
-                molecule_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
-
                 interactor_A_resolved = None
                 interactor_B_resolved = None
 
