@@ -142,6 +142,25 @@ class AggregateLoader(object):
         print("Loading WBLS data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbls_dataset, "WBLSTerm")
 
+        self.zfa_dataset.clear()
+        self.zfs_dataset.clear()
+        self.wbbt_dataset.clear()
+        self.cell_dataset.clear()
+        self.fbbt_dataset.clear()
+        self.fbcv_dataset.clear()
+        self.ma_dataset.clear()
+        self.emapa_dataset.clear()
+        self.uberon_dataset.clear()
+        self.fbcv_dataset.clear()
+        self.mmusdv_dataset.clear()
+        self.bspo_dataset.clear()
+        self.mmo_dataset.clear()
+        self.wbls_dataset.clear()
+        gc.collect()
+
+        print("Downloading MI data.")
+        self.mi_dataset = MIExt().get_data()
+
     def load_bgi(self, mod):
         genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
         c = 0
@@ -151,6 +170,7 @@ class AggregateLoader(object):
             c = c + len(gene_list_of_entries)
         end = time.time()
         print("Average: %sr/s" % (round(c / (end - start), 2)))
+        genes.clear()
 
     def load_from_mods(self):
         print("Extracting BGI data from each MOD.")
@@ -165,6 +185,7 @@ class AggregateLoader(object):
                 c = c + len(gene_list_of_entries)
              end = time.time()
              print("Average: %sr/s" % (round(c / (end - start), 2)))
+        genes.clear()
 
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file
@@ -181,11 +202,13 @@ class AggregateLoader(object):
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+            alleles.clear()
 
             print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
+            xpats.clear()
             #
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
@@ -201,11 +224,13 @@ class AggregateLoader(object):
             phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
             for pheno_list_of_entries in phenos:
                 PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
+            phenos.clear()
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+            ortholog_data.clear()
 
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
@@ -216,6 +241,7 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+            geo_xrefs.clear()
             #
             print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
@@ -232,3 +258,4 @@ class AggregateLoader(object):
             mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
+            mol_int_data.clear()
