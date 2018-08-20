@@ -22,8 +22,8 @@ class MolIntTransaction(Transaction):
             MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
             MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
             MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
-            MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_roll
-            MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_roll
+            MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
+            MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_role
             MATCH (it:MITerm) WHERE it.primaryKey = row.interaction_type
 
             //Create the relationship between the two genes.
@@ -51,11 +51,11 @@ class MolIntTransaction(Transaction):
             //Link aggregation database to the MI ontology.
             MERGE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
 
-            //Link interactor rolls and types to the MI ontology.
+            //Link interactor roles and types to the MI ontology.
             MERGE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
             MERGE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
-            MERGE (oa)-[ira1:INTERACTOR_A_ROLL]->(ira)
-            MERGE (oa)-[irb1:INTERACTOR_B_ROLL]->(irb)
+            MERGE (oa)-[ira1:INTERACTOR_A_ROLE]->(ira)
+            MERGE (oa)-[irb1:INTERACTOR_B_ROLE]->(irb)
 
             //Link interaction type to the MI ontology.
             MERGE (oa)-[it1:INTERACTION_TYPE]->(it)
