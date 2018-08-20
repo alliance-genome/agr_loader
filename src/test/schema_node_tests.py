@@ -49,7 +49,6 @@ class TestClass(object):
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='InteractionGeneJoin'), \
-                             dict(node='ExperimentalDetails')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -85,8 +84,8 @@ class TestClass(object):
                             dict(node='CrossReference', prop='crossRefType'), \
                             dict(node='CrossReference', prop='displayName'), \
                             dict(node='CrossReference', prop='globalCrossRefId'), \
-                            #dict(node='CrossReference', prop='uuid'),\
-                            #dict(node='CrossReference', prop='page'), \
+                            dict(node='CrossReference', prop='uuid'),\
+                            dict(node='CrossReference', prop='page'), \
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
@@ -150,7 +149,7 @@ class TestClass(object):
                                dict(node='CrossReference', prop='crossRefType'), \
                                dict(node='CrossReference', prop='displayName'), \
                                dict(node='CrossReference', prop='globalCrossRefId'), \
-                               #dict(node='CrossReference', prop='uuid'),\
+                               dict(node='CrossReference', prop='uuid'),\
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
@@ -186,7 +185,7 @@ class TestClass(object):
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
                              dict(node='CrossReference', prop='primaryKey'), \
-                             #dict(node='CrossReference', prop='uuid'), \
+                             dict(node='CrossReference', prop='uuid'), \
                              dict(node='Synonym', prop='primaryKey'), \
                              dict(node='DOTerm', prop='primaryKey'), \
                              dict(node='SOTerm', prop='primaryKey'), \
