@@ -14,7 +14,6 @@ class MolIntTransaction(Transaction):
         query = """
             UNWIND $data as row 
 
-            //Lookup genes based on species and uniprot ids.
             MATCH (g1:Gene {primaryKey:row.interactor_A})
             MATCH (g2:Gene {primaryKey:row.interactor_B})
             MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
