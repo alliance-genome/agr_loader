@@ -8,7 +8,9 @@ class JSONFile(object):
     def get_data(self, filename, jsonType):
         print("Loading json data from %s ..." % (filename))
         with codecs.open(filename, 'r', 'utf-8') as f:
+            print ("file open")
             data = json.load(f)
+            print ("json data extracted")
         f.close()
         self.validate_json(data, filename, jsonType)
         return data
