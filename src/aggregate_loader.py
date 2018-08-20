@@ -202,11 +202,10 @@ class AggregateLoader(object):
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
-
-            print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-            for xpat_list_of_entries in xpats:
-                WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
+            # print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
+            # xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+            # for xpat_list_of_entries in xpats:
+            #     WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
             #
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
