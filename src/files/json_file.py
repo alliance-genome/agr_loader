@@ -6,7 +6,7 @@ import os
 class JSONFile(object):
 
     def get_data(self, filename, jsonType):
-        print("Loading json data from %s ..." % (filename))
+        print("Loading json data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             print ("file open")
             data = json.load(f)

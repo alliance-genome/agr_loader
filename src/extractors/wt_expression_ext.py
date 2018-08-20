@@ -11,12 +11,12 @@ from .resource_descriptor_ext import ResourceDescriptor
 
 class WTExpressionExt(object):
 
-    def get_wt_expression_data(self, loadFile, batch_size, testObject, species):
-        #wt_expression_data is a handle to the ijson data parser, I hope
+    def get_wt_expression_data(self, loadFile, expressionFile, batch_size, testObject):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        loadFile = "tmp/SGD_1.0.0.4_4/SGD.1.0.0.4_expression.json"
+        loadFile = path + expressionFile
+        print ("loadFile: " + loadFile)
 
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
@@ -31,44 +31,36 @@ class WTExpressionExt(object):
             for xpat in ijson.items(f, 'data.item'):
                 pubMedUrl = None
                 pubModUrl = None
+                pubMedId = ""
+                publicationModId = ""
                 geneId = xpat.get('geneId')
-                print ("geneid: " + geneId)
-                whenExpressedStage = xpat.get('whenExpressedStage')
-                print ("whenExpressedStage: " + whenExpressedStage)
+
                 if testObject.using_test_data() is True:
                     is_it_test_entry = testObject.check_for_test_id_entry(geneId)
                 if is_it_test_entry is False:
                     continue
 
-                if 'evidence' in xpat:
+                whenExpressedStage = xpat.get('whenExpressedStage')
 
-                    pubModId = ""
-                    pubMedId = ""
-                    pubModUrl = None
-                    pubMedUrl = None
+                evidence = xpat.get('evidence')
 
-                    evidence = xpat.get('evidence')
-                    if 'modPublicationId' in evidence:
-                        publicationModId = evidence.get('modPublicationId')
-                        pubModLocalId = publicationModId.split(":")[1]
-                        pubModPrefix = publicationModId.split(":")[0]
-                        pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
-                    if 'pubMedId' in evidence:
-                        pubMedId = evidence.get('pubMedId')
-                        localPubMedId = pubMedId.split(":")[1]
-                        pubMedPrefix = pubMedId.split(":")[0]
-                        pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, geneId)
+                if 'modPublicationId' in evidence:
+                    publicationModId = evidence.get('modPublicationId')
+                    pubModLocalId = publicationModId.split(":")[1]
+                    pubModPrefix = publicationModId.split(":")[0]
+                    pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+                    if publicationModId is None:
+                        publicationModId =""
 
-                if pubMedId is None:
-                    pubMedId = ""
+                if 'pubMedId' in evidence:
+                    pubMedId = evidence.get('pubMedId')
+                    localPubMedId = pubMedId.split(":")[1]
+                    pubMedPrefix = pubMedId.split(":")[0]
+                    pubMedUrl = UrlService.get_no_page_complete_url(localPubMedId, xrefUrlMap, pubMedPrefix, geneId)
+                    if pubMedId is None:
+                        pubMedId = ""
 
-                if pubModId is None:
-                    pubModId = ""
-
-                dateAssigned = xpat.get('dateAssigned')
-
-                if pubModId is None and pubMedId is None:
-                    print (geneId + "is missing pubMed and pubMod id")
+                #dateAssigned = xpat.get('dateAssigned')
 
                 if 'crossReference' in xpat:
                     crossRef = xpat.get('crossReference')
@@ -86,14 +78,15 @@ class WTExpressionExt(object):
                                 crossReferences.append(
                                 CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
                                                           modGlobalCrossRefId, crossRefId + page))
+
                 if 'wildtypeExpressionTermIdentifiers' in xpat:
 
                     wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
-                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
-                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
+                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
+                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
                     anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
                     anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
-                        'acnatomicalStructureQualifierTermId')
+                        'anatomicalStructureQualifierTermId')
                     anatomicalSubStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureTermId')
                     anatomicalSubStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
                         'anatomicalSubStructureQualifierTermId')
@@ -117,17 +110,16 @@ class WTExpressionExt(object):
                     # print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
                     assay = xpat.get('assay')
-                    print ("assay: " + assay)
 
                     expression = {
                         "geneId": geneId,
                         "whenExpressedStage": whenExpressedStage,
-                        "dateAssigned": dateAssigned,
+                       # "dateAssigned": dateAssigned,
                         "pubMedId": pubMedId,
                         "pubMedUrl": pubMedUrl,
-                        "pubModId": pubModId,
+                        "pubModId": publicationModId,
                         "pubModUrl": pubModUrl,
-                        "pubPrimaryKey": pubMedId + pubModId,
+                        "pubPrimaryKey": pubMedId + publicationModId,
                         "uuid": str(uuid.uuid4()),
                         "loadKey": loadKey,
                         "type": "gene",
@@ -145,7 +137,7 @@ class WTExpressionExt(object):
                         "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
                         "whereExpressedStatement": whereExpressedStatement,
                         "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
-                        "pubPrimaryKey": pubMedId + pubModId,
+                        "pubPrimaryKey": pubMedId + publicationModId,
                         "ei_uuid": str(uuid.uuid4()),
                         "s_uuid": str(uuid.uuid4()),
                         "ss_uuid": str(uuid.uuid4()),

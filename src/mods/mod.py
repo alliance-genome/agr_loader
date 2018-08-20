@@ -110,10 +110,9 @@ class MOD(object):
 
         return phenotype_dict
 
-    def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile, species):
+    def load_wt_expression_objects_mod(self, loadFile, batch_size, testObject, expressionName):
 
-        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, batch_size, testObject, species)
-
+        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
         return wt_expression_dict
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
