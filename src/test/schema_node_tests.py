@@ -49,7 +49,6 @@ class TestClass(object):
                              dict(node='Load'), \
                              dict(node='Feature'), \
                              dict(node='InteractionGeneJoin'), \
-                             dict(node='ExperimentalDetails')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
