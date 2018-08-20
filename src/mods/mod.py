@@ -7,8 +7,9 @@ from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
-import uuid
+import ijson
 import gzip
+import codecs
 import csv
 import json
 import pprint
@@ -110,11 +111,8 @@ class MOD(object):
         return phenotype_dict
 
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile, species):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        wt_expression_data = JSONFile().get_data(path + expressionName, 'expression')
-        wt_expression_dict = WTExpressionExt().get_wt_expression_data(wt_expression_data, batch_size, testObject, species)
+
+        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, batch_size, testObject, species)
 
         return wt_expression_dict
 
