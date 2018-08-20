@@ -113,7 +113,8 @@ class TestClass(object):
                             dict(node='GOTerm', prop='definition'), \
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
-                            dict(node='DOTerm', prop='subset')
+                            dict(node='DOTerm', prop='subset'), \
+                            dict(node='DOTerm', prop='defLinks')
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
