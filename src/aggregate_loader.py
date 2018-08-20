@@ -1,5 +1,5 @@
 import os
-
+import gc
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
@@ -142,6 +142,7 @@ class AggregateLoader(object):
         print("Loading WBLS data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.wbls_dataset, "WBLSTerm")
 
+        # memory savings hopefully
         self.zfa_dataset.clear()
         self.zfs_dataset.clear()
         self.wbbt_dataset.clear()
