@@ -11,8 +11,6 @@ from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from mods import *
 from extractors import *
-from extractors.ontology_extractor import *
-from test import *
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser
@@ -186,7 +184,7 @@ class AggregateLoader(object):
                 c = c + len(gene_list_of_entries)
              end = time.time()
              print("Average: %sr/s" % (round(c / (end - start), 2)))
-        genes.clear()
+
 
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file
