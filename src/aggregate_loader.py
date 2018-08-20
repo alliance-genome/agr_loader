@@ -25,7 +25,7 @@ class AggregateLoader(object):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
-        self.batch_size = 5000
+        self.batch_size = 2500
         self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
         #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
@@ -201,13 +201,12 @@ class AggregateLoader(object):
             alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
-            alleles.clear()
+
 
             print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
-            xpats.clear()
             #
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
@@ -223,13 +222,11 @@ class AggregateLoader(object):
             phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
             for pheno_list_of_entries in phenos:
                 PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
-            phenos.clear()
 
             print("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
             for ortholog_list_of_entries in ortholog_data:
                 OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
-            ortholog_data.clear()
 
             print("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
@@ -240,7 +237,6 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-            geo_xrefs.clear()
             #
             print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
