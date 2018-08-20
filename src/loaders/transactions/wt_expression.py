@@ -17,13 +17,13 @@ class WTExpressionTransaction(Transaction):
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
 
-            MATCH (assay:Ontology {primaryKey:row.assay})
+            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
-            OPTIONAL MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
+            OPTIONAL MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
             
             WITH g, assay, otast, otcct, row WHERE otcct IS NULL
 
-                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
@@ -80,13 +80,13 @@ class WTExpressionTransaction(Transaction):
 
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (assay:Ontology {primaryKey:row.assay})
-            MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
+            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
             OPTIONAL MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
 
             WITH g, assay, otcct, otast, row WHERE otast IS NULL 
     
-                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
@@ -143,14 +143,14 @@ class WTExpressionTransaction(Transaction):
 
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (assay:Ontology {primaryKey:row.assay})
-            MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId})
+            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+            MATCH (otcct:CCTerm:Ontology {primaryKey:row.cellularComponentTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
 
             WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
    
-                MERGE (e:ExpressionBioEntity {primaryKey:row.whereExpressedStatement})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                 
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
@@ -249,7 +249,7 @@ class WTExpressionTransaction(Transaction):
         
             UNWIND $data as row
                 MATCH (ccj:CellularComponentExpressionBioEntityJoin:Association {primaryKey:row.cc_uuid})
-                MATCH (otcct:Ontology {primaryKey:row.cellularComponentTermId}) 
+                MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId}) 
                 MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                           
                 MERGE (ccj)-[ccjotcctq:QUALIFIED_BY]-(otcctq)
