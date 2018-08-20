@@ -56,10 +56,10 @@ class MolIntTransaction(Transaction):
             MERGE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
 
             //Link interactor rolls and types to the MI ontology.
-            MERGE (oa)-[INTERACTOR_A_TYPE]->(ita)
-            MERGE (oa)-[INTERACTOR_B_TYPE]->(itb)
-            MERGE (oa)-[INTERACTOR_A_ROLL]->(ira)
-            MERGE (oa)-[INTERACTOR_B_ROLL]->(irb)
+            MERGE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
+            MERGE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
+            MERGE (oa)-[ira1:INTERACTOR_A_ROLL]->(ira)
+            MERGE (oa)-[irb1:INTERACTOR_B_ROLL]->(irb)
 
             WITH oa, row.interactor_id_and_linkout AS events
                 UNWIND events AS event
