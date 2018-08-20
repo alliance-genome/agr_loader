@@ -281,6 +281,9 @@ class MolIntExt(object):
 
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
+                interaction_type = None
+                interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
+
                 mol_int_dataset = {
                     'interactor_A' : interactor_A_resolved,
                     'interactor_B' : interactor_B_resolved,
@@ -288,7 +291,7 @@ class MolIntExt(object):
                     'interactor_B_type' : interactor_B_type,
                     'interactor_A_roll' : interactor_A_roll,
                     'interactor_B_roll' : interactor_B_roll,
-                    'molecule_type' : molecule_type,
+                    'interaction_type' : interaction_type,
                     'taxon_id_1' : taxon_id_1_to_load,
                     'taxon_id_2' : taxon_id_2_to_load,
                     'detection_method' : detection_method,
