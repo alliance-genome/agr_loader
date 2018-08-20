@@ -18,6 +18,13 @@ class MolIntTransaction(Transaction):
             MATCH (g1:Gene {primaryKey:row.interactor_A})
             MATCH (g2:Gene {primaryKey:row.interactor_B})
             MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
+            MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
+            MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
+            MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
+            MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
+            MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_roll
+            MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_roll
+
 
             //Create the relationship between the two genes.
             MERGE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
@@ -41,6 +48,18 @@ class MolIntTransaction(Transaction):
 
             //Link detection method to the MI ontology.
             MERGE (oa)-[dm:DETECTION_METHOD]->(mi)
+
+            //Link source database to the MI ontology.
+            MERGE (oa)-[sd:SOURCE_DATABASE]->(sdb)
+
+            //Link aggregation database to the MI ontology.
+            MERGE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
+
+            //Link interactor rolls and types to the MI ontology.
+            MERGE (oa)-[INTERACTOR_A_TYPE]->(ita)
+            MERGE (oa)-[INTERACTOR_B_TYPE]->(itb)
+            MERGE (oa)-[INTERACTOR_A_ROLL]->(ira)
+            MERGE (oa)-[INTERACTOR_B_ROLL]->(irb)
 
             WITH oa, row.interactor_id_and_linkout AS events
                 UNWIND events AS event

@@ -135,9 +135,6 @@ class MolIntExt(object):
                     break
             except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
-        
-        # if interactor_A_resolved is None or interactor_B_resolved is None:
-        #     print(row[0],row[1],row[2],row[3],row[4],row[5])
 
         return interactor_A_resolved, interactor_B_resolved
 
@@ -228,16 +225,25 @@ class MolIntExt(object):
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
                 
-                identifier_linkout_list = self.process_interaction_identifier(row[13])
+                identifier_linkout_list = self.process_interaction_identifier(row[13]) # Source ID for the UI table
 
-                detection_method = None
-                detection_method_re = re.search('"([^"]*)"', row[6]) # grab the MI identifier between two quotes ""
-                if detection_method_re is not None:
-                    detection_method = detection_method_re.group(0)
-                    detection_method = re.sub('\"', '', detection_method) # TODO Fix the regex capture above to remove this step.
+                source_database = None
+                source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
 
-                if detection_method is None:
-                    continue
+                aggregation_database = 'MI:0670' # IMEx
+
+                if source_database == 'MI:0478': # FlyBase
+                    aggregation_database = 'MI:0478'
+                elif source_database == 'MI:0487': # WormBase
+                    aggregation_database = 'MI:0487'
+                elif source_database == 'MI:0463': # BioGRID
+                    aggregation_database = 'MI:0463'
+                    
+                detection_method = 'MI:0686' # Default to unspecified.
+                try: 
+                    detection_method = re.findall(r'"([^"]*)"', row[6])[0] # grab the MI identifier between two quotes ""
+                except IndexError:
+                    pass # Default to unspecified, see above.
 
                 # TODO Replace this publication work with a service. Re-think publication implementation in Neo4j.
                 publication = None
@@ -255,7 +261,21 @@ class MolIntExt(object):
                     continue
 
                 # Other hardcoded values to be used for now.
-                interactor_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
+                interactor_A_roll = 'MI:0499' # Default to unspecified.
+                interactor_B_roll = 'MI:0499' # Default to unspecified.
+                
+                try:
+                    interactor_A_roll = re.findall(r'"([^"]*)"', row[18])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
+                try:
+                    interactor_B_roll = re.findall(r'"([^"]*)"', row[19])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
+                
+                interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
+                interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
+
                 molecule_type = 'protein' # TODO Use MI ontology or query from psi-mitab?
 
                 interactor_A_resolved = None
@@ -266,7 +286,10 @@ class MolIntExt(object):
                 mol_int_dataset = {
                     'interactor_A' : interactor_A_resolved,
                     'interactor_B' : interactor_B_resolved,
-                    'interactor_type' : interactor_type,
+                    'interactor_A_type' : interactor_A_type,
+                    'interactor_B_type' : interactor_B_type,
+                    'interactor_A_roll' : interactor_A_roll,
+                    'interactor_B_roll' : interactor_B_roll,
                     'molecule_type' : molecule_type,
                     'taxon_id_1' : taxon_id_1_to_load,
                     'taxon_id_2' : taxon_id_2_to_load,
@@ -274,7 +297,9 @@ class MolIntExt(object):
                     'pub_med_id' : publication,
                     'pub_med_url' : publication_url,
                     'uuid' : str(uuid.uuid4()),
-                    'interactor_id_and_linkout' : identifier_linkout_list
+                    'source_database' : source_database,
+                    'aggregation_database' :  aggregation_database,
+                    'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
                 }
 
                 if interactor_A_resolved is not None and interactor_B_resolved is not None:
