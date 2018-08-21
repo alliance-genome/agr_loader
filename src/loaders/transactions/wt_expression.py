@@ -43,13 +43,13 @@ class WTExpressionTransaction(Transaction):
                 
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
+                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
                 
-                MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                    SET l.dateProduced = row.dateProduced
-                    SET l.loadName = "WT-Expression"
-                    SET l.dataProviders = row.dataProviders
-                    SET l.dataProvider = row.dataProvider
+                //MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                 //   SET l.dateProduced = row.dateProduced
+                 //   SET l.loadName = "WT-Expression"
+                //    SET l.dataProviders = row.dataProviders
+                //    SET l.dataProvider = row.dataProvider
             
                 //where only ao term exists
             
@@ -59,7 +59,7 @@ class WTExpressionTransaction(Transaction):
                     SET pubf.pubModUrl = row.pubModUrl
                     SET pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+              //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
                 
     
@@ -101,11 +101,11 @@ class WTExpressionTransaction(Transaction):
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     SET eotcct.uuid = row.cc_uuid
                 
-                MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                    SET l.dateProduced = row.dateProduced
-                    SET l.loadName = "WT-Expression"
-                    SET l.dataProviders = row.dataProviders
-                    SET l.dataProvider = row.dataProvider
+               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                //    SET l.dateProduced = row.dateProduced
+                //    SET l.loadName = "WT-Expression"
+                //    SET l.dataProviders = row.dataProviders
+               //     SET l.dataProvider = row.dataProvider
                     
                 //where only ao term exists
 
@@ -115,7 +115,7 @@ class WTExpressionTransaction(Transaction):
                     SET pubf.pubModUrl = row.pubModUrl
                     SET pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+              //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
 
         """
@@ -158,14 +158,14 @@ class WTExpressionTransaction(Transaction):
                 
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCUTRE]-(otast)
+                MERGE (e)-[gejotast:ANATOMICAL_SUB_STRUCTURE]-(otast)
                     
 
-                MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                    SET l.dateProduced = row.dateProduced
-                    SET l.loadName = "WT-Expression"
-                    SET l.dataProviders = row.dataProviders
-                    SET l.dataProvider = row.dataProvider
+               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                //    SET l.dateProduced = row.dateProduced
+               //     SET l.loadName = "WT-Expression"
+               //     SET l.dataProviders = row.dataProviders
+               //     SET l.dataProvider = row.dataProvider
                     
                 //where only ao term exists
 
@@ -175,7 +175,7 @@ class WTExpressionTransaction(Transaction):
                     SET pubf.pubModUrl = row.pubModUrl
                     SET pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+              //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
 
 
