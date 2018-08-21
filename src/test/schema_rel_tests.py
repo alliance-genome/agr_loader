@@ -76,12 +76,9 @@ class TestClass(object):
                             dict(node1='BioEntityGeneExpressionJoin', node2='Publication'), \
                             dict(node1='BioEntityGeneExpressionJoin', node2='Ontology'), \
                             dict(node1='BioEntityGeneExpressionJoin', node2='MMOTerm'), \
-                            dict(node1='ExpressionBioEntity', node2='CellularComponentExpressionBioEntityJoin'), \
-                            dict(node1='ExpressionBioEntity', node2='AnatomicalStructureExpressionBioEntityJoin'), \
-                            dict(node1='AnatomicalStructureExpressionBioEntityJoin', node2='AnatomicalSubStructureExpressionBioEntityJoin'), \
-                            dict(node1='CellularComponentExpressionBioEntityJoin', node2='GOTerm'), \
-                            dict(node1='AnatomicalStructureExpressionBioEntityJoin', node2='Ontology'),\
-                            dict(node1='AnatomicalSubStructureExpressionBioEntityJoin', node2='Ontology')
+                            dict(node1='ExpressionBioEntity', node2='GOTerm'), \
+                            dict(node1='ExpressionBioEntity', node2='Ontology'), \
+                            dict(node='ExpressionBioEntity', node2='ZFATerm')
                             ]
                             #TODO: convert to "or" tests  -- has either a gene or a feature, for example
                             #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \

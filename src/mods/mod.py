@@ -117,7 +117,6 @@ class MOD(object):
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []
-        xrefs = []
         geoTerm = "gene_geoprofiles"
         geoDb = "gene"
         geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"

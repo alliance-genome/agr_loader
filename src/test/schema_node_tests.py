@@ -52,10 +52,8 @@ class TestClass(object):
                              dict(node='Feature'), \
                              dict(node='ExpressionBioEntity'), \
                              dict(node='Stage'), \
-                             dict(node='CellularComponentExpressionBioEntityJoin'), \
-                             dict(node='AnatomicalStructureExpressionBioEntityJoin'), \
-                             dict(node='AnatomicalSubStructureExpressionBioEntityJoin'),
                              dict(node='BioEntityGeneExpressionJoin'), \
+                             dict(node='ExpressionBioEntity'), \
                              dict(node='InteractionGeneJoin'), \
                              dict(node='ExperimentalDetails')
                              ],
@@ -124,9 +122,6 @@ class TestClass(object):
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='ExpressionBioEntity', prop='primaryKey'), \
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
-                            dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
-                            dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
-                            dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                             dict(node='DOTerm', prop='defLinks')
                             ],
@@ -191,9 +186,6 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='Stage', prop='primaryKey'), \
-                               dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'), \
-                               dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'), \
-                               dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey'), \
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
@@ -224,10 +216,7 @@ class TestClass(object):
                              # TODO refactor ontology transaction to use id prefix to name node labels so
                              # we can turn this back on
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
-                             dict(node='ExpressionBioEntity', prop='primaryKey'),
-                             dict(node='CellularComponentExpressionBioEntityJoin', prop='primaryKey'),
-                             dict(node='AnatomicalStructureExpressionBioEntityJoin', prop='primaryKey'),
-                             dict(node='AnatomicalSubStructureExpressionBioEntityJoin', prop='primaryKey')
+                             dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]
     }
 
