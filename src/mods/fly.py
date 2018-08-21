@@ -49,7 +49,7 @@ class FlyBase(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        data = MOD.load_wt_expression_objects_mod(self, self.loadFile, batch_size, testObject, self.wtExpressionName)
+        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
