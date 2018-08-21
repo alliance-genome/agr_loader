@@ -1,3 +1,4 @@
+
 import uuid
 import ijson
 import codecs
@@ -144,8 +145,8 @@ class WTExpressionExt(object):
                         "cc_uuid": str(uuid.uuid4()),
                         "ebe_uuid": str(uuid.uuid4())
                     }
-                    list_to_yield.append(expression)
 
+                    list_to_yield.append(expression)
                     if len(list_to_yield) == batch_size:
                         yield list_to_yield
                         list_to_yield[:] = []  # Empty the list.
@@ -154,7 +155,7 @@ class WTExpressionExt(object):
                 yield list_to_yield
 
         f.close()
-
+        # TODO: get dataProvider parsing working with ijson.
         # wt_expression_data = JSONFile().get_data(path + expressionName, 'expression')
         #
         # dateProduced = wt_expression_data['metaData']['dateProduced']

@@ -64,7 +64,5 @@ class Indicies(object):
         session.run("CREATE INDEX ON :WBLSTerm(primaryKey)")
         session.run("CREATE INDEX ON :BioEntityGeneExpressionJoin(primaryKey)")
         session.run("CREATE INDEX ON :Stage(primaryKey)")
-        session.run("CREATE INDEX ON :CellularComponentExpressionBioEntityJoin(primaryKey)")
-        session.run("CREATE INDEX ON :AnatomicalStructureExpressionBioEntityJoin(primaryKey)")
-        session.run("CREATE INDEX ON :AnatomicalSubStructureExpressionBioEntityJoin(primaryKey)")
+
         session.close()
