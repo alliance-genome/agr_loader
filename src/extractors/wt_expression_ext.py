@@ -110,11 +110,6 @@ class WTExpressionExt(object):
                     # print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
                     assay = xpat.get('assay')
-                    print ("assay: " + assay)
-                    print ("geneId: " + geneId)
-                    print ("cellularComponentTermId: " + cellularComponentTermId)
-                    print ("stage: " + whenExpressedStage)
-                    print ("anatomicalStructureTermId: " + anatomicalStructureTermId)
 
                     expression = {
                         "geneId": geneId,
