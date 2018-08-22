@@ -156,7 +156,7 @@ def test_anatomical_structure_relationship_for_expression_exists():
 
 
 def test_anatomical_sub_structure_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE]-(o:Ontology) RETURN count(r) as counter"
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology) RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
