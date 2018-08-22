@@ -65,7 +65,6 @@ class TestClass(object):
                             dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'), \
                             dict(node1='InteractionGeneJoin:Association', node2='Publication'), \
                             dict(node1='InteractionGeneJoin:Association', node2='Identifier:CrossReference'), \
-                            dict(node1='InteractionGeneJoin:Association', node2='ExperimentalDetails'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
