@@ -27,7 +27,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 2500
         self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-        #self.mods = [ZFIN()]
+        #self.mods = [RGD()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 

@@ -89,11 +89,12 @@ class TestObject(object):
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
-            'RGD:1581495',
-            'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
+            'RGD:1581495', 'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
             'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801',
             # disease pheno specific test objects
-            'RGD:68936', 'RGD:3886'
+            'RGD:68936', 'RGD:3886',
+            # expression
+            'RGD:3884', 'RGD:3889'
         }
 
         self.humanTestSet = {

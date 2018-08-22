@@ -53,7 +53,6 @@ class TestClass(object):
                              dict(node='ExpressionBioEntity'), \
                              dict(node='Stage'), \
                              dict(node='BioEntityGeneExpressionJoin'), \
-                             dict(node='ExpressionBioEntity'), \
                              dict(node='InteractionGeneJoin'), \
                              dict(node='ExperimentalDetails')
                              ],

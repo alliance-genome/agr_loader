@@ -1,4 +1,3 @@
-
 import uuid
 import ijson
 import codecs
@@ -83,8 +82,8 @@ class WTExpressionExt(object):
                 if 'wildtypeExpressionTermIdentifiers' in xpat:
 
                     wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
-                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
-                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
+                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
+                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
                     anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
                     anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
                         'anatomicalStructureQualifierTermId')
@@ -111,6 +110,11 @@ class WTExpressionExt(object):
                     # print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
 
                     assay = xpat.get('assay')
+                    print ("assay: " + assay)
+                    print ("geneId: " + geneId)
+                    print ("cellularComponentTermId: " + cellularComponentTermId)
+                    print ("stage: " + whenExpressedStage)
+                    print ("anatomicalStructureTermId: " + anatomicalStructureTermId)
 
                     expression = {
                         "geneId": geneId,
@@ -152,6 +156,7 @@ class WTExpressionExt(object):
                         list_to_yield[:] = []  # Empty the list.
 
             if len(list_to_yield) > 0:
+                print (geneId)
                 yield list_to_yield
 
         f.close()

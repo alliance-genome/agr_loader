@@ -221,12 +221,12 @@ class WTExpressionTransaction(Transaction):
                     
         """
 
-        Transaction.execute_transaction(self, AOExpression, data)
+        #Transaction.execute_transaction(self, AOExpression, data)
         Transaction.execute_transaction(self, CCExpression, data)
-        Transaction.execute_transaction(self, AOCCExpression, data)
-        Transaction.execute_transaction(self, EASSubstructure, data)
-        Transaction.execute_transaction(self, EASQualified, data)
-        Transaction.execute_transaction(self, EASSQualified, data)
-        Transaction.execute_transaction(self, CCQExpression, data)
+        #Transaction.execute_transaction(self, AOCCExpression, data)
+        #Transaction.execute_transaction(self, EASSubstructure, data)
+        #Transaction.execute_transaction(self, EASQualified, data)
+        #Transaction.execute_transaction(self, EASSQualified, data)
+        #Transaction.execute_transaction(self, CCQExpression, data)
 
         print ("EXECUTED EXPRESSION TXN")
