@@ -25,9 +25,9 @@ class AggregateLoader(object):
         self.graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
-        self.batch_size = 2500
+        self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-        #self.mods = [RGD()]
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -57,6 +57,8 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.dataset, ontology_to_load+"TERM")
 
     def load_from_ontologies(self):
+
+        start = time.time()
         print("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
         print("Extracting GO data.")
@@ -64,7 +66,7 @@ class AggregateLoader(object):
         print("Extracting DO data.")
         self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
 
-        # # # structure ontologies
+        # # # # structure ontologies
         print("Extracting ZFA data.")
         self.zfa_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfa.obo", "zfa.obo")
         print("Extracting ZFS data.")
@@ -107,7 +109,7 @@ class AggregateLoader(object):
         GOLoader(self.graph).load_go(self.go_dataset)
         print("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
-        #
+        # #
         print("Loading ZFA data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfa_dataset, "ZFATerm")
         print("Loading ZFS data into Neo4j.")
@@ -161,6 +163,10 @@ class AggregateLoader(object):
         print("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
 
+        end = time.time()
+        print ("total time to load ontologies: ")
+        print (end - start)
+
     def load_bgi(self, mod):
         genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
         c = 0
@@ -177,6 +183,7 @@ class AggregateLoader(object):
         #
         for mod in self.mods:
              print("Loading BGI data for %s into Neo4j." % mod.species)
+
              genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
              c = 0
              start = time.time()
@@ -203,11 +210,14 @@ class AggregateLoader(object):
             for allele_list_of_entries in alleles:
                 AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
+
             print("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
             xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                  WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
             #
+
+
             print("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
             for feature_list_of_entries in features:

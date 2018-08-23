@@ -27,11 +27,11 @@ class WTExpressionTransaction(Transaction):
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
-                    SET gex.uuid = row.ebe_uuid
+                    SET gex.uuid = row.ei_uuid
             
                 MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
@@ -83,9 +83,9 @@ class WTExpressionTransaction(Transaction):
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
-                    SET gex.uuid = row.ebe_uuid
+                    SET gex.uuid = row.ei_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
@@ -140,9 +140,9 @@ class WTExpressionTransaction(Transaction):
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                 
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
-                    SET gex.uuid = row.ebe_uuid
+                    SET gex.uuid = row.ei_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ebe_uuid})
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
@@ -185,7 +185,6 @@ class WTExpressionTransaction(Transaction):
                 UNWIND $data as row
         
                     MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                    MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
                     MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                            
                     MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
@@ -213,7 +212,6 @@ class WTExpressionTransaction(Transaction):
         CCQExpression = """  
         
             UNWIND $data as row
-                MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId}) 
                 MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                           
@@ -221,17 +219,28 @@ class WTExpressionTransaction(Transaction):
                     
         """
 
-        CCQRollUp = """
+        # this is to prevent double running expression.
+        # TODO: determine this programatically
+
+        speciesWithOnlyCCTerms = ['Saccharomyces cerevisiae', 'Rattus norvegicus']
+        speciesWithOnlyAOTerms = ['Mus musculus']
+
+        if species in speciesWithOnlyCCTerms:
+            Transaction.execute_transaction(self, CCExpression, data)
+            Transaction.execute_transaction(self, CCQExpression, data)
+
+        elif species in speciesWithOnlyAOTerms:
+            Transaction.execute_transaction(self, AOExpression, data)
+            Transaction.execute_transaction(self, EASSubstructure, data)
+            Transaction.execute_transaction(self, EASQualified, data)
+            Transaction.execute_transaction(self, EASSQualified, data)
             
-        
-        """
+        else:
+            Transaction.execute_transaction(self, AOExpression, data)
+            Transaction.execute_transaction(self, CCExpression, data)
+            Transaction.execute_transaction(self, AOCCExpression, data)
+            Transaction.execute_transaction(self, EASSubstructure, data)
+            Transaction.execute_transaction(self, EASQualified, data)
+            Transaction.execute_transaction(self, EASSQualified, data)
+            Transaction.execute_transaction(self, CCQExpression, data)
 
-        Transaction.execute_transaction(self, AOExpression, data)
-        Transaction.execute_transaction(self, CCExpression, data)
-        Transaction.execute_transaction(self, AOCCExpression, data)
-        Transaction.execute_transaction(self, EASSubstructure, data)
-        Transaction.execute_transaction(self, EASQualified, data)
-        Transaction.execute_transaction(self, EASSQualified, data)
-        Transaction.execute_transaction(self, CCQExpression, data)
-
-        print ("EXECUTED EXPRESSION TXN")

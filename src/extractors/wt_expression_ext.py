@@ -17,7 +17,7 @@ class WTExpressionExt(object):
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
         print ("loadFile: " + loadFile)
-
+        batch_size = 10000
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
 
