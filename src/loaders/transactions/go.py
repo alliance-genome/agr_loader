@@ -5,7 +5,7 @@ class GOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 3000
+        self.batch_size = 5000
 
     def go_tx(self, data):
         '''

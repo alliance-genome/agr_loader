@@ -5,7 +5,7 @@ class DOTransaction(Transaction):
 
     def __init__(self, graph):
         Transaction.__init__(self, graph)
-        self.batch_size = 2000
+        self.batch_size = 5000
 
     def do_tx(self, data):
         '''
