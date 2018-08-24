@@ -1,6 +1,7 @@
 from .id_ext import IdExt
 from .so_ext import SOExt
 from .obo_ext import OExt
+from .obo_ext_old import ObExto
 from .ortho_ext import OrthoExt
 from .bgi_ext import BGIExt
 from .allele_ext import AlleleExt
@@ -13,3 +14,4 @@ from .ncbi_efetch import NCBIEfetch
 from .mol_int_ext import MolIntExt
 from .mi_ext import MIExt
 from .phenotype_ext import PhenotypeExt
+from .wt_expression_ext import WTExpressionExt

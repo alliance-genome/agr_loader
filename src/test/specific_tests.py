@@ -132,3 +132,52 @@ def test_phenotype_for_all_species_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
+
+
+def test_expression_for_non_human_species_exists():
+    query = "MATCH (s:Species)--()-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 6
+
+
+def test_cellular_component_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT]-(g:GOTerm) return count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_anatomical_structure_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_anatomical_sub_structure_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_anatomical_structure_qualifier_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_cellular_component_qualifier_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_anatomical_qualifier_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

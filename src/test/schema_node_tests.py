@@ -2,6 +2,7 @@ from neo4j.v1 import GraphDatabase
 import os
 import pytest
 
+
 def execute_transaction(query):
     host = os.environ['NEO4J_NQC_HOST']
     port = os.environ['NEO4J_NQC_PORT']
@@ -14,6 +15,7 @@ def execute_transaction(query):
         result = session.run(query)
 
     return result    
+
 
 def pytest_generate_tests(metafunc):
     # called once per each test function
@@ -48,6 +50,9 @@ class TestClass(object):
                              dict(node='OrthoAlgorithm'), \
                              dict(node='Load'), \
                              dict(node='Feature'), \
+                             dict(node='ExpressionBioEntity'), \
+                             dict(node='Stage'), \
+                             dict(node='BioEntityGeneExpressionJoin'), \
                              dict(node='InteractionGeneJoin'), \
                              ],
 
@@ -113,6 +118,9 @@ class TestClass(object):
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
                             dict(node='DOTerm', prop='subset'), \
+                            dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                             dict(node='DOTerm', prop='defLinks')
                             ],
 
@@ -172,7 +180,11 @@ class TestClass(object):
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
-                               dict(node='MITerm', prop='primaryKey') \
+                               dict(node='MITerm', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                               dict(node='Stage', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
@@ -194,7 +206,15 @@ class TestClass(object):
                              dict(node='Gene', prop='uuid'), \
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
-                             dict(node='MITerm', prop='primaryKey') \
+                             dict(node='MITerm', prop='primaryKey'),
+                             dict(node='Stage', prop='primaryKey'), \
+                             # with uberon, this can not be unique any longer, unless
+                             # every term is just 'ontology' not ontology-specific node labels.
+                             # dict(node='Ontology', prop='primaryKey'),
+                             # TODO refactor ontology transaction to use id prefix to name node labels so
+                             # we can turn this back on
+                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                             dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]
     }
 
