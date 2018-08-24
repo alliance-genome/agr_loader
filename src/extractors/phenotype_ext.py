@@ -24,7 +24,6 @@ class PhenotypeExt(object):
             dataProviders = []
             loadKey = loadKey + dateProduced + dataProvider + "_BGI"
 
-            #TODO: get SGD to fix their files.
             if dataProviderPages is not None:
                 for dataProviderPage in dataProviderPages:
                     crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,

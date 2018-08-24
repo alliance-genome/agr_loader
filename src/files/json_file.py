@@ -6,16 +6,17 @@ import os
 class JSONFile(object):
 
     def get_data(self, filename, jsonType):
-        print("Loading json data from %s ..." % (filename))
+        print("Loading json data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
+            print ("file open")
             data = json.load(f)
+            print ("json data extracted")
         f.close()
         self.validate_json(data, filename, jsonType)
         return data
 
     def validate_json(self, data, filename, jsonType):
         print("Validating %s JSON." % (jsonType))
-
 
         schema_file_name = None
         if jsonType == 'disease':
@@ -28,7 +29,8 @@ class JSONFile(object):
             schema_file_name = 'schemas/allele/alleleMetaData.json'
         elif jsonType == 'phenotype':
             schema_file_name = 'schemas/phenotype/phenotypeMetaDataDefinition.json'
-
+        elif jsonType == 'expression':
+            schema_file_name = 'schemas/expression/wildtypeExpressionMetaDataDefinition.json'
 
         with open(schema_file_name) as schema_file:
             schema = json.load(schema_file)

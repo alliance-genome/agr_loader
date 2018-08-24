@@ -2,12 +2,14 @@ from extractors.bgi_ext import BGIExt
 from extractors.disease_gene_ext import DiseaseGeneExt
 from extractors.disease_allele_ext import DiseaseAlleleExt
 from extractors.allele_ext import AlleleExt
+from extractors.wt_expression_ext import WTExpressionExt
 from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
-import uuid
+import ijson
 import gzip
+import codecs
 import csv
 import json
 import pprint
@@ -108,9 +110,13 @@ class MOD(object):
 
         return phenotype_dict
 
+    def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
+
+        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+        return wt_expression_dict
+
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []
-        xrefs = []
         geoTerm = "gene_geoprofiles"
         geoDb = "gene"
         geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"

@@ -9,5 +9,8 @@ from .disease_gene import DiseaseGeneTransaction
 from .disease_allele import DiseaseAlleleTransaction
 from .geo_xref import GeoXrefTransaction
 from .mi import MITransaction
-from .mol_int import MolIntTransaction
 from .phenotype import PhenotypeTransaction
+from .generic_anatomical_structure_ontology import GenericAnatomicalStructureOntologyTransaction
+from .wt_expression import WTExpressionTransaction
+from .mol_int import MolIntTransaction
+

@@ -1,5 +1,6 @@
 py2neo
 neo4j-driver
+ijson
 pytest
 jsonschema
 pyyaml

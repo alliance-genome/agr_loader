@@ -9,6 +9,7 @@ class FlyBase(MOD):
         self.diseaseName = "/FB_1.0.0.4_disease.json"
         self.phenotypeName = "/FB_1.0.0.4_phenotype.json"
         self.alleleName = "/FB_1.0.0.4_feature.json"
+        self.wtExpressionName = "/FB_1.0.0.4_expression.json"
         self.geneAssociationFile = "gene_association_1.7.fb.gz"
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
@@ -45,6 +46,10 @@ class FlyBase(MOD):
 
     def load_phenotype_objects(self, batch_size, testObject, species):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
+        return data
+
+    def load_wt_expression_objects(self, batch_size, testObject, species):
+        data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
         return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
