@@ -7,6 +7,7 @@ class Indicies(object):
         session = self.graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")
+        session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")
         session.run("CREATE INDEX ON :SOTerm(primaryKey)")
