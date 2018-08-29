@@ -37,7 +37,7 @@ class WTExpressionTransaction(Transaction):
                 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCATION]->(gej)
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
                     
                 MERGE (gej)-[gejs:DURING]-(stage)
                 
