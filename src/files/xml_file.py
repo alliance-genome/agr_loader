@@ -1,5 +1,8 @@
 import xml.etree.ElementTree as ElementTree
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class XMLFile(object):
 
@@ -7,7 +10,7 @@ class XMLFile(object):
         self.filename = filename
 
     def get_data(self):
-        print("Parsing XML data from %s..." % self.filename)
+        logger.info("Parsing XML data from %s..." % self.filename)
         tree = ElementTree.parse(self.filename)
         root = tree.getroot()
 

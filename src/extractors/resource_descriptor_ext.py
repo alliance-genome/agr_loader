@@ -4,7 +4,10 @@ import shutil
 import os
 import yaml
 import uuid
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class ResourceDescriptor(object):
     list_of_descriptor_maps_to_load = []
@@ -15,14 +18,14 @@ class ResourceDescriptor(object):
 
     def get_data(self):
         if not os.path.exists(self.savepath):
-            print("Making temp file storage: " + self.savepath)
+            logger.info("Making temp file storage: " + self.savepath)
             os.makedirs(self.savepath)
         url = "https://github.com/alliance-genome/agr_schemas/blob/develop/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             with urllib.request.urlopen(url) as response, open(self.savepath + "/" + self.filename, 'wb') as outfile:
                 shutil.copyfileobj(response, outfile)
         else:
-            print("File: " + self.savepath + "/" + self.filename + " already exists not downloading")
+            logger.info("File: " + self.savepath + "/" + self.filename + " already exists not downloading")
 
         with codecs.open(self.savepath + "/" + self.filename, 'r', 'utf-8') as stream:
             try:
@@ -83,6 +86,6 @@ class ResourceDescriptor(object):
                         self.list_of_descriptor_maps_to_load.append(stanza_map)
 
             except yaml.YAMLError as exc:
-                print (exc)
+                logger.info (exc)
 
         return self.list_of_descriptor_maps_to_load

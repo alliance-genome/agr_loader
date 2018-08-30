@@ -3,6 +3,10 @@ import uuid, csv, re, sys
 import urllib.request, json, pprint, itertools
 from services import ResourceDescriptor
 from types import ModuleType
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class MolIntExt(object):
 
@@ -20,7 +24,7 @@ class MolIntExt(object):
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
         with graph.session() as session:
-            print('Querying for master gene set.')
+            logger.info('Querying for master gene set.')
             with session.begin_transaction() as tx:
                 result = tx.run(query)
                 for record in result:
@@ -49,7 +53,7 @@ class MolIntExt(object):
         master_crossreference_dictionary['NCBI_Gene'] = dict()
 
         for key in master_crossreference_dictionary.keys():
-            print('Querying for %s cross references.' % (key))
+            logger.info('Querying for %s cross references.' % (key))
             result = self.query_crossreferences(graph, key)
             for record in result:
                 cross_ref_record = None
@@ -332,10 +336,10 @@ class MolIntExt(object):
             if len(list_to_yield) > 0:
                 yield list_to_yield
 
-        print('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
-        print('Successfully created linkouts for the following identifier databases:')
+        logger.info('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
+        logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        print('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
-        print('Could not create linkouts for the following identifier databases:')
+        logger.info('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
+        logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
