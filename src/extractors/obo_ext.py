@@ -5,6 +5,7 @@ import urllib.request
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OExt(object):
 

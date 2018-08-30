@@ -20,8 +20,9 @@ from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logging.basicConfig(level=logging.WARN, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class AggregateLoader(object):
     def __init__(self, uri, useTestObject):

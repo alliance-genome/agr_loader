@@ -4,6 +4,7 @@ from files import Download
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class ResourceDescriptor(object):
 

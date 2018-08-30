@@ -7,6 +7,7 @@ import uuid
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class ResourceDescriptor(object):
     list_of_descriptor_maps_to_load = []

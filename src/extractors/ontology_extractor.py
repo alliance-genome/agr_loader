@@ -2,6 +2,7 @@ import urllib.request, json
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OntologyExt(object):
 
