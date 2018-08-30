@@ -6,6 +6,10 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 from services import DataProvider
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class DiseaseGeneExt(object):
 
@@ -34,10 +38,10 @@ class DiseaseGeneExt(object):
                                                   dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                print ("data provider: " + dataProvider)
+                logger.info ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
-        print ("dataProvider found: " + dataProviderSingle)
+        logger.info ("dataProvider found: " + dataProviderSingle)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']

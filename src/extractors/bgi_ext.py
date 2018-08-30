@@ -4,7 +4,10 @@ from services import UrlService
 from services import CreateCrossReference
 from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class BGIExt(object):
 
@@ -37,7 +40,7 @@ class BGIExt(object):
                                                   dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                print ("data provider: " + dataProvider)
+                logger.info ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 

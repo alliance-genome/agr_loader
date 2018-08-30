@@ -1,6 +1,10 @@
 import xmltodict, json
 from files import XMLFile, Download
 from .ncbi_efetch import NCBIEfetch
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class GeoExt(object):
 
@@ -8,7 +12,7 @@ class GeoExt(object):
 
         path = "tmp"
         url = NCBIEfetch(geoSpecies, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
-        print ("efetch url: " + url)
+        logger.info ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo").get_downloaded_data()
         geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))

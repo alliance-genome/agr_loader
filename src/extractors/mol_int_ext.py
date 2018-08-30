@@ -3,6 +3,10 @@ import uuid, csv, re, sys
 import urllib.request, json, pprint
 from services import ResourceDescriptor
 from types import ModuleType
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class MolIntExt(object):
 
@@ -20,7 +24,7 @@ class MolIntExt(object):
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
         with graph.session() as session:
-            print('Querying for master gene set.')
+            logger.info('Querying for master gene set.')
             with session.begin_transaction() as tx:
                 result = tx.run(query)
                 for record in result:
@@ -49,7 +53,7 @@ class MolIntExt(object):
         master_crossreference_dictionary['NCBI_Gene'] = dict()
 
         for key in master_crossreference_dictionary.keys():
-            print('Querying for %s cross references.' % (key))
+            logger.info('Querying for %s cross references.' % (key))
             result = self.query_crossreferences(graph, key)
             for record in result:
                 cross_ref_record = None
@@ -151,7 +155,7 @@ class MolIntExt(object):
         # All valid identifiers in the PSI-MI TAB file should be "splittable".
         try:
             entry_stripped = row_entry.split(':')[1]
-            # print('entry_stripped: %s' % (entry_stripped))
+            # logger.info('entry_stripped: %s' % (entry_stripped))
         except IndexError:
             return None
 
@@ -178,7 +182,7 @@ class MolIntExt(object):
                 for crossreference_type in master_crossreference_dictionary.keys():
                     # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
                     if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
-                        # print('Found crossref: %s for gene: %s' % (identifier.lower(), master_crossreference_dictionary[crossreference_type][identifier.lower()]))
+                        # logger.info('Found crossref: %s for gene: %s' % (identifier.lower(), master_crossreference_dictionary[crossreference_type][identifier.lower()]))
                         return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene.
 
         # If we can't resolve any of the crossReferences, return None
@@ -307,7 +311,7 @@ class MolIntExt(object):
                     resolved_a_b_list.append(mol_int_dataset)
                 
                 if interactor_A_resolved is None or interactor_B_resolved is None:
-                    # print(row)
+                    # logger.info(row)
                     unresolved_a_b_list.append(mol_int_dataset)
                     continue # Skip this entry.
 
@@ -322,10 +326,10 @@ class MolIntExt(object):
 
         pp = pprint.PrettyPrinter(indent=4)
 
-        print('Resolved identifiers and loaded %s interactions' % len(resolved_a_b_list))
-        print('Successfully created linkouts for the following identifier databases:')
+        logger.info('Resolved identifiers and loaded %s interactions' % len(resolved_a_b_list))
+        logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        print('Could not resolve [and subsequently did not load] %s interactions' % len(unresolved_a_b_list))
-        print('Could not create linkouts for the following identifier databases:')
+        logger.info('Could not resolve [and subsequently did not load] %s interactions' % len(unresolved_a_b_list))
+        logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)

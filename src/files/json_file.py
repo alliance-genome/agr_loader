@@ -2,21 +2,25 @@ import json
 import codecs
 import jsonschema as js
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class JSONFile(object):
 
     def get_data(self, filename, jsonType):
-        print("Loading json data from %s ..." % filename)
+        logger.info("Loading json data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
-            print ("file open")
+            logger.info ("file open")
             data = json.load(f)
-            print ("json data extracted")
+            logger.info ("json data extracted")
         f.close()
         self.validate_json(data, filename, jsonType)
         return data
 
     def validate_json(self, data, filename, jsonType):
-        print("Validating %s JSON." % (jsonType))
+        logger.info("Validating %s JSON." % (jsonType))
 
         schema_file_name = None
         if jsonType == 'disease':
@@ -42,12 +46,12 @@ class JSONFile(object):
 
         try:
             js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
-            print("'%s' successfully validated against '%s'" % (filename, schema_file_name))
+            logger.info("'%s' successfully validated against '%s'" % (filename, schema_file_name))
         except js.ValidationError as e:
-            print(e.message)
-            print(e)
+            logger.info(e.message)
+            logger.info(e)
             raise SystemExit("FATAL ERROR in JSON validation.")
         except js.SchemaError as e:
-            print(e.message)
-            print(e)
+            logger.info(e.message)
+            logger.info(e)
             raise SystemExit("FATAL ERROR in JSON validation.")
