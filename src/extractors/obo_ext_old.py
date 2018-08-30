@@ -3,7 +3,6 @@ from files import S3File, TXTFile, Download
 from .obo_parser import parseOBO
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
 
 class ObExto(object):

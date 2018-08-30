@@ -5,7 +5,6 @@ from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
 
 def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):

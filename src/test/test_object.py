@@ -3,7 +3,6 @@
 # The testIdSet is used to "filter" these entries in the appropriate extractor files. 
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
 
 class TestObject(object):

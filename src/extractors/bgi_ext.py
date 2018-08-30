@@ -6,7 +6,6 @@ from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
 
 class BGIExt(object):
