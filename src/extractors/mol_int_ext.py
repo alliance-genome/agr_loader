@@ -321,10 +321,6 @@ class MolIntExt(object):
                 # Update the dictionary with every possible combination of interactor A x interactor B.
                 list_of_mol_int_dataset = [dict(mol_int_dataset, interactor_A=x, interactor_B=y, uuid=str(uuid.uuid4())) for x,y in int_combos]
 
-                # if len(interactor_A_resolved) > 1 or len(interactor_B_resolved) > 1:
-                #     pp.pprint(list_of_mol_int_dataset)
-                #     quit()
-
                 resolved_a_b_count += 1 # Tracking successfully resolved identifiers.
 
                 # Establishes the number of entries to yield (return) at a time.
