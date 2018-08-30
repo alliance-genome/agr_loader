@@ -3,6 +3,7 @@ import os
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class S3File(object):
 

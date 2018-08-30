@@ -4,6 +4,7 @@ from .ncbi_efetch import NCBIEfetch
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GeoExt(object):
 
