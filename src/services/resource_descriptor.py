@@ -1,6 +1,10 @@
 import yaml, re, sys
 import pprint
 from files import Download
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class ResourceDescriptor(object):
 
@@ -62,9 +66,9 @@ class ResourceDescriptor(object):
             prefix, identifier_processed = identifier.split('-', 1)  # Split on the first occurrence
             separator = '-'
         else:
-            print('Fatal Error: Identifier does not contain \':\' or \'-\' characters.')
-            print('Splitting identifier is not possible.')
-            print('Identifier: %s' % (identifier))
+            logger.info('Fatal Error: Identifier does not contain \':\' or \'-\' characters.')
+            logger.info('Splitting identifier is not possible.')
+            logger.info('Identifier: %s' % (identifier))
             sys.exit(-1)
 
         prefix = self.alter_prefixes_to_match_resource_yaml(prefix)
@@ -83,26 +87,26 @@ class ResourceDescriptor(object):
 
         regex_output = re.match(gid_pattern, identifier_post_processed)
         if regex_output is None:
-            print('Fatal Error: Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
-            print('Database prefix: %s' % (db_prefix))
-            print('Identifier: %s' % (identifier_post_processed))
-            print('gid pattern: %s' % (gid_pattern))
+            logger.info('Fatal Error: Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
+            logger.info('Database prefix: %s' % (db_prefix))
+            logger.info('Identifier: %s' % (identifier_post_processed))
+            logger.info('gid pattern: %s' % (gid_pattern))
             sys.exit(-1)
         if page is None and default_url is not None:
             complete_url = default_url.replace('[%s]', identifier_stripped)
         elif page is None and default_url is None:
-            print('Fatal Error: Cross Reference page is specified as None but the default url is not specified in the YAML.')
-            print('Database prefix: %s' % (db_prefix))
-            print('Identifier: %s' % (identifier_stripped))
+            logger.info('Fatal Error: Cross Reference page is specified as None but the default url is not specified in the YAML.')
+            logger.info('Database prefix: %s' % (db_prefix))
+            logger.info('Identifier: %s' % (identifier_stripped))
             sys.exit(-1)
         elif page is not None:
             try:
                 page_url = self.resource_descriptor_dict[db_prefix]['pages'][page]['url']
             except KeyError:
-                print('Fatal Error: The specified Cross Reference page or database prefix does not appear to exist.')
-                print('Database prefix: %s' % (db_prefix))
-                print('Page: %s' % (page))
-                print('Identifier: %s' % (identifier_stripped))
+                logger.info('Fatal Error: The specified Cross Reference page or database prefix does not appear to exist.')
+                logger.info('Database prefix: %s' % (db_prefix))
+                logger.info('Page: %s' % (page))
+                logger.info('Identifier: %s' % (identifier_stripped))
                 sys.exit(-1)
             complete_url = page_url.replace('[%s]', identifier_stripped)
 

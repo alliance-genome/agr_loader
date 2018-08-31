@@ -1,4 +1,8 @@
 import urllib.request, json
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OntologyExt(object):
 
@@ -8,20 +12,20 @@ class OntologyExt(object):
         term_ontology_full = None
 
         # TODO Make size configurable?
-        print('Downloading ontology terms via: https://www.ebi.ac.uk/ols/api/ontologies/' + ontName + '/terms?size=500')
+        logger.info('Downloading ontology terms via: https://www.ebi.ac.uk/ols/api/ontologies/' + ontName + '/terms?size=500')
         with urllib.request.urlopen("https://www.ebi.ac.uk/ols/api/ontologies/' + ontName + '/terms?size=500'") as url:
             term_ontology = json.loads(url.read().decode())
 
-        print('Determining total number of terms and pages to request...')
+        logger.info('Determining total number of terms and pages to request...')
         total_terms = term_ontology['page']['totalElements']
         total_pages = term_ontology['page']['totalPages']
 
-        print('Requesting %s terms over %s pages.' % (total_terms, total_pages))
+        logger.info('Requesting %s terms over %s pages.' % (total_terms, total_pages))
 
         processed_list = []
         for i in range(total_pages):
             request_url = 'https://www.ebi.ac.uk/ols/api/ontologies/' + ontName + '/terms?size=500' % (i)
-            print('Retrieving terms from page %s of %s.' % (i+1, total_pages))
+            logger.info('Retrieving terms from page %s of %s.' % (i+1, total_pages))
             with urllib.request.urlopen(request_url) as url:
                 term_ontology_full = json.loads(url.read().decode())
 

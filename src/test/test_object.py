@@ -1,6 +1,10 @@
 # Used for loading a test subset of data for AGR.
 # Note: When testing is enabled, GO annotations and GO terms are only loaded for the following testIdSet.
 # The testIdSet is used to "filter" these entries in the appropriate extractor files. 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class TestObject(object):
 
@@ -128,9 +132,9 @@ class TestObject(object):
     def assemble_test_data(modList, modMap):
         testIdSet = {}
         for aggregateLoaderMOD in modList:
-            print (aggregateLoaderMOD)
+            logger.info (aggregateLoaderMOD)
             for modToTest, modTestIdSet in modMap.items():
-                print (modToTest)
+                logger.info (modToTest)
                 if aggregateLoaderMOD == modToTest:
                     testIdSet.union(modTestIdSet)
         return testIdSet
