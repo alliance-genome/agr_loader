@@ -1,5 +1,9 @@
 import urllib.request
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class S3File(object):
 
@@ -8,15 +12,15 @@ class S3File(object):
         self.savepath = savepath
 
     def download(self):
-        print("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
+        logger.info("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
-            print("Making temp file storage: %s" % (self.savepath))
+            logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
         url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
-            print("File: %s/%s already exists not downloading" % (self.savepath, self.filename))
+            logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filename))
         return self.savepath + "/" + self.filename
 
     def list_files(self):

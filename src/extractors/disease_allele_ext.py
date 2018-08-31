@@ -6,6 +6,10 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 from services import DataProvider
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class DiseaseAlleleExt(object):
 
@@ -34,7 +38,7 @@ class DiseaseAlleleExt(object):
                                                   dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                print ("data provider: " + dataProvider)
+                logger.info ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 
@@ -61,7 +65,7 @@ class DiseaseAlleleExt(object):
                 #     allelicGeneId = gene["g.primaryKey"]
                 # if counter > 1:
                 #     allelicGeneId = ''
-                #     print ("returning more than one gene: this is an error")
+                #     logger.info ("returning more than one gene: this is an error")
                 allelicGeneId = ''
 
                 disease_features = get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle)

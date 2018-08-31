@@ -3,6 +3,10 @@ import uuid, csv, re, sys
 import urllib.request, json, pprint, itertools
 from services import ResourceDescriptor
 from types import ModuleType
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MolIntExt(object):
 
@@ -21,7 +25,7 @@ class MolIntExt(object):
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
         with graph.session() as session:
-            print('Querying for master gene set.')
+            logger.info('Querying for master gene set.')
             with session.begin_transaction() as tx:
                 result = tx.run(query)
                 for record in result:
@@ -50,7 +54,7 @@ class MolIntExt(object):
         master_crossreference_dictionary['NCBI_Gene'] = dict()
 
         for key in master_crossreference_dictionary.keys():
-            print('Querying for %s cross references.' % (key))
+            logger.info('Querying for %s cross references.' % (key))
             result = self.query_crossreferences(graph, key)
             for record in result:
                 cross_ref_record = None
@@ -133,9 +137,9 @@ class MolIntExt(object):
                 
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
-                    print('Fatal Error: During special handling of FlyBase molecular interaction links, an FBig ID was not found.')
-                    print('Failed identifier: %s' % (individual))
-                    print('PSI-MITAB row entry: %s' % (additional_row))
+                    logger.critical('Fatal Error: During special handling of FlyBase molecular interaction links, an FBig ID was not found.')
+                    logger.critical('Failed identifier: %s' % (individual))
+                    logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
 
             individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
@@ -369,15 +373,14 @@ class MolIntExt(object):
 
             if len(list_to_yield) > 0:
                 yield list_to_yield
-
-        # TODO Change this to log printing and clean up the set output.
-        print('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
-        print('Successfully created linkouts for the following identifier databases:')
+                
+        logger.info('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
+        logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        print('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
-        print('Could not create linkouts for the following identifier databases:')
+        logger.info('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
+        logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
-
-        print('The following linkout databases were ignored:')
+        
+        logger.info('The following linkout databases were ignored:')
         pp.pprint(self.ignored_database_linkouts)

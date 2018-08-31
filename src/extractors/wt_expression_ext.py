@@ -7,7 +7,10 @@ from services import DataProvider
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class WTExpressionExt(object):
 
@@ -16,7 +19,7 @@ class WTExpressionExt(object):
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
-        print ("loadFile: " + loadFile)
+        logger.info ("loadFile: " + loadFile)
         batch_size = 10000
         list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
@@ -25,9 +28,9 @@ class WTExpressionExt(object):
         loadKey = ""
         crossReferences = []
 
-        print("streaming json data from %s ..." % loadFile)
+        logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
-            print ("file open")
+            logger.info ("file open")
             for xpat in ijson.items(f, 'data.item'):
                 pubMedUrl = None
                 pubModUrl = None
@@ -107,8 +110,6 @@ class WTExpressionExt(object):
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
-                    # print ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
-
                     assay = xpat.get('assay')
 
                     expression = {
@@ -151,7 +152,7 @@ class WTExpressionExt(object):
                         list_to_yield[:] = []  # Empty the list.
 
             if len(list_to_yield) > 0:
-                print (geneId)
+                logger.info (geneId)
                 yield list_to_yield
 
         f.close()
@@ -180,4 +181,4 @@ class WTExpressionExt(object):
         #     dataProviders.append(dataProvider)
         #
         # dataProviderSingle = DataProvider().get_data_provider(species)
-        # print ("dataProvider found: " + dataProviderSingle)
+        # logger.info ("dataProvider found: " + dataProviderSingle)
