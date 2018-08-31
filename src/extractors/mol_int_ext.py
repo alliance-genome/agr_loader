@@ -12,6 +12,7 @@ class MolIntExt(object):
         self.resource_descriptor_dict = ResourceDescriptor()
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
+        self.ignored_database_linkouts = set()
 
     def populate_genes(self, graph):
 
@@ -73,18 +74,35 @@ class MolIntExt(object):
 
         return master_crossreference_dictionary
 
-    def process_interaction_identifier(self, entry):
+    def process_interaction_identifier(self, entry, additional_row):
         # Create cross references for all the external identifiers.
 
         xref_main_list = []
         entries = None
+
+        # Identifier types on this list DO NOT receive a crossRefCompleteUrl field for external linking.
         ignored_identifier_database_list = [
-            'brenda',
-            'psi-mi',
-            'chebi', # TODO Implement efo/chebi support, identifier contains extra colon: chebi:"CHEBI:495055"
-            'efo', # TODO Implement efo support, identifier contains extra colon: efo:"EFO:0000305"
-            'flybase', # Difficult to filter interaction identifier. TODO Needs work.
-            'go' # TODO Not in resource descriptor yaml?
+            'brenda', # Not currently required.
+            'cell ontology', # Not currently required.
+            'chebi', # Not currently required
+            'chembl compound', # Not currently required.
+            'efo', # Not currently required.
+            'flannotator', # Not currently required.
+            'intenz', # Not currently required.
+            'interpro', # Not currently required.
+            'mpidb', # Not currently required.
+            'omim', # Not currently required.
+            'pdbj', # Not currently required.
+            'pmc', # Not currently required.
+            'pride', # Not currently required.
+            'prints', # Not currently required.
+            'proteomexchange', # Not currently required.
+            'psi-mi', # Not currently required.
+            'pubmed', # Not currently required.
+            'go', # Not currently required.
+            'reactome', # Not currently required.
+            'tissue list', # Not currently required.
+            'uniprotkb' # Not currently required.
         ]
 
         if '|' in entry:
@@ -103,7 +121,23 @@ class MolIntExt(object):
             xref_dict['crossRefType'] = 'interaction'
             page = 'gene/interactions'
             xref_dict['page'] = page
-            
+
+            # Special case for dealing with FlyBase. 
+            # The identifier link needs to use row 25 from the psi-mitab file.
+            # TODO Regex to check for FBig in additional_row?
+            if individual.startswith('flybase:FBrf'):
+                if '|' in additional_row:
+                    individual = additional_row.split('|')[0]
+                else:
+                    individual = additional_row
+                
+                regex_check = re.match('^flybase:FBig\\d{10}$', individual)
+                if regex_check is None:
+                    print('Fatal Error: During special handling of FlyBase molecular interaction links, an FBig ID was not found.')
+                    print('Failed identifier: %s' % (individual))
+                    print('PSI-MITAB row entry: %s' % (additional_row))
+                    sys.exit(-1)
+
             individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
             # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
             xref_dict['prefix'] = individual_prefix
@@ -116,6 +150,7 @@ class MolIntExt(object):
                     self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
                     self.missed_database_linkouts.add(individual_prefix)
+            else: self.ignored_database_linkouts.add(individual_prefix)
 
             xref_main_list.append(xref_dict)
 
@@ -233,7 +268,10 @@ class MolIntExt(object):
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
                 
-                identifier_linkout_list = self.process_interaction_identifier(row[13]) # Source ID for the UI table
+                try: 
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], row[24]) # Source ID for the UI table
+                except IndexError:
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], None) # Source ID for the UI table
 
                 source_database = None
                 source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
@@ -332,6 +370,7 @@ class MolIntExt(object):
             if len(list_to_yield) > 0:
                 yield list_to_yield
 
+        # TODO Change this to log printing and clean up the set output.
         print('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
         print('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
@@ -339,3 +378,6 @@ class MolIntExt(object):
         print('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
         print('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
+
+        print('The following linkout databases were ignored:')
+        pp.pprint(self.ignored_database_linkouts)

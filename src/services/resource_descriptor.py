@@ -42,7 +42,8 @@ class ResourceDescriptor(object):
         # The following dictionary translates these entries into the appropriate prefixes.
         prefix_translation_dictionary = {
             'WORMBASE' : 'WB',
-            'FLYBASE' : 'FB'
+            'FLYBASE' : 'FB',
+            'RCSB PDB' : 'RCSB_PDB'
         }
 
         if entry not in prefix_translation_dictionary:
