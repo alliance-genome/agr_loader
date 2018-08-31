@@ -110,8 +110,6 @@ class WTExpressionExt(object):
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
-                    # logger.info ("all terms key: " + cellularComponentTermId+cellularComponentQualifierTermId+anatomicalStructureTermId+anatomicalStructureQualifierTermId+anatomicalSubStructureTermId+anatomicalSubStructureQualifierTermId)
-
                     assay = xpat.get('assay')
 
                     expression = {
