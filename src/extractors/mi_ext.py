@@ -7,7 +7,8 @@ logger.setLevel(logging.DEBUG)
 class MIExt(object):
 
     # TODO Replace this approach with links to crossrefs.
-    def add_miterm_url(self, identifier):
+    @staticmethod
+    def add_miterm_url(identifier):
         mi_term_url_dict = {
             'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
             'MI:0469' : 'http://www.ebi.ac.uk/intact',

@@ -126,7 +126,7 @@ class MolIntExt(object):
             page = 'gene/interactions'
             xref_dict['page'] = page
 
-            # Special case for dealing with FlyBase. 
+            # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
             # TODO Regex to check for FBig in additional_row?
             if individual.startswith('flybase:FBrf'):
