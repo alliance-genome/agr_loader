@@ -3,6 +3,10 @@ import uuid, csv, re, sys
 import urllib.request, json, pprint, itertools
 from services import ResourceDescriptor
 from types import ModuleType
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MolIntExt(object):
 
@@ -21,7 +25,7 @@ class MolIntExt(object):
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
         with graph.session() as session:
-            print('Querying for master gene set.')
+            logger.info('Querying for master gene set.')
             with session.begin_transaction() as tx:
                 result = tx.run(query)
                 for record in result:
@@ -50,7 +54,7 @@ class MolIntExt(object):
         master_crossreference_dictionary['NCBI_Gene'] = dict()
 
         for key in master_crossreference_dictionary.keys():
-            print('Querying for %s cross references.' % (key))
+            logger.info('Querying for %s cross references.' % (key))
             result = self.query_crossreferences(graph, key)
             for record in result:
                 cross_ref_record = None
