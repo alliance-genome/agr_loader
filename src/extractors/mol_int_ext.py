@@ -133,9 +133,9 @@ class MolIntExt(object):
                 
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
-                    print('Fatal Error: During special handling of FlyBase molecular interaction links, an FBig ID was not found.')
-                    print('Failed identifier: %s' % (individual))
-                    print('PSI-MITAB row entry: %s' % (additional_row))
+                    logger.critical('Fatal Error: During special handling of FlyBase molecular interaction links, an FBig ID was not found.')
+                    logger.critical('Failed identifier: %s' % (individual))
+                    logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
 
             individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
@@ -248,6 +248,8 @@ class MolIntExt(object):
         unresolved_a_b_count = 0
         pp = pprint.PrettyPrinter(indent=4)
 
+        database_linkout_set = set()
+
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             next(tsvin, None) # Skip the headers
@@ -275,6 +277,8 @@ class MolIntExt(object):
 
                 source_database = None
                 source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
+
+                database_linkout_set.add(source_database)
 
                 aggregation_database = 'MI:0670' # IMEx
 
@@ -371,13 +375,16 @@ class MolIntExt(object):
                 yield list_to_yield
 
         # TODO Change this to log printing and clean up the set output.
-        print('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
-        print('Successfully created linkouts for the following identifier databases:')
+        logger.info('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
+        logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        print('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
-        print('Could not create linkouts for the following identifier databases:')
+        logger.info('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
+        logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
 
-        print('The following linkout databases were ignored:')
+        logger.info('The following linkout databases were ignored:')
         pp.pprint(self.ignored_database_linkouts)
+
+        # print('Database source linkout list')
+        # pp.pprint(database_linkout_set)

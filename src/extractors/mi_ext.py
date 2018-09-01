@@ -2,6 +2,29 @@ import urllib.request, json
 
 class MIExt(object):
 
+    # TODO Replace this approach with links to crossrefs.
+    def add_miterm_url(self, identifier):
+        mi_term_url_dict = {
+            'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
+            'MI:0469' : 'http://www.ebi.ac.uk/intact',
+            'MI:0471' : 'http://mint.bio.uniroma2.it',
+            'MI:0478' : 'http://flybase.org',
+            'MI:0486' : 'http://www.uniprot.org',
+            'MI:0487' : 'http://www.wormbase.org/',
+            'MI:0670' : 'https://www.imexconsortium.org/',
+            'MI:0903' : 'https://www.ebi.ac.uk/intact/',
+            'MI:0917' : 'http://matrixdb.univ-lyon1.fr/',
+            'MI:0974' : 'http://www.innatedb.ca/',
+            'MI:1222' : 'http://www.mechanobio.info/',
+            'MI:1262' : 'http://iid.ophid.utoronto.ca/iid/',
+            'MI:1263' : 'http://www.molecularconnections.com',
+            'MI:1264' : 'http://www.ntnu.no/home',
+            'MI:1332' : 'https://www.ebi.ac.uk/GOA/CVI',
+            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html'
+        }
+
+        return mi_term_url_dict.get(identifier)
+
     def get_data(self):
 
         mi_term_ontology = None
@@ -29,7 +52,8 @@ class MIExt(object):
                     if terms['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
                         dict_to_append = {
                             'identifier' : terms['obo_id'],
-                            'label' : terms['label']
+                            'label' : terms['label'],
+                            'url' : self.add_miterm_url(terms['obo_id'])
                         }
                         processed_mi_list.append(dict_to_append)
 
