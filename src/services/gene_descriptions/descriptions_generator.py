@@ -425,7 +425,7 @@ class GeneDescGenerator(object):
         if human:
             gd_file_name = "HUMAN"
         json_desc_writer.overall_properties.species = gd_file_name
-        json_desc_writer.overall_properties.release_version = "1.7"
+        json_desc_writer.overall_properties.release_version = "2.0"
         json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")
         json_desc_writer.overall_properties.go_ontology_url = go_ontology_url
         json_desc_writer.overall_properties.go_association_url = go_association_url
