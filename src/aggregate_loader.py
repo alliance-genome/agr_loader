@@ -9,6 +9,7 @@ from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
+from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
 from mods import *
 from extractors import *
 import time
@@ -260,7 +261,7 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             print("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-            #
+            
             print("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
@@ -276,3 +277,9 @@ class AggregateLoader(object):
             mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
+
+    def add_inferred_disease_annotations(self):
+            print("Adding Disease by Orthology Annotations")
+            tx = GeneDiseaseOrthoTransaction(self.graph)
+            orthologous_diseases_gene = tx.retreive_diseases_gene_inferred_by_orthology()
+            tx.add_gene_disease_inferred_through_ortho_tx(orthologous_diseases_gene)
