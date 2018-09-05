@@ -1,6 +1,6 @@
 from files import S3File, TARFile
 import uuid, csv, re, sys
-import urllib.request, json, pprint
+import urllib.request, json, pprint, itertools
 from services import ResourceDescriptor
 from types import ModuleType
 import logging
@@ -64,7 +64,15 @@ class MolIntExt(object):
                     cross_ref_record = 'entrez gene/locuslink:' + cross_ref_record_split
                 else:
                     cross_ref_record = record['cr.globalCrossRefId']
-                master_crossreference_dictionary[key][cross_ref_record.lower()] = record['g.primaryKey'] 
+
+                # The crossreference dictionary is a list of genes linked to a single crossreference.
+                # Append the gene if the crossref dict entry exists. Otherwise, create a list and append the entry.
+                if cross_ref_record.lower() in master_crossreference_dictionary[key]:
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
+                else:
+                    master_crossreference_dictionary[key][cross_ref_record.lower()] = []
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
+
                 # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
 
         return master_crossreference_dictionary
@@ -207,14 +215,16 @@ class MolIntExt(object):
         # Populate our master gene set for filtering Alliance genes.
         master_gene_set = self.populate_genes(self.graph)
 
-        resolved_a_b_list = []
-        unresolved_a_b_list = []
+        resolved_a_b_count = 0
+        unresolved_a_b_count = 0
+        pp = pprint.PrettyPrinter(indent=4)
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             next(tsvin, None) # Skip the headers
 
             for row in tsvin:
+                
                 taxon_id_1 = row[9]
                 taxon_id_2 = row[10]
 
@@ -280,17 +290,21 @@ class MolIntExt(object):
                 interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
                 interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
 
+                interaction_type = None
+                interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
+
                 interactor_A_resolved = None
                 interactor_B_resolved = None
 
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
-                interaction_type = None
-                interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
-
+                if interactor_A_resolved is None or interactor_B_resolved is None:
+                    unresolved_a_b_count += 1 # Tracking unresolved identifiers.
+                    continue # Skip this entry.
+            
                 mol_int_dataset = {
-                    'interactor_A' : interactor_A_resolved,
-                    'interactor_B' : interactor_B_resolved,
+                    'interactor_A' : None,
+                    'interactor_B' : None,
                     'interactor_A_type' : interactor_A_type,
                     'interactor_B_type' : interactor_B_type,
                     'interactor_A_role' : interactor_A_role,
@@ -301,7 +315,7 @@ class MolIntExt(object):
                     'detection_method' : detection_method,
                     'pub_med_id' : publication,
                     'pub_med_url' : publication_url,
-                    'uuid' : str(uuid.uuid4()),
+                    'uuid' : None,
                     'source_database' : source_database,
                     'aggregation_database' :  aggregation_database,
                     'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
@@ -316,8 +330,8 @@ class MolIntExt(object):
                     continue # Skip this entry.
 
                 # Establishes the number of entries to yield (return) at a time.
-                list_to_yield.append(mol_int_dataset)
-                if len(list_to_yield) == batch_size:
+                list_to_yield.extend(list_of_mol_int_dataset)
+                if len(list_to_yield) >= batch_size: # We're possibly extending by more than one at a time, need to add 'greater than'.
                     yield list_to_yield
                     list_to_yield[:] = []  # Empty the list.
 
