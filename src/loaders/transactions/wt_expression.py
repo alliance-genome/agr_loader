@@ -19,6 +19,7 @@ class WTExpressionTransaction(Transaction):
 
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+            MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
             OPTIONAL MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
             
             WITH g, assay, otast, otcct, row WHERE otcct IS NULL
@@ -29,7 +30,8 @@ class WTExpressionTransaction(Transaction):
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
                     SET gex.uuid = row.ei_uuid
             
-                MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
+                MERGE (stage:Stage {primaryKey:row.stageName})
+                MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
                 
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
@@ -44,6 +46,8 @@ class WTExpressionTransaction(Transaction):
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
+                
+                    
                 
                 //MERGE (l:Load:Entity {primaryKey:row.loadKey})
                  //   SET l.dateProduced = row.dateProduced
@@ -62,6 +66,10 @@ class WTExpressionTransaction(Transaction):
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
                 
+            FOREACH (entity in row.aoStructureUberonTerms |
+                MERGE (aou:Ontology {primaryKey:entity})
+                MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
+            )
     
         """
 
@@ -75,6 +83,7 @@ class WTExpressionTransaction(Transaction):
             MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+            MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
             OPTIONAL MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
 
             WITH g, assay, otcct, otast, row WHERE otast IS NULL 
@@ -89,7 +98,8 @@ class WTExpressionTransaction(Transaction):
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
-                MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
+                MERGE (stage:Stage {primaryKey:row.stageName})
+                MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
                 
                 MERGE (gej)-[gejs:DURING]-(stage)
                 MERGE (gej)-[geja:ASSAY]-(assay)
@@ -130,6 +140,7 @@ class WTExpressionTransaction(Transaction):
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+            MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
             MATCH (otcct:CCTerm:Ontology {primaryKey:row.cellularComponentTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
 
@@ -146,7 +157,8 @@ class WTExpressionTransaction(Transaction):
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
-                MERGE (stage:Stage {primaryKey:row.whenExpressedStage})
+                MERGE (stage:Stage {primaryKey:row.stageName})
+                MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
                 
                 MERGE (gej)-[gejs:DURING]-(stage)
                 MERGE (gej)-[geja:ASSAY]-(assay)
@@ -177,6 +189,11 @@ class WTExpressionTransaction(Transaction):
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
+                
+            FOREACH (entity in row.aoStructureUberonTerms |
+                MERGE (aou:Ontology {primaryKey:entity})
+                MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
+            )
 
 
         """
@@ -188,6 +205,11 @@ class WTExpressionTransaction(Transaction):
                     MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                            
                     MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
+                    
+                    FOREACH (entity in row.aoSubStructureUberonTerms |
+                        MERGE (aou:Ontology {primaryKey:entity})
+                        MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
+                    )
 
                         
         """

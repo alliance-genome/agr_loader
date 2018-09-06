@@ -30,12 +30,17 @@ class WTExpressionExt(object):
 
         logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
-            logger.info ("file open")
+            logger.info("file open")
             for xpat in ijson.items(f, 'data.item'):
                 pubMedUrl = None
                 pubModUrl = None
                 pubMedId = ""
                 publicationModId = ""
+                stageTermId = ""
+                stageName = ""
+                stageUberonTermId = ""
+                aoStructureUberonTerms = []
+                aoSubStructureUberonTerms = []
                 geneId = xpat.get('geneId')
 
                 if testObject.using_test_data() is True:
@@ -43,7 +48,14 @@ class WTExpressionExt(object):
                     if is_it_test_entry is False:
                         continue
 
-                whenExpressedStage = xpat.get('whenExpressedStage')
+                whenExpressedStage = xpat.get('whenExpressed')
+                if 'stageTermId' in whenExpressedStage:
+                    stageTermId = whenExpressedStage.get('stageTermId')
+                if 'stageName' in whenExpressedStage:
+                    stageName = whenExpressedStage.get('stageName')
+                if 'stageUberonSlimTerm' in whenExpressedStage:
+                    stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
+                    stageUberonTermId = stageUberonTermObject.get("uberonTerm")
 
                 evidence = xpat.get('evidence')
 
@@ -82,18 +94,28 @@ class WTExpressionExt(object):
                                 CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
                                                           modGlobalCrossRefId, crossRefId + page))
 
-                if 'wildtypeExpressionTermIdentifiers' in xpat:
+                if 'whereExpressed' in xpat:
 
-                    wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
-                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
-                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
-                    anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
-                    anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
+                    whereExpressedStatement = xpat.get('whereExpressed')
+                    cellularComponentQualifierTermId = whereExpressedStatement.get('cellularComponentQualifierTermId')
+                    cellularComponentTermId = whereExpressedStatement.get('cellularComponentTermId')
+                    anatomicalStructureTermId = whereExpressedStatement.get('anatomicalStructureTermId')
+                    anatomicalStructureQualifierTermId = whereExpressedStatement.get(
                         'anatomicalStructureQualifierTermId')
-                    anatomicalSubStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureTermId')
-                    anatomicalSubStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
+                    anatomicalSubStructureTermId = whereExpressedStatement.get('anatomicalSubStructureTermId')
+                    anatomicalSubStructureQualifierTermId = whereExpressedStatement.get(
                         'anatomicalSubStructureQualifierTermId')
-                    whereExpressedStatement = wildtypeExpressionTermIdentifers.get('whereExpressedStatement')
+                    whereExpressedStatement = whereExpressedStatement.get('whereExpressedStatement')
+
+                    if 'anatomicalStructureUberonSlimTermIds' in whereExpressedStatement:
+                        for uberonStructureTermObject in whereExpressedStatement.get('anatomicalStructureUberonSlimTermIds'):
+                            structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
+                            aoStructureUberonTerms.append(structureUberonTermId)
+
+                    if 'anatomicalSubStructureUberonSlimTermIds' in whereExpressedStatement:
+                        for uberonSubStructureTermObject in whereExpressedStatement.get('anatomicalSubStructureUberonSlimTermIds'):
+                            subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
+                            aoSubStructureUberonTerms.append(subStructureUberonTermId)
 
                     if cellularComponentQualifierTermId is None:
                         cellularComponentQualifierTermId = ""
@@ -115,7 +137,7 @@ class WTExpressionExt(object):
                     expression = {
                         "geneId": geneId,
                         "whenExpressedStage": whenExpressedStage,
-                       # "dateAssigned": dateAssigned,
+                        # "dateAssigned": dateAssigned,
                         "pubMedId": pubMedId,
                         "pubMedUrl": pubMedUrl,
                         "pubModId": publicationModId,
@@ -124,6 +146,11 @@ class WTExpressionExt(object):
                         "uuid": str(uuid.uuid4()),
                         "loadKey": loadKey,
                         "type": "gene",
+                        "aoStructureUberonTerms": aoStructureUberonTerms,
+                        "aoSubStructureUberonTerms": aoSubStructureUberonTerms,
+                        "stageTermId": stageTermId,
+                        "stageName": stageName,
+                        "stageUberonTermId": stageUberonTermId,
                         "dataProviders": dataProviders,
                         # "dataProviderType": dataProviderType,
                         # "dateProduced": dateProduced,
@@ -152,7 +179,7 @@ class WTExpressionExt(object):
                         list_to_yield[:] = []  # Empty the list.
 
             if len(list_to_yield) > 0:
-                logger.info (geneId)
+                logger.info(geneId)
                 yield list_to_yield
 
         f.close()

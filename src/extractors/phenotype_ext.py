@@ -17,30 +17,30 @@ class PhenotypeExt(object):
         dataProviders = []
         loadKey = ""
 
-        for dataProviderObject in phenotype_data['metaData']['dataProvider']:
+        dataProviderObject = phenotype_data['metaData']['dataProvider']
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
-            dataProviders = []
-            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
 
-            if dataProviderPages is not None:
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+        loadKey = dateProduced + dataProvider + "_BGI"
+
+        #TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
+
+                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info ("data provider: " + dataProvider)
-
-        dataProviderSingle = DataProvider().get_data_provider(species)
-        logger.info ("dataProvider found: " + dataProviderSingle)
+                logger.info("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
 
@@ -100,9 +100,7 @@ class PhenotypeExt(object):
                 "loadKey": loadKey,
                 "type": "gene",
                 "dataProviders": dataProviders,
-                "dataProviderType": dataProviderType,
-                "dateProduced": dateProduced,
-                "dataProvider": dataProviderSingle
+                "dateProduced": dateProduced
              }
 
             list_to_yield.append(phenotype_feature)
