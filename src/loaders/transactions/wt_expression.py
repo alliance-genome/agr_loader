@@ -6,7 +6,8 @@ class WTExpressionTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def wt_expression_object_tx(self, data, species):
+    def wt_expression_object_tx(self, AOExpressionData, CCExpressionData, AOQualifierData, AOSubstructureData,
+                                AOSSQualifierData, CCQualifierData, AOCCExpressionData, species):
         # Loads the Phenotype data into Neo4j.
 
         AOExpression = """
@@ -46,8 +47,6 @@ class WTExpressionTransaction(Transaction):
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
-                
-                    
                 
                 //MERGE (l:Load:Entity {primaryKey:row.loadKey})
                  //   SET l.dateProduced = row.dateProduced
@@ -248,21 +247,21 @@ class WTExpressionTransaction(Transaction):
         speciesWithOnlyAOTerms = ['Mus musculus']
 
         if species in speciesWithOnlyCCTerms:
-            Transaction.execute_transaction(self, CCExpression, data)
-            Transaction.execute_transaction(self, CCQExpression, data)
+            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
 
         elif species in speciesWithOnlyAOTerms:
-            Transaction.execute_transaction(self, AOExpression, data)
-            Transaction.execute_transaction(self, EASSubstructure, data)
-            Transaction.execute_transaction(self, EASQualified, data)
-            Transaction.execute_transaction(self, EASSQualified, data)
+            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
+            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
             
         else:
-            Transaction.execute_transaction(self, AOExpression, data)
-            Transaction.execute_transaction(self, CCExpression, data)
-            Transaction.execute_transaction(self, AOCCExpression, data)
-            Transaction.execute_transaction(self, EASSubstructure, data)
-            Transaction.execute_transaction(self, EASQualified, data)
-            Transaction.execute_transaction(self, EASSQualified, data)
-            Transaction.execute_transaction(self, CCQExpression, data)
+            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
+            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+            Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
+            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+            Transaction.execute_transaction(self, EASSQualified, AOSubstructureData)
+            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
 

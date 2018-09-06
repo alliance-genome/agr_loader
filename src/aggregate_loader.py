@@ -229,7 +229,7 @@ class AggregateLoader(object):
 
 
             logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+            (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
             for xpat_list_of_entries in xpats:
                  WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
             #

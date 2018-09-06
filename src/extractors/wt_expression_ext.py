@@ -19,19 +19,33 @@ class WTExpressionExt(object):
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
-        logger.info ("loadFile: " + loadFile)
+        logger.info("loadFile: " + loadFile)
         batch_size = 10000
-        list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
 
-        dataProviders = []
-        loadKey = ""
         crossReferences = []
+        counter = 0
+        aoExpression = []
+        ccExpression = []
+        aoQualifier = []
+        aoSubstructure = []
+        aoSSQualifier = []
+        ccQualifier = []
+        aoccExpression = []
+        AOExpression = {}
+        CCExpression = {}
+        AOQualifier = {}
+        AOSubstructure = {}
+        AOSSQualifier = {}
+        CCQualifier = {}
+        AOCCExpression = {}
 
         logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
             logger.info("file open")
             for xpat in ijson.items(f, 'data.item'):
+                counter = counter + 1
+
                 pubMedUrl = None
                 pubModUrl = None
                 pubMedId = ""
@@ -75,8 +89,6 @@ class WTExpressionExt(object):
                     if pubMedId is None:
                         pubMedId = ""
 
-                #dateAssigned = xpat.get('dateAssigned')
-
                 if 'crossReference' in xpat:
                     crossRef = xpat.get('crossReference')
                     crossRefId = crossRef.get('id')
@@ -117,70 +129,142 @@ class WTExpressionExt(object):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
                             aoSubStructureUberonTerms.append(subStructureUberonTermId)
 
-                    if cellularComponentQualifierTermId is None:
-                        cellularComponentQualifierTermId = ""
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
+
+                        AOExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "uuid": str(uuid.uuid4()),
+                            "aoStructureUberonTerms": aoStructureUberonTerms,
+                            "stageTermId": stageTermId,
+                            "stageName": stageName,
+                            "stageUberonTermId": stageUberonTermId,
+                            "assay": assay,
+                            "crossReferences": crossReferences,
+                            "anatomicalStructureTermId": anatomicalStructureTermId,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+
+                        }
+                        aoExpression.append(AOExpression)
+
+                    if cellularComponentQualifierTermId is None:
+                        cellularComponentQualifierTermId = ""
+                        CCQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "cellularComponentQualifierTermId": cellularComponentQualifierTermId
+
+                        }
+                        ccQualifier.append(CCQualifier)
+
                     if anatomicalStructureTermId is None:
                         anatomicalStructureTermId = ""
+
+                        CCExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "stageTermId": stageTermId,
+                            "stageName": stageName,
+                            "stageUberonTermId": stageUberonTermId,
+                            "assay": assay,
+                            "crossReferences": crossReferences,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "cellularComponentTermId": cellularComponentTermId,
+                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+                        }
+                        ccExpression.append(CCExpression)
+
                     if anatomicalStructureQualifierTermId is None:
                         anatomicalStructureQualifierTermId = ""
+                        AOQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId
+                        }
+                        aoQualifier.append(AOQualifier)
+
                     if anatomicalSubStructureTermId is None:
                         anatomicalSubStructureTermId = ""
+                        AOSubstructure = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalStructureTermId": anatomicalSubStructureTermId
+
+                        }
+                        aoSubstructure.append(AOSubstructure)
+
                     if anatomicalSubStructureQualifierTermId is None:
                         anatomicalSubStructureQualifierTermId = ""
+                        AOSSQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId
+
+                        }
+                        aoSSQualifier.append(AOSSQualifier)
+
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
+                    if anatomicalStructureTermId is not None and cellularComponentTermId is not None:
+                        AOCCExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "uuid": str(uuid.uuid4()),
+                            "aoStructureUberonTerms": aoStructureUberonTerms,
+                            "stageTermId": stageTermId,
+                            "stageName": stageName,
+                            "stageUberonTermId": stageUberonTermId,
+                            "assay": assay,
+                            "crossReferences": crossReferences,
+                            "cellularComponentTermId": cellularComponentTermId,
+                            "anatomicalStructureTermId": anatomicalStructureTermId,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+                        }
+                        aoccExpression.append(AOCCExpression)
+
                     assay = xpat.get('assay')
 
-                    expression = {
-                        "geneId": geneId,
-                        "whenExpressedStage": whenExpressedStage,
-                        # "dateAssigned": dateAssigned,
-                        "pubMedId": pubMedId,
-                        "pubMedUrl": pubMedUrl,
-                        "pubModId": publicationModId,
-                        "pubModUrl": pubModUrl,
-                        "pubPrimaryKey": pubMedId + publicationModId,
-                        "uuid": str(uuid.uuid4()),
-                        "loadKey": loadKey,
-                        "type": "gene",
-                        "aoStructureUberonTerms": aoStructureUberonTerms,
-                        "aoSubStructureUberonTerms": aoSubStructureUberonTerms,
-                        "stageTermId": stageTermId,
-                        "stageName": stageName,
-                        "stageUberonTermId": stageUberonTermId,
-                        "dataProviders": dataProviders,
-                        # "dataProviderType": dataProviderType,
-                        # "dateProduced": dateProduced,
-                        # "dataProvider": dataProviderSingle,
-                        "assay": assay,
-                        "crossReferences": crossReferences,
-                        "cellularComponentQualifierTermId": cellularComponentQualifierTermId,
-                        "cellularComponentTermId": cellularComponentTermId,
-                        "anatomicalStructureTermId": anatomicalStructureTermId,
-                        "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId,
-                        "anatomicalSubStructureTermId": anatomicalSubStructureTermId,
-                        "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
-                        "whereExpressedStatement": whereExpressedStatement,
-                        "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
-                        "pubPrimaryKey": pubMedId + publicationModId,
-                        "ei_uuid": str(uuid.uuid4()),
-                        "s_uuid": str(uuid.uuid4()),
-                        "ss_uuid": str(uuid.uuid4()),
-                        "cc_uuid": str(uuid.uuid4()),
-                        "ebe_uuid": str(uuid.uuid4())
-                    }
+                    ei_uuid = str(uuid.uuid4())
+                    ebe_uuid = str(uuid.uuid4())
 
-                    list_to_yield.append(expression)
-                    if len(list_to_yield) == batch_size:
-                        yield list_to_yield
-                        list_to_yield[:] = []  # Empty the list.
+                    if counter == batch_size:
+                        yield AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+                        AOExpression = {}
+                        AOQualifier = {}
+                        AOSubstructure = {}
+                        AOSSQualifier = {}
+                        CCExpression = {}
+                        AOCCExpression = {}
 
-            if len(list_to_yield) > 0:
+            if counter > 0:
                 logger.info(geneId)
-                yield list_to_yield
+                yield AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+
+
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.

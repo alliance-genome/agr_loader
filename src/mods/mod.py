@@ -112,8 +112,8 @@ class MOD(object):
 
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 
-        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
-        return wt_expression_dict
+        (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+        return AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []
