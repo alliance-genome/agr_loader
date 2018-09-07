@@ -221,7 +221,6 @@ class AggregateLoader(object):
         #Loading annotation data for all MODs after completion of BGI data.
 
         for mod in self.mods:
-            #
 
             if mod != 'Human':
 

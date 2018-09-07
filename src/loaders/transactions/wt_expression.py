@@ -262,6 +262,6 @@ class WTExpressionTransaction(Transaction):
             Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
             Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
             Transaction.execute_transaction(self, EASQualified, AOQualifierData)
-            Transaction.execute_transaction(self, EASSQualified, AOSubstructureData)
+            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
             Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
 

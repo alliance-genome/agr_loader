@@ -160,7 +160,7 @@ class WTExpressionExt(object):
                         }
                         aoExpression.append(AOExpression)
 
-                    if cellularComponentQualifierTermId is None:
+                    if cellularComponentQualifierTermId is not None:
                         cellularComponentQualifierTermId = ""
                         CCQualifier = {
                             "ebe_uuid": ebe_uuid,
@@ -193,7 +193,7 @@ class WTExpressionExt(object):
                         }
                         ccExpression.append(CCExpression)
 
-                    if anatomicalStructureQualifierTermId is None:
+                    if anatomicalStructureQualifierTermId is not None:
                         anatomicalStructureQualifierTermId = ""
                         AOQualifier = {
                             "ebe_uuid": ebe_uuid,
@@ -201,7 +201,7 @@ class WTExpressionExt(object):
                         }
                         aoQualifier.append(AOQualifier)
 
-                    if anatomicalSubStructureTermId is None:
+                    if anatomicalSubStructureTermId is not None:
                         anatomicalSubStructureTermId = ""
                         AOSubstructure = {
                             "ebe_uuid": ebe_uuid,
@@ -210,7 +210,7 @@ class WTExpressionExt(object):
                         }
                         aoSubstructure.append(AOSubstructure)
 
-                    if anatomicalSubStructureQualifierTermId is None:
+                    if anatomicalSubStructureQualifierTermId is not None:
                         anatomicalSubStructureQualifierTermId = ""
                         AOSSQualifier = {
                             "ebe_uuid": ebe_uuid,
