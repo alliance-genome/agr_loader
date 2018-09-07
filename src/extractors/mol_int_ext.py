@@ -190,41 +190,49 @@ class MolIntExt(object):
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
-            'entrez gene/locuslink:[\\w\\d_-]*$'
+            'entrez gene/locuslink:\\d+$'
         ]
 
-        # For use in wormbase / flybase lookups.
-        # If we run into an IndexError, there's no identifier to resolve and we return False.
-        # All valid identifiers in the PSI-MI TAB file should be "splittable".
-        try:
-            entry_stripped = row_entry.split(':')[1]
-        except IndexError:
-            return None
+            # If we're dealing with multiple identifiers separated by a pipe.
+        if '|' in row_entry:
+            row_entries = row_entry.split('|')
+        else:
+            row_entries = [row_entry]
+        
+        for individual_entry in row_entries:
 
-        prefixed_identifier = None
-
-        if row_entry.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
-            prefixed_identifier = 'WB:' + entry_stripped
-            if prefixed_identifier in master_gene_set:
-                return prefixed_identifier
-            else:
-                return None
-        elif row_entry.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
-            prefixed_identifier = 'FB:' + entry_stripped
-            if prefixed_identifier in master_gene_set:
-                return prefixed_identifier
-            else:
+            # For use in wormbase / flybase lookups.
+            # If we run into an IndexError, there's no identifier to resolve and we return False.
+            # All valid identifiers in the PSI-MI TAB file should be "splittable".
+            try:
+                entry_stripped = individual_entry.split(':')[1]
+            except IndexError:
                 return None
 
-        for regex_entry in list_of_crossref_regex_to_search:
-            regex_output = re.search(regex_entry, row_entry)
-            if regex_output is not None:
-                identifier = regex_output.group(0)
+            prefixed_identifier = None
 
-                for crossreference_type in master_crossreference_dictionary.keys():
-                    # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
-                    if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
-                        return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene(s).
+            if individual_entry.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
+                prefixed_identifier = 'WB:' + entry_stripped
+                if prefixed_identifier in master_gene_set:
+                    return prefixed_identifier
+                else:
+                    return None
+            elif individual_entry.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
+                prefixed_identifier = 'FB:' + entry_stripped
+                if prefixed_identifier in master_gene_set:
+                    return prefixed_identifier
+                else:
+                    return None
+
+            for regex_entry in list_of_crossref_regex_to_search:
+                regex_output = re.findall(regex_entry, individual_entry)
+                if regex_output is not None:
+                    for regex_match in regex_output: # We might have multiple regex matches. Search them all against our crossreferences.
+                        identifier = regex_match
+                        for crossreference_type in master_crossreference_dictionary.keys():
+                            # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
+                            if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
+                                return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene(s).
 
         # If we can't resolve any of the crossReferences, return None
         return None            
