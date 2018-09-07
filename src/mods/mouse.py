@@ -49,8 +49,8 @@ class MGI(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
-        return AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+        (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression) = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
+        return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

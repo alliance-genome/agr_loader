@@ -5,12 +5,12 @@ class RGD(MOD):
     def __init__(self):
         self.species = "Rattus norvegicus"
 
-        self.loadFile = "RGD_1.0.0.4_6.tar.gz"
-        self.bgiName = "/RGD_1.0.0.4_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.4_disease.10116.json"
-        self.phenotypeName = "/RGD_1.0.0.4_phenotype.10116.json"
-        self.alleleName = "/RGD_1.0.0.4_allele.10116.json"
-        self.wtExpressionName = "/RGD_1.0.0.4_expression.10116.json"
+        self.loadFile = "RGD_1.0.0.6_4.tar.gz"
+        self.bgiName = "/RGD_1.0.0.6_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.6_disease.10116.json"
+        self.phenotypeName = "/RGD_1.0.0.6_phenotype.10116.json"
+        self.alleleName = "/RGD_1.0.0.6_allele.10116.json"
+        self.wtExpressionName = "/RGD_1.0.0.6_expression.10116.json"
         self.geneAssociationFile = "gene_association_1.7.rgd.gz"
 
         self.identifierPrefix = "RGD:"
@@ -51,8 +51,8 @@ class RGD(MOD):
         return data
 
     def load_wt_expression_objects(self, batch_size, testObject, species):
-        (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
-        return AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+        (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression) = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
+        return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)

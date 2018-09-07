@@ -12,6 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class WTExpressionExt(object):
 
     def get_wt_expression_data(self, loadFile, expressionFile, batch_size, testObject):
@@ -32,13 +33,6 @@ class WTExpressionExt(object):
         aoSSQualifier = []
         ccQualifier = []
         aoccExpression = []
-        AOExpression = {}
-        CCExpression = {}
-        AOQualifier = {}
-        AOSubstructure = {}
-        AOSSQualifier = {}
-        CCQualifier = {}
-        AOCCExpression = {}
 
         logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
@@ -56,6 +50,13 @@ class WTExpressionExt(object):
                 aoStructureUberonTerms = []
                 aoSubStructureUberonTerms = []
                 geneId = xpat.get('geneId')
+                AOExpression = {}
+                CCExpression = {}
+                AOQualifier = {}
+                AOSubstructure = {}
+                AOSSQualifier = {}
+                CCQualifier = {}
+                AOCCExpression = {}
 
                 if testObject.using_test_data() is True:
                     is_it_test_entry = testObject.check_for_test_id_entry(geneId)
@@ -105,6 +106,9 @@ class WTExpressionExt(object):
                                 crossReferences.append(
                                 CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
                                                           modGlobalCrossRefId, crossRefId + page))
+                assay = xpat.get('assay')
+                ei_uuid = str(uuid.uuid4())
+                ebe_uuid = str(uuid.uuid4())
 
                 if 'whereExpressed' in xpat:
 
@@ -149,7 +153,6 @@ class WTExpressionExt(object):
                             "crossReferences": crossReferences,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
-                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
@@ -184,7 +187,6 @@ class WTExpressionExt(object):
                             "crossReferences": crossReferences,
                             "whereExpressedStatement": whereExpressedStatement,
                             "cellularComponentTermId": cellularComponentTermId,
-                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
@@ -239,30 +241,26 @@ class WTExpressionExt(object):
                             "cellularComponentTermId": cellularComponentTermId,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
-                            "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
                         }
                         aoccExpression.append(AOCCExpression)
 
-                    assay = xpat.get('assay')
-
-                    ei_uuid = str(uuid.uuid4())
-                    ebe_uuid = str(uuid.uuid4())
-
                     if counter == batch_size:
-                        yield AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
-                        AOExpression = {}
-                        AOQualifier = {}
-                        AOSubstructure = {}
-                        AOSSQualifier = {}
-                        CCExpression = {}
-                        AOCCExpression = {}
+                        yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression)
+                        aoExpression = []
+                        ccExpression = []
+                        aoQualifier = []
+                        aoSubstructure = []
+                        aoSSQualifier = []
+                        ccQualifier = []
+                        aoccExpression = []
+                        counter = 0
 
             if counter > 0:
                 logger.info(geneId)
-                yield AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression)
 
 
 

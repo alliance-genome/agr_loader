@@ -6,6 +6,6 @@ class WTExpressionLoader(object):
     def __init__(self, graph):
         self.graph = graph
 
-    def load_wt_expression_objects(self, data, species):
+    def load_wt_expression_objects(self, aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, species):
         tx = WTExpressionTransaction(self.graph)
-        tx.wt_expression_object_tx(data, species)
+        tx.wt_expression_object_tx(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, species)

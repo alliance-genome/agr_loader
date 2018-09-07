@@ -14,7 +14,7 @@ class AlleleExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
         list_to_yield = []
-        loadKey = ""
+        release = ""
 
         dateProduced = allele_data['metaData']['dateProduced']
 

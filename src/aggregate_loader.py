@@ -30,8 +30,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-        self.mods = [MGI()]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
+        #self.mods = [MGI()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -181,8 +181,8 @@ class AggregateLoader(object):
         gc.collect()
 
         end = time.time()
-        logger.info ("total time to load ontologies: ")
-        logger.info (end - start)
+        logger.info("total time to load ontologies: ")
+        logger.info(end - start)
 
     def load_bgi(self, mod):
         genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
@@ -222,18 +222,22 @@ class AggregateLoader(object):
 
         for mod in self.mods:
             #
-            logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
-            for allele_list_of_entries in alleles:
-                AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
+            if mod != 'Human':
 
-            logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-            for xpat_list_of_entries in xpats:
-                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
-            #
+                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
+                alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
+                for allele_list_of_entries in alleles:
+                    AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
+                logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
+                (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+                WTExpressionLoader(self.graph).load_wt_expression_objects(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, mod.species)
+
+                logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+                features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
+                for feature_list_of_entries in features:
+                    DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             logger.info("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
@@ -264,7 +268,7 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-            #
+
             logger.info("generate gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 cached_data_fetcher = genedesc_generator.generate_descriptions(

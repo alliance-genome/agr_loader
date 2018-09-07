@@ -112,8 +112,10 @@ class MOD(object):
 
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 
-        (AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression) = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
-        return AOExpression, CCExpression, AOQualifier, AOSubstructure, AOSSQualifier, CCQualifier, AOCCExpression
+        g = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+        (aoExpression, ccExpression, aoQualifier,
+         aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression) = next(g)
+        return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []
