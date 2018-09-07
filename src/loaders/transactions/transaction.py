@@ -13,6 +13,12 @@ class Transaction(object):
         end = time.time()
         print("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
 
+    def run_single_query(self, query):
+        with self.graph.session() as session:
+            with session.begin_transaction() as tx:
+                returnSet = tx.run(query)
+        return returnSet
+
     def run_single_parameter_query(self, query, parameter):
         with self.graph.session() as session:
             with session.begin_transaction() as tx:
