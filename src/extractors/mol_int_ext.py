@@ -190,7 +190,7 @@ class MolIntExt(object):
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
-            'entrez gene/locuslink:\\d+$'
+            'entrez gene/locuslink:.*'
         ]
 
             # If we're dealing with multiple identifiers separated by a pipe.
