@@ -1,6 +1,10 @@
 from .comment_file import CommentFile
 import csv
 import codecs
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class CSVFile(object):
 
@@ -8,7 +12,7 @@ class CSVFile(object):
         self.filename = filename
 
     def get_data(self):
-        print("Loading csv data from %s ..." % (self.filename))
+        logger.info("Loading csv data from %s ..." % (self.filename))
         with codecs.open(self.filename, 'r', 'utf-8') as f:
             reader = csv.reader(CommentFile(f), delimiter='\t')
             rows = []

@@ -3,7 +3,10 @@ from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 from services import DataProvider
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class PhenotypeExt(object):
 
@@ -34,10 +37,10 @@ class PhenotypeExt(object):
                                                   dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                print ("data provider: " + dataProvider)
+                logger.info ("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
-        print ("dataProvider found: " + dataProviderSingle)
+        logger.info ("dataProvider found: " + dataProviderSingle)
 
         for pheno in phenotype_data['data']:
 
@@ -82,7 +85,7 @@ class PhenotypeExt(object):
             dateAssigned = pheno.get('dateAssigned')
 
             if pubModId == None and pubMedId == None:
-                print (primaryId + "is missing pubMed and pubMod id")
+                logger.info (primaryId + "is missing pubMed and pubMod id")
 
             phenotype_feature = {
                 "primaryId": primaryId,

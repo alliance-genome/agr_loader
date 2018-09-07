@@ -17,6 +17,7 @@ class MITransaction(Transaction):
             //Create the MITerm node and set properties. primaryKey is required.
             MERGE (g:MITerm:Ontology {primaryKey:row.identifier})
                 SET g.label = row.label
+                SET g.url = row.url
         """
 
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)

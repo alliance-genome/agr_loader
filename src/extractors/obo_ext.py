@@ -2,6 +2,10 @@ from services import CreateCrossReference
 from files import XMLFile, Download, S3File
 from ontobio import OntologyFactory
 import urllib.request
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OExt(object):
 
@@ -10,7 +14,7 @@ class OExt(object):
 
         savepath = "tmp";
         saved_path = Download(savepath, url, filename).download_file()
-        print (saved_path)
+        logger.info (saved_path)
         ont = OntologyFactory().create(saved_path)
 
         parsed_line = ont.graph.copy().node

@@ -1,4 +1,8 @@
 import time
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class Transaction(object):
 
@@ -11,7 +15,7 @@ class Transaction(object):
             with session.begin_transaction() as tx:
                 tx.run(query, data=data)
         end = time.time()
-        print("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
+        logger.info("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
 
     def run_single_query(self, query):
         with self.graph.session() as session:
@@ -26,11 +30,11 @@ class Transaction(object):
         return returnSet
 
     def execute_transaction_batch(self, query, data, batch_size):
-        print("Executing batch query. Please wait.")
+        logger.info("Executing batch query. Please wait.")
 
         for submission in self.split_into_chunks(data, batch_size):
             self.execute_transaction(query, submission)
-        print("Finished batch loading.")
+        logger.info("Finished batch loading.")
 
     def split_into_chunks(self, data, batch_size):
         return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
