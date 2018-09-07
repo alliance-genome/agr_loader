@@ -193,7 +193,7 @@ class MolIntExt(object):
             'entrez gene/locuslink:.*'
         ]
 
-            # If we're dealing with multiple identifiers separated by a pipe.
+        # If we're dealing with multiple identifiers separated by a pipe.
         if '|' in row_entry:
             row_entries = row_entry.split('|')
         else:
