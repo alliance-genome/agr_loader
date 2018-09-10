@@ -30,8 +30,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
-        self.mods = [ZFIN()]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -71,7 +71,7 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("https://s3.amazonaws.com/mod-datadumps/DO/do_1.7.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
@@ -230,8 +230,15 @@ class AggregateLoader(object):
                     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-                (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-                WTExpressionLoader(self.graph).load_wt_expression_objects(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, mod.species)
+                (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression,
+                 stageData, stageUberonData, uberonAOData, uberonAOOtherData,
+                 uberonStageOther) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+
+                WTExpressionLoader(self.graph).load_wt_expression_objects(aoExpression, ccExpression, aoQualifier,
+                                                                          aoSubstructure, aoSSQualifier, ccQualifier,
+                                                                          aoccExpression, stageData, stageUberonData,
+                                                                          uberonAOData, uberonAOOtherData,
+                                                                          uberonStageOther, mod.species)
 
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
@@ -242,11 +249,6 @@ class AggregateLoader(object):
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-
-            logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             logger.info("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
             phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
@@ -273,6 +275,7 @@ class AggregateLoader(object):
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
                     go_annotations=go_annots,
                     do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+
                     do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
                                                                           self.graph, mod.species),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,

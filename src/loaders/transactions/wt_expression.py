@@ -7,9 +7,16 @@ class WTExpressionTransaction(Transaction):
         Transaction.__init__(self, graph)
 
     def wt_expression_object_tx(self, AOExpressionData, CCExpressionData, AOQualifierData, AOSubstructureData,
-                                AOSSQualifierData, CCQualifierData, AOCCExpressionData, species):
+                                AOSSQualifierData, CCQualifierData, AOCCExpressionData, stageList, stageUberonData,
+                                uberonAOData, uberonAOOtherData, uberonStageOtherData, species):
         # Loads the Phenotype data into Neo4j.
 
+        AddOther = """
+        
+            MERGE(other:Other {primaryKey:"Other"})
+            MERGE(otherstage:Other {primaryKey:"post-embryonic, pre-adult"})
+            
+        """
         AOExpression = """
             UNWIND $data as row
 
@@ -20,18 +27,14 @@ class WTExpressionTransaction(Transaction):
 
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
-            MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
             
-            WITH g, assay, otast, otcct, row
+            WITH g, assay, otast, row
 
                 MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
                 MERGE (g)-[gex:EXPRESSED_IN]-(e)
                     SET gex.uuid = row.ei_uuid
-            
-                MERGE (stage:Stage {primaryKey:row.stageName})
-                MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
                 
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression'
@@ -40,8 +43,6 @@ class WTExpressionTransaction(Transaction):
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
-                    
-                MERGE (gej)-[gejs:DURING]-(stage)
                 
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
@@ -81,7 +82,6 @@ class WTExpressionTransaction(Transaction):
             MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
-            OPTIONAL MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
 
             MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
@@ -93,9 +93,6 @@ class WTExpressionTransaction(Transaction):
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
-                MERGE (stage:Stage {primaryKey:row.stageName})
-                
-                MERGE (gej)-[gejs:DURING]-(stage)
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
@@ -121,7 +118,6 @@ class WTExpressionTransaction(Transaction):
               //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
             
-            MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
 
         """
 
@@ -135,7 +131,6 @@ class WTExpressionTransaction(Transaction):
             // LOAD NODES
             MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (ustage:Ontology {primaryKey:row.stageUberonTermId})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
 
@@ -152,10 +147,6 @@ class WTExpressionTransaction(Transaction):
                     SET gej.joinType = 'expression'
                     SET gej.dataProviders = row.dataProviders
                 
-                MERGE (stage:Stage {primaryKey:row.stageName})
-                MERGE (stage)-[stageustage:UBERON_STAGE_ID]-(ustage)
-                
-                MERGE (gej)-[gejs:DURING]-(stage)
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
@@ -201,10 +192,10 @@ class WTExpressionTransaction(Transaction):
                            
                     MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
                     
-                    FOREACH (entity in row.aoSubStructureUberonTerms |
-                        MERGE (aou:Ontology {primaryKey:entity})
-                        MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
-                    )
+                    //FOREACH (entity in row.aoSubStructureUberonTerms |
+                    //    MERGE (aou:Ontology {primaryKey:entity})
+                   //     MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
+                    //)
 
                         
         """
@@ -236,28 +227,92 @@ class WTExpressionTransaction(Transaction):
                     
         """
 
+        stageExpression = """  
+
+            UNWIND $data as row
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MERGE (s:Stage {primaryKey:row.stageName})
+                MERGE (ei)-[eotcctq:DURING]-(s)
+                
+            //TODO: get stage term ids from MGI
+        """
+
+        uberonAO = """  
+
+            UNWIND $data as row
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
+                MATCH (o:Ontology {primaryKey:row.aoUberonId})
+                
+                MERGE (ebe)-[eio:ANATOMICAL_RIBBON_TERM]-(o)
+        """
+
+        uberonStage = """
+        
+            UNWIND $data as row
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
+                MATCH (o:Ontology {primaryKey:row.uberonStageId})
+                
+                MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
+                
+        """
+
+        uberonAOOther = """
+            
+            UNWIND $data as row
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
+                MATCH (u:Other {primaryKey:"Other"}) 
+                
+                MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
+            
+        
+        """
+
+        uberonStageOther = """
+        
+            UNWIND $data as row
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (u:Other {primaryKey:"post-embryonic, pre-adult"})
+                
+                MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
+                
+            //TODO: get stage term ids from MGI
+                
+        """
+
         # this is to prevent double running expression.
         # TODO: determine this programatically
 
-        speciesWithOnlyCCTerms = ['Saccharomyces cerevisiae', 'Rattus norvegicus']
-        speciesWithOnlyAOTerms = ['Mus musculus']
+        #speciesWithOnlyCCTerms = ['Saccharomyces cerevisiae', 'Rattus norvegicus']
+        #speciesWithOnlyAOTerms = ['Mus musculus']
 
-        if species in speciesWithOnlyCCTerms:
-            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
-            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+        # if species in speciesWithOnlyCCTerms:
+        #     Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+        #     Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+        #     Transaction.execute_transaction(self, stageExpression, stageUberonList)
+        #
+        # elif species in speciesWithOnlyAOTerms:
+        #     Transaction.execute_transaction(self, AOExpression, AOExpressionData)
+        #     Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+        #     Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+        #     Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
+        #     Transaction.execute_transaction(self, stageExpression, stageUberonList)
+        #
+        # else:
+        #
+        Transaction.execute_transaction(self, AddOther, "other")
+        Transaction.execute_transaction(self, AOExpression, AOExpressionData)
+        Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+        Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
+        Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+        Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+        Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
+        Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+        Transaction.execute_transaction(self, stageExpression, stageList)
 
-        elif species in speciesWithOnlyAOTerms:
-            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
-            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
-            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
-            
-        else:
-            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
-            Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
-            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
-            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
-            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
-            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+        Transaction.execute_transaction(self, uberonAO, uberonAOData)
+        Transaction.execute_transaction(self, uberonAOOther, uberonAOOtherData)
+        Transaction.execute_transaction(self, uberonStage, stageUberonData)
+        Transaction.execute_transaction(self, uberonStageOther, uberonStageOtherData)
+
+
 

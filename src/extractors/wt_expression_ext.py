@@ -33,6 +33,11 @@ class WTExpressionExt(object):
         aoSSQualifier = []
         ccQualifier = []
         aoccExpression = []
+        stageList = []
+        stageUberonData = []
+        uberonAOData =[]
+        uberonAOOtherData = []
+        uberonStageOtherData = []
 
         logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
@@ -47,30 +52,15 @@ class WTExpressionExt(object):
                 stageTermId = ""
                 stageName = ""
                 stageUberonTermId = ""
-                aoStructureUberonTerms = []
-                aoSubStructureUberonTerms = []
                 geneId = xpat.get('geneId')
-                AOExpression = {}
-                CCExpression = {}
-                AOQualifier = {}
-                AOSubstructure = {}
-                AOSSQualifier = {}
-                CCQualifier = {}
-                AOCCExpression = {}
 
                 if testObject.using_test_data() is True:
                     is_it_test_entry = testObject.check_for_test_id_entry(geneId)
                     if is_it_test_entry is False:
                         continue
 
-                whenExpressedStage = xpat.get('whenExpressed')
-                if 'stageTermId' in whenExpressedStage:
-                    stageTermId = whenExpressedStage.get('stageTermId')
-                if 'stageName' in whenExpressedStage:
-                    stageName = whenExpressedStage.get('stageName')
-                if 'stageUberonSlimTerm' in whenExpressedStage:
-                    stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
-                    stageUberonTermId = stageUberonTermObject.get("uberonTerm")
+
+
 
                 evidence = xpat.get('evidence')
 
@@ -110,6 +100,45 @@ class WTExpressionExt(object):
                 ei_uuid = str(uuid.uuid4())
                 ebe_uuid = str(uuid.uuid4())
 
+                whenExpressedStage = xpat.get('whenExpressed')
+
+                if 'stageTermId' in whenExpressedStage:
+                    stageTermId = whenExpressedStage.get('stageTermId')
+                if 'stageName' in whenExpressedStage:
+                    stageName = whenExpressedStage.get('stageName')
+                if 'stageUberonSlimTerm' in whenExpressedStage:
+                    stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
+                    stageUberonTermId = stageUberonTermObject.get("uberonTerm")
+                    if stageUberonTermId is not None and stageUberonTermId != "post embryonic, pre-adult":
+                        stageUberon = {
+                            "uberonStageId": stageUberonTermId,
+                            "ei_uuid": ei_uuid
+                        }
+                        stageUberonData.append(stageUberon)
+                    if stageUberonTermId == "post embryonic, pre-adult":
+                        stageUberonOther = {
+                            "ei_uuid": ei_uuid
+                        }
+                        uberonStageOtherData.append(stageUberonOther)
+
+                if stageTermId is None or stageName == 'N/A':
+                    stageTermId = ""
+                    stageName = ""
+                    stageUberonTermId = ""
+
+                if stageName is not None:
+
+                    stage = {
+                        "stageTermId": stageTermId,
+                        "stageName": stageName,
+                        "ei_uuid": ei_uuid
+                    }
+
+                    stageList.append(stage)
+
+                else:
+                    stageUberonTermId = ""
+
                 if 'whereExpressed' in xpat:
 
                     whereExpressedStatement = xpat.get('whereExpressed')
@@ -126,12 +155,34 @@ class WTExpressionExt(object):
                     if 'anatomicalStructureUberonSlimTermIds' in whereExpressedStatement:
                         for uberonStructureTermObject in whereExpressedStatement.get('anatomicalStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
-                            aoStructureUberonTerms.append(structureUberonTermId)
+                            if structureUberonTermId is not None and structureUberonTermId != 'Other':
+                                structureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid,
+                                    "aoUberonId": structureUberonTermId
+                                }
+                                uberonAOData.append(structureUberonTerm)
+                            elif structureUberonTermId is not None and structureUberonTermId == 'Other':
+                                otherStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid
+                                }
+                                uberonAOOtherData.append(otherStructureUberonTerm)
 
                     if 'anatomicalSubStructureUberonSlimTermIds' in whereExpressedStatement:
                         for uberonSubStructureTermObject in whereExpressedStatement.get('anatomicalSubStructureUberonSlimTermIds'):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
-                            aoSubStructureUberonTerms.append(subStructureUberonTermId)
+                            if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':
+                                subStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid,
+                                    "aoUberonId": subStructureUberonTermId
+                                }
+                                uberonAOData.append(subStructureUberonTerm)
+                            elif subStructureUberonTermId is not None and subStructureUberonTermId == 'Other':
+                                otherStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid
+                                }
+                                uberonAOOtherData.append(otherStructureUberonTerm)
+
+
 
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
@@ -145,10 +196,6 @@ class WTExpressionExt(object):
                             "pubModUrl": pubModUrl,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "uuid": str(uuid.uuid4()),
-                            "aoStructureUberonTerms": aoStructureUberonTerms,
-                            "stageTermId": stageTermId,
-                            "stageName": stageName,
-                            "stageUberonTermId": stageUberonTermId,
                             "assay": assay,
                             "crossReferences": crossReferences,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
@@ -180,9 +227,6 @@ class WTExpressionExt(object):
                             "pubModId": publicationModId,
                             "pubModUrl": pubModUrl,
                             "pubPrimaryKey": pubMedId + publicationModId,
-                            "stageTermId": stageTermId,
-                            "stageName": stageName,
-                            "stageUberonTermId": stageUberonTermId,
                             "assay": assay,
                             "crossReferences": crossReferences,
                             "whereExpressedStatement": whereExpressedStatement,
@@ -230,7 +274,6 @@ class WTExpressionExt(object):
                             "pubModUrl": pubModUrl,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "uuid": str(uuid.uuid4()),
-                            "aoStructureUberonTerms": aoStructureUberonTerms,
                             "stageTermId": stageTermId,
                             "stageName": stageName,
                             "stageUberonTermId": stageUberonTermId,
@@ -247,7 +290,7 @@ class WTExpressionExt(object):
                         aoccExpression.append(AOCCExpression)
 
                     if counter == batch_size:
-                        yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression)
+                        yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
                         aoExpression = []
                         ccExpression = []
                         aoQualifier = []
@@ -255,13 +298,16 @@ class WTExpressionExt(object):
                         aoSSQualifier = []
                         ccQualifier = []
                         aoccExpression = []
+                        stageList = []
+                        uberonStageOtherData = []
+                        stageUberonData = []
+                        uberonAOOtherData = []
+                        uberonAOData = []
                         counter = 0
 
             if counter > 0:
                 logger.info(geneId)
-                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression)
-
-
+                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.
