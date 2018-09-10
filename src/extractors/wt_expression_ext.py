@@ -161,7 +161,7 @@ class WTExpressionExt(object):
                         aoExpression.append(AOExpression)
 
                     if cellularComponentQualifierTermId is not None:
-                        cellularComponentQualifierTermId = ""
+
                         CCQualifier = {
                             "ebe_uuid": ebe_uuid,
                             "cellularComponentQualifierTermId": cellularComponentQualifierTermId
@@ -194,7 +194,6 @@ class WTExpressionExt(object):
                         ccExpression.append(CCExpression)
 
                     if anatomicalStructureQualifierTermId is not None:
-                        anatomicalStructureQualifierTermId = ""
                         AOQualifier = {
                             "ebe_uuid": ebe_uuid,
                             "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId
@@ -202,7 +201,6 @@ class WTExpressionExt(object):
                         aoQualifier.append(AOQualifier)
 
                     if anatomicalSubStructureTermId is not None:
-                        anatomicalSubStructureTermId = ""
                         AOSubstructure = {
                             "ebe_uuid": ebe_uuid,
                             "anatomicalStructureTermId": anatomicalSubStructureTermId
@@ -211,7 +209,6 @@ class WTExpressionExt(object):
                         aoSubstructure.append(AOSubstructure)
 
                     if anatomicalSubStructureQualifierTermId is not None:
-                        anatomicalSubStructureQualifierTermId = ""
                         AOSSQualifier = {
                             "ebe_uuid": ebe_uuid,
                             "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId
@@ -223,6 +220,7 @@ class WTExpressionExt(object):
                         whereExpressedStatement = ""
 
                     if anatomicalStructureTermId is not None and cellularComponentTermId is not None:
+
                         AOCCExpression = {
                             "geneId": geneId,
                             "whenExpressedStage": whenExpressedStage,
@@ -245,6 +243,7 @@ class WTExpressionExt(object):
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
                         }
+
                         aoccExpression.append(AOCCExpression)
 
                     if counter == batch_size:

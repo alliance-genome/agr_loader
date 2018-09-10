@@ -30,8 +30,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
-        #self.mods = [MGI()]
+        #self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
+        self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -222,7 +222,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
 
-            if mod != 'Human':
+            if mod.species != 'Homo sapiens':
 
                 logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
                 alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
