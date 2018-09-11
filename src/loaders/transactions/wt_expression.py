@@ -66,11 +66,6 @@ class WTExpressionTransaction(Transaction):
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-                
-            FOREACH (entity in row.aoStructureUberonTerms |
-                MERGE (aou:Ontology {primaryKey:entity})
-                MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
-            )
     
         """
 
@@ -158,7 +153,7 @@ class WTExpressionTransaction(Transaction):
                 
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     
-                MERGE (e)-[gejotast:ANATOMICAL_SUB_STRUCTURE]-(otast)
+                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
                     
 
                // MERGE (l:Load:Entity {primaryKey:row.loadKey})
@@ -177,12 +172,6 @@ class WTExpressionTransaction(Transaction):
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-                
-           FOREACH (entity in row.aoStructureUberonTerms |
-                MERGE (aou:Ontology {primaryKey:entity})
-                MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
-           )
-
 
         """
 
