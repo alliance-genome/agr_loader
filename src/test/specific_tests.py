@@ -191,3 +191,17 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:Other) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_stage_uberon_other_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:STAGE_RIBBON_TERM]-(o:Other) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
