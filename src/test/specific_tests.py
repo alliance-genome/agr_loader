@@ -172,18 +172,19 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
         assert record["counter"] > 0
 
 
-def test_cellular_component_qualifier_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
-def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+# TODO turn back on when SGD and FlyBase have data
+# def test_cellular_component_qualifier_relationship_for_expression_exists():
+#     query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 0
+#
+#
+# def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
+#     query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
