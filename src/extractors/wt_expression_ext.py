@@ -263,7 +263,7 @@ class WTExpressionExt(object):
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
-                    if anatomicalStructureTermId is not None and cellularComponentTermId is not None:
+                    if anatomicalStructureTermId is not None and anatomicalStructureTermId != "" and cellularComponentTermId is not None and cellularComponentTermId != "":
 
                         AOCCExpression = {
                             "geneId": geneId,
