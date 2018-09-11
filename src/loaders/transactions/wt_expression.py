@@ -13,9 +13,11 @@ class WTExpressionTransaction(Transaction):
 
         AddOther = """
         
-            MERGE(other:Other {primaryKey:"Other"})
-            MERGE(otherstage:Other {primaryKey:"post-embryonic, pre-adult"})
-            
+            MERGE(other:Other {primaryKey:'Other'})
+                ON CREATE SET other.name = 'Other'
+            MERGE(otherstage:Other {primaryKey:'post embryonic, pre-adult'})
+                ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
+                
         """
         AOExpression = """
             UNWIND $data as row
@@ -233,7 +235,7 @@ class WTExpressionTransaction(Transaction):
         uberonAO = """  
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
-                MATCH (o:Ontology {primaryKey:row.aoUberonId})
+                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})
                 
                 MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
         """
@@ -242,7 +244,7 @@ class WTExpressionTransaction(Transaction):
         
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
-                MATCH (o:Ontology {primaryKey:row.uberonStageId})
+                MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
                 
                 MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
                 
@@ -252,7 +254,7 @@ class WTExpressionTransaction(Transaction):
             
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
-                MATCH (u:Other {primaryKey:"Other"}) 
+                MATCH (u:Other {primaryKey:'Other'}) 
                 
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
             
@@ -263,7 +265,7 @@ class WTExpressionTransaction(Transaction):
         
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (u:Other {primaryKey:"post-embryonic, pre-adult"})
+                MATCH (u:Other {primaryKey:'post embryonic, pre-adult'})
                 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
                 

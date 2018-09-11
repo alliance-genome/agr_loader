@@ -59,9 +59,6 @@ class WTExpressionExt(object):
                     if is_it_test_entry is False:
                         continue
 
-
-
-
                 evidence = xpat.get('evidence')
 
                 if 'modPublicationId' in evidence:
@@ -106,7 +103,7 @@ class WTExpressionExt(object):
                     stageTermId = whenExpressedStage.get('stageTermId')
                 if 'stageName' in whenExpressedStage:
                     stageName = whenExpressedStage.get('stageName')
-                if 'stageUberonSlimTerm' in whenExpressedStage:
+                if whenExpressedStage.get('stageUberonSlimTerm') is not None:
                     stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
                     stageUberonTermId = stageUberonTermObject.get("uberonTerm")
                     if stageUberonTermId is not None and stageUberonTermId != "post embryonic, pre-adult":
@@ -152,24 +149,22 @@ class WTExpressionExt(object):
                         'anatomicalSubStructureQualifierTermId')
                     whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
 
-                    if 'anatomicalStructureUberonSlimTermIds' in whereExpressed:
+                    if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
                         for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
-                            logger.info("structureUberonTermId:" + structureUberonTermId)
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {
                                     "ebe_uuid": ebe_uuid,
                                     "aoUberonId": structureUberonTermId
                                 }
                                 uberonAOData.append(structureUberonTerm)
-                                logger.info("structureUberonTermId:" + structureUberonTermId)
                             elif structureUberonTermId is not None and structureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
                                     "ebe_uuid": ebe_uuid
                                 }
                                 uberonAOOtherData.append(otherStructureUberonTerm)
 
-                    if 'anatomicalSubStructureUberonSlimTermIds' in whereExpressed:
+                    if whereExpressed.get('anatomicalSubStructureUberonSlimTermIds') is not None:
                         for uberonSubStructureTermObject in whereExpressed.get('anatomicalSubStructureUberonSlimTermIds'):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
                             if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':

@@ -38,6 +38,7 @@ class AlleleTransaction(Transaction):
                 SET o.localId = row.localId
                 SET o.globalId = row.globalId
                 SET o.uuid = row.uuid
+                SET o.symbolText = row.symbolText
                 SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
                 SET o.dataProviders = row.dataProviders
                 SET o.dataProvider = row.dataProvider
