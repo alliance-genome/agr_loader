@@ -161,6 +161,7 @@ class WTExpressionExt(object):
                                     "aoUberonId": structureUberonTermId
                                 }
                                 uberonAOData.append(structureUberonTerm)
+                                logger.info("structureUberonTermId:" + structureUberonTermId)
                             elif structureUberonTermId is not None and structureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
                                     "ebe_uuid": ebe_uuid
@@ -181,8 +182,6 @@ class WTExpressionExt(object):
                                     "ebe_uuid": ebe_uuid
                                 }
                                 uberonAOOtherData.append(otherStructureUberonTerm)
-
-
 
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
@@ -247,7 +246,7 @@ class WTExpressionExt(object):
                     if anatomicalSubStructureTermId is not None:
                         AOSubstructure = {
                             "ebe_uuid": ebe_uuid,
-                            "anatomicalStructureTermId": anatomicalSubStructureTermId
+                            "anatomicalSubStructureTermId": anatomicalSubStructureTermId
 
                         }
                         aoSubstructure.append(AOSubstructure)

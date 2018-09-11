@@ -190,14 +190,7 @@ class WTExpressionTransaction(Transaction):
                     MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                     MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                            
-                    MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
-                    
-                    //FOREACH (entity in row.aoSubStructureUberonTerms |
-                    //    MERGE (aou:Ontology {primaryKey:entity})
-                   //     MERGE (e)-[eaou:ANATOMICAL_RIBBON_TERM]->(aou)
-                    //)
-
-                        
+                    MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)                     
         """
         EASQualified = """
             
@@ -238,7 +231,6 @@ class WTExpressionTransaction(Transaction):
         """
 
         uberonAO = """  
-
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
                 MATCH (o:Ontology {primaryKey:row.aoUberonId})
