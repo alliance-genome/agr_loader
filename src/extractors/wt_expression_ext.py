@@ -153,7 +153,7 @@ class WTExpressionExt(object):
                     whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
 
                     if 'anatomicalStructureUberonSlimTermIds' in whereExpressed:
-                        for uberonStructureTermObject in whereExpressed.get('anatomicalStructureUberonSlimTermIds'):
+                        for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
                             logger.info("structureUberonTermId:" + structureUberonTermId)
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':

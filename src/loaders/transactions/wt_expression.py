@@ -235,7 +235,7 @@ class WTExpressionTransaction(Transaction):
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
                 MATCH (o:Ontology {primaryKey:row.aoUberonId})
                 
-                MERGE (ebe)-[eio:ANATOMICAL_RIBBON_TERM]-(o)
+                MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
         """
 
         uberonStage = """
@@ -271,26 +271,6 @@ class WTExpressionTransaction(Transaction):
                 
         """
 
-        # this is to prevent double running expression.
-        # TODO: determine this programatically
-
-        #speciesWithOnlyCCTerms = ['Saccharomyces cerevisiae', 'Rattus norvegicus']
-        #speciesWithOnlyAOTerms = ['Mus musculus']
-
-        # if species in speciesWithOnlyCCTerms:
-        #     Transaction.execute_transaction(self, CCExpression, CCExpressionData)
-        #     Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
-        #     Transaction.execute_transaction(self, stageExpression, stageUberonList)
-        #
-        # elif species in speciesWithOnlyAOTerms:
-        #     Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-        #     Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
-        #     Transaction.execute_transaction(self, EASQualified, AOQualifierData)
-        #     Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
-        #     Transaction.execute_transaction(self, stageExpression, stageUberonList)
-        #
-        # else:
-        #
         Transaction.execute_transaction(self, AddOther, "other")
         Transaction.execute_transaction(self, AOExpression, AOExpressionData)
         Transaction.execute_transaction(self, CCExpression, CCExpressionData)
