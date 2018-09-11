@@ -46,7 +46,6 @@ class DOTransaction(Transaction):
                 MERGE (doterm)-[aka:IS_A]->(doterm2))
 
         """
-        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py
         queryXref = """
                     
             UNWIND $data as row
