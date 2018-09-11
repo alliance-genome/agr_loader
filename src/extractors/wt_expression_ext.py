@@ -24,6 +24,7 @@ class WTExpressionExt(object):
         batch_size = 10000
         xrefUrlMap = ResourceDescriptor().get_data()
 
+        list_to_yield = []
         crossReferences = []
         counter = 0
         aoExpression = []
@@ -284,8 +285,23 @@ class WTExpressionExt(object):
 
                         aoccExpression.append(AOCCExpression)
 
+                    list_to_yield.append(aoExpression)
+                    list_to_yield.append(ccExpression)
+                    list_to_yield.append(aoQualifier)
+                    list_to_yield.append(aoSubstructure)
+                    list_to_yield.append(aoSSQualifier)
+                    list_to_yield.append(ccQualifier)
+                    list_to_yield.append(aoccExpression)
+                    list_to_yield.append(stageList)
+                    list_to_yield.append(stageUberonData)
+                    list_to_yield.append(uberonAOData)
+                    list_to_yield.append(uberonAOOtherData)
+                    list_to_yield.append(uberonStageOtherData)
+
                     if counter == batch_size:
-                        yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
+
+                        yield list_to_yield
+                        list_to_yield[:] = []
                         aoExpression = []
                         ccExpression = []
                         aoQualifier = []
@@ -302,7 +318,8 @@ class WTExpressionExt(object):
 
             if counter > 0:
                 logger.info(geneId)
-                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
+                yield list_to_yield
+                #yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.
