@@ -141,20 +141,21 @@ class WTExpressionExt(object):
 
                 if 'whereExpressed' in xpat:
 
-                    whereExpressedStatement = xpat.get('whereExpressed')
-                    cellularComponentQualifierTermId = whereExpressedStatement.get('cellularComponentQualifierTermId')
-                    cellularComponentTermId = whereExpressedStatement.get('cellularComponentTermId')
-                    anatomicalStructureTermId = whereExpressedStatement.get('anatomicalStructureTermId')
-                    anatomicalStructureQualifierTermId = whereExpressedStatement.get(
+                    whereExpressed = xpat.get('whereExpressed')
+                    cellularComponentQualifierTermId = whereExpressed.get('cellularComponentQualifierTermId')
+                    cellularComponentTermId = whereExpressed.get('cellularComponentTermId')
+                    anatomicalStructureTermId = whereExpressed.get('anatomicalStructureTermId')
+                    anatomicalStructureQualifierTermId = whereExpressed.get(
                         'anatomicalStructureQualifierTermId')
-                    anatomicalSubStructureTermId = whereExpressedStatement.get('anatomicalSubStructureTermId')
-                    anatomicalSubStructureQualifierTermId = whereExpressedStatement.get(
+                    anatomicalSubStructureTermId = whereExpressed.get('anatomicalSubStructureTermId')
+                    anatomicalSubStructureQualifierTermId = whereExpressed.get(
                         'anatomicalSubStructureQualifierTermId')
-                    whereExpressedStatement = whereExpressedStatement.get('whereExpressedStatement')
+                    whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
 
-                    if 'anatomicalStructureUberonSlimTermIds' in whereExpressedStatement:
-                        for uberonStructureTermObject in whereExpressedStatement.get('anatomicalStructureUberonSlimTermIds'):
+                    if 'anatomicalStructureUberonSlimTermIds' in whereExpressed:
+                        for uberonStructureTermObject in whereExpressed.get('anatomicalStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
+                            logger.info("structureUberonTermId:" + structureUberonTermId)
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {
                                     "ebe_uuid": ebe_uuid,
@@ -168,8 +169,8 @@ class WTExpressionExt(object):
                                 }
                                 uberonAOOtherData.append(otherStructureUberonTerm)
 
-                    if 'anatomicalSubStructureUberonSlimTermIds' in whereExpressedStatement:
-                        for uberonSubStructureTermObject in whereExpressedStatement.get('anatomicalSubStructureUberonSlimTermIds'):
+                    if 'anatomicalSubStructureUberonSlimTermIds' in whereExpressed:
+                        for uberonSubStructureTermObject in whereExpressed.get('anatomicalSubStructureUberonSlimTermIds'):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
                             if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':
                                 subStructureUberonTerm = {

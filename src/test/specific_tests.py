@@ -125,7 +125,7 @@ def test_every_species_has_phenotype_has_pub():
     result = execute_transaction(query)
     for record in result:
         #TODO - change this to 6 again, when SGD and FB have files
-        assert record["counter"] == 4
+        assert record["counter"] == 5
 
 
 def test_phenotype_for_all_species_exists():
@@ -141,7 +141,7 @@ def test_expression_for_non_human_species_exists():
     result = execute_transaction(query)
     for record in result:
         #TODO - change this to 6 again, when SGD and FB have files
-        assert record["counter"] == 5
+        assert record["counter"] == 4
 
 
 def test_cellular_component_relationship_for_expression_exists():
