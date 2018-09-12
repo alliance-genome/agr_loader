@@ -21,7 +21,7 @@ class WTExpressionExt(object):
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
         logger.info("loadFile: " + loadFile)
-        batch_size = 10000
+        batch_size = 5000
         xrefUrlMap = ResourceDescriptor().get_data()
 
         crossReferences = []
@@ -57,6 +57,7 @@ class WTExpressionExt(object):
                 if testObject.using_test_data() is True:
                     is_it_test_entry = testObject.check_for_test_id_entry(geneId)
                     if is_it_test_entry is False:
+                        counter = counter - 1
                         continue
 
                 evidence = xpat.get('evidence')
@@ -284,21 +285,22 @@ class WTExpressionExt(object):
 
                         aoccExpression.append(AOCCExpression)
 
-                    if counter == batch_size:
-                        yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
-                        aoExpression = []
-                        ccExpression = []
-                        aoQualifier = []
-                        aoSubstructure = []
-                        aoSSQualifier = []
-                        ccQualifier = []
-                        aoccExpression = []
-                        stageList = []
-                        uberonStageOtherData = []
-                        stageUberonData = []
-                        uberonAOOtherData = []
-                        uberonAOData = []
-                        counter = 0
+                if counter == batch_size:
+                    logger.info("counter equals batch size")
+                    yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
+                    aoExpression = []
+                    ccExpression = []
+                    aoQualifier = []
+                    aoSubstructure = []
+                    aoSSQualifier = []
+                    ccQualifier = []
+                    aoccExpression = []
+                    stageList = []
+                    uberonStageOtherData = []
+                    stageUberonData = []
+                    uberonAOOtherData = []
+                    uberonAOData = []
+                    counter = 0
 
             if counter > 0:
                 logger.info(geneId)

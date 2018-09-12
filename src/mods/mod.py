@@ -13,6 +13,10 @@ import codecs
 import csv
 import json
 import pprint
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MOD(object):
 
@@ -113,7 +117,23 @@ class MOD(object):
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 
         g = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
-        (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther) = next(g)
+        for lister in g:
+            #logger.info(lister)
+            #logger.info(lister[0])
+            aoExpression = list(lister[0])
+            ccExpression = list(lister[1])
+            aoQualifier = list(lister[2])
+            aoSubstructure = list(lister[3])
+            aoSSQualifier = list(lister[4])
+            ccQualifier = list(lister[5])
+            aoccExpression = list(lister[6])
+            stageData = list(lister[7])
+            stageUberonData = list(lister[8])
+            uberonAOData = list(lister[9])
+            uberonAOOtherData = list(lister[10])
+            uberonStageOther = list(lister[11])
+            logger.info(uberonStageOther)
+        #(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther) = next(g)
         return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
