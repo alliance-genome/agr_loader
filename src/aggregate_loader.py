@@ -30,8 +30,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
-        #self.mods = [ZFIN()]
+        #self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
+        self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -230,23 +230,10 @@ class AggregateLoader(object):
                     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-                # (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression,
-                #  stageData, stageUberonData, uberonAOData, uberonAOOtherData,
-                #  uberonStageOther) \
+                (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression,
+                 stageData, stageUberonData, uberonAOData, uberonAOOtherData,
+                 uberonStageOther) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
 
-                xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-                aoExpression = xpats[0]
-                ccExpression = xpats[1]
-                aoQualifier = xpats[2]
-                aoSubstructure = xpats[3]
-                aoSSQualifier = xpats[4]
-                ccQualifier = xpats[6]
-                aoccExpression = xpats[7]
-                stageData = xpats[8]
-                stageUberonData = xpats[9]
-                uberonAOData = xpats[10]
-                uberonAOOtherData = xpats[11]
-                uberonStageOther = xpats[12]
                 WTExpressionLoader(self.graph).load_wt_expression_objects(aoExpression, ccExpression, aoQualifier,
                                                                           aoSubstructure, aoSSQualifier, ccQualifier,
                                                                           aoccExpression, stageData, stageUberonData,
