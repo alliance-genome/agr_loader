@@ -134,7 +134,7 @@ class MOD(object):
             uberonStageOther = list(lister[11])
             logger.info(uberonStageOther)
         #(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther) = next(g)
-        return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther
+            return aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageData, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOther
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []
