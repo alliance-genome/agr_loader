@@ -21,7 +21,7 @@ class WTExpressionExt(object):
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
         logger.info("loadFile: " + loadFile)
-        batch_size = 5
+        batch_size = 1000
         xrefUrlMap = ResourceDescriptor().get_data()
 
         crossReferences = []
@@ -286,6 +286,7 @@ class WTExpressionExt(object):
                         aoccExpression.append(AOCCExpression)
 
                 if counter == batch_size:
+                    counter = 0
                     logger.info("counter equals batch size")
                     yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
                     aoExpression = []
@@ -300,7 +301,7 @@ class WTExpressionExt(object):
                     stageUberonData = []
                     uberonAOOtherData = []
                     uberonAOData = []
-                    counter = 0
+                    #counter = 0
 
             if counter > 0:
                 logger.info(geneId)

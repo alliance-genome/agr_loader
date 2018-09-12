@@ -224,21 +224,27 @@ class AggregateLoader(object):
 
             if mod.species != 'Homo sapiens':
 
-                # logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
                 # alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
                 # for allele_list_of_entries in alleles:
                 #     AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-                (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression,
-                 stageData, stageUberonData, uberonAOData, uberonAOOtherData,
-                 uberonStageOther) = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+                data = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
 
-                WTExpressionLoader(self.graph).load_wt_expression_objects(aoExpression, ccExpression, aoQualifier,
-                                                                          aoSubstructure, aoSSQualifier, ccQualifier,
-                                                                          aoccExpression, stageData, stageUberonData,
-                                                                          uberonAOData, uberonAOOtherData,
-                                                                          uberonStageOther, mod.species)
+                for batch in data:
+                    WTExpressionLoader(self.graph).load_wt_expression_objects(list(batch[0]),
+                                                                              list(batch[1]),
+                                                                              list(batch[2]),
+                                                                              list(batch[3]),
+                                                                              list(batch[4]),
+                                                                              list(batch[5]),
+                                                                              list(batch[6]),
+                                                                              list(batch[7]),
+                                                                              list(batch[8]),
+                                                                              list(batch[9]),
+                                                                              list(batch[10]),
+                                                                              list(batch[11]),
+                                                                              mod.species)
 
             #     logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
             #     features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
