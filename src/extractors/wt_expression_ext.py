@@ -21,7 +21,7 @@ class WTExpressionExt(object):
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
         logger.info("loadFile: " + loadFile)
-        batch_size = 1000
+        batch_size = 10000
         xrefUrlMap = ResourceDescriptor().get_data()
 
         crossReferences = []
