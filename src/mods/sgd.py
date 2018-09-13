@@ -22,10 +22,6 @@ class SGD(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://www.yeastgenome.org/locus/" + gene_id + "/overview"
-
-    @staticmethod
     def get_organism_names():
         return ["Saccharomyces cerevisiae", "S. cerevisiae", "YEAST"]
 

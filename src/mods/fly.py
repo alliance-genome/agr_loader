@@ -21,10 +21,6 @@ class FlyBase(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://flybase.org/reports/" + gene_id + ".html"
-
-    @staticmethod
     def get_organism_names():
         return ["Drosophila melanogaster", "D. melanogaster", "DROME"]
 

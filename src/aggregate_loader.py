@@ -71,7 +71,7 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("https://s3.amazonaws.com/mod-datadumps/DO/do_1.7.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
@@ -204,9 +204,15 @@ class AggregateLoader(object):
              genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
              c = 0
              start = time.time()
-             for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries)
-                c = c + len(gene_list_of_entries)
+             for gene_batch in genes:
+                # gene_batch is a generator of lists - genes, synonyms, secondaryIds, genomicLocations and xrefs
+                # respectively.
+                BGILoader(self.graph).load_bgi(list(gene_batch[0]),
+                                               list(gene_batch[1]),
+                                               list(gene_batch[2]),
+                                               list(gene_batch[3]),
+                                               list(gene_batch[4]))
+                c = c + len(list(gene_batch[0]))
              end = time.time()
              logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
 

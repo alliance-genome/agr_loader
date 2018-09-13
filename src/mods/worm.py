@@ -24,10 +24,6 @@ class WormBase(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://www.wormbase.org/species/c_elegans/gene/" + gene_id
-
-    @staticmethod
     def get_organism_names():
         return ["Caenorhabditis elegans", "C. elegans", "CAEEL"]
 

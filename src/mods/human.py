@@ -23,10 +23,6 @@ class Human(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=" + gene_id
-
-    @staticmethod
     def get_organism_names():
         return ["Homo sapiens", "H. sapiens", "HUMAN"]
 

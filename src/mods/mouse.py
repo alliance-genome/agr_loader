@@ -24,10 +24,6 @@ class MGI(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://www.informatics.jax.org/marker/" + gene_id
-
-    @staticmethod
     def get_organism_names():
         return ["Mus musculus", "M. musculus", "MOUSE"]
 

@@ -22,10 +22,7 @@ class MOD(object):
         TARFile(path, loadFile).extract_all()
         gene_data = JSONFile().get_data(path + bgiName, 'BGI')
         gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
-        return self.yield_gene_lists(gene_lists)
-
-    def yield_gene_lists(self, gene_lists):
-        yield from gene_lists
+        return gene_lists
 
     def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
