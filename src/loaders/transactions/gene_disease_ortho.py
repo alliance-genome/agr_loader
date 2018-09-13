@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import csv
 import uuid
 from datetime import datetime, timezone
 from .transaction import Transaction
@@ -8,6 +9,8 @@ from .transaction import Transaction
 class GeneDiseaseOrthoTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
+        self.neo_import_dir = '/var/lib/neo4j/import/'
+        self.filename = 'disease_by_orthology.csv'
 
         # Add publication and evidence code
         query = """
@@ -18,45 +21,60 @@ class GeneDiseaseOrthoTransaction(Transaction):
         tx = Transaction(graph)
         tx.run_single_query(query)
 
-    def retreive_diseases_gene_inferred_by_orthology(self):
+    def retreive_diseases_inferred_by_ortholog(self):
         query = """
+        MATCH (disease:DOTerm)-[da]-(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+        MATCH (ec)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[e]-(allele)-[ag]-(gene1)-[FROM_SPECIES]->(species:Species)
+             WHERE o.strictFilter
+                 AND da.uuid = dej.primaryKey
+                 AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
+        OPTIONAL MATCH (disease:DOTerm)-[da2]-(gene2:Gene)-[ag2:IS_ALLELE_OF]->(:Feature)-[da3]-(disease:DOTerm)
+            WHERE da2 IS null  // filters relations that already exist
+                 AND da3 IS null // filter where allele already has disease association
+        RETURN DISTINCT gene2.primaryKey AS geneID,
+               species.primaryKey AS speciesID,
+               type(da) AS relationType,
+               disease.primaryKey AS doId
+        UNION
         MATCH (disease:DOTerm)-[da]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
         MATCH (ec)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[e]-(gene1)-[FROM_SPECIES]->(species:Species)
-            WHERE da.uuid = dej.primaryKey
-              AND o.strictFilter
-              AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
+             WHERE o.strictFilter
+                 AND da.uuid = dej.primaryKey
+                 AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
         OPTIONAL MATCH (disease:DOTerm)-[da2]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Feature)-[da3]-(disease:DOTerm)
             WHERE da2 IS null  // filters relations that already exist
                  AND da3 IS null // filter where allele already has disease association
-        RETURN gene2.primaryKey AS geneID,
+        RETURN DISTINCT gene2.primaryKey AS geneID,
                species.primaryKey AS speciesID,
                type(da) AS relationType,
-               disease.primaryKey AS doId,
-               collect(ec) AS ecs"""
+               disease.primaryKey AS doId"""
 
         orthologous_disease_data = []
         tx = Transaction(self.graph)
         returnSet = tx.run_single_query(query)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        filepath = self.neo_import_dir + self.filename
+        print("creating: " + filepath)
+        with open(filepath, 'w') as csvfile:
+            fieldnames = ["primaryId", "speciesId", "relationshipType", "doId", "dateProduced", "uuid"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        for record in returnSet:
-            row = dict(primaryId = record["geneID"],
-                       speciesId = record["speciesID"],
-                       relationshipType = record["relationType"].lower(),
-                       loadKey = record["doId"] + "_Disease",
-                       doId = record["doId"],
-                       dateProduced = now,
-                       uuid = str(uuid.uuid4()))
-            orthologous_disease_data.append(row)
+            writer.writeheader()
 
-        return orthologous_disease_data
+            for record in returnSet:
+                writer.writerow({"primaryId": record["geneID"],
+                                 "speciesId": record["speciesID"],
+                                 "relationshipType": record["relationType"].lower(),
+                                 "doId": record["doId"],
+                                 "dateProduced": now,
+                                 "uuid": str(uuid.uuid4())})
 
-    def add_gene_disease_inferred_through_ortho_tx(self, data):
+    def add_disease_inferred_by_ortho_tx(self):
         # Loads the gene to disease via ortho data into Neo4j.
 
         executeG2D = """
 
-            UNWIND $data as row
+            LOAD CSV WITH HEADERS FROM "file:///""" + self.filename + """" AS row
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
@@ -89,4 +107,4 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
             """
 
-        Transaction.execute_transaction(self, executeG2D, data)
+        Transaction.run_single_query(self, executeG2D)

@@ -283,7 +283,8 @@ class AggregateLoader(object):
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
 
     def add_inferred_disease_annotations(self):
-            print("Adding Disease by Orthology Annotations")
+            print("Inferring Disease by Orthology Annotations")
             tx = GeneDiseaseOrthoTransaction(self.graph)
-            orthologous_diseases_to_gene = tx.retreive_diseases_gene_inferred_by_orthology()
-            tx.add_gene_disease_inferred_through_ortho_tx(orthologous_diseases_to_gene)
+            tx.retreive_diseases_inferred_by_ortholog()
+            print("\tAdding Inferred Disease Annotations")
+            tx.add_disease_inferred_by_ortho_tx()
