@@ -71,7 +71,7 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("https://s3.amazonaws.com/mod-datadumps/DO/do_1.7.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
