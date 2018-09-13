@@ -206,15 +206,12 @@ class WTExpressionTransaction(Transaction):
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                 MERGE (s:Stage {primaryKey:row.stageName})
                 MERGE (ei)-[eotcctq:DURING]-(s)
-                
-            //TODO: get stage term ids from MGI
         """
 
         uberonAO = """  
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
-                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})
-                
+                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})     
                 MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
         """
 

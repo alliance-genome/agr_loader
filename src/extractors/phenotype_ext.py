@@ -2,7 +2,6 @@ import uuid
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
-from services import DataProvider
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,8 +14,6 @@ class PhenotypeExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
         dataProviders = []
-        loadKey = ""
-
         dataProviderObject = phenotype_data['metaData']['dataProvider']
 
         dataProviderCrossRef = dataProviderObject.get('crossReference')
@@ -24,7 +21,7 @@ class PhenotypeExt(object):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
 
-        loadKey = dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_phenotype"
 
         #TODO: get SGD to fix their files.
 
