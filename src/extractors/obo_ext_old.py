@@ -1,5 +1,5 @@
 import uuid as id
-from files import S3File, TXTFile, Download
+from files import TXTFile, Download
 from .obo_parser import parseOBO
 import logging
 

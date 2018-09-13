@@ -7,12 +7,12 @@ from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
-import ijson
 import gzip
-import codecs
 import csv
-import json
-import pprint
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MOD(object):
 
@@ -98,7 +98,7 @@ class MOD(object):
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
         alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, species)
-
+        logger.info(alleleDict)
         return alleleDict
 
     def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, species):
@@ -112,8 +112,8 @@ class MOD(object):
 
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 
-        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
-        return wt_expression_dict
+        data = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+        return data
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []

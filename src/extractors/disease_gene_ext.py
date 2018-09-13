@@ -1,7 +1,5 @@
 from .disease_ext import get_disease_record
 from .primary_data_object_type import PrimaryDataObjectType
-from loaders.transactions import Transaction
-from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
@@ -20,25 +18,28 @@ class DiseaseGeneExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
 
-        for dataProviderObject in disease_data['metaData']['dataProvider']:
+        dataProviderObject = disease_data['metaData']['dataProvider']
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
 
-            #TODO: get SGD to fix their files.
-            if dataProviderPages is not None:
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+        #TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
+
+                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info ("data provider: " + dataProvider)
+                logger.info("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
         logger.info ("dataProvider found: " + dataProviderSingle)

@@ -5,12 +5,12 @@ class Human(MOD):
     def __init__(self):
         self.species = "Homo sapiens"
 
-        self.wtExpressionName = "/RGD_1.0.0.4_expression.9606.json"
-        self.loadFile = "RGD_1.0.0.4_4.tar.gz"
+        self.wtExpressionName = "/RGD_1.0.0.6_expression.9606.json"
+        self.loadFile = "RGD_1.0.0.6_4.tar.gz"
 
-        self.bgiName = "/RGD_1.0.0.4_BGI.9606.json"
-        self.diseaseName = "/RGD_1.0.0.4_disease.9606.json"
-        self.phenotypeName = "/RGD_1.0.0.4_phenotype.9606.json"
+        self.bgiName = "/RGD_1.0.0.6_BGI.9606.json"
+        self.diseaseName = "/RGD_1.0.0.6_disease.9606.json"
+        self.phenotypeName = "/RGD_1.0.0.6_phenotype.9606.json"
         self.geneAssociationFile = "gene_association_1.7.1.human.gz"
 
         self.identifierPrefix = "" # None for Human.
@@ -34,32 +34,19 @@ class Human(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_disease_gene_objects(self, batch_size, testObject, species):
-        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
-        return data
-
     def load_disease_allele_objects(self, batch_size, testObject, graph, species):
         data = ""
-            #MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph, species)
         return data
 
-    def load_allele_objects(self, batch_size, testObject, species):
-        data = ""
-        # data = MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
+    def load_disease_gene_objects(self, batch_size, testObject, species):
+        data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
         return data
 
     def load_phenotype_objects(self, batch_size, testObject, species):
         data = MOD.load_phenotype_objects_mod(self, batch_size, testObject, self.phenotypeName, self.loadFile, species)
         return data
 
-    def load_wt_expression_objects(self, batch_size, testObject, species):
-        data = ""
-        #MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile, species)
-        return data
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

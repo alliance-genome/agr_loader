@@ -5,7 +5,7 @@ class ZFIN(MOD):
     def __init__(self):
         self.species = "Danio rerio"
 
-        self.loadFile = "ZFIN_1.0.0.4_6.tar.gz"
+        self.loadFile = "ZFIN_1.0.0.4_7.tar.gz"
 
         self.bgiName = "/ZFIN_1.0.0.4_1_BGI.json"
         self.diseaseName = "/ZFIN_1.0.0.4_1_disease.json"
@@ -58,7 +58,4 @@ class ZFIN(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

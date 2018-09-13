@@ -3,7 +3,10 @@ from services import UrlService
 from services import CreateCrossReference
 from services import DataProvider
 from .resource_descriptor_ext import ResourceDescriptor
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class AlleleExt(object):
     def get_alleles(self, allele_data, batch_size, testObject, species):
@@ -11,29 +14,34 @@ class AlleleExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
         list_to_yield = []
-        loadKey = ""
+        release = ""
 
         dateProduced = allele_data['metaData']['dateProduced']
 
+        dataProviderObject = allele_data['metaData']['dataProvider']
 
-        for dataProviderObject in allele_data['metaData']['dataProvider']:
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
-            release = None
-            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_BGI"
 
+        #TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                dataProviderCrossRefSet.append(
-                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
 
-            dataProviders.append(dataProvider)
+                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
+
+                dataProviders.append(dataProvider)
+                logger.info("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 
@@ -82,7 +90,8 @@ class AlleleExt(object):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "crossReferences": crossReferences,
-                "dataProvider": dataProviderSingle
+                "dataProvider": dataProviderSingle,
+                "symbolText": alleleRecord.get('symbolText')
             }
 
             list_to_yield.append(allele_dataset)

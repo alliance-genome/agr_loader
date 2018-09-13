@@ -1,5 +1,4 @@
 import yaml, re, sys
-import pprint
 from files import Download
 import logging
 
