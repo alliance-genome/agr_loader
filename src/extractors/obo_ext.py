@@ -1,7 +1,6 @@
 from services import CreateCrossReference
 from files import XMLFile, Download, S3File
 from ontobio import OntologyFactory
-import urllib.request
 import logging
 
 logger = logging.getLogger(__name__)

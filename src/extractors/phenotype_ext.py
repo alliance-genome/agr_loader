@@ -61,27 +61,27 @@ class PhenotypeExt(object):
             if 'pubMedId' in evidence:
                 pubMedId = evidence.get('pubMedId')
 
-            if pubMedId != None:
+            if pubMedId is not None:
                 pubMedPrefix = pubMedId.split(":")[0]
                 pubMedLocalId = pubMedId.split(":")[1]
                 pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
                 pubModId = pheno.get('pubModId')
 
-            if pubModId != None:
+            if pubModId is not None:
                 pubModPrefix = pubModId.split(":")[0]
                 pubModLocalId = pubModId.split(":")[1]
                 pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
 
-            if pubMedId == None:
+            if pubMedId is None:
                 pubMedId = ""
 
-            if pubModId == None:
+            if pubModId is None:
                 pubModId = ""
 
             dateAssigned = pheno.get('dateAssigned')
 
-            if pubModId == None and pubMedId == None:
+            if pubModId is None and pubMedId is None:
                 logger.info (primaryId + "is missing pubMed and pubMod id")
 
             phenotype_feature = {

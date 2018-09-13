@@ -2,7 +2,6 @@ from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 import uuid
 
-from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor

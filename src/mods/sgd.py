@@ -60,7 +60,4 @@ class SGD(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

@@ -1,4 +1,3 @@
-import pprint
 from .mod import MOD
 
 class MGI(MOD):

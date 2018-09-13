@@ -1,9 +1,7 @@
 import uuid
 import ijson
 import codecs
-import pprint
 from files import S3File, TARFile, JSONFile
-from services import DataProvider
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor

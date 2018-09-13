@@ -197,16 +197,14 @@ class WTExpressionTransaction(Transaction):
                 MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                           
-                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)
-                    
+                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)        
         """
 
         stageExpression = """  
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                 MERGE (s:Stage {primaryKey:row.stageName})
-                MERGE (ei)-[eotcctq:DURING]-(s)
-        """
+                MERGE (ei)-[eotcctq:DURING]-(s) """
 
         uberonAO = """  
             UNWIND $data as row

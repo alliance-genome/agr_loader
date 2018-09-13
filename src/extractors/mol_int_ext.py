@@ -1,8 +1,7 @@
 from files import S3File, TARFile
 import uuid, csv, re, sys
-import urllib.request, json, pprint, itertools
+import pprint, itertools
 from services import ResourceDescriptor
-from types import ModuleType
 import logging
 
 logger = logging.getLogger(__name__)
