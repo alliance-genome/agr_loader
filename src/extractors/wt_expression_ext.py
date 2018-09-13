@@ -196,7 +196,6 @@ class WTExpressionExt(object):
                             "crossReferences": crossReferences,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
-                            "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
 
@@ -227,7 +226,6 @@ class WTExpressionExt(object):
                             "crossReferences": crossReferences,
                             "whereExpressedStatement": whereExpressedStatement,
                             "cellularComponentTermId": cellularComponentTermId,
-                            "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
                         }
@@ -259,7 +257,8 @@ class WTExpressionExt(object):
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
-                    if anatomicalStructureTermId is not None and anatomicalStructureTermId != "" and cellularComponentTermId is not None and cellularComponentTermId != "":
+                    if anatomicalStructureTermId is not None and anatomicalStructureTermId != "" \
+                            and cellularComponentTermId is not None and cellularComponentTermId != "":
 
                         AOCCExpression = {
                             "geneId": geneId,
@@ -278,7 +277,6 @@ class WTExpressionExt(object):
                             "cellularComponentTermId": cellularComponentTermId,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
-                            "pubPrimaryKey": pubMedId + publicationModId,
                             "ei_uuid": ei_uuid,
                             "ebe_uuid": ebe_uuid
                         }
@@ -288,7 +286,9 @@ class WTExpressionExt(object):
                 if counter == batch_size:
                     counter = 0
                     logger.info("counter equals batch size")
-                    yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
+                    yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                           aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                           uberonStageOtherData)
                     aoExpression = []
                     ccExpression = []
                     aoQualifier = []
@@ -305,7 +305,9 @@ class WTExpressionExt(object):
 
             if counter > 0:
                 logger.info(geneId)
-                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData)
+                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                       aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                       uberonStageOtherData)
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.

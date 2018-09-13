@@ -19,6 +19,7 @@ class WTExpressionTransaction(Transaction):
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
                 
         """
+
         AOExpression = """
             UNWIND $data as row
 
@@ -66,7 +67,6 @@ class WTExpressionTransaction(Transaction):
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-    
         """
 
         CCExpression = """
@@ -114,15 +114,11 @@ class WTExpressionTransaction(Transaction):
 
               //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-            
-
         """
 
         AOCCExpression = """
-
-
+        
         UNWIND $data as row
-
             // GET PRIMARY DATA OBJECTS
 
             // LOAD NODES
@@ -172,7 +168,6 @@ class WTExpressionTransaction(Transaction):
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-
         """
 
         EASSubstructure = """
@@ -184,25 +179,20 @@ class WTExpressionTransaction(Transaction):
                     MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)                     
         """
         EASQualified = """
-            
             UNWIND $data as row
                 MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 
                 MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq)
-          
             """
         EASSQualified = """
-
             UNWIND $data as row
                 MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 
                 MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq)
-
             """
         CCQExpression = """  
-        
             UNWIND $data as row
                 MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
@@ -212,7 +202,6 @@ class WTExpressionTransaction(Transaction):
         """
 
         stageExpression = """  
-
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                 MERGE (s:Stage {primaryKey:row.stageName})
@@ -230,28 +219,22 @@ class WTExpressionTransaction(Transaction):
         """
 
         uberonStage = """
-        
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
                 MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
                 
                 MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
-                
         """
 
         uberonAOOther = """
-            
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
                 MATCH (u:Other {primaryKey:'Other'}) 
                 
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
-            
-        
         """
 
         uberonStageOther = """
-        
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                 MATCH (u:Other {primaryKey:'post embryonic, pre-adult'})
@@ -259,7 +242,6 @@ class WTExpressionTransaction(Transaction):
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
                 
             //TODO: get stage term ids from MGI
-                
         """
 
         Transaction.execute_transaction(self, AddOther, "other")

@@ -27,8 +27,6 @@ class DiseaseGeneExt(object):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
 
-        loadKey = dateProduced + dataProvider + "_BGI"
-
         #TODO: get SGD to fix their files.
 
         if dataProviderPages is not None:

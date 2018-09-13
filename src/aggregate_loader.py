@@ -71,7 +71,7 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("https://s3.amazonaws.com/mod-datadumps/DO/do_1.7.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
@@ -222,6 +222,7 @@ class AggregateLoader(object):
 
         for mod in self.mods:
 
+            # reduced the need for stub methods in mod.py, et al.  Human should only run loads that it has data for.
             if mod.species != 'Homo sapiens':
 
                 alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
@@ -230,6 +231,13 @@ class AggregateLoader(object):
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
                 data = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+
+                # batch is a 10000 member iteration of the 'data' generator containing 12 lists that represent
+                # the expression data broken into smaller transactions to load to neo.
+                # we process it here in aggregate loader because once consumed, it will not return
+                # to its yeilded method (ie: if we unroll it in MOD.py, only one iteration will be consumed.
+                # 0-11 represent these lists in order: aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier,
+                # ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData
 
                 for batch in data:
                     WTExpressionLoader(self.graph).load_wt_expression_objects(list(batch[0]),
