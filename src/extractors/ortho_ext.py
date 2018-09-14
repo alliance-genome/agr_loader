@@ -12,8 +12,6 @@ class OrthoExt(object):
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
         path = "tmp"
-        filename = None
-        filename_comp = None
         if testObject.using_test_data() is True:
             filename = 'orthology_test_data_1.0.0.7_temp1.json'
             filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_temp1.json.tar.gz'
@@ -24,7 +22,11 @@ class OrthoExt(object):
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + "/" + filename, 'orthology')
-
+        counter = 0
+        matched_data = []
+        unmatched_data = []
+        ortho_data_list = []
+        notcalled_data = []
         dateProduced = ortho_data['metaData']['dateProduced']
 
         xrefUrlMap = ResourceDescriptor().get_data()
@@ -47,12 +49,11 @@ class OrthoExt(object):
                                                   dataProvider + dataProviderPage))
 
         dataProviders.append(dataProvider)
-        loadKey = dataProvider + loadKey
 
         list_to_yield = []
 
         for orthoRecord in ortho_data['data']:
-
+            counter = counter + 1
             # Sort out identifiers and prefixes.
             gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
             gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
@@ -65,6 +66,27 @@ class OrthoExt(object):
 
             if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
+                uuid = str(uuid.uuid4())
+
+                for matched in orthoRecord.get('predictionMethodsMatched'):
+                    matched_dataset = {
+                        "uuid": uuid,
+                        "algorithm": matched
+                    }
+                    matched_data.append(matched_dataset)
+                for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
+                    unmatched_dataset = {
+                        "uuid":uuid,
+                        "algorithm": unmatched
+                    }
+                    unmatched_data.append(unmatched_dataset)
+                for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
+                    notcalled_dataset = {
+                        "uuid": uuid,
+                        "algorithm": notcalled
+                    }
+                    notcalled_data.append(notcalled_dataset)
+
                 ortho_dataset = {
                     'isBestScore': orthoRecord['isBestScore'],
                     'isBestRevScore': orthoRecord['isBestRevScore'],
@@ -72,23 +94,24 @@ class OrthoExt(object):
                     'gene1AgrPrimaryId': gene1AgrPrimaryId,
                     'gene2AgrPrimaryId': gene2AgrPrimaryId,
 
-                    'matched': orthoRecord['predictionMethodsMatched'],
-                    'notMatched': orthoRecord['predictionMethodsNotMatched'],
-                    'notCalled': orthoRecord['predictionMethodsNotCalled'],
-
                     'confidence': orthoRecord['confidence'],
 
                     'strictFilter': orthoRecord['strictFilter'],
                     'moderateFilter': orthoRecord['moderateFilter'],
 
-                    'uuid': str(uuid.uuid4())
+                    'uuid': uuid
                 }
+                ortho_data_list.append(ortho_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
-                list_to_yield.append(ortho_dataset)
-                if len(list_to_yield) == batch_size:
-                    yield list_to_yield
+                if len(ortho_data_list) == batch_size:
+                    yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
                     list_to_yield[:] = []  # Empty the list.
+                    ortho_data_list = []
+                    matched_data = []
+                    unmatched_data = []
+                    notcalled_data = []
+                    counter = 0
 
         if len(list_to_yield) > 0:
             yield list_to_yield

@@ -5,7 +5,7 @@ class OrthoTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def ortho_tx(self, data):
+    def ortho_tx(self, ortho_data, matched_algorithm_data, unmatched_algorithm_data, not_called_data):
         '''
         Loads the orthology data into Neo4j.
 
@@ -35,19 +35,31 @@ class OrthoTransaction(Transaction):
             MERGE (g1)-[a1:ASSOCIATION]->(oa)
             MERGE (oa)-[a2:ASSOCIATION]->(g2)
 
-            FOREACH (algorithm in row.matched|
-                MERGE (match:OrthoAlgorithm {name:algorithm})
+        """
+
+        matched_algorithm = """
+            
+            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (match:OrthoAlgorithm {name:row.algorithm})
                 MERGE (oa)-[m:MATCHED]->(match)
-            )
+        """
 
-            FOREACH (algorithm in row.notMatched|
-                MERGE (notmatch:OrthoAlgorithm {name:algorithm})
+        unmatched_algorithm = """
+        
+            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (notmatch:OrthoAlgorithm {name:row.algorithm})
                 MERGE (oa)-[m:NOT_MATCHED]->(notmatch)
-            )
+        """
 
-            FOREACH (algorithm in row.notCalled|
+        not_called = """
+        
+            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (notmatch:OrthoAlgorithm {name:row.algorithm})
                 MERGE (notcalled:OrthoAlgorithm {name:algorithm})
                 MERGE (oa)-[m:NOT_CALLED]->(notcalled)
-            )
         """
-        Transaction.execute_transaction(self, query, data)
+
+        Transaction.execute_transaction(self, query, ortho_data)
+        Transaction.execute_transaction(self, matched_algorithm, matched_algorithm_data)
+        Transaction.execute_transaction(self, unmatched_algorithm, unmatched_algorithm_data)
+        Transaction.execute_transaction(self, not_called, not_called_data)

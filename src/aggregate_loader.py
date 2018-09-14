@@ -271,8 +271,11 @@ class AggregateLoader(object):
 
             logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            for ortholog_list_of_entries in ortholog_data:
-                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+            for ortholog_batch in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(list(ortholog_batch[0]),
+                                                   list(ortholog_batch[1]),
+                                                   list(ortholog_batch[2]),
+                                                   list(ortholog_batch[3]))
 
             logger.info("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
