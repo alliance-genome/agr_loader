@@ -227,6 +227,7 @@ class BGIExt(object):
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
             if counter == batch_size:
+                counter = 0
                 logger.info("size of genomicLocations")
                 logger.info(len(genomicLocations))
                 yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
