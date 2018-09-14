@@ -18,16 +18,16 @@ class BGITransaction(Transaction):
         '''
 
         genomic_locations = """
-            UNWIND $data AS location
+            UNWIND $data AS row
                     
-                MATCH (o:Gene {primaryKey:location.geneLocPrimaryId})
-                MERGE (chrm:Chromosome {primaryKey:location.chromosome})
+                MATCH (o:Gene {primaryKey:row.primaryId})
+                MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
                 CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
-                        SET gchrm.start = location.start 
-                        SET gchrm.end = location.end 
-                        SET gchrm.assembly = location.assembly 
-                        SET gchrm.strand = location.strand
+                        SET gchrm.start = row.start 
+                        SET gchrm.end = row.end 
+                        SET gchrm.assembly = row.assembly 
+                        SET gchrm.strand = row.strand
                 
         """
 
@@ -112,9 +112,14 @@ class BGITransaction(Transaction):
         
         """ + CreateCrossReference.get_cypher_xref_text("gene")
 
-        Transaction.execute_transaction(self, gene_query, gene_dataset)
-        Transaction.execute_transaction(self, genomic_locations, genomicLocations)
-        Transaction.execute_transaction(self, gene_secondaryIds, secondaryIds)
-        Transaction.execute_transaction(self, gene_synonyms, synonyms)
-        Transaction.execute_transaction(self, xrefs, crossReferences)
+        if len(gene_dataset) > 0:
+            Transaction.execute_transaction(self, gene_query, gene_dataset)
+        if len(genomicLocations) > 0:
+            Transaction.execute_transaction(self, genomic_locations, genomicLocations)
+        if len(secondaryIds) > 0:
+            Transaction.execute_transaction(self, gene_secondaryIds, secondaryIds)
+        if len(synonyms) > 0:
+            Transaction.execute_transaction(self, gene_synonyms, synonyms)
+        if len(crossReferences) > 0:
+            Transaction.execute_transaction(self, xrefs, crossReferences)
 

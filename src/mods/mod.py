@@ -16,13 +16,6 @@ logger.setLevel(logging.DEBUG)
 
 class MOD(object):
 
-    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
-        return gene_lists
 
     def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
@@ -106,6 +99,14 @@ class MOD(object):
         phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject, species)
 
         return phenotype_dict
+
+    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
+        path = "tmp"
+        S3File(loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
+        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
+        return gene_lists
 
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 

@@ -199,12 +199,11 @@ class AggregateLoader(object):
         logger.info("Extracting BGI data from each MOD.")
         #
         for mod in self.mods:
-             logger.info("Loading BGI data for %s into Neo4j." % mod.species)
+            logger.info("Loading BGI data for %s into Neo4j." % mod.species)
 
-             genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
-             c = 0
-             start = time.time()
-             for gene_batch in genes:
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
+
+            for gene_batch in genes:
                 # gene_batch is a generator of lists - genes, synonyms, secondaryIds, genomicLocations and xrefs
                 # respectively.
                 BGILoader(self.graph).load_bgi(list(gene_batch[0]),
@@ -212,10 +211,6 @@ class AggregateLoader(object):
                                                list(gene_batch[2]),
                                                list(gene_batch[3]),
                                                list(gene_batch[4]))
-                c = c + len(list(gene_batch[0]))
-             end = time.time()
-             logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
-
 
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file

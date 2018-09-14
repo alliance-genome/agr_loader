@@ -20,8 +20,11 @@ class BGIExt(object):
         dataProviders = []
         synonyms = []
         secondaryIds = []
+        crossReferences = []
+        genomicLocations = []
         gene_dataset = []
         release = None
+        counter = 0
 
         dataProviderObject = gene_data['metaData']['dataProvider']
 
@@ -54,9 +57,8 @@ class BGIExt(object):
             release = gene_data['metaData']['release']
 
         for geneRecord in gene_data['data']:
+            counter = counter + 1
 
-            crossReferences = []
-            genomicLocations = []
 
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
@@ -73,6 +75,7 @@ class BGIExt(object):
             if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
                 if is_it_test_entry is False:
+                    counter = counter - 1
                     continue
 
             #TODO: can we split this off into another class?
@@ -154,26 +157,6 @@ class BGIExt(object):
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
-            if 'genomeLocations' in geneRecord:
-                for genomeLocation in geneRecord['genomeLocations']:
-                    chromosome = genomeLocation['chromosome']
-                    assembly = genomeLocation['assembly']
-                    if 'startPosition' in genomeLocation:
-                        start = genomeLocation['startPosition']
-                    else:
-                        start = None
-                    if 'endPosition' in genomeLocation:
-                        end = genomeLocation['endPosition']
-                    else:
-                        end = None
-                    if 'strand' in geneRecord['genomeLocations']:
-                        strand = genomeLocation['strand']
-                    else:
-                        strand = None
-                    genomicLocations.append(
-                        {"geneLocPrimaryId": primary_id, "chromosome": chromosome, "start":
-                            start, "end": end, "strand": strand, "assembly": assembly})
-
             gene = {
                 "symbol": geneRecord.get('symbol'),
                 "name": geneRecord.get('name'),
@@ -202,6 +185,29 @@ class BGIExt(object):
             }
             gene_dataset.append(gene)
 
+            if 'genomeLocations' in geneRecord:
+                for genomeLocation in geneRecord['genomeLocations']:
+                    chromosome = genomeLocation['chromosome']
+                    assembly = genomeLocation['assembly']
+                    if 'startPosition' in genomeLocation:
+                        start = genomeLocation['startPosition']
+                    else:
+                        start = None
+                    if 'endPosition' in genomeLocation:
+                        end = genomeLocation['endPosition']
+                    else:
+                        end = None
+                    if 'strand' in geneRecord['genomeLocations']:
+                        strand = genomeLocation['strand']
+                    else:
+                        strand = None
+                    #logger.info("gene id for locations")
+                    #logger.info(primary_id)
+                    genomicLocations.append(
+                        {"primaryId": primary_id, "chromosome": chromosome, "start":
+                            start, "end": end, "strand": strand, "assembly": assembly})
+                    #logger.info(genomicLocations)
+
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
                     geneSynonym = {
@@ -220,10 +226,19 @@ class BGIExt(object):
             
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
-            if len(list_to_yield) == batch_size:
+            if counter == batch_size:
+                logger.info("size of genomicLocations")
+                logger.info(len(genomicLocations))
                 yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
                 list_to_yield[:] = []  # Empty the list.
+                gene_dataset = []
+                synonyms = []
+                secondaryIds = []
+                genomicLocations = []
+                crossReferences = []
 
-        if len(list_to_yield) > 0:
+        if counter > 0:
+            logger.info("size of genomicLocations")
+            logger.info(len(genomicLocations))
             yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
 
