@@ -210,7 +210,6 @@ class AggregateLoader(object):
              end = time.time()
              logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
 
-
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",

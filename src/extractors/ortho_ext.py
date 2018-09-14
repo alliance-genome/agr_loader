@@ -1,11 +1,9 @@
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
-import uuid
-
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
-
+import uuid
 
 class OrthoExt(object):
 
@@ -27,7 +25,6 @@ class OrthoExt(object):
         unmatched_data = []
         ortho_data_list = []
         notcalled_data = []
-        dateProduced = ortho_data['metaData']['dateProduced']
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
@@ -38,7 +35,6 @@ class OrthoExt(object):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
         dataProviders = []
-        loadKey = dateProduced + "_BGI"
 
         for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -49,8 +45,6 @@ class OrthoExt(object):
                                                   dataProvider + dataProviderPage))
 
         dataProviders.append(dataProvider)
-
-        list_to_yield = []
 
         for orthoRecord in ortho_data['data']:
             counter = counter + 1
@@ -63,29 +57,9 @@ class OrthoExt(object):
 
             gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
             gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
+            ortho_uuid = str(uuid.uuid4())
 
             if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
-
-                uuid = str(uuid.uuid4())
-
-                for matched in orthoRecord.get('predictionMethodsMatched'):
-                    matched_dataset = {
-                        "uuid": uuid,
-                        "algorithm": matched
-                    }
-                    matched_data.append(matched_dataset)
-                for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
-                    unmatched_dataset = {
-                        "uuid":uuid,
-                        "algorithm": unmatched
-                    }
-                    unmatched_data.append(unmatched_dataset)
-                for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
-                    notcalled_dataset = {
-                        "uuid": uuid,
-                        "algorithm": notcalled
-                    }
-                    notcalled_data.append(notcalled_dataset)
 
                 ortho_dataset = {
                     'isBestScore': orthoRecord['isBestScore'],
@@ -99,19 +73,37 @@ class OrthoExt(object):
                     'strictFilter': orthoRecord['strictFilter'],
                     'moderateFilter': orthoRecord['moderateFilter'],
 
-                    'uuid': uuid
+                    'uuid': ortho_uuid
                 }
                 ortho_data_list.append(ortho_dataset)
+
+                for matched in orthoRecord.get('predictionMethodsMatched'):
+                    matched_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": matched
+                    }
+                    matched_data.append(matched_dataset)
+                for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
+                    unmatched_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": unmatched
+                    }
+                    unmatched_data.append(unmatched_dataset)
+                for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
+                    notcalled_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": notcalled
+                    }
+                    notcalled_data.append(notcalled_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
                 if len(ortho_data_list) == batch_size:
                     yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
-                    list_to_yield[:] = []  # Empty the list.
                     ortho_data_list = []
                     matched_data = []
                     unmatched_data = []
                     notcalled_data = []
                     counter = 0
 
-        if len(list_to_yield) > 0:
-            yield list_to_yield
+        if len(ortho_data_list) > 0:
+            yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
