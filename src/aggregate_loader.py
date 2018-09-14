@@ -11,6 +11,8 @@ from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from mods import *
 from extractors import *
+from extractors.obo_ext import OExt
+from extractors.obo_ext_old import ObExto
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser

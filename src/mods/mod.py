@@ -14,8 +14,8 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class MOD(object):
 
+class MOD(object):
 
     def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
@@ -100,6 +100,7 @@ class MOD(object):
 
         return phenotype_dict
 
+    @classmethod
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
