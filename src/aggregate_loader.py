@@ -9,8 +9,11 @@ from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
+from loaders.bgi_loader import BGILoader
 from mods import *
 from extractors import *
+from extractors.obo_ext import OExt
+from extractors.obo_ext_old import ObExto
 import time
 from neo4j.v1 import GraphDatabase
 from genedescriptions.config_parser import GenedescConfigParser
@@ -71,7 +74,7 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("https://s3.amazonaws.com/mod-datadumps/DO/do_1.7.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
@@ -199,17 +202,18 @@ class AggregateLoader(object):
         logger.info("Extracting BGI data from each MOD.")
         #
         for mod in self.mods:
-             logger.info("Loading BGI data for %s into Neo4j." % mod.species)
+            logger.info("Loading BGI data for %s into Neo4j." % mod.species)
 
-             genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
-             c = 0
-             start = time.time()
-             for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries)
-                c = c + len(gene_list_of_entries)
-             end = time.time()
-             logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
 
+            for gene_batch in genes:
+                # gene_batch is a generator of lists - genes, synonyms, secondaryIds, genomicLocations and xrefs
+                # respectively.
+                BGILoader(self.graph).load_bgi(list(gene_batch[0]),
+                                               list(gene_batch[1]),
+                                               list(gene_batch[2]),
+                                               list(gene_batch[3]),
+                                               list(gene_batch[4]))
 
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file

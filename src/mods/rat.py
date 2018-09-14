@@ -23,10 +23,6 @@ class RGD(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://www.rgd.mcw.edu/rgdweb/report/gene/main.html?id=" + gene_id
-
-    @staticmethod
     def get_organism_names():
         return ["Rattus norvegicus", "R. norvegicus", "RAT"]
 

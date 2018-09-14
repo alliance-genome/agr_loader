@@ -25,10 +25,6 @@ class ZFIN(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://zfin.org/" + gene_id
-
-    @staticmethod
     def get_organism_names():
         return ["Danio rerio", "D. rerio", "DANRE"]
 
