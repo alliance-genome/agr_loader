@@ -33,7 +33,7 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD()] #,  TODO: FlyBase()
         #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
@@ -58,7 +58,7 @@ class AggregateLoader(object):
 
     #TODO load_from_ontologies could be consolidated into this method, perhaps
     def load_from_ont(self, ontology_path, ontology_to_load, obo_file_name):
-        logger.info ("Extraction % data", ontology_to_load)
+        logger.info("Extraction % data", ontology_to_load)
         self.dataset = OExt().get_data(ontology_path, obo_file_name)
         logger.info("Loading % data into Neo4j.", ontology_to_load)
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.dataset, ontology_to_load+"TERM")
