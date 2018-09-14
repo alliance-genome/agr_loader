@@ -100,7 +100,6 @@ class MOD(object):
 
         return phenotype_dict
 
-    @classmethod
     def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
