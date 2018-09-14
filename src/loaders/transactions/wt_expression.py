@@ -240,19 +240,41 @@ class WTExpressionTransaction(Transaction):
         """
 
         Transaction.execute_transaction(self, AddOther, "other")
-        Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-        Transaction.execute_transaction(self, CCExpression, CCExpressionData)
-        Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
-        Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
-        Transaction.execute_transaction(self, EASQualified, AOQualifierData)
-        Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
-        Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
-        Transaction.execute_transaction(self, stageExpression, stageList)
+        if len(AOExpressionData) > 0:
+            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
 
-        Transaction.execute_transaction(self, uberonAO, uberonAOData)
-        Transaction.execute_transaction(self, uberonAOOther, uberonAOOtherData)
-        Transaction.execute_transaction(self, uberonStage, stageUberonData)
-        Transaction.execute_transaction(self, uberonStageOther, uberonStageOtherData)
+        if len(CCExpressionData) > 0:
+            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+
+        if len(AOCCExpressionData) > 0 :
+            Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
+
+        if len(AOSubstructureData) > 0:
+            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+
+        if len(AOQualifierData) > 0:
+            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+
+        if len(AOSSQualifierData) > 0:
+            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
+
+        if len(CCQualifierData) > 0:
+            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+
+        if len(stageList) > 0:
+            Transaction.execute_transaction(self, stageExpression, stageList)
+
+        if len(uberonAOData) > 0:
+            Transaction.execute_transaction(self, uberonAO, uberonAOData)
+
+        if len(uberonAOOtherData) > 0:
+            Transaction.execute_transaction(self, uberonAOOther, uberonAOOtherData)
+
+        if len(stageUberonData) > 0:
+            Transaction.execute_transaction(self, uberonStage, stageUberonData)
+
+        if len(uberonStageOtherData) > 0:
+            Transaction.execute_transaction(self, uberonStageOther, uberonStageOtherData)
 
 
 
