@@ -9,6 +9,7 @@ from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
+from loaders.bgi_loader import BGILoader
 from mods import *
 from extractors import *
 from extractors.obo_ext import OExt
