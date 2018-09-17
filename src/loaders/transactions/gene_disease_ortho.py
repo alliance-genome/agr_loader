@@ -23,12 +23,12 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
     def retreive_diseases_inferred_by_ortholog(self):
         query = """
-        MATCH (disease:DOTerm)-[da]-(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[e]-(allele)-[ag]-(gene1)-[FROM_SPECIES]->(species:Species)
+        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
              WHERE o.strictFilter
                  AND da.uuid = dej.primaryKey
                  AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
-        OPTIONAL MATCH (disease:DOTerm)-[da2]-(gene2:Gene)-[ag2:IS_ALLELE_OF]->(:Feature)-[da3]-(disease:DOTerm)
+        OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag2:IS_ALLELE_OF]->(:Feature)-[da3:ASSOCIATION]-(disease:DOTerm)
             WHERE da2 IS null  // filters relations that already exist
                  AND da3 IS null // filter where allele already has disease association
         RETURN DISTINCT gene2.primaryKey AS geneID,
@@ -36,12 +36,12 @@ class GeneDiseaseOrthoTransaction(Transaction):
                type(da) AS relationType,
                disease.primaryKey AS doId
         UNION
-        MATCH (disease:DOTerm)-[da]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[e]-(gene1)-[FROM_SPECIES]->(species:Species)
+        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
              WHERE o.strictFilter
                  AND da.uuid = dej.primaryKey
                  AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
-        OPTIONAL MATCH (disease:DOTerm)-[da2]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Feature)-[da3]-(disease:DOTerm)
+        OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Feature)-[da3:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
             WHERE da2 IS null  // filters relations that already exist
                  AND da3 IS null // filter where allele already has disease association
         RETURN DISTINCT gene2.primaryKey AS geneID,
@@ -82,28 +82,25 @@ class GeneDiseaseOrthoTransaction(Transaction):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-            MERGE (dga:Association {primaryKey:row.uuid})
-                SET dga :DiseaseEntityJoin
+            CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance"
-                    SET fafg.dateProduced = row.dateProduced
-                    SET dga.joinType = row.relationshipType)
+                CREATE (gene)-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                    SET fafg.dataProvider = "Alliance",
+                        fafg.dateProduced = row.dateProduced,
+                        dga.joinType = row.relationshipType)
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance"
-                    SET fafg.dateProduced = row.dateProduced
-                    SET dga.joinType = row.relationshipType)
+                CREATE (gene)-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                    SET fafg.dataProvider = "Alliance",
+                        fafg.dateProduced = row.dateProduced,
+                        dga.joinType = row.relationshipType)
 
-            MERGE (gene)-[fdag:ASSOCIATION]->(dga)
-            MERGE (dga)-[dadg:ASSOCIATION]->(d)
-
-            MERGE (dga)-[dapug:EVIDENCE]->(pub)
-            MERGE (dga)-[:FROM_SPECIES]-(species)
-
-            MERGE (dga)-[daecode1g:EVIDENCE]->(ecode)
+            CREATE (gene)-[fdag:ASSOCIATION]->(dga)
+            CREATE (dga)-[dadg:ASSOCIATION]->(d)
+            CREATE (dga)-[dapug:EVIDENCE]->(pub)
+            CREATE (dga)-[:FROM_SPECIES]->(species)
+            CREATE (dga)-[daecode1g:EVIDENCE]->(ecode)
 
             """
 
