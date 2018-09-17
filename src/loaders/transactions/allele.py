@@ -6,7 +6,7 @@ class AlleleTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def allele_tx(self, data):
+    def allele_tx(self, allele_data, secondary_data, synonym_data, xref_data):
 
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(data)
@@ -77,4 +77,37 @@ class AlleleTransaction(Transaction):
 
         """ + CreateCrossReference.get_cypher_xref_text("allele")
 
-        Transaction.execute_transaction(self, alleleQuery, data)
+        allele_secondaryIds = """
+
+         UNWIND $data AS row
+                MATCH (f:Feature {primaryKey:row.primary_id})
+
+                MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                    SET second.name = row.secondary_id
+                MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
+
+
+        """
+        allele_synonyms = """
+
+         UNWIND $data AS row
+                MATCH (f:Feature {primaryKey:row.primary_id})
+
+               MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (f)-[aka2:ALSO_KNOWN_AS]->(syn)
+        """
+
+        allele_xrefs = """
+            UNWIND $data as event
+                MATCH (o:Feature {primaryKey:event.dataId})
+        
+        """ + CreateCrossReference.get_cypher_xref_text("feature")
+
+
+        Transaction.execute_transaction(self, alleleQuery, allele_data)
+        Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
+        Transaction.execute_transaction(self, allele_synonyms, synonym_data)
+        Transaction.execute_transaction(self, allele_xrefs, xfef_data)
+
+

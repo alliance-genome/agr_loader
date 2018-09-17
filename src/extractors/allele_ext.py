@@ -13,9 +13,13 @@ class AlleleExt(object):
 
         xrefUrlMap = ResourceDescriptor().get_data()
         dataProviders = []
-        list_to_yield = []
         release = ""
+        alleles = []
+        allele_synonyms = []
+        allele_secondaryIds = []
+        crossReferences = []
 
+        counter = 0
         dateProduced = allele_data['metaData']['dateProduced']
 
         dataProviderObject = allele_data['metaData']['dataProvider']
@@ -49,6 +53,7 @@ class AlleleExt(object):
             release = allele_data['metaData']['release']
 
         for alleleRecord in allele_data['data']:
+            counter = counter + 1
             crossReferences = []
             globalId = alleleRecord['primaryId']
             localId = globalId.split(":")[1]
@@ -57,6 +62,7 @@ class AlleleExt(object):
             if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(globalId)
                 if is_it_test_entry is False:
+                    counter = counter - 1
                     continue
 
             if 'crossReferences' in alleleRecord:
@@ -72,8 +78,9 @@ class AlleleExt(object):
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                                crossReferences.append(
-                                    CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page))
+                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
+                                xref['dataId'] = globalId
+                                crossReferences.append(xref)
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -81,24 +88,38 @@ class AlleleExt(object):
                 "globalId": globalId,
                 "localId": localId,
                 "taxonId": alleleRecord.get('taxonId'),
-                "synonyms": alleleRecord.get('synonyms'),
-                "secondaryIds": alleleRecord.get('secondaryIds'),
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
-                "uuid": str(uuid.uuid4()),
-                "crossReferences": crossReferences,
+                "uuid": str(uuid.uuid4()),\
                 "dataProvider": dataProviderSingle,
                 "symbolText": alleleRecord.get('symbolText')
             }
 
-            list_to_yield.append(allele_dataset)
-            if len(list_to_yield) == batch_size:
-                yield list_to_yield
+            for synonym in allele_dataset.get('synonyms'):
+                allele_synonyms = {
+                    "data_id": alleleRecord.get('primaryId'),
+                    "synonym": synonym
+                }
 
-                list_to_yield[:] = []  # Empty the list.
+            for secondaryId in allele_dataset.get('secondaryIds'):
+                allele_secondaryIds = {
+                    "data_id": alleleRecord.get('primaryId'),
+                    "secondary_id": secondaryId
+                }
 
-        if len(list_to_yield) > 0:
-            yield list_to_yield
+            allele_secondaryIds = {}
+
+            alleles.append(allele_dataset)
+            if counter == batch_size:
+                yield (alleles, allele_secondaryIds, allele_synonyms, crossReferences)
+                alleles = []
+                allele_secondaryIds = []
+                allele_synonyms = []
+                crossReferences = []
+                counter = 0
+
+        if counter > 0:
+            yield (alleles, allele_secondaryIds, allele_synonyms, crossReferences)

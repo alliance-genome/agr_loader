@@ -5,7 +5,7 @@ class RGD(MOD):
     def __init__(self):
         self.species = "Rattus norvegicus"
 
-        self.loadFile = "RGD_1.0.0.6_4.tar.g"
+        self.loadFile = "RGD_1.0.0.6_4.tar.gz"
         self.bgiName = "/RGD_1.0.0.6_BGI.10116.json"
         self.diseaseName = "/RGD_1.0.0.6_disease.10116.json"
         self.phenotypeName = "/RGD_1.0.0.6_phenotype.10116.json"
