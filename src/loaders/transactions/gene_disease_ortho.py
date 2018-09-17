@@ -49,7 +49,6 @@ class GeneDiseaseOrthoTransaction(Transaction):
                type(da) AS relationType,
                disease.primaryKey AS doId"""
 
-        orthologous_disease_data = []
         tx = Transaction(self.graph)
         returnSet = tx.run_single_query(query)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
