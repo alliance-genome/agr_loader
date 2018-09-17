@@ -51,17 +51,6 @@ class AlleleTransaction(Transaction):
                 //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
             MERGE (l)-[lo:LOADED_FROM]-(o)
 
-            FOREACH (entry in row.secondaryIds |
-                MERGE (second:SecondaryId:Identifier {primaryKey:entry})
-                    SET second.name = entry
-                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
-                MERGE (l)-[las:LOADED_FROM]-(second))
-
-            FOREACH (entry in row.synonyms |
-                MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                    SET syn.name = entry
-                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
-                MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
             MERGE (o)-[aspec:FROM_SPECIES]->(spec)
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
@@ -72,10 +61,7 @@ class AlleleTransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (o)-[c1:CREATED_BY]->(ent)
 
-            WITH o, row.crossReferences AS events
-            UNWIND events AS event
-
-        """ + CreateCrossReference.get_cypher_xref_text("allele")
+        """
 
         allele_secondaryIds = """
 
@@ -104,10 +90,9 @@ class AlleleTransaction(Transaction):
         
         """ + CreateCrossReference.get_cypher_xref_text("feature")
 
-
         Transaction.execute_transaction(self, alleleQuery, allele_data)
         Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
         Transaction.execute_transaction(self, allele_synonyms, synonym_data)
-        Transaction.execute_transaction(self, allele_xrefs, xfef_data)
+        Transaction.execute_transaction(self, allele_xrefs, xref_data)
 
 

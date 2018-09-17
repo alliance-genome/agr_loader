@@ -80,7 +80,9 @@ class AlleleExt(object):
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
                                 xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
+                                logger.info(xref)
                                 crossReferences.append(xref)
+
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -93,24 +95,26 @@ class AlleleExt(object):
                 "loadKey": loadKey,
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
-                "uuid": str(uuid.uuid4()),\
+                "uuid": str(uuid.uuid4()),
                 "dataProvider": dataProviderSingle,
                 "symbolText": alleleRecord.get('symbolText')
             }
 
-            for synonym in allele_dataset.get('synonyms'):
-                allele_synonyms = {
-                    "data_id": alleleRecord.get('primaryId'),
-                    "synonym": synonym
-                }
+            if allele_dataset.get('synonyms') is not None:
+                for synonym in allele_dataset.get('synonyms'):
+                    allele_synonym = {
+                        "data_id": alleleRecord.get('primaryId'),
+                        "synonym": synonym
+                    }
+                    allele_synonyms.append(allele_synonym)
 
-            for secondaryId in allele_dataset.get('secondaryIds'):
-                allele_secondaryIds = {
-                    "data_id": alleleRecord.get('primaryId'),
-                    "secondary_id": secondaryId
-                }
-
-            allele_secondaryIds = {}
+            if allele_dataset.get('secondaryIds') is not None:
+                for secondaryId in allele_dataset.get('secondaryIds'):
+                    allele_secondaryId = {
+                        "data_id": alleleRecord.get('primaryId'),
+                        "secondary_id": secondaryId
+                    }
+                    allele_secondaryIds.append(allele_secondaryId)
 
             alleles.append(allele_dataset)
             if counter == batch_size:

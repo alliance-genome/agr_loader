@@ -66,8 +66,6 @@ class TestClass(object):
                             dict(node1='InteractionGeneJoin:Association', node2='Publication'), \
                             dict(node1='InteractionGeneJoin:Association', node2='Identifier:CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
-                            dict(node1='Feature', node2='CrossReference'), \
-                            dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='PhenotypeEntityJoin:Association', node2='Publication'), \
                             dict(node1='Gene', node2='ExpressionBioEntity'), \
                             dict(node1='Gene', node2='BioEntityGeneExpressionJoin'), \

@@ -72,7 +72,6 @@ class OrthoExt(object):
 
                     'strictFilter': orthoRecord['strictFilter'],
                     'moderateFilter': orthoRecord['moderateFilter'],
-
                     'uuid': ortho_uuid
                 }
                 ortho_data_list.append(ortho_dataset)
@@ -83,12 +82,14 @@ class OrthoExt(object):
                         "algorithm": matched
                     }
                     matched_data.append(matched_dataset)
+
                 for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
                     unmatched_dataset = {
                         "uuid": ortho_uuid,
                         "algorithm": unmatched
                     }
                     unmatched_data.append(unmatched_dataset)
+
                 for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
                     notcalled_dataset = {
                         "uuid": ortho_uuid,
@@ -97,7 +98,7 @@ class OrthoExt(object):
                     notcalled_data.append(notcalled_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
-                if len(ortho_data_list) == batch_size:
+                if counter == batch_size:
                     yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
                     ortho_data_list = []
                     matched_data = []
@@ -105,5 +106,5 @@ class OrthoExt(object):
                     notcalled_data = []
                     counter = 0
 
-        if len(ortho_data_list) > 0:
+        if counter > 0:
             yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)

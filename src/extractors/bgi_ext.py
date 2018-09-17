@@ -96,10 +96,6 @@ class BGIExt(object):
                                 modCrossReferenceCompleteUrl = ""
                                 geneLiteratureUrl = ""
 
-                                # TODO: fix this as SGD fixes
-                                if page == 'gene/interaction':
-                                    page = 'gene/interactions'
-
                                 crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
                                                                                        xrefUrlMap, prefix, page)
 
@@ -225,11 +221,8 @@ class BGIExt(object):
                     secondaryIds.append(geneSecondaryId)
             
             # Establishes the number of genes to yield (return) at a time.
-            list_to_yield.append(gene_dataset)
             if counter == batch_size:
                 counter = 0
-                logger.info("size of genomicLocations")
-                logger.info(len(genomicLocations))
                 yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
                 list_to_yield[:] = []  # Empty the list.
                 gene_dataset = []
@@ -239,7 +232,5 @@ class BGIExt(object):
                 crossReferences = []
 
         if counter > 0:
-            logger.info("size of genomicLocations")
-            logger.info(len(genomicLocations))
             yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
 

@@ -119,7 +119,6 @@ class TestClass(object):
                             dict(node='GOTerm', prop='type'), \
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='ExpressionBioEntity', prop='primaryKey'), \
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                             dict(node='DOTerm', prop='defLinks')
                             ],
@@ -184,7 +183,6 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='Stage', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \

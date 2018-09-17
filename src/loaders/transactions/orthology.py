@@ -38,21 +38,21 @@ class OrthoTransaction(Transaction):
 
         matched_algorithm = """
             UNWIND $data as row
-            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (match:OrthoAlgorithm {name:row.algorithm})
                 MERGE (oa)-[m:MATCHED]->(match)
         """
 
         unmatched_algorithm = """
             UNWIND $data as row
-            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (notmatch:OrthoAlgorithm {name:row.algorithm})
                 MERGE (oa)-[m:NOT_MATCHED]->(notmatch)
         """
 
         not_called = """
             UNWIND $data as row
-            MATCH (oa:Association {primaryKey:row.uuid})
+            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (notcalled:OrthoAlgorithm {name:row.algorithm})
                 MERGE (oa)-[m:NOT_CALLED]->(notcalled)
         """
