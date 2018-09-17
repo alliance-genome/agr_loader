@@ -27,7 +27,7 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn:Synonym:Identifier))
+                MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
 
             FOREACH (isa in row.isas |
                 MERGE (g2:%s:Ontology {primaryKey:isa})

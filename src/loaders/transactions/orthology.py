@@ -21,7 +21,7 @@ class OrthoTransaction(Transaction):
             MATCH(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
             MATCH(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
 
-            MERGE (g1:Gene)-[orth:ORTHOLOGOUS {primaryKey:row.uuid}]->(g2:Gene)
+            MERGE (g1)-[orth:ORTHOLOGOUS {primaryKey:row.uuid}]->(g2)
                 SET orth.isBestScore = row.isBestScore,
                  orth.isBestRevScore = row.isBestRevScore,
                  orth.confidence = row.confidence,
@@ -29,32 +29,32 @@ class OrthoTransaction(Transaction):
                  orth.moderateFilter = row.moderateFilter
 
             //Create the Association node to be used for the object/doTerm
-            CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MERGE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
                 SET oa.joinType = 'orthologous'
-            MERGE (g1:Gene)-[a1:ASSOCIATION]->(oa:Association:OrthologyGeneJoin)
-            MERGE (oa:Association:OrthologyGeneJoin)-[a2:ASSOCIATION]->(g2:Gene)
+            MERGE (g1)-[a1:ASSOCIATION]->(oa)
+            MERGE (oa)-[a2:ASSOCIATION]->(g2)
 
         """
 
         matched_algorithm = """
             UNWIND $data as row
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MATCH (oa:Association {primaryKey:row.uuid})
             MERGE (match:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa:Association:OrthologyGeneJoin)-[m:MATCHED]->(match:OrthoAlgorithm)
+                MERGE (oa)-[m:MATCHED]->(match)
         """
 
         unmatched_algorithm = """
             UNWIND $data as row
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MATCH (oa:Association {primaryKey:row.uuid})
             MERGE (notmatch:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa:Association:OrthologyGeneJoin)-[m:NOT_MATCHED]->(notmatch:OrthoAlgorithm)
+                MERGE (oa)-[m:NOT_MATCHED]->(notmatch)
         """
 
         not_called = """
             UNWIND $data as row
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MATCH (oa:Association {primaryKey:row.uuid})
             MERGE (notcalled:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa:Association:OrthologyGeneJoin)-[m:NOT_CALLED]->(notcalled:OrthoAlgorithm)
+                MERGE (oa)-[m:NOT_CALLED]->(notcalled)
         """
 
         Transaction.execute_transaction(self, query, ortho_data)

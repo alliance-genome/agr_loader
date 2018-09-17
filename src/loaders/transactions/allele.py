@@ -32,16 +32,16 @@ class AlleleTransaction(Transaction):
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
                 SET o.symbol = row.symbol,
-                o.taxonId = row.taxonId,
-                o.dateProduced = row.dateProduced,
-                o.release = row.release,
-                o.localId = row.localId,
-                o.globalId = row.globalId,
-                o.uuid = row.uuid,
-                o.symbolText = row.symbolText,
-                o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                o.dataProviders = row.dataProviders,
-                o.dataProvider = row.dataProvider
+                 o.taxonId = row.taxonId,
+                 o.dateProduced = row.dateProduced,
+                 o.release = row.release,
+                 o.localId = row.localId,
+                 o.globalId = row.globalId,
+                 o.uuid = row.uuid,
+                 o.symbolText = row.symbolText,
+                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                 o.dataProviders = row.dataProviders,
+                 o.dataProvider = row.dataProvider
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
