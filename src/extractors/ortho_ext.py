@@ -2,7 +2,6 @@ from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 import uuid
 
-from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
@@ -16,11 +15,11 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.7.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.7_temp1.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_temp1.json.tar.gz'
         else:
-            filename = "orthology_" + mod_name + "_1.0.0.7.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.7_temp.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_temp.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
@@ -30,16 +29,16 @@ class OrthoExt(object):
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
-        for dataProviderObject in ortho_data['metaData']['dataProvider']:
+        dataProviderObject = ortho_data['metaData']['dataProvider']
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
-            dataProviders = []
-            loadKey = dateProduced + "_BGI"
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
+        dataProviders = []
+        loadKey = dateProduced + "_BGI"
 
-            for dataProviderPage in dataProviderPages:
+        for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
                 dataProviderCrossRefSet.append(
@@ -47,8 +46,8 @@ class OrthoExt(object):
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 
-            dataProviders.append(dataProvider)
-            loadKey = dataProvider + loadKey
+        dataProviders.append(dataProvider)
+        loadKey = dataProvider + loadKey
 
         list_to_yield = []
 
@@ -70,7 +69,7 @@ class OrthoExt(object):
                     'isBestScore': orthoRecord['isBestScore'],
                     'isBestRevScore': orthoRecord['isBestRevScore'],
 
-                    'gene1AgrPrimaryId' : gene1AgrPrimaryId,
+                    'gene1AgrPrimaryId': gene1AgrPrimaryId,
                     'gene2AgrPrimaryId': gene2AgrPrimaryId,
 
                     'matched': orthoRecord['predictionMethodsMatched'],

@@ -9,8 +9,8 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class BGIExt(object):
 
+class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject, species):
         xrefUrlMap = ResourceDescriptor().get_data()
@@ -18,29 +18,38 @@ class BGIExt(object):
 
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
+        synonyms = []
+        secondaryIds = []
+        crossReferences = []
+        genomicLocations = []
+        gene_dataset = []
         release = None
+        counter = 0
 
-        for dataProviderObject in gene_data['metaData']['dataProvider']:
+        dataProviderObject = gene_data['metaData']['dataProvider']
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
 
-            loadKey = dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_BGI"
 
-            #TODO: get SGD to fix their files.
-            if dataProviderPages != None:
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+        # TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
+
+                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info ("data provider: " + dataProvider)
+                logger.info("data provider: " + dataProvider)
 
         dataProviderSingle = DataProvider().get_data_provider(species)
 
@@ -48,9 +57,8 @@ class BGIExt(object):
             release = gene_data['metaData']['release']
 
         for geneRecord in gene_data['data']:
+            counter = counter + 1
 
-            crossReferences = []
-            genomic_locations = []
 
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
@@ -67,6 +75,7 @@ class BGIExt(object):
             if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(primary_id)
                 if is_it_test_entry is False:
+                    counter = counter - 1
                     continue
 
             #TODO: can we split this off into another class?
@@ -91,7 +100,8 @@ class BGIExt(object):
                                 if page == 'gene/interaction':
                                     page = 'gene/interactions'
 
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
+                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
+                                                                                       xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
@@ -109,33 +119,71 @@ class BGIExt(object):
 
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
 
-
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId,
+                                                                                              xrefUrlMap,
+                                                                                              prefix, primary_id)
 
-                                crossReferences.append(
-                                        CreateCrossReference.get_xref(localCrossRefId, prefix, page,
-                                                                  page, displayName, crossRefCompleteUrl, globalXrefId+page))
+                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, page,
+                                                                  page, displayName, crossRefCompleteUrl,
+                                                                      globalXrefId+page)
+                                xrefMap['dataId'] = primary_id
+                                crossReferences.append(xrefMap)
 
                         else:
-                            if prefix == 'PANTHER': # TODO Special Panther case needs to be handled in the resourceDescriptor.yaml
-                                #TODO: add bucket for panther
+                            if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                           prefix, primary_id)
 
-                                crossReferences.append(CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther","gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId+"gene/panther"))
-
+                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther",
+                                                                  "gene/panther", displayName, crossRefCompleteUrl,
+                                                                  crossRefPrimaryId + "gene/panther")
+                                xrefMap['dataId'] = primary_id
+                                crossReferences.append(xrefMap)
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap,
                                                                                           prefix, primary_id)
-                                crossReferences.append(
-                                    CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference",
-                                                                  "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId+"generic_cross_reference"))
+
+                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix,
+                                                                        "generic_cross_reference",
+                                                                        "generic_cross_reference", displayName,
+                                                                        crossRefCompleteUrl,
+                                                                        crossRefPrimaryId + "generic_cross_reference")
+                                xrefMap['dataId'] = primary_id
+                                crossReferences.append(xrefMap)
+
+            gene = {
+                "symbol": geneRecord.get('symbol'),
+                "name": geneRecord.get('name'),
+                "geneticEntityExternalUrl": geneticEntityExternalUrl,
+                "description": geneRecord.get('description'),
+                "soTermId": geneRecord['soTermId'],
+                "geneSynopsis": geneRecord.get('geneSynopsis'),
+                "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
+                "taxonId": geneRecord['taxonId'],
+                "species": SpeciesService.get_species(taxonId),
+                "geneLiteratureUrl": geneLiteratureUrl,
+                "name_key": geneRecord.get('symbol'),
+                "primaryId": primary_id,
+                "category": "gene",
+                "dateProduced": dateProduced,
+                "dataProviders": dataProviders,
+                "dataProvider": dataProviderSingle,
+                "release": release,
+                "href": None,
+                "uuid": str(uuid.uuid4()),
+                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
+                "localId": local_id,
+                "modGlobalCrossRefId": global_id,
+                "modGlobalId": global_id,
+                "loadKey": loadKey
+            }
+            gene_dataset.append(gene)
 
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
@@ -153,48 +201,45 @@ class BGIExt(object):
                         strand = genomeLocation['strand']
                     else:
                         strand = None
-                    genomic_locations.append(
-                        {"geneLocPrimaryId": primary_id, "chromosome": chromosome, "start": start, "end": end, "strand": strand, "assembly": assembly})
+                    #logger.info("gene id for locations")
+                    #logger.info(primary_id)
+                    genomicLocations.append(
+                        {"primaryId": primary_id, "chromosome": chromosome, "start":
+                            start, "end": end, "strand": strand, "assembly": assembly})
+                    #logger.info(genomicLocations)
 
-            gene_dataset = {
-                "symbol": geneRecord['symbol'],
-                "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": geneticEntityExternalUrl,
-                "description": geneRecord.get('description'),
-                "synonyms": geneRecord.get('synonyms'),
-                "soTermId": geneRecord['soTermId'],
-                "soTermName": None,
-                "diseases": [],
-                "secondaryIds": geneRecord.get('secondaryIds'),
-                "geneSynopsis": geneRecord.get('geneSynopsis'),
-                "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
-                "taxonId": geneRecord['taxonId'],
-                "species": SpeciesService.get_species(taxonId),
-                "genomeLocations": genomic_locations,
-                "geneLiteratureUrl": geneLiteratureUrl,
-                "name_key": geneRecord['symbol'],
-                "primaryId": primary_id,
-                "crossReferences": crossReferences,
-                "category": "gene",
-                "dateProduced": dateProduced,
-                "dataProviders": dataProviders,
-                "dataProvider": dataProviderSingle,
-                "release": release,
-                "href": None,
-                "uuid": str(uuid.uuid4()),
-                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
-                "localId": local_id,
-                "modGlobalCrossRefId": global_id,
-                "modGlobalId": global_id,
-                "loadKey": loadKey
-            }
+            if geneRecord.get('synonyms') is not None:
+                for synonym in geneRecord.get('synonyms'):
+                    geneSynonym = {
+                        "primary_id": primary_id,
+                        "synonym": synonym
+                    }
+                    synonyms.append(geneSynonym)
+
+            if geneRecord.get('secondaryIds') is not None:
+                for secondaryId in geneRecord.get('secondaryIds'):
+                    geneSecondaryId = {
+                        "primary_id": primary_id,
+                        "secondary_id": secondaryId
+                    }
+                    secondaryIds.append(geneSecondaryId)
             
             # Establishes the number of genes to yield (return) at a time.
             list_to_yield.append(gene_dataset)
-            if len(list_to_yield) == batch_size:
-                yield list_to_yield
+            if counter == batch_size:
+                counter = 0
+                logger.info("size of genomicLocations")
+                logger.info(len(genomicLocations))
+                yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
                 list_to_yield[:] = []  # Empty the list.
+                gene_dataset = []
+                synonyms = []
+                secondaryIds = []
+                genomicLocations = []
+                crossReferences = []
 
-        if len(list_to_yield) > 0:
-            yield list_to_yield
+        if counter > 0:
+            logger.info("size of genomicLocations")
+            logger.info(len(genomicLocations))
+            yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
 

@@ -7,25 +7,15 @@ from extractors.geo_ext import GeoExt
 from extractors.phenotype_ext import PhenotypeExt
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
-import ijson
 import gzip
-import codecs
 import csv
-import json
-import pprint
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class MOD(object):
-
-    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
-        return self.yield_gene_lists(gene_lists)
-
-    def yield_gene_lists(self, gene_lists):
-        yield from gene_lists
 
     def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
         path = "tmp"
@@ -98,7 +88,7 @@ class MOD(object):
         TARFile(path, loadFile).extract_all()
         alleleData = JSONFile().get_data(path + alleleName, 'allele')
         alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, species)
-
+        logger.info(alleleDict)
         return alleleDict
 
     def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, species):
@@ -110,10 +100,18 @@ class MOD(object):
 
         return phenotype_dict
 
+    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
+        path = "tmp"
+        S3File(loadFile, path).download()
+        TARFile(path, loadFile).extract_all()
+        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
+        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
+        return gene_lists
+
     def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
 
-        wt_expression_dict = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
-        return wt_expression_dict
+        data = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+        return data
 
     def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
         entrezIds = []

@@ -2,7 +2,6 @@ import uuid
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
-from services import DataProvider
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,32 +14,30 @@ class PhenotypeExt(object):
         xrefUrlMap = ResourceDescriptor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
         dataProviders = []
-        loadKey = ""
+        dataProviderObject = phenotype_data['metaData']['dataProvider']
 
-        for dataProviderObject in phenotype_data['metaData']['dataProvider']:
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
 
-            dataProviderCrossRef = dataProviderObject.get('crossReference')
-            dataProviderType = dataProviderObject.get('type')
-            dataProvider = dataProviderCrossRef.get('id')
-            dataProviderPages = dataProviderCrossRef.get('pages')
-            dataProviderCrossRefSet = []
-            dataProviders = []
-            loadKey = loadKey + dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_phenotype"
 
-            if dataProviderPages is not None:
-                for dataProviderPage in dataProviderPages:
-                    crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+        #TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
-                    dataProviderCrossRefSet.append(
-                        CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
+
+                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info ("data provider: " + dataProvider)
-
-        dataProviderSingle = DataProvider().get_data_provider(species)
-        logger.info ("dataProvider found: " + dataProviderSingle)
+                logger.info("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
 
@@ -64,27 +61,27 @@ class PhenotypeExt(object):
             if 'pubMedId' in evidence:
                 pubMedId = evidence.get('pubMedId')
 
-            if pubMedId != None:
+            if pubMedId is not None:
                 pubMedPrefix = pubMedId.split(":")[0]
                 pubMedLocalId = pubMedId.split(":")[1]
                 pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, xrefUrlMap, pubMedPrefix, primaryId)
 
                 pubModId = pheno.get('pubModId')
 
-            if pubModId != None:
+            if pubModId is not None:
                 pubModPrefix = pubModId.split(":")[0]
                 pubModLocalId = pubModId.split(":")[1]
                 pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
 
-            if pubMedId == None:
+            if pubMedId is None:
                 pubMedId = ""
 
-            if pubModId == None:
+            if pubModId is None:
                 pubModId = ""
 
             dateAssigned = pheno.get('dateAssigned')
 
-            if pubModId == None and pubMedId == None:
+            if pubModId is None and pubMedId is None:
                 logger.info (primaryId + "is missing pubMed and pubMod id")
 
             phenotype_feature = {
@@ -100,9 +97,7 @@ class PhenotypeExt(object):
                 "loadKey": loadKey,
                 "type": "gene",
                 "dataProviders": dataProviders,
-                "dataProviderType": dataProviderType,
-                "dateProduced": dateProduced,
-                "dataProvider": dataProviderSingle
+                "dateProduced": dateProduced
              }
 
             list_to_yield.append(phenotype_feature)

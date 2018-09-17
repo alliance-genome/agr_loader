@@ -21,10 +21,6 @@ class FlyBase(MOD):
         return data
 
     @staticmethod
-    def gene_href(gene_id):
-        return "http://flybase.org/reports/" + gene_id + ".html"
-
-    @staticmethod
     def get_organism_names():
         return ["Drosophila melanogaster", "D. melanogaster", "DROME"]
 
@@ -54,7 +50,4 @@ class FlyBase(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

@@ -1,4 +1,3 @@
-import pprint
 from .mod import MOD
 
 class MGI(MOD):
@@ -6,13 +5,13 @@ class MGI(MOD):
     def __init__(self):
         self.species = "Mus musculus"
 
-        self.loadFile = "MGI_1.0.0.4_2.tar.gz"
+        self.loadFile = "MGI_1.0.0.6_1.tar.gz"
 
-        self.bgiName = "/MGI_1.0.0.4_BGI.json"
-        self.alleleName = "/MGI_1.0.0.4_allele.json"
-        self.diseaseName = "/MGI_1.0.0.4_disease.json"
-        self.phenotypeName = "/MGI_1.0.0.4_phenotype.json"
-        self.wtExpressionName = "/MGI_1.0.0.4_expression.json"
+        self.bgiName = "/MGI_1.0.0.6_BGI.json"
+        self.alleleName = "/MGI_1.0.0.6_allele.json"
+        self.diseaseName = "/MGI_1.0.0.6_disease.json"
+        self.phenotypeName = "/MGI_1.0.0.6_phenotype.json"
+        self.wtExpressionName = "/MGI_1.0.0.6_expression.json"
 
         self.geneAssociationFile = "gene_association_1.7.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
@@ -23,10 +22,6 @@ class MGI(MOD):
     def load_genes(self, batch_size, testObject, graph, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
-
-    @staticmethod
-    def gene_href(gene_id):
-        return "http://www.informatics.jax.org/marker/" + gene_id
 
     @staticmethod
     def get_organism_names():
