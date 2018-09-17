@@ -26,16 +26,16 @@ class PhenotypeTransaction(Transaction):
                 SET l.dataProviders = row.dataProviders
                 SET l.dataProvider = row.dataProvider
 
-            MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityJoin
-                SET pa.joinType = 'phenotype'
-                SET pa.dataProviders = row.dataProviders
+            MERGE (pa:Association:PhenotypeEntityJoin {primaryKey:row.uuid})
+                SET pa.joinType = 'phenotype',
+                pa.dataProviders = row.dataProviders
 
-            MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+            MERGE (feature)-[featurep:HAS_PHENOTYPE]->(p:Phenotype)
+                SET featurep.uuid = row.uuid
 
-            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
-            MERGE (pa)-[pad:ASSOCIATION]->(p)
-            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
+            MERGE (feature)-[fpaf:ASSOCIATION]->(pa:Association:PhenotypeEntityJoin)
+            MERGE (pa:Association:PhenotypeEntityJoin)-[pad:ASSOCIATION]->(p:Phenotype)
+            MERGE (ag:Gene)-[agpa:ASSOCIATION]->(pa:Association:PhenotypeEntityJoin)
 
             //FOREACH (dataProvider in row.dataProviders |
                 //MERGE (dp:DataProvider {primaryKey:dataProvider})
@@ -43,13 +43,13 @@ class PhenotypeTransaction(Transaction):
                 //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId
-                SET pubf.pubMedId = row.pubMedId
-                SET pubf.pubModUrl = row.pubModUrl
-                SET pubf.pubMedUrl = row.pubMedUrl
+                SET pubf.pubModId = row.pubModId,
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
+            MERGE (l:Load)-[loadAssociation:LOADED_FROM]-(pubf:Publication)
+            MERGE (pa:Association:PhenotypeEntityJoin)-[dapuf:EVIDENCE]->(pubf:Publication)
 
             """
         executeGene = """
@@ -65,22 +65,22 @@ class PhenotypeTransaction(Transaction):
                 SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (l:Load {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Phenotype"
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "Phenotype",
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
-            MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityJoin
-                SET pa.joinType = 'phenotype'
-                SET pa.dataProviders = row.dataProviders
-                SET pa.dataProvider = row.dataProvider
+            MERGE (pa:Association:PhenotypeEntityJoin {primaryKey:row.uuid})
+                SET pa.joinType = 'phenotype',
+                 pa.dataProviders = row.dataProviders,
+                 pa.dataProvider = row.dataProvider
             
-             MERGE (pa)-[dfal:LOADED_FROM]-(l)
+             MERGE (pa:Association:PhenotypeEntityJoin)-[dfal:LOADED_FROM]-(l)
                 
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+                MERGE (pa:Association:PhenotypeEntityJoin)-[pad:ASSOCIATION]->(p:Phenotype)
+                MERGE (g:Gene)-[gpa:ASSOCIATION]->(pa:Association:PhenotypeEntityJoin)
+                MERGE (g:Gene)-[genep:HAS_PHENOTYPE]->(p:Phenotype)
+                    SET genep.uuid = row.uuid
 
             //FOREACH (dataProvider in row.dataProviders |
               //  MERGE (dp:DataProvider {primaryKey:dataProvider})
@@ -95,8 +95,8 @@ class PhenotypeTransaction(Transaction):
                 SET pubf.pubModUrl = row.pubModUrl
                 SET pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
+            MERGE (l:Load)-[loadAssociation:LOADED_FROM]-(pubf:Publication)
+            MERGE (pa:Association:PhenotypeEntityJoin)-[dapuf:EVIDENCE]->(pubf:Publication)
 
         """
 

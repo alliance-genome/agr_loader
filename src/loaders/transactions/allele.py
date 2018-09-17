@@ -23,25 +23,25 @@ class AlleleTransaction(Transaction):
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Allele"
-                SET l.release = row.release
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "Allele",
+                 l.release = row.release,
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
-                SET o.symbol = row.symbol
-                SET o.taxonId = row.taxonId
-                SET o.dateProduced = row.dateProduced
-                SET o.release = row.release
-                SET o.localId = row.localId
-                SET o.globalId = row.globalId
-                SET o.uuid = row.uuid
-                SET o.symbolText = row.symbolText
-                SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
-                SET o.dataProviders = row.dataProviders
-                SET o.dataProvider = row.dataProvider
+                SET o.symbol = row.symbol,
+                o.taxonId = row.taxonId,
+                o.dateProduced = row.dateProduced,
+                o.release = row.release,
+                o.localId = row.localId,
+                o.globalId = row.globalId,
+                o.uuid = row.uuid,
+                o.symbolText = row.symbolText,
+                o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                o.dataProviders = row.dataProviders,
+                o.dataProvider = row.dataProvider
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 

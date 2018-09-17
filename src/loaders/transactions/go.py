@@ -18,38 +18,38 @@ class GOTransaction(Transaction):
 
             //Create the GOTerm node and set properties. primaryKey is required.
             MERGE (g:GOTerm:Ontology {primaryKey:row.oid})
-                SET g.definition = row.definition
-                SET g.type = row.o_type
-                SET g.href = row.href
-                SET g.name = row.name 
-                SET g.subset = row.subset
-                SET g.nameKey = row.name_key
-                SET g.is_obsolete = row.is_obsolete
-                SET g.href = row.href
+                SET g.definition = row.definition,
+                g.type = row.o_type
+                g.href = row.href
+                g.name = row.name 
+                g.subset = row.subset
+                g.nameKey = row.name_key
+                g.is_obsolete = row.is_obsolete
+                g.href = row.href
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
+                MERGE (g:GOTerm:Ontology)-[aka:ALSO_KNOWN_AS]->(syn:Synonym:Identifier))
 
             FOREACH (isa in row.isas |
                 MERGE (g2:GOTerm:Ontology {primaryKey:isa})
-                MERGE (g)-[aka:IS_A]->(g2))
+                MERGE (g:GOTerm:Ontology)-[aka:IS_A]->(g2:GOTerm:Ontology))
                 
             FOREACH (partof in row.partofs |
                 MERGE (g2:GOTerm:Ontology {primaryKey:partof})
-                MERGE (g)-[aka:PART_OF]->(g2))
+                MERGE (g:GOTerm:Ontology)-[aka:PART_OF]->(g2:GOTerm:Ontology))
             
             FOREACH (regulates in row.regulates |
                 MERGE (g2:GOTerm:Ontology {primaryKey:regulates})
-                MERGE (g)-[aka:REGULATES]->(g2))
+                MERGE (g:GOTerm:Ontology)-[aka:REGULATES]->(g2:GOTerm:Ontology))
                 
             FOREACH (negatively_regulates in row.negatively_regulates |
                 MERGE (g2:GOTerm:Ontology {primaryKey:negatively_regulates})
-                MERGE (g)-[aka:NEGATIVELY_REGULATES]->(g2))
+                MERGE (g:GOTerm:Ontology)-[aka:NEGATIVELY_REGULATES]->(g2:GOTerm:Ontology))
                 
             FOREACH (positively_regulates in row.positively_regulates |
                 MERGE (g2:GOTerm:Ontology {primaryKey:positively_regulates})
-                MERGE (g)-[aka:POSITIVELY_REGULATES]->(g2))
+                MERGE (g:GOTerm:Ontology)-[aka:POSITIVELY_REGULATES]->(g2:GOTerm:Ontology))
 
         """
 

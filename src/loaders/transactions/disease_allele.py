@@ -18,30 +18,29 @@ class DiseaseAlleleTransaction(Transaction):
 
             // LOAD NODES
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Disease"
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                l.loadName = "Disease",
+                l.dataProviders = row.dataProviders,
+                l.dataProvider = row.dataProvider
 
 
-            MERGE (dfa:Association {primaryKey:row.uuid})
-                SET dfa :DiseaseEntityJoin
+            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                 SET dfa.dataProviders = row.dataProviders
                 
-            MERGE (dfa)-[dfal:LOADED_FROM]-(l)
+            MERGE (dfa:Association:DiseaseEntityJoin)-[dfal:LOADED_FROM]-(l)
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                SET faf.dateProduced = row.dateProduced
-                SET faf.dataProvider = row.dataProvider
-                SET dfa.joinType = 'is_marker_of'
+                CREATE (feature:Feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d:DOTerm)
+                SET faf.dateProduced = row.dateProduced,
+                faf.dataProvider = row.dataProvider,
+                dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
-                SET faf.dateProduced = row.dateProduced
-                SET faf.dataProvider = row.dataProvider
-                SET dfa.joinType = 'is_implicated_in'
+                CREATE (feature:Feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d:DOTerm)
+                SET faf.dateProduced = row.dateProduced,
+                faf.dataProvider = row.dataProvider,
+                dfa.joinType = 'is_implicated_in'
             )
 
             //FOREACH (dataProvider in row.dataProviders |
@@ -50,24 +49,24 @@ class DiseaseAlleleTransaction(Transaction):
                 //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
 
 
-            MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
-            MERGE (dfa)-[dadf:ASSOCIATION]->(d)
-            MERGE (g)-[gadf:ASSOCIATION]->(dfa)
+            MERGE (feature:Feature)-[fdaf:ASSOCIATION]->(dfa:Association:DiseaseEntityJoin)
+            MERGE (dfa:Association:DiseaseEntityJoin)-[dadf:ASSOCIATION]->(d:DOTerm)
+            MERGE (g:Gene)-[gadf:ASSOCIATION]->(dfa:Association:DiseaseEntityJoin)
 
             // PUBLICATIONS FOR FEATURE
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId
-                SET pubf.pubMedId = row.pubMedId
-                SET pubf.pubModUrl = row.pubModUrl
-                SET pubf.pubMedUrl = row.pubMedUrl
+                SET pubf.pubModId = row.pubModId,
+                pubf.pubMedId = row.pubMedId,
+                pubf.pubModUrl = row.pubModUrl,
+                pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
-            MERGE (dfa)-[dapuf:EVIDENCE]->(pubf)
+            MERGE (l:Load:Entity)-[loadAssociation:LOADED_FROM]-(pubf:Publication)
+            MERGE (dfa:Association:DiseaseEntityJoin)-[dapuf:EVIDENCE]->(pubf:Publication)
 
             // EVIDENCE CODES FOR FEATURE
             FOREACH (entity in row.ecodes|
                 MERGE (ecode1f:EvidenceCode {primaryKey:entity})
-                MERGE (dfa)-[daecode1f:EVIDENCE]->(ecode1f)
+                MERGE (dfa:Association:DiseaseEntityJoin)-[daecode1f:EVIDENCE]->(ecode1f)
             )
             """
 
