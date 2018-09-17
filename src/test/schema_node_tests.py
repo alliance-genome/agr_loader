@@ -105,8 +105,8 @@ class TestClass(object):
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
                             dict(node='Phenotype', prop='phenotypeStatement'), \
-                            dict(node='Publication', prop='pubMedId', count=1), \
-                           #dict(node='Publication', prop='pubModId'), \
+                            #dict(node='Publication', prop='pubMedId'), \
+                            #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
@@ -172,7 +172,7 @@ class TestClass(object):
                                dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
-                               dict(node='Publication', prop='pubMedId', count=1), \
+                               #dict(node='Publication', prop='pubMedId'), \
                                dict(node='Publication', prop='primaryKey'), \
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
@@ -228,19 +228,19 @@ class TestClass(object):
         for record in result:
             assert record["count"] > 0
 
-    def test_prop_exist(self, node, prop, count=0):
+    def test_prop_exist(self, node, prop):
         query = 'MATCH (n:%s) WHERE NOT EXISTS(n.%s) RETURN COUNT(n) as count' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
-            assert record["count"] == count
+            assert record["count"] == 0
 
-    def test_prop_not_null(self, node, prop, count=0):
+    def test_prop_not_null(self, node, prop):
         query = 'MATCH (n:%s) WHERE n.%s is NULL RETURN COUNT(n) as count' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
-            assert record["count"] == count
+            assert record["count"] == 0
 
     def test_prop_unique(self, node, prop):
         query = 'MATCH (n:%s) WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count RETURN count' % (node, prop)
