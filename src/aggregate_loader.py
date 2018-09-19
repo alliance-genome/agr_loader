@@ -230,6 +230,7 @@ class AggregateLoader(object):
             # reduced the need for stub methods in mod.py, et al.  Human should only run loads that it has data for.
             if mod.species != 'Homo sapiens':
 
+                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
                 alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
                 for allele_batch in alleles:
 

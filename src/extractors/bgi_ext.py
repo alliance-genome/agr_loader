@@ -95,6 +95,7 @@ class BGIExt(object):
                             for page in pages:
                                 modCrossReferenceCompleteUrl = ""
                                 geneLiteratureUrl = ""
+                                displayName = ""
 
                                 crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
                                                                                        xrefUrlMap, prefix, page)
@@ -121,6 +122,12 @@ class BGIExt(object):
                                     crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId,
                                                                                               xrefUrlMap,
                                                                                               prefix, primary_id)
+
+                                # TODO: fix gene/disease xrefs for SGD once resourceDescriptor change in develop
+                                # makes its way to the release branch.
+
+                                if page == 'gene/disease' and species == 'Saccharomyces cerevisiae':
+                                    crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
 
                                 xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, page,
                                                                   page, displayName, crossRefCompleteUrl,

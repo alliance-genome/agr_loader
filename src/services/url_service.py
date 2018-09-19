@@ -37,7 +37,7 @@ class UrlService(object):
                     defaultUrlPrefix = individualStanzaMap["default_url_prefix"]
                     defaultUrlSuffix= individualStanzaMap["default_url_suffix"]
 
-                    completeUrl = defaultUrlPrefix+ localId + defaultUrlSuffix
+                    completeUrl = defaultUrlPrefix + localId + defaultUrlSuffix
 
                     if globalId.startswith('DRSC'):
                         completeUrl = None

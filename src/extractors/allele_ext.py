@@ -101,10 +101,8 @@ class AlleleExt(object):
                                 xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
                                 crossReferenceList.append(xref)
-                                logger.info(crossReferenceList)
 
             if 'synonyms' in alleleRecord:
-                logger.info(alleleRecord)
                 for syn in alleleRecord.get('synonyms'):
                     allele_synonym = {
                         "data_id": alleleRecord.get('primaryId'),
