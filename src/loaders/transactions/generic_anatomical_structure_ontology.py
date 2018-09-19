@@ -39,17 +39,4 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
 
         """ % (nodeLabel, nodeLabel, nodeLabel)
 
-        queryXref = """
-
-            UNWIND $data as row
-             WITH row.xref_urls AS events
-                UNWIND events AS event
-                    MATCH (o:%s:Ontology {primaryKey:event.oid})
-
-
-        """ % nodeLabel
-        # TODO: make this generic and add it above
-        # + CreateCrossReference.get_cypher_xref_text("cell_ontology")
-
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        # Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

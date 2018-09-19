@@ -1,6 +1,5 @@
 from neo4j.v1 import GraphDatabase
 import os
-import pytest
 
 
 def execute_transaction(query):

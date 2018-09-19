@@ -1,6 +1,5 @@
 from neo4j.v1 import GraphDatabase
 import os
-import pytest
 
 # Tests for properties under conditional situations.
 # e.g. CrossReferences with external URLs when the CrossReference prefix is PANTHER.

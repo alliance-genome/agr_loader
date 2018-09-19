@@ -55,7 +55,6 @@ class AlleleExt(object):
 
         for alleleRecord in allele_data['data']:
             counter = counter + 1
-            crossReferences = []
             globalId = alleleRecord['primaryId']
             localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""

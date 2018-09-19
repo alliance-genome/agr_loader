@@ -36,12 +36,12 @@ class SGD(MOD):
 
     def load_disease_allele_objects(self, batch_size, testObject, graph, species):
         data = ""
-            #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
+        #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
         return data
 
     def load_allele_objects(self, batch_size, testObject, species):
         data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
+        #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
         return data
 
     def load_phenotype_objects(self, batch_size, testObject, species):

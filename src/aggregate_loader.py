@@ -10,6 +10,8 @@ from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from loaders.bgi_loader import BGILoader
+from loaders.disease_loader import DiseaseLoader
+from loaders.ortho_loader import OrthoLoader
 from mods import *
 from extractors import *
 from extractors.obo_ext import OExt
@@ -42,7 +44,7 @@ class AggregateLoader(object):
         self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
-        if self.testObject.using_test_data() == True:
+        if self.testObject.using_test_data() is True:
             logger.warn("WARNING: Test data load enabled.")
             time.sleep(1)
 
