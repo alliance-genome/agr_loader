@@ -5,12 +5,12 @@ class RGD(MOD):
     def __init__(self):
         self.species = "Rattus norvegicus"
 
-        self.loadFile = "RGD_1.0.0.6_4.tar.gz"
-        self.bgiName = "/RGD_1.0.0.6_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.6_disease.10116.json"
-        self.phenotypeName = "/RGD_1.0.0.6_phenotype.10116.json"
-        self.alleleName = "/RGD_1.0.0.6_allele.10116.json"
-        self.wtExpressionName = "/RGD_1.0.0.6_expression.10116.json"
+        self.loadFile = "RGD_1.0.0.7_1.tar.gz"
+        self.bgiName = "/RGD_1.0.0.7_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.7_disease.10116.json"
+        self.phenotypeName = "/RGD_1.0.0.7_phenotype.10116.json"
+        self.alleleName = "/RGD_1.0.0.7_allele.10116.json"
+        self.wtExpressionName = "/RGD_1.0.0.7_expression.10116.json"
         self.geneAssociationFile = "gene_association_1.7.rgd.gz"
 
         self.identifierPrefix = "RGD:"
