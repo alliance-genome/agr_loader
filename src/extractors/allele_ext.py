@@ -8,6 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class AlleleExt(object):
     def get_alleles(self, allele_data, batch_size, testObject, species):
 
@@ -17,7 +18,7 @@ class AlleleExt(object):
         alleles = []
         allele_synonyms = []
         allele_secondaryIds = []
-        crossReferences = []
+        crossReferenceList = []
 
         counter = 0
         dateProduced = allele_data['metaData']['dateProduced']
@@ -65,24 +66,6 @@ class AlleleExt(object):
                     counter = counter - 1
                     continue
 
-            if 'crossReferences' in alleleRecord:
-
-                for crossRef in alleleRecord['crossReferences']:
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'allele':
-                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
-                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
-                                xref['dataId'] = globalId
-                                logger.info(xref)
-                                crossReferences.append(xref)
-
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -100,30 +83,50 @@ class AlleleExt(object):
                 "symbolText": alleleRecord.get('symbolText')
             }
 
-            if allele_dataset.get('synonyms') is not None:
-                for synonym in allele_dataset.get('synonyms'):
+            alleles.append(allele_dataset)
+
+            if 'crossReferences' in alleleRecord:
+
+                for crossRef in alleleRecord['crossReferences']:
+                    crossRefId = crossRef.get('id')
+                    local_crossref_id = crossRefId.split(":")[1]
+                    prefix = crossRef.get('id').split(":")[0]
+                    pages = crossRef.get('pages')
+
+                    # some pages collection have 0 elements
+                    if pages is not None and len(pages) > 0:
+                        for page in pages:
+                            if page == 'allele':
+                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
+                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
+                                xref['dataId'] = globalId
+                                crossReferenceList.append(xref)
+                                logger.info(crossReferenceList)
+
+            if 'synonyms' in alleleRecord:
+                logger.info(alleleRecord)
+                for syn in alleleRecord.get('synonyms'):
                     allele_synonym = {
                         "data_id": alleleRecord.get('primaryId'),
-                        "synonym": synonym
+                        "synonym": syn
                     }
                     allele_synonyms.append(allele_synonym)
 
-            if allele_dataset.get('secondaryIds') is not None:
-                for secondaryId in allele_dataset.get('secondaryIds'):
+            if 'secondaryIds' in alleleRecord:
+                for secondaryId in alleleRecord.get('secondaryIds'):
                     allele_secondaryId = {
                         "data_id": alleleRecord.get('primaryId'),
                         "secondary_id": secondaryId
                     }
                     allele_secondaryIds.append(allele_secondaryId)
 
-            alleles.append(allele_dataset)
             if counter == batch_size:
-                yield (alleles, allele_secondaryIds, allele_synonyms, crossReferences)
+                yield (alleles, allele_secondaryIds, allele_synonyms, crossReferenceList)
                 alleles = []
                 allele_secondaryIds = []
                 allele_synonyms = []
-                crossReferences = []
+                crossReferenceList = []
                 counter = 0
 
         if counter > 0:
-            yield (alleles, allele_secondaryIds, allele_synonyms, crossReferences)
+            yield (alleles, allele_secondaryIds, allele_synonyms, crossReferenceList)

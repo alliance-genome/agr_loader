@@ -69,6 +69,53 @@ class WTExpressionTransaction(Transaction):
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
         """
 
+        SGDCCExpression = """
+
+        UNWIND $data as row
+
+            // GET PRIMARY DATA OBJECTS
+
+            // LOAD NODES
+            MATCH (g:Gene {primaryKey:row.geneId})
+            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+
+            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = otcct.name
+
+                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                    SET gex.uuid = row.ei_uuid
+
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
+                     gej.dataProviders = row.dataProviders
+
+                MERGE (gej)-[geja:ASSAY]-(assay)
+
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
+
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+
+               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                //    SET l.dateProduced = row.dateProduced
+                //    SET l.loadName = "WT-Expression"
+                //    SET l.dataProviders = row.dataProviders
+               //     SET l.dataProvider = row.dataProvider
+
+                //where only ao term exists
+
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
+
+              //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
+        """
+
         CCExpression = """
 
         UNWIND $data as row
@@ -240,11 +287,17 @@ class WTExpressionTransaction(Transaction):
         """
 
         Transaction.execute_transaction(self, AddOther, "other")
+
+        if species == 'Saccharomyces cerevisiae':
+            if len(CCExpressionData) > 0:
+                Transaction.execute_transaction(self, SGDCCExpression, CCExpressionData)
+
+        else:
+            if len(CCExpressionData) > 0:
+                Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+
         if len(AOExpressionData) > 0:
             Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-
-        if len(CCExpressionData) > 0:
-            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
 
         if len(AOCCExpressionData) > 0 :
             Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)

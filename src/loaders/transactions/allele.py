@@ -90,9 +90,14 @@ class AlleleTransaction(Transaction):
         
         """ + CreateCrossReference.get_cypher_xref_text("feature")
 
-        Transaction.execute_transaction(self, alleleQuery, allele_data)
-        Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
-        Transaction.execute_transaction(self, allele_synonyms, synonym_data)
-        Transaction.execute_transaction(self, allele_xrefs, xref_data)
+        if len(allele_data) > 0:
+            Transaction.execute_transaction(self, alleleQuery, allele_data)
+        if len(secondary_data) > 0:
+            Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
+        if len(synonym_data) > 0:
+            Transaction.execute_transaction(self, allele_synonyms, synonym_data)
+        if len(xref_data) > 0:
+            Transaction.execute_transaction(self, allele_xrefs, xref_data)
+
 
 
