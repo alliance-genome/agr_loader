@@ -19,9 +19,6 @@ class UrlService(object):
                     pageUrlSuffix = individualStanzaMap["page_url_suffix"]
 
                     completeUrl = pageUrlPrefix + localId + pageUrlSuffix
-                    if page == 'gene/spell':
-                        logger.info("spell found")
-                        logger.info("xref complete url: " + completeUrl)
 
         return completeUrl
 
