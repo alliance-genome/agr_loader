@@ -35,8 +35,6 @@ class BGIExt(object):
 
         loadKey = dateProduced + dataProvider + "_BGI"
 
-        # TODO: get SGD to fix their files.
-
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -204,12 +202,9 @@ class BGIExt(object):
                         strand = genomeLocation['strand']
                     else:
                         strand = None
-                    #logger.info("gene id for locations")
-                    #logger.info(primary_id)
                     genomicLocations.append(
                         {"primaryId": primary_id, "chromosome": chromosome, "start":
                             start, "end": end, "strand": strand, "assembly": assembly})
-                    #logger.info(genomicLocations)
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
