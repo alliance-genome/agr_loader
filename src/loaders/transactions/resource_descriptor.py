@@ -43,3 +43,4 @@ class ResourceDescriptorTransaction(Transaction):
         """
 
         Transaction.execute_transaction(self, query, data)
+

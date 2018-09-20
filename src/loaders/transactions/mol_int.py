@@ -62,16 +62,16 @@ class MolIntTransaction(Transaction):
             WITH oa, row.interactor_id_and_linkout AS events
                 UNWIND events AS event
                     MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
-                        SET id.name = event.name
-                        SET id.globalCrossRefId = event.globalCrossRefId
-                        SET id.localId = event.localId
-                        SET id.crossRefCompleteUrl = event.crossRefCompleteUrl
-                        SET id.prefix = event.prefix
-                        SET id.crossRefType = event.crossRefType
-                        SET id.uuid = event.uuid
-                        SET id.page = event.page
-                        SET id.primaryKey = event.primaryKey
-                        SET id.displayName = event.displayName
+                        SET id.name = event.name,
+                         id.globalCrossRefId = event.globalCrossRefId,
+                         id.localId = event.localId,
+                         id.crossRefCompleteUrl = event.crossRefCompleteUrl,
+                         id.prefix = event.prefix,
+                         id.crossRefType = event.crossRefType,
+                         id.uuid = event.uuid,
+                         id.page = event.page,
+                         id.primaryKey = event.primaryKey,
+                         id.displayName = event.displayName
 
                     MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
 

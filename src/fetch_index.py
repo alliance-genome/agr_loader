@@ -1,7 +1,6 @@
 from aggregate_loader import AggregateLoader
 import os
 import gc
-import time
 
 useTestObject = os.environ['TEST_SET']
 if useTestObject == "True":

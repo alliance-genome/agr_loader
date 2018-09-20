@@ -58,42 +58,49 @@ def test_species_disease_pub_allele_exists():
 
 
 def test_uuid_is_not_duplicated():
-    query = "MATCH (g) WITH g.uuid AS uuid, count(*) AS counter WHERE counter > 0 AND g.uuid IS NOT NULL RETURN uuid, counter"
+    query = "MATCH (g) WITH g.uuid AS uuid, count(*) " \
+            "AS counter WHERE counter > 0 AND g.uuid IS NOT NULL RETURN uuid, counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 2
 
 
 def test_zfin_gene_has_expression_link():
-    query = "MATCH (g:Gene)-[]-(c:CrossReference) where g.primaryKey = 'ZFIN:ZDB-GENE-990415-72' and c.crossRefType = 'gene/expression' return count(g) as counter"
+    query = "MATCH (g:Gene)-[]-(c:CrossReference) " \
+            "where g.primaryKey = 'ZFIN:ZDB-GENE-990415-72' " \
+            "and c.crossRefType = 'gene/expression' return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_xref_complete_url_is_formatted():
-    query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
+    query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
+            "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_spell_display_name():
-    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' " \
+            "and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_spell_crossRefType():
-    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' and cr.crossRefType <> 'gene/spell' return count(cr) as counter"
+    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' " \
+            "and cr.crossRefType <> 'gene/spell' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_gene_has_automated_description():
-    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' and g.automatedGeneSynopsis is not null return count(g) as counter"
+    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
+            "and g.automatedGeneSynopsis is not null return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
@@ -107,41 +114,41 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
 
 
 def test_ZDB_ALT_160129_6_has_at_least_one_disease():
-    query = "MATCH (d:DOTerm)-[]-(f:Feature) where f.dataProvider = 'ZFIN' and f.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(f) as counter"
+    query = "MATCH (d:DOTerm)-[]-(f:Feature) where f.dataProvider = 'ZFIN' " \
+            "and f.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(f) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_do_terms_have_parents():
-    query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
+    query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() " \
+            "and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
         
 def test_every_species_has_phenotype_has_pub():
-    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype)-[]-(pa:PhenotypeEntityJoin)-[]-(pub:Publication) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype)-[]-(pa:PhenotypeEntityJoin)-[]-(pub:Publication) " \
+            "RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        #TODO - change this to 6 again, when SGD and FB have files
-        assert record["counter"] == 5
+        assert record["counter"] == 7
 
 
 def test_phenotype_for_all_species_exists():
     query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        #TODO - change this to 6 again, when SGD and FB have files
-        assert record["counter"] == 5
+        assert record["counter"] == 7
 
 
 def test_expression_for_non_human_species_exists():
     query = "MATCH (s:Species)--()-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        #TODO - change this to 6 again, when SGD and FB have files
-        assert record["counter"] == 4
+        assert record["counter"] == 6
 
 
 def test_cellular_component_relationship_for_expression_exists():
@@ -172,19 +179,19 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
         assert record["counter"] > 0
 
 
-# TODO turn back on when SGD and FlyBase have data
-# def test_cellular_component_qualifier_relationship_for_expression_exists():
-#     query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 0
-#
-#
-# def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
-#     query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 0
+def test_cellular_component_qualifier_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) " \
+            "RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():

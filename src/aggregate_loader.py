@@ -11,6 +11,9 @@ from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
 from loaders.bgi_loader import BGILoader
+from loaders.disease_loader import DiseaseLoader
+from loaders.ortho_loader import OrthoLoader
+from loaders.allele_loader import AlleleLoader
 from mods import *
 from extractors import *
 from extractors.obo_ext import OExt
@@ -34,8 +37,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN()]#,  TODO: FlyBase(), SGD() ]
-        #self.mods = [ZFIN()]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
+        #self.mods = [RGD(), Human()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -43,7 +46,7 @@ class AggregateLoader(object):
         self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
-        if self.testObject.using_test_data() == True:
+        if self.testObject.using_test_data() is True:
             logger.warn("WARNING: Test data load enabled.")
             time.sleep(1)
 
@@ -59,7 +62,7 @@ class AggregateLoader(object):
 
     #TODO load_from_ontologies could be consolidated into this method, perhaps
     def load_from_ont(self, ontology_path, ontology_to_load, obo_file_name):
-        logger.info ("Extraction % data", ontology_to_load)
+        logger.info("Extraction % data", ontology_to_load)
         self.dataset = OExt().get_data(ontology_path, obo_file_name)
         logger.info("Loading % data into Neo4j.", ontology_to_load)
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.dataset, ontology_to_load+"TERM")
@@ -203,6 +206,7 @@ class AggregateLoader(object):
         logger.info("Extracting BGI data from each MOD.")
         #
         for mod in self.mods:
+
             logger.info("Loading BGI data for %s into Neo4j." % mod.species)
 
             genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
@@ -230,9 +234,14 @@ class AggregateLoader(object):
             # reduced the need for stub methods in mod.py, et al.  Human should only run loads that it has data for.
             if mod.species != 'Homo sapiens':
 
+                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
                 alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
-                for allele_list_of_entries in alleles:
-                    AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
+                for allele_batch in alleles:
+
+                    AlleleLoader(self.graph).load_allele_objects(list(allele_batch[0]),
+                                                                 list(allele_batch[1]),
+                                                                 list(allele_batch[2]),
+                                                                 list(allele_batch[3]))
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
                 data = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
@@ -276,8 +285,11 @@ class AggregateLoader(object):
 
             logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            for ortholog_list_of_entries in ortholog_data:
-                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+            for ortholog_batch in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(list(ortholog_batch[0]),
+                                                   list(ortholog_batch[1]),
+                                                   list(ortholog_batch[2]),
+                                                   list(ortholog_batch[3]))
 
             logger.info("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)

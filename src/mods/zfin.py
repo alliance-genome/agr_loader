@@ -5,13 +5,13 @@ class ZFIN(MOD):
     def __init__(self):
         self.species = "Danio rerio"
 
-        self.loadFile = "ZFIN_1.0.0.4_7.tar.gz"
+        self.loadFile = "ZFIN_1.0.0.7_1.tar.gz"
 
-        self.bgiName = "/ZFIN_1.0.0.4_1_BGI.json"
-        self.diseaseName = "/ZFIN_1.0.0.4_1_disease.json"
-        self.phenotypeName = "/ZFIN_1.0.0.4_1_phenotype.json"
-        self.alleleName = "/ZFIN_1.0.0.4_1_allele.json"
-        self.wtExpressionName = "/ZFIN_1.0.0.4_1_expression.json"
+        self.bgiName = "/ZFIN_1.0.0.7_basicGeneInformation.json"
+        self.diseaseName = "/ZFIN_1.0.0.7_disease.daf.json"
+        self.phenotypeName = "/ZFIN_1.0.0.7_phenotype.json"
+        self.alleleName = "/ZFIN_1.0.0.7_allele.json"
+        self.wtExpressionName = "/ZFIN_1.0.0.7_expression.json"
 
         self.geneAssociationFile = "gene_association_1.7.zfin.gz"
 

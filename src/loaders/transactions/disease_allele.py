@@ -18,30 +18,29 @@ class DiseaseAlleleTransaction(Transaction):
 
             // LOAD NODES
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Disease"
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "Disease",
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
 
-            MERGE (dfa:Association {primaryKey:row.uuid})
-                SET dfa :DiseaseEntityJoin
+            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                 SET dfa.dataProviders = row.dataProviders
                 
             MERGE (dfa)-[dfal:LOADED_FROM]-(l)
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                SET faf.dateProduced = row.dateProduced
-                SET faf.dataProvider = row.dataProvider
-                SET dfa.joinType = 'is_marker_of'
+                SET faf.dateProduced = row.dateProduced,
+                 faf.dataProvider = row.dataProvider,
+                 dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
                 MERGE (feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
-                SET faf.dateProduced = row.dateProduced
-                SET faf.dataProvider = row.dataProvider
-                SET dfa.joinType = 'is_implicated_in'
+                SET faf.dateProduced = row.dateProduced,
+                 faf.dataProvider = row.dataProvider,
+                 dfa.joinType = 'is_implicated_in'
             )
 
             //FOREACH (dataProvider in row.dataProviders |
@@ -56,10 +55,10 @@ class DiseaseAlleleTransaction(Transaction):
 
             // PUBLICATIONS FOR FEATURE
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId
-                SET pubf.pubMedId = row.pubMedId
-                SET pubf.pubModUrl = row.pubModUrl
-                SET pubf.pubMedUrl = row.pubMedUrl
+                SET pubf.pubModId = row.pubModId,
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
             MERGE (dfa)-[dapuf:EVIDENCE]->(pubf)

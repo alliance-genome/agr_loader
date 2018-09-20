@@ -4,13 +4,12 @@ class SGD(MOD):
 
     def __init__(self):
         self.species = "Saccharomyces cerevisiae"
-        self.loadFile = "SGD_1.0.0.6.tar.gz"
-        self.bgiName = "/SGD_1.0.0.6/SGD.1.0.0.6_basicGeneInformation.json"
-        self.diseaseName = "/SGD_1.0.0.6/SGD_1.0.0.6_disease.daf.json"
-        self.phenotypeName = "/SGD_1.0.0.6/SGD.1.0.0.6_phenotype.json"
-        self.expressionName = "/SGD_1.0.0.6/SGD.1.0.0.6_expression.json"
+        self.loadFile = "SGD_1.0.0.7.tar.gz"
+        self.bgiName = "/SGD_1.0.0.7_basicGeneInformation.json"
+        self.diseaseName = "/SGD_1.0.0.7_disease.daf.json"
+        self.phenotypeName = "/SGD_1.0.0.7_phenotype.json"
         self.alleleName = ""
-        self.wtExpressionName = "/SGD_1.0.0.6/SGD.1.0.0.6_expression.json"
+        self.wtExpressionName = "/SGD_1.0.0.7_expression.json"
         self.geneAssociationFile = "gene_association_1.7.sgd.gz"
         self.identifierPrefix = "SGD:"
         self.geoSpecies = "Saccharomyces+cerevisiae"
@@ -37,12 +36,12 @@ class SGD(MOD):
 
     def load_disease_allele_objects(self, batch_size, testObject, graph, species):
         data = ""
-            #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
+        #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
         return data
 
     def load_allele_objects(self, batch_size, testObject, species):
         data = ""
-            #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
+        #MOD.load_allele_objects_mod(self, batch_size, testObject, self.alleleName, self.loadFile, species)
         return data
 
     def load_phenotype_objects(self, batch_size, testObject, species):
