@@ -9,6 +9,7 @@ from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
+from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
 from loaders.bgi_loader import BGILoader
 from loaders.disease_loader import DiseaseLoader
 from loaders.ortho_loader import OrthoLoader
@@ -316,3 +317,10 @@ class AggregateLoader(object):
             mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
+
+    def add_inferred_disease_annotations(self):
+            print("Inferring Disease by Orthology Annotations")
+            tx = GeneDiseaseOrthoTransaction(self.graph)
+            tx.retreive_diseases_inferred_by_ortholog()
+            print("\tAdding Inferred Disease Annotations")
+            tx.add_disease_inferred_by_ortho_tx()

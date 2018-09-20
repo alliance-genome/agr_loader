@@ -18,3 +18,4 @@ if __name__ == '__main__':
     al.load_from_mods()
     gc.collect()
     al.load_additional_datasets()
+    al.add_inferred_disease_annotations()

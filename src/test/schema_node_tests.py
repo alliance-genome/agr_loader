@@ -103,8 +103,8 @@ class TestClass(object):
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
                             dict(node='Phenotype', prop='phenotypeStatement'), \
-                            dict(node='Publication', prop='pubMedId'), \
-                           #dict(node='Publication', prop='pubModId'), \
+                            #dict(node='Publication', prop='pubMedId'), \
+                            #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
@@ -169,7 +169,7 @@ class TestClass(object):
                                dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
-                               dict(node='Publication', prop='pubMedId'), \
+                               #dict(node='Publication', prop='pubMedId'), \
                                dict(node='Publication', prop='primaryKey'), \
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
