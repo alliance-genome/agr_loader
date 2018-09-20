@@ -1,6 +1,5 @@
 from neo4j.v1 import GraphDatabase
 import os
-import pytest
 
 
 def execute_transaction(query):
@@ -49,7 +48,6 @@ class TestClass(object):
                              dict(node='OrthologyGeneJoin'), \
                              dict(node='OrthoAlgorithm'), \
                              dict(node='Load'), \
-                             dict(node='Feature'), \
                              dict(node='ExpressionBioEntity'), \
                              dict(node='Stage'), \
                              dict(node='BioEntityGeneExpressionJoin'), \
@@ -136,7 +134,6 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'), \
                                dict(node='Gene', prop='uuid'), \
                                dict(node='Gene', prop='dataProvider'), \
-                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
@@ -178,13 +175,14 @@ class TestClass(object):
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
                                dict(node='Feature', prop='dateProduced'), \
+                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
                                dict(node='MITerm', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='Stage', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \

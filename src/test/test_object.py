@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class TestObject(object):
 
     def __init__(self, useTestObject, modList):
@@ -29,7 +30,8 @@ class TestObject(object):
             'MGI:94909', 'MGI:1856331', 'MGI:97490', 'MGI:108092', 'MGI:2156738',
             'MGI:2148260', 'MGI:1856328', 'MGI:2678393', 'MGI:2429942', 'MGI:1856332', 'MGI:5569634',
             'MGI:3531484', 'MGI:3531484',
-            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735', 'MGI:98834',
+            'MGI:2148259', 'MGI:3531483', 'MGI:1856329', 'MGI:3531484', 'MGI:5781149', 'MGI:2148259', 'MGI:104735',
+            'MGI:98834',
             # phenotype objects
             'MGI:2670749', 'MGI:2656842',
             # disease objects
@@ -67,7 +69,8 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-060503-873', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-990415-72',
             'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
-            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1', 'ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47',
+            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1', 'ZFIN:ZDB-GENE-030131-3776',
+            'ZFIN:ZDB-GENE-030616-47',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
             'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9',
             # disease specific test objects
@@ -99,7 +102,9 @@ class TestObject(object):
             # disease pheno specific test objects
             'RGD:68936', 'RGD:3886',
             # expression
-            'RGD:3884', 'RGD:3889'
+            'RGD:3884', 'RGD:3889',
+            # allele gene and alleles
+            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295'
         }
 
         self.humanTestSet = {
@@ -128,7 +133,6 @@ class TestObject(object):
 
         #TODO use method below, or add more mods here as they become available. add back in RGD human
         self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.flybaseIdSet).union(self.sgdIdSet).union(self.rgdTestSet).union(self.humanTestSet))
-        #self.testIdSet = self.mgiIdSet
 
     def assemble_test_data(modList, modMap):
         testIdSet = {}
@@ -157,3 +161,4 @@ class TestObject(object):
             return True
         else:
             return False
+

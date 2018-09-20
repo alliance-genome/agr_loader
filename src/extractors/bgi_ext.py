@@ -35,8 +35,6 @@ class BGIExt(object):
 
         loadKey = dateProduced + dataProvider + "_BGI"
 
-        # TODO: get SGD to fix their files.
-
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -95,10 +93,7 @@ class BGIExt(object):
                             for page in pages:
                                 modCrossReferenceCompleteUrl = ""
                                 geneLiteratureUrl = ""
-
-                                # TODO: fix this as SGD fixes
-                                if page == 'gene/interaction':
-                                    page = 'gene/interactions'
+                                displayName = ""
 
                                 crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId,
                                                                                        xrefUrlMap, prefix, page)
@@ -125,6 +120,12 @@ class BGIExt(object):
                                     crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId,
                                                                                               xrefUrlMap,
                                                                                               prefix, primary_id)
+
+                                # TODO: fix gene/disease xrefs for SGD once resourceDescriptor change in develop
+                                # makes its way to the release branch.
+
+                                if page == 'gene/disease' and species == 'Saccharomyces cerevisiae':
+                                    crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
 
                                 xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, page,
                                                                   page, displayName, crossRefCompleteUrl,
@@ -201,12 +202,9 @@ class BGIExt(object):
                         strand = genomeLocation['strand']
                     else:
                         strand = None
-                    #logger.info("gene id for locations")
-                    #logger.info(primary_id)
                     genomicLocations.append(
                         {"primaryId": primary_id, "chromosome": chromosome, "start":
                             start, "end": end, "strand": strand, "assembly": assembly})
-                    #logger.info(genomicLocations)
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
@@ -225,11 +223,8 @@ class BGIExt(object):
                     secondaryIds.append(geneSecondaryId)
             
             # Establishes the number of genes to yield (return) at a time.
-            list_to_yield.append(gene_dataset)
             if counter == batch_size:
                 counter = 0
-                logger.info("size of genomicLocations")
-                logger.info(len(genomicLocations))
                 yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
                 list_to_yield[:] = []  # Empty the list.
                 gene_dataset = []
@@ -239,7 +234,5 @@ class BGIExt(object):
                 crossReferences = []
 
         if counter > 0:
-            logger.info("size of genomicLocations")
-            logger.info(len(genomicLocations))
             yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
 

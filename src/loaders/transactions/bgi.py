@@ -24,10 +24,10 @@ class BGITransaction(Transaction):
                 MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
                 CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
-                        SET gchrm.start = row.start 
-                        SET gchrm.end = row.end 
-                        SET gchrm.assembly = row.assembly 
-                        SET gchrm.strand = row.strand
+                        SET gchrm.start = row.start ,
+                         gchrm.end = row.end ,
+                         gchrm.assembly = row.assembly ,
+                         gchrm.strand = row.strand
                 
         """
 
@@ -58,30 +58,30 @@ class BGITransaction(Transaction):
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "BGI"
-                SET l.release = row.release
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "BGI",
+                 l.release = row.release,
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
-                SET o.symbol = row.symbol
-                SET o.taxonId = row.taxonId
-                SET o.name = row.name
-                SET o.description = row.description
-                SET o.geneSynopsisUrl = row.geneSynopsisUrl
-                SET o.geneSynopsis = row.geneSynopsis
-                SET o.geneLiteratureUrl = row.geneLiteratureUrl
-                SET o.geneticEntityExternalUrl = row.geneticEntityExternalUrl
-                SET o.dateProduced = row.dateProduced
-                SET o.modGlobalCrossRefId = row.modGlobalCrossRefId
-                SET o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
-                SET o.modLocalId = row.localId
-                SET o.modGlobalId = row.modGlobalId
-                SET o.uuid = row.uuid
-                SET o.dataProvider = row.dataProvider
-                SET o.dataProviders = row.dataProviders
+                SET o.symbol = row.symbol,
+                 o.taxonId = row.taxonId,
+                 o.name = row.name,
+                 o.description = row.description,
+                 o.geneSynopsisUrl = row.geneSynopsisUrl,
+                 o.geneSynopsis = row.geneSynopsis,
+                 o.geneLiteratureUrl = row.geneLiteratureUrl,
+                 o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
+                 o.dateProduced = row.dateProduced,
+                 o.modGlobalCrossRefId = row.modGlobalCrossRefId,
+                 o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
+                 o.modLocalId = row.localId,
+                 o.modGlobalId = row.modGlobalId,
+                 o.uuid = row.uuid,
+                 o.dataProvider = row.dataProvider,
+                 o.dataProviders = row.dataProviders
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.

@@ -1,19 +1,15 @@
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
-import uuid
-
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
-
+import uuid
 
 class OrthoExt(object):
 
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
         path = "tmp"
-        filename = None
-        filename_comp = None
         if testObject.using_test_data() is True:
             filename = 'orthology_test_data_1.0.0.7_temp1.json'
             filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_temp1.json.tar.gz'
@@ -24,8 +20,11 @@ class OrthoExt(object):
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
         ortho_data = JSONFile().get_data(path + "/" + filename, 'orthology')
-
-        dateProduced = ortho_data['metaData']['dateProduced']
+        counter = 0
+        matched_data = []
+        unmatched_data = []
+        ortho_data_list = []
+        notcalled_data = []
 
         xrefUrlMap = ResourceDescriptor().get_data()
 
@@ -36,7 +35,6 @@ class OrthoExt(object):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
         dataProviders = []
-        loadKey = dateProduced + "_BGI"
 
         for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
@@ -47,12 +45,9 @@ class OrthoExt(object):
                                                   dataProvider + dataProviderPage))
 
         dataProviders.append(dataProvider)
-        loadKey = dataProvider + loadKey
-
-        list_to_yield = []
 
         for orthoRecord in ortho_data['data']:
-
+            counter = counter + 1
             # Sort out identifiers and prefixes.
             gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
             gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
@@ -62,6 +57,7 @@ class OrthoExt(object):
 
             gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
             gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
+            ortho_uuid = str(uuid.uuid4())
 
             if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
@@ -72,23 +68,43 @@ class OrthoExt(object):
                     'gene1AgrPrimaryId': gene1AgrPrimaryId,
                     'gene2AgrPrimaryId': gene2AgrPrimaryId,
 
-                    'matched': orthoRecord['predictionMethodsMatched'],
-                    'notMatched': orthoRecord['predictionMethodsNotMatched'],
-                    'notCalled': orthoRecord['predictionMethodsNotCalled'],
-
                     'confidence': orthoRecord['confidence'],
 
                     'strictFilter': orthoRecord['strictFilter'],
                     'moderateFilter': orthoRecord['moderateFilter'],
-
-                    'uuid': str(uuid.uuid4())
+                    'uuid': ortho_uuid
                 }
+                ortho_data_list.append(ortho_dataset)
+
+                for matched in orthoRecord.get('predictionMethodsMatched'):
+                    matched_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": matched
+                    }
+                    matched_data.append(matched_dataset)
+
+                for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
+                    unmatched_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": unmatched
+                    }
+                    unmatched_data.append(unmatched_dataset)
+
+                for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
+                    notcalled_dataset = {
+                        "uuid": ortho_uuid,
+                        "algorithm": notcalled
+                    }
+                    notcalled_data.append(notcalled_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
-                list_to_yield.append(ortho_dataset)
-                if len(list_to_yield) == batch_size:
-                    yield list_to_yield
-                    list_to_yield[:] = []  # Empty the list.
+                if counter == batch_size:
+                    yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
+                    ortho_data_list = []
+                    matched_data = []
+                    unmatched_data = []
+                    notcalled_data = []
+                    counter = 0
 
-        if len(list_to_yield) > 0:
-            yield list_to_yield
+        if counter > 0:
+            yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)

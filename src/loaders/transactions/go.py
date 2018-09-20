@@ -18,14 +18,14 @@ class GOTransaction(Transaction):
 
             //Create the GOTerm node and set properties. primaryKey is required.
             MERGE (g:GOTerm:Ontology {primaryKey:row.oid})
-                SET g.definition = row.definition
-                SET g.type = row.o_type
-                SET g.href = row.href
-                SET g.name = row.name 
-                SET g.subset = row.subset
-                SET g.nameKey = row.name_key
-                SET g.is_obsolete = row.is_obsolete
-                SET g.href = row.href
+                SET g.definition = row.definition,
+                 g.type = row.o_type,
+                 g.href = row.href,
+                 g.name = row.name ,
+                 g.subset = row.subset,
+                 g.nameKey = row.name_key,
+                 g.is_obsolete = row.is_obsolete,
+                 g.href = row.href
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})

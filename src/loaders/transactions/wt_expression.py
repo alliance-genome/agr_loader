@@ -40,8 +40,8 @@ class WTExpressionTransaction(Transaction):
                     SET gex.uuid = row.ei_uuid
                 
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression'
-                    SET gej.dataProviders = row.dataProviders
+                    SET gej.joinType = 'expression',
+                     gej.dataProviders = row.dataProviders
                 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
@@ -60,12 +60,59 @@ class WTExpressionTransaction(Transaction):
                 //where only ao term exists
             
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId
-                    SET pubf.pubMedId = row.pubMedId
-                    SET pubf.pubModUrl = row.pubModUrl
-                    SET pubf.pubMedUrl = row.pubMedUrl
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
+        """
+
+        SGDCCExpression = """
+
+        UNWIND $data as row
+
+            // GET PRIMARY DATA OBJECTS
+
+            // LOAD NODES
+            MATCH (g:Gene {primaryKey:row.geneId})
+            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+
+            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = otcct.name
+
+                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                    SET gex.uuid = row.ei_uuid
+
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
+                     gej.dataProviders = row.dataProviders
+
+                MERGE (gej)-[geja:ASSAY]-(assay)
+
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
+
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+
+               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                //    SET l.dateProduced = row.dateProduced
+                //    SET l.loadName = "WT-Expression"
+                //    SET l.dataProviders = row.dataProviders
+               //     SET l.dataProvider = row.dataProvider
+
+                //where only ao term exists
+
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
+
+              //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
         """
 
@@ -87,8 +134,8 @@ class WTExpressionTransaction(Transaction):
                     SET gex.uuid = row.ei_uuid
                              
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression'
-                    SET gej.dataProviders = row.dataProviders
+                    SET gej.joinType = 'expression',
+                     gej.dataProviders = row.dataProviders
                 
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
@@ -107,10 +154,10 @@ class WTExpressionTransaction(Transaction):
                 //where only ao term exists
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId
-                    SET pubf.pubMedId = row.pubMedId
-                    SET pubf.pubModUrl = row.pubModUrl
-                    SET pubf.pubMedUrl = row.pubMedUrl
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
 
               //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
@@ -137,8 +184,8 @@ class WTExpressionTransaction(Transaction):
                     SET gex.uuid = row.ei_uuid
                              
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression'
-                    SET gej.dataProviders = row.dataProviders
+                    SET gej.joinType = 'expression',
+                     gej.dataProviders = row.dataProviders
                 
                 MERGE (gej)-[geja:ASSAY]-(assay)
 
@@ -161,10 +208,10 @@ class WTExpressionTransaction(Transaction):
                 //where only ao term exists
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId
-                    SET pubf.pubMedId = row.pubMedId
-                    SET pubf.pubModUrl = row.pubModUrl
-                    SET pubf.pubMedUrl = row.pubMedUrl
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
 
               //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) 
@@ -197,14 +244,15 @@ class WTExpressionTransaction(Transaction):
                 MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                           
-                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)        
+                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)      
         """
 
         stageExpression = """  
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                 MERGE (s:Stage {primaryKey:row.stageName})
-                MERGE (ei)-[eotcctq:DURING]-(s) """
+                MERGE (ei)-[eotcctq:DURING]-(s)
+        """
 
         uberonAO = """  
             UNWIND $data as row
@@ -235,16 +283,21 @@ class WTExpressionTransaction(Transaction):
                 MATCH (u:Other {primaryKey:'post embryonic, pre-adult'})
                 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
-                
             //TODO: get stage term ids from MGI
         """
 
         Transaction.execute_transaction(self, AddOther, "other")
+
+        if species == 'Saccharomyces cerevisiae':
+            if len(CCExpressionData) > 0:
+                Transaction.execute_transaction(self, SGDCCExpression, CCExpressionData)
+
+        else:
+            if len(CCExpressionData) > 0:
+                Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+
         if len(AOExpressionData) > 0:
             Transaction.execute_transaction(self, AOExpression, AOExpressionData)
-
-        if len(CCExpressionData) > 0:
-            Transaction.execute_transaction(self, CCExpression, CCExpressionData)
 
         if len(AOCCExpressionData) > 0 :
             Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)

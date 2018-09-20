@@ -4,6 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class TXTFile(object):
 
     def __init__(self, filename):
@@ -17,3 +18,4 @@ class TXTFile(object):
                 lines.append(line)
         f.close()    
         return lines
+

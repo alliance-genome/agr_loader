@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class CSVFile(object):
 
     def __init__(self, filename):
@@ -20,3 +21,4 @@ class CSVFile(object):
                 rows.append(row)
         f.close()    
         return rows
+
