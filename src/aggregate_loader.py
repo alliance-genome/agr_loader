@@ -321,6 +321,6 @@ class AggregateLoader(object):
     def add_inferred_disease_annotations(self):
             print("Inferring Disease by Orthology Annotations")
             tx = GeneDiseaseOrthoTransaction(self.graph)
-            tx.retreive_diseases_inferred_by_ortholog()
+            orthologous_diseases_to_gene = tx.retreive_diseases_inferred_by_ortholog()
             print("\tAdding Inferred Disease Annotations")
-            tx.add_disease_inferred_by_ortho_tx()
+            tx.add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)

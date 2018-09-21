@@ -1,6 +1,5 @@
 # coding=utf-8
 
-import csv
 import uuid
 from datetime import datetime, timezone
 from .transaction import Transaction
@@ -52,28 +51,25 @@ class GeneDiseaseOrthoTransaction(Transaction):
         tx = Transaction(self.graph)
         returnSet = tx.run_single_query(query)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-        filepath = self.neo_import_dir + self.filename
-        print("creating: " + filepath)
-        with open(filepath, 'w') as csvfile:
-            fieldnames = ["primaryId", "speciesId", "relationshipType", "doId", "dateProduced", "uuid"]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-            writer.writeheader()
+        orthologous_disease_data = []        
+        for record in returnSet:
+            row = dict(primaryId = record["geneID"],
+                    speciesId = record["speciesID"],
+                    relationshipType = record["relationType"].lower(),
+                    doId = record["doId"],
+                    dateProduced = now,
+                    uuid = str(uuid.uuid4()))
+             orthologous_disease_data.append(row)
 
-            for record in returnSet:
-                writer.writerow({"primaryId": record["geneID"],
-                                 "speciesId": record["speciesID"],
-                                 "relationshipType": record["relationType"].lower(),
-                                 "doId": record["doId"],
-                                 "dateProduced": now,
-                                 "uuid": str(uuid.uuid4())})
+        return orthologous_disease_data
 
-    def add_disease_inferred_by_ortho_tx(self):
+    def add_disease_inferred_by_ortho_tx(self, data):
         # Loads the gene to disease via ortho data into Neo4j.
 
         executeG2D = """
 
-            LOAD CSV WITH HEADERS FROM "file:///""" + self.filename + """" AS row
+            UNWIND $data as row
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
