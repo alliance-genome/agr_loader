@@ -60,7 +60,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
                     doId = record["doId"],
                     dateProduced = now,
                     uuid = str(uuid.uuid4()))
-             orthologous_disease_data.append(row)
+            orthologous_disease_data.append(row)
 
         return orthologous_disease_data
 
@@ -99,4 +99,4 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
             """
 
-        Transaction.run_single_query(self, executeG2D)
+        Transaction.execute_transaction(self, executeG2D, data)

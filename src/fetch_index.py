@@ -19,4 +19,4 @@ if __name__ == '__main__':
     gc.collect()
     al.load_additional_datasets()
     # TODO get working on build server
-    #al.add_inferred_disease_annotations()
+    al.add_inferred_disease_annotations()
