@@ -22,6 +22,7 @@ class GOTransaction(Transaction):
                 SET g.type = row.o_type
                 SET g.href = row.href
                 SET g.name = row.name 
+                SET g.subset = row.subset
                 SET g.nameKey = row.name_key
                 SET g.is_obsolete = row.is_obsolete
                 SET g.href = row.href

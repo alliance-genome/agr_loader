@@ -26,6 +26,7 @@ def pytest_generate_tests(metafunc):
 
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
+    # test_rel_exists checks for the existence of *at least one count* of the relationship specified below.
     params = {
         'test_rel_exists': [dict(node1='Ontology:SOTerm', node2='Gene'), \
                             dict(node1='Ontology:DOTerm', node2='Identifier:CrossReference'), \
@@ -60,11 +61,23 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='Publication'), \
                             dict(node1='DiseaseEntityJoin:Association', node2='EvidenceCode'), \
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Gene'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Publication'), \
+                            dict(node1='InteractionGeneJoin:Association', node2='Identifier:CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='Feature', node2='CrossReference'), \
                             dict(node1='PhenotypeEntityJoin:Association', node2='Publication'), \
-                            dict(node1='Phenotype', node2='PhenotypeEntityJoin')
+                            dict(node1='Gene', node2='ExpressionBioEntity'), \
+                            dict(node1='Gene', node2='BioEntityGeneExpressionJoin'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Stage'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Publication'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='Ontology'), \
+                            dict(node1='BioEntityGeneExpressionJoin', node2='MMOTerm'), \
+                            dict(node1='ExpressionBioEntity', node2='GOTerm'), \
+                            dict(node1='ExpressionBioEntity', node2='Ontology'), \
+                            dict(node1='ExpressionBioEntity', node2='ZFATerm')
                             ]
                             #TODO: convert to "or" tests  -- has either a gene or a feature, for example
                             #dict(node1='Publication', node2='DiseaseEntityJoin:Association'), \

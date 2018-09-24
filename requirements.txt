@@ -1,5 +1,6 @@
 py2neo
 neo4j-driver
+ijson
 pytest
 jsonschema
 pyyaml
@@ -7,3 +8,4 @@ urllib3
 xmltodict
 git+git://github.com/alliance-genome/agr_genedescriptions.git@v2.0.1#egg=genedescriptions
 ontobio
+boto3

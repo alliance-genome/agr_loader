@@ -3,7 +3,10 @@ from services import SpeciesService
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
     fishEnvId = None
@@ -17,6 +20,7 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
     primaryId = diseaseRecord.get('objectId')
 
     loadKey = dateProduced + "_Disease"
+    annotationUuid = str(uuid.uuid4())
 
     for dataProvider in dataProviders:
         loadKey = dataProvider + loadKey
@@ -57,7 +61,16 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
                     additionalGeneticComponents.append(
                         {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
                     )
+        annotationDataProviders ={}
 
+        if 'dataProvider' in diseaseRecord:
+            for dp in diseaseRecord['dataProvider']:
+                annotationType = dp.get('type')
+                dpCrossRefId = dp['crossReference'].get('id')
+                dpPages = dp['crossReference'].get('pages')
+                annotationDataProviders[uuid] = {"annoationType": annotationType,
+                                                 "dpCrossRefId": dpCrossRefId,
+                                                 "dpPages": dpPages}
         if 'evidenceCodes' in diseaseRecord['evidence']:
             ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
@@ -95,7 +108,7 @@ def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, alle
             "experimentalConditions": conditions,
             "fishEnvId": fishEnvId,
             "additionalGeneticComponents": additionalGeneticComponents,
-            "uuid": str(uuid.uuid4()),
+            "uuid": annotationUuid,
             "loadKey": loadKey,
             "allelicGeneId": allelicGeneId
         }

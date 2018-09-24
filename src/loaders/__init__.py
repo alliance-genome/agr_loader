@@ -7,5 +7,8 @@ from .ortho_loader import OrthoLoader
 from .disease_loader import DiseaseLoader
 from .geo_loader import GeoLoader
 from .mi_loader import MILoader
-from .imex_loader import IMEXLoader
+from .phenotype_loader import PhenotypeLoader
+from .wt_expression_loader import WTExpressionLoader
+from .generic_anatomical_structure_ontology_loader import GenericAnatomicalStructureOntologyLoader
+from .mol_int_loader import MolIntLoader
 from .phenotype_loader import PhenotypeLoader

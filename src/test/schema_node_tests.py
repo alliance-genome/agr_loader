@@ -2,6 +2,7 @@ from neo4j.v1 import GraphDatabase
 import os
 import pytest
 
+
 def execute_transaction(query):
     host = os.environ['NEO4J_NQC_HOST']
     port = os.environ['NEO4J_NQC_PORT']
@@ -15,13 +16,13 @@ def execute_transaction(query):
 
     return result    
 
+
 def pytest_generate_tests(metafunc):
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
     argnames = sorted(funcarglist[0])
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
                                     for funcargs in funcarglist])
-
 
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
@@ -30,6 +31,7 @@ class TestClass(object):
                              dict(node='SOTerm'), \
                              dict(node='DOTerm'), \
                              dict(node='GOTerm'), \
+                             dict(node='MITerm'), \
                              dict(node='Identifier'), \
                              dict(node='Gene'), \
                              dict(node='Synonym'), \
@@ -47,7 +49,11 @@ class TestClass(object):
                              dict(node='OrthologyGeneJoin'), \
                              dict(node='OrthoAlgorithm'), \
                              dict(node='Load'), \
-                             dict(node='Feature')#, \
+                             dict(node='Feature'), \
+                             dict(node='ExpressionBioEntity'), \
+                             dict(node='Stage'), \
+                             dict(node='BioEntityGeneExpressionJoin'), \
+                             dict(node='InteractionGeneJoin'), \
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -73,6 +79,7 @@ class TestClass(object):
                             dict(node='DOTerm', prop='is_obsolete'), \
                             dict(node='DOTerm', prop='subset'), \
                             dict(node='DOTerm', prop='primaryKey'), \
+                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='Identifier', prop='primaryKey'), \
                             dict(node='Synonym', prop='primaryKey'), \
                             dict(node='CrossReference', prop='localId'), \
@@ -93,6 +100,7 @@ class TestClass(object):
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='joinType'), \
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
+                            dict(node='InteractionGeneJoin', prop='joinType'), \
                             dict(node='Association', prop='joinType'), \
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
@@ -106,11 +114,14 @@ class TestClass(object):
                             dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
-                            dict(node='MITerm', prop='primaryKey'), \
                             dict(node='GOTerm', prop='definition'), \
                             dict(node='DOTerm', prop='definition'), \
                             dict(node='GOTerm', prop='type'), \
-                            dict(node='DOTerm', prop='subset') \
+                            dict(node='DOTerm', prop='subset'), \
+                            dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                            dict(node='DOTerm', prop='defLinks')
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -169,7 +180,11 @@ class TestClass(object):
                                dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
-                               dict(node='MITerm', prop='primaryKey') \
+                               dict(node='MITerm', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                               dict(node='Stage', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
@@ -191,7 +206,15 @@ class TestClass(object):
                              dict(node='Gene', prop='uuid'), \
                              dict(node='Feature', prop='primaryKey'), \
                              dict(node='Feature', prop='uuid'), \
-                             dict(node='MITerm', prop='primaryKey') \
+                             dict(node='MITerm', prop='primaryKey'),
+                             dict(node='Stage', prop='primaryKey'), \
+                             # with uberon, this can not be unique any longer, unless
+                             # every term is just 'ontology' not ontology-specific node labels.
+                             # dict(node='Ontology', prop='primaryKey'),
+                             # TODO refactor ontology transaction to use id prefix to name node labels so
+                             # we can turn this back on
+                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                             dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]
     }
 

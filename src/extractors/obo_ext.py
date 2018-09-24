@@ -1,19 +1,20 @@
-import uuid as id
-from files import S3File, TXTFile
 from services import CreateCrossReference
-from .obo_parser import parseOBO
+from files import XMLFile, Download, S3File
 from ontobio import OntologyFactory
+import urllib.request
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OExt(object):
 
 
-    def get_data(self, testObject, path):
+    def get_data(self, url, filename):
 
         savepath = "tmp";
-        fullpath = savepath + "/" + path
-        saved_path = S3File(path, savepath).download()
-        # o_data = TXTFile(fullpath).get_data()
-        # parsed_line = parseOBO(o_data)
+        saved_path = Download(savepath, url, filename).download_file()
+        logger.info (saved_path)
         ont = OntologyFactory().create(saved_path)
 
         parsed_line = ont.graph.copy().node
@@ -26,20 +27,16 @@ class OExt(object):
             node["uri"] = node["id"]
             node["id"] = k
 
-            isasWithoutNames = []
             relationships = node.get('relationship')
-            partofsWithoutNames = []
             syns = []
             xrefs = []
-            complete_url = None
-            xref = None
             xref_urls = []
+
             local_id = None
+            defLinksUnprocessed = []
             defLinksProcessed = []
             defText = None
-            defLinks = []
             subset = []
-            newSubset = None
             definition = ""
             namespace = ""
             is_obsolete = "false"
@@ -50,20 +47,11 @@ class OExt(object):
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
-                    # if isinstance(o_syns, (list, tuple)):
-                    #     for syn in o_syns:
-                    #         syn = syn.split("\"")[1].strip()
-                    #         syns.append(syn)
-                    # else:
-                    #     syn = o_syns.split("\"")[1].strip()
-                    #     syns.append(syn)
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                 if "xrefs" in node["meta"]:
 
                     o_xrefs = node["meta"].get('xrefs')
                     if o_xrefs is not None:
-                        # if isinstance(o_xrefs, (list, tuple)):
-                        # if isinstance(o_xrefs, list):
                         for xrefIdDict in o_xrefs:
                             xrefId = xrefIdDict["val"]
                             if ":" in xrefId:
@@ -79,7 +67,6 @@ class OExt(object):
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
-                                uuid = str(id.uuid4())
                                 complete_url = self.get_complete_url_ont(local_id, o_xrefs)
                                 generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
@@ -90,6 +77,7 @@ class OExt(object):
                     is_obsolete = "true"
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
+                    defLinksUnprocessed = node["meta"]["definition"]["xrefs"]
                 if "subsets" in node["meta"]:
                     newSubset = node['meta'].get('subsets')
                     if isinstance(newSubset, (list, tuple)):
@@ -122,8 +110,8 @@ class OExt(object):
             negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
             positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
 
-            defLinks = ""
             defLinksProcessed = []
+            defLinks = ""
             if definition is None:
                 definition = ""
             else:
@@ -133,27 +121,29 @@ class OExt(object):
                         defText = split_definition[1].strip()
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
-                            defLinks = defLinks.rstrip("]").replace("[", "")
-                            defLinks = defLinks.replace("url:www", "http://www")
-                            defLinks = defLinks.replace("url:", "")
-                            defLinks = defLinks.replace("URL:", "")
-                            defLinks = defLinks.replace("\\:", ":")
-
-                            if "," in defLinks:
-                                defLinks = defLinks.split(",")
-                                for link in defLinks:
-                                    if link.strip().startswith("http"):
-                                        defLinksProcessed.append(link)
-                            elif "." in defLinks:
-                                defLinks = defLinks.split(".")
-                                for link in defLinks:
-                                    if link.strip().startswith("http"):
-                                        defLinksProcessed.append(link)
-                            else:
-                                if defLinks.strip().startswith("http"):
-                                    defLinksProcessed.append(defLinks)
+                            defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
                 else:
                     defText = definition
+
+            for dl in defLinksUnprocessed:
+                dl = dl.replace("url:www", "http://www")
+                dl = dl.replace("url:", "")
+                dl = dl.replace("URL:", "")
+                dl = dl.replace("\\:", ":")
+
+                if "," in dl:
+                    dl = dl.split(",")
+                    for link in dl:
+                        if link.strip().startswith("http"):
+                            defLinksProcessed.append(link)
+                # elif "." in dl:
+                #     dl = dl.split(".")
+                #     for link in dl:
+                #         if link.strip().startswith("http"):
+                #             defLinksProcessed.append(link)
+                else:
+                    if dl.strip().startswith("http"):
+                        defLinksProcessed.append(dl)
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
 
@@ -181,6 +171,7 @@ class OExt(object):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'xrefs': xrefs,
+                'ontologyLabel': filename,
                 #TODO: fix links to not be passed for each ontology load.
                 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
                 'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
@@ -188,6 +179,7 @@ class OExt(object):
                 'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
                 'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
                 'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
+                'sgd_link': 'https:/yeastgenome.org/disease/'+node['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
                 'zfin_link': 'https://zfin.org/'+node['id'],
                 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
@@ -204,16 +196,6 @@ class OExt(object):
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node
 
-        # if testObject.using_test_data() is True:
-        #     filtered_dict = []
-        #     for entry in list_to_return:
-        #         if testObject.check_for_test_ontology_entry(entry['id']) is True:
-        #             filtered_dict.append(entry)
-        #         else:
-        #             continue
-        #     return filtered_dict
-        # else:
-        # return
         return ont
 
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.

@@ -16,11 +16,11 @@ class OrthoExt(object):
         filename = None
         filename_comp = None
         if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.3.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.3.json.tar.gz'
+            filename = 'orthology_test_data_1.0.0.7.json'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7.json.tar.gz'
         else:
-            filename = "orthology_" + mod_name + "_1.0.0.3.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.3.json.tar.gz"
+            filename = "orthology_" + mod_name + "_1.0.0.7.json"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
@@ -78,6 +78,9 @@ class OrthoExt(object):
                     'notCalled': orthoRecord['predictionMethodsNotCalled'],
 
                     'confidence': orthoRecord['confidence'],
+
+                    'strictFilter': orthoRecord['strictFilter'],
+                    'moderateFilter': orthoRecord['moderateFilter'],
 
                     'uuid': str(uuid.uuid4())
                 }
