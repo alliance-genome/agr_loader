@@ -21,7 +21,6 @@ class ObExto(object):
             posWithoutNames = []
             o_syns = line.get('synonym')
             syns = []
-            display_synonyms = []
             xrefs = []
             complete_url = None
             xref = None
