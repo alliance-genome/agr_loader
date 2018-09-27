@@ -54,6 +54,8 @@ class ObExto(object):
                 else:
                     if "DISPLAY_SYNONYM" in display_synonym:
                         display_synonym = display_synonym.split("\"")[1].strip()
+                    else:
+                        display_synonym = ""
             o_xrefs = line.get('xref')
             if o_xrefs is not None:
                 if isinstance(o_xrefs, (list, tuple)):
@@ -148,10 +150,8 @@ class ObExto(object):
             if is_obsolete is None:
                 is_obsolete = "false"
 
-            # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
-
             if line['id'] is None or line['id'] == '':
-               logger.info ("missing oid")
+               logger.info("missing oid")
             else:
                 dict_to_append = {
                     'o_genes': [],
@@ -166,23 +166,11 @@ class ObExto(object):
                     'is_obsolete': is_obsolete,
                     'subset': subset,
                     'xrefs': xrefs,
-                    #TODO: fix links to not be passed for each ontology load.
-                    'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+line['id']+'#annot',
-                    'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + line['id'] + '#annot',
-                    'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +line['id'] + '#annot',
-                    'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +line['id'] + '#annot',
-                    'mgi_link': 'http://www.informatics.jax.org/disease/'+line['id'],
-                    'wormbase_link': 'http://www.wormbase.org/resources/disease/'+line['id'],
-                    'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+line['id'],
-                    'zfin_link': 'https://zfin.org/'+line['id'],
-                    'sgd_link': 'https:/yeastgenome.org/disease/' + line['id'],
-                    'oUrl': "http://www.disease-ontology.org/?id=" + line['id'],
                     'oPrefix': prefix,
                     'xref_urls': xref_urls,
                     'defText': defText,
                     'defLinksProcessed': defLinksProcessed,
                     'oboFile': prefix,
-                    'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                     'category': 'go',
                     'o_type': line.get('namespace'),
                     'display_synonym': display_synonym
