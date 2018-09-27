@@ -266,6 +266,7 @@ class AggregateLoader(object):
                                                                               list(batch[9]),
                                                                               list(batch[10]),
                                                                               list(batch[11]),
+                                                                              list(batch[12]),
                                                                               mod.species)
 
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)

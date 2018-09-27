@@ -21,6 +21,7 @@ class ObExto(object):
             posWithoutNames = []
             o_syns = line.get('synonym')
             syns = []
+            display_synonyms = []
             xrefs = []
             complete_url = None
             xref = None
@@ -35,6 +36,7 @@ class ObExto(object):
             is_obsolete = "false"
             ident = line['id']
             prefix = ident.split(":")[0]
+
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if o_syns is not None:
@@ -45,6 +47,13 @@ class ObExto(object):
                 else:
                     syn = o_syns.split("\"")[1].strip()
                     syns.append(syn)
+            display_synonym = line.get('property_value')
+            if display_synonym is not None:
+                if isinstance(display_synonym, (list, tuple)):
+                    display_synonym = display_synonym
+                else:
+                    if "DISPLAY_SYNONYM" in display_synonym:
+                        display_synonym = display_synonym.split("\"")[1].strip()
             o_xrefs = line.get('xref')
             if o_xrefs is not None:
                 if isinstance(o_xrefs, (list, tuple)):
@@ -176,6 +185,7 @@ class ObExto(object):
                     'href': 'http://amigo.geneontology.org/amigo/term/' + line['id'],
                     'category': 'go',
                     'o_type': line.get('namespace'),
+                    'display_synonym': display_synonym
 
                 }
                 list_to_return.append(dict_to_append)

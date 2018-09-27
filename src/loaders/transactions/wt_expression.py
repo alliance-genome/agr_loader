@@ -8,14 +8,20 @@ class WTExpressionTransaction(Transaction):
 
     def wt_expression_object_tx(self, AOExpressionData, CCExpressionData, AOQualifierData, AOSubstructureData,
                                 AOSSQualifierData, CCQualifierData, AOCCExpressionData, stageList, stageUberonData,
-                                uberonAOData, uberonAOOtherData, uberonStageOtherData, species):
+                                uberonAOData, uberonAOOtherData, uberonStageOtherData, xrefs, species):
         # Loads the Phenotype data into Neo4j.
+
+        xref = """
+        UNWIND $data as event
+        MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:event.ei_uuid})
+        
+        """ + CreateCrossReference.get_cypher_xref_text("expression")
 
         AddOther = """
         
-            MERGE(other:Other {primaryKey:'Other'})
+            MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
                 ON CREATE SET other.name = 'Other'
-            MERGE(otherstage:Other {primaryKey:'post embryonic, pre-adult'})
+            MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
                 
         """
@@ -272,7 +278,7 @@ class WTExpressionTransaction(Transaction):
         uberonAOOther = """
             UNWIND $data as row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
-                MATCH (u:Other {primaryKey:'Other'}) 
+                MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
                 
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
         """
@@ -280,7 +286,7 @@ class WTExpressionTransaction(Transaction):
         uberonStageOther = """
             UNWIND $data as row
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (u:Other {primaryKey:'post embryonic, pre-adult'})
+                MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
             //TODO: get stage term ids from MGI
@@ -328,6 +334,9 @@ class WTExpressionTransaction(Transaction):
 
         if len(uberonStageOtherData) > 0:
             Transaction.execute_transaction(self, uberonStageOther, uberonStageOtherData)
+
+        if len(xrefs) > 0:
+            Transaction.execute_transaction(self, xref, xrefs)
 
 
 
