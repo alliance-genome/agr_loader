@@ -228,7 +228,7 @@ def test_stage_uberon_relationship_for_expression_exists():
 
 def test_mmoterm_has_display_synonym():
     query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.display_synonym = 'RNA in situ'" \
-            "RETURN count(r) as counter"
+            "RETURN count(n) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
