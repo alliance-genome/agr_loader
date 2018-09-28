@@ -23,7 +23,8 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
                  g.name = row.name,
                  g.nameKey = row.name_key,
                  g.is_obsolete = row.is_obsolete,
-                 g.href = row.href
+                 g.href = row.href,
+                 g.display_synonym = row.display_synonym
 
             FOREACH (entry in row.o_synonyms |
                 MERGE (syn:Synonym:Identifier {primaryKey:entry})

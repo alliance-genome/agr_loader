@@ -167,9 +167,9 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset, "MMUSDVTerm")
         self.mmusdv_dataset.clear()
 
-        logger.info("Extracting BPSO data.")
+        logger.info("Extracting BSPO data.")
         self.bspo_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/bspo.obo", "bpso.obo")
-        logger.info("Loading BPSO data into Neo4j.")
+        logger.info("Loading BSPO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset, "BSPOTerm")
         self.bspo_dataset.clear()
 
@@ -266,6 +266,7 @@ class AggregateLoader(object):
                                                                               list(batch[9]),
                                                                               list(batch[10]),
                                                                               list(batch[11]),
+                                                                              list(batch[12]),
                                                                               mod.species)
 
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)

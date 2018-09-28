@@ -195,28 +195,40 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:Ontology) RETURN count(r) as counter"
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:Other) RETURN count(r) as counter"
+    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_stage_uberon_other_relationship_for_expression_exists():
-    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:Other) RETURN count(r) as counter"
+    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_stage_uberon_relationship_for_expression_exists():
-    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:Ontology) RETURN count(r) as counter"
+    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_mmoterm_has_display_synonym():
+    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.display_synonym = 'RNA in situ'" \
+            "RETURN count(n) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
