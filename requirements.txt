@@ -7,4 +7,5 @@ pyyaml
 urllib3
 xmltodict
 git+git://github.com/alliance-genome/agr_genedescriptions.git@v2.0.3#egg=genedescriptions
-ontobioboto3
+ontobio
+boto3

@@ -22,10 +22,7 @@ from extractors.obo_ext import OExt
 from extractors.obo_ext_old import ObExto
 import time
 from neo4j.v1 import GraphDatabase
-from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
 from test import TestObject
-from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
 import logging
 
