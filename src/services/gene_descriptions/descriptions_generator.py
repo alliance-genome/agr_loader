@@ -9,7 +9,7 @@ from genedescriptions.data_fetcher import DataFetcher, Gene, DataType
 from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator, generate_orthology_sentence_alliance_human
 from ontobio import AssociationSetFactory
 from ontobio.ontol import Ontology
-from src.services.gene_descriptions.descriptions_writer import Neo4jGDWriter
+from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 
 
 class GeneDescGenerator(object):
@@ -222,17 +222,19 @@ class GeneDescGenerator(object):
                                                                                      do_annotations_allele),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
         df.orthologs = defaultdict(list)
-        for orth_list in ortho_data:
-            for orth in orth_list:
-                if len(orth['matched']) > 0 and orth['strictFilter'] is True:
-                    if orth['gene2AgrPrimaryId'].startswith('HGNC') and orth['gene1AgrPrimaryId']\
+        for orth_lists in ortho_data:
+            for orth in zip(orth_lists[0], orth_lists[1]):
+                orth_data = orth[0]
+                orth_matched = orth[1]
+                if len(orth_matched) > 0 and orth_data['strictFilter'] is True:
+                    if orth_data['gene2AgrPrimaryId'].startswith('HGNC') and orth_data['gene1AgrPrimaryId']\
                             .startswith(data_provider):
-                        df.orthologs[orth['gene1AgrPrimaryId']].append([orth['gene2AgrPrimaryId'],
-                                                                        len(orth['matched'])])
-                    elif orth['gene1AgrPrimaryId'].startswith('HGNC') and \
-                            orth['gene2AgrPrimaryId'].startswith(data_provider):
-                        df.orthologs[orth['gene2AgrPrimaryId']].append([orth['gene1AgrPrimaryId'],
-                                                                        len(orth['matched'])])
+                        df.orthologs[orth_data['gene1AgrPrimaryId']].append([orth_data['gene2AgrPrimaryId'],
+                                                                             len(orth_matched)])
+                    elif orth_data['gene1AgrPrimaryId'].startswith('HGNC') and \
+                            orth_data['gene2AgrPrimaryId'].startswith(data_provider):
+                        df.orthologs[orth_data['gene2AgrPrimaryId']].append([orth_data['gene1AgrPrimaryId'],
+                                                                             len(orth_matched)])
         orth_id_symbol_and_name = {gene[0]: [gene[1], gene[2]] for gene in self.get_gene_symbols_from_id_list(
             [ortholog[0] for orthologs in df.orthologs.values() for ortholog in orthologs])}
         df.orthologs = {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
@@ -441,8 +443,8 @@ class GeneDescGenerator(object):
 
         json_desc_writer.write_neo4j(self.graph)
         if "GENERATE_REPORTS" in os.environ and (os.environ["GENERATE_REPORTS"] == "True"
-                                                 or os.environ["GENERATE_REPORTS"] == "true") or \
-                os.environ["GENERATE_REPORTS"] == "pre-release":
+                                                 or os.environ["GENERATE_REPORTS"] == "true" or
+                                                 os.environ["GENERATE_REPORTS"] == "pre-release"):
             gd_file_name = data_provider
             if human:
                 gd_file_name = "HUMAN"
