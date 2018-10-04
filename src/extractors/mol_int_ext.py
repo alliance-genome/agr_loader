@@ -116,6 +116,7 @@ class MolIntExt(object):
         for individual in entries:
 
             xref_dict = {}
+            page = 'gene/interactions'
 
             individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
             # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
@@ -137,7 +138,6 @@ class MolIntExt(object):
             xref_dict['displayName'] = individual_body
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
-            page = 'gene/interactions'
             xref_dict['page'] = page
 
             # Special case for dealing with FlyBase.
