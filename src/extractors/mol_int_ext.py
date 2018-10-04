@@ -116,10 +116,25 @@ class MolIntExt(object):
         for individual in entries:
 
             xref_dict = {}
+
+            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+            # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
+            xref_dict['prefix'] = individual_prefix
+            xref_dict['localId'] = individual_body
+
+            if not individual.startswith(tuple(ignored_identifier_database_list)):
+                try: 
+                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
+                    xref_dict['crossRefCompleteUrl'] = individual_url
+                    self.successful_database_linkouts.add(individual_prefix)
+                except KeyError:
+                    self.missed_database_linkouts.add(individual_prefix)
+            else: self.ignored_database_linkouts.add(individual_prefix)
+
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
             xref_dict['name'] = individual
-            xref_dict['displayName'] = individual
+            xref_dict['displayName'] = individual_body
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
             page = 'gene/interactions'
@@ -140,20 +155,6 @@ class MolIntExt(object):
                     logger.critical('Failed identifier: %s' % (individual))
                     logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
-
-            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
-            # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
-            xref_dict['prefix'] = individual_prefix
-            xref_dict['localId'] = individual_body
-
-            if not individual.startswith(tuple(ignored_identifier_database_list)):
-                try: 
-                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
-                    xref_dict['crossRefCompleteUrl'] = individual_url
-                    self.successful_database_linkouts.add(individual_prefix)
-                except KeyError:
-                    self.missed_database_linkouts.add(individual_prefix)
-            else: self.ignored_database_linkouts.add(individual_prefix)
 
             xref_main_list.append(xref_dict)
 
@@ -238,8 +239,8 @@ class MolIntExt(object):
 
     def get_data(self, batch_size):
         path = 'tmp'
-        filename = 'Alliance_molecular_interactions.txt'
-        filename_comp = 'INT/Alliance_molecular_interactions.tar.gz'
+        filename = 'Alliance_molecular_interactions_2.0.txt'
+        filename_comp = 'INT/Alliance_molecular_interactions_2.0.tar.gz'
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
