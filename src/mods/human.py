@@ -6,7 +6,7 @@ class Human(MOD):
         self.species = "Homo sapiens"
 
         self.wtExpressionName = "/RGD_1.0.0.7_expression.9606.json"
-        self.loadFile = "RGD_1.0.0.7_1.tar.gz"
+        self.loadFile = "RGD_1.0.0.7_4.tar.gz"
 
         self.bgiName = "/RGD_1.0.0.7_BGI.9606.json"
         self.diseaseName = "/RGD_1.0.0.7_disease.9606.json"
