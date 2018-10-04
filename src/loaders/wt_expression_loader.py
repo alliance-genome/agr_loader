@@ -8,8 +8,8 @@ class WTExpressionLoader(object):
 
     def load_wt_expression_objects(self, aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier,
                                    ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData,
-                                   uberonAOOtherData, uberonStageOther, species):
+                                   uberonAOOtherData, uberonStageOther, xrefs, species):
         tx = WTExpressionTransaction(self.graph)
         tx.wt_expression_object_tx(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                                    aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-                                   uberonStageOther, species)
+                                   uberonStageOther, xrefs, species)

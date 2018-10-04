@@ -21,9 +21,8 @@ class WTExpressionExt(object):
         logger.info("loadFile: " + loadFile)
         batch_size = 10000
         xrefUrlMap = ResourceDescriptor().get_data()
-
-        crossReferences = []
         counter = 0
+        crossReferences = []
         aoExpression = []
         ccExpression = []
         aoQualifier = []
@@ -76,6 +75,10 @@ class WTExpressionExt(object):
                     if pubMedId is None:
                         pubMedId = ""
 
+                assay = xpat.get('assay')
+                ei_uuid = str(uuid.uuid4())
+                ebe_uuid = str(uuid.uuid4())
+
                 if 'crossReference' in xpat:
                     crossRef = xpat.get('crossReference')
                     crossRefId = crossRef.get('id')
@@ -86,15 +89,14 @@ class WTExpressionExt(object):
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page == 'allele':
+                            if page == 'gene/expression/annotation/detail':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap,
                                                                                prefix, page)
-                                crossReferences.append(
-                                CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
-                                                          modGlobalCrossRefId, crossRefId + page))
-                assay = xpat.get('assay')
-                ei_uuid = str(uuid.uuid4())
-                ebe_uuid = str(uuid.uuid4())
+
+                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
+                                                          modGlobalCrossRefId, crossRefId + page)
+                                xref['ei_uuid'] = ei_uuid
+                                crossReferences.append(xref)
 
                 whenExpressedStage = xpat.get('whenExpressed')
 
@@ -191,7 +193,6 @@ class WTExpressionExt(object):
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "uuid": str(uuid.uuid4()),
                             "assay": assay,
-                            "crossReferences": crossReferences,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
                             "ei_uuid": ei_uuid,
@@ -221,7 +222,6 @@ class WTExpressionExt(object):
                             "pubModUrl": pubModUrl,
                             "pubPrimaryKey": pubMedId + publicationModId,
                             "assay": assay,
-                            "crossReferences": crossReferences,
                             "whereExpressedStatement": whereExpressedStatement,
                             "cellularComponentTermId": cellularComponentTermId,
                             "ei_uuid": ei_uuid,
@@ -271,7 +271,6 @@ class WTExpressionExt(object):
                             "stageName": stageName,
                             "stageUberonTermId": stageUberonTermId,
                             "assay": assay,
-                            "crossReferences": crossReferences,
                             "cellularComponentTermId": cellularComponentTermId,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
@@ -286,7 +285,7 @@ class WTExpressionExt(object):
                     logger.info("counter equals batch size")
                     yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                            aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-                           uberonStageOtherData)
+                           uberonStageOtherData, crossReferences)
                     aoExpression = []
                     ccExpression = []
                     aoQualifier = []
@@ -299,13 +298,14 @@ class WTExpressionExt(object):
                     stageUberonData = []
                     uberonAOOtherData = []
                     uberonAOData = []
+                    crossReferences = []
                     #counter = 0
 
             if counter > 0:
                 logger.info(geneId)
                 yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                        aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-                       uberonStageOtherData)
+                       uberonStageOtherData, crossReferences)
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.
