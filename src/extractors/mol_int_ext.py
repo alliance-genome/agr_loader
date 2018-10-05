@@ -325,6 +325,8 @@ class MolIntExt(object):
                 # Other hardcoded values to be used for now.
                 interactor_A_role = 'MI:0499' # Default to unspecified.
                 interactor_B_role = 'MI:0499' # Default to unspecified.
+                interactor_A_type = 'MI:0499' # Default to unspecified.
+                interactor_B_type = 'MI:0499' # Default to unspecified.
                 
                 try:
                     interactor_A_role = re.findall(r'"([^"]*)"', row[18])[0]
@@ -335,8 +337,15 @@ class MolIntExt(object):
                 except IndexError:
                     pass # Default to unspecified, see above.
                 
-                interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
-                interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
+                try:
+                    interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
+
+                try:
+                    interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
 
                 interaction_type = None
                 interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
