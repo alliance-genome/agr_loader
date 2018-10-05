@@ -25,7 +25,8 @@ class MIExt(object):
             'MI:1263' : 'http://www.molecularconnections.com',
             'MI:1264' : 'http://www.ntnu.no/home',
             'MI:1332' : 'https://www.ebi.ac.uk/GOA/CVI',
-            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html'
+            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html',
+            'MI:0463' : 'https://thebiogrid.org/'
         }
 
         return mi_term_url_dict.get(identifier)
