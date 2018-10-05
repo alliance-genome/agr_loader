@@ -59,9 +59,10 @@ class MolIntTransaction(Transaction):
             //Link interaction type to the MI ontology.
             CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
 
+            // This needs to be a MERGE below.
             WITH oa, row.interactor_id_and_linkout AS events
                 UNWIND events AS event
-                    CREATE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
+                    MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
                         SET id.name = event.name,
                          id.globalCrossRefId = event.globalCrossRefId,
                          id.localId = event.localId,
@@ -73,7 +74,7 @@ class MolIntTransaction(Transaction):
                          id.primaryKey = event.primaryKey,
                          id.displayName = event.displayName
 
-                    CREATE (oa)-[gcr:CROSS_REFERENCE]->(id) """
+                    MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
 
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
 
