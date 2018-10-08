@@ -13,3 +13,7 @@ class WTExpressionLoader(object):
         tx.wt_expression_object_tx(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                                    aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                                    uberonStageOther, xrefs, species)
+
+    def load_gocc_ribbon_terms(self):
+        tx = WTExpressionTransaction(self.graph)
+        tx.gocc_ribbon_txt

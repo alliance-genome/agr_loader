@@ -269,6 +269,7 @@ class AggregateLoader(object):
                                                                               list(batch[12]),
                                                                               mod.species)
 
+
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
                 for feature_list_of_entries in features:
@@ -318,6 +319,9 @@ class AggregateLoader(object):
             mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
+
+            logger.info("Loading gocc ribbon terms for all MODs")
+            WTExpressionLoader(self.graph).load_gocc_ribbon_terms()
 
     def add_inferred_disease_annotations(self):
             print("Inferring Disease by Orthology Annotations")
