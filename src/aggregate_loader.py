@@ -37,8 +37,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        #self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        self.mods = [ZFIN()]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -227,7 +227,6 @@ class AggregateLoader(object):
                                                go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
-        #Loading annotation data for all MODs after completion of BGI data.
 
         for mod in self.mods:
 
