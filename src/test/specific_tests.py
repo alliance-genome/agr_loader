@@ -238,7 +238,7 @@ def test_crip2_has_cardiac_neural_crest():
     query = "MATCH (gene:Gene)--(ebe:ExpressionBioEntity)--(ei:BioEntityGeneExpressionJoin)--(pub:Publication)" \
             "where ebe.whereExpressedStatement = 'cardiac neural crest'"\
             "and gene.primaryKey = 'ZFIN:ZDB-GENE-040426-2889'" \
-            "and pub.pubModId = 'ZFIN:ZDB-PUB-130309-4' return count(gene)"
+            "and pub.pubModId = 'ZFIN:ZDB-PUB-130309-4' return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1

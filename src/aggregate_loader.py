@@ -89,11 +89,11 @@ class AggregateLoader(object):
         # MILoader(self.graph).load_mi(self.mi_dataset)
         # self.mi_dataset.clear()
 
-        logger.info("Extracting SO data.")
-        self.so_dataset = SOExt().get_data()
-        logger.info("Loading SO data into Neo4j.")
-        SOLoader(self.graph).load_so(self.so_dataset)
-        self.so_dataset.clear()
+        # logger.info("Extracting SO data.")
+        # self.so_dataset = SOExt().get_data()
+        # logger.info("Loading SO data into Neo4j.")
+        # SOLoader(self.graph).load_so(self.so_dataset)
+        # self.so_dataset.clear()
 
         logger.info("Extracting ZFA data.")
         self.zfa_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfa.obo", "zfa.obo")
@@ -101,11 +101,11 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfa_dataset, "ZFATerm")
         self.zfa_dataset.clear()
 
-        logger.info("Extracting ZFS data.")
-        self.zfs_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfs.obo", "zfs.obo")
-        logger.info("Loading ZFS data into Neo4j.")
-        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfs_dataset, "ZFSTerm")
-        self.zfs_dataset.clear()
+        # logger.info("Extracting ZFS data.")
+        # self.zfs_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfs.obo", "zfs.obo")
+        # logger.info("Loading ZFS data into Neo4j.")
+        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfs_dataset, "ZFSTerm")
+        # self.zfs_dataset.clear()
         #
         # logger.info("Extracting WBBT data.")
         # self.wbbt_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/wbbt.obo", "wbbt.obo")
@@ -234,14 +234,14 @@ class AggregateLoader(object):
             # reduced the need for stub methods in mod.py, et al.  Human should only run loads that it has data for.
             if mod.species != 'Homo sapiens':
 
-                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
-                alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
-                for allele_batch in alleles:
-
-                    AlleleLoader(self.graph).load_allele_objects(list(allele_batch[0]),
-                                                                 list(allele_batch[1]),
-                                                                 list(allele_batch[2]),
-                                                                 list(allele_batch[3]))
+                # logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
+                # alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
+                # for allele_batch in alleles:
+                #
+                #     AlleleLoader(self.graph).load_allele_objects(list(allele_batch[0]),
+                #                                                  list(allele_batch[1]),
+                #                                                  list(allele_batch[2]),
+                #                                                  list(allele_batch[3]))
 
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
                 data = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
@@ -320,12 +320,16 @@ class AggregateLoader(object):
             # for mol_int_list_of_entries in mol_int_data:
             #     MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
 
-            logger.info("Loading gocc ribbon terms for all MODs")
-            WTExpressionLoader(self.graph).load_gocc_ribbon_terms()
+            logger.info("retrieving gocc ribbon terms for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms
+            logger.info("loading gocc ribbon terms for all MODs")
+            tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
+
 
     def add_inferred_disease_annotations(self):
-            print("Inferring Disease by Orthology Annotations")
+            logger.info("Inferring Disease by Orthology Annotations")
             tx = GeneDiseaseOrthoTransaction(self.graph)
             orthologous_diseases_to_gene = tx.retreive_diseases_inferred_by_ortholog()
-            print("\tAdding Inferred Disease Annotations")
+            logger.info("Adding Inferred Disease Annotations")
             tx.add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)

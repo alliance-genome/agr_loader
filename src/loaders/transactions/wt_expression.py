@@ -1,5 +1,9 @@
 from .transaction import Transaction
 from services import CreateCrossReference
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class WTExpressionTransaction(Transaction):
@@ -338,7 +342,9 @@ class WTExpressionTransaction(Transaction):
         if len(xrefs) > 0:
             Transaction.execute_transaction(self, xref, xrefs)
 
-    def gocc_ribbon_txt(self):
+    def retrieve_gocc_ribbon_terms(self):
+
+        logger.info("reached the gocc_ribbon_txt code")
 
         expression_gocc_ribbon_retrieve = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
@@ -346,20 +352,29 @@ class WTExpressionTransaction(Transaction):
                 return ebe.primaryKey, slimTerm.primaryKey
                 """
 
-        expression_gocc_ribbon_insert = """
-                UNWIND $data as row
-                MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
-                MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
-                
-                MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(slimTerm)
-                """
-
         returnSet = Transaction.run_single_query(self, expression_gocc_ribbon_retrieve)
+        logger.info(returnSet)
         gocc_ribbon_data = []
+
         for record in returnSet:
+            logger.info(record)
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
+
+        logger.info(gocc_ribbon_data)
+
+        return gocc_ribbon_data
+
+    def insert_gocc_ribbon_terms(self, gocc_ribbon_data):
+
+        expression_gocc_ribbon_insert = """
+                       UNWIND $data as row
+                       MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
+                       MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
+
+                       MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(slimTerm)
+                       """
 
         Transaction.execute_transaction(self, expression_gocc_ribbon_insert, gocc_ribbon_data)
 
