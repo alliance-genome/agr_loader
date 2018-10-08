@@ -322,7 +322,7 @@ class AggregateLoader(object):
 
             logger.info("retrieving gocc ribbon terms for all MODs")
             tx = WTExpressionTransaction(self.graph)
-            gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms
+            gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms()
             logger.info("loading gocc ribbon terms for all MODs")
             tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
 
