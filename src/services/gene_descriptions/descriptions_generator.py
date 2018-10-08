@@ -289,8 +289,8 @@ class GeneDescGenerator(object):
             self.set_merged_go_description(gene_desc=gene_desc, joined_sent=joined_sent)
             self.add_do_sentence_and_set_stats(df=df, human=human, gene_desc=gene_desc, joined_sent=joined_sent,
                                                gene=gene)
-            self.add_orthology_sentence_and_set_stats(gene_best_orthologs=best_orthologs, gene=gene, gene_desc=gene_desc,
-                                                      joined_sent=joined_sent)
+            self.add_orthology_sentence_and_set_stats(gene_orthologs=orthologs, gene_best_orthologs=best_orthologs,
+                                                      gene=gene, gene_desc=gene_desc, joined_sent=joined_sent)
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
