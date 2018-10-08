@@ -83,11 +83,11 @@ class AggregateLoader(object):
         # DOLoader(self.graph).load_do(self.do_dataset)
         # # Does not get cleared because its used later self.do_dataset.clear()
 
-        logger.info("Downloading MI data.")
-        self.mi_dataset = MIExt().get_data()
-        logger.info("Loading MI data into Neo4j.")
-        MILoader(self.graph).load_mi(self.mi_dataset)
-        self.mi_dataset.clear()
+        # logger.info("Downloading MI data.")
+        # self.mi_dataset = MIExt().get_data()
+        # logger.info("Loading MI data into Neo4j.")
+        # MILoader(self.graph).load_mi(self.mi_dataset)
+        # self.mi_dataset.clear()
 
         logger.info("Extracting SO data.")
         self.so_dataset = SOExt().get_data()
@@ -101,11 +101,11 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfa_dataset, "ZFATerm")
         self.zfa_dataset.clear()
 
-        # logger.info("Extracting ZFS data.")
-        # self.zfs_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfs.obo", "zfs.obo")
-        # logger.info("Loading ZFS data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfs_dataset, "ZFSTerm")
-        # self.zfs_dataset.clear()
+        logger.info("Extracting ZFS data.")
+        self.zfs_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/zfs.obo", "zfs.obo")
+        logger.info("Loading ZFS data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.zfs_dataset, "ZFSTerm")
+        self.zfs_dataset.clear()
         #
         # logger.info("Extracting WBBT data.")
         # self.wbbt_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/wbbt.obo", "wbbt.obo")
@@ -173,11 +173,11 @@ class AggregateLoader(object):
         # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset, "BSPOTerm")
         # self.bspo_dataset.clear()
         #
-        # logger.info("Extracting MMO data.")
-        # self.mmo_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
-        # logger.info("Loading MMO data into Neo4j.")
-        # GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset, "MMOTerm")
-        # self.mmo_dataset.clear()
+        logger.info("Extracting MMO data.")
+        self.mmo_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/mmo.obo", "mmo.obo")
+        logger.info("Loading MMO data into Neo4j.")
+        GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset, "MMOTerm")
+        self.mmo_dataset.clear()
         #
         # logger.info("Extracting WBLS data.")
         # self.wbls_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/wbls.obo", "wbls.obo")
@@ -221,13 +221,13 @@ class AggregateLoader(object):
                                                list(gene_batch[4]))
 
         this_dir = os.path.split(__file__)[0]
-        #initialize gene description generator from config file
-        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
-                                                                          "genedesc_config.yml"),
-                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
-                                               graph_db=self.graph)
-        cached_data_fetcher = None
-        #Loading annotation data for all MODs after completion of BGI data.
+        # #initialize gene description generator from config file
+        # genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+        #                                                                   "genedesc_config.yml"),
+        #                                        go_ontology=self.go_dataset, do_ontology=self.do_dataset,
+        #                                        graph_db=self.graph)
+        # cached_data_fetcher = None
+        # #Loading annotation data for all MODs after completion of BGI data.
 
         for mod in self.mods:
 

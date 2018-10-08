@@ -340,14 +340,28 @@ class WTExpressionTransaction(Transaction):
 
     def gocc_ribbon_txt(self):
 
-        expression_gocc_ribbon = """
-                match p=(ebe:ExpressionBioEntity)--(go:GOTerm), slim=(go)-[:PART_OF|IS_A*]->(slimTerm) where all 
-                (subset IN ['goslim_agr'] where subset in slimTerm.subset) 
+        expression_gocc_ribbon_retrieve = """
+                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+                where all (subset IN ['goslim_agr'] where subset in slimTerm.subset)
+                return ebe.primaryKey, slimTerm.primaryKey
+                """
 
+        expression_gocc_ribbon_insert = """
+                UNWIND $data as row
+                MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
+                MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
+                
                 MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(slimTerm)
                 """
 
-        Transaction.execute_transaction(self, expression_gocc_ribbon, "")
+        returnSet = Transaction.run_single_query(self, expression_gocc_ribbon_retrieve)
+        gocc_ribbon_data = []
+        for record in returnSet:
+            row = dict(ebe_id=record["ebe.primaryKey"],
+                       go_id=record["slimTerm.primaryKey"])
+            gocc_ribbon_data.append(row)
+
+        Transaction.execute_transaction(self, expression_gocc_ribbon_insert, gocc_ribbon_data)
 
 
 
