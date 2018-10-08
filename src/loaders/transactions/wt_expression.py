@@ -341,9 +341,8 @@ class WTExpressionTransaction(Transaction):
     def gocc_ribbon_txt(self):
 
         expression_gocc_ribbon = """
-                match (entity:ExpressionBioEntity)--(go:GOTerm:Ontology),(go)-[:PART_OF|IS_A*]->(slimTerm) where all 
-                    (subset IN ['goslim_agr'] where subset in slimTerm.subset)  
-                    return entity.primaryKey, slimTerm.primaryKey
+                match p=(ebe:ExpressionBioEntity)--(go:GOTerm), slim=(go)-[:PART_OF|IS_A*]->(slimTerm) where all 
+                (subset IN ['goslim_agr'] where subset in slimTerm.subset) 
 
                 MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(slimTerm)
                 """
