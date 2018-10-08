@@ -192,7 +192,7 @@ class GeneDescGenerator(object):
         else:
             gene_desc.go_description = None
 
-    def add_do_sentence_and_set_stats(self, df: DataFetcher, human, gene_desc: GeneDesc, joined_sent):
+    def add_do_sentence_and_set_stats(self, df: DataFetcher, human, gene_desc: GeneDesc, joined_sent, gene):
         prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
         if human:
             prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
@@ -224,13 +224,19 @@ class GeneDescGenerator(object):
                 disease_sent.count("(multiple)")
 
     @staticmethod
-    def add_orthology_sentence_and_set_stats(df: DataFetcher, gene, gene_desc: GeneDesc, joined_sent):
-        best_orthologs_ids = [orth[0] for orth in df.orthologs[gene.id]] if gene.id in df.orthologs else []
-        best_orthologs = [[orth[0][5:], *orth[1:]] for orth in df.orthologs[gene.id]] if gene.id in df.orthologs \
+    def add_orthology_sentence_and_set_stats(gene_orthologs, gene_best_orthologs, gene, gene_desc: GeneDesc,
+                                             joined_sent):
+        best_orthologs_ids = [orth[0] for orth in gene_best_orthologs[gene.id]] if gene.id in gene_best_orthologs \
             else []
+        best_orthologs = [[orth[0][5:], *orth[1:]] for orth in gene_best_orthologs[gene.id]] if \
+            gene.id in gene_best_orthologs else []
         gene_desc.stats.set_best_orthologs = best_orthologs_ids
+        excluded_orthologs = True
+        if gene.id in gene_orthologs and gene.id in gene_best_orthologs:
+            if len(gene_orthologs[gene.id]) == len(gene_best_orthologs[gene.id]):
+                excluded_orthologs = False
         if len(best_orthologs) > 0:
-            orth_sent = generate_orthology_sentence_alliance_human(best_orthologs)
+            orth_sent = generate_orthology_sentence_alliance_human(best_orthologs, excluded_orthologs)
             if orth_sent:
                 joined_sent.append(orth_sent)
                 gene_desc.orthology_description = orth_sent
@@ -255,7 +261,8 @@ class GeneDescGenerator(object):
                                                                                 self.do_ontology, self.graph,
                                                                                 data_provider),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
-        df.orthologs = get_orthologs_from_loader_object(ortho_data, data_provider, self.graph)
+        orthologs = get_orthologs_from_loader_object(ortho_data, data_provider, self.graph)
+        best_orthologs = get_best_orthologs_for_genes_in_dict(orthologs)
         for gene in get_gene_data_from_neo4j(data_provider=data_provider, graph=self.graph):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
@@ -280,8 +287,10 @@ class GeneDescGenerator(object):
                                                                go_sent_generator_exp=go_sent_generator_exp,
                                                                gene_desc=gene_desc, joined_sent=joined_sent)
             self.set_merged_go_description(gene_desc=gene_desc, joined_sent=joined_sent)
-            self.add_do_sentence_and_set_stats(df=df, human=human, gene_desc=gene_desc, joined_sent=joined_sent)
-            self.add_orthology_sentence_and_set_stats(df=df, gene=gene, gene_desc=gene_desc, joined_sent=joined_sent)
+            self.add_do_sentence_and_set_stats(df=df, human=human, gene_desc=gene_desc, joined_sent=joined_sent,
+                                               gene=gene)
+            self.add_orthology_sentence_and_set_stats(gene_best_orthologs=best_orthologs, gene=gene, gene_desc=gene_desc,
+                                                      joined_sent=joined_sent)
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -301,7 +310,10 @@ class GeneDescGenerator(object):
             gd_file_name = data_provider
             if human:
                 gd_file_name = "HUMAN"
-            release_version = "2.0"
+            if "RELEASE" in os.environ:
+                release_version = ".".join(os.environ["RELEASE"].split(".")[0:2])
+            else:
+                release_version = "no-version"
             json_desc_writer.overall_properties.species = gd_file_name
             json_desc_writer.overall_properties.release_version = release_version
             json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")

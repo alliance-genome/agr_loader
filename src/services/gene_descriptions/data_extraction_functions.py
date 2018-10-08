@@ -174,11 +174,8 @@ def get_orthologs_from_loader_object(ortho_data, data_provider, graph):
                                                                       len(orth_matched)])
     orth_id_symbol_and_name = {gene[0]: [gene[1], gene[2]] for gene in get_gene_symbols_from_id_list(
         [ortholog[0] for orthologs in orthologs.values() for ortholog in orthologs], graph)}
-    orthologs = {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
-                           in orth_id_symbol_and_name] for gene_id, orthologs in orthologs.items()}
-    orthologs = {gene_id: get_best_orthologs(orthologs) for gene_id, orthologs in orthologs.items() if
-                 len(orthologs) > 0}
-    return orthologs
+    return {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
+                      in orth_id_symbol_and_name] for gene_id, orthologs in orthologs.items()}
 
 
 def query_db(db_graph, query: str, parameters: Dict = None):
@@ -210,9 +207,14 @@ def get_gene_symbols_from_id_list(id_list, graph):
     return result_set
 
 
-def get_best_orthologs(ortholog_list):
+def get_best_orthologs_from_list(ortholog_list):
     max_num_methods = max([orth[3] for orth in ortholog_list])
     return [ortholog for ortholog in ortholog_list if ortholog[3] == max_num_methods]
+
+
+def get_best_orthologs_for_genes_in_dict(gene_orthologs_dict):
+    return {gene_id: get_best_orthologs_from_list(orthologs) for gene_id, orthologs in gene_orthologs_dict.items() if
+            len(orthologs) > 0}
 
 
 def get_disease_annotations_via_orthology(data_provider, graph):
