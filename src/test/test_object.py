@@ -105,7 +105,7 @@ class TestObject(object):
             # expression
             'RGD:3884', 'RGD:3889',
             # allele gene and alleles
-            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295'
+            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129'
         }
 
         self.humanTestSet = {

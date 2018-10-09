@@ -325,6 +325,11 @@ class AggregateLoader(object):
             logger.info("loading gocc ribbon terms for all MODs")
             tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
 
+            logger.info("retrieving gocc ribbonless ebes for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbonless_data = tx.retrieve_gocc_ribbonless_ebes()
+            logger.info("loading gocc ribbonless terms for all MODs")
+            tx.insert_ribonless_ebes(gocc_ribbonless_data)
 
     def add_inferred_disease_annotations(self):
             logger.info("Inferring Disease by Orthology Annotations")

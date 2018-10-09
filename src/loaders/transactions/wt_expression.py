@@ -27,6 +27,8 @@ class WTExpressionTransaction(Transaction):
                 ON CREATE SET other.name = 'Other'
             MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
+            MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                ON CREATE SET othergo.name = 'other locations'
                 
         """
 
@@ -353,7 +355,7 @@ class WTExpressionTransaction(Transaction):
                 """
 
         returnSet = Transaction.run_single_query(self, expression_gocc_ribbon_retrieve)
-        logger.info(returnSet)
+
         gocc_ribbon_data = []
 
         for record in returnSet:
@@ -362,7 +364,6 @@ class WTExpressionTransaction(Transaction):
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
 
-        logger.info(gocc_ribbon_data)
 
         return gocc_ribbon_data
 
@@ -370,6 +371,7 @@ class WTExpressionTransaction(Transaction):
 
         expression_gocc_ribbon_insert = """
                        UNWIND $data as row
+                       
                        MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
                        MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
 
@@ -378,5 +380,31 @@ class WTExpressionTransaction(Transaction):
 
         Transaction.execute_transaction(self, expression_gocc_ribbon_insert, gocc_ribbon_data)
 
+    def retrieve_gocc_ribbonless_ebes(self):
 
+        ribbonless_ebes = """
+            MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(goterm:GOTerm:Ontology)
+            WHERE NOT (ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(goribbon:GOTerm:Ontology)
+            
+        """
+        returnSet = Transaction.run_single_query(self, ribbonless_ebes)
 
+        gocc_ribbonless_data = []
+
+        for record in returnSet:
+            logger.info(record)
+            row = dict(ebe_id=record["ebe.primaryKey"])
+            gocc_ribbonless_data.append(row)
+
+        return gocc_ribbonless_data
+
+    def insert_ribonless_ebes(self, gocc_ribbonless_data):
+
+        insert_ribbonless_data = """
+                UNWIND $data as row
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_id})
+                MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
+        """
+
+        Transaction.execute_transaction(self, insert_ribbonless_data, gocc_ribbonless_data)
