@@ -361,7 +361,6 @@ class WTExpressionTransaction(Transaction):
         gocc_ribbon_data = []
 
         for record in returnSet:
-            logger.info(record)
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
@@ -395,7 +394,6 @@ class WTExpressionTransaction(Transaction):
         gocc_ribbonless_data = []
 
         for record in returnSet:
-            logger.info(record)
             row = dict(ebe_id=record["ebe.primaryKey"])
             gocc_ribbonless_data.append(row)
 

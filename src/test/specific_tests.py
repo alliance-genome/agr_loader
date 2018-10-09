@@ -196,7 +196,7 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
     query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
-            "where o.primaryKey != 'UBERON:AnatomyOtherLocation'" \
+            "where o.primaryKey <> 'UBERON:AnatomyOtherLocation'" \
             "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -223,7 +223,7 @@ def test_gocc_other_relationship_for_expression_exists():
 
 def test_gocc_ribbon_relationship_for_expression_exists():
     query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology) " \
-            "where o.primaryKey != 'GO:otherLocations'" \
+            "where o.primaryKey <> 'GO:otherLocations'" \
             "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
