@@ -29,6 +29,8 @@ class WTExpressionTransaction(Transaction):
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
             MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
                 ON CREATE SET othergo.name = 'other locations'
+                ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
+                ON CREATE SET othergo.type = 'other'
                 
         """
 
@@ -384,8 +386,9 @@ class WTExpressionTransaction(Transaction):
 
         ribbonless_ebes = """
             MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(goterm:GOTerm:Ontology)
-            WHERE NOT (ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(goribbon:GOTerm:Ontology)
-            
+            OPTIONAL MATCH (ebe)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(goribbon:GOTerm:Ontology)
+            WHERE r is null
+            RETURN ebe.primaryKey            
         """
         returnSet = Transaction.run_single_query(self, ribbonless_ebes)
 
