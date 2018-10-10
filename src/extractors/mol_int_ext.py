@@ -355,6 +355,10 @@ class MolIntExt(object):
 
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
+                if interactor_A_resolved is None or interactor_B_resolved is None:
+                    unresolved_a_b_count += 1 # Tracking unresolved identifiers.
+                    continue # Skip this entry.
+            
                 mol_int_dataset = {
                     'interactor_A' : None,
                     'interactor_B' : None,
