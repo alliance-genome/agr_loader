@@ -20,7 +20,7 @@ class WTExpressionTransaction(Transaction):
         AddOther = """
         
             MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
-                ON CREATE SET other.name = 'Other'
+                ON CREATE SET other.name = 'other'
             MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
                 
