@@ -376,7 +376,7 @@ class WTExpressionTransaction(Transaction):
                        MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
                        MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
 
-                       MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(slimTerm)
+                       MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                        """
 
         Transaction.execute_transaction(self, expression_gocc_ribbon_insert, gocc_ribbon_data)
