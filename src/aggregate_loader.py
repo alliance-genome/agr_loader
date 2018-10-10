@@ -10,6 +10,7 @@ from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
+from loaders.transactions.wt_expression import WTExpressionTransaction
 from loaders.bgi_loader import BGILoader
 from loaders.disease_loader import DiseaseLoader
 from loaders.ortho_loader import OrthoLoader
