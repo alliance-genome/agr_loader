@@ -18,6 +18,7 @@ class MITransaction(Transaction):
             MERGE (g:MITerm:Ontology {primaryKey:row.identifier})
                 SET g.label = row.label
                 SET g.url = row.url
+                SET g.definition = row.definition
         """
 
         Transaction.execute_transaction_batch(self, query, data, self.batch_size)
