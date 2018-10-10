@@ -132,14 +132,6 @@ class MolIntExt(object):
                     self.missed_database_linkouts.add(individual_prefix)
             else: self.ignored_database_linkouts.add(individual_prefix)
 
-            xref_dict['uuid'] = str(uuid.uuid4())
-            xref_dict['globalCrossRefId'] = individual
-            xref_dict['name'] = individual
-            xref_dict['displayName'] = individual_body
-            xref_dict['primaryKey'] = individual
-            xref_dict['crossRefType'] = 'interaction'
-            xref_dict['page'] = page
-
             # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
             # TODO Regex to check for FBig in additional_row?
@@ -155,6 +147,14 @@ class MolIntExt(object):
                     logger.critical('Failed identifier: %s' % (individual))
                     logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
+
+            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['globalCrossRefId'] = individual
+            xref_dict['name'] = individual
+            xref_dict['displayName'] = individual_body
+            xref_dict['primaryKey'] = individual
+            xref_dict['crossRefType'] = 'interaction'
+            xref_dict['page'] = page
 
             xref_main_list.append(xref_dict)
 
@@ -211,13 +211,13 @@ class MolIntExt(object):
 
             prefixed_identifier = None
 
-            if individual_entry.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
+            if entry_stripped.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'WB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
                     return prefixed_identifier
                 else:
                     return None
-            elif individual_entry.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
+            elif entry_stripped.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'FB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
                     return prefixed_identifier
@@ -355,10 +355,6 @@ class MolIntExt(object):
 
                 interactor_A_resolved, interactor_B_resolved = self.resolve_identifiers_by_row(row, master_gene_set, master_crossreference_dictionary)
 
-                if interactor_A_resolved is None or interactor_B_resolved is None:
-                    unresolved_a_b_count += 1 # Tracking unresolved identifiers.
-                    continue # Skip this entry.
-            
                 mol_int_dataset = {
                     'interactor_A' : None,
                     'interactor_B' : None,
@@ -406,6 +402,3 @@ class MolIntExt(object):
 
         logger.info('The following linkout databases were ignored:')
         pp.pprint(self.ignored_database_linkouts)
-
-        # print('Database source linkout list')
-        # pp.pprint(database_linkout_set)
