@@ -79,7 +79,9 @@ class AlleleExt(object):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "dataProvider": dataProviderSingle,
-                "symbolText": alleleRecord.get('symbolText')
+                "symbolText": alleleRecord.get('symbolText'),
+                "modGlobalCrossRefId": modGlobalCrossRefId
+
             }
 
             alleles.append(allele_dataset)
