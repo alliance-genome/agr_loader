@@ -59,6 +59,7 @@ class MIExt(object):
                         dict_to_append = {
                             'identifier' : terms['obo_id'],
                             'label' : terms['label'],
+                            'definition' : terms['annotation']['definition'][0],
                             'url' : self.add_miterm_url(terms['obo_id'])
                         }
                         processed_mi_list.append(dict_to_append)
