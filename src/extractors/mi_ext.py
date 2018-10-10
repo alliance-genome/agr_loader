@@ -31,6 +31,13 @@ class MIExt(object):
 
         return mi_term_url_dict.get(identifier)
 
+    @staticmethod
+    def add_definition(term):
+        try:
+            return term['annotation']['definition'][0]
+        except KeyError:
+            return None
+
     def get_data(self):
 
         mi_term_ontology = None
@@ -54,12 +61,13 @@ class MIExt(object):
             with urllib.request.urlopen(request_url) as url:
                 mi_term_ontology_full = json.loads(url.read().decode())
 
-                for terms in mi_term_ontology_full['_embedded']['terms']:
-                    if terms['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
+                for term in mi_term_ontology_full['_embedded']['terms']:
+                    if term['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
                         dict_to_append = {
-                            'identifier' : terms['obo_id'],
-                            'label' : terms['label'],
-                            'url' : self.add_miterm_url(terms['obo_id'])
+                            'identifier' : term['obo_id'],
+                            'label' : term['label'],
+                            'definition' : self.add_definition(term),
+                            'url' : self.add_miterm_url(term['obo_id'])
                         }
                         processed_mi_list.append(dict_to_append)
 
