@@ -264,9 +264,9 @@ def test_crip2_has_cardiac_neural_crest():
         assert record["counter"] == 1
 
 
-def test_feature_has_mod_url():
-    query = "MATCH (feature:Feature) where not feature.modCrossRefCompleteUrl =~ 'http.*' " \
-            "return count(feature) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+# def test_feature_has_mod_url():
+#     query = "MATCH (feature:Feature) where not feature.modCrossRefCompleteUrl =~ 'http.*' " \
+#             "return count(feature) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] < 1
