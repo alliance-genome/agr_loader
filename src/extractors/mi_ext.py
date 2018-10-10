@@ -31,7 +31,8 @@ class MIExt(object):
 
         return mi_term_url_dict.get(identifier)
 
-    def add_definition(self, term):
+    @staticmethod
+    def add_definition(term):
         try:
             return term['annotation']['definition'][0]
         except KeyError:
