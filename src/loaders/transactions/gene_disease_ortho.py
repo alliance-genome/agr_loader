@@ -44,7 +44,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
             WHERE da2 IS null  // filters relations that already exist
                  AND da3 IS null // filter where allele already has disease association
         RETURN DISTINCT gene2.primaryKey AS geneID,
-               species.primaryKey AS speciesID,
+               gene1.primaryKey AS fromGeneID,
                type(da) AS relationType,
                disease.primaryKey AS doId"""
 
@@ -55,7 +55,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
         orthologous_disease_data = []        
         for record in returnSet:
             row = dict(primaryId = record["geneID"],
-                    speciesId = record["speciesID"],
+                    fromGeneId = record["fromGeneID"],
                     relationshipType = record["relationType"].lower(),
                     doId = record["doId"],
                     dateProduced = now,
@@ -73,7 +73,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
-                  (species:Species {primaryKey:row.speciesId}),
+                  (fromGene:Gene {primaryKey:row.fromGeneId}),
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
@@ -94,7 +94,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
             CREATE (gene)-[fdag:ASSOCIATION]->(dga)
             CREATE (dga)-[dadg:ASSOCIATION]->(d)
             CREATE (dga)-[dapug:EVIDENCE]->(pub)
-            CREATE (dga)-[:FROM_SPECIES]->(species)
+            CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
             CREATE (dga)-[daecode1g:EVIDENCE]->(ecode)
 
             """
