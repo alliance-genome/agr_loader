@@ -214,13 +214,13 @@ class MolIntExt(object):
             if entry_stripped.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'WB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return prefixed_identifier
+                    return [prefixed_identifier] # Always return a list for later processing.
                 else:
                     return None
             elif entry_stripped.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'FB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return prefixed_identifier
+                    return [prefixed_identifier] # Always return a list for later processing.
                 else:
                     return None
 
