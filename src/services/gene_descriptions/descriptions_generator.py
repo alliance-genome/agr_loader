@@ -245,7 +245,12 @@ class GeneDescGenerator(object):
                                                                                  keep_only_best_group=False,
                                                                                  **self.do_via_orth_sent_common_props)
         disease_via_orth_sent = "; ".join([sentence.text for sentence in raw_disease_via_orth_sent])
-        complete_disease_sent = "; ".join([disease_sent, disease_via_orth_sent])
+        dis_sent_arr = []
+        if len(disease_sent) > 0:
+            dis_sent_arr.append(disease_sent)
+        if len(disease_via_orth_sent) > 0:
+            dis_sent_arr.append(disease_via_orth_sent)
+        complete_disease_sent = "; ".join(dis_sent_arr)
         if complete_disease_sent and len(complete_disease_sent) > 0:
             gene_desc.do_description = complete_disease_sent[0].upper() + complete_disease_sent[1:]
             joined_sent.append(complete_disease_sent)
