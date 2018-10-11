@@ -153,13 +153,13 @@ class WTExpressionExt(object):
                     if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
                         for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
-                            if structureUberonTermId is not None and structureUberonTermId != 'other':
+                            if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {
                                     "ebe_uuid": ebe_uuid,
                                     "aoUberonId": structureUberonTermId
                                 }
                                 uberonAOData.append(structureUberonTerm)
-                            elif structureUberonTermId is not None and structureUberonTermId == 'other':
+                            elif structureUberonTermId is not None and structureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
                                     "ebe_uuid": ebe_uuid
                                 }
@@ -168,13 +168,13 @@ class WTExpressionExt(object):
                     if whereExpressed.get('anatomicalSubStructureUberonSlimTermIds') is not None:
                         for uberonSubStructureTermObject in whereExpressed.get('anatomicalSubStructureUberonSlimTermIds'):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
-                            if subStructureUberonTermId is not None and subStructureUberonTermId != 'other':
+                            if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':
                                 subStructureUberonTerm = {
                                     "ebe_uuid": ebe_uuid,
                                     "aoUberonId": subStructureUberonTermId
                                 }
                                 uberonAOData.append(subStructureUberonTerm)
-                            elif subStructureUberonTermId is not None and subStructureUberonTermId == 'other':
+                            elif subStructureUberonTermId is not None and subStructureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
                                     "ebe_uuid": ebe_uuid
                                 }

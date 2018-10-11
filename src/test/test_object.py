@@ -80,7 +80,8 @@ class TestObject(object):
             # expression
             'ZFIN:ZDB-GENE-070410-17', 'ZFIN:ZDB-GENE-990714-29', 'ZFIN:ZDB-GENE-001103-1', 'ZFIN:ZDB-GENE-050913-20',
             'ZFIN:ZDB-GENE-980526-474', 'ZFIN:ZDB-GENE-000627-1', 'ZFIN:ZDB-GENE-050913-20', 'ZFIN:ZDB-GENE-030912-6',
-            'ZFIN:ZDB-GENE-131121-260', 'ZFIN:ZDB-GENE-980526-368', 'ZFIN:ZDB-GENE-051101-2', 'ZFIN:ZDB-GENE-090311-1'
+            'ZFIN:ZDB-GENE-131121-260', 'ZFIN:ZDB-GENE-980526-368', 'ZFIN:ZDB-GENE-051101-2', 'ZFIN:ZDB-GENE-090311-1',
+            'ZFIN:ZDB-GENE-040426-2889'
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
@@ -104,7 +105,7 @@ class TestObject(object):
             # expression
             'RGD:3884', 'RGD:3889',
             # allele gene and alleles
-            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295'
+            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129'
         }
 
         self.humanTestSet = {

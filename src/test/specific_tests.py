@@ -196,6 +196,7 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
     query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "where o.primaryKey <> 'UBERON:AnatomyOtherLocation'" \
             "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -204,6 +205,25 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
 
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
     query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
+            "where o.primaryKey = 'UBERON:AnatomyOtherLocation'" \
+            "RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gocc_other_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology) " \
+            "where o.primaryKey = 'GO:otherLocations'" \
+            "RETURN count(r) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gocc_ribbon_relationship_for_expression_exists():
+    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology) " \
+            "where o.primaryKey <> 'GO:otherLocations'" \
             "RETURN count(r) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -232,3 +252,21 @@ def test_mmoterm_has_display_synonym():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
+
+
+def test_crip2_has_cardiac_neural_crest():
+    query = "MATCH (gene:Gene)--(ebe:ExpressionBioEntity)--(ei:BioEntityGeneExpressionJoin)--(pub:Publication)" \
+            "where ebe.whereExpressedStatement = 'cardiac neural crest'"\
+            "and gene.primaryKey = 'ZFIN:ZDB-GENE-040426-2889'" \
+            "and pub.pubModId = 'ZFIN:ZDB-PUB-130309-4' return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+# def test_feature_has_mod_url():
+#     query = "MATCH (feature:Feature) where not feature.modCrossRefCompleteUrl =~ 'http.*' " \
+#             "return count(feature) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] < 1

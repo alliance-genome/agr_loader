@@ -10,6 +10,7 @@ from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
 from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
+from loaders.transactions.wt_expression import WTExpressionTransaction
 from loaders.bgi_loader import BGILoader
 from loaders.disease_loader import DiseaseLoader
 from loaders.ortho_loader import OrthoLoader
@@ -38,7 +39,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        #self.mods = [RGD(), Human()]
+        #self.mods = [ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -178,7 +179,7 @@ class AggregateLoader(object):
         logger.info("Loading MMO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset, "MMOTerm")
         self.mmo_dataset.clear()
-
+        #
         logger.info("Extracting WBLS data.")
         self.wbls_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/wbls.obo", "wbls.obo")
         logger.info("Loading WBLS data into Neo4j.")
@@ -227,7 +228,6 @@ class AggregateLoader(object):
                                                go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
-        #Loading annotation data for all MODs after completion of BGI data.
 
         for mod in self.mods:
 
@@ -268,6 +268,7 @@ class AggregateLoader(object):
                                                                               list(batch[11]),
                                                                               list(batch[12]),
                                                                               mod.species)
+
 
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
@@ -319,9 +320,21 @@ class AggregateLoader(object):
             for mol_int_list_of_entries in mol_int_data:
                 MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
 
+            logger.info("retrieving gocc ribbon terms for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms()
+            logger.info("loading gocc ribbon terms for all MODs")
+            tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
+
+            logger.info("retrieving gocc ribbonless ebes for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbonless_data = tx.retrieve_gocc_ribbonless_ebes()
+            logger.info("loading gocc ribbonless terms for all MODs")
+            tx.insert_ribonless_ebes(gocc_ribbonless_data)
+
     def add_inferred_disease_annotations(self):
-            print("Inferring Disease by Orthology Annotations")
+            logger.info("Inferring Disease by Orthology Annotations")
             tx = GeneDiseaseOrthoTransaction(self.graph)
             orthologous_diseases_to_gene = tx.retreive_diseases_inferred_by_ortholog()
-            print("\tAdding Inferred Disease Annotations")
+            logger.info("Adding Inferred Disease Annotations")
             tx.add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)

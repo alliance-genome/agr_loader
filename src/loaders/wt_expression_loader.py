@@ -13,3 +13,4 @@ class WTExpressionLoader(object):
         tx.wt_expression_object_tx(aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                                    aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                                    uberonStageOther, xrefs, species)
+
