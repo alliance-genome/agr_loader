@@ -230,11 +230,11 @@ class GeneDescGenerator(object):
         prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map()
         if human:
             prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map_humans()
-        do_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
-                                                     priority_list=self.conf_parser.
-                                                     get_do_via_orth_annotations_priority())
+        do_via_orth_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
+                                                              priority_list=self.conf_parser.
+                                                              get_do_via_orth_annotations_priority())
         do_via_orth_sentence_generator = SentenceGenerator(
-            annotations=do_annotations, ontology=df.do_ontology,
+            annotations=do_via_orth_annotations, ontology=df.do_ontology,
             evidence_groups_priority_list=self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
             prepostfix_sentences_map=prepostfix_sent_map,
             prepostfix_special_cases_sent_map=None,
@@ -256,7 +256,7 @@ class GeneDescGenerator(object):
             joined_sent.append(complete_disease_sent)
         else:
             gene_desc.do_description = None
-        gene_desc.stats.total_number_do_annotations = len(do_annotations)
+        gene_desc.stats.total_number_do_annotations = len(do_annotations) + len(do_via_orth_annotations)
         gene_desc.stats.set_initial_do_ids = [term_id for terms in do_sentence_generator.terms_groups.values() for
                                               tvalues in terms.values() for term_id in tvalues]
         gene_desc.stats.set_initial_do_ids.extend([term_id for terms in

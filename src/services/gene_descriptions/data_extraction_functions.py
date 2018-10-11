@@ -127,33 +127,33 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
                                          "date": None
                                      }
                                      })
-
-    for annot in get_disease_annotations_via_orthology(data_provider=data_provider, graph=graph):
-        associations.append({"source_line": "",
-                             "subject": {
-                                 "id": annot["geneID"],
-                                 "label": None,
-                                 "type": None,
-                                 "fullname": "",
-                                 "synonyms": [],
-                                 "taxon": {"id": ""}
-                             },
-                             "object": {
-                                 "id": annot["doId"],
-                                 "taxon": ""
-                             },
-                             "qualifiers": "",
-                             "aspect": "D",
-                             "relation": {"id": None},
-                             "negated": False,
-                             "evidence": {
-                                 "type": "IEA",
-                                 "has_supporting_reference": "",
-                                 "with_support_from": [],
-                                 "provided_by": data_provider,
-                                 "date": None
-                                 }
-                             })
+    # TODO: uncomment to include disease via orthology data
+    # for annot in get_disease_annotations_via_orthology(data_provider=data_provider, graph=graph):
+    #     associations.append({"source_line": "",
+    #                          "subject": {
+    #                              "id": annot["geneID"],
+    #                              "label": None,
+    #                              "type": None,
+    #                              "fullname": "",
+    #                              "synonyms": [],
+    #                              "taxon": {"id": ""}
+    #                          },
+    #                          "object": {
+    #                              "id": annot["doId"],
+    #                              "taxon": ""
+    #                          },
+    #                          "qualifiers": "",
+    #                          "aspect": "D",
+    #                          "relation": {"id": None},
+    #                          "negated": False,
+    #                          "evidence": {
+    #                              "type": "IEA",
+    #                              "has_supporting_reference": "",
+    #                              "with_support_from": [],
+    #                              "provided_by": data_provider,
+    #                              "date": None
+    #                              }
+    #                          })
     return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=do_ontology)
 
 
