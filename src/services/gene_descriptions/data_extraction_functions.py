@@ -159,19 +159,17 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
 
 def get_orthologs_from_loader_object(ortho_data, data_provider, graph):
     orthologs = defaultdict(list)
+    uuid_matched = defaultdict(int)
     for orth_lists in ortho_data:
-        for orth in zip(orth_lists[0], orth_lists[1]):
-            orth_data = orth[0]
-            orth_matched = orth[1]
-            if len(orth_matched) > 0 and orth_data['strictFilter'] is True:
-                if orth_data['gene2AgrPrimaryId'].startswith('HGNC') and orth_data['gene1AgrPrimaryId'] \
-                        .startswith(data_provider):
-                    orthologs[orth_data['gene1AgrPrimaryId']].append([orth_data['gene2AgrPrimaryId'],
-                                                                      len(orth_matched)])
-                elif orth_data['gene1AgrPrimaryId'].startswith('HGNC') and \
-                        orth_data['gene2AgrPrimaryId'].startswith(data_provider):
-                    orthologs[orth_data['gene2AgrPrimaryId']].append([orth_data['gene1AgrPrimaryId'],
-                                                                      len(orth_matched)])
+        for method_matched in orth_lists[1]:
+            uuid_matched[method_matched["uuid"]] += 1
+        for orth in orth_lists[0]:
+            if uuid_matched[orth["uuid"]] > 0 and orth['strictFilter'] is True:
+                if orth['gene2AgrPrimaryId'].startswith('HGNC') and orth['gene1AgrPrimaryId'].startswith(data_provider):
+                    orthologs[orth['gene1AgrPrimaryId']].append([orth['gene2AgrPrimaryId'], uuid_matched[orth["uuid"]]])
+                elif orth['gene1AgrPrimaryId'].startswith('HGNC') and \
+                        orth['gene2AgrPrimaryId'].startswith(data_provider):
+                    orthologs[orth['gene2AgrPrimaryId']].append([orth['gene1AgrPrimaryId'], uuid_matched[orth["uuid"]]])
     orth_id_symbol_and_name = {gene[0]: [gene[1], gene[2]] for gene in get_gene_symbols_from_id_list(
         [ortholog[0] for orthologs in orthologs.values() for ortholog in orthologs], graph)}
     return {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
@@ -222,6 +220,7 @@ def get_disease_annotations_via_orthology(data_provider, graph):
     MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
     MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
     WHERE o.strictFilter 
+    AND gene1.primaryKey contains "HGNC" 
     AND da.uuid = dej.primaryKey 
     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
     AND gene2.dataProvider = {dataProvider}

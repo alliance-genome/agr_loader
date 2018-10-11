@@ -301,7 +301,7 @@ class AggregateLoader(object):
             logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-            logger.info("generate gene descriptions for %s." % mod.__class__.__name__)
+            logger.info("Generating gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
                     go_annotations=go_annots,

@@ -39,7 +39,21 @@ class GeneDescGenerator(object):
             "merge_min_distance_from_root": self.conf_parser.get_do_trim_min_distance_from_root(),
             "truncate_others_generic_word": self.conf_parser.get_do_truncate_others_aggregation_word(),
             "truncate_others_aspect_words": self.conf_parser.get_do_truncate_others_terms(),
-            "add_multiple_if_covers_more_children": True}
+            "add_multiple_if_covers_more_children": True,
+            "remove_successive_overlapped_terms": False}
+        self.do_via_orth_sent_gen_common_prop = {
+            "evidence_groups_priority_list": self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
+            "prepostfix_sentences_map": self.conf_parser.get_do_via_orth_prepostfix_sentences_map(),
+            "prepostfix_special_cases_sent_map": None,
+            "evidence_codes_groups_map": self.conf_parser.get_do_via_orth_evidence_codes_groups_map()}
+        self.do_via_orth_sent_common_props = {
+            "remove_parent_terms": False,
+            "merge_num_terms_threshold": 3,
+            "merge_min_distance_from_root": self.conf_parser.get_do_via_orth_trim_min_distance_from_root(),
+            "truncate_others_generic_word": self.conf_parser.get_do_via_orth_truncate_others_aggregation_word(),
+            "truncate_others_aspect_words": self.conf_parser.get_do_via_orth_truncate_others_terms(),
+            "add_multiple_if_covers_more_children": True,
+            "remove_successive_overlapped_terms": False}
 
     def create_orthology_sentence(self):
         pass
@@ -193,6 +207,8 @@ class GeneDescGenerator(object):
             gene_desc.go_description = None
 
     def add_do_sentence_and_set_stats(self, df: DataFetcher, human, gene_desc: GeneDesc, joined_sent, gene):
+        # This module contains two sub modules for disease and disease via orthology data, each of which is treated as
+        # a separate module with different parameters
         prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
         if human:
             prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
@@ -209,19 +225,57 @@ class GeneDescGenerator(object):
                                                                keep_only_best_group=False,
                                                                **self.do_sent_common_props)
         disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent])
-        if disease_sent and len(disease_sent) > 0:
-            gene_desc.do_description = disease_sent[0].upper() + disease_sent[1:]
-            joined_sent.append(disease_sent)
+
+        # Disease via orthology module
+        prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map()
+        if human:
+            prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map_humans()
+        do_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
+                                                     priority_list=self.conf_parser.
+                                                     get_do_via_orth_annotations_priority())
+        do_via_orth_sentence_generator = SentenceGenerator(
+            annotations=do_annotations, ontology=df.do_ontology,
+            evidence_groups_priority_list=self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
+            prepostfix_sentences_map=prepostfix_sent_map,
+            prepostfix_special_cases_sent_map=None,
+            evidence_codes_groups_map=self.conf_parser.get_do_via_orth_evidence_codes_groups_map())
+
+        raw_disease_via_orth_sent = do_via_orth_sentence_generator.get_sentences(aspect='D',
+                                                                                 merge_groups_with_same_prefix=True,
+                                                                                 keep_only_best_group=False,
+                                                                                 **self.do_via_orth_sent_common_props)
+        disease_via_orth_sent = "; ".join([sentence.text for sentence in raw_disease_via_orth_sent])
+        complete_disease_sent = "; ".join([disease_sent, disease_via_orth_sent])
+        if complete_disease_sent and len(complete_disease_sent) > 0:
+            gene_desc.do_description = complete_disease_sent[0].upper() + complete_disease_sent[1:]
+            joined_sent.append(complete_disease_sent)
         else:
             gene_desc.do_description = None
         gene_desc.stats.total_number_do_annotations = len(do_annotations)
         gene_desc.stats.set_initial_do_ids = [term_id for terms in do_sentence_generator.terms_groups.values() for
                                               tvalues in terms.values() for term_id in tvalues]
+        gene_desc.stats.set_initial_do_ids.extend([term_id for terms in
+                                                   do_via_orth_sentence_generator.terms_groups.values() for
+                                                   tvalues in terms.values() for term_id in tvalues])
         gene_desc.stats.set_final_do_ids = [term_id for sentence in raw_disease_sent for term_id in
                                             sentence.terms_ids]
-        if "(multiple)" in disease_sent:
+        gene_desc.stats.set_final_do_ids.extend([term_id for sentence in raw_disease_sent for term_id in
+                                                 sentence.terms_ids])
+        experimental_disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent if
+                                               sentence.evidence_group == "EXPERIMENTAL"])
+        if experimental_disease_sent:
+            gene_desc.do_experimental_description = experimental_disease_sent
+        biomarker_disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent if
+                                            sentence.evidence_group == "BIOMARKER"])
+        if biomarker_disease_sent:
+            gene_desc.do_biomarker_description = biomarker_disease_sent
+        orthology_disease_sent = "; ".join([sentence.text for sentence in raw_disease_via_orth_sent if
+                                            sentence.evidence_group == "ORTHOLOGY_BASED"])
+        if orthology_disease_sent:
+            gene_desc.do_orthology_description = orthology_disease_sent
+        if "(multiple)" in complete_disease_sent:
             gene_desc.stats.number_final_do_term_covering_multiple_initial_do_terms = \
-                disease_sent.count("(multiple)")
+                complete_disease_sent.count("(multiple)")
 
     @staticmethod
     def add_orthology_sentence_and_set_stats(gene_orthologs, gene_best_orthologs, gene, gene_desc: GeneDesc,
