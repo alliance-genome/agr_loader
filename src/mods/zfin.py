@@ -5,7 +5,7 @@ class ZFIN(MOD):
     def __init__(self):
         self.species = "Danio rerio"
 
-        self.loadFile = "ZFIN_1.0.0.7_1.tar.gz"
+        self.loadFile = "ZFIN_1.0.0.7_3.tar.gz"
 
         self.bgiName = "/ZFIN_1.0.0.7_basicGeneInformation.json"
         self.diseaseName = "/ZFIN_1.0.0.7_disease.daf.json"
