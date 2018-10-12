@@ -1,13 +1,15 @@
-version: "2"
+version: "3.2"
 
 services:
   neo4j.nqc:
     container_name: neo4j.nqc
     image: agrdocker/agr_neo4j_env:latest
     volumes:
-      - dbstore:/data
-      - dbstore:/logs
-      - agr_data_share:/var/lib/neo4j/import:ro
+      - type: volume
+        source: agr_data_share
+        target: /var/lib/neo4j/import
+        volume:
+          nocopy: true
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -21,9 +23,11 @@ services:
     container_name: neo4j.qc
     image: agrdocker/agr_neo4j_qc_data_image:build
     volumes:
-      - dbstore:/data
-      - dbstore:/logs
-      - agr_data_share:/var/lib/neo4j/import:ro
+      - type: volume
+        source: agr_data_share
+        target: /var/lib/neo4j/import
+        volume:
+          nocopy: true
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -36,7 +40,11 @@ services:
   agr_loader:
     image: agrdocker/agr_loader_run:latest
     volumes:
-      - agr_data_share:/usr/src/app/tmp
+      - type: volume
+        source: agr_data_share
+        target: /usr/src/app/tmp
+        volume:
+          nocopy: true
     networks:
       - esnet
     environment:
@@ -48,7 +56,11 @@ services:
   agr_loader_test:
     image: agrdocker/agr_loader_run:latest
     volumes:
-      - agr_data_share:/usr/src/app/tmp
+      - type: volume
+        source: agr_data_share
+        target: /usr/src/app/tmp
+        volume:
+          nocopy: true
     networks:
       - esnet
     environment:
@@ -61,5 +73,4 @@ networks:
   esnet:
 
 volumes:
-  dbstore:
   agr_data_share:
