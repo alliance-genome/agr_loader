@@ -1,11 +1,12 @@
-from typing import Dict
-
+import datetime
+import os
+from collections import defaultdict
+import boto3
 from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.data_fetcher import DataFetcher, Gene, DataType
-from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator
-from ontobio import AssociationSetFactory
+from genedescriptions.data_fetcher import DataFetcher, DataType
+from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator, generate_orthology_sentence_alliance_human
 from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
-from ontobio.ontol import Ontology
+from services.gene_descriptions.data_extraction_functions import *
 
 
 class GeneDescGenerator(object):
@@ -33,160 +34,277 @@ class GeneDescGenerator(object):
             "prepostfix_special_cases_sent_map": None,
             "evidence_codes_groups_map": self.conf_parser.get_do_evidence_codes_groups_map()}
         self.do_sent_common_props = {
-            "remove_parent_terms": True,
+            "remove_parent_terms": False,
             "merge_num_terms_threshold": 3,
             "merge_min_distance_from_root": self.conf_parser.get_do_trim_min_distance_from_root(),
             "truncate_others_generic_word": self.conf_parser.get_do_truncate_others_aggregation_word(),
             "truncate_others_aspect_words": self.conf_parser.get_do_truncate_others_terms(),
-            "add_multiple_if_covers_more_children": True}
+            "add_multiple_if_covers_more_children": True,
+            "remove_successive_overlapped_terms": False}
+        self.do_via_orth_sent_gen_common_prop = {
+            "evidence_groups_priority_list": self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
+            "prepostfix_sentences_map": self.conf_parser.get_do_via_orth_prepostfix_sentences_map(),
+            "prepostfix_special_cases_sent_map": None,
+            "evidence_codes_groups_map": self.conf_parser.get_do_via_orth_evidence_codes_groups_map()}
+        self.do_via_orth_sent_common_props = {
+            "remove_parent_terms": False,
+            "merge_num_terms_threshold": 3,
+            "merge_min_distance_from_root": self.conf_parser.get_do_via_orth_trim_min_distance_from_root(),
+            "truncate_others_generic_word": self.conf_parser.get_do_via_orth_truncate_others_aggregation_word(),
+            "truncate_others_aspect_words": self.conf_parser.get_do_via_orth_truncate_others_terms(),
+            "add_multiple_if_covers_more_children": True,
+            "remove_successive_overlapped_terms": False}
 
-    @staticmethod
-    def get_ontology_from_loader_object(ontology_term_list) -> Ontology:
-        ontology = Ontology()
-        for term in ontology_term_list:
-            if ontology.has_node(term["oid"]):
-                # previously added as parent
-                ontology.node(term["oid"])["label"] = term["name"]
+    def create_orthology_sentence(self):
+        pass
+
+    def set_initial_go_stats(self, gene_desc: GeneDesc, go_annotations, go_sent_generator, go_sent_generator_exp):
+        gene_desc.stats.total_number_go_annotations = len(go_annotations)
+        gene_desc.stats.set_initial_go_ids_f = list(set().union(
+            [elem for key, sets in go_sent_generator.terms_groups[('F', '')].items() for elem in sets if
+             ('F', key, '') in
+             self.conf_parser.get_go_prepostfix_sentences_map()],
+            [elem for key, sets in go_sent_generator.terms_groups[('F', 'contributes_to')].items() for elem in
+             sets if
+             ('F', key, 'contributes_to') in self.conf_parser.get_go_prepostfix_sentences_map()]))
+        gene_desc.stats.set_initial_experimental_go_ids_f = list(set().union(
+            [elem for key, sets in go_sent_generator_exp.terms_groups[('F', '')].items() for elem in sets if
+             ('F', key, '')
+             in self.conf_parser.get_go_prepostfix_sentences_map()],
+            [elem for key, sets in go_sent_generator_exp.terms_groups[
+                ('F', 'contributes_to')].items() for elem in sets if ('F', key, 'contributes_to') in
+             self.conf_parser.get_go_prepostfix_sentences_map()]))
+        gene_desc.stats.set_initial_go_ids_p = [elem for key, sets in
+                                                go_sent_generator.terms_groups[('P', '')].items() for
+                                                elem in sets if ('P', key, '') in
+                                                self.conf_parser.get_go_prepostfix_sentences_map()]
+        gene_desc.stats.set_initial_experimental_go_ids_p = [elem for key, sets in
+                                                             go_sent_generator_exp.terms_groups[('P', '')].items()
+                                                             for
+                                                             elem in sets if ('P', key, '') in
+                                                             self.conf_parser.get_go_prepostfix_sentences_map()]
+        gene_desc.stats.set_initial_go_ids_c = list(set().union(
+            [elem for key, sets in go_sent_generator.terms_groups[('C', '')].items() for elem in sets if
+             ('C', key, '') in
+             self.conf_parser.get_go_prepostfix_sentences_map()],
+            [elem for key, sets in go_sent_generator.terms_groups[('C', 'colocalizes_with')].items() for elem in
+             sets if
+             ('C', key, 'colocalizes_with') in self.conf_parser.get_go_prepostfix_sentences_map()]))
+        gene_desc.stats.set_initial_experimental_go_ids_c = list(set().union(
+            [elem for key, sets in go_sent_generator_exp.terms_groups[('C', '')].items() for elem in sets if
+             ('C', key, '')
+             in self.conf_parser.get_go_prepostfix_sentences_map()],
+            [elem for key, sets in go_sent_generator_exp.terms_groups[('C', 'colocalizes_with')].items() for elem in
+             sets if
+             ('C', key, 'colocalizes_with') in self.conf_parser.get_go_prepostfix_sentences_map()]))
+
+    def add_go_function_sentence_and_set_final_stats(self, go_sent_generator, go_sent_generator_exp,
+                                                     gene_desc: GeneDesc, joined_sent):
+        contributes_to_raw_func_sent = go_sent_generator.get_sentences(
+            aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True, keep_only_best_group=True,
+            **self.go_sent_common_props)
+        if contributes_to_raw_func_sent:
+            raw_func_sent = go_sent_generator_exp.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
+                                                                keep_only_best_group=True,
+                                                                **self.go_sent_common_props)
+        else:
+            raw_func_sent = go_sent_generator.get_sentences(aspect='F', merge_groups_with_same_prefix=True,
+                                                            keep_only_best_group=True, **self.go_sent_common_props)
+        func_sent = " and ".join([sentence.text for sentence in raw_func_sent])
+        if func_sent:
+            joined_sent.append(func_sent)
+            gene_desc.go_function_description = func_sent
+        contributes_to_func_sent = " and ".join([sentence.text for sentence in contributes_to_raw_func_sent])
+        if contributes_to_func_sent:
+            joined_sent.append(contributes_to_func_sent)
+            if not gene_desc.go_function_description:
+                gene_desc.go_function_description = contributes_to_func_sent
             else:
-                ontology.add_node(term["oid"], term["name"])
-            if term["is_obsolete"] == "true":
-                ontology.set_obsolete(term["oid"])
-            ontology.node(term["oid"])["alt_ids"] = term["alt_ids"]
-            for parent_id in term["isas"]:
-                if not ontology.has_node(parent_id):
-                    ontology.add_node(parent_id, "")
-                ontology.add_parent(term["oid"], parent_id, "subClassOf")
-            for parent_id in term["partofs"]:
-                if not ontology.has_node(parent_id):
-                    ontology.add_node(parent_id, "")
-                ontology.add_parent(term["oid"], parent_id, "BFO:0000050")
-        return ontology
+                gene_desc.go_function_description += "; " + contributes_to_func_sent
+            if not gene_desc.go_description:
+                gene_desc.go_description = contributes_to_func_sent
+            else:
+                gene_desc.go_description += "; " + contributes_to_func_sent
 
-    def get_go_associations_from_loader_object(self, go_annotations):
-        associations = []
-        for gene_annotations in go_annotations:
-            for annot in gene_annotations["annotations"]:
-                if self.go_ontology.has_node(annot["go_id"]) and not self.go_ontology.is_obsolete(annot["go_id"]):
-                    associations.append({"source_line": "",
-                                         "subject": {
-                                             "id": gene_annotations["gene_id"],
-                                             "label": "",
-                                             "type": "",
-                                             "fullname": "",
-                                             "synonyms": [],
-                                             "taxon": {"id": ""}
+        gene_desc.stats.set_final_go_ids_f = list(set().union([term_id for sentence in raw_func_sent for
+                                                               term_id in sentence.terms_ids],
+                                                              [term_id for sentence in contributes_to_raw_func_sent
+                                                               for
+                                                               term_id in sentence.terms_ids]))
+        gene_desc.stats.set_final_experimental_go_ids_f = list(set().union(
+            [term_id for sentence in raw_func_sent for term_id in sentence.terms_ids if
+             sentence.evidence_group.startswith("EXPERIMENTAL")],
+            [term_id for sentence in contributes_to_raw_func_sent for
+             term_id in sentence.terms_ids if
+             sentence.evidence_group.startswith("EXPERIMENTAL")]))
 
-                                         },
-                                         "object": {
-                                             "id": annot["go_id"],
-                                             "taxon": ""
-                                         },
-                                         "qualifiers": annot["qualifier"].split("|"),
-                                         "aspect": annot["aspect"],
-                                         "relation": {"id": None},
-                                         "negated": False,
-                                         "evidence": {
-                                             "type": annot["evidence_code"],
-                                             "has_supporting_reference": "",
-                                             "with_support_from": [],
-                                             "provided_by": gene_annotations["dataProvider"],
-                                             "date": None
-                                             }
-                                         })
-        return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=self.go_ontology)
+    def add_go_process_sentence_and_set_final_stats(self, go_sent_generator, gene_desc: GeneDesc, joined_sent):
+        raw_proc_sent = go_sent_generator.get_sentences(aspect='P', merge_groups_with_same_prefix=True,
+                                                        keep_only_best_group=True, **self.go_sent_common_props)
+        proc_sent = " and ".join([sentence.text for sentence in raw_proc_sent])
+        if proc_sent:
+            joined_sent.append(proc_sent)
+            gene_desc.go_process_description = proc_sent
+        gene_desc.stats.set_final_go_ids_p = [term_id for sentence in raw_proc_sent for term_id in
+                                              sentence.terms_ids]
+        gene_desc.stats.set_final_experimental_go_ids_p = [term_id for sentence in raw_proc_sent for term_id in
+                                                           sentence.terms_ids if
+                                                           sentence.evidence_group.startswith("EXPERIMENTAL")]
 
-    def get_do_associations_from_loader_object(self, do_annotations, do_annotations_allele):
-        associations = []
-        for gene_annotations in do_annotations:
-            for annot in gene_annotations:
-                if annot and "doId" in annot and self.do_ontology.has_node(annot["doId"]) and not \
-                        self.do_ontology.is_obsolete(annot["doId"]):
-                    associations.append({"source_line": "",
-                                         "subject": {
-                                             "id": annot["primaryId"],
-                                             "label": annot["diseaseObjectName"],
-                                             "type": annot["diseaseObjectType"],
-                                             "fullname": "",
-                                             "synonyms": [],
-                                             "taxon": {"id": ""}
-
-                                         },
-                                         "object": {
-                                             "id": annot["doId"],
-                                             "taxon": ""
-                                         },
-                                         "qualifiers":
-                                             annot["qualifier"].split("|") if annot["qualifier"] is not None else "",
-                                         "aspect": "D",
-                                         "relation": {"id": None},
-                                         "negated": False,
-                                         "evidence": {
-                                             "type": annot["ecodes"][0],
-                                             "has_supporting_reference": "",
-                                             "with_support_from": [],
-                                             "provided_by": annot["dataProvider"],
-                                             "date": None
-                                             }
-                                         })
-        for gene_annotations in do_annotations_allele:
-            for annot in gene_annotations:
-                inferred_genes = self.get_inferred_genes_for_allele(annot["primaryId"])
-                if len(inferred_genes) == 1 and annot and "doId" in annot and self.do_ontology.has_node(annot["doId"]) \
-                        and not self.do_ontology.is_obsolete(annot["doId"]):
-                    associations.append({"source_line": "",
-                                         "subject": {
-                                             "id": inferred_genes[0].id,
-                                             "label": annot["diseaseObjectName"],
-                                             "type": annot["diseaseObjectType"],
-                                             "fullname": "",
-                                             "synonyms": [],
-                                             "taxon": {"id": ""}
-
-                                         },
-                                         "object": {
-                                             "id": annot["doId"],
-                                             "taxon": ""
-                                         },
-                                         "qualifiers":
-                                             annot["qualifier"].split("|") if annot["qualifier"] is not None else "",
-                                         "aspect": "D",
-                                         "relation": {"id": None},
-                                         "negated": False,
-                                         "evidence": {
-                                             "type": annot["ecodes"][0],
-                                             "has_supporting_reference": "",
-                                             "with_support_from": [],
-                                             "provided_by": annot["dataProvider"],
-                                             "date": None
-                                         }
-                                         })
-        return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=self.do_ontology)
+    def add_go_component_sentence_and_set_final_stats(self, go_sent_generator, go_sent_generator_exp,
+                                                      gene_desc: GeneDesc, joined_sent):
+        colocalizes_with_raw_comp_sent = go_sent_generator.get_sentences(
+            aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
+            keep_only_best_group=True, **self.go_sent_common_props)
+        if colocalizes_with_raw_comp_sent:
+            raw_comp_sent = go_sent_generator_exp.get_sentences(aspect='C', merge_groups_with_same_prefix=True,
+                                                                keep_only_best_group=True,
+                                                                **self.go_sent_common_props)
+        else:
+            raw_comp_sent = go_sent_generator.get_sentences(aspect='C', merge_groups_with_same_prefix=True,
+                                                            keep_only_best_group=True, **self.go_sent_common_props)
+        comp_sent = " and ".join([sentence.text for sentence in raw_comp_sent])
+        if comp_sent:
+            joined_sent.append(comp_sent)
+            gene_desc.go_component_description = comp_sent
+            if not gene_desc.go_description:
+                gene_desc.go_description = comp_sent
+            else:
+                gene_desc.go_description += " " + comp_sent
+        colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in colocalizes_with_raw_comp_sent])
+        if colocalizes_with_comp_sent:
+            joined_sent.append(colocalizes_with_comp_sent)
+            if not gene_desc.go_component_description:
+                gene_desc.go_component_description = colocalizes_with_comp_sent
+            else:
+                gene_desc.go_component_description += "; " + colocalizes_with_comp_sent
+            if not gene_desc.go_description:
+                gene_desc.go_description = colocalizes_with_comp_sent
+            else:
+                gene_desc.go_description += "; " + colocalizes_with_comp_sent
+        gene_desc.stats.set_final_go_ids_c = list(set().union([term_id for sentence in raw_comp_sent for
+                                                               term_id in sentence.terms_ids],
+                                                              [term_id for sentence in
+                                                               colocalizes_with_raw_comp_sent for
+                                                               term_id in sentence.terms_ids]))
+        gene_desc.stats.set_final_experimental_go_ids_c = list(
+            set().union([term_id for sentence in raw_comp_sent for
+                         term_id in sentence.terms_ids if
+                         sentence.evidence_group.startswith("EXPERIMENTAL")],
+                        [term_id for sentence in colocalizes_with_raw_comp_sent for
+                         term_id in sentence.terms_ids if
+                         sentence.evidence_group.startswith("EXPERIMENTAL")]))
 
     @staticmethod
-    def query_db(db_graph, query: str, parameters: Dict = None):
-        with db_graph.session() as session:
-            with session.begin_transaction() as tx:
-                return_set = tx.run(query, parameters=parameters)
-        return return_set
+    def set_merged_go_description(gene_desc, joined_sent):
+        if len(joined_sent) > 0:
+            desc = "; ".join(joined_sent) + "."
+            if len(desc) > 0:
+                gene_desc.go_description = desc[0].upper() + desc[1:]
+            else:
+                gene_desc.go_description = None
+        else:
+            gene_desc.go_description = None
 
-    def get_gene_data_from_neo4j(self, data_provider):
-        db_query = "match (g:Gene) where g.dataProvider = {dataProvider} return g.symbol, g.primaryKey"
-        result_set = self.query_db(db_graph=self.graph, query=db_query,
-                                   parameters={"dataProvider": data_provider})
-        for result in result_set:
-            yield Gene(result["g.primaryKey"], result["g.symbol"], False, False)
+    def add_do_sentence_and_set_stats(self, df: DataFetcher, human, gene_desc: GeneDesc, joined_sent, gene):
+        # This module contains two sub modules for disease and disease via orthology data, each of which is treated as
+        # a separate module with different parameters
+        prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
+        if human:
+            prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
+        do_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
+                                                     priority_list=self.conf_parser.get_do_annotations_priority())
+        do_sentence_generator = SentenceGenerator(
+            annotations=do_annotations, ontology=df.do_ontology,
+            evidence_groups_priority_list=self.conf_parser.get_do_evidence_groups_priority_list(),
+            prepostfix_sentences_map=prepostfix_sent_map,
+            prepostfix_special_cases_sent_map=None,
+            evidence_codes_groups_map=self.conf_parser.get_do_evidence_codes_groups_map())
 
-    def get_inferred_genes_for_allele(self, allele_primary_key):
-        db_query = "match (o:Feature)-[:IS_ALLELE_OF]-(g:Gene) where o.primaryKey = {allelePrimaryKey} return " \
-                   "g.symbol, g.primaryKey"
-        result_set = self.query_db(db_graph=self.graph, query=db_query,
-                                   parameters={"allelePrimaryKey": allele_primary_key})
-        return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
+        raw_disease_sent = do_sentence_generator.get_sentences(aspect='D', merge_groups_with_same_prefix=True,
+                                                               keep_only_best_group=False,
+                                                               **self.do_sent_common_props)
+        disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent])
 
-    def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, data_provider,
-                              cached_data_fetcher, human=False) -> DataFetcher:
+        # Disease via orthology module
+        prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map()
+        if human:
+            prepostfix_sent_map = self.conf_parser.get_do_via_orth_prepostfix_sentences_map_humans()
+        do_via_orth_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
+                                                              priority_list=self.conf_parser.
+                                                              get_do_via_orth_annotations_priority())
+        do_via_orth_sentence_generator = SentenceGenerator(
+            annotations=do_via_orth_annotations, ontology=df.do_ontology,
+            evidence_groups_priority_list=self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
+            prepostfix_sentences_map=prepostfix_sent_map,
+            prepostfix_special_cases_sent_map=None,
+            evidence_codes_groups_map=self.conf_parser.get_do_via_orth_evidence_codes_groups_map())
+
+        raw_disease_via_orth_sent = do_via_orth_sentence_generator.get_sentences(aspect='D',
+                                                                                 merge_groups_with_same_prefix=True,
+                                                                                 keep_only_best_group=False,
+                                                                                 **self.do_via_orth_sent_common_props)
+        disease_via_orth_sent = "; ".join([sentence.text for sentence in raw_disease_via_orth_sent])
+        dis_sent_arr = []
+        if len(disease_sent) > 0:
+            dis_sent_arr.append(disease_sent)
+        if len(disease_via_orth_sent) > 0:
+            dis_sent_arr.append(disease_via_orth_sent)
+        complete_disease_sent = "; ".join(dis_sent_arr)
+        if complete_disease_sent and len(complete_disease_sent) > 0:
+            gene_desc.do_description = complete_disease_sent[0].upper() + complete_disease_sent[1:]
+            joined_sent.append(complete_disease_sent)
+        else:
+            gene_desc.do_description = None
+        gene_desc.stats.total_number_do_annotations = len(do_annotations) + len(do_via_orth_annotations)
+        gene_desc.stats.set_initial_do_ids = [term_id for terms in do_sentence_generator.terms_groups.values() for
+                                              tvalues in terms.values() for term_id in tvalues]
+        gene_desc.stats.set_initial_do_ids.extend([term_id for terms in
+                                                   do_via_orth_sentence_generator.terms_groups.values() for
+                                                   tvalues in terms.values() for term_id in tvalues])
+        gene_desc.stats.set_final_do_ids = [term_id for sentence in raw_disease_sent for term_id in
+                                            sentence.terms_ids]
+        gene_desc.stats.set_final_do_ids.extend([term_id for sentence in raw_disease_sent for term_id in
+                                                 sentence.terms_ids])
+        experimental_disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent if
+                                               sentence.evidence_group == "EXPERIMENTAL"])
+        if experimental_disease_sent:
+            gene_desc.do_experimental_description = experimental_disease_sent
+        biomarker_disease_sent = "; ".join([sentence.text for sentence in raw_disease_sent if
+                                            sentence.evidence_group == "BIOMARKER"])
+        if biomarker_disease_sent:
+            gene_desc.do_biomarker_description = biomarker_disease_sent
+        orthology_disease_sent = "; ".join([sentence.text for sentence in raw_disease_via_orth_sent if
+                                            sentence.evidence_group == "ORTHOLOGY_BASED"])
+        if orthology_disease_sent:
+            gene_desc.do_orthology_description = orthology_disease_sent
+        if "(multiple)" in complete_disease_sent:
+            gene_desc.stats.number_final_do_term_covering_multiple_initial_do_terms = \
+                complete_disease_sent.count("(multiple)")
+
+    @staticmethod
+    def add_orthology_sentence_and_set_stats(gene_orthologs, gene_best_orthologs, gene, gene_desc: GeneDesc,
+                                             joined_sent):
+        best_orthologs_ids = [orth[0] for orth in gene_best_orthologs[gene.id]] if gene.id in gene_best_orthologs \
+            else []
+        best_orthologs = [[orth[0][5:], *orth[1:]] for orth in gene_best_orthologs[gene.id]] if \
+            gene.id in gene_best_orthologs else []
+        gene_desc.stats.set_best_orthologs = best_orthologs_ids
+        excluded_orthologs = True
+        if gene.id in gene_orthologs and gene.id in gene_best_orthologs:
+            if len(gene_orthologs[gene.id]) == len(gene_best_orthologs[gene.id]):
+                excluded_orthologs = False
+        if len(best_orthologs) > 0:
+            orth_sent = generate_orthology_sentence_alliance_human(best_orthologs, excluded_orthologs)
+            if orth_sent:
+                joined_sent.append(orth_sent)
+                gene_desc.orthology_description = orth_sent
+
+    def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, ortho_data, data_provider,
+                              cached_data_fetcher, go_ontology_url, go_association_url,
+                              do_ontology_url, do_association_url, human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
-        desc_writer = Neo4jGDWriter()
+        json_desc_writer = Neo4jGDWriter()
         if cached_data_fetcher:
             df = cached_data_fetcher
         else:
@@ -195,73 +313,43 @@ class GeneDescGenerator(object):
                             terms_replacement_regex=self.conf_parser.get_go_rename_terms())
             df.set_ontology(ontology_type=DataType.DO, ontology=self.do_ontology, terms_replacement_regex=None)
         df.set_associations(associations_type=DataType.GO,
-                            associations=self.get_go_associations_from_loader_object(go_annotations),
+                            associations=get_go_associations_from_loader_object(go_annotations, self.go_ontology),
                             exclusion_list=self.conf_parser.get_go_terms_exclusion_list())
         df.set_associations(associations_type=DataType.DO,
-                            associations=self.get_do_associations_from_loader_object(do_annotations,
-                                                                                     do_annotations_allele),
+                            associations=get_do_associations_from_loader_object(do_annotations, do_annotations_allele,
+                                                                                self.do_ontology, self.graph,
+                                                                                data_provider),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
-        for gene in self.get_gene_data_from_neo4j(data_provider=data_provider):
+        orthologs = get_orthologs_from_loader_object(ortho_data, data_provider, self.graph)
+        best_orthologs = get_best_orthologs_for_genes_in_dict(orthologs)
+        for gene in get_gene_data_from_neo4j(data_provider=data_provider, graph=self.graph):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
+            go_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
+                                                         priority_list=self.conf_parser.get_go_annotations_priority())
+            go_sent_gen_common_props_exp = self.go_sent_gen_common_props.copy()
+            go_sent_gen_common_props_exp["evidence_codes_groups_map"] = {
+                evcode: group for evcode, group in self.go_sent_gen_common_props["evidence_codes_groups_map"].items() if
+                "EXPERIMENTAL" in self.go_sent_gen_common_props["evidence_codes_groups_map"][evcode]}
+            go_sent_generator_exp = SentenceGenerator(annotations=go_annotations, ontology=df.go_ontology,
+                                                      **go_sent_gen_common_props_exp)
             go_sent_generator = SentenceGenerator(
-                annotations=df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
-                                                        priority_list=self.conf_parser.get_go_annotations_priority()),
-                ontology=df.go_ontology, **self.go_sent_gen_common_props)
-
-            func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='F', merge_groups_with_same_prefix=True, keep_only_best_group=True, )])
-            if func_sent:
-                joined_sent.append(func_sent)
-            contributes_to_func_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='F', qualifier='contributes_to', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, **self.go_sent_common_props)])
-            if contributes_to_func_sent:
-                joined_sent.append(contributes_to_func_sent)
-            proc_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='P', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                **self.go_sent_common_props)])
-            if proc_sent:
-                joined_sent.append(proc_sent)
-            comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='C', merge_groups_with_same_prefix=True, keep_only_best_group=True,
-                **self.go_sent_common_props)])
-            if comp_sent:
-                joined_sent.append(comp_sent)
-            colocalizes_with_comp_sent = " and ".join([sentence.text for sentence in go_sent_generator.get_sentences(
-                aspect='C', qualifier='colocalizes_with', merge_groups_with_same_prefix=True,
-                keep_only_best_group=True, **self.go_sent_common_props)])
-            if colocalizes_with_comp_sent:
-                joined_sent.append(colocalizes_with_comp_sent)
-
-            if len(joined_sent) > 0:
-                desc = "; ".join(joined_sent) + "."
-                if len(desc) > 0:
-                    gene_desc.go_description = desc[0].upper() + desc[1:]
-                else:
-                    gene_desc.go_description = None
-            else:
-                gene_desc.go_description = None
-
-            prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map()
-            if human:
-                prepostfix_sent_map = self.conf_parser.get_do_prepostfix_sentences_map_humans()
-            do_sentence_generator = SentenceGenerator(
-                df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.DO,
-                                            priority_list=self.conf_parser.get_do_annotations_priority()),
-                ontology=df.do_ontology,
-                evidence_groups_priority_list=self.conf_parser.get_do_evidence_groups_priority_list(),
-                prepostfix_sentences_map=prepostfix_sent_map,
-                prepostfix_special_cases_sent_map=None,
-                evidence_codes_groups_map=self.conf_parser.get_do_evidence_codes_groups_map())
-            disease_sent = "; ".join([sentence.text for sentence in do_sentence_generator.get_sentences(
-                aspect='D', merge_groups_with_same_prefix=True, keep_only_best_group=False,
-                **self.do_sent_common_props)])
-            if disease_sent and len(disease_sent) > 0:
-                gene_desc.disease_description = disease_sent[0].upper() + disease_sent[1:]
-                joined_sent.append(disease_sent)
-            else:
-                gene_desc.disease_description = None
+                annotations=go_annotations, ontology=df.go_ontology, **self.go_sent_gen_common_props)
+            self.set_initial_go_stats(gene_desc=gene_desc, go_annotations=go_annotations,
+                                      go_sent_generator=go_sent_generator, go_sent_generator_exp=go_sent_generator_exp)
+            self.add_go_function_sentence_and_set_final_stats(go_sent_generator=go_sent_generator,
+                                                              go_sent_generator_exp=go_sent_generator_exp,
+                                                              gene_desc=gene_desc, joined_sent=joined_sent)
+            self.add_go_process_sentence_and_set_final_stats(go_sent_generator=go_sent_generator,
+                                                             gene_desc=gene_desc, joined_sent=joined_sent)
+            self.add_go_component_sentence_and_set_final_stats(go_sent_generator=go_sent_generator,
+                                                               go_sent_generator_exp=go_sent_generator_exp,
+                                                               gene_desc=gene_desc, joined_sent=joined_sent)
+            self.set_merged_go_description(gene_desc=gene_desc, joined_sent=joined_sent)
+            self.add_do_sentence_and_set_stats(df=df, human=human, gene_desc=gene_desc, joined_sent=joined_sent,
+                                               gene=gene)
+            self.add_orthology_sentence_and_set_stats(gene_orthologs=orthologs, gene_best_orthologs=best_orthologs,
+                                                      gene=gene, gene_desc=gene_desc, joined_sent=joined_sent)
 
             if len(joined_sent) > 0:
                 desc = "; ".join(joined_sent) + "."
@@ -271,7 +359,36 @@ class GeneDescGenerator(object):
                     gene_desc.description = None
             else:
                 gene_desc.description = None
-            desc_writer.add_gene_desc(gene_desc)
+            if (not human and not gene.id.startswith("HGNC")) or (human and gene.id.startswith("HGNC")):
+                json_desc_writer.add_gene_desc(gene_desc)
 
-        desc_writer.write(self.graph)
+        json_desc_writer.write_neo4j(self.graph)
+        if "GENERATE_REPORTS" in os.environ and (os.environ["GENERATE_REPORTS"] == "True"
+                                                 or os.environ["GENERATE_REPORTS"] == "true" or
+                                                 os.environ["GENERATE_REPORTS"] == "pre-release"):
+            gd_file_name = data_provider
+            if human:
+                gd_file_name = "HUMAN"
+            if "RELEASE" in os.environ:
+                release_version = ".".join(os.environ["RELEASE"].split(".")[0:2])
+            else:
+                release_version = "no-version"
+            json_desc_writer.overall_properties.species = gd_file_name
+            json_desc_writer.overall_properties.release_version = release_version
+            json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")
+            json_desc_writer.overall_properties.go_ontology_url = go_ontology_url
+            json_desc_writer.overall_properties.go_association_url = go_association_url
+            json_desc_writer.overall_properties.do_ontology_url = do_ontology_url
+            json_desc_writer.overall_properties.do_association_url = do_association_url
+            file_name = gd_file_name + "_gene_desc_" + datetime.date.today().strftime("%Y-%m-%d") + ".json"
+            file_path = "tmp/" + file_name
+            json_desc_writer.write_json(file_path=file_path, pretty=True, include_single_gene_stats=True)
+            client = boto3.client('s3', aws_access_key_id=os.environ['AWS_ACCESS_KEY'],
+                                  aws_secret_access_key=os.environ['AWS_SECRET_KEY'])
+            if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true":
+                client.upload_file(file_path, "agr-db-reports", "gene-descriptions/" + release_version + "/" +
+                                   file_name)
+            elif os.environ["GENERATE_REPORTS"] == "pre-release":
+                client.upload_file(file_path, "agr-db-reports", "gene-descriptions/" + release_version +
+                                   "/pre-release/" + file_name)
         return df

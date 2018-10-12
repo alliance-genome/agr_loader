@@ -1,5 +1,6 @@
 import os
 import gc
+from genedescriptions.data_fetcher import DataFetcher
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
@@ -21,10 +22,7 @@ from extractors.obo_ext import OExt
 from extractors.obo_ext_old import ObExto
 import time
 from neo4j.v1 import GraphDatabase
-from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
 from test import TestObject
-from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
 import logging
 
@@ -303,7 +301,7 @@ class AggregateLoader(object):
             logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
 
-            logger.info("generate gene descriptions for %s." % mod.__class__.__name__)
+            logger.info("Generating gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
                     go_annotations=go_annots,
@@ -311,8 +309,13 @@ class AggregateLoader(object):
 
                     do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
                                                                           self.graph, mod.species),
+                    ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human))
+                    human=isinstance(mod, Human),
+                    go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
+                    go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
+                    do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
+                    do_association_url="")
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")
