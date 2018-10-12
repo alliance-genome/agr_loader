@@ -155,6 +155,7 @@ class MolIntExt(object):
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
             xref_dict['page'] = page
+            xref_dict['reference_uuid'] = None # For association interactions (later).
 
             xref_main_list.append(xref_dict)
 
@@ -214,13 +215,13 @@ class MolIntExt(object):
             if entry_stripped.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'WB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return prefixed_identifier
+                    return [prefixed_identifier] # Always return a list for later processing.
                 else:
                     return None
             elif entry_stripped.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
                 prefixed_identifier = 'FB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return prefixed_identifier
+                    return [prefixed_identifier] # Always return a list for later processing.
                 else:
                     return None
 
@@ -246,6 +247,7 @@ class MolIntExt(object):
         TARFile(path, filename_comp).extract_all()
 
         list_to_yield = []
+        xref_list_to_yield = []
 
         # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
@@ -374,8 +376,8 @@ class MolIntExt(object):
                     'pub_med_url' : publication_url,
                     'uuid' : None,
                     'source_database' : source_database,
-                    'aggregation_database' :  aggregation_database,
-                    'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
+                    'aggregation_database' :  aggregation_database
+                    #'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
                 }
 
                 # Get every possible combination of interactor A x interactor B (if multiple ids resulted from resolving the identifier.)
@@ -386,21 +388,27 @@ class MolIntExt(object):
 
                 resolved_a_b_count += 1 # Tracking successfully resolved identifiers.
 
+                for dataset_entry in list_of_mol_int_dataset:
+                    for identifier_linkout in identifier_linkout_list:
+                        identifier_linkout['reference_uuid'] = dataset_entry['uuid'] # Reference the xrefs to each mol_int dataset.
+
                 # Establishes the number of entries to yield (return) at a time.
+                xref_list_to_yield.extend(identifier_linkout_list)
                 list_to_yield.extend(list_of_mol_int_dataset)
                 if len(list_to_yield) >= batch_size: # We're possibly extending by more than one at a time, need to add 'greater than'.
-                    yield list_to_yield
+                    yield list_to_yield, xref_list_to_yield
                     list_to_yield[:] = []  # Empty the list.
+                    xref_list_to_yield[:] = []  # Empty the list.
 
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+            if len(list_to_yield) > 0 or len(xref_list_to_yield) > 0:
+                yield list_to_yield, xref_list_to_yield
 
         # TODO Change this to log printing and clean up the set output.
-        logger.info('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
+        logger.info('Resolved identifiers for %s interactions' % resolved_a_b_count)
         logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        logger.info('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
+        logger.info('Could not resolve [and subsequently will not load] %s interactions' % unresolved_a_b_count)
         logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
 

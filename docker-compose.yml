@@ -7,7 +7,7 @@ services:
     volumes:
       - dbstore:/data
       - dbstore:/logs
-      - app-volume:/var/lib/neo4j/import
+      - agr_data_share:/var/lib/neo4j/import
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -15,6 +15,7 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096m
+      - NEO4J_dbms_memory_heap_initialSize=4096m
 
   neo4j.qc:
     container_name: neo4j.qc
@@ -22,7 +23,7 @@ services:
     volumes:
       - dbstore:/data
       - dbstore:/logs
-      - app-volume:/var/lib/neo4j/import
+      - agr_data_share:/var/lib/neo4j/import
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -30,11 +31,12 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096m
+      - NEO4J_dbms_memory_heap_initialSize=4096m
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
     volumes:
-      - app-volume:/var/lib/neo4j/import
+      - agr_data_share:/usr/src/app/tmp
     networks:
       - esnet
     environment:
@@ -46,7 +48,7 @@ services:
   agr_loader_test:
     image: agrdocker/agr_loader_run:latest
     volumes:
-      - app-volume:/var/lib/neo4j/import
+      - agr_data_share:/usr/src/app/tmp
     networks:
       - esnet
     environment:
@@ -60,5 +62,4 @@ networks:
 
 volumes:
   dbstore:
-    driver: local
-  app-volume:
+  agr_data_share:
