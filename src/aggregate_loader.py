@@ -1,4 +1,4 @@
-import os, csv
+import os, csv, time
 import gc
 from loaders import *
 from loaders.transactions import *
@@ -337,7 +337,9 @@ class AggregateLoader(object):
                 for mol_int_list_of_entries, mol_int_xref_entries in mol_int_data:
                     interactions_writer.writerows(mol_int_list_of_entries)
                     xref_int_writer.writerows(mol_int_xref_entries)
-
+                    
+            logger.info('Sleeping for 10 seconds.')
+            time.sleep(10)
             logger.info('Loading interactions into Neo4j via CSV.')
             MolIntLoader(self.graph).load_mol_int()
             logger.info('Finished loading interactions into Neo4j via CSV.')
