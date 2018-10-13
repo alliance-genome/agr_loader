@@ -37,7 +37,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        #self.mods = [ZFIN()]
+        #self.mods = [RGD()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -266,8 +266,8 @@ class AggregateLoader(object):
                                                                               list(batch[11]),
                                                                               list(batch[12]),
                                                                               mod.species)
-
-
+            #
+            #
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
                 for feature_list_of_entries in features:
