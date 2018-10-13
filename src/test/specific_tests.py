@@ -264,9 +264,21 @@ def test_crip2_has_cardiac_neural_crest():
         assert record["counter"] == 1
 
 
-# def test_feature_has_mod_url():
-#     query = "MATCH (feature:Feature) where not feature.modCrossRefCompleteUrl =~ 'http.*' " \
-#             "return count(feature) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] < 1
+def test_expression_gocc_other_term_for_specific_gene_exists():
+    query = "match (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm), " \
+            "(ebe)-[cr:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm) where g.primaryKey = 'RGD:2129' " \
+            "and ebe.whereExpressedStatement = 'vesicle lumen' and got.primaryKey = 'GO:otherLocations' " \
+            "return count(got)"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_expression_gocc_term_for_specific_gene_exists():
+    query = "match (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm) " \
+            "where g.primaryKey = 'RGD:2129' " \
+            "and ebe.whereExpressedStatement = 'vesicle lumen'" \
+            "return count(go)"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
