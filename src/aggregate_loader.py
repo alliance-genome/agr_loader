@@ -338,9 +338,6 @@ class AggregateLoader(object):
                     interactions_writer.writerows(mol_int_list_of_entries)
                     xref_int_writer.writerows(mol_int_xref_entries)
 
-            logger.info('Changing permissions on CSV files.')
-            os.chmod('tmp/interactions.csv', 0o777)
-            os.chmod('tmp/xref_interactions.csv', 0o777)
             logger.info('Loading interactions into Neo4j via CSV.')
             MolIntLoader(self.graph).load_mol_int()
             logger.info('Finished loading interactions into Neo4j via CSV.')
