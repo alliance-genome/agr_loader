@@ -68,7 +68,7 @@ class MolIntTransaction(Transaction):
             LOAD CSV WITH HEADERS FROM \'file:///xref_interactions.csv\' AS row
 
             // This needs to be a MERGE below.
-            MATCH (oa:InteractionGeneJoin) WHERE oa.uuid = row.reference_uuid
+            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.uuid = row.reference_uuid
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     ON CREATE SET id.name = row.name,
                         id.globalCrossRefId = row.globalCrossRefId,
