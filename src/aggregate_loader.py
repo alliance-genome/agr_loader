@@ -36,8 +36,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        #self.mods = [ZFIN()]
+        #self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
+        self.mods = [RGD()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -76,11 +76,11 @@ class AggregateLoader(object):
         GOLoader(self.graph).load_go(self.go_dataset)
         # Does not get cleared because its used later self.go_dataset.clear()
 
-        logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
-        logger.info("Loading DO data into Neo4j.")
-        DOLoader(self.graph).load_do(self.do_dataset)
-        # Does not get cleared because its used later self.do_dataset.clear()
+        # logger.info("Extracting DO data.")
+        # self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
+        # logger.info("Loading DO data into Neo4j.")
+        # DOLoader(self.graph).load_do(self.do_dataset)
+        # # Does not get cleared because its used later self.do_dataset.clear()
 
         logger.info("Downloading MI data.")
         self.mi_dataset = MIExt().get_data()
@@ -220,12 +220,12 @@ class AggregateLoader(object):
                                                list(gene_batch[4]))
 
         this_dir = os.path.split(__file__)[0]
-        #initialize gene description generator from config file
-        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
-                                                                          "genedesc_config.yml"),
-                                               go_ontology=self.go_dataset, do_ontology=self.do_dataset,
-                                               graph_db=self.graph)
-        cached_data_fetcher = None
+        # #initialize gene description generator from config file
+        # genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
+        #                                                                   "genedesc_config.yml"),
+        #                                        go_ontology=self.go_dataset, do_ontology=self.do_dataset,
+        #                                        graph_db=self.graph)
+        # cached_data_fetcher = None
 
         for mod in self.mods:
 
@@ -266,56 +266,56 @@ class AggregateLoader(object):
                                                                               list(batch[11]),
                                                                               list(batch[12]),
                                                                               mod.species)
-
-
-                logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-                features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
-                for feature_list_of_entries in features:
-                    DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
-
-            logger.info("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-
-            logger.info("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
-            phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
-            for pheno_list_of_entries in phenos:
-                PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
-
-            logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
-            ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            for ortholog_batch in ortholog_data:
-                OrthoLoader(self.graph).load_ortho(list(ortholog_batch[0]),
-                                                   list(ortholog_batch[1]),
-                                                   list(ortholog_batch[2]),
-                                                   list(ortholog_batch[3]))
-
-            logger.info("Extracting GO annotations for %s." % mod.__class__.__name__)
-            go_annots = mod.extract_go_annots(self.testObject)
-            logger.info("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
-            GOAnnotLoader(self.graph).load_go_annot(go_annots)
-
-            logger.info("Extracting GEO annotations for %s." % mod.__class__.__name__)
-            geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
-            logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
-            GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-
-            logger.info("Generating gene descriptions for %s." % mod.__class__.__name__)
-            if mod.dataProvider:
-                cached_data_fetcher = genedesc_generator.generate_descriptions(
-                    go_annotations=go_annots,
-                    do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
-
-                    do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
-                                                                          self.graph, mod.species),
-                    ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
-                    data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human),
-                    go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
-                    go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
-                    do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
-                    do_association_url="")
+            #
+            #
+            #     logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+            #     features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
+            #     for feature_list_of_entries in features:
+            #         DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
+            #
+            # logger.info("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
+            # features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
+            # for feature_list_of_entries in features:
+            #     DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
+            #
+            # logger.info("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
+            # phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
+            # for pheno_list_of_entries in phenos:
+            #     PhenotypeLoader(self.graph).load_phenotype_objects(pheno_list_of_entries, mod.species)
+            #
+            # logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
+            # ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
+            # for ortholog_batch in ortholog_data:
+            #     OrthoLoader(self.graph).load_ortho(list(ortholog_batch[0]),
+            #                                        list(ortholog_batch[1]),
+            #                                        list(ortholog_batch[2]),
+            #                                        list(ortholog_batch[3]))
+            #
+            # logger.info("Extracting GO annotations for %s." % mod.__class__.__name__)
+            # go_annots = mod.extract_go_annots(self.testObject)
+            # logger.info("Loading GO annotations for %s into Neo4j." % mod.__class__.__name__)
+            # GOAnnotLoader(self.graph).load_go_annot(go_annots)
+            #
+            # logger.info("Extracting GEO annotations for %s." % mod.__class__.__name__)
+            # geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
+            # logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
+            # GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
+            #
+            # logger.info("Generating gene descriptions for %s." % mod.__class__.__name__)
+            # if mod.dataProvider:
+            #     cached_data_fetcher = genedesc_generator.generate_descriptions(
+            #         go_annotations=go_annots,
+            #         do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+            #
+            #         do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
+            #                                                               self.graph, mod.species),
+            #         ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
+            #         data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
+            #         human=isinstance(mod, Human),
+            #         go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
+            #         go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
+            #         do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
+            #         do_association_url="")
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")

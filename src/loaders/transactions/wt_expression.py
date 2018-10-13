@@ -384,10 +384,8 @@ class WTExpressionTransaction(Transaction):
     def retrieve_gocc_ribbonless_ebes(self):
 
         ribbonless_ebes = """
-            MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(goterm:GOTerm:Ontology)
-            OPTIONAL MATCH (ebe)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(goribbon:GOTerm:Ontology)
-            WHERE r is null
-            RETURN ebe.primaryKey            
+            MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
+            WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey;           
         """
         returnSet = Transaction.run_single_query(self, ribbonless_ebes)
 
