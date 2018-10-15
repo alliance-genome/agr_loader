@@ -6,16 +6,18 @@ class MolIntTransaction(Transaction):
         Transaction.__init__(self, graph)
         self.batch_size = 3000
 
-    def mol_int_tx(self, data):
+    def mol_int_tx(self):
         '''
         Loads the Molecular Interaction data into Neo4j.
 
         '''
         query = """
-            UNWIND $data as row 
+            USING PERIODIC COMMIT 10000
+            LOAD CSV WITH HEADERS FROM \'file:///interactions.csv\' AS row
 
             MATCH (g1:Gene {primaryKey:row.interactor_A})
             MATCH (g2:Gene {primaryKey:row.interactor_B})
+
             MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
             MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
             MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
@@ -37,8 +39,8 @@ class MolIntTransaction(Transaction):
 
             //Create the publication nodes and link them to the Association node.
             MERGE (pn:Publication {primaryKey:row.pub_med_id})
-                SET pn.pubMedUrl = row.pub_med_url
-                SET pn.pubMedId = row.pub_med_id
+                ON CREATE SET pn.pubMedUrl = row.pub_med_url,
+                pn.pubMedId = row.pub_med_id
             CREATE (oa)-[ev:EVIDENCE]->(pn)
 
             //Link detection method to the MI ontology.
@@ -59,24 +61,27 @@ class MolIntTransaction(Transaction):
             //Link interaction type to the MI ontology.
             CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
 
+            """
+
+        xref_query = """
+            USING PERIODIC COMMIT 10000
+            LOAD CSV WITH HEADERS FROM \'file:///xref_interactions.csv\' AS row
+
             // This needs to be a MERGE below.
-            WITH oa, row.interactor_id_and_linkout AS events
-                UNWIND events AS event
-                    MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
-                        SET id.name = event.name,
-                         id.globalCrossRefId = event.globalCrossRefId,
-                         id.localId = event.localId,
-                         id.crossRefCompleteUrl = event.crossRefCompleteUrl,
-                         id.prefix = event.prefix,
-                         id.crossRefType = event.crossRefType,
-                         id.uuid = event.uuid,
-                         id.page = event.page,
-                         id.primaryKey = event.primaryKey,
-                         id.displayName = event.displayName
+            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.name,
+                        id.globalCrossRefId = row.globalCrossRefId,
+                        id.localId = row.localId,
+                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                        id.prefix = row.prefix,
+                        id.crossRefType = row.crossRefType,
+                        id.uuid = row.uuid,
+                        id.page = row.page,
+                        id.primaryKey = row.primaryKey,
+                        id.displayName = row.displayName
 
-                    MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
+                MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
 
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-
-        # Transaction.execute_transaction(self, query, data)
-        # Transaction.execute_transaction(self, crossReferenceQuery, data)
+        Transaction.load_csv_data(self, query)
+        Transaction.load_csv_data(self, xref_query)

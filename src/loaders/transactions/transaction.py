@@ -24,6 +24,10 @@ class Transaction(object):
                 returnSet = tx.run(query)
         return returnSet
 
+    def load_csv_data(self, query):
+        with self.graph.session() as session:
+            session.run(query)
+
     def run_single_parameter_query(self, query, parameter):
         with self.graph.session() as session:
             with session.begin_transaction() as tx:
