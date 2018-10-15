@@ -282,3 +282,12 @@ def test_expression_gocc_term_for_specific_gene_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
+
+
+def test_gocc_other_has_type():
+    query = "match (go:GOTerm) where go.subset = 'goslim_agr' and go.type = 'other'" \
+            "return count(go) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+

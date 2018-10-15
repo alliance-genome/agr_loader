@@ -31,6 +31,7 @@ class WTExpressionTransaction(Transaction):
                 ON CREATE SET othergo.name = 'other locations'
                 ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
                 ON CREATE SET othergo.type = 'other'
+                ON CREATE SET othergo.subset = 'goslim_agr'
                 
         """
 

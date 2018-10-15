@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class UrlService(object):
 
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
@@ -32,7 +33,7 @@ class UrlService(object):
                     individualStanzaMap = rdstanza[prefix]
 
                     defaultUrlPrefix = individualStanzaMap["default_url_prefix"]
-                    defaultUrlSuffix= individualStanzaMap["default_url_suffix"]
+                    defaultUrlSuffix = individualStanzaMap["default_url_suffix"]
 
                     completeUrl = defaultUrlPrefix + localId + defaultUrlSuffix
 
