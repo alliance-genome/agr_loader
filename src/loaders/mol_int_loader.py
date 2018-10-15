@@ -5,6 +5,6 @@ class MolIntLoader(object):
     def __init__(self, graph):
         self.graph = graph
 
-    def load_mol_int(self, data):
+    def load_mol_int(self):
         tx = MolIntTransaction(self.graph)
-        tx.mol_int_tx(data)
+        tx.mol_int_tx()
