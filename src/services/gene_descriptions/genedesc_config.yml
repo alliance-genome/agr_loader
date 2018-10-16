@@ -498,6 +498,7 @@ go_sentences_options:
     remove_parents_if_children_are_present: true
     trim_terms_by_common_ancestors: true
     trim_if_more_than_terms: 3
+    max_num_terms: 5
     trim_min_distance_from_root:
         F: 3
         P: 5
@@ -562,7 +563,7 @@ do_sentences_options:
 
     remove_parents_if_children_are_present: true
     trim_terms_by_common_ancestors: true
-    trim_if_more_than_terms: 3
+    trim_if_more_than_terms: 5
     trim_min_distance_from_root:
         D: 4
     do_truncate_others_aggregation_word: several
@@ -582,12 +583,9 @@ do_via_orth_sentences_options:
         - "DOID:0050117"
         - "DOID:0080014"
     evidence_codes:
-        ISS:
+        DVO:
             group: ORTHOLOGY_BASED
             priority: 1
-        IEA:
-            group: ORTHOLOGY_BASED
-            priority: 2
     group_priority:
         ORTHOLOGY_BASED: 1
     do_prepostfix_sentences_map:
