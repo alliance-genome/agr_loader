@@ -266,9 +266,11 @@ class MolIntExt(object):
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
-            next(tsvin, None) # Skip the headers
-
             for row in tsvin:
+                
+                # Skip commented rows.
+                if row[0].startswith('#'):
+                    continue
                 
                 taxon_id_1 = row[9]
                 taxon_id_2 = row[10]
