@@ -269,7 +269,7 @@ class MolIntExt(object):
             for row in tsvin:
                 
                 # Skip commented rows.
-                if row.startswith('#'):
+                if row[0].startswith('#'):
                     continue
                 
                 taxon_id_1 = row[9]
