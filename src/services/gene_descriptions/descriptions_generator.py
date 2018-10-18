@@ -1,6 +1,5 @@
 import datetime
 import os
-from collections import defaultdict
 import boto3
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.data_fetcher import DataFetcher, DataType
@@ -305,8 +304,8 @@ class GeneDescGenerator(object):
                 gene_desc.orthology_description = orth_sent
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, ortho_data, data_provider,
-                              cached_data_fetcher, go_ontology_url, go_association_url,
-                              do_ontology_url, do_association_url, human=False) -> DataFetcher:
+                              cached_data_fetcher, go_ontology_url="", go_association_url="",
+                              do_ontology_url="", do_association_url="", human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
         json_desc_writer = Neo4jGDWriter()
         if cached_data_fetcher:
