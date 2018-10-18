@@ -1,6 +1,5 @@
 import os, csv, time
 import gc
-from genedescriptions.data_fetcher import DataFetcher
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
@@ -311,11 +310,7 @@ class AggregateLoader(object):
                                                                           self.graph, mod.species),
                     ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human),
-                    go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
-                    go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
-                    do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
-                    do_association_url="")
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")

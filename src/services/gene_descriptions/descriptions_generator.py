@@ -1,6 +1,5 @@
 import datetime
 import os
-from collections import defaultdict
 import boto3
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.data_fetcher import DataFetcher, DataType
@@ -35,12 +34,14 @@ class GeneDescGenerator(object):
             "evidence_codes_groups_map": self.conf_parser.get_do_evidence_codes_groups_map()}
         self.do_sent_common_props = {
             "remove_parent_terms": False,
-            "merge_num_terms_threshold": 3,
+            "merge_num_terms_threshold": self.conf_parser.get_do_trim_min_num_terms(),
+            "merge_max_num_terms": self.conf_parser.get_do_max_num_terms(),
             "merge_min_distance_from_root": self.conf_parser.get_do_trim_min_distance_from_root(),
             "truncate_others_generic_word": self.conf_parser.get_do_truncate_others_aggregation_word(),
             "truncate_others_aspect_words": self.conf_parser.get_do_truncate_others_terms(),
             "add_multiple_if_covers_more_children": True,
-            "remove_successive_overlapped_terms": False}
+            "remove_successive_overlapped_terms": False,
+            "blacklisted_ancestors": self.conf_parser.get_do_terms_exclusion_list()}
         self.do_via_orth_sent_gen_common_prop = {
             "evidence_groups_priority_list": self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
             "prepostfix_sentences_map": self.conf_parser.get_do_via_orth_prepostfix_sentences_map(),
@@ -48,12 +49,14 @@ class GeneDescGenerator(object):
             "evidence_codes_groups_map": self.conf_parser.get_do_via_orth_evidence_codes_groups_map()}
         self.do_via_orth_sent_common_props = {
             "remove_parent_terms": False,
-            "merge_num_terms_threshold": 3,
+            "merge_num_terms_threshold": self.conf_parser.get_do_via_orth_trim_min_num_terms(),
+            "merge_max_num_terms": self.conf_parser.get_do_via_orth_max_num_terms(),
             "merge_min_distance_from_root": self.conf_parser.get_do_via_orth_trim_min_distance_from_root(),
             "truncate_others_generic_word": self.conf_parser.get_do_via_orth_truncate_others_aggregation_word(),
             "truncate_others_aspect_words": self.conf_parser.get_do_via_orth_truncate_others_terms(),
             "add_multiple_if_covers_more_children": True,
-            "remove_successive_overlapped_terms": False}
+            "remove_successive_overlapped_terms": False,
+            "blacklisted_ancestors": self.conf_parser.get_do_terms_exclusion_list()}
 
     def create_orthology_sentence(self):
         pass
@@ -301,8 +304,8 @@ class GeneDescGenerator(object):
                 gene_desc.orthology_description = orth_sent
 
     def generate_descriptions(self, go_annotations, do_annotations, do_annotations_allele, ortho_data, data_provider,
-                              cached_data_fetcher, go_ontology_url, go_association_url,
-                              do_ontology_url, do_association_url, human=False) -> DataFetcher:
+                              cached_data_fetcher, go_ontology_url="", go_association_url="",
+                              do_ontology_url="", do_association_url="", human=False) -> DataFetcher:
         # Generate gene descriptions and save to db
         json_desc_writer = Neo4jGDWriter()
         if cached_data_fetcher:
