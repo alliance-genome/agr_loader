@@ -78,6 +78,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
             CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                ON CREATE SET dga.source = "Alliance"
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 CREATE (gene)-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
