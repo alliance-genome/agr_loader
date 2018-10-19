@@ -78,18 +78,19 @@ class GeneDiseaseOrthoTransaction(Transaction):
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
             CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                SET dga.dataProvider = 'Alliance'
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                CREATE (gene)-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
-                        dga.joinType = row.relationshipType)
+                        dga.joinType = 'biomarker_via_orthology')
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                CREATE (gene)-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
-                        dga.joinType = row.relationshipType)
+                        dga.joinType = 'implicated_via_orthology')
 
             CREATE (gene)-[fdag:ASSOCIATION]->(dga)
             CREATE (dga)-[dadg:ASSOCIATION]->(d)
