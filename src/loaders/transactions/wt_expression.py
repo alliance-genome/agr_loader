@@ -371,7 +371,8 @@ class WTExpressionTransaction(Transaction):
 
         gocc_self_ribbon_ebes = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
-            where got.subset = 'goslim_agr'; 
+            where got.subset = 'goslim_agr'
+            return ebe.primaryKey, got.primaryKey; 
         """
 
         returnSet = Transaction.run_single_query(self, gocc_self_ribbon_ebes)
