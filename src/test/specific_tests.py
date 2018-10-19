@@ -298,4 +298,4 @@ def test_gocc_self_ribbon_term_exists():
             "and got.primaryKey = 'GO:0005739' return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] > 0
