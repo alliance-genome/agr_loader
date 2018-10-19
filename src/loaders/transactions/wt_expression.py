@@ -387,7 +387,7 @@ class WTExpressionTransaction(Transaction):
 
         return gocc_self_ribbon_data
 
-    def insert_gocc_self_ribbon_terms(self, gocc_ribbon_data):
+    def insert_gocc_self_ribbon_terms(self, gocc_self_ribbon_data):
 
         expression_gocc_self_ribbon_insert = """
                        UNWIND $data as row
@@ -398,7 +398,7 @@ class WTExpressionTransaction(Transaction):
                        MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                        """
 
-        Transaction.execute_transaction(self, expression_gocc_self_ribbon_insert, gocc_ribbon_data)
+        Transaction.execute_transaction(self, expression_gocc_self_ribbon_insert, gocc_self_ribbon_data)
 
     def insert_gocc_ribbon_terms(self, gocc_ribbon_data):
 
