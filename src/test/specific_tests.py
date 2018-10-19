@@ -299,3 +299,5 @@ def test_gocc_self_ribbon_term_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+def test_gene_to_disease_annotation_has_data_provider():
