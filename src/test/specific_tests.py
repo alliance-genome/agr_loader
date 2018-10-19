@@ -300,4 +300,28 @@ def test_gocc_self_ribbon_term_exists():
     for record in result:
         assert record["counter"] > 0
 
-def test_gene_to_disease_annotation_has_data_provider():
+
+def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
+    query = "match (gene:Gene)-[r:BIOMARKER_VIA_ORTHOLOGY]-(do:DOTerm) " \
+            "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
+    query = "match (gene:Gene)-[r:IMPLICATED_VIA_ORTHOLOGY]-(do:DOTerm) " \
+            "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(ec:EvidenceCode) " \
+            "where ec.primaryKey = 'IEA'" \
+            "and deg.dataProvider = 'Alliance'" \
+            "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
