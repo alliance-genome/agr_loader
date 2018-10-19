@@ -349,8 +349,6 @@ class WTExpressionTransaction(Transaction):
 
     def retrieve_gocc_ribbon_terms(self):
 
-        logger.info("reached the gocc_ribbon_txt code")
-
         expression_gocc_ribbon_retrieve = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
                 where all (subset IN ['goslim_agr'] where subset in slimTerm.subset)
@@ -373,9 +371,7 @@ class WTExpressionTransaction(Transaction):
 
         gocc_self_ribbon_ebes = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
-            WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey,got.primaryKey
-            and got.subset = 'goslim_agr'; 
-
+            where got.subset = 'goslim_agr'; 
         """
 
         returnSet = Transaction.run_single_query(self, gocc_self_ribbon_ebes)
