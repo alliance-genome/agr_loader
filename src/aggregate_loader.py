@@ -1,6 +1,5 @@
 import os, csv, time
 import gc
-from genedescriptions.data_fetcher import DataFetcher
 from loaders import *
 from loaders.transactions import *
 from loaders.allele_loader import *
@@ -37,7 +36,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        #self.mods = [RGD()]
+        #self.mods = [RGD(), ZFIN()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -267,7 +266,7 @@ class AggregateLoader(object):
                                                                               list(batch[12]),
                                                                               mod.species)
             #
-            #
+
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
                 for feature_list_of_entries in features:
@@ -311,11 +310,7 @@ class AggregateLoader(object):
                                                                           self.graph, mod.species),
                     ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human),
-                    go_ontology_url="https://download.alliancegenome.org/GO/go_1.7.obo",
-                    go_association_url="https://download.alliancegenome.org/GO/ANNOT/" + mod.geneAssociationFile,
-                    do_ontology_url="https://download.alliancegenome.org/DO/do_1.7.obo",
-                    do_association_url="")
+                    human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")
@@ -348,12 +343,20 @@ class AggregateLoader(object):
             logger.info("retrieving gocc ribbon terms for all MODs")
             tx = WTExpressionTransaction(self.graph)
             gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms()
+
             logger.info("loading gocc ribbon terms for all MODs")
             tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
+
+            logger.info("loading gocc self ribbon terms for all MODs")
+            gocc_self_ribbon_terms = tx.retrieve_gocc_self_ribbon_terms()
+
+            logger.info("insrting gocc self ribbon terms for all MODs")
+            tx.insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
 
             logger.info("retrieving gocc ribbonless ebes for all MODs")
             tx = WTExpressionTransaction(self.graph)
             gocc_ribbonless_data = tx.retrieve_gocc_ribbonless_ebes()
+
             logger.info("loading gocc ribbonless terms for all MODs")
             tx.insert_ribonless_ebes(gocc_ribbonless_data)
 

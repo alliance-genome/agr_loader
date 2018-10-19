@@ -147,7 +147,7 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
     #                          "relation": {"id": None},
     #                          "negated": False,
     #                          "evidence": {
-    #                              "type": "IEA",
+    #                              "type": "DVO",
     #                              "has_supporting_reference": "",
     #                              "with_support_from": [],
     #                              "provided_by": data_provider,
