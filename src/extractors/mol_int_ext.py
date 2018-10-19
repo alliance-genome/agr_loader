@@ -123,15 +123,6 @@ class MolIntExt(object):
             xref_dict['prefix'] = individual_prefix
             xref_dict['localId'] = individual_body
 
-            if not individual.startswith(tuple(ignored_identifier_database_list)):
-                try: 
-                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
-                    xref_dict['crossRefCompleteUrl'] = individual_url
-                    self.successful_database_linkouts.add(individual_prefix)
-                except KeyError:
-                    self.missed_database_linkouts.add(individual_prefix)
-            else: self.ignored_database_linkouts.add(individual_prefix)
-
             # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
             # TODO Regex to check for FBig in additional_row?
@@ -147,6 +138,15 @@ class MolIntExt(object):
                     logger.critical('Failed identifier: %s' % (individual))
                     logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
+
+            if not individual.startswith(tuple(ignored_identifier_database_list)):
+                try: 
+                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
+                    xref_dict['crossRefCompleteUrl'] = individual_url
+                    self.successful_database_linkouts.add(individual_prefix)
+                except KeyError:
+                    self.missed_database_linkouts.add(individual_prefix)
+            else: self.ignored_database_linkouts.add(individual_prefix)
 
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
