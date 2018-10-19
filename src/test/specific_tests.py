@@ -294,7 +294,7 @@ def test_gocc_other_has_type():
 
 def test_gocc_self_ribbon_term_exists():
     query = "match (gene:Gene)--(ebe:ExpressionBioEntity)-[c:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm) " \
-            "where g.primaryKey = 'ZFIN:ZDB-GENE-140619-1" \
+            "where gene.primaryKey = 'ZFIN:ZDB-GENE-140619-1'" \
             "and got.primaryKey = 'GO:0005739' return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
