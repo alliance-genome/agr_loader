@@ -81,13 +81,13 @@ class GeneDiseaseOrthoTransaction(Transaction):
                 SET dga.dataProvider = 'Alliance'
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY] {uuid:row.uuid}]->(d)
+                CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'biomarker_via_orthology')
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY] {uuid:row.uuid}]->(d)
+                CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
