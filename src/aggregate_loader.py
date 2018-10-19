@@ -343,12 +343,20 @@ class AggregateLoader(object):
             logger.info("retrieving gocc ribbon terms for all MODs")
             tx = WTExpressionTransaction(self.graph)
             gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms()
+
             logger.info("loading gocc ribbon terms for all MODs")
             tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
+
+            logger.info("loading gocc self ribbon terms for all MODs")
+            tx.retrieve_gocc_self_ribbon_terms()
+
+            logger.info("insrting gocc self ribbon terms for all MODs")
+            tx.insert_gocc_self_ribbon_terms()
 
             logger.info("retrieving gocc ribbonless ebes for all MODs")
             tx = WTExpressionTransaction(self.graph)
             gocc_ribbonless_data = tx.retrieve_gocc_ribbonless_ebes()
+
             logger.info("loading gocc ribbonless terms for all MODs")
             tx.insert_ribonless_ebes(gocc_ribbonless_data)
 

@@ -366,8 +366,39 @@ class WTExpressionTransaction(Transaction):
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
 
-
         return gocc_ribbon_data
+
+    def retrieve_gocc_self_ribbon_terms(self):
+        gocc_self_ribbon_data = []
+
+        gocc_self_ribbon_ebes = """
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
+            WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey,got.primaryKey
+            and got.subset = 'goslim_agr'; 
+
+        """
+
+        returnSet = Transaction.run_single_query(self, gocc_self_ribbon_ebes)
+        for record in returnSet:
+            row = dict(ebe_id=record["ebe.primaryKey"],
+                        go_id=record["got.primaryKey"])
+
+            gocc_self_ribbon_data.append(row)
+
+        return gocc_self_ribbon_data
+
+    def insert_gocc_self_ribbon_terms(self, gocc_ribbon_data):
+
+        expression_gocc_self_ribbon_insert = """
+                       UNWIND $data as row
+
+                       MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
+                       MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
+
+                       MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
+                       """
+
+        Transaction.execute_transaction(self, expression_gocc_self_ribbon_insert, gocc_ribbon_data)
 
     def insert_gocc_ribbon_terms(self, gocc_ribbon_data):
 

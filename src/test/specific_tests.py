@@ -291,3 +291,11 @@ def test_gocc_other_has_type():
     for record in result:
         assert record["counter"] == 1
 
+
+def test_gocc_self_ribbon_term_exists():
+    query = "match (gene:Gene)--(ebe:ExpressionBioEntity)-[c:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm) " \
+            "where g.primaryKey = 'ZFIN:ZDB-GENE-140619-1" \
+            "and got.primaryKey = 'GO:0005739'"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
