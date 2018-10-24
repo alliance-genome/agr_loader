@@ -5,7 +5,7 @@ class MGI(MOD):
     def __init__(self):
         self.species = "Mus musculus"
 
-        self.loadFile = "MGI_1.0.0.7_1.tar.gz"
+        self.loadFile = "MGI_1.0.0.7_2.tar.gz"
 
         self.bgiName = "/MGI_1.0.0.7_BGI.json"
         self.alleleName = "/MGI_1.0.0.7_allele.json"
