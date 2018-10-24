@@ -61,11 +61,23 @@ class WTExpressionExt(object):
 
                 if 'modPublicationId' in evidence:
                     publicationModId = evidence.get('modPublicationId')
-                    pubModLocalId = publicationModId.split(":")[1]
-                    pubModPrefix = publicationModId.split(":")[0]
-                    pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+                    if publicationModId is not None:
+                        pubModLocalId = publicationModId.split(":")[1]
+                        if "MGI:" in publicationModId:
+                            pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
+                        if "ZFIN:" in publicationModId:
+                            pubModUrl = "http://zfin.org/" + publicationModId
+                        if "SGD:" in publicationModId:
+                            pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
+                        if "WB:" in publicationModId:
+                            pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
+                        if "RGD:" in publicationModId:
+                            pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
+                        if "FB:" in publicationModId:
+                            pubModUrl = "http://flybase.org/reports/" + pubModLocalId
+
                     if publicationModId is None:
-                        publicationModId =""
+                        publicationModId = ""
 
                 if 'pubMedId' in evidence:
                     pubMedId = evidence.get('pubMedId')
