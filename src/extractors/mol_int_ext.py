@@ -260,6 +260,7 @@ class MolIntExt(object):
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0
+        total_interactions_loaded_count = 0
         pp = pprint.PrettyPrinter(indent=4)
 
         database_linkout_set = set()
@@ -287,9 +288,9 @@ class MolIntExt(object):
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
                 
                 try: 
-                    identifier_linkout_list = self.process_interaction_identifier(row[13], row[24]) # Source ID for the UI table
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], row[24]) # Interactor ID for the UI table
                 except IndexError:
-                    identifier_linkout_list = self.process_interaction_identifier(row[13], None) # Source ID for the UI table
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], None) # Interactor ID for the UI table
 
                 source_database = None
                 source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
@@ -379,18 +380,22 @@ class MolIntExt(object):
                     'uuid' : None,
                     'source_database' : source_database,
                     'aggregation_database' :  aggregation_database
-                    #'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
                 }
 
+                # Remove possible duplicates from interactor lists.
+                interactor_A_resolved_no_dupes = list(set(interactor_A_resolved))
+                interactor_B_resolved_no_dupes = list(set(interactor_B_resolved))
+
                 # Get every possible combination of interactor A x interactor B (if multiple ids resulted from resolving the identifier.)
-                int_combos = list(itertools.product(interactor_A_resolved, interactor_B_resolved))
+                int_combos = list(itertools.product(interactor_A_resolved_no_dupes, interactor_B_resolved_no_dupes))
 
                 # Update the dictionary with every possible combination of interactor A x interactor B.
                 list_of_mol_int_dataset = [dict(mol_int_dataset, interactor_A=x, interactor_B=y, uuid=str(uuid.uuid4())) for x,y in int_combos]
 
+                total_interactions_loaded_count += len(list_of_mol_int_dataset) # Tracking successfully loaded identifiers.
                 resolved_a_b_count += 1 # Tracking successfully resolved identifiers.
 
-                for dataset_entry in list_of_mol_int_dataset:
+                for dataset_entry in list_of_mol_int_dataset:                  
                     for identifier_linkout in identifier_linkout_list:
                         identifier_linkout['reference_uuid'] = dataset_entry['uuid'] # Reference the xrefs to each mol_int dataset.
 
@@ -406,7 +411,8 @@ class MolIntExt(object):
                 yield list_to_yield, xref_list_to_yield
 
         # TODO Change this to log printing and clean up the set output.
-        logger.info('Resolved identifiers for %s interactions' % resolved_a_b_count)
+        logger.info('Resolved identifiers for %s PSI-MITAB interactions.' % resolved_a_b_count)
+        logger.info('Prepared to load %s total interactions (accounting for multiple possible identifier resolutions).' % total_interactions_loaded_count)
         logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
