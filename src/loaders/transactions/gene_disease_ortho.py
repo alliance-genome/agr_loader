@@ -22,27 +22,15 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
     def retreive_diseases_inferred_by_ortholog(self):
         query = """
-        //MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        //MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(allele:Feature)-[ag:IS_ALLELE_OF]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
-        //     WHERE o.strictFilter
-        //         AND da.uuid = dej.primaryKey
-        //         AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
-        //OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag2:IS_ALLELE_OF]->(:Feature)-[da3:ASSOCIATION]-(disease:DOTerm)
-        //    WHERE da2 IS null  // filters relations that already exist
-        //         AND da3 IS null // filter where allele already has disease association
-        //RETURN DISTINCT gene2.primaryKey AS geneID,
-        //       species.primaryKey AS speciesID,
-        //       type(da) AS relationType,
-        //       disease.primaryKey AS doId
-        //UNION
-        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
-             WHERE o.strictFilter
+        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene),
+              (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+        WHERE o.strictFilter
                  AND da.uuid = dej.primaryKey
                  AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
-        OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Feature)-[da3:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
-            WHERE da2 IS null  // filters relations that already exist
-                 AND da3 IS null // filter where allele already has disease association
+                 AND NOT (disease:DOTerm)<-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene2:Gene)
+                 AND NOT (gene2:Gene)-[:IS_ALLELE_OF]->(:Feature)-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
+                 AND gene2.primaryKey = "RGD:620474"
+                 AND gene1.primaryKey = "HGNC:11204"
         RETURN DISTINCT gene2.primaryKey AS geneID,
                gene1.primaryKey AS fromGeneID,
                type(da) AS relationType,
