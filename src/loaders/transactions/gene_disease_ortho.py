@@ -29,8 +29,6 @@ class GeneDiseaseOrthoTransaction(Transaction):
                  AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
                  AND NOT (disease:DOTerm)<-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene2:Gene)
                  AND NOT (gene2:Gene)-[:IS_ALLELE_OF]->(:Feature)-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
-                 AND gene2.primaryKey = "RGD:620474"
-                 AND gene1.primaryKey = "HGNC:11204"
         RETURN DISTINCT gene2.primaryKey AS geneID,
                gene1.primaryKey AS fromGeneID,
                type(da) AS relationType,
