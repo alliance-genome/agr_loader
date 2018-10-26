@@ -352,7 +352,7 @@ class AggregateLoader(object):
             logger.info("loading gocc self ribbon terms for all MODs")
             gocc_self_ribbon_terms = tx.retrieve_gocc_self_ribbon_terms()
 
-            logger.info("insrting gocc self ribbon terms for all MODs")
+            logger.info("inserting gocc self ribbon terms for all MODs")
             tx.insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
 
             logger.info("retrieving gocc ribbonless ebes for all MODs")
