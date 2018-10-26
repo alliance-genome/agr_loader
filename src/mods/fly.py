@@ -4,7 +4,7 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.0.7_2.tar.gz"
+        self.loadFile = "FB_1.0.0.7_3.tar.gz"
         self.bgiName = "/FB_1.0.0.7_BGI.json"
         self.diseaseName = "/FB_1.0.0.7_disease.json"
         self.phenotypeName = "/FB_1.0.0.7_phenotype.json"
