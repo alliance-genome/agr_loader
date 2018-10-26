@@ -262,6 +262,7 @@ class MolIntExt(object):
         unresolved_a_b_count = 0
         total_interactions_loaded_count = 0
         pp = pprint.PrettyPrinter(indent=4)
+        counter = 0
 
         database_linkout_set = set()
 
@@ -391,23 +392,27 @@ class MolIntExt(object):
 
                 # Update the dictionary with every possible combination of interactor A x interactor B.
                 list_of_mol_int_dataset = [dict(mol_int_dataset, interactor_A=x, interactor_B=y, uuid=str(uuid.uuid4())) for x,y in int_combos]
-
                 total_interactions_loaded_count += len(list_of_mol_int_dataset) # Tracking successfully loaded identifiers.
                 resolved_a_b_count += 1 # Tracking successfully resolved identifiers.
 
-                for dataset_entry in list_of_mol_int_dataset:                  
+                # We need to also create new crossreference dicts for every new possible interaction combination.
+                new_identifier_linkout_list = []
+                for dataset_entry in list_of_mol_int_dataset:  
                     for identifier_linkout in identifier_linkout_list:
-                        identifier_linkout['reference_uuid'] = dataset_entry['uuid'] # Reference the xrefs to each mol_int dataset.
+                        new_identifier_linkout_list.append(dict(identifier_linkout, reference_uuid=dataset_entry['uuid']))
+                
+                counter+=1
 
                 # Establishes the number of entries to yield (return) at a time.
-                xref_list_to_yield.extend(identifier_linkout_list)
+                xref_list_to_yield.extend(new_identifier_linkout_list)
                 list_to_yield.extend(list_of_mol_int_dataset)
-                if len(list_to_yield) >= batch_size: # We're possibly extending by more than one at a time, need to add 'greater than'.
+                if counter == batch_size:
+                    counter = 0
                     yield list_to_yield, xref_list_to_yield
-                    list_to_yield[:] = []  # Empty the list.
-                    xref_list_to_yield[:] = []  # Empty the list.
-
-            if len(list_to_yield) > 0 or len(xref_list_to_yield) > 0:
+                    list_to_yield = []
+                    xref_list_to_yield = []
+            
+            if counter > 0:
                 yield list_to_yield, xref_list_to_yield
 
         # TODO Change this to log printing and clean up the set output.
