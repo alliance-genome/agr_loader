@@ -148,8 +148,6 @@ class MolIntExt(object):
                     self.missed_database_linkouts.add(individual_prefix)
             else: self.ignored_database_linkouts.add(individual_prefix)
 
-            
-
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
             xref_dict['name'] = individual
