@@ -157,6 +157,12 @@ class MolIntExt(object):
             xref_dict['page'] = page
             xref_dict['reference_uuid'] = None # For association interactions (later).
 
+            # Special case for FlyBase as "individual" is not unique in their case.
+            # Individual_body needs to be used instead.
+            
+            if individual.startswith('flybase'):
+                xref_dict['primaryKey'] = individual_body
+
             xref_main_list.append(xref_dict)
 
         return xref_main_list
