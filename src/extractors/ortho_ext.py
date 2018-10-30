@@ -1,21 +1,23 @@
+
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class OrthoExt(object):
 
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
         path = "tmp"
-        if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.7_1.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_1.json.tar.gz'
-        else:
-            filename = "orthology_" + mod_name + "_1.0.0.7_1.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_1.json.tar.gz"
+        filename = "orthology_" + mod_name + "_1.0.0.7_1.json"
+        filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_1.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
@@ -47,16 +49,31 @@ class OrthoExt(object):
         dataProviders.append(dataProvider)
 
         for orthoRecord in ortho_data['data']:
-            counter = counter + 1
+
             # Sort out identifiers and prefixes.
-            gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
-            gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProviders) # 'DRSC:'' removed, local ID, functions as display ID.
+            gene1 = IdExt().process_identifiers(orthoRecord['gene1'], dataProviders)
+            # 'DRSC:'' removed, local ID, functions as display ID.
+            gene2 = IdExt().process_identifiers(orthoRecord['gene2'], dataProviders)
+            # 'DRSC:'' removed, local ID, functions as display ID.
 
             gene1Species = orthoRecord['gene1Species']
             gene2Species = orthoRecord['gene2Species']
 
-            gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species) # Prefixed according to AGR prefixes.
-            gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species) # Prefixed according to AGR prefixes.
+            # Prefixed according to AGR prefixes.
+            gene1AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene1, gene1Species)
+
+            # Prefixed according to AGR prefixes.
+            gene2AgrPrimaryId = IdExt().add_agr_prefix_by_species(gene2, gene2Species)
+
+            counter = counter + 1
+
+            if testObject.using_test_data() is True:
+                is_it_test_entry = testObject.check_for_test_id_entry(gene1AgrPrimaryId)
+                is_it_test_entry2 = testObject.check_for_test_id_entry(gene2AgrPrimaryId)
+                if is_it_test_entry is False and is_it_test_entry2 is False:
+                    counter = counter - 1
+                    continue
+
             ortho_uuid = str(uuid.uuid4())
 
             if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
@@ -108,3 +125,4 @@ class OrthoExt(object):
 
         if counter > 0:
             yield (ortho_data_list, matched_data, unmatched_data, notcalled_data)
+

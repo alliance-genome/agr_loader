@@ -22,30 +22,31 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
     def retreive_diseases_inferred_by_ortholog(self):
         query = """
-        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene),
-              (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
-        WHERE o.strictFilter
+
+        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+             WHERE o.strictFilter
                  AND da.uuid = dej.primaryKey
                  AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
-                 AND NOT (disease:DOTerm)<-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene2:Gene)
-                 AND NOT (gene2:Gene)-[:IS_ALLELE_OF]->(:Feature)-[:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
         RETURN DISTINCT gene2.primaryKey AS geneID,
                gene1.primaryKey AS fromGeneID,
                type(da) AS relationType,
                disease.primaryKey AS doId"""
 
+# //AND da3 IS null // filter where allele already has disease association
+
         tx = Transaction(self.graph)
         returnSet = tx.run_single_query(query)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
-        orthologous_disease_data = []        
+        orthologous_disease_data = []
         for record in returnSet:
-            row = dict(primaryId = record["geneID"],
-                    fromGeneId = record["fromGeneID"],
-                    relationshipType = record["relationType"].lower(),
-                    doId = record["doId"],
-                    dateProduced = now,
-                    uuid = str(uuid.uuid4()))
+            row = dict(primaryId=record["geneID"],
+                    fromGeneId=record["fromGeneID"],
+                    relationshipType=record["relationType"].lower(),
+                    doId=record["doId"],
+                    dateProduced=now,
+                    uuid=str(uuid.uuid4()))
             orthologous_disease_data.append(row)
 
         return orthologous_disease_data
