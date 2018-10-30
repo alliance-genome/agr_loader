@@ -1,10 +1,13 @@
 from .transaction import Transaction
 from services import CreateCrossReference
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GenericAnatomicalStructureOntologyTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+
+    def __init__(self):
         self.batch_size = 3000
 
     def gaso_tx(self, data, nodeLabel):
@@ -40,4 +43,4 @@ class GenericAnatomicalStructureOntologyTransaction(Transaction):
 
         """ % (nodeLabel, nodeLabel, nodeLabel)
 
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        self.execute_transaction_batch(query, data, self.batch_size)

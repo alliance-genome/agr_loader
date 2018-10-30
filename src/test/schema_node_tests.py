@@ -1,19 +1,8 @@
-from neo4j.v1 import GraphDatabase
+from transactions import Transaction
 import os
 
-
 def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result    
+    return Transaction.run_single_query(query) 
 
 
 def pytest_generate_tests(metafunc):

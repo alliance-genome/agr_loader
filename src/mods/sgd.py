@@ -16,7 +16,7 @@ class SGD(MOD):
         self.geoRetMax = "10000"
         self.dataProvider = "SGD"
 
-    def load_genes(self, batch_size, testObject, graph, species):
+    def load_genes(self, batch_size, testObject, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
 
@@ -34,9 +34,9 @@ class SGD(MOD):
 
 # these are commented out because SGD has no allele data and no allele->disease data right now
 
-    def load_disease_allele_objects(self, batch_size, testObject, graph, species):
+    def load_disease_allele_objects(self, batch_size, testObject, species):
         data = ""
-        #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, graph, species)
+        #MOD.load_disease_allele_objects_mod(batch_size, testObject, SGD.diseaseName, SGD.loadFile, species)
         return data
 
     def load_allele_objects(self, batch_size, testObject, species):
@@ -53,6 +53,6 @@ class SGD(MOD):
         return data
 
 
-    def extract_geo_entrez_ids_from_geo(self, graph):
-        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+    def extract_geo_entrez_ids_from_geo(self):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax)
         return xrefs

@@ -1,10 +1,13 @@
+from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 class Indicies(object):
 
-    def __init__(self, graph):
-        self.graph = graph
-
     def create_indices(self):
-        session = self.graph.session()
+        session = Transaction.graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")
         session.run("CREATE INDEX ON :Gene(taxonId)")

@@ -1,9 +1,10 @@
 from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class OrthoTransaction(Transaction):
-
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def ortho_tx(self, ortho_data, matched_algorithm_data, unmatched_algorithm_data, not_called_data):
         '''
@@ -57,7 +58,7 @@ class OrthoTransaction(Transaction):
                 MERGE (oa)-[m:NOT_CALLED]->(notcalled)
         """
 
-        Transaction.execute_transaction(self, query, ortho_data)
-        Transaction.execute_transaction(self, matched_algorithm, matched_algorithm_data)
-        Transaction.execute_transaction(self, unmatched_algorithm, unmatched_algorithm_data)
-        Transaction.execute_transaction(self, not_called, not_called_data)
+        self.execute_transaction(query, ortho_data)
+        self.execute_transaction(matched_algorithm, matched_algorithm_data)
+        self.execute_transaction(unmatched_algorithm, unmatched_algorithm_data)
+        self.execute_transaction(not_called, not_called_data)

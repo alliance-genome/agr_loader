@@ -1,9 +1,10 @@
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class ResourceDescriptorTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def resource_descriptor_tx(self, data):
         '''
@@ -42,5 +43,5 @@ class ResourceDescriptorTransaction(Transaction):
 
         """
 
-        Transaction.execute_transaction(self, query, data)
+        self.execute_transaction(query, data)
 

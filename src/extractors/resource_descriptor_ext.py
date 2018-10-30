@@ -17,6 +17,9 @@ class ResourceDescriptor(object):
         self.filename = "resourceDescriptors.yaml"
 
     def get_data(self):
+        if len(ResourceDescriptor.list_of_descriptor_maps_to_load) > 0:
+          return ResourceDescriptor.list_of_descriptor_maps_to_load
+          
         if not os.path.exists(self.savepath):
             logger.info("Making temp file storage: " + self.savepath)
             os.makedirs(self.savepath)
@@ -69,7 +72,7 @@ class ResourceDescriptor(object):
                                               "default_url_suffix": default_url_suffix,
                                               "primaryKey": resource + page_name,
                                               "uuid": str(uuid.uuid4())}
-                                self.list_of_descriptor_maps_to_load.append(stanza_map)
+                                ResourceDescriptor.list_of_descriptor_maps_to_load.append(stanza_map)
 
                                 # TODO: fix special casing of NCBI links w/o pages in BGI
                                 if resource == 'NCBI_Gene':
@@ -99,9 +102,9 @@ class ResourceDescriptor(object):
                                       "primaryKey": resource,
                                       "uuid": str(uuid.uuid4())
                                       }
-                        self.list_of_descriptor_maps_to_load.append(stanza_map)
+                        ResourceDescriptor.list_of_descriptor_maps_to_load.append(stanza_map)
 
             except yaml.YAMLError as exc:
                 logger.info (exc)
 
-        return self.list_of_descriptor_maps_to_load
+        return ResourceDescriptor.list_of_descriptor_maps_to_load

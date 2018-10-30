@@ -63,8 +63,7 @@ class DiseaseGeneExt(object):
                 list_to_yield.append(disease_features)
                 if len(list_to_yield) == batch_size:
                     yield list_to_yield
-
-                    list_to_yield[:] = []  # Empty the list.
+                    list_to_yield = []
 
         if len(list_to_yield) > 0:
             yield list_to_yield

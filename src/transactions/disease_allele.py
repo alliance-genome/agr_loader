@@ -1,9 +1,10 @@
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class DiseaseAlleleTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def disease_allele_object_tx(self, data):
         # Loads the Disease data into Neo4j.
@@ -75,5 +76,5 @@ class DiseaseAlleleTransaction(Transaction):
             DETACH DELETE (dd)
         """
 
-        Transaction.execute_transaction(self, executeFeature, data)
-        Transaction.execute_transaction(self, deleteEmptyDONodes, data)
+        self.execute_transaction(executeFeature, data)
+        self.execute_transaction(deleteEmptyDONodes, data)

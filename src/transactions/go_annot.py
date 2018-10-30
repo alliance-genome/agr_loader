@@ -1,9 +1,12 @@
 from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GOAnnotTransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    def __init__(self):
         self.batch_size = 2000
 
     def go_annot_tx(self, data):
@@ -17,4 +20,4 @@ class GOAnnotTransaction(Transaction):
                 MERGE (go:GOTerm:Ontology {primaryKey:entry.go_id})
                 MERGE (g)-[ggo:ANNOTATED_TO]->(go))
         """
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        self.execute_transaction_batch(query, data, self.batch_size)

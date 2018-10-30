@@ -20,7 +20,7 @@ class ZFIN(MOD):
         self.geoRetMax = "100000"
         self.dataProvider = "ZFIN"
 
-    def load_genes(self, batch_size, testObject, graph, species):
+    def load_genes(self, batch_size, testObject, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
 
@@ -36,8 +36,8 @@ class ZFIN(MOD):
         data = MOD.load_disease_gene_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
         return data
 
-    def load_disease_allele_objects(self, batch_size, testObject, graph, species):
-        data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, graph, species)
+    def load_disease_allele_objects(self, batch_size, testObject, species):
+        data = MOD.load_disease_allele_objects_mod(self, batch_size, testObject, self.diseaseName, self.loadFile, species)
         return data
 
     def load_allele_objects(self, batch_size, testObject, species):
@@ -52,6 +52,6 @@ class ZFIN(MOD):
         data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
         return data
 
-    def extract_geo_entrez_ids_from_geo(self, graph):
-        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+    def extract_geo_entrez_ids_from_geo(self):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax)
         return xrefs

@@ -1,9 +1,12 @@
 from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MITransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    def __init__(self):
         self.batch_size = 3000
 
     def mi_tx(self, data):
@@ -21,4 +24,4 @@ class MITransaction(Transaction):
                 SET g.definition = row.definition
         """
 
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        self.execute_transaction_batch(query, data, self.batch_size)

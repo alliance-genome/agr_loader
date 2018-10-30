@@ -10,9 +10,8 @@ from services.gene_descriptions.data_extraction_functions import *
 
 class GeneDescGenerator(object):
 
-    def __init__(self, config_file_path: str, go_ontology, do_ontology, graph_db):
+    def __init__(self, config_file_path: str, go_ontology, do_ontology):
         self.conf_parser = GenedescConfigParser(config_file_path)
-        self.graph = graph_db
         self.go_ontology = go_ontology
         self.do_ontology = do_ontology
         self.go_sent_gen_common_props = {
@@ -320,12 +319,12 @@ class GeneDescGenerator(object):
                             exclusion_list=self.conf_parser.get_go_terms_exclusion_list())
         df.set_associations(associations_type=DataType.DO,
                             associations=get_do_associations_from_loader_object(do_annotations, do_annotations_allele,
-                                                                                self.do_ontology, self.graph,
+                                                                                self.do_ontology,
                                                                                 data_provider),
                             exclusion_list=self.conf_parser.get_do_terms_exclusion_list())
-        orthologs = get_orthologs_from_loader_object(ortho_data, data_provider, self.graph)
+        orthologs = get_orthologs_from_loader_object(ortho_data, data_provider)
         best_orthologs = get_best_orthologs_for_genes_in_dict(orthologs)
-        for gene in get_gene_data_from_neo4j(data_provider=data_provider, graph=self.graph):
+        for gene in get_gene_data_from_neo4j(data_provider=data_provider):
             gene_desc = GeneDesc(gene_id=gene.id, gene_name=gene.name)
             joined_sent = []
             go_annotations = df.get_annotations_for_gene(gene_id=gene.id, annot_type=DataType.GO,
@@ -365,7 +364,7 @@ class GeneDescGenerator(object):
             if (not human and not gene.id.startswith("HGNC")) or (human and gene.id.startswith("HGNC")):
                 json_desc_writer.add_gene_desc(gene_desc)
 
-        json_desc_writer.write_neo4j(self.graph)
+        json_desc_writer.write_neo4j()
         if "GENERATE_REPORTS" in os.environ and (os.environ["GENERATE_REPORTS"] == "True"
                                                  or os.environ["GENERATE_REPORTS"] == "true" or
                                                  os.environ["GENERATE_REPORTS"] == "pre-release"):

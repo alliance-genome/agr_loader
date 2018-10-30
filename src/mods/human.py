@@ -18,7 +18,7 @@ class Human(MOD):
         self.geoRetMax = "40000"
         self.dataProvider = "RGD"
 
-    def load_genes(self, batch_size, testObject, graph, species):
+    def load_genes(self, batch_size, testObject, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
 
@@ -30,7 +30,7 @@ class Human(MOD):
         go_annot_list = MOD.extract_go_annots_mod(self, self.geneAssociationFile, self.species, self.identifierPrefix, testObject)
         return go_annot_list
 
-    def load_disease_allele_objects(self, batch_size, testObject, graph, species):
+    def load_disease_allele_objects(self, batch_size, testObject, species):
         data = ""
         return data
 
@@ -43,6 +43,6 @@ class Human(MOD):
         return data
 
 
-    def extract_geo_entrez_ids_from_geo(self, graph):
-        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
+    def extract_geo_entrez_ids_from_geo(self):
+        xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax)
         return xrefs

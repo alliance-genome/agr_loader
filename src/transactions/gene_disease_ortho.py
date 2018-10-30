@@ -3,11 +3,15 @@
 import uuid
 from datetime import datetime, timezone
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GeneDiseaseOrthoTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    
+    def __init__(self):
+
         self.neo_import_dir = '/var/lib/neo4j/import/'
         self.filename = 'disease_by_orthology.csv'
 
@@ -17,8 +21,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
                   SET pubg.pubModId = "MGI:6194238"
                   SET pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})"""
-        tx = Transaction(graph)
-        tx.run_single_query(query)
+        self.run_single_query(query)
 
     def retreive_diseases_inferred_by_ortholog(self):
         query = """
@@ -33,10 +36,7 @@ class GeneDiseaseOrthoTransaction(Transaction):
                type(da) AS relationType,
                disease.primaryKey AS doId"""
 
-# //AND da3 IS null // filter where allele already has disease association
-
-        tx = Transaction(self.graph)
-        returnSet = tx.run_single_query(query)
+        returnSet = self.run_single_query(query)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
         orthologous_disease_data = []
@@ -87,4 +87,4 @@ class GeneDiseaseOrthoTransaction(Transaction):
 
             """
 
-        Transaction.execute_transaction(self, executeG2D, data)
+        self.execute_transaction(executeG2D, data)

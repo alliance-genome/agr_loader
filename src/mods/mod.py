@@ -73,12 +73,12 @@ class MOD(object):
 
         return disease_dict
 
-    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, graph, species):
+    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, species):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, graph, species)
+        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, species)
 
         return disease_dict
 
@@ -113,7 +113,7 @@ class MOD(object):
         data = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
         return data
 
-    def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax, graph):
+    def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax):
         entrezIds = []
         geoTerm = "gene_geoprofiles"
         geoDb = "gene"
@@ -132,6 +132,6 @@ class MOD(object):
                             entrezIds.append("NCBI_Gene:"+entrezId)
 
 
-        xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds, graph)
+        xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds)
 
         return xrefs

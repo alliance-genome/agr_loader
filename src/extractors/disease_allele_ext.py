@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 
 class DiseaseAlleleExt(object):
 
-    def get_allele_disease_data(self, disease_data, batch_size, graph, species):
+    def get_allele_disease_data(self, disease_data, batch_size, species):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -57,8 +57,7 @@ class DiseaseAlleleExt(object):
             else:
                 # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
                 # featurePrimaryId = diseaseRecord.get('objectId')
-                # tx = Transaction(graph)
-                # returnSet = tx.run_single_parameter_query(query, featurePrimaryId)
+                # returnSet = Transaction.run_single_parameter_query(query, featurePrimaryId)
                 # counter = 0
                 # allelicGeneId = ''
                 # for gene in returnSet:
@@ -74,8 +73,7 @@ class DiseaseAlleleExt(object):
                 list_to_yield.append(disease_features)
                 if len(list_to_yield) == batch_size:
                     yield list_to_yield
-
-                    list_to_yield[:] = []  # Empty the list.
+                    list_to_yield = []
 
         if len(list_to_yield) > 0:
             yield list_to_yield

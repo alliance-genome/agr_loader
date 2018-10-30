@@ -9,39 +9,31 @@ logger.setLevel(logging.DEBUG)
 
 class MolIntExt(object):
 
-    def __init__(self, graph):
-        self.graph = graph
+    def __init__(self):
         # Initialize an instance of ResourceDescriptor for processing external links.
         self.resource_descriptor_dict = ResourceDescriptor()
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
         self.ignored_database_linkouts = set()
 
-    def populate_genes(self, graph):
+    def populate_genes(self):
 
         master_gene_set = set()
 
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
-        with graph.session() as session:
-            logger.info('Querying for master gene set.')
-            with session.begin_transaction() as tx:
-                result = tx.run(query)
-                for record in result:
-                    master_gene_set.add(record['g.primaryKey'])
+        result = Transaction.run_single_query(query)
+
+        for record in result:
+            master_gene_set.add(record['g.primaryKey'])
 
         return master_gene_set
 
-    def query_crossreferences(self, graph, crossref_prefix):
+    def query_crossreferences(self, crossref_prefix):
+        query = "MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference) WHERE cr.prefix = {parameter} RETURN g.primaryKey, cr.globalCrossRefId"
+        return Transaction.run_single_parameter_query(query, crossref_prefix)
 
-        query = "MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference) WHERE cr.prefix = $crossref_to_query RETURN g.primaryKey, cr.globalCrossRefId"
-
-        with graph.session() as session:
-            with session.begin_transaction() as tx:
-                result = tx.run(query, crossref_to_query=crossref_prefix)
-                return result
-
-    def populate_crossreference_dictionary(self, graph):
+    def populate_crossreference_dictionary(self):
         # We're populating a rather large dictionary to use for looking up Alliance genes by their crossreferences.
         # Edit the list below if you'd like to add more crossreferences to the dictionary.
         # The key of the dictionary is the crossreference and the value is the Alliance gene to which it resolves.
@@ -54,7 +46,7 @@ class MolIntExt(object):
 
         for key in master_crossreference_dictionary.keys():
             logger.info('Querying for %s cross references.' % (key))
-            result = self.query_crossreferences(graph, key)
+            result = self.query_crossreferences(key)
             for record in result:
                 cross_ref_record = None
                 # Modify the cross reference ID to match the PSI MITAB format if necessary.
@@ -258,10 +250,10 @@ class MolIntExt(object):
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
 
         # Populate our master dictionary for resolving cross references.
-        master_crossreference_dictionary = self.populate_crossreference_dictionary(self.graph)
+        master_crossreference_dictionary = self.populate_crossreference_dictionary()
 
         # Populate our master gene set for filtering Alliance genes.
-        master_gene_set = self.populate_genes(self.graph)
+        master_gene_set = self.populate_genes()
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0

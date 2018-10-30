@@ -1,11 +1,11 @@
 from services import CreateCrossReference
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GeoXrefTransaction(Transaction):
-
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def geo_xref_tx(self, data):
 
@@ -17,4 +17,4 @@ class GeoXrefTransaction(Transaction):
 
         """ + CreateCrossReference.get_cypher_xref_text("geo_xref")
 
-        Transaction.execute_transaction(self, geoXrefQuery, data)
+        self.execute_transaction(geoXrefQuery, data)

@@ -60,7 +60,7 @@ def get_go_associations_from_loader_object(go_annotations, go_ontology):
     return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=go_ontology)
 
 
-def get_do_associations_from_loader_object(do_annotations, do_annotations_allele, do_ontology, graph, data_provider):
+def get_do_associations_from_loader_object(do_annotations, do_annotations_allele, do_ontology, data_provider):
     associations = []
     for gene_annotations in do_annotations:
         for annot in gene_annotations:
@@ -96,7 +96,7 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
                                      })
     for gene_annotations in do_annotations_allele:
         for annot in gene_annotations:
-            inferred_genes = get_inferred_genes_for_allele(annot["primaryId"], graph=graph)
+            inferred_genes = get_inferred_genes_for_allele(annot["primaryId"])
             if len(inferred_genes) == 1 and annot and "doId" in annot and do_ontology.has_node(annot["doId"]) \
                     and not do_ontology.is_obsolete(annot["doId"]):
                 associations.append({"source_line": "",
@@ -128,7 +128,7 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
                                      }
                                      })
     # TODO: uncomment to include disease via orthology data
-    # for annot in get_disease_annotations_via_orthology(data_provider=data_provider, graph=graph):
+    # for annot in get_disease_annotations_via_orthology(data_provider=data_provider):
     #     associations.append({"source_line": "",
     #                          "subject": {
     #                              "id": annot["geneID"],
@@ -157,7 +157,7 @@ def get_do_associations_from_loader_object(do_annotations, do_annotations_allele
     return AssociationSetFactory().create_from_assocs(assocs=associations, ontology=do_ontology)
 
 
-def get_orthologs_from_loader_object(ortho_data, data_provider, graph):
+def get_orthologs_from_loader_object(ortho_data, data_provider):
     orthologs = defaultdict(list)
     uuid_matched = defaultdict(int)
     for orth_lists in ortho_data:
@@ -171,37 +171,33 @@ def get_orthologs_from_loader_object(ortho_data, data_provider, graph):
                         orth['gene2AgrPrimaryId'].startswith(data_provider):
                     orthologs[orth['gene2AgrPrimaryId']].append([orth['gene1AgrPrimaryId'], uuid_matched[orth["uuid"]]])
     orth_id_symbol_and_name = {gene[0]: [gene[1], gene[2]] for gene in get_gene_symbols_from_id_list(
-        [ortholog[0] for orthologs in orthologs.values() for ortholog in orthologs], graph)}
+        [ortholog[0] for orthologs in orthologs.values() for ortholog in orthologs])}
     return {gene_id: [[orth[0], *orth_id_symbol_and_name[orth[0]], orth[1]] for orth in orthologs if orth[0]
                       in orth_id_symbol_and_name] for gene_id, orthologs in orthologs.items()}
 
 
-def query_db(db_graph, query: str, parameters: Dict = None):
-    with db_graph.session() as session:
-        with session.begin_transaction() as tx:
-            return_set = tx.run(query, parameters=parameters)
-    return return_set
+def query_db(query: str, parameters: Dict = None):
+    return Transaction.run_single_parameter_query(query, parameters)
 
-
-def get_gene_data_from_neo4j(data_provider, graph):
+def get_gene_data_from_neo4j(data_provider):
     db_query = "match (g:Gene) where g.dataProvider = {dataProvider} return g.symbol, g.primaryKey"
-    result_set = query_db(db_graph=graph, query=db_query, parameters={"dataProvider": data_provider})
+    result_set = query_db(query=db_query, parameters={"dataProvider": data_provider})
     for result in result_set:
         yield Gene(result["g.primaryKey"], result["g.symbol"], False, False)
 
 
-def get_inferred_genes_for_allele(allele_primary_key, graph):
+def get_inferred_genes_for_allele(allele_primary_key):
     db_query = "match (o:Feature)-[:IS_ALLELE_OF]-(g:Gene) where o.primaryKey = {allelePrimaryKey} return " \
                "g.symbol, g.primaryKey"
-    result_set = query_db(db_graph=graph, query=db_query, parameters={"allelePrimaryKey": allele_primary_key})
+    result_set = query_db(query=db_query, parameters={"allelePrimaryKey": allele_primary_key})
     return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
 
 
-def get_gene_symbols_from_id_list(id_list, graph):
+def get_gene_symbols_from_id_list(id_list):
     db_query = "match (g:Gene) " \
                "where g.primaryKey in {idList} " \
                "return g.primaryKey, g.symbol, g.name"
-    result_set = query_db(db_graph=graph, query=db_query, parameters={"idList": id_list})
+    result_set = query_db(query=db_query, parameters={"idList": id_list})
     return result_set
 
 
@@ -215,7 +211,7 @@ def get_best_orthologs_for_genes_in_dict(gene_orthologs_dict):
             len(orthologs) > 0}
 
 
-def get_disease_annotations_via_orthology(data_provider, graph):
+def get_disease_annotations_via_orthology(data_provider):
     db_query = """
     MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
     MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)--(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
@@ -232,5 +228,5 @@ def get_disease_annotations_via_orthology(data_provider, graph):
     type(da) AS relationType,
     disease.primaryKey AS doId"""
 
-    return query_db(db_graph=graph, query=db_query, parameters={"dataProvider": data_provider})
+    return query_db(query=db_query, parameters={"dataProvider": data_provider})
 

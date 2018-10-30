@@ -1,20 +1,5 @@
-from neo4j.v1 import GraphDatabase
+from transactions import Transaction
 import os
-
-
-def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result    
-
 
 def pytest_generate_tests(metafunc):
     # called once per each test function
@@ -84,6 +69,6 @@ class TestClass(object):
     def test_rel_exists(self, node1, node2):
         query = 'MATCH (n:%s)-[]-(m:%s) RETURN DISTINCT COUNT(n) as count' % (node1, node2)
 
-        result = execute_transaction(query)
+        result = Transaction.run_single_query(query)
         for record in result:
             assert record["count"] > 0

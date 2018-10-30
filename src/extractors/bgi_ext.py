@@ -14,8 +14,6 @@ class BGIExt(object):
 
     def get_data(self, gene_data, batch_size, testObject, species):
         xrefUrlMap = ResourceDescriptor().get_data()
-        list_to_yield = []
-
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
         synonyms = []
@@ -226,7 +224,6 @@ class BGIExt(object):
             if counter == batch_size:
                 counter = 0
                 yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
-                list_to_yield[:] = []  # Empty the list.
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []

@@ -1,9 +1,12 @@
 from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class GeneDescriptionTransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    def __init__(self):
         self.batch_size = 3000
 
     def gd_tx(self, data):
@@ -17,4 +20,4 @@ class GeneDescriptionTransaction(Transaction):
                 WHERE g.automatedGeneSynopsis is NULL
                 SET g.automatedGeneSynopsis = row.description
         """
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
+        self.execute_transaction_batch(query, data, self.batch_size)

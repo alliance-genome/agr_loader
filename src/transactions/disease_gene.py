@@ -1,10 +1,11 @@
 # coding=utf-8
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class DiseaseGeneTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def disease_gene_object_tx(self, data):
         # Loads the Disease data into Neo4j.
@@ -62,5 +63,5 @@ class DiseaseGeneTransaction(Transaction):
             DETACH DELETE (dd)
         """
 
-        Transaction.execute_transaction(self, executeGene, data)
-        Transaction.execute_transaction(self, deleteEmptyDONodes, data)
+        self.execute_transaction(executeGene, data)
+        self.execute_transaction(deleteEmptyDONodes, data)

@@ -1,9 +1,12 @@
 from .transaction import Transaction
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MolIntTransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    def __init__(self):
         self.batch_size = 3000
 
     def mol_int_tx(self):
@@ -83,5 +86,5 @@ class MolIntTransaction(Transaction):
 
                 MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
 
-        Transaction.load_csv_data(self, query)
-        Transaction.load_csv_data(self, xref_query)
+        self.execute_transaction(query, None)
+        self.execute_transaction(xref_query, None)

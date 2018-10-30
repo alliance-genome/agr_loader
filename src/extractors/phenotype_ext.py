@@ -104,7 +104,7 @@ class PhenotypeExt(object):
 
             if len(list_to_yield) == batch_size:
                 yield list_to_yield
-                list_to_yield[:] = []  # Empty the list.
+                list_to_yield = []
 
         if len(list_to_yield) > 0:
             yield list_to_yield

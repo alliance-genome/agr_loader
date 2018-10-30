@@ -7,9 +7,6 @@ logger.setLevel(logging.DEBUG)
 
 class BGITransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
-
     def bgi_tx(self, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences):
         '''
         Loads the BGI data into Neo4j.
@@ -113,13 +110,13 @@ class BGITransaction(Transaction):
         """ + CreateCrossReference.get_cypher_xref_text("gene")
 
         if len(gene_dataset) > 0:
-            Transaction.execute_transaction(self, gene_query, gene_dataset)
+            self.execute_transaction(gene_query, gene_dataset)
         if len(genomicLocations) > 0:
-            Transaction.execute_transaction(self, genomic_locations, genomicLocations)
+            self.execute_transaction(genomic_locations, genomicLocations)
         if len(secondaryIds) > 0:
-            Transaction.execute_transaction(self, gene_secondaryIds, secondaryIds)
+            self.execute_transaction(gene_secondaryIds, secondaryIds)
         if len(synonyms) > 0:
-            Transaction.execute_transaction(self, gene_synonyms, synonyms)
+            self.execute_transaction(gene_synonyms, synonyms)
         if len(crossReferences) > 0:
-            Transaction.execute_transaction(self, xrefs, crossReferences)
+            self.execute_transaction(xrefs, crossReferences)
 

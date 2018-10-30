@@ -5,10 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-
 class WTExpressionTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def wt_expression_object_tx(self, AOExpressionData, CCExpressionData, AOQualifierData, AOSubstructureData,
                                 AOSSQualifierData, CCQualifierData, AOCCExpressionData, stageList, stageUberonData,
@@ -301,51 +298,51 @@ class WTExpressionTransaction(Transaction):
             //TODO: get stage term ids from MGI
         """
 
-        Transaction.execute_transaction(self, AddOther, "other")
+        self.execute_transaction(AddOther, "other")
 
         if species == 'Saccharomyces cerevisiae':
             if len(CCExpressionData) > 0:
-                Transaction.execute_transaction(self, SGDCCExpression, CCExpressionData)
+                self.execute_transaction(SGDCCExpression, CCExpressionData)
 
         else:
             if len(CCExpressionData) > 0:
-                Transaction.execute_transaction(self, CCExpression, CCExpressionData)
+                self.execute_transaction(CCExpression, CCExpressionData)
 
         if len(AOExpressionData) > 0:
-            Transaction.execute_transaction(self, AOExpression, AOExpressionData)
+            self.execute_transaction(AOExpression, AOExpressionData)
 
         if len(AOCCExpressionData) > 0 :
-            Transaction.execute_transaction(self, AOCCExpression, AOCCExpressionData)
+            self.execute_transaction(AOCCExpression, AOCCExpressionData)
 
         if len(AOSubstructureData) > 0:
-            Transaction.execute_transaction(self, EASSubstructure, AOSubstructureData)
+            self.execute_transaction(EASSubstructure, AOSubstructureData)
 
         if len(AOQualifierData) > 0:
-            Transaction.execute_transaction(self, EASQualified, AOQualifierData)
+            self.execute_transaction(EASQualified, AOQualifierData)
 
         if len(AOSSQualifierData) > 0:
-            Transaction.execute_transaction(self, EASSQualified, AOSSQualifierData)
+            self.execute_transaction(EASSQualified, AOSSQualifierData)
 
         if len(CCQualifierData) > 0:
-            Transaction.execute_transaction(self, CCQExpression, CCQualifierData)
+            self.execute_transaction(CCQExpression, CCQualifierData)
 
         if len(stageList) > 0:
-            Transaction.execute_transaction(self, stageExpression, stageList)
+            self.execute_transaction(stageExpression, stageList)
 
         if len(uberonAOData) > 0:
-            Transaction.execute_transaction(self, uberonAO, uberonAOData)
+            self.execute_transaction(uberonAO, uberonAOData)
 
         if len(uberonAOOtherData) > 0:
-            Transaction.execute_transaction(self, uberonAOOther, uberonAOOtherData)
+            self.execute_transaction(uberonAOOther, uberonAOOtherData)
 
         if len(stageUberonData) > 0:
-            Transaction.execute_transaction(self, uberonStage, stageUberonData)
+            self.execute_transaction(uberonStage, stageUberonData)
 
         if len(uberonStageOtherData) > 0:
-            Transaction.execute_transaction(self, uberonStageOther, uberonStageOtherData)
+            self.execute_transaction(uberonStageOther, uberonStageOtherData)
 
         if len(xrefs) > 0:
-            Transaction.execute_transaction(self, xref, xrefs)
+            self.execute_transaction(xref, xrefs)
 
     def retrieve_gocc_ribbon_terms(self):
 
@@ -355,7 +352,7 @@ class WTExpressionTransaction(Transaction):
                 return ebe.primaryKey, slimTerm.primaryKey
                 """
 
-        returnSet = Transaction.run_single_query(self, expression_gocc_ribbon_retrieve)
+        returnSet = self.run_single_query(expression_gocc_ribbon_retrieve)
 
         gocc_ribbon_data = []
 
@@ -375,7 +372,7 @@ class WTExpressionTransaction(Transaction):
             return ebe.primaryKey, got.primaryKey; 
         """
 
-        returnSet = Transaction.run_single_query(self, gocc_self_ribbon_ebes)
+        returnSet = self.run_single_query(gocc_self_ribbon_ebes)
         for record in returnSet:
             row = dict(ebe_id=record["ebe.primaryKey"],
                         go_id=record["got.primaryKey"])
@@ -395,7 +392,7 @@ class WTExpressionTransaction(Transaction):
                        MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                        """
 
-        Transaction.execute_transaction(self, expression_gocc_self_ribbon_insert, gocc_self_ribbon_data)
+        self.execute_transaction(expression_gocc_self_ribbon_insert, gocc_self_ribbon_data)
 
     def insert_gocc_ribbon_terms(self, gocc_ribbon_data):
 
@@ -408,7 +405,7 @@ class WTExpressionTransaction(Transaction):
                        MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                        """
 
-        Transaction.execute_transaction(self, expression_gocc_ribbon_insert, gocc_ribbon_data)
+        self.execute_transaction(expression_gocc_ribbon_insert, gocc_ribbon_data)
 
     def retrieve_gocc_ribbonless_ebes(self):
 
@@ -416,7 +413,7 @@ class WTExpressionTransaction(Transaction):
             MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
             WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey;           
         """
-        returnSet = Transaction.run_single_query(self, ribbonless_ebes)
+        returnSet = self.run_single_query(ribbonless_ebes)
 
         gocc_ribbonless_data = []
 
@@ -435,4 +432,4 @@ class WTExpressionTransaction(Transaction):
                 MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
         """
 
-        Transaction.execute_transaction(self, insert_ribbonless_data, gocc_ribbonless_data)
+        self.execute_transaction(insert_ribbonless_data, gocc_ribbonless_data)

@@ -1,9 +1,10 @@
 from .transaction import Transaction
+import logging
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class PhenotypeTransaction(Transaction):
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def phenotype_object_tx(self, data, species):
         # Loads the Phenotype data into Neo4j.
@@ -106,8 +107,8 @@ class PhenotypeTransaction(Transaction):
         speciesWithFeatures = ['Mus musculus', 'Danio rerio', 'Caenorhabditis elegans', 'Rattus norvegicus', 'Drosophila melanogaster']
 
         if species in speciesWithFeatures:
-            Transaction.execute_transaction(self, executeGene, data)
-            Transaction.execute_transaction(self, executeFeature, data)
+            self.execute_transaction(executeGene, data)
+            self.execute_transaction(executeFeature, data)
         else:
-            Transaction.execute_transaction(self, executeGene, data)
+            self.execute_transaction(executeGene, data)
 

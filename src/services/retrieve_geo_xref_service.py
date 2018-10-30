@@ -1,14 +1,17 @@
-from loaders.transactions.transaction import Transaction
+from transactions.transaction import Transaction
 from .create_cross_reference_service import CreateCrossReference
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class RetrieveGeoXrefService(object):
 
-    def get_geo_xref(self, global_id_list, graph):
+    def get_geo_xref(self, global_id_list):
 
         query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId in {parameter} return g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"
         geo_data = []
-        tx = Transaction(graph)
-        returnSet = tx.run_single_parameter_query(query, global_id_list)
+        returnSet = Transaction.run_single_parameter_query(query, global_id_list)
 
         counter = 0
 

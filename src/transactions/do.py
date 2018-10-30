@@ -1,10 +1,13 @@
 from .transaction import Transaction
 from services import CreateCrossReference
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class DOTransaction(Transaction):
 
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
+    def __init__(self):
         self.batch_size = 2000
 
     def do_tx(self, data):
@@ -55,5 +58,5 @@ class DOTransaction(Transaction):
 
         """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
 
-        Transaction.execute_transaction_batch(self, query, data, self.batch_size)
-        Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)
+        self.execute_transaction_batch(query, data, self.batch_size)
+        self.execute_transaction_batch(queryXref, data, self.batch_size)

@@ -1,10 +1,11 @@
 from .transaction import Transaction
 from services import CreateCrossReference
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class AlleleTransaction(Transaction):
-
-    def __init__(self, graph):
-        Transaction.__init__(self, graph)
 
     def allele_tx(self, allele_data, secondary_data, synonym_data, xref_data):
 
@@ -91,13 +92,13 @@ class AlleleTransaction(Transaction):
         """ + CreateCrossReference.get_cypher_xref_text("feature")
 
         if len(allele_data) > 0:
-            Transaction.execute_transaction(self, alleleQuery, allele_data)
+            self.execute_transaction(alleleQuery, allele_data)
         if len(secondary_data) > 0:
-            Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
+            self.execute_transaction(allele_secondaryIds, secondary_data)
         if len(synonym_data) > 0:
-            Transaction.execute_transaction(self, allele_synonyms, synonym_data)
+            self.execute_transaction(allele_synonyms, synonym_data)
         if len(xref_data) > 0:
-            Transaction.execute_transaction(self, allele_xrefs, xref_data)
+            self.execute_transaction(allele_xrefs, xref_data)
 
 
 
