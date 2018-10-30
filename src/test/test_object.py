@@ -102,7 +102,7 @@ class TestObject(object):
             # expression
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
-            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412',
+            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006',
 
         }
         self.rgdTestSet = {
@@ -114,14 +114,14 @@ class TestObject(object):
             # expression
             'RGD:3884', 'RGD:3889',
             # allele gene and alleles
-            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129'
+            'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
         }
 
         self.humanTestSet = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
             'HGNC:6560', 'HGNC:6551', 'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
-            'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597',
+            'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811',
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',

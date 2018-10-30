@@ -325,3 +325,4 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
