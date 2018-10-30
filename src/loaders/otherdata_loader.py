@@ -1,4 +1,5 @@
 import logging
+import csv
 
 from extractors import *
 from transactions import *
@@ -41,7 +42,7 @@ class OtherDataLoader(object):
                 xref_int_writer.writerows(mol_int_xref_entries)
 
         logger.info('Loading interactions into Neo4j via CSV.')
-        MolIntTransaction.mol_int_tx()
+        MolIntTransaction().mol_int_tx()
         logger.info('Finished loading interactions into Neo4j via CSV.')
 
     def load_resource_descriptors(self):
@@ -52,26 +53,26 @@ class OtherDataLoader(object):
 
         logger.info("retrieving gocc ribbon terms for all MODs")
 
-        gocc_ribbon_data = WTExpressionTransaction.retrieve_gocc_ribbon_terms()
+        gocc_ribbon_data = WTExpressionTransaction().retrieve_gocc_ribbon_terms()
 
         logger.info("loading gocc ribbon terms for all MODs")
-        WTExpressionTransaction.insert_gocc_ribbon_terms(gocc_ribbon_data)
+        WTExpressionTransaction().insert_gocc_ribbon_terms(gocc_ribbon_data)
 
         logger.info("loading gocc self ribbon terms for all MODs")
-        gocc_self_ribbon_terms = WTExpressionTransaction.retrieve_gocc_self_ribbon_terms()
+        gocc_self_ribbon_terms = WTExpressionTransaction().retrieve_gocc_self_ribbon_terms()
 
         logger.info("inserting gocc self ribbon terms for all MODs")
-        WTExpressionTransaction.insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
+        WTExpressionTransaction().insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
 
         logger.info("retrieving gocc ribbonless ebes for all MODs")
 
-        gocc_ribbonless_data = WTExpressionTransaction.retrieve_gocc_ribbonless_ebes()
+        gocc_ribbonless_data = WTExpressionTransaction().retrieve_gocc_ribbonless_ebes()
 
         logger.info("loading gocc ribbonless terms for all MODs")
-        WTExpressionTransaction.insert_ribonless_ebes(gocc_ribbonless_data)
+        WTExpressionTransaction().insert_ribonless_ebes(gocc_ribbonless_data)
 
     def add_inferred_disease_annotations(self):
             logger.info("Inferring Disease by Orthology Annotations")
-            orthologous_diseases_to_gene = GeneDiseaseOrthoTransaction.retreive_diseases_inferred_by_ortholog()
+            orthologous_diseases_to_gene = GeneDiseaseOrthoTransaction().retreive_diseases_inferred_by_ortholog()
             logger.info("Adding Inferred Disease Annotations")
-            GeneDiseaseOrthoTransaction.add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)
+            GeneDiseaseOrthoTransaction().add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)

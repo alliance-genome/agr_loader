@@ -11,7 +11,7 @@ class RetrieveGeoXrefService(object):
 
         query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId in {parameter} return g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"
         geo_data = []
-        returnSet = Transaction.run_single_parameter_query(query, global_id_list)
+        returnSet = Transaction().run_single_parameter_query(query, global_id_list)
 
         counter = 0
 

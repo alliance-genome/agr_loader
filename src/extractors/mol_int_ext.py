@@ -2,6 +2,7 @@ from files import S3File, TARFile
 import uuid, csv, re, sys
 import pprint, itertools
 from services import ResourceDescriptor
+from transactions import Transaction
 import logging
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class MolIntExt(object):
 
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
-        result = Transaction.run_single_query(query)
+        result = Transaction().run_single_query(query)
 
         for record in result:
             master_gene_set.add(record['g.primaryKey'])
@@ -31,7 +32,7 @@ class MolIntExt(object):
 
     def query_crossreferences(self, crossref_prefix):
         query = "MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference) WHERE cr.prefix = {parameter} RETURN g.primaryKey, cr.globalCrossRefId"
-        return Transaction.run_single_parameter_query(query, crossref_prefix)
+        return Transaction().run_single_parameter_query(query, crossref_prefix)
 
     def populate_crossreference_dictionary(self):
         # We're populating a rather large dictionary to use for looking up Alliance genes by their crossreferences.

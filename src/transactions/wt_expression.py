@@ -347,7 +347,7 @@ class WTExpressionTransaction(Transaction):
     def retrieve_gocc_ribbon_terms(self):
 
         expression_gocc_ribbon_retrieve = """
-                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+                MATCH (ebe:ExpressionBioEntity)-->(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
                 where all (subset IN ['goslim_agr'] where subset in slimTerm.subset)
                 return ebe.primaryKey, slimTerm.primaryKey
                 """

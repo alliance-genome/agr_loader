@@ -43,7 +43,7 @@ class Transaction(Thread):
         Transaction.queue.put((query, data, Transaction.count))
 
     def run_single_parameter_query(self, query, parameter):
-        logger.warn("Running run_single_parameter_query: %s" % query)
+        logger.info("Running run_single_parameter_query: %s" % query)
         with Transaction.graph.session() as session:
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query, parameter=parameter)

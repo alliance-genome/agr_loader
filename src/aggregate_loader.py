@@ -23,19 +23,18 @@ class AggregateLoader(object):
             thread_pool.append(trans_runner)
         
         # The following order is REQUIRED for proper loading.
-        #logger.info("Creating indices.")
-        #Indicies().create_indices()
+        logger.info("Creating indices.")
+        Indicies().create_indices()
 
-        #[self.do_dataset, self.go_dataset] = OntologyLoader().run_loader()
-        #logger.info("OntologyLoader: Waiting for Queue to clear")
-        #Transaction.queue.join()
+        [self.do_dataset, self.go_dataset] = OntologyLoader().run_loader()
+        logger.info("OntologyLoader: Waiting for Queue to clear")
+        Transaction.queue.join()
 
         modloader = ModLoader()
-        
-        #modloader.run_bgi_loader(self.do_dataset, self.go_dataset)
-        #modloader.run_bgi_loader(None, None)
-        #logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
-        #Transaction.queue.join()
+        modloader.run_bgi_loader(self.do_dataset, self.go_dataset)
+        modloader.run_bgi_loader(None, None)
+        logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
+        Transaction.queue.join()
 
         modloader.run_other_loaders()
         logger.info("ModLoader.run_other_loaders: Waiting for Queue to clear")
