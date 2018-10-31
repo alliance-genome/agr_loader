@@ -163,8 +163,6 @@ class MolIntExt(object):
             if individual.startswith('flybase'):
                 xref_dict['primaryKey'] = individual_body
 
-            xref_main_list.append(xref_dict)
-
         return xref_main_list
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
