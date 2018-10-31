@@ -66,7 +66,7 @@ class AlleleTransaction(Transaction):
         allele_secondaryIds = """
 
          UNWIND $data AS row
-                MATCH (f:Feature {primaryKey:row.primary_id})
+                MATCH (f:Feature {primaryKey:row.data_id})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                     SET second.name = row.secondary_id
@@ -77,7 +77,7 @@ class AlleleTransaction(Transaction):
         allele_synonyms = """
 
          UNWIND $data AS row
-                MATCH (f:Feature {primaryKey:row.primary_id})
+                MATCH (f:Feature {primaryKey:row.data_id})
 
                MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym

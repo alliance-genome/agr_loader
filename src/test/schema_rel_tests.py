@@ -43,6 +43,8 @@ class TestClass(object):
                             dict(node1='Gene', node2='Species'),
                             dict(node1='Load', node2='Gene'),
                             dict(node1='Feature', node2='Species'),
+                            dict(node1='Feature', node2='SecondaryId'),
+                            dict(node1='Feature', node2='Synonym'),
                             dict(node1='Gene', node2='Ontology:GOTerm'),
                             dict(node1='Gene', node2='Ontology:SOTerm'),
                             dict(node1='Gene', node2='Entity'),
