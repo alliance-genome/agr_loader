@@ -76,7 +76,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-030616-47',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
             'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9', 'ZFIN:ZDB-GENE-070117-2142',
-            # allele
+            # allele for synonym.
             'ZFIN:ZDB-ALT-980413-591',
             # disease specific test objects
             'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-990415-122',
