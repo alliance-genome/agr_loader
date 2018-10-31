@@ -9,3 +9,5 @@ xmltodict
 git+git://github.com/alliance-genome/agr_genedescriptions.git@v2.0.6#egg=genedescriptions
 ontobio
 boto3
+coloredlogs
+verboselogs

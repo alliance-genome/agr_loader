@@ -43,14 +43,16 @@ class Transaction(Thread):
         Transaction.queue.put((query, data, Transaction.count))
 
     def run_single_parameter_query(self, query, parameter):
-        logger.info("Running run_single_parameter_query: %s" % query)
+        logger.debug("Running run_single_parameter_query. Please wait...")
+        logger.debug("Query: %s" % query)
         with Transaction.graph.session() as session:
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query, parameter=parameter)
         return returnSet
 
     def execute_transaction_batch(self, query, data, batch_size):
-        logger.info("Executing batch query. Please wait.")
+        logger.info("Executing batch query. Please wait...")
+        logger.debug("Query: " + query)
         for submission in self.split_into_chunks(data, batch_size):
             self.execute_transaction(query, submission)
         logger.info("Finished batch loading.")
@@ -91,7 +93,7 @@ class Transaction(Thread):
                 #logger.info("%s: Time Diff: %s" % (self.threadid, end - last_tx))
                 logger.info("%s: Processed %s entries. %s r/s QueueSize: %s BatchNum: %s" % (self.threadid, len(query_data), round((len(query_data) / (end - start)), 2), Transaction.queue.qsize(), batch_count))
             except:
-                logger.error("%s: Query Conflict: Putting Data back in Queue to try later: %s" % (self.threadid, Transaction.queue.qsize()))
+                logger.warn("%s: Query Conflict: Putting Data back in Queue: %s to try later: %s" % (self.threadid, Transaction.queue.qsize(), batch_count))
                 Transaction.queue.put((cypher_query, query_data, batch_count))
 
             Transaction.queue.task_done()

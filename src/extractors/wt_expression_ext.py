@@ -293,7 +293,7 @@ class WTExpressionExt(object):
 
                 if counter == batch_size:
                     counter = 0
-                    logger.info("counter equals batch size")
+                    logger.debug("counter equals batch size")
                     yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                            aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                            uberonStageOtherData, crossReferences)
@@ -313,7 +313,6 @@ class WTExpressionExt(object):
                     #counter = 0
 
             if counter > 0:
-                logger.info(geneId)
                 yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                        aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                        uberonStageOtherData, crossReferences)

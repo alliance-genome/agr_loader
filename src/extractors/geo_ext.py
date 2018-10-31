@@ -8,10 +8,10 @@ logger.setLevel(logging.DEBUG)
 
 class GeoExt(object):
 
-    def get_entrez_ids(self, geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix):
+    def get_entrez_ids(self, species, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix):
 
         path = "tmp"
-        url = NCBIEfetch(geoSpecies, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
+        url = NCBIEfetch(species, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
         logger.info ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo").get_downloaded_data()

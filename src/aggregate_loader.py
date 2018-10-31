@@ -1,13 +1,21 @@
-import logging
+import logging, coloredlogs
 from loaders import *
 from transactions import *
+
+coloredlogs.install(level=logging.INFO,
+    fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
+    field_styles={
+        'asctime': {'color': 'green'}, 
+        'hostname': {'color': 'magenta'}, 
+        'levelname': {'color': 'white', 'bold': True}, 
+        'name': {'color': 'blue'}, 
+        'programname': {'color': 'cyan'}
+    })
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
 # to DEBUG the modules we want to see output for.
-logging.basicConfig(level=logging.WARN, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class AggregateLoader(object):
 
@@ -31,15 +39,15 @@ class AggregateLoader(object):
         Transaction.queue.join()
 
         modloader = ModLoader()
-        modloader.run_bgi_loader(self.do_dataset, self.go_dataset)
-        modloader.run_bgi_loader(None, None)
+        modloader.run_bgi_loader()
         logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
         Transaction.queue.join()
 
-        modloader.run_other_loaders()
+        modloader.run_other_loaders(self.do_dataset, self.go_dataset)
+        #modloader.run_other_loaders(None, None)
         logger.info("ModLoader.run_other_loaders: Waiting for Queue to clear")
         Transaction.queue.join()
-        
+
         OtherDataLoader().run_loader()
         logger.info("OtherDataLoader: Waiting for Queue to clear")
         Transaction.queue.join()

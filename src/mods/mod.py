@@ -1,14 +1,10 @@
-from extractors.bgi_ext import BGIExt
-from extractors.disease_gene_ext import DiseaseGeneExt
-from extractors.disease_allele_ext import DiseaseAlleleExt
-from extractors.allele_ext import AlleleExt
-from extractors.wt_expression_ext import WTExpressionExt
-from extractors.geo_ext import GeoExt
-from extractors.phenotype_ext import PhenotypeExt
+from extractors import *
 from files import S3File, TARFile, JSONFile
 from services import RetrieveGeoXrefService
+from test import TestObject
 import gzip
 import csv
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,12 +13,22 @@ logger.setLevel(logging.DEBUG)
 
 class MOD(object):
 
-    def extract_go_annots_mod(self, geneAssociationFile, species, identifierPrefix, testObject):
+    def __init__(self, batch_size, species):
+        self.batch_size = batch_size
+        self.species = species
+        if "TEST_SET" in os.environ and os.environ['TEST_SET'] == "True":
+            logger.warn("WARNING: Test data load enabled.")
+            time.sleep(1)
+            self.testObject = TestObject(True)
+        else:
+            self.testObject = TestObject(False)
+
+    def extract_go_annots_mod(self, geneAssociationFileName, identifierPrefix):
         path = "tmp"
-        S3File("GO/ANNOT/" + geneAssociationFile, path).download()
+        S3File("GO/ANNOT/" + geneAssociationFileName, path).download()
         go_annot_dict = {}
         go_annot_list = []
-        with gzip.open(path + "/GO/ANNOT/" + geneAssociationFile, 'rt', encoding='utf-8') as file:
+        with gzip.open(path + "/GO/ANNOT/" + geneAssociationFileName, 'rt', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter='\t')
             for line in reader:
                 if line[0].startswith('!'):
@@ -42,18 +48,18 @@ class MOD(object):
                         'gene_id': gene,
                         'annotations': [{"go_id": go_id, "evidence_code": line[6], "aspect": line[8],
                                          "qualifier": qualifier}],
-                        'species': species,
+                        'species': self.species,
                         'loadKey': dataProvider + "_" + dateProduced + "_" + "GAF",
                         'dataProvider': dataProvider,
                         'dateProduced': dateProduced,
                     }
         # Convert the dictionary into a list of dictionaries for Neo4j.
         # Check for the use of testObject and only return test data if necessary.
-        if testObject.using_test_data() is True:
+        if self.testObject.using_test_data() is True:
             for entry in go_annot_dict:
-                if testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
+                if self.testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
                     go_annot_list.append(go_annot_dict[entry])
-                    testObject.add_ontology_ids([annotation["go_id"] for annotation in
+                    self.testObject.add_ontology_ids([annotation["go_id"] for annotation in
                                                  go_annot_dict[entry]['annotations']])
                 else:
                     continue
@@ -64,62 +70,58 @@ class MOD(object):
             return go_annot_list
 
 
-    def load_disease_gene_objects_mod(self,batch_size, testObject, diseaseName, loadFile, species):
+    def load_disease_gene_objects_mod(self, diseaseFileName, loadFile):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, batch_size, species)
+        disease_data = JSONFile().get_data(path + diseaseFileName, 'disease')
+        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, self.batch_size, self.species)
 
         return disease_dict
 
-    def load_disease_allele_objects_mod(self, batch_size, testObject, diseaseName, loadFile, species):
+    def load_disease_allele_objects_mod(self, diseaseFileName, loadFile):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseName, 'disease')
-        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, batch_size, species)
-
+        disease_data = JSONFile().get_data(path + diseaseFileName, 'disease')
+        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, self.batch_size, self.species)
         return disease_dict
 
-    def load_allele_objects_mod(self, batch_size, testObject, alleleName, loadFile, species):
+    def load_allele_objects_mod(self, alleleFileName, loadFile):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        alleleData = JSONFile().get_data(path + alleleName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, batch_size, testObject, species)
-        logger.info(alleleDict)
+        alleleData = JSONFile().get_data(path + alleleFileName, 'allele')
+        alleleDict = AlleleExt().get_alleles(alleleData, self.batch_size, self.testObject, self.species)
         return alleleDict
 
-    def load_phenotype_objects_mod(self, batch_size, testObject, phenotypeName, loadFile, species):
+    def load_phenotype_objects_mod(self, phenotypeFileName, loadFile):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        phenotype_data = JSONFile().get_data(path + phenotypeName, 'phenotype')
-        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, batch_size, testObject, species)
-
+        phenotype_data = JSONFile().get_data(path + phenotypeFileName, 'phenotype')
+        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, self.batch_size, self.testObject, self.species)
         return phenotype_dict
 
-    def load_genes_mod(self, batch_size, testObject, bgiName, loadFile, species):
+    def load_genes_mod(self, bgiFileName, loadFile):
         path = "tmp"
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + bgiName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, batch_size, testObject, species)
+        gene_data = JSONFile().get_data(path + bgiFileName, 'BGI')
+        gene_lists = BGIExt().get_data(gene_data, self.batch_size, self.testObject, self.species)
         return gene_lists
 
-    def load_wt_expression_objects_mod(self, batch_size, testObject, expressionName, loadFile):
-
-        data = WTExpressionExt().get_wt_expression_data(loadFile, expressionName, batch_size, testObject)
+    def load_wt_expression_objects_mod(self, expressionFileName, loadFile):
+        data = WTExpressionExt().get_wt_expression_data(loadFile, expressionFileName, 10000, self.testObject)
         return data
 
-    def extract_geo_entrez_ids_from_geo(self, geoSpecies, geoRetMax):
+    def extract_geo_entrez_ids_from_geo_mod(self, geoRetMax):
         entrezIds = []
         geoTerm = "gene_geoprofiles"
         geoDb = "gene"
         geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
 
-        data = GeoExt().get_entrez_ids(geoSpecies, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
+        data = GeoExt().get_entrez_ids(self.species, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
 
         for efetchKey, efetchValue in data.items():
             # IdList is a value returned from efetch XML spec,
@@ -135,3 +137,7 @@ class MOD(object):
         xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds)
 
         return xrefs
+
+    def extract_ortho_data_mod(self, mod_name):
+        data = OrthoExt().get_data(self.testObject, mod_name, 20000) # generator object
+        return data

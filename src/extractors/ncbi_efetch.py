@@ -1,7 +1,9 @@
+import urllib
+
 class NCBIEfetch(object):
 
     def __init__(self, species, retmax, term, db, urlPrefix):
-        self.speciesString = species
+        self.speciesString = urllib.parse.quote_plus(species)
         self.retmax = retmax
         self.term = term
         self.db = db

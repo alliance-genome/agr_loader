@@ -9,10 +9,9 @@ logger.setLevel(logging.DEBUG)
 
 class TestObject(object):
 
-    def __init__(self, useTestObject, modList):
+    def __init__(self, useTestObject):
         # TODO Separate gene ids from other forms of id?
 
-        self.modList = modList
         self.useTestObject = useTestObject
 
         self.mgiIdSet = {
@@ -145,16 +144,6 @@ class TestObject(object):
 
         #TODO use method below, or add more mods here as they become available. add back in RGD human
         self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.flybaseIdSet).union(self.sgdIdSet).union(self.rgdTestSet).union(self.humanTestSet))
-
-    def assemble_test_data(modList, modMap):
-        testIdSet = {}
-        for aggregateLoaderMOD in modList:
-            logger.info (aggregateLoaderMOD)
-            for modToTest, modTestIdSet in modMap.items():
-                logger.info (modToTest)
-                if aggregateLoaderMOD == modToTest:
-                    testIdSet.union(modTestIdSet)
-        return testIdSet
 
     def using_test_data(self):
         return self.useTestObject

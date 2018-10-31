@@ -18,12 +18,10 @@ class OntologyLoader(object):
         self.load_generic_list()
 
         end = time.time()
-        logger.info ("total time to load ontologies: ")
-        logger.info (end - start)
+        logger.info ("Total time to load ontologies: %s", str(end - start))
         return ret
 
     def load_custom(self):
-
         logger.info("Extracting GO data.")
         self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
         logger.info("Loading GO data into Neo4j.")
