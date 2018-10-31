@@ -55,9 +55,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445', 'ZFIN:ZDB-GENE-980526-388',
             'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
-            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9', 'ZFIN:ZDB-GENE-030131-4430',
             # disease specific test objects
-            'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-990415-122',
             'ZFIN:ZDB-GENE-980526-41',
             'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-980203-1091',
             'ZFIN:ZDB-GENE-000816-1', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-GENE-980526-41',
@@ -76,7 +74,7 @@ class TestObject(object):
             'FB:FBgn0032741', 'FB:FBgn0032744', 'FB:FBgn0036309', 'FB:FBgn0003470', 'FB:FBal0161187', 'FB:FBal0000003',
             'FB:FBal0000004', 'FB:FBgn0039156',
             # expression
-            'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
+            'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620', 'FB:FBgn0039883',
             # disease
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006',
 

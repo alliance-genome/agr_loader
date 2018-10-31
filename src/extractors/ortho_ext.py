@@ -70,7 +70,7 @@ class OrthoExt(object):
             if testObject.using_test_data() is True:
                 is_it_test_entry = testObject.check_for_test_id_entry(gene1AgrPrimaryId)
                 is_it_test_entry2 = testObject.check_for_test_id_entry(gene2AgrPrimaryId)
-                if is_it_test_entry is False and is_it_test_entry2 is False:
+                if is_it_test_entry is False or is_it_test_entry2 is False:
                     counter = counter - 1
                     continue
 
