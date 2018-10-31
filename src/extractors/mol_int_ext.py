@@ -162,7 +162,6 @@ class MolIntExt(object):
             
             if individual.startswith('flybase'):
                 xref_dict['primaryKey'] = individual_body
-
             xref_main_list.append(xref_dict)
 
         return xref_main_list
