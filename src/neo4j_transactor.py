@@ -1,6 +1,7 @@
 import time
 import logging
 import os
+import csv
 import pickle
 from queue import Queue
 from threading import Thread
@@ -37,7 +38,7 @@ class Neo4jTransactor(Thread):
     #            returnSet = tx.run(query)
     #    return returnSet
 
-    def execute_transaction(self, generator, filename, query):
+    def execute_transaction(generator, filename, query):
         Neo4jTransactor.count = Neo4jTransactor.count + 1
         Neo4jTransactor.queue.put((generator, filename, query, Neo4jTransactor.count))
         logger.info("Adding Items Batch: %s QueueSize: %s " % (Neo4jTransactor.count, Neo4jTransactor.queue.qsize()))
@@ -61,7 +62,6 @@ class Neo4jTransactor(Thread):
     #    return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
 
     def wait_for_queues():
-        Neo4jTransactor.rework.join()
         Neo4jTransactor.queue.join()
 
     def run(self):
@@ -69,11 +69,12 @@ class Neo4jTransactor(Thread):
         last_tx = time.time()
         while True:
 
-            (generator, filename, query, query_count) = Neo4jTransactor.queue.get()
+            (generator, filename, query_template, query_count) = Neo4jTransactor.queue.get()
+            cypher_query = query_template % filename
             
-            self.save_file(generator, filename)
             start = time.time()
-            
+            self.save_file(generator, filename)
+
             # Save VIA pickle rather then NEO
             #file_name = "tmp/transaction_%s" % batch_count
             #file = open(file_name,'wb')
@@ -83,27 +84,26 @@ class Neo4jTransactor(Thread):
             
             try:
                 session = Neo4jTransactor.graph.session()
-                tx = session.begin_transaction()
-                tx.run(cypher_query)
-                tx.commit()
+                session.run(cypher_query)
                 session.close()
                 end = time.time()
-
                 logger.info("%s: Processed query. QueueSize: %s BatchNum: %s" % (self.threadid, Neo4jTransactor.queue.qsize(), query_count))
-            except:
-                logger.error("%s: Query Failed: %s" % (self.threadid, query))
+            except Exception as e:
+                print(e)
+                logger.error("%s: Query Failed: %s" % (self.threadid, cypher_query))
                 #logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Neo4jTransactor.rework.qsize(), batch_count))
                 #Neo4jTransactor.queue.put((generator, filename, query, batch_count))
 
             Neo4jTransactor.queue.task_done()
 
     def save_file(self, data_generator, filename):
-        logger.info("Writing data to CSV: %s" % filename)
-        with open(filename, mode='w') as csv_file:
+
+        logger.info("%s: Writing data to CSV: %s" % (self.threadid, filename))
+        with open("tmp/" + filename, mode='w') as csv_file:
             first_entry = next(data_generator) # Used for obtaining the keys in the dictionary.
             csv_file_writer = csv.DictWriter(csv_file, fieldnames=list(first_entry[0]), quoting=csv.QUOTE_ALL)
             csv_file_writer.writeheader() # Write the header.
             csv_file_writer.writerows(first_entry) # Write the first entry from earlier.
             for entries in data_generator:
                 csv_file_writer.writerows(entries)
-        logger.info("Finished writting data to CSV: %s" % filename)
+        logger.info("%s: Finished writting data to CSV: %s" % (self.threadid, filename))

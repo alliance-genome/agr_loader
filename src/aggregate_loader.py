@@ -3,6 +3,7 @@ from loaders import *
 from etl import *
 from transactions import *
 from neo4j_transactor import Neo4jTransactor
+from data_file_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -23,8 +24,10 @@ class AggregateLoader(object):
 
     def run_loader(self):
 
-        thread_pool = []
+        data_manager = DataFileManager("config/default.yml")
+        data_manager.download_and_validate()
 
+        thread_pool = []
         for n in range(0, 4):
             runner = Neo4jTransactor()
             runner.threadid = n
@@ -36,7 +39,7 @@ class AggregateLoader(object):
         logger.info("Creating indices.")
         Indicies().create_indices()
 
-        so_etl = SOETL(config)
+        so_etl = SOETL(data_manager)
         so_etl.run_etl()
 
         #OntologyLoader().run_loader()
