@@ -328,39 +328,37 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
         assert record["counter"] > 0
 
 
-# TODO: comment back in these tests when ortho test data is updated with more genes.
+def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
+    query = "match (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm), " \
+            "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " \
+            "and do.name = 'holoprosencephaly 3' " \
+            "return count(deg) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 6
 
-# def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
-#     query = "match (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm), " \
-#             "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " \
-#             "and do.name = 'holoprosencephaly 3' " \
-#             "return count(deg) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 6
-#
-#
-# def test_gene_has_two_ortho_disease_annotations():
-#     query = "match (gene:Gene)--(d:DiseaseEntityJoin)--(ortho:Gene), (d)--(do:DOTerm) " \
-#             "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 1
-#
-#
-# def test_human_gene_has_zebrafish_ortho_disease_annotation():
-#     query = "match (gene:Gene)--(d:DiseaseEntityJoin)--(ortho:Gene), (d)--(do:DOTerm) " \
-#             "where ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41' " \
-#             "and gene.primaryKey='HGNC:12597' return count(d) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 0
-#
-#
-# def test_human_gene_has_mouse_ortho_disease_annotation():
-#     query = "match (gene:Gene)--(d:DiseaseEntityJoin)--(ortho:Gene), (d)--(do:DOTerm) " \
-#             "where ortho.primaryKey = 'MGI:1919338' " \
-#             "and gene.primaryKey='HGNC:12597' return count(d) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 0
+
+def test_gene_has_two_ortho_disease_annotations():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+
+
+def test_human_gene_has_zebrafish_ortho_disease_annotation():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41' " \
+            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_gene_has_mouse_ortho_disease_annotation():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'MGI:1919338' " \
+            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
