@@ -15,8 +15,8 @@ class SOETL(ETL):
         MERGE (s:SOTerm:Ontology {primaryKey:row.id})
             SET s.name = row.name """
 
-    def __init__(self, data_manager):
-        self.data_type_config = data_manager.get_config("SO")
+    def __init__(self, config):
+        self.data_type_config = config
 
     def _running_etl(self):
         return self.data_type_config != None and self.data_type_config.running_etl()

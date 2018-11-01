@@ -35,30 +35,27 @@ class AggregateLoader(object):
             runner.start()
             thread_pool.append(runner)
         
-        # The following order is REQUIRED for proper loading.
         logger.info("Creating indices.")
         Indicies().create_indices()
 
-        so_etl = SOETL(data_manager)
-        so_etl.run_etl()
+        list_of_etls = {
+            #"GO": GOETL,
+            #"DO": DOETL,
+            "SO": SOETL,
+            "MI": MIETL,
+        }
 
-        #OntologyLoader().run_loader()
-        #logger.info("OntologyLoader: Waiting for Queue to clear")
-        #Transaction.wait_for_queues()
+        list_of_types = [
+            ["MI", "SO"]
+        ]
 
-        #modloader = ModLoader()
-        #modloader.run_bgi_loader()
-        #logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
-        #Transaction.wait_for_queues()
-
-        #modloader.run_other_loaders()
-        #modloader.run_other_loaders(None, None)
-        #logger.info("ModLoader.run_other_loaders: Waiting for Queue to clear")
-        #Transaction.wait_for_queues()
-
-        #OtherDataLoader().run_loader()
-        #logger.info("OtherDataLoader: Waiting for Queue to clear")
-        #Transaction.wait_for_queues()
+        for data_types in list_of_types:
+            for data_type in data_types:
+                config = data_manager.get_config(data_type)
+                if config is not None:
+                    etl = list_of_etls[data_type](config)
+                    etl.run_etl()
+            Neo4jTransactor.wait_for_queues()
 
 if __name__ == '__main__':
     AggregateLoader().run_loader()

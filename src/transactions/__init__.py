@@ -15,6 +15,5 @@ from .mol_int import MolIntTransaction
 from .orthology import OrthoTransaction
 from .phenotype import PhenotypeTransaction
 from .resource_descriptor import ResourceDescriptorTransaction
-from .so import SOTransaction
 from .transaction import Transaction
 from .wt_expression import WTExpressionTransaction

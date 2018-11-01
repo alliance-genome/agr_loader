@@ -1,5 +1,4 @@
 from .id_ext import IdExt
-from .so_ext import SOExt
 from .obo_ext import OExt
 from .obo_ext_old import ObExto
 from .ortho_ext import OrthoExt
