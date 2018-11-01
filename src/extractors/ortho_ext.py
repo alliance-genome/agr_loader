@@ -18,10 +18,10 @@ class OrthoExt(object):
         path = "tmp"
         if testObject.using_test_data() is True:
             filename = 'orthology_test_data_1.0.0.7_2.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_2.json.tar.gz'
+            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_3.json.tar.gz'
         else:
             filename = "orthology_" + mod_name + "_1.0.0.7_2.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_2.json.tar.gz"
+            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_3.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
