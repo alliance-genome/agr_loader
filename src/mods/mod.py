@@ -117,11 +117,8 @@ class MOD(object):
 
     def extract_geo_entrez_ids_from_geo_mod(self, geoRetMax):
         entrezIds = []
-        geoTerm = "gene_geoprofiles"
-        geoDb = "gene"
-        geoRetrievalUrlPrefix = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
 
-        data = GeoExt().get_entrez_ids(self.species, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix)
+        data = GeoExt().get_entrez_ids(self.species, "gene_geoprofiles", "gene", geoRetMax, "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?")
 
         for efetchKey, efetchValue in data.items():
             # IdList is a value returned from efetch XML spec,

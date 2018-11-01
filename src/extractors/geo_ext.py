@@ -1,6 +1,5 @@
 import xmltodict, json
 from files import XMLFile, Download
-from .ncbi_efetch import NCBIEfetch
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,7 +10,10 @@ class GeoExt(object):
     def get_entrez_ids(self, species, geoTerm, geoDb, geoRetMax, geoRetrievalUrlPrefix):
 
         path = "tmp"
-        url = NCBIEfetch(species, geoRetMax, geoTerm, geoDb, geoRetrievalUrlPrefix).get_efetch_query_url()
+
+        url = geoRetrievalUrlPrefix + "term=" + geoTerm + "[filter]" + "+AND+" + urllib.parse.quote_plus(species) + "[Organism]" + "&retmax=" + geoRetMax + "&db=" + geoDb
+
+
         logger.info ("efetch url: " + url)
 
         geo_data_file_contents = Download(path, url, "geo").get_downloaded_data()

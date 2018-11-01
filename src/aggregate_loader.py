@@ -1,5 +1,6 @@
 import logging, coloredlogs
 from loaders import *
+from etl import *
 from transactions import *
 
 coloredlogs.install(level=logging.INFO,
@@ -34,23 +35,26 @@ class AggregateLoader(object):
         logger.info("Creating indices.")
         Indicies().create_indices()
 
-        [self.do_dataset, self.go_dataset] = OntologyLoader().run_loader()
-        logger.info("OntologyLoader: Waiting for Queue to clear")
-        Transaction.queue.join()
+        so_etl = SOETL(config)
+        so_etl.run_etl()
 
-        modloader = ModLoader()
-        modloader.run_bgi_loader()
-        logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
-        Transaction.queue.join()
+        #OntologyLoader().run_loader()
+        #logger.info("OntologyLoader: Waiting for Queue to clear")
+        #Transaction.wait_for_queues()
 
-        modloader.run_other_loaders(self.do_dataset, self.go_dataset)
+        #modloader = ModLoader()
+        #modloader.run_bgi_loader()
+        #logger.info("ModLoader.run_bgi_loader: Waiting for Queue to clear")
+        #Transaction.wait_for_queues()
+
+        #modloader.run_other_loaders()
         #modloader.run_other_loaders(None, None)
-        logger.info("ModLoader.run_other_loaders: Waiting for Queue to clear")
-        Transaction.queue.join()
+        #logger.info("ModLoader.run_other_loaders: Waiting for Queue to clear")
+        #Transaction.wait_for_queues()
 
-        OtherDataLoader().run_loader()
-        logger.info("OtherDataLoader: Waiting for Queue to clear")
-        Transaction.queue.join()
+        #OtherDataLoader().run_loader()
+        #logger.info("OtherDataLoader: Waiting for Queue to clear")
+        #Transaction.wait_for_queues()
 
 if __name__ == '__main__':
     AggregateLoader().run_loader()

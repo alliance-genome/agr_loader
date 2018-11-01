@@ -13,6 +13,7 @@ class Transaction(Thread):
 
     count = 0
     queue = Queue(20)
+    rework = Queue(0)
 
     if "NEO4J_NQC_HOST" in os.environ:
         host = os.environ['NEO4J_NQC_HOST']
@@ -39,8 +40,8 @@ class Transaction(Thread):
 
     def execute_transaction(self, query, data):
         Transaction.count = Transaction.count + 1
-        #logger.info("%s Adding Items to the Queue: %s Size: %s" % (Transaction.count, len(data), Transaction.queue.qsize()))
         Transaction.queue.put((query, data, Transaction.count))
+        logger.info("Adding Items Batch: %s QueueSize: %s DataSize: %s" % (Transaction.count, Transaction.queue.qsize(), len(data)))
 
     def run_single_parameter_query(self, query, parameter):
         logger.debug("Running run_single_parameter_query. Please wait...")
@@ -60,11 +61,22 @@ class Transaction(Thread):
     def split_into_chunks(self, data, batch_size):
         return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
 
+    def wait_for_queues():
+        Transaction.rework.join()
+        Transaction.queue.join()
+
     def run(self):
         logger.info("%s: Starting Transaction Thread Runner: " % self.threadid)
         last_tx = time.time()
         while True:
-            (cypher_query, query_data, batch_count) = Transaction.queue.get()
+            rework = False
+            if Transaction.rework.qsize() > 0:
+                logger.info("%s: Pulling rework: " % (self.threadid))
+                (cypher_query, query_data, batch_count) = Transaction.rework.get()
+                logger.info("%s: Proceeding with rework batch: %s" % (self.threadid, batch_count))
+                rework = True
+            else:
+                (cypher_query, query_data, batch_count) = Transaction.queue.get()
             
             #logger.info("%s Removing item: %s from queue: %s" % (batch_count, len(query_data), Transaction.queue.qsize()))
             start = time.time()
@@ -93,7 +105,10 @@ class Transaction(Thread):
                 #logger.info("%s: Time Diff: %s" % (self.threadid, end - last_tx))
                 logger.info("%s: Processed %s entries. %s r/s QueueSize: %s BatchNum: %s" % (self.threadid, len(query_data), round((len(query_data) / (end - start)), 2), Transaction.queue.qsize(), batch_count))
             except:
-                logger.warn("%s: Query Conflict: Putting Data back in Queue: %s to try later: %s" % (self.threadid, Transaction.queue.qsize(), batch_count))
-                Transaction.queue.put((cypher_query, query_data, batch_count))
+                logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Transaction.rework.qsize(), batch_count))
+                Transaction.rework.put((cypher_query, query_data, batch_count))
 
-            Transaction.queue.task_done()
+            if rework:
+                Transaction.rework.task_done()
+            else:
+                Transaction.queue.task_done()

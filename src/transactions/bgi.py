@@ -24,10 +24,7 @@ class BGITransaction(Transaction):
                         SET gchrm.start = row.start ,
                          gchrm.end = row.end ,
                          gchrm.assembly = row.assembly ,
-                         gchrm.strand = row.strand
-                
-        """
-
+                         gchrm.strand = row.strand """
         gene_secondaryIds = """
         
          UNWIND $data AS row
@@ -35,10 +32,7 @@ class BGITransaction(Transaction):
                 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                     SET second.name = row.secondary_id
-                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second)
-        
-
-        """
+                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
         gene_synonyms = """
         
          UNWIND $data AS row
@@ -46,9 +40,7 @@ class BGITransaction(Transaction):
                 
                MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
-                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
-        """
-
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
         gene_query = """
 
             UNWIND $data AS row
@@ -101,13 +93,9 @@ class BGITransaction(Transaction):
 
             //Create the relationship from the gene node to the SOTerm node.
             MERGE (o)-[x:ANNOTATED_TO]->(s) """
-
-
         xrefs = """
             UNWIND $data as event
-                MATCH (o:Gene {primaryKey:event.dataId})
-        
-        """ + CreateCrossReference.get_cypher_xref_text("gene")
+                MATCH (o:Gene {primaryKey:event.dataId}) """ + CreateCrossReference.get_cypher_xref_text("gene")
 
         if len(gene_dataset) > 0:
             self.execute_transaction(gene_query, gene_dataset)

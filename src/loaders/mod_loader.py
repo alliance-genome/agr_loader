@@ -27,25 +27,12 @@ class ModLoader(object):
         for mod in self.mods:
             logger.info("Loading BGI data for %s into Neo4j." % mod.species)
             genes = mod.load_genes()  # generator object
-            c = 0
-            start = time.time()
             for gene_list in genes:
                 #logger.info("BGI genes: %s" % len(gene_list))
                 BGITransaction().bgi_tx(list(gene_list[0]), list(gene_list[1]), list(gene_list[2]), list(gene_list[3]), list(gene_list[4]))
 
-                c = c + len(gene_list)
-            end = time.time()
-            logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
-
-    def run_other_loaders(self, go_dataset, do_dataset):
+    def run_other_loaders(self):
        
-        this_dir = os.path.split(__file__)[0]
-        #initialize gene description generator from config file
-        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "../services", "gene_descriptions", "genedesc_config.yml"),
-                                               go_ontology=go_dataset, do_ontology=do_dataset)
-        cached_data_fetcher = None
-
-
         for mod in self.mods:
             
             if mod.species != 'Homo sapiens':
@@ -93,14 +80,22 @@ class ModLoader(object):
             logger.info("Loading GEO annotations for %s." % mod.species)
             GeoXrefTransaction().geo_xref_tx(geo_xrefs)
 
-            logger.info("Generating gene descriptions for %s." % mod.species)
-            if mod.dataProvider and go_dataset != None and do_dataset != None:
-                cached_data_fetcher = genedesc_generator.generate_descriptions(
-                    go_annotations=go_annots,
-                    do_annotations=do_annotations,
-                    do_annotations_allele=do_annotations_allele,
-                    ortho_data=ortholog_data,
-                    data_provider=mod.dataProvider,
-                    cached_data_fetcher=cached_data_fetcher,
-                    human=isinstance(mod, Human))
+    def run_other_other_loaders(self):
+
+        this_dir = os.path.split(__file__)[0]
+        #initialize gene description generator from config file
+        genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "../services", "gene_descriptions", "genedesc_config.yml"),
+                                               go_ontology=go_dataset, do_ontology=do_dataset)
+        cached_data_fetcher = None
+
+        logger.info("Generating gene descriptions for %s." % mod.species)
+        if mod.dataProvider and go_dataset != None and do_dataset != None:
+            cached_data_fetcher = genedesc_generator.generate_descriptions(
+                go_annotations=go_annots,
+                do_annotations=do_annotations,
+                do_annotations_allele=do_annotations_allele,
+                ortho_data=ortholog_data,
+                data_provider=mod.dataProvider,
+                cached_data_fetcher=cached_data_fetcher,
+                human=isinstance(mod, Human))
             

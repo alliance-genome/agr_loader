@@ -23,11 +23,11 @@ class OntologyLoader(object):
 
     def load_custom(self):
         logger.info("Extracting GO data.")
-        self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
+        go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
         logger.info("Loading GO data into Neo4j.")
         go_data_loaded = []
-        for n in self.go_dataset.nodes():
-            node = self.go_dataset.node(n)
+        for n in go_dataset.nodes():
+            node = go_dataset.node(n)
             if node.get('type') == "PROPERTY":
                 continue
             go_data_loaded.append(node)
@@ -35,11 +35,11 @@ class OntologyLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
+        do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         do_data_loaded = []
-        for n in self.do_dataset.nodes():
-            node = self.do_dataset.node(n)
+        for n in do_dataset.nodes():
+            node = do_dataset.node(n)
             if node.get('type') == "PROPERTY":
                 continue
             if 'oid' in node:   # Primarily filters out the empty nodes
@@ -48,17 +48,14 @@ class OntologyLoader(object):
         # Does not get cleared because its used later self.do_dataset.clear()
 
         logger.info("Downloading MI data.")
-        self.mi_dataset = MIExt().get_data()
+        mi_dataset = MIExt().get_data()
         logger.info("Loading MI data into Neo4j.")
-        MITransaction().mi_tx(self.mi_dataset)
+        MITransaction().mi_tx(mi_dataset)
 
         logger.info("Extracting SO data.")
-        self.so_dataset = SOExt().get_data()
+        so_dataset = SOExt().get_data()
         logger.info("Loading SO data into Neo4j.")
-        SOTransaction().so_tx(self.so_dataset)
-
-
-        return [self.do_dataset, self.go_dataset]
+        SOTransaction().so_tx(so_dataset)
 
     def load_generic_list(self):
 
