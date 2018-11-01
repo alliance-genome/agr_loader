@@ -16,12 +16,8 @@ class OrthoExt(object):
     @staticmethod
     def get_data(testObject, mod_name, batch_size):
         path = "tmp"
-        if testObject.using_test_data() is True:
-            filename = 'orthology_test_data_1.0.0.7_2.json'
-            filename_comp = 'ORTHO/orthology_test_data_1.0.0.7_2.json.tar.gz'
-        else:
-            filename = "orthology_" + mod_name + "_1.0.0.7_2.json"
-            filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_2.json.tar.gz"
+        filename = "orthology_" + mod_name + "_1.0.0.7_2.json"
+        filename_comp = "ORTHO/orthology_" + mod_name + "_1.0.0.7_2.json.tar.gz"
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
@@ -72,6 +68,13 @@ class OrthoExt(object):
             counter = counter + 1
 
             ortho_uuid = str(uuid.uuid4())
+
+            if testObject.using_test_data() is True:
+                is_it_test_entry = testObject.check_for_test_id_entry(gene1AgrPrimaryId)
+                is_it_test_entry2 = testObject.check_for_test_id_entry(gene2AgrPrimaryId)
+                if is_it_test_entry is False and is_it_test_entry2 is False:
+                    counter = counter - 1
+                    continue
 
             if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
