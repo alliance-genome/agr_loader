@@ -1,6 +1,6 @@
-
+from etl import ETL
 import logging
-from transactions import Transaction
+from neo4j_transactor import Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class SOETL(ETL):
 
     def _process_data(self, data):
         generator = get_generators(data)
-        Transaction.queue.add(generator, "so_data.csv", self.query)
+        Neo4jTransactor.execute_transaction(generator, "so_data.csv", self.query)
 
     def get_generators(self, data):
         for current_line, next_line in self.get_current_next(data):

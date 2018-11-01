@@ -2,6 +2,7 @@ import logging, coloredlogs
 from loaders import *
 from etl import *
 from transactions import *
+from neo4j_transactor import Neo4jTransactor
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -25,11 +26,11 @@ class AggregateLoader(object):
         thread_pool = []
 
         for n in range(0, 4):
-            trans_runner = Transaction()
-            trans_runner.threadid = n
-            trans_runner.daemon = True
-            trans_runner.start()
-            thread_pool.append(trans_runner)
+            runner = Neo4jTransactor()
+            runner.threadid = n
+            runner.daemon = True
+            runner.start()
+            thread_pool.append(runner)
         
         # The following order is REQUIRED for proper loading.
         logger.info("Creating indices.")

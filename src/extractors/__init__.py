@@ -5,12 +5,10 @@ from .obo_ext_old import ObExto
 from .ortho_ext import OrthoExt
 from .bgi_ext import BGIExt
 from .allele_ext import AlleleExt
-from .disease_gene_ext import DiseaseGeneExt
 from .disease_allele_ext import DiseaseAlleleExt
 from .primary_data_object_type import PrimaryDataObjectType
 from .resource_descriptor_ext import ResourceDescriptor
 from .geo_ext import GeoExt
-from .ncbi_efetch import NCBIEfetch
 from .mol_int_ext import MolIntExt
 from .mi_ext import MIExt
 from .phenotype_ext import PhenotypeExt

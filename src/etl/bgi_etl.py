@@ -1,4 +1,4 @@
-
+from etl import ETL
 
 class BGIETL(ETL):
 
