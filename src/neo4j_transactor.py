@@ -38,7 +38,7 @@ class Neo4jTransactor(Thread):
     #            returnSet = tx.run(query)
     #    return returnSet
 
-    def execute_transaction(generator, filename, query):
+    def execute_transaction(self, generator, filename, query):
         Neo4jTransactor.count = Neo4jTransactor.count + 1
         Neo4jTransactor.queue.put((generator, filename, query, Neo4jTransactor.count))
         logger.info("Adding Items Batch: %s QueueSize: %s " % (Neo4jTransactor.count, Neo4jTransactor.queue.qsize()))
@@ -61,7 +61,7 @@ class Neo4jTransactor(Thread):
     #def split_into_chunks(self, data, batch_size):
     #    return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
 
-    def wait_for_queues():
+    def wait_for_queues(self):
         Neo4jTransactor.queue.join()
 
     def run(self):

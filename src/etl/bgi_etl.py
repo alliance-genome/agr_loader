@@ -2,6 +2,7 @@ import uuid
 from etl import ETL
 from services import *
 from extractors import *
+from neo4j_transactor import Neo4jTransactor
 
 import logging
 
@@ -112,13 +113,14 @@ class BGIETL(ETL):
         for mod_config in self.data_type_config.get_mod_configs():
             data = mod_config.get_data()
             
-            (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences) = self.get_generators(data, mod_config.species, 1000)
+            bgi_dataset = self.get_generators(data, mod_config.species, 1000)
 
-            Neo4jTransactor.execute_transaction(gene_dataset, "gene_data_" + DataProvider.get_data_provider(mod_config.species) + ".csv", BGIETL.gene_query_template)
-            Neo4jTransactor.execute_transaction(synonyms, "gene_synonyms_" + DataProvider.get_data_provider(mod_config.species) + ".csv", BGIETL.gene_synonyms_template)
-            Neo4jTransactor.execute_transaction(secondaryIds, "gene_secondaryIds_" + DataProvider.get_data_provider(mod_config.species) + ".csv", BGIETL.gene_secondaryIds_template)
-            Neo4jTransactor.execute_transaction(genomicLocations, "gene_genomicLocations_" + DataProvider.get_data_provider(mod_config.species) + ".csv", BGIETL.genomic_locations_template)
-            Neo4jTransactor.execute_transaction(crossReferences, "gene_crossReferences_" + DataProvider.get_data_provider(mod_config.species) + ".csv", BGIETL.xrefs_template)
+            for bgi_batch in bgi_dataset:
+                Neo4jTransactor.execute_transaction(bgi_batch[0], "gene_data_" + mod_config.species + ".csv", BGIETL.gene_query_template)
+                Neo4jTransactor.execute_transaction(bgi_batch[1], "gene_synonyms_" + mod_config.species + ".csv", BGIETL.gene_synonyms_template)
+                Neo4jTransactor.execute_transaction(bgi_batch[2], "gene_secondaryIds_" + mod_config.species + ".csv", BGIETL.gene_secondaryIds_template)
+                Neo4jTransactor.execute_transaction(bgi_batch[3], "gene_genomicLocations_" + mod_config.species + ".csv", BGIETL.genomic_locations_template)
+                Neo4jTransactor.execute_transaction(bgi_batch[4], "gene_crossReferences_" + mod_config.species + ".csv", BGIETL.xrefs_template)
 
     def get_generators(self, gene_data, species, batch_size):
         xrefUrlMap = ResourceDescriptor().get_data()

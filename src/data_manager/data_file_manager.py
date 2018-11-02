@@ -28,7 +28,7 @@ class DataFileManager(object):
     def download_and_validate(self):
         pass
 
-    def process_config(self, data_type):
+    def process_config(self):
         validator = Validator(self.validation_schema)
         validation_results = validator.validate(self.config_data)
 
@@ -46,4 +46,4 @@ class DataFileManager(object):
         quit()
 
         # More logic here to generate config object
-        return DataTypeConfig(data_type)
+        pass

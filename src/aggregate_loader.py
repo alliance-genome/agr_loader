@@ -25,9 +25,9 @@ class AggregateLoader(object):
     def run_loader(self):
 
         # TODO Allow the yaml file location to be overwritten by command line input (for Travis).
-        data_manager = DataFileManager("config/default.yml")
-        data_manager.process_config()
-        data_manager.download_and_validate()
+        data_manager = DataFileManager('config/default.yml')
+        # data_manager.process_config()
+        # data_manager.download_and_validate()
 
         thread_pool = []
         for n in range(0, 4):
