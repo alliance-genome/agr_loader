@@ -10,7 +10,6 @@ from .geo_xref import GeoXrefTransaction
 from .go import GOTransaction
 from .go_annot import GOAnnotTransaction
 from .indices import Indicies
-from .mi import MITransaction
 from .mol_int import MolIntTransaction
 from .orthology import OrthoTransaction
 from .phenotype import PhenotypeTransaction
