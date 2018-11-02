@@ -1,0 +1,3 @@
+class ModConfig(object):
+
+    pass

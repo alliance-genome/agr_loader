@@ -1,0 +1,8 @@
+Schema_Version: 
+  type: num
+Release_Version: 
+  type: num
+BGI:
+  type: list
+Ontologies:
+  type: list

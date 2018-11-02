@@ -11,3 +11,4 @@ ontobio
 boto3
 coloredlogs
 verboselogs
+cerberus

@@ -1,0 +1,7 @@
+Schema_Version: 1.0.0.7
+Release_Version: 2.0
+BGI: 
+  - FB
+  - SGD
+Ontologies:
+  - SO

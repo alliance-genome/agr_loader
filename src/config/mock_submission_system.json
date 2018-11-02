@@ -1,0 +1,28 @@
+{
+    "releaseVersion": "2.1.0.0",
+    "schemaVersion": "1.0.0.7",
+    "system": "production",
+    "snapShotDate": 1523284823719,
+    "dataFiles": [
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "7955",
+            "path": "1.0.0.7/BGI/7955/1.0.0.7\_BGI\_7955\_1.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "SO",
+            "path": "SO/so_1.7.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "DAF",
+            "taxonId": "7955",
+            "path": "1.0.0.7/DAF/7955/1.0.0.7\_DAF\_7955\_1.json",
+            "uploadDate": 1522180298184
+        }
+    ]
+}
