@@ -9,14 +9,14 @@ logger.setLevel(logging.DEBUG)
 
 class JSONFile(object):
 
-    def get_data(self, filename, jsonType):
+    def get_data(self, filename):
         logger.info("Loading json data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             logger.info ("file open")
             data = json.load(f)
             logger.info ("json data extracted")
         f.close()
-        self.validate_json(data, filename, jsonType)
+        #self.validate_json(data, filename, jsonType)
         return data
 
     def validate_json(self, data, filename, jsonType):

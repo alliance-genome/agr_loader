@@ -16,17 +16,10 @@ class SOETL(ETL):
             SET s.name = row.name """
 
     def __init__(self, config):
+        super().__init__()
         self.data_type_config = config
 
-    def _running_etl(self):
-        return self.data_type_config != None and self.data_type_config.running_etl()
-
     def _load_and_process_data(self):
-        #for mod in mods
-        #    json_data self.data_type_config.get_data()
-        #    generator = self.get_generators(data)
-        #    Neo4jTransactor.execute_transaction(generator, "so_data.csv", self.query)
-
         data = self.data_type_config.get_data()
         generator = self.get_generators(data)
         Neo4jTransactor.execute_transaction(generator, "so_data.csv", SOETL.query_template)

@@ -21,7 +21,7 @@ class CreateCrossReference(object):
         return crossReference
 
     # make one place to create a cross reference node with consistent attributes
-    def get_cypher_xref_text(objectType):
+    def get_cypher_xref_text():
 
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})

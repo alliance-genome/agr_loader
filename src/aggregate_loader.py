@@ -43,10 +43,13 @@ class AggregateLoader(object):
             #"DO": DOETL,
             "SO": SOETL,
             "MI": MIETL,
+            "BGI": BGIETL
+            #"Allele": AlleleETL,
         }
 
         list_of_types = [
-            ["MI", "SO"]
+            ["MI", "SO"],
+            ["BGI"],
         ]
 
         for data_types in list_of_types:

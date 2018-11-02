@@ -20,6 +20,7 @@ class MIETL(ETL):
     """
 
     def __init__(self, config):
+        super().__init__()
         self.data_type_config = config
 
     def _load_and_process_data(self):
