@@ -29,13 +29,13 @@ class DataTypeConfig(object):
     def get_mod_configs(self):
 
         configs = []
-        configs.append(ModConfig("FB_1.0.0.7_4.tar.gz", "FB_1.0.0.7_BGI.json", "Drosophila melanogaster"))
-        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.9606.json", "Homo sapiens"))
-        configs.append(ModConfig("MGI_1.0.0.7_2.tar.gz", "MGI_1.0.0.7_BGI.json", "Mus musculus"))
-        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.10116.json", "Rattus norvegicus"))
-        configs.append(ModConfig("SGD_1.0.0.7_1.tar.gz", "SGD_1.0.0.7_basicGeneInformation.json", "Saccharomyces cerevisiae"))
-        configs.append(ModConfig("WB_1.0.0.7_4.tar.gz", "WB_1.0.0.7_BGI.json", "Caenorhabditis elegans"))
-        configs.append(ModConfig("ZFIN_1.0.0.7_3.tar.gz", "ZFIN_1.0.0.7_basicGeneInformation.json", "Danio rerio"))
+        configs.append(ModConfig("FB_1.0.0.7_4.tar.gz", "FB_1.0.0.7_BGI.json", "Drosophila_melanogaster"))
+        # configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.9606.json", "Homo_sapiens"))
+        configs.append(ModConfig("MGI_1.0.0.7_2.tar.gz", "MGI_1.0.0.7_BGI.json", "Mus_musculus"))
+        # configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.10116.json", "Rattus_norvegicus"))
+        configs.append(ModConfig("SGD_1.0.0.7_1.tar.gz", "SGD_1.0.0.7_basicGeneInformation.json", "Saccharomyces_cerevisiae"))
+        configs.append(ModConfig("WB_1.0.0.7_4.tar.gz", "WB_1.0.0.7_BGI.json", "Caenorhabditis_elegans"))
+        configs.append(ModConfig("ZFIN_1.0.0.7_3.tar.gz", "ZFIN_1.0.0.7_basicGeneInformation.json", "Danio_rerio"))
         return configs
 
 class ModConfig(object):
@@ -50,4 +50,3 @@ class ModConfig(object):
         S3File(self.tarfilename, path).download()
         TARFile(path, self.tarfilename).extract_all()
         return JSONFile().get_data(path + "/" + self.filename)
-

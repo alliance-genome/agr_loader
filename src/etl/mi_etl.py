@@ -25,7 +25,12 @@ class MIETL(ETL):
 
     def _load_and_process_data(self):
         generator = self.get_generators()
-        Neo4jTransactor.execute_transaction(generator, "mi_term_data.csv", MIETL.query_template)
+
+        mi_file_query_list = [
+            ("mi_term_data.csv", MIETL.query_template),
+            ]
+            
+        Neo4jTransactor.execute_transaction(generator, mi_file_query_list)
 
     @staticmethod
     def add_miterm_url(identifier):

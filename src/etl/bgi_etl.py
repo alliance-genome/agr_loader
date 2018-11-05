@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class BGIETL(ETL):
 
     genomic_locations_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT 25000
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                 
             MATCH (o:Gene {primaryKey:row.primaryId})
@@ -24,7 +24,7 @@ class BGIETL(ETL):
                 gchrm.strand = row.strand """
     
     gene_secondaryIds_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT 25000
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
@@ -34,7 +34,7 @@ class BGIETL(ETL):
             MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
 
     gene_synonyms_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT 25000
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
@@ -45,7 +45,7 @@ class BGIETL(ETL):
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     gene_query_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT 25000
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             //Create the load node(s)
@@ -99,7 +99,7 @@ class BGIETL(ETL):
 
     xrefs_template = """
 
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT 25000
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS event
 
             MATCH (o:Gene {primaryKey:event.dataId}) """ + CreateCrossReference.get_cypher_xref_text()
@@ -112,15 +112,24 @@ class BGIETL(ETL):
         
         for mod_config in self.data_type_config.get_mod_configs():
             data = mod_config.get_data()
-            
+
+            # This order is the same as the lists yielded from the get_generators function.    
+            # A list of tuples.
+            bgi_file_query_list = [
+                ("gene_data_" + mod_config.species + ".csv", BGIETL.gene_query_template),
+                ("gene_synonyms_" + mod_config.species + ".csv" , BGIETL.gene_synonyms_template),
+                ("gene_secondaryIds_" + mod_config.species + ".csv", BGIETL.gene_secondaryIds_template),
+                ("gene_genomicLocations_" + mod_config.species + ".csv", BGIETL.genomic_locations_template),
+                ("gene_crossReferences_" + mod_config.species + ".csv", BGIETL.xrefs_template)
+            ]
+
+            # Obtain the generator
             bgi_dataset = self.get_generators(data, mod_config.species, 1000)
 
-            for bgi_batch in bgi_dataset:
-                Neo4jTransactor.execute_transaction(bgi_batch[0], "gene_data_" + mod_config.species + ".csv", BGIETL.gene_query_template)
-                Neo4jTransactor.execute_transaction(bgi_batch[1], "gene_synonyms_" + mod_config.species + ".csv", BGIETL.gene_synonyms_template)
-                Neo4jTransactor.execute_transaction(bgi_batch[2], "gene_secondaryIds_" + mod_config.species + ".csv", BGIETL.gene_secondaryIds_template)
-                Neo4jTransactor.execute_transaction(bgi_batch[3], "gene_genomicLocations_" + mod_config.species + ".csv", BGIETL.genomic_locations_template)
-                Neo4jTransactor.execute_transaction(bgi_batch[4], "gene_crossReferences_" + mod_config.species + ".csv", BGIETL.xrefs_template)
+            # Prepare the transaction
+            Neo4jTransactor.execute_transaction(bgi_dataset, bgi_file_query_list)
+
+    # def save_file(self, data_generator, filename):
 
     def get_generators(self, gene_data, species, batch_size):
         xrefUrlMap = ResourceDescriptor().get_data()

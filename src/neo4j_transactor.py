@@ -6,6 +6,7 @@ import pickle
 from queue import Queue
 from threading import Thread
 from neo4j.v1 import GraphDatabase
+from contextlib import ExitStack
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -36,12 +37,13 @@ class Neo4jTransactor(Thread):
     #    with self.graph.session() as session:
     #        with session.begin_transaction() as tx:
     #            returnSet = tx.run(query)
-    #    return returnSet
+    #    return returnSet     
 
-    def execute_transaction(self, generator, filename, query):
+    @staticmethod
+    def execute_transaction(generator, data_tuple_list):
         Neo4jTransactor.count = Neo4jTransactor.count + 1
-        Neo4jTransactor.queue.put((generator, filename, query, Neo4jTransactor.count))
-        logger.info("Adding Items Batch: %s QueueSize: %s " % (Neo4jTransactor.count, Neo4jTransactor.queue.qsize()))
+        Neo4jTransactor.queue.put((generator, data_tuple_list, Neo4jTransactor.count))
+        logger.info("Adding Items Batch: %s QueueSize: %s " % (Neo4jTransactor.count, Neo4jTransactor.queue.qsize()))         
 
     #def run_single_parameter_query(self, query, parameter):
     #    logger.debug("Running run_single_parameter_query. Please wait...")
@@ -69,11 +71,17 @@ class Neo4jTransactor(Thread):
         last_tx = time.time()
         while True:
 
-            (generator, filename, query_template, query_count) = Neo4jTransactor.queue.get()
-            cypher_query = query_template % filename
+            ((generator, data_tuple_list, Neo4jTransactor.count)) = Neo4jTransactor.queue.get()
             
+            list_of_queries = []
+            for possible_queries in data_tuple_list:
+                # Add the filename for each file to the appropriate query.
+                query_to_run = possible_queries[1] % possible_queries[0]
+                # Append the query once the filename is specified.
+                list_of_queries.append(query_to_run)
+
             start = time.time()
-            self.save_file(generator, filename)
+            self.save_file(generator, data_tuple_list)
 
             # Save VIA pickle rather then NEO
             #file_name = "tmp/transaction_%s" % batch_count
@@ -82,28 +90,43 @@ class Neo4jTransactor(Thread):
             #pickle.dump((cypher_query, query_data), file)
             #file.close() 
             
-            try:
-                session = Neo4jTransactor.graph.session()
-                session.run(cypher_query)
-                session.close()
-                end = time.time()
-                logger.info("%s: Processed query. QueueSize: %s BatchNum: %s" % (self.threadid, Neo4jTransactor.queue.qsize(), query_count))
-            except Exception as e:
-                print(e)
-                logger.error("%s: Query Failed: %s" % (self.threadid, cypher_query))
-                #logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Neo4jTransactor.rework.qsize(), batch_count))
-                #Neo4jTransactor.queue.put((generator, filename, query, batch_count))
+            for cypher_query in list_of_queries:
+                try:
+                    session = Neo4jTransactor.graph.session()
+                    session.run(cypher_query)
+                    session.close()
+                    end = time.time()
+                    logger.info("%s: Processed query. QueueSize: %s" % (self.threadid, Neo4jTransactor.queue.qsize))
+                except Exception as e:
+                    print(e)
+                    logger.error("%s: Query Failed: %s" % (self.threadid, cypher_query))
+                    #logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Neo4jTransactor.rework.qsize(), batch_count))
+                    #Neo4jTransactor.queue.put((generator, filename, query, batch_count))
 
             Neo4jTransactor.queue.task_done()
 
-    def save_file(self, data_generator, filename):
+    def save_file(self, generator, data_tuple_list):
+        with ExitStack() as stack:
+            # Open all necessary CSV files at once.
+            open_files = [stack.enter_context(open('tmp/' + fname[0], 'w', encoding='utf-8')) for fname in data_tuple_list]
 
-        logger.info("%s: Writing data to CSV: %s" % (self.threadid, filename))
-        with open("tmp/" + filename, mode='w') as csv_file:
-            first_entry = next(data_generator) # Used for obtaining the keys in the dictionary.
-            csv_file_writer = csv.DictWriter(csv_file, fieldnames=list(first_entry[0]), quoting=csv.QUOTE_ALL)
-            csv_file_writer.writeheader() # Write the header.
-            csv_file_writer.writerows(first_entry) # Write the first entry from earlier.
-            for entries in data_generator:
-                csv_file_writer.writerows(entries)
-        logger.info("%s: Finished writting data to CSV: %s" % (self.threadid, filename))
+            # Grab the first set of lists from the generator.
+            # The are stored in a tuple.
+            first_entry = next(generator)              
+
+            # Create the csv_writer for each file. Write the header and the first batch of data.
+            csv_writer_list = []
+            for index, open_file in enumerate(open_files):
+                try: 
+                    csv_file_writer = csv.DictWriter(open_file, fieldnames=list(first_entry[index][0]), quoting=csv.QUOTE_ALL)
+                except IndexError:
+                    print(first_entry[index])
+                    print(first_entry[index][0])
+                csv_file_writer.writeheader()
+                csv_file_writer.writerows(first_entry[index])
+                csv_writer_list.append(csv_file_writer)
+            
+            # Write the rest of the data per file for each list in the generator.
+            for generator_entry in generator:
+                for index, individual_list in enumerate(generator_entry):
+                    csv_writer_list[index].writerows(individual_list)       

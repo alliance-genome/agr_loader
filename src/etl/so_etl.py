@@ -22,8 +22,13 @@ class SOETL(ETL):
     def _load_and_process_data(self):
         data = self.data_type_config.get_data()
         generator = self.get_generators(data)
-        Neo4jTransactor.execute_transaction(generator, "so_data.csv", SOETL.query_template)
 
+        so_file_query_list = [
+            ("so_term_data.csv", SOETL.query_template),
+            ]
+            
+        Neo4jTransactor.execute_transaction(generator, so_file_query_list)
+        
     def get_generators(self, data):
         so_list = []
         for current_line, next_line in self.get_current_next(data):
