@@ -1,7 +1,7 @@
 from etl import ETL
 import logging
 import urllib, json
-from neo4j_transactor import Neo4jTransactor
+from transactors import *
 import sys
 
 logger = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class MIETL(ETL):
 
     query_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         //Create the MITerm node and set properties. primaryKey is required.
@@ -26,11 +26,9 @@ class MIETL(ETL):
     def _load_and_process_data(self):
         generator = self.get_generators()
 
-        mi_file_query_list = [
-            ("mi_term_data.csv", MIETL.query_template),
-            ]
+        mi_file_query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
             
-        Neo4jTransactor.execute_transaction(generator, mi_file_query_list)
+        CSVTransactor.execute_transaction(generator, mi_file_query_list)
 
     @staticmethod
     def add_miterm_url(identifier):

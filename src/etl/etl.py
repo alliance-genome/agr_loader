@@ -1,5 +1,4 @@
 import logging, os
-from neo4j_transactor import Neo4jTransactor
 from test import TestObject
 
 logger = logging.getLogger(__name__)
@@ -17,3 +16,21 @@ class ETL(object):
 
     def run_etl(self):
         self._load_and_process_data()
+
+
+    def get_cypher_xref_text():
+
+        return """
+                MERGE (id:CrossReference:Identifier {primaryKey:event.primaryKey})
+                    SET id.name = event.id,
+                     id.globalCrossRefId = event.globalCrossRefId,
+                     id.localId = event.localId,
+                     id.crossRefCompleteUrl = event.crossRefCompleteUrl,
+                     id.prefix = event.prefix,
+                     id.crossRefType = event.crossRefType,
+                     id.uuid = event.uuid,
+                     id.page = event.page,
+                     id.primaryKey = event.primaryKey,
+                     id.displayName = event.displayName
+
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """

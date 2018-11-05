@@ -1,6 +1,6 @@
 from etl import ETL
 import logging
-from neo4j_transactor import Neo4jTransactor
+from transactors import *
 from itertools import islice, chain, tee
 import sys
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class SOETL(ETL):
 
     query_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MERGE (s:SOTerm:Ontology {primaryKey:row.id})
@@ -23,11 +23,9 @@ class SOETL(ETL):
         data = self.data_type_config.get_data()
         generator = self.get_generators(data)
 
-        so_file_query_list = [
-            ("so_term_data.csv", SOETL.query_template),
-            ]
+        so_file_query_list = [[SOETL.query_template, 10000, "so_term_data.csv"]]
             
-        Neo4jTransactor.execute_transaction(generator, so_file_query_list)
+        CSVTransactor.execute_transaction(generator, so_file_query_list)
         
     def get_generators(self, data):
         so_list = []

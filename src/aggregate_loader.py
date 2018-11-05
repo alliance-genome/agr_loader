@@ -1,8 +1,8 @@
 import logging, coloredlogs
 from loaders import *
 from etl import *
+from transactors import *
 from transactions import *
-from neo4j_transactor import Neo4jTransactor
 from data_file_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
@@ -29,13 +29,8 @@ class AggregateLoader(object):
         # data_manager.process_config()
         # data_manager.download_and_validate()
 
-        thread_pool = []
-        for n in range(0, 4):
-            runner = Neo4jTransactor()
-            runner.threadid = n
-            runner.daemon = True
-            runner.start()
-            thread_pool.append(runner)
+        Neo4jTransactor().start_threads(4)
+        CSVTransactor().start_threads(4)
         
         logger.info("Creating indices.")
         Indicies().create_indices()
@@ -59,6 +54,7 @@ class AggregateLoader(object):
                 if config is not None:
                     etl = list_of_etls[data_type](config)
                     etl.run_etl()
+            CSVTransactor().wait_for_queues()
             Neo4jTransactor().wait_for_queues()
 
 if __name__ == '__main__':

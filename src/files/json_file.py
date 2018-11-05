@@ -5,16 +5,15 @@ import os
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class JSONFile(object):
 
     def get_data(self, filename):
         logger.info("Loading json data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
-            logger.info ("file open")
+            logger.info ("Opening JSONFile: %s" % filename)
             data = json.load(f)
-            logger.info ("json data extracted")
+            logger.info ("JSon data extracted %s" % filename)
         f.close()
         #self.validate_json(data, filename, jsonType)
         return data

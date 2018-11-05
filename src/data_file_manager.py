@@ -23,16 +23,19 @@ class DataTypeConfig(object):
         S3File(path_to_file, "tmp/").download()
         return TXTFile("tmp/" + path_to_file).get_data()
 
-    def running_etl(self):
-        return True
+    def get_neo4j_commit_size(self):
+        return 2500
+
+    def get_generator_batch_size(self):
+        return 10000
 
     def get_mod_configs(self):
 
         configs = []
         configs.append(ModConfig("FB_1.0.0.7_4.tar.gz", "FB_1.0.0.7_BGI.json", "Drosophila_melanogaster"))
-        # configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.9606.json", "Homo_sapiens"))
+        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.9606.json", "Homo_sapiens"))
         configs.append(ModConfig("MGI_1.0.0.7_2.tar.gz", "MGI_1.0.0.7_BGI.json", "Mus_musculus"))
-        # configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.10116.json", "Rattus_norvegicus"))
+        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.10116.json", "Rattus_norvegicus"))
         configs.append(ModConfig("SGD_1.0.0.7_1.tar.gz", "SGD_1.0.0.7_basicGeneInformation.json", "Saccharomyces_cerevisiae"))
         configs.append(ModConfig("WB_1.0.0.7_4.tar.gz", "WB_1.0.0.7_BGI.json", "Caenorhabditis_elegans"))
         configs.append(ModConfig("ZFIN_1.0.0.7_3.tar.gz", "ZFIN_1.0.0.7_basicGeneInformation.json", "Danio_rerio"))

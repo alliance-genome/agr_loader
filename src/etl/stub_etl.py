@@ -1,13 +1,13 @@
 from etl import ETL
 import logging
-from neo4j_transactor import Neo4jTransactor
+from transactors import *
 
 logger = logging.getLogger(__name__)
 
 class StubETL(ETL):
 
     query_template = """
-        USING PERIODIC COMMIT 10000
+        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MERGE (n:Node {primaryKey:row.id})
@@ -23,9 +23,9 @@ class StubETL(ETL):
         #    generator = self.get_generators(data)
         #    Neo4jTransactor.execute_transaction(generator, "so_data.csv", self.query)
 
-        data = self.data_type_config.get_data()
-        generator = self.get_generators(data)
-        Neo4jTransactor.execute_transaction(generator, "neo4j_data.csv", StubETL.query_template)
+        # data = self.data_type_config.get_data()
+        # generator = self.get_generators(data)
+        # Neo4jTransactor.execute_transaction(generator, "neo4j_data.csv", StubETL.query_template)
 
     def get_generators(self, data):
         pass
