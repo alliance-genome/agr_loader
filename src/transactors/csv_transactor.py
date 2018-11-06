@@ -60,7 +60,7 @@ class CSVTransactor(Transactor):
                     current_filename = open_files[index].name # Our current CSV output file.
 
                     if len(individual_list) == 0:
-                        logger.warn("No data found when writing to %s! Skipping output file." % (current_filename))
+                        logger.warn("No data found when writing to csv! Skipping output file: %s" % (current_filename))
                         continue
                     if csv_file_writer[index] is None: # If we haven't yet created a DictWriter for this particular file.
                         try:
