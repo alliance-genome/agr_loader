@@ -70,17 +70,17 @@ class AggregateLoader(object):
         start = time.time()
 
         logger.info("Extracting GO data.")
-        #self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
+        self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
         logger.info("Loading GO data into Neo4j.")
-        # GOLoader(self.graph).load_go(self.go_dataset)
+        GOLoader(self.graph).load_go(self.go_dataset)
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
 
         #TODO: Oct 24 version of DO is broken, go back a release for 2.0
-        #self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
-        #DOLoader(self.graph).load_do(self.do_dataset)
+        DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
 
         logger.info("Downloading MI data.")
