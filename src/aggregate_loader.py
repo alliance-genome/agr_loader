@@ -77,8 +77,7 @@ class AggregateLoader(object):
 
         logger.info("Extracting DO data.")
 
-        #TODO: Oct 24 version of DO is broken, go back a release for 2.0
-        self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
+        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
