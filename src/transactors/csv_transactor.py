@@ -47,43 +47,34 @@ class CSVTransactor(Transactor):
             self.save_file(generator, query_list_with_params)
             CSVTransactor.queue.task_done()
 
-
     def save_file(self, generator, query_list_with_params):
-
-        csv_file_writer_list = []
 
         with ExitStack() as stack:
             # Open all necessary CSV files at once.
             open_files = [stack.enter_context(open('tmp/' + query_params[2], 'w', encoding='utf-8')) for query_params in query_list_with_params]
+            
+            csv_file_writer = [None] * len(open_files) # Create a list with 'None' placeholder entries.
 
-            for generator_run_number, generator_entry in enumerate(generator):
+            for generator_entry in generator:
                 for index, individual_list in enumerate(generator_entry):
-                    #logger.info("%s: Saving: %s entries to file." % (self.threadid, len(individual_list)))
+                    current_filename = open_files[index].name # Our current CSV output file.
+
                     if len(individual_list) == 0:
-                        logger.warn("No data found when writing to %s! Skipping output file." % (open_files[index].name))
-                        if generator_run_number == 0:
-                            # On the first pass, add a "None" csv_writer to the file_writer list.
-                            csv_file_writer_list.append(None)
+                        logger.warn("No data found when writing to %s! Skipping output file." % (current_filename))
                         continue
-                    if generator_run_number == 0:
-                        # Attempt to write the headers from the keys of the first dictionary entry.
+                    if csv_file_writer[index] is None: # If we haven't yet created a DictWriter for this particular file.
                         try:
-                            csv_file_writer = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_ALL)
-                            csv_file_writer.writeheader()
+                            csv_file_writer[index] = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_ALL)
+                            csv_file_writer[index].writeheader() # Write the headers.
                         except Exception as e:
-                            logger.critical("Couldn't write to file: %s " % (open_files[index].name))
+                            logger.critical("Couldn't write to file: %s " % (current_filename))
                             logger.critical(e.args)
-                        csv_file_writer_list.append(csv_file_writer)
-                    # Write the remaining contents of the generator-derived list to the file.
-                    try:
-                        csv_file_writer_list[index].writerows(individual_list)
-                        logger.info("%s: Finished writing %s entries to file: %s" % (self.threadid, len(individual_list), open_files[index].name))
-                    except Exception as e:
-                        logger.critical("Couldn't write to file: %s " % (open_files[index].name))
-                        logger.critical(e.args)
-                    
+                    csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
+                    logger.info("%s: Finished Writting %s entries to file: %s" % (self.threadid, len(individual_list), current_filename))
+
         for query_param in query_list_with_params:
             Neo4jTransactor.execute_transaction(query_param[3])
+
         # with ExitStack() as stack:
         #     # Open all necessary CSV files at once.
         #     open_files = [stack.enter_context(open('tmp/' + fname[2], 'w', encoding='utf-8')) for fname in query_list_with_params]
