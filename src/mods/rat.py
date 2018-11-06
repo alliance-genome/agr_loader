@@ -1,8 +1,10 @@
 from .mod import MOD
 
+
 class RGD(MOD):
 
     def __init__(self):
+
         self.species = "Rattus norvegicus"
 
         self.loadFile = "RGD_1.0.0.7_9.tar.gz"

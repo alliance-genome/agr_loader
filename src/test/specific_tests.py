@@ -363,3 +363,35 @@ def test_human_gene_has_mouse_ortho_disease_annotation():
     for record in result:
         assert record["counter"] > 0
 
+
+def test_human_gene_has_hgnc_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'gene'" \
+            "and cr.globalCrossRefId = 'HGNC:11204'" \
+            "and cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_human_gene_has_rgd_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'generic_cross_reference'" \
+            "and cr.globalCrossRefId = 'RGD:1322513'" \
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_human_gene_has_rgd_references_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'gene/references'" \
+            "and cr.globalCrossRefId = 'RGD:1322513'" \
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?view=5&id=1322513'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
