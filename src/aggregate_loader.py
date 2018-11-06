@@ -45,8 +45,8 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            ['SO', 'MI']
-            #['BGI']
+            ['SO', 'MI'],
+            ['BGI'],
         ]
 
         for data_types in list_of_types:
