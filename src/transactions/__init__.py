@@ -1,6 +1,3 @@
-from .allele import AlleleTransaction
-from .bgi import BGITransaction
-from .disease_allele import DiseaseAlleleTransaction
 from .disease_gene import DiseaseGeneTransaction
 from .do import DOTransaction
 from .gene_description import GeneDescriptionTransaction

@@ -2,8 +2,8 @@
 from files import S3File, TARFile, JSONFile
 from .id_ext import IdExt
 from services import UrlService
-from services import CreateCrossReference
-from .resource_descriptor_ext import ResourceDescriptor
+from etl import ETL
+from .resource_descriptor_ext import ResourceDescriptorExtractor
 import uuid
 import logging
 
@@ -28,7 +28,7 @@ class OrthoExt(object):
         ortho_data_list = []
         notcalled_data = []
 
-        xrefUrlMap = ResourceDescriptor().get_data()
+        xrefUrlMap = ResourceDescriptorExtractor().get_data()
 
         dataProviderObject = ortho_data['metaData']['dataProvider']
 
@@ -42,7 +42,7 @@ class OrthoExt(object):
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
                 dataProviderCrossRefSet.append(
-                    CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage,
+                    ETL.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
                                                   dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                   dataProvider + dataProviderPage))
 

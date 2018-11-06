@@ -1,9 +1,9 @@
-from services import CreateCrossReference
+from etl import ETL
 from .transaction import Transaction
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
 
 class GeoXrefTransaction(Transaction):
 
@@ -15,6 +15,6 @@ class GeoXrefTransaction(Transaction):
                     UNWIND $data AS event
                     MATCH (o:Gene) where o.primaryKey = event.genePrimaryKey
 
-        """ + CreateCrossReference.get_cypher_xref_text("geo_xref")
+        """ + ETL.get_cypher_xref_text("geo_xref")
 
         self.execute_transaction(geoXrefQuery, data)

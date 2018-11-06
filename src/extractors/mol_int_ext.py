@@ -1,18 +1,17 @@
 from files import S3File, TARFile
 import uuid, csv, re, sys
 import pprint, itertools
-from services import ResourceDescriptor
+from services import ResourceDescriptorService
 from transactions import Transaction
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class MolIntExt(object):
 
     def __init__(self):
         # Initialize an instance of ResourceDescriptor for processing external links.
-        self.resource_descriptor_dict = ResourceDescriptor()
+        self.resource_descriptor_dict = ResourceDescriptorService()
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
         self.ignored_database_linkouts = set()

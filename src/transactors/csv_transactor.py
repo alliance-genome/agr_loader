@@ -17,6 +17,9 @@ class CSVTransactor(Transactor):
     def __init__(self):
         super().__init__()
 
+    def _get_name(self):
+        return "CSV %s" % self.threadid
+
     def start_threads(self, thread_count):
         thread_pool = []
         for n in range(0, thread_count):
@@ -39,11 +42,11 @@ class CSVTransactor(Transactor):
         CSVTransactor.queue.join()
 
     def run(self):
-        logger.info("%s: Starting CSVTransactor Thread Runner: " % self.threadid)
+        logger.info("%s: Starting CSVTransactor Thread Runner: " % self._get_name())
         last_tx = time.time()
         while True:
             ((generator, query_list_with_params, CSVTransactor.count)) = CSVTransactor.queue.get()
-            logger.info("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self.threadid, CSVTransactor.count, CSVTransactor.queue.qsize()))  
+            logger.info("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self._get_name(), CSVTransactor.count, CSVTransactor.queue.qsize()))  
             self.save_file(generator, query_list_with_params)
             CSVTransactor.queue.task_done()
 
@@ -60,7 +63,7 @@ class CSVTransactor(Transactor):
                     current_filename = open_files[index].name # Our current CSV output file.
 
                     if len(individual_list) == 0:
-                        logger.warn("No data found when writing to csv! Skipping output file: %s" % (current_filename))
+                        logger.warn("%s: No data found when writing to csv! Skipping output file: %s" % (self._get_name(), current_filename))
                         continue
 
                     if csv_file_writer[index] is None: # If we haven't yet created a DictWriter for this particular file.
@@ -68,13 +71,16 @@ class CSVTransactor(Transactor):
                             csv_file_writer[index] = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_ALL)
                             csv_file_writer[index].writeheader() # Write the headers.
                         except Exception as e:
-                            logger.critical("Couldn't write to file: %s " % (current_filename))
+                            logger.critical("%s: Couldn't write to file: %s " % (self._get_name(), current_filename))
                             logger.critical(e)
                     csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
-                    logger.info("%s: Finished Writting %s entries to file: %s" % (self.threadid, len(individual_list), current_filename))
+                    #logger.info("%s: Finished Writting %s entries to file: %s" % (self._get_name(), len(individual_list), current_filename))
 
+        query_batch = []
         for query_param in query_list_with_params:
-            Neo4jTransactor.execute_transaction(query_param[3], query_param[2])
+            query_batch.append([query_param[3], query_param[2]])
+            
+        Neo4jTransactor.execute_query_batch(query_batch)
 
         # with ExitStack() as stack:
         #     # Open all necessary CSV files at once.

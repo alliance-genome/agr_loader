@@ -1,5 +1,5 @@
 from .transaction import Transaction
-from services import CreateCrossReference
+from etl import ETL
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,12 +51,12 @@ class DOTransaction(Transaction):
         """
         queryXref = """
                     
-            UNWIND $data as row
-             WITH row.crossReferences AS events
-                UNWIND events AS event
-                    MATCH (o:DOTerm:Ontology {primaryKey:event.oid})
+            UNWIND $data as raw_row
+             WITH raw_row.crossReferences AS events
+                UNWIND events AS row
+                    MATCH (o:DOTerm:Ontology {primaryKey:row.oid})
 
-        """ + CreateCrossReference.get_cypher_xref_text("disease_ontology")
+        """ + ETL.get_cypher_xref_text()
 
         self.execute_transaction_batch(query, data, self.batch_size)
         self.execute_transaction_batch(queryXref, data, self.batch_size)

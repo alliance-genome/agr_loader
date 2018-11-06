@@ -3,8 +3,8 @@ import ijson
 import codecs
 from files import S3File, TARFile, JSONFile
 from services import UrlService
-from services import CreateCrossReference
-from .resource_descriptor_ext import ResourceDescriptor
+from etl import ETL
+from .resource_descriptor_ext import ResourceDescriptorExtractor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class WTExpressionExt(object):
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
         logger.info("loadFile: " + loadFile)
-        xrefUrlMap = ResourceDescriptor().get_data()
+        xrefUrlMap = ResourceDescriptorExtractor().get_data()
         counter = 0
         crossReferences = []
         aoExpression = []
@@ -104,7 +104,7 @@ class WTExpressionExt(object):
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap,
                                                                                prefix, page)
 
-                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
+                                xref = ETL.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                           modGlobalCrossRefId, crossRefId + page)
                                 xref['ei_uuid'] = ei_uuid
                                 crossReferences.append(xref)

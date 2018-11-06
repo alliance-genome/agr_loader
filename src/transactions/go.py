@@ -1,5 +1,5 @@
 from .transaction import Transaction
-from services import CreateCrossReference
+from etl import ETL
 import logging
 
 logger = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ class GOTransaction(Transaction):
                     MATCH (o:GOTerm:Ontology {primaryKey:event.oid})
 
 
-        """ + CreateCrossReference.get_cypher_xref_text("gene_ontology")
+        """ + ETL.get_cypher_xref_text()
 
         self.execute_transaction_batch(query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

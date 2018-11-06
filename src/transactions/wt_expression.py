@@ -1,5 +1,5 @@
 from .transaction import Transaction
-from services import CreateCrossReference
+from etl import ETL
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class WTExpressionTransaction(Transaction):
         UNWIND $data as event
         MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:event.ei_uuid})
         
-        """ + CreateCrossReference.get_cypher_xref_text("expression")
+        """ + ETL.get_cypher_xref_text()
 
         AddOther = """
         

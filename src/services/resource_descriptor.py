@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class ResourceDescriptor(object):
+class ResourceDescriptorService(object):
 
     def __init__(self):
 

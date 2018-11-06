@@ -1,7 +1,7 @@
 import uuid
 from services import UrlService
-from services import CreateCrossReference
-from .resource_descriptor_ext import ResourceDescriptor
+from etl import ETL
+from .resource_descriptor_ext import ResourceDescriptorExtractor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ class PhenotypeExt(object):
 
     def get_phenotype_data(self, phenotype_data, batch_size, testObject, species):
         list_to_yield = []
-        xrefUrlMap = ResourceDescriptor().get_data()
+        xrefUrlMap = ResourceDescriptorExtractor().get_data()
         dateProduced = phenotype_data['metaData']['dateProduced']
         dataProviders = []
         dataProviderObject = phenotype_data['metaData']['dataProvider']
@@ -30,7 +30,7 @@ class PhenotypeExt(object):
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
-                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
+                dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider,
                                                                              dataProviderPage,
                                                                              dataProviderPage, dataProvider,
                                                                              crossRefCompleteUrl,

@@ -1,8 +1,7 @@
 import logging, coloredlogs
-from loaders import *
 from etl import *
 from transactors import *
-from transactions import *
+from transactions import Indicies
 from data_file_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
@@ -29,7 +28,7 @@ class AggregateLoader(object):
         # data_manager.process_config()
         # data_manager.download_and_validate()
 
-        Neo4jTransactor().start_threads(4)
+        Neo4jTransactor().start_threads(2)
         CSVTransactor().start_threads(4)
         
         logger.info("Creating indices.")
@@ -40,13 +39,16 @@ class AggregateLoader(object):
             #'DO': DOETL,
             'SO': SOETL,
             'MI': MIETL,
-            'BGI': BGIETL
-            #'Allele': AlleleETL,
+            'BGI': BGIETL,
+            'Allele': AlleleETL,
+            'DiseaseAllele': DiseaseAlleleETL,
         }
 
         list_of_types = [
-            ['SO', 'MI'],
-            ['BGI'],
+            #['SO', 'MI'],
+            #['BGI'],
+            #['Allele'],
+            ['DiseaseAllele']
         ]
 
         for data_types in list_of_types:

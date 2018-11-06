@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-class ResourceDescriptor(object):
+class ResourceDescriptorExtractor(object):
     list_of_descriptor_maps_to_load = []
 
     def __init__(self):
@@ -17,8 +17,8 @@ class ResourceDescriptor(object):
         self.filename = "resourceDescriptors.yaml"
 
     def get_data(self):
-        if len(ResourceDescriptor.list_of_descriptor_maps_to_load) > 0:
-          return ResourceDescriptor.list_of_descriptor_maps_to_load
+        if len(ResourceDescriptorExtractor.list_of_descriptor_maps_to_load) > 0:
+          return ResourceDescriptorExtractor.list_of_descriptor_maps_to_load
           
         if not os.path.exists(self.savepath):
             logger.info("Making temp file storage: " + self.savepath)
@@ -72,7 +72,7 @@ class ResourceDescriptor(object):
                                               "default_url_suffix": default_url_suffix,
                                               "primaryKey": resource + page_name,
                                               "uuid": str(uuid.uuid4())}
-                                ResourceDescriptor.list_of_descriptor_maps_to_load.append(stanza_map)
+                                ResourceDescriptorExtractor.list_of_descriptor_maps_to_load.append(stanza_map)
 
                                 # TODO: fix special casing of NCBI links w/o pages in BGI
                                 if resource == 'NCBI_Gene':
@@ -102,9 +102,9 @@ class ResourceDescriptor(object):
                                       "primaryKey": resource,
                                       "uuid": str(uuid.uuid4())
                                       }
-                        ResourceDescriptor.list_of_descriptor_maps_to_load.append(stanza_map)
+                        ResourceDescriptorExtractor.list_of_descriptor_maps_to_load.append(stanza_map)
 
             except yaml.YAMLError as exc:
                 logger.info (exc)
 
-        return ResourceDescriptor.list_of_descriptor_maps_to_load
+        return ResourceDescriptorExtractor.list_of_descriptor_maps_to_load

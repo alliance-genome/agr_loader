@@ -100,9 +100,9 @@ class BGIETL(ETL):
     xrefs_template = """
 
         USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS event
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:event.dataId}) """ + ETL.get_cypher_xref_text()
+            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETL.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -112,9 +112,9 @@ class BGIETL(ETL):
     def _load_and_process_data(self):
         
         for mod_config in self.data_type_config.get_mod_configs():
-            logger.info("Loading Mod Data: %s" % mod_config.species)
-            data = mod_config.get_data()
-            logger.info("Finished Loading Mod Data: %s" % mod_config.species)
+            logger.info("Loading BGI Data: %s" % mod_config.data_provider)
+            data = mod_config.get_bgi_data()
+            logger.info("Finished Loading BGI Data: %s" % mod_config.data_provider)
 
             # This order is the same as the lists yielded from the get_generators function.    
             # A list of tuples.
@@ -124,23 +124,23 @@ class BGIETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [BGIETL.gene_query_template, commit_size, "gene_data_" + mod_config.species + ".csv"],
-                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + mod_config.species + ".csv"],
-                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondaryIds_" + mod_config.species + ".csv"],
-                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + mod_config.species + ".csv"],
-                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + mod_config.species + ".csv"]
+                [BGIETL.gene_query_template, commit_size, "gene_data_" + mod_config.data_provider + ".csv"],
+                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + mod_config.data_provider + ".csv"],
+                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + mod_config.data_provider + ".csv"],
+                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + mod_config.data_provider + ".csv"],
+                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + mod_config.data_provider + ".csv"]
             ]
 
             # Obtain the generator
-            dataset = self.get_generators(data, mod_config.species, batch_size)
+            dataset = self.get_generators(data, mod_config.data_provider, batch_size)
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(dataset, query_list)
 
     # def save_file(self, data_generator, filename):
 
-    def get_generators(self, gene_data, species, batch_size):
-        xrefUrlMap = ResourceDescriptor().get_data()
+    def get_generators(self, gene_data, data_provider, batch_size):
+        xrefUrlMap = ResourceDescriptorExtractor().get_data()
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
         synonyms = []
@@ -163,11 +163,9 @@ class BGIETL(ETL):
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
                 dataProviders.append(dataProvider)
                 logger.info("BGI using data provider: " + dataProvider)
-
-        dataProviderSingle = DataProvider().get_data_provider(species)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
@@ -237,7 +235,7 @@ class BGIETL(ETL):
                                 if page == 'gene/disease' and species == 'Saccharomyces cerevisiae':
                                     crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
 
-                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
+                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
@@ -245,14 +243,14 @@ class BGIETL(ETL):
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
-                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
+                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
-                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
+                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
@@ -272,7 +270,7 @@ class BGIETL(ETL):
                 "category": "gene",
                 "dateProduced": dateProduced,
                 "dataProviders": dataProviders,
-                "dataProvider": dataProviderSingle,
+                "dataProvider": data_provider,
                 "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),

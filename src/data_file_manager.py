@@ -32,24 +32,90 @@ class DataTypeConfig(object):
     def get_mod_configs(self):
 
         configs = []
-        configs.append(ModConfig("FB_1.0.0.7_4.tar.gz", "FB_1.0.0.7_BGI.json", "Drosophila_melanogaster"))
-        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.9606.json", "Homo_sapiens"))
-        configs.append(ModConfig("MGI_1.0.0.7_2.tar.gz", "MGI_1.0.0.7_BGI.json", "Mus_musculus"))
-        configs.append(ModConfig("RGD_1.0.0.7_4.tar.gz", "RGD_1.0.0.7_BGI.10116.json", "Rattus_norvegicus"))
-        configs.append(ModConfig("SGD_1.0.0.7_1.tar.gz", "SGD_1.0.0.7_basicGeneInformation.json", "Saccharomyces_cerevisiae"))
-        configs.append(ModConfig("WB_1.0.0.7_4.tar.gz", "WB_1.0.0.7_BGI.json", "Caenorhabditis_elegans"))
-        configs.append(ModConfig("ZFIN_1.0.0.7_3.tar.gz", "ZFIN_1.0.0.7_basicGeneInformation.json", "Danio_rerio"))
+        
+        configs.append(ModConfig(
+            "FB_1.0.0.7_4.tar.gz",
+            "FB_1.0.0.7_BGI.json",
+            "FB_1.0.0.7_feature.json",
+            "FB_1.0.0.7_disease.json",
+            "FB_1.0.0.7_phenotype.json",
+            "FB"))
+
+        configs.append(ModConfig(
+            "RGD_1.0.0.7_4.tar.gz",
+            "RGD_1.0.0.7_BGI.9606.json",
+            "", # None for Human.
+            "RGD_1.0.0.7_disease.9606.json",
+            "RGD_1.0.0.7_phenotype.9606.json",
+            "RGD"))
+
+        configs.append(ModConfig(
+            "MGI_1.0.0.7_2.tar.gz",
+            "MGI_1.0.0.7_BGI.json",
+            "MGI_1.0.0.7_allele.json",
+            "MGI_1.0.0.7_disease.json",
+            "MGI_1.0.0.7_phenotype.json",
+            "MGI"))
+
+        configs.append(ModConfig(
+            "RGD_1.0.0.7_4.tar.gz",
+            "RGD_1.0.0.7_BGI.10116.json",
+            "RGD_1.0.0.7_allele.10116.json",
+            "RGD_1.0.0.7_disease.10116.json",
+            "RGD_1.0.0.7_phenotype.10116.json",
+            "RGD"))
+
+        configs.append(ModConfig(
+            "SGD_1.0.0.7_1.tar.gz",
+            "SGD_1.0.0.7_basicGeneInformation.json",
+            "", # None for SGD.
+            "SGD_1.0.0.7_disease.daf.json",
+            "SGD_1.0.0.7_phenotype.json",
+            "SGD"))
+
+        configs.append(ModConfig(
+            "WB_1.0.0.7_4.tar.gz",
+            "WB_1.0.0.7_BGI.json",
+            "WB_1.0.0.7_allele.json",
+            "WB_1.0.0.7_disease.json",
+            "WB_1.0.0.7_phenotype.json",
+            "WB"))
+
+        configs.append(ModConfig(
+            "ZFIN_1.0.0.7_3.tar.gz",
+            "ZFIN_1.0.0.7_basicGeneInformation.json",
+            "ZFIN_1.0.0.7_allele.json",
+            "ZFIN_1.0.0.7_disease.daf.json",
+            "ZFIN_1.0.0.7_phenotype.json",
+            "ZFIN"))
+
         return configs
 
 class ModConfig(object):
 
-    def __init__(self, tarfilename, filename, species):
-        self.filename = filename
+    def __init__(self, tarfilename, bgifilename, allelefilename, diseaseFileName, phenotypeFileName, data_provider):
         self.tarfilename = tarfilename
-        self.species = species
+        self.bgifilename = bgifilename
+        self.allelefilename = allelefilename
+        self.diseaseFileName = diseaseFileName
+        self.phenotypeFileName = phenotypeFileName
+        self.data_provider = data_provider
+        self.path = "tmp"
 
-    def get_data(self):
-        path = "tmp"
-        S3File(self.tarfilename, path).download()
-        TARFile(path, self.tarfilename).extract_all()
-        return JSONFile().get_data(path + "/" + self.filename)
+    def get_bgi_data(self):
+        return self._get_json_data(self.bgifilename)
+
+    def get_allele_data(self):
+        return self._get_json_data(self.allelefilename)
+
+    def get_disease_data(self):
+        return self._get_json_data(self.diseaseFileName)
+
+    def _get_json_data(self, filename):
+        if len(filename) > 0:
+            S3File(self.tarfilename, self.path).download()
+            TARFile(self.path, self.tarfilename).extract_all()
+            return JSONFile().get_data(self.path + "/" + filename)
+        else:
+            return None
+        

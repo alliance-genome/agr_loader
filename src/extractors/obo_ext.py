@@ -1,10 +1,9 @@
-from services import CreateCrossReference
+from etl import ETL
 from files import XMLFile, Download, S3File
 from ontobio import OntologyFactory
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class OExt(object):
 
@@ -57,7 +56,7 @@ class OExt(object):
                                 local_id = xrefId.split(":")[1].strip()
                                 prefix = xrefId.split(":")[0].strip()
                                 complete_url = self.get_complete_url_ont(local_id, xrefId)
-                                generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference",
+                                generated_xref = ETL.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference",
                                                               "ontology_provided_cross_reference", xrefId, complete_url,
                                                               xrefId + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
@@ -67,7 +66,7 @@ class OExt(object):
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = self.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = CreateCrossReference.get_xref(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
+                                generated_xref = ETL.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
