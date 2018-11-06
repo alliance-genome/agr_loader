@@ -356,30 +356,33 @@ def test_human_gene_has_zebrafish_ortho_disease_annotation():
 
 
 def test_worm_gene_has_human_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'WB:WBGene00000898' " \
-            "and gene.primaryKey='HGNC:6091' " \
-            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'"  \
+            "and ortho.primaryKey = 'HGNC:6091'" \
+            "return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'WB:WBGene00000898' " \
-            "and gene.primaryKey='RGD:2869' " \
-            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'" \
+            "and ortho.primaryKey = 'RGD:2869'" \
+            "return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_worm_gene2_has_rat_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'WB:WBGene00000898' " \
-            "and gene.primaryKey='RGD:2917' " \
-            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'" \
+            "and ortho.primaryKey = 'RGD:2917'" \
+            "return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
