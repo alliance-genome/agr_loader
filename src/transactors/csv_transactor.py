@@ -62,18 +62,19 @@ class CSVTransactor(Transactor):
                     if len(individual_list) == 0:
                         logger.warn("No data found when writing to csv! Skipping output file: %s" % (current_filename))
                         continue
+
                     if csv_file_writer[index] is None: # If we haven't yet created a DictWriter for this particular file.
                         try:
                             csv_file_writer[index] = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_ALL)
                             csv_file_writer[index].writeheader() # Write the headers.
                         except Exception as e:
                             logger.critical("Couldn't write to file: %s " % (current_filename))
-                            logger.critical(e.args)
+                            logger.critical(e)
                     csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
                     logger.info("%s: Finished Writting %s entries to file: %s" % (self.threadid, len(individual_list), current_filename))
 
         for query_param in query_list_with_params:
-            Neo4jTransactor.execute_transaction(query_param[3])
+            Neo4jTransactor.execute_transaction(query_param[3], query_param[2])
 
         # with ExitStack() as stack:
         #     # Open all necessary CSV files at once.

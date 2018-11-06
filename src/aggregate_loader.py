@@ -38,14 +38,15 @@ class AggregateLoader(object):
         list_of_etls = {
             #'GO': GOETL,
             #'DO': DOETL,
-            #'SO': SOETL,
-            #'MI': MIETL,
+            'SO': SOETL,
+            'MI': MIETL,
             'BGI': BGIETL
             #'Allele': AlleleETL,
         }
 
         list_of_types = [
-            ['BGI']
+            ['SO', 'MI']
+            #['BGI']
         ]
 
         for data_types in list_of_types:
@@ -54,8 +55,10 @@ class AggregateLoader(object):
                 if config is not None:
                     etl = list_of_etls[data_type](config)
                     etl.run_etl()
+            logger.info("Waiting for Queues to sync up")
             CSVTransactor().wait_for_queues()
             Neo4jTransactor().wait_for_queues()
+            logger.info("Queue sync finished")
 
 if __name__ == '__main__':
     AggregateLoader().run_loader()

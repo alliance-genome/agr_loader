@@ -48,10 +48,10 @@ class Neo4jTransactor(Transactor):
     #    return returnSet     
 
     @staticmethod
-    def execute_transaction(neo4j_query):
+    def execute_transaction(neo4j_query, filename):
         Neo4jTransactor.count = Neo4jTransactor.count + 1
         logger.info("Adding Query: %s to the Queue. Size: %s " % (Neo4jTransactor.count, Neo4jTransactor.queue.qsize()))
-        Neo4jTransactor.queue.put((neo4j_query, Neo4jTransactor.count))
+        Neo4jTransactor.queue.put((neo4j_query, filename, Neo4jTransactor.count))
         
 
     #def run_single_parameter_query(self, query, parameter):
@@ -80,8 +80,8 @@ class Neo4jTransactor(Transactor):
         last_tx = time.time()
         while True:
 
-            (neo4j_query, query_counter) = Neo4jTransactor.queue.get()
-            logger.info("%s: Processing query: %s QueueSize: %s" % (self.threadid, query_counter, Neo4jTransactor.queue.qsize()))
+            (neo4j_query, filename, query_counter) = Neo4jTransactor.queue.get()
+            logger.info("%s: Processing query for file: %s QueryNum: %s QueueSize: %s" % (self.threadid, filename, query_counter, Neo4jTransactor.queue.qsize()))
             # Save VIA pickle rather then NEO
             #file_name = "tmp/transaction_%s" % batch_count
             #file = open(file_name,'wb')
@@ -94,7 +94,7 @@ class Neo4jTransactor(Transactor):
                 session.run(neo4j_query)
                 session.close()
                 end = time.time()
-                logger.info("%s: Processed query: %s QueueSize: %s" % (self.threadid, query_counter, Neo4jTransactor.queue.qsize()))
+                logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s" % (self.threadid, filename, query_counter, Neo4jTransactor.queue.qsize()))
             except Exception as e:
                 print(e)
                 logger.error("%s: Query Failed: %s" % (self.threadid, neo4j_query))

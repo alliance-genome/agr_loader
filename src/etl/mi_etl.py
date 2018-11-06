@@ -94,4 +94,4 @@ class MIETL(ETL):
                         }
                         processed_mi_list.append(dict_to_append)
 
-        yield processed_mi_list
+        yield [processed_mi_list]

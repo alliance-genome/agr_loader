@@ -323,7 +323,7 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
+                yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
@@ -331,4 +331,4 @@ class BGIETL(ETL):
                 crossReferences = []
 
         if counter > 0:
-            yield (gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences)
+            yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]

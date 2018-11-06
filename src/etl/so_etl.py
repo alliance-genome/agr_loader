@@ -21,9 +21,13 @@ class SOETL(ETL):
 
     def _load_and_process_data(self):
         data = self.data_type_config.get_data()
+
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+
         generator = self.get_generators(data)
 
-        so_file_query_list = [[SOETL.query_template, 10000, "so_term_data.csv"]]
+        so_file_query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
             
         CSVTransactor.execute_transaction(generator, so_file_query_list)
         
@@ -47,7 +51,9 @@ class SOETL(ETL):
                 'name' : next_value
                 }
                 so_list.append(so_dataset)
-        yield so_list
+
+        yield [so_list]
+
 
     def get_current_next(self, the_list):
         current, next_item = tee(the_list, 2)
