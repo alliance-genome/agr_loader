@@ -355,6 +355,36 @@ def test_human_gene_has_zebrafish_ortho_disease_annotation():
         assert record["counter"] > 0
 
 
+def test_worm_gene_has_human_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'WB:WBGene00000898' " \
+            "and gene.primaryKey='HGNC:6091' " \
+            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_worm_gene_has_rat_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'WB:WBGene00000898' " \
+            "and gene.primaryKey='RGD:2869' " \
+            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_worm_gene2_has_rat_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'WB:WBGene00000898' " \
+            "and gene.primaryKey='RGD:2917' " \
+            "and do.primaryKey = 'DOID:10652' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
 def test_human_gene_has_mouse_ortho_disease_annotation():
     query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
             "where ortho.primaryKey = 'MGI:1919338' " \
@@ -395,3 +425,5 @@ def test_human_gene_has_rgd_references_cross_reference():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
+
+
