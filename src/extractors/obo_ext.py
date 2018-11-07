@@ -1,7 +1,10 @@
-from etl import ETL
-from files import XMLFile, Download, S3File
-from ontobio import OntologyFactory
 import logging
+
+from ontobio import OntologyFactory
+
+from etl import ETL
+from files import Download
+
 
 logger = logging.getLogger(__name__)
 

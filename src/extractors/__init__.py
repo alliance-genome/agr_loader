@@ -2,7 +2,6 @@ from .id_ext import IdExt
 from .obo_ext import OExt
 from .obo_ext_old import ObExto
 from .ortho_ext import OrthoExt
-from .resource_descriptor_ext import ResourceDescriptorExtractor
 from .geo_ext import GeoExt
 from .mol_int_ext import MolIntExt
 from .phenotype_ext import PhenotypeExt

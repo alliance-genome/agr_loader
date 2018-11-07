@@ -1,9 +1,9 @@
 
 from files import S3File, TARFile, JSONFile
-from .id_ext import IdExt
+from extractors import IdExt
 from services import UrlService
 from etl import ETL
-from .resource_descriptor_ext import ResourceDescriptorExtractor
+from extractors import ResourceDescriptorExtractor
 import uuid
 import logging
 

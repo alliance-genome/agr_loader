@@ -1,6 +1,6 @@
 import logging
 
-from ..etl import ETL
+from etl import ETL
 from .transaction import Transaction
 
 logger = logging.getLogger(__name__)

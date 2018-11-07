@@ -1,6 +1,5 @@
 import logging, uuid
 
-from extractors import ResourceDescriptorExtractor
 from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
@@ -124,7 +123,6 @@ class AlleleETL(ETL):
 
     def get_generators(self, allele_data, data_provider, batch_size):
 
-        xrefUrlMap = ResourceDescriptorExtractor().get_data()
         dataProviders = []
         release = ""
         alleles = []
@@ -148,7 +146,7 @@ class AlleleETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider,
@@ -208,7 +206,7 @@ class AlleleETL(ETL):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
-                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap, prefix, page)
+                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
                                 xref = ETL.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
                                 crossReferenceList.append(xref)

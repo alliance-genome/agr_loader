@@ -1,15 +1,17 @@
-import urllib.request
 import codecs
-import shutil
-import os
-import yaml
-import uuid
 import logging
+import os
+import shutil
+import urllib.request
+import uuid
+
+import yaml
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
-class ResourceDescriptorExtractor(object):
+
+class ResourceDescriptorHelper(object):
     list_of_descriptor_maps_to_load = []
 
     def __init__(self):
@@ -17,8 +19,8 @@ class ResourceDescriptorExtractor(object):
         self.filename = "resourceDescriptors.yaml"
 
     def get_data(self):
-        if len(ResourceDescriptorExtractor.list_of_descriptor_maps_to_load) > 0:
-          return ResourceDescriptorExtractor.list_of_descriptor_maps_to_load
+        if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
+            return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
           
         if not os.path.exists(self.savepath):
             logger.info("Making temp file storage: " + self.savepath)
@@ -72,7 +74,7 @@ class ResourceDescriptorExtractor(object):
                                               "default_url_suffix": default_url_suffix,
                                               "primaryKey": resource + page_name,
                                               "uuid": str(uuid.uuid4())}
-                                ResourceDescriptorExtractor.list_of_descriptor_maps_to_load.append(stanza_map)
+                                ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
 
                                 # TODO: fix special casing of NCBI links w/o pages in BGI
                                 if resource == 'NCBI_Gene':
@@ -102,9 +104,9 @@ class ResourceDescriptorExtractor(object):
                                       "primaryKey": resource,
                                       "uuid": str(uuid.uuid4())
                                       }
-                        ResourceDescriptorExtractor.list_of_descriptor_maps_to_load.append(stanza_map)
+                        ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
 
             except yaml.YAMLError as exc:
                 logger.info (exc)
 
-        return ResourceDescriptorExtractor.list_of_descriptor_maps_to_load
+        return ResourceDescriptorHelper.list_of_descriptor_maps_to_load

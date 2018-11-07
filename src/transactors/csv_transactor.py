@@ -3,7 +3,8 @@ import csv
 import logging
 from queue import Queue
 
-from transactors import Transactor, Neo4jTransactor
+from .transactor import Transactor
+from .neo4j_transactor import Neo4jTransactor
 
 
 logger = logging.getLogger(__name__)

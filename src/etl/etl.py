@@ -1,7 +1,7 @@
 import logging, os, uuid
 import time
 
-from extractors import ResourceDescriptorExtractor
+from etl.helpers import ResourceDescriptorHelper
 from test import TestObject
 
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class ETL(object):
 
-    xrefUrlMap = ResourceDescriptorExtractor().get_data()
+    xrefUrlMap = ResourceDescriptorHelper().get_data()
 
     def __init__(self):
 

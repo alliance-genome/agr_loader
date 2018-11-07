@@ -55,13 +55,13 @@ class Neo4jTransactor(Transactor):
         logger.info("Adding Query Batch: %s BatchSize: %s QueueSize: %s " % (Neo4jTransactor.count, len(query_batch), Neo4jTransactor.queue.qsize()))
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
-    #def run_single_parameter_query(self, query, parameter):
-    #    logger.debug("Running run_single_parameter_query. Please wait...")
-    #    logger.debug("Query: %s" % query)
-    #    with Neo4jTransactor.graph.session() as session:
-    #        with session.begin_transaction() as tx:
-    #            returnSet = tx.run(query, parameter=parameter)
-    #    return returnSet
+    def run_single_parameter_query(self, query, parameter):
+        logger.debug("Running run_single_parameter_query. Please wait...")
+        logger.debug("Query: %s" % query)
+        with Neo4jTransactor.graph.session() as session:
+            with session.begin_transaction() as tx:
+                returnSet = tx.run(query, parameter=parameter)
+        return returnSet
 
     #def execute_transaction_batch(self, query, data, batch_size):
     #    logger.info("Executing batch query. Please wait...")
