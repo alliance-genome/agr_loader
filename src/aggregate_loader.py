@@ -41,6 +41,7 @@ class AggregateLoader(object):
             'MI': MIETL,
             'BGI': BGIETL,
             'Allele': AlleleETL,
+            'Expression': ExpressionETL,
             'DiseaseAllele': DiseaseAlleleETL,
         }
 

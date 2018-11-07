@@ -18,14 +18,7 @@ class StubETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        #for mod in mods
-        #    json_data self.data_type_config.get_data()
-        #    generator = self.get_generators(data)
-        #    Neo4jTransactor.execute_transaction(generator, "so_data.csv", self.query)
-
-        # data = self.data_type_config.get_data()
-        # generator = self.get_generators(data)
-        # Neo4jTransactor.execute_transaction(generator, "neo4j_data.csv", StubETL.query_template)
+        pass
 
     def get_generators(self, data):
         pass
