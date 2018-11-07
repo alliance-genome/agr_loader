@@ -6,3 +6,4 @@ tmp
 .idea/*
 venv/*
 *.pyc
+.settings

@@ -1,10 +1,10 @@
-import uuid
-from etl import ETL
-from services import *
-from extractors import *
-from transactors import *
-
 import logging
+import uuid
+
+from ..etl import ETL
+from ..services import UrlService
+from ..transactors import CSVTransactor
+
 
 logger = logging.getLogger(__name__)
 
@@ -132,15 +132,15 @@ class BGIETL(ETL):
             ]
 
             # Obtain the generator
-            dataset = self.get_generators(data, mod_config.data_provider, batch_size)
+            generators = self.get_generators(data, mod_config.data_provider, batch_size)
 
             # Prepare the transaction
-            CSVTransactor.execute_transaction(dataset, query_list)
+            CSVTransactor.execute_transaction(generators, query_list)
 
     # def save_file(self, data_generator, filename):
 
     def get_generators(self, gene_data, data_provider, batch_size):
-        xrefUrlMap = ResourceDescriptorExtractor().get_data()
+
         dateProduced = gene_data['metaData']['dateProduced']
         dataProviders = []
         synonyms = []
@@ -162,7 +162,7 @@ class BGIETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider, dataProviderPage)
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
                 dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
                 dataProviders.append(dataProvider)
                 logger.info("BGI using data provider: " + dataProvider)
@@ -211,15 +211,15 @@ class BGIETL(ETL):
                                 geneLiteratureUrl = ""
                                 displayName = ""
 
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, page)
+                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, prefix + page)
+                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
-                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, prefix + page)
+                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, xrefUrlMap, prefix, prefix + page)
+                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/spell':
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
@@ -227,12 +227,12 @@ class BGIETL(ETL):
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
 
                                 # TODO: fix gene/disease xrefs for SGD once resourceDescriptor change in develop
                                 # makes its way to the release branch.
 
-                                if page == 'gene/disease' and species == 'Saccharomyces cerevisiae':
+                                if page == 'gene/disease' and taxonId == 'NCBITaxon:559292':
                                     crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
 
                                 xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
@@ -242,14 +242,14 @@ class BGIETL(ETL):
                         else:
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
                                 xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, xrefUrlMap, prefix, primary_id)
+                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
                                 xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
@@ -263,7 +263,7 @@ class BGIETL(ETL):
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
-                "species": SpeciesService.get_species(taxonId),
+                "species": ETL.species_lookup_by_taxonid(taxonId),
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord.get('symbol'),
                 "primaryId": primary_id,

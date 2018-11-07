@@ -1,5 +1,6 @@
-from .transaction import Transaction
 import logging
+
+from .transaction import Transaction
 
 logger = logging.getLogger(__name__)
 

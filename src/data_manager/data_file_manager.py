@@ -3,7 +3,6 @@ import logging, yaml, os, pprint, sys
 from .data_type_config import DataTypeConfig
 from .mod_config import ModConfig
 from cerberus import Validator
-from services import taxon_to_MOD
 
 logger = logging.getLogger(__name__)
 

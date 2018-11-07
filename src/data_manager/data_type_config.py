@@ -1,3 +1,6 @@
+from ..files import S3File, TXTFile
+
+
 class DataTypeConfig(object):
 
     def __init__(self, data_type):
@@ -13,5 +16,6 @@ class DataTypeConfig(object):
     def running_etl(self):
         return True
 
+    @staticmethod
     def has_mods():
         return ["MGI", "ZFIN"]

@@ -1,13 +1,13 @@
-import time
 import logging
 import os
-import pickle
 from queue import Queue
 from threading import Thread
-from neo4j.v1 import GraphDatabase
+import time
+
+from neo4j import GraphDatabase
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class Transaction(Thread):
 
@@ -61,13 +61,12 @@ class Transaction(Thread):
     def split_into_chunks(self, data, batch_size):
         return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
 
-    def wait_for_queues():
+    def wait_for_queues(self):
         Transaction.rework.join()
         Transaction.queue.join()
 
     def run(self):
         logger.info("%s: Starting Transaction Thread Runner: " % self.threadid)
-        last_tx = time.time()
         while True:
             rework = False
             if Transaction.rework.qsize() > 0:

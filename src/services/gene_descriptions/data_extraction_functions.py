@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Dict
 from genedescriptions.descriptions_rules import Gene
 from ontobio import Ontology, AssociationSetFactory
-
+from ..transactions import Transaction
 
 def get_ontology_from_loader_object(ontology_term_list) -> Ontology:
     ontology = Ontology()

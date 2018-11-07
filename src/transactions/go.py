@@ -1,9 +1,10 @@
-from .transaction import Transaction
-from etl import ETL
 import logging
 
+from ..etl import ETL
+from .transaction import Transaction
+
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class GOTransaction(Transaction):
 
@@ -56,12 +57,12 @@ class GOTransaction(Transaction):
 
         """
 
-        queryXref = """
-
-            UNWIND $data as row
-             WITH row.xref_urls AS events
-                UNWIND events AS event
-                    MATCH (o:GOTerm:Ontology {primaryKey:event.oid})
+        #queryXref = """
+        #
+        #    UNWIND $data as row
+        #     WITH row.xref_urls AS events
+        #        UNWIND events AS event
+        #            MATCH (o:GOTerm:Ontology {primaryKey:event.oid})
 
 
         """ + ETL.get_cypher_xref_text()

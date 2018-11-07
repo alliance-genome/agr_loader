@@ -1,5 +1,6 @@
 from genedescriptions.descriptions_writer import DescriptionsWriter
-from transactions.gene_description import GeneDescriptionTransaction
+
+from ..transactions import GeneDescriptionTransaction
 
 
 class Neo4jGDWriter(DescriptionsWriter):
