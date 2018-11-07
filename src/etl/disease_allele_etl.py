@@ -1,9 +1,9 @@
 import logging
 
-from ..services import UrlService
-from ..transactors import CSVTransactor
-from .etl import ETL
-from .helpers import DiseaseAlleleHelper
+from services import UrlService
+from transactors import CSVTransactor
+from etl import ETL
+from etl.helpers import DiseaseAlleleHelper
 
 
 logger = logging.getLogger(__name__)

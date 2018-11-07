@@ -1,8 +1,10 @@
-import json
 import codecs
-import jsonschema as js
-import os
+import json
 import logging
+import os
+
+import jsonschema as js
+
 
 logger = logging.getLogger(__name__)
 

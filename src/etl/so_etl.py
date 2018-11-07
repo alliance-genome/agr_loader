@@ -2,8 +2,8 @@ from itertools import islice, chain, tee
 import logging
 import sys
 
-from . import ETL
-from ..transactors import CSVTransactor
+from etl import ETL
+from transactors import CSVTransactor
 
 
 logger = logging.getLogger(__name__)

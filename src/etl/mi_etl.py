@@ -1,8 +1,8 @@
 import logging
 import urllib, json
 
-from . import ETL
-from ..transactors import CSVTransactor
+from etl import ETL
+from transactors import CSVTransactor
 
 
 logger = logging.getLogger(__name__)

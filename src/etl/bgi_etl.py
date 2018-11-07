@@ -1,9 +1,9 @@
 import logging
 import uuid
 
-from ..etl import ETL
-from ..services import UrlService
-from ..transactors import CSVTransactor
+from etl import ETL
+from services import UrlService
+from transactors import CSVTransactor
 
 
 logger = logging.getLogger(__name__)

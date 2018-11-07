@@ -1,8 +1,8 @@
 import logging, coloredlogs
-from .etl import AlleleETL, BGIETL, DiseaseAlleleETL, SOETL, MIETL
-from .transactors import CSVTransactor, Neo4jTransactor
-from .transactions import Indicies
-from .data_file_manager import DataFileManager
+from etl import AlleleETL, BGIETL, DiseaseAlleleETL, SOETL, MIETL, ExpressionETL
+from transactors import CSVTransactor, Neo4jTransactor
+from transactions import Indicies
+from data_file_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -46,9 +46,9 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            #['SO', 'MI'],
-            #['BGI'],
-            #['Allele'],
+            ['SO', 'MI'],
+            ['BGI'],
+            ['Allele'],
             ['DiseaseAllele']
         ]
 

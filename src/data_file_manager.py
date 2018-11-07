@@ -1,4 +1,4 @@
-from .files import JSONFile, TXTFile, S3File, TARFile
+from files import JSONFile, TXTFile, S3File, TARFile
 
 class DataFileManager(object):
     

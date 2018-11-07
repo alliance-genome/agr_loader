@@ -1,9 +1,9 @@
-import urllib.request
-import os
 import logging
+import os
+import urllib.request
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class Download(object):
 

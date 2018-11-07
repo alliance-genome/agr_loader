@@ -6,3 +6,4 @@ from .tar_file import TARFile
 from .download import Download
 from .xml_file import XMLFile
 from .zip_file import ZIPFile
+from .comment_file import CommentFile
