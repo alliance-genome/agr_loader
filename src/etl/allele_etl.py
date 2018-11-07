@@ -1,8 +1,10 @@
 import logging, uuid
-from etl import ETL
-from transactors import *
-from extractors import ResourceDescriptorExtractor
-from services import UrlService
+
+from ..extractors import ResourceDescriptorExtractor
+from ..services import UrlService
+from ..transactors import CSVTransactor
+from .etl import ETL
+
 
 logger = logging.getLogger(__name__)
 
@@ -115,10 +117,10 @@ class AlleleETL(ETL):
             ]
 
             # Obtain the generator
-            dataset = self.get_generators(data, mod_config.data_provider, batch_size)
+            generators = self.get_generators(data, mod_config.data_provider, batch_size)
 
             # Prepare the transaction
-            CSVTransactor.execute_transaction(dataset, query_list)
+            CSVTransactor.execute_transaction(generators, query_list)
 
     def get_generators(self, allele_data, data_provider, batch_size):
 

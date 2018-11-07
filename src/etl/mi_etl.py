@@ -1,8 +1,9 @@
-from etl import ETL
 import logging
 import urllib, json
-from transactors import *
-import sys
+
+from . import ETL
+from ..transactors import CSVTransactor
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +25,11 @@ class MIETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        generator = self.get_generators()
+        generators = self.get_generators()
 
         mi_file_query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
             
-        CSVTransactor.execute_transaction(generator, mi_file_query_list)
+        CSVTransactor.execute_transaction(generators, mi_file_query_list)
 
     @staticmethod
     def add_miterm_url(identifier):
@@ -63,7 +64,7 @@ class MIETL(ETL):
 
     def get_generators(self):
 
-        mi_term_ontology = None
+        #mi_term_ontology = None
         mi_term_ontology_full = None
 
         # TODO Make size configurable?

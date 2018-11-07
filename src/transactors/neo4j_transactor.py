@@ -1,13 +1,11 @@
-import time
 import logging
 import os
-import csv
-import pickle
 from queue import Queue
-from threading import Thread
-from neo4j.v1 import GraphDatabase
-from contextlib import ExitStack
-from transactors import Transactor
+import time
+
+from neo4j import GraphDatabase
+
+from . import Transactor
 
 logger = logging.getLogger(__name__)
 
@@ -112,4 +110,3 @@ class Neo4jTransactor(Transactor):
             logger.info("%s: Query Batch finished: %s BatchSize: %s Time: %s" % (self._get_name(), query_counter, len(query_batch), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time))))
             Neo4jTransactor.queue.task_done()
 
- 

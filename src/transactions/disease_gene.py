@@ -1,9 +1,9 @@
-# coding=utf-8
-from .transaction import Transaction
 import logging
 
+from .transaction import Transaction
+
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class DiseaseGeneTransaction(Transaction):
 

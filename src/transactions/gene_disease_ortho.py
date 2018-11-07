@@ -1,12 +1,9 @@
-# coding=utf-8
-
-import uuid
+import uuid, logging
 from datetime import datetime, timezone
+
 from .transaction import Transaction
-import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class GeneDiseaseOrthoTransaction(Transaction):
     

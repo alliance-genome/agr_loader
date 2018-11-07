@@ -1,8 +1,10 @@
-from etl import ETL
-import logging
-from transactors import *
 from itertools import islice, chain, tee
+import logging
 import sys
+
+from . import ETL
+from ..transactors import CSVTransactor
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +25,13 @@ class SOETL(ETL):
         data = self.data_type_config.get_data()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
+        #batch_size = self.data_type_config.get_generator_batch_size()
 
-        generator = self.get_generators(data)
+        generators = self.get_generators(data)
 
         so_file_query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
             
-        CSVTransactor.execute_transaction(generator, so_file_query_list)
+        CSVTransactor.execute_transaction(generators, so_file_query_list)
         
     def get_generators(self, data):
         so_list = []

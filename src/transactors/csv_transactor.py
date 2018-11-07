@@ -1,11 +1,11 @@
-import time
-import logging
-import os
-import csv, sys
-from queue import Queue
 from contextlib import ExitStack
-from transactors import *
+import csv
+import logging
+from queue import Queue
+
+from . import Transactor
 from .neo4j_transactor import Neo4jTransactor
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,6 @@ class CSVTransactor(Transactor):
 
     def run(self):
         logger.info("%s: Starting CSVTransactor Thread Runner: " % self._get_name())
-        last_tx = time.time()
         while True:
             ((generator, query_list_with_params, CSVTransactor.count)) = CSVTransactor.queue.get()
             logger.info("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self._get_name(), CSVTransactor.count, CSVTransactor.queue.qsize()))  

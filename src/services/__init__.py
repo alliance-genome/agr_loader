@@ -1,4 +1,3 @@
-from .data_provider import DataProvider
 from .resource_descriptor import ResourceDescriptorService
 from .retrieve_geo_xref_service import RetrieveGeoXrefService
 from .species_service import SpeciesService
