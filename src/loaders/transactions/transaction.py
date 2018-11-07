@@ -16,7 +16,6 @@ class Transaction(object):
                 tx.run(query, data=data)
         end = time.time()
         logger.info("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
-        tx.close()
 
     def run_single_query(self, query):
         with self.graph.session() as session:

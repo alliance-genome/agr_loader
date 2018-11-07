@@ -37,13 +37,13 @@ class BGIExt(object):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                dpCrossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
                 dataProviderCrossRefSet.append(CreateCrossReference.get_xref(dataProvider, dataProvider,
                                                                              dataProviderPage,
                                                                              dataProviderPage, dataProvider,
-                                                                             crossRefCompleteUrl,
+                                                                             dpCrossRefCompleteUrl,
                                                                              dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
@@ -60,11 +60,10 @@ class BGIExt(object):
 
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
-
+            modCrossReferenceCompleteUrl = ""
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
-            modCrossReferenceCompleteUrl = ""
             taxonId = geneRecord.get("taxonId")
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
@@ -91,7 +90,6 @@ class BGIExt(object):
                         # some pages collection have 0 elements
                         if pages is not None and len(pages) > 0:
                             for page in pages:
-                                modCrossReferenceCompleteUrl = ""
                                 geneLiteratureUrl = ""
                                 displayName = ""
 
@@ -142,6 +140,18 @@ class BGIExt(object):
                                 xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix, "gene/panther",
                                                                   "gene/panther", displayName, crossRefCompleteUrl,
                                                                   crossRefPrimaryId + "gene/panther")
+                                xrefMap['dataId'] = primary_id
+                                crossReferences.append(xrefMap)
+
+                            elif prefix == 'RGD':  # TODO handle human generic cross reference to RGD in resourceDescr.
+                                crossRefPrimaryId = crossRef.get('id')
+                                crossRefCompleteUrl = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term="+localCrossRefId
+
+                                xrefMap = CreateCrossReference.get_xref(localCrossRefId, prefix,
+                                                                        "generic_cross_reference",
+                                                                        "generic_cross_reference", displayName,
+                                                                        crossRefCompleteUrl,
+                                                                        crossRefPrimaryId + "generic_cross_reference")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 

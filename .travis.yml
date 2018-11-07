@@ -9,9 +9,7 @@ python:
 services:
   - docker
 
-
 before_install:
-  # Load cached docker images
   - docker-compose up -d neo4j.nqc
   - docker pull agrdocker/agr_neo4j_env:latest
   - docker build -t agrdocker/agr_loader_run:latest .
