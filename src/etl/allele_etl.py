@@ -1,9 +1,9 @@
 import logging, uuid
 
-from ..extractors import ResourceDescriptorExtractor
-from ..services import UrlService
-from ..transactors import CSVTransactor
-from .etl import ETL
+from extractors import ResourceDescriptorExtractor
+from services import UrlService
+from transactors import CSVTransactor
+from etl import ETL
 
 
 logger = logging.getLogger(__name__)

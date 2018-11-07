@@ -2,7 +2,7 @@ import logging
 
 import yaml, re, sys
 
-from ..files import Download
+from files import Download
 
 
 logger = logging.getLogger(__name__)

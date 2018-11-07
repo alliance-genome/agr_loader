@@ -1,8 +1,8 @@
 import logging, os, uuid
 import time
 
-from ..extractors import ResourceDescriptorExtractor
-from ..test import TestObject
+from extractors import ResourceDescriptorExtractor
+from test import TestObject
 
 
 logger = logging.getLogger(__name__)

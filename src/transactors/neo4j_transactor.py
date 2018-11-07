@@ -5,7 +5,8 @@ import time
 
 from neo4j import GraphDatabase
 
-from . import Transactor
+from transactors import Transactor
+
 
 logger = logging.getLogger(__name__)
 

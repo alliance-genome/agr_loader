@@ -1,8 +1,8 @@
 import logging
 
-from transactors import *
+from transactors import CSVTransactor
 
-from . import ETL
+from etl import ETL
 
 
 logger = logging.getLogger(__name__)

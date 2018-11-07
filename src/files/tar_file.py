@@ -1,9 +1,9 @@
-import tarfile
-import os
 import logging
+import os
+import tarfile
+
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class TARFile(object):
 

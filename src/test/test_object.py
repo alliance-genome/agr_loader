@@ -3,8 +3,8 @@
 # The testIdSet is used to "filter" these entries in the appropriate extractor files.
 import logging
 
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class TestObject(object):

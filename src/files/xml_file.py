@@ -1,8 +1,9 @@
-import xml.etree.ElementTree as ElementTree
 import logging
 
+import xml.etree.ElementTree as ElementTree
+
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class XMLFile(object):
 

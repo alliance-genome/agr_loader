@@ -1,11 +1,11 @@
-from .comment_file import CommentFile
-import csv
 import codecs
+import csv
 import logging
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from files import CommentFile
 
+
+logger = logging.getLogger(__name__)
 
 class CSVFile(object):
 
