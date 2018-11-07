@@ -4,6 +4,7 @@ logger = logging.getLogger(__name__)
 
 class UrlService(object):
 
+    @staticmethod
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
         completeUrl = ""
 
@@ -21,6 +22,7 @@ class UrlService(object):
 
         return completeUrl
 
+    @staticmethod
     def get_no_page_complete_url(localId, xrefUrlMap, prefix, primaryId):
 
         completeUrl = ""

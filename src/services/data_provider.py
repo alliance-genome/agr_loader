@@ -1,3 +1,0 @@
-class DataProvider(object):
-
-    pass

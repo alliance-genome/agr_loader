@@ -1,5 +1,6 @@
 class SpeciesService(object):
 
+    @staticmethod
     def get_species(taxon_id):
         if taxon_id in "NCBITaxon:7955":
             return "Danio rerio"

@@ -1,6 +1,9 @@
-from etl import ETL
 import logging
+
 from transactors import *
+
+from . import ETL
+
 
 logger = logging.getLogger(__name__)
 

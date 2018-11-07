@@ -1,7 +1,6 @@
 from files import *
 import logging, yaml
 from cerberus import Validator
-from services import taxon_to_MOD
 
 logger = logging.getLogger(__name__)
 

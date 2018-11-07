@@ -1,4 +1,4 @@
-from files import *
+from .files import JSONFile, TXTFile, S3File, TARFile
 
 class DataFileManager(object):
     
@@ -87,18 +87,20 @@ class DataTypeConfig(object):
             "ZFIN_1.0.0.7_allele.json",
             "ZFIN_1.0.0.7_disease.daf.json",
             "ZFIN_1.0.0.7_phenotype.json",
+            "ZFIN_1.0.0.7_expression.json",
             "ZFIN"))
 
         return configs
 
 class ModConfig(object):
 
-    def __init__(self, tarfilename, bgifilename, allelefilename, diseaseFileName, phenotypeFileName, data_provider):
+    def __init__(self, tarfilename, bgifilename, allelefilename, diseaseFileName, phenotypeFileName, expressionFileName, data_provider):
         self.tarfilename = tarfilename
         self.bgifilename = bgifilename
         self.allelefilename = allelefilename
         self.diseaseFileName = diseaseFileName
         self.phenotypeFileName = phenotypeFileName
+        self.expressionFileName = expressionFileName
         self.data_provider = data_provider
         self.path = "tmp"
 
@@ -110,6 +112,11 @@ class ModConfig(object):
 
     def get_disease_data(self):
         return self._get_json_data(self.diseaseFileName)
+
+    def get_expression_file_name(self):
+        S3File(self.tarfilename, self.path).download()
+        TARFile(self.path, self.tarfilename).extract_all()
+        return self.path + "/" + self.expressionFileName
 
     def _get_json_data(self, filename):
         if len(filename) > 0:

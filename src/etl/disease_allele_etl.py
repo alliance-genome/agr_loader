@@ -1,9 +1,10 @@
-from etl import ETL
 import logging
-from transactors import *
-from services import *
-from etl.helpers import *
-from extractors import ResourceDescriptorExtractor
+
+from ..services import UrlService
+from ..transactors import CSVTransactor
+from .etl import ETL
+from .helpers import DiseaseAlleleHelper
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,16 +96,15 @@ class DiseaseAlleleETL(ETL):
             ]
 
             # Obtain the generator
-            dataset = self.get_generators(data, mod_config.data_provider, batch_size)
+            generators = self.get_generators(data, mod_config.data_provider, batch_size)
 
             # Prepare the transaction
-            CSVTransactor.execute_transaction(dataset, query_list)
+            CSVTransactor.execute_transaction(generators, query_list)
 
     def get_generators(self, disease_data, batch_size, data_provider):
         list_to_yield = []
         dateProduced = disease_data['metaData']['dateProduced']
 
-        xrefUrlMap = ResourceDescriptorExtractor().get_data()
         dataProviders = []
 
         dataProviderObject = disease_data['metaData']['dataProvider']
@@ -118,7 +118,7 @@ class DiseaseAlleleETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, xrefUrlMap, dataProvider,
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider,
@@ -140,7 +140,7 @@ class DiseaseAlleleETL(ETL):
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType != "allele":
-                     continue
+                continue
             else:
                 # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
                 # featurePrimaryId = diseaseRecord.get('objectId')

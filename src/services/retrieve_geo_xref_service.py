@@ -1,9 +1,9 @@
-from transactions.transaction import Transaction
-from etl import ETL
 import logging
 
+from ..etl import ETL
+from ..transactions import Transaction
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class RetrieveGeoXrefService(object):
 

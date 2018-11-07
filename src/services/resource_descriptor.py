@@ -1,10 +1,11 @@
-import yaml, re, sys
-from files import Download
 import logging
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+import yaml, re, sys
 
+from ..files import Download
+
+
+logger = logging.getLogger(__name__)
 
 class ResourceDescriptorService(object):
 
