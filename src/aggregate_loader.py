@@ -36,7 +36,7 @@ class AggregateLoader(object):
         # for creating Python data structure.
         self.batch_size = 5000
         self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
-        #self.mods = [RGD(), ZFIN()]
+        # self.mods = [Human()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -77,7 +77,6 @@ class AggregateLoader(object):
 
         logger.info("Extracting DO data.")
 
-        #TODO: Oct 24 version of DO is broken, go back a release for 2.0
         self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
@@ -219,7 +218,7 @@ class AggregateLoader(object):
                                                list(gene_batch[2]),
                                                list(gene_batch[3]),
                                                list(gene_batch[4]))
-
+        #
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
@@ -268,7 +267,7 @@ class AggregateLoader(object):
                                                                               list(batch[12]),
                                                                               mod.species)
             #
-
+            #
                 logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
                 features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
                 for feature_list_of_entries in features:
