@@ -1,10 +1,8 @@
 import logging
 
-from .transaction import Transaction
-
 logger = logging.getLogger(__name__)
 
-class GeneDescriptionTransaction(Transaction):
+class GeneDescriptionTransaction():
 
     def __init__(self):
         self.batch_size = 3000

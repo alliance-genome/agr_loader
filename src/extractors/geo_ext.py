@@ -1,5 +1,5 @@
-import xmltodict, json
-from files import XMLFile, Download
+import xmltodict, json, urllib
+from files import Download
 import logging
 
 logger = logging.getLogger(__name__)

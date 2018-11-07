@@ -39,6 +39,7 @@ class DataTypeConfig(object):
             "FB_1.0.0.7_feature.json",
             "FB_1.0.0.7_disease.json",
             "FB_1.0.0.7_phenotype.json",
+            "FB_1.0.0.7_expression.json",
             "FB"))
 
         configs.append(ModConfig(
@@ -47,6 +48,7 @@ class DataTypeConfig(object):
             "", # None for Human.
             "RGD_1.0.0.7_disease.9606.json",
             "RGD_1.0.0.7_phenotype.9606.json",
+            "RGD_1.0.0.7_expression.9606.json",
             "RGD"))
 
         configs.append(ModConfig(
@@ -55,6 +57,7 @@ class DataTypeConfig(object):
             "MGI_1.0.0.7_allele.json",
             "MGI_1.0.0.7_disease.json",
             "MGI_1.0.0.7_phenotype.json",
+            "MGI_1.0.0.7_expression.json",
             "MGI"))
 
         configs.append(ModConfig(
@@ -63,6 +66,7 @@ class DataTypeConfig(object):
             "RGD_1.0.0.7_allele.10116.json",
             "RGD_1.0.0.7_disease.10116.json",
             "RGD_1.0.0.7_phenotype.10116.json",
+            "RGD_1.0.0.7_expression.10116.json",
             "RGD"))
 
         configs.append(ModConfig(
@@ -71,6 +75,7 @@ class DataTypeConfig(object):
             "", # None for SGD.
             "SGD_1.0.0.7_disease.daf.json",
             "SGD_1.0.0.7_phenotype.json",
+            "SGD_1.0.0.7_expression.json",
             "SGD"))
 
         configs.append(ModConfig(
@@ -79,6 +84,7 @@ class DataTypeConfig(object):
             "WB_1.0.0.7_allele.json",
             "WB_1.0.0.7_disease.json",
             "WB_1.0.0.7_phenotype.json",
+            "WB_1.0.0.7_expression.json",
             "WB"))
 
         configs.append(ModConfig(

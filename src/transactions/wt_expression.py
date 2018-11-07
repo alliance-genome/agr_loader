@@ -3,7 +3,6 @@ from etl import ETL
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class WTExpressionTransaction(Transaction):
 

@@ -1,12 +1,8 @@
 import logging
 
-from ..etl import ETL
-from .transaction import Transaction
-
-
 logger = logging.getLogger(__name__)
 
-class GOTransaction(Transaction):
+class GOTransaction():
 
     def __init__(self):
         self.batch_size = 3000
@@ -64,8 +60,7 @@ class GOTransaction(Transaction):
         #        UNWIND events AS event
         #            MATCH (o:GOTerm:Ontology {primaryKey:event.oid})
 
-
-        """ + ETL.get_cypher_xref_text()
+        #""" + ETL.get_cypher_xref_text()
 
         self.execute_transaction_batch(query, data, self.batch_size)
         #Transaction.execute_transaction_batch(self, queryXref, data, self.batch_size)

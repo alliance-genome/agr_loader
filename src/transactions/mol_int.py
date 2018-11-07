@@ -2,7 +2,6 @@ from .transaction import Transaction
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class MolIntTransaction(Transaction):
 

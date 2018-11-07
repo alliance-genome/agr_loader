@@ -1,13 +1,11 @@
 import logging
 
-from ..etl import ETL
-
-from .transaction import Transaction
+from etl import ETL
 
 
 logger = logging.getLogger(__name__)
 
-class DOTransaction(Transaction):
+class DOTransaction(object):
 
     def __init__(self):
         self.batch_size = 2000

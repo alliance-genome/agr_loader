@@ -1,7 +1,7 @@
 import uuid
 from services import UrlService
 from etl import ETL
-from .resource_descriptor_ext import ResourceDescriptorExtractor
+from extractors import ResourceDescriptorExtractor
 import logging
 
 logger = logging.getLogger(__name__)

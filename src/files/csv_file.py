@@ -2,7 +2,7 @@ import codecs
 import csv
 import logging
 
-from files import CommentFile
+from .comment_file import CommentFile
 
 
 logger = logging.getLogger(__name__)
