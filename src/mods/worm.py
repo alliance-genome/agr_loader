@@ -12,7 +12,7 @@ class WormBase(MOD):
         self.phenotypeName = "/WB_1.0.0.7_phenotype.json"
         self.alleleName = "/WB_1.0.0.7_allele.json"
         self.wtExpressionName= "/WB_1.0.0.7_expression.json"
-        self.geneAssociationFile = "gene_association_1.7.wb.gz"
+        self.geneAssociationFile = "gene_association_2.0.wb.gz"
 
         self.identifierPrefix = "WB:"
         self.geoSpecies = "Caenorhabditis+elegans"
