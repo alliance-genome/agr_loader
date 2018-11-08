@@ -13,7 +13,7 @@ class ZFIN(MOD):
         self.alleleName = "/ZFIN_1.0.0.7_allele.json"
         self.wtExpressionName = "/ZFIN_1.0.0.7_expression.json"
 
-        self.geneAssociationFile = "gene_association_1.7.zfin.gz"
+        self.geneAssociationFile = "gene_association_2.0.zfin.gz"
 
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
