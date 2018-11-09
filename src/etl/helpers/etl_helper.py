@@ -1,6 +1,7 @@
 import uuid
 
 class ETLHelper(object):
+    
     @staticmethod
     def get_cypher_xref_text():
         return """
@@ -25,14 +26,13 @@ class ETLHelper(object):
             "id": globalXrefId,
             "globalCrossRefId": globalXrefId,
             "localId": localId,
+            "crossRefCompleteUrl": crossRefCompleteUrl,
             "prefix": prefix,
             "crossRefType": crossRefType,
-            "primaryKey": primaryId,
             "uuid":  str(uuid.uuid4()),
             "page": page,
-            "displayName": displayName,
-            "crossRefCompleteUrl": crossRefCompleteUrl,
-            "name": globalXrefId
+            "primaryKey": primaryId,
+            "displayName": displayName
         }
         return crossReference
 
@@ -113,5 +113,26 @@ class ETLHelper(object):
             complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
         if 'NCI' in global_id:
             complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
+
+        return complete_url
+    
+    @staticmethod
+    def get_complete_pub_url(local_id, global_id):
+        complete_url = None
+
+        if 'MGI' in global_id:
+            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
+        if 'RGD' in global_id:
+            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
+        if 'SGD' in global_id:
+            complete_url = 'http://www.yeastgenome.org/reference/' + local_id
+        if 'FB' in global_id:
+            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
+        if 'ZFIN' in global_id:
+            complete_url = 'http://zfin.org/' + local_id
+        if 'WB:' in global_id:
+            complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
+        if 'PMID:' in global_id:
+            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
 
         return complete_url

@@ -2,16 +2,13 @@ import logging, os
 from test import TestObject
 import time
 
-from etl.helpers import OBOHelper
 from etl.helpers import ResourceDescriptorHelper
-
 
 logger = logging.getLogger(__name__)
 
 class ETL(object):
 
     xrefUrlMap = ResourceDescriptorHelper().get_data()
-    oboHelper = OBOHelper()
 
     def __init__(self):
 

@@ -1,21 +1,101 @@
 import logging
 
+from transactors import CSVTransactor
+
 from ontobio import OntologyFactory
 
-from .etl_helper import ETLHelper
+from etl import ETL
+from etl.helpers import ETLHelper
 
 
 logger = logging.getLogger(__name__)
 
-class OBOHelper(object):
+class DOETL(ETL):
 
 
-    def get_data(self, filepath):
+    do_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+        //Create the DOTerm node and set properties. primaryKey is required.
+        MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
+            SET doterm.name = row.name,
+             doterm.nameKey = row.name_key,
+             doterm.definition = row.defText,
+             doterm.defLinks = row.defLinksProcessed,
+             doterm.is_obsolete = row.is_obsolete,
+             doterm.subset = row.subset,
+             doterm.doDisplayId = row.oid,
+             doterm.doUrl = row.oUrl,
+             doterm.doPrefix = "DOID",
+             doterm.doId = row.oid,
+             doterm.rgdLink = row.rgd_link,
+             doterm.ratOnlyRgdLink = row.rat_only_rgd_link,
+             doterm.humanOnlyRgdLink = row.human_only_rgd_link,
+             doterm.mgiLink = row.mgi_link,
+             doterm.zfinLink = row.zfin_link,
+             doterm.flybaseLink = row.flybase_link,
+             doterm.wormbaseLink = row.wormbase_link,
+             doterm.sgdLink = row.sgd_link """
+    
+    doterm_synonyms_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (d:DOTerm {primaryKey:row.primary_id})
+            
+            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                SET syn.name = row.synonym
+            MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
+            
+    doterm_isas_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (d1:DOTerm {primaryKey:row.primary_id})
+            MERGE (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
+            MERGE (d1)-[aka:IS_A]->(d2) """
+            
+    xrefs_template = """
+
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
+            
+            
+    def __init__(self, config):
+        super().__init__()
+        self.data_type_config = config
+
+    def _load_and_process_data(self):
+
+        filepath = self.data_type_config.get_do_data_file_path()
+
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        
+        generators = self.get_generators(filepath, batch_size)
+
+        query_list = [
+            [DOETL.do_query_template, commit_size, "do_term_data.csv"],
+            [DOETL.doterm_isas_template, commit_size, "do_isas_data.csv"],
+            [DOETL.doterm_synonyms_template, commit_size, "do_synonyms_data.csv"],
+            [DOETL.xrefs_template, commit_size, "do_xrefs_data.csv"],
+        ]
+            
+        CSVTransactor.execute_transaction(generators, query_list)
+
+    def get_generators(self, filepath, batch_size):
+        
         ont = OntologyFactory().create(filepath)
-
         parsed_line = ont.graph.copy().node
-        last_syn = ""
+        
+        do_term_list = []
+        do_isas_list = []
+        do_synonyms_list = []
+        xrefs = []
+        
         for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
             node = ont.graph.node[k]
             if len(node) == 0:
@@ -25,27 +105,26 @@ class OBOHelper(object):
             node["uri"] = node["id"]
             node["id"] = k
 
-            relationships = node.get('relationship')
             syns = []
-            xrefs = []
-            xref_urls = []
 
             local_id = None
             defLinksUnprocessed = []
             defLinksProcessed = []
-            defText = None
             subset = []
             definition = ""
-            namespace = ""
             is_obsolete = "false"
             ident = k
             prefix = ident.split(":")[0]
-            if syns is None:
-                syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
+                    for synonym in syns:
+                        doSynonym = {
+                            "primary_id": k,
+                            "synonym": synonym
+                        }
+                        do_synonyms_list.append(doSynonym)
                 if "xrefs" in node["meta"]:
 
                     o_xrefs = node["meta"].get('xrefs')
@@ -55,18 +134,18 @@ class OBOHelper(object):
                             if ":" in xrefId:
                                 local_id = xrefId.split(":")[1].strip()
                                 prefix = xrefId.split(":")[0].strip()
-                                complete_url = self.get_complete_url_ont(local_id, xrefId)
+                                complete_url = ETLHelper.get_complete_url_ont(local_id, xrefId)
                                 generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", xrefId, complete_url, xrefId + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
-                                xref_urls.append(generated_xref)
+                                xrefs.append(generated_xref)
                         else:
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
-                                complete_url = self.get_complete_url_ont(local_id, o_xrefs)
+                                complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
                                 generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
-                                xref_urls.append(generated_xref)
+                                xrefs.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
@@ -88,23 +167,19 @@ class OBOHelper(object):
                             s = s.split("#")[-1]
                         converted_subsets.append(s)
                     subset = converted_subsets
-                if "basicPropertyValues" in node['meta']:
-                    for bpv in node['meta']['basicPropertyValues']:
-                        if bpv.get('pred') == 'OIO:hasOBONamespace':
-                            namespace = bpv.get('val')
-                            break
-            if xrefs is None:
-                xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
             all_parents = ont.parents(k)
             all_parents.append(k)
             all_parents_subont = ont.subontology(all_parents) # Improves performance when traversing relations
 
             isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
-            partofsWithoutNames = all_parents_subont.parents(k, relations=['BFO:0000050'])
-            regulates = all_parents_subont.parents(k, relations=['RO:0002211'])
-            negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
-            positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
+
+            for item in isasWithoutNames:
+                dictionary = {
+                    "primary_id": k,
+                    "primary_id2": item
+                }
+                do_isas_list.append(dictionary)
 
             defLinksProcessed = []
             defLinks = ""
@@ -116,12 +191,10 @@ class OBOHelper(object):
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
-                        defText = split_definition[1].strip()
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
                             defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
-                else:
-                    defText = definition
+
 
             for dl in defLinksUnprocessed:
                 dl = dl.replace("url:www", "http://www")
@@ -154,72 +227,36 @@ class OBOHelper(object):
                 alt_ids = []
             
             dict_to_append = {
-
-                'o_type': namespace,
-                'name': node.get('label'),
-                'href': 'http://amigo.geneontology.org/amigo/term/' + node['id'],
-                'name_key': node.get('label'),
                 'oid': node['id'],
+                'name': node.get('label'),
+                'name_key': node.get('label'),
                 'definition': definition,
+                'defLinksProcessed': defLinksProcessed,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
-                'o_synonyms': syns,
-                'isas': isasWithoutNames,
-                'partofs': partofsWithoutNames,
-                'regulates': regulates,
-                'negatively_regulates': negatively_regulates,
-                'positively_regulates': positively_regulates,
-                
-                #'o_genes': [],
-                #'o_species': [],
-                #'xrefs': xrefs,
-                #'ontologyLabel': filepath,
-                #TODO: fix links to not be passed for each ontology load.
-                #'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
-                #'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
-                #'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +node['id'] + '#annot',
-                #'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
-                #'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
-                #'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
-                #'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
-                #'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
-                #'zfin_link': 'https://zfin.org/'+node['id'],
-                #'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                #'oPrefix': prefix,
-                #'crossReferences': xref_urls,
-                #'defText': defText,
-                #'defLinksProcessed': defLinksProcessed,
-                #'oboFile': prefix,
-                #'category': 'go',
-                #'alt_ids': alt_ids,
+                'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
+                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
+                'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +node['id'] + '#annot',
+                'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
+                'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
+                'zfin_link': 'https://zfin.org/'+node['id'],
+                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
+                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
+                'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
+
             }
             
-            if node['id'] == 'GO:0099616':
-                print(dict_to_append)
+            do_term_list.append(dict_to_append)
             
-            node = {**node, **dict_to_append}
-            ont.graph.node[node["id"]] = node
 
-        return ont
+            if len(do_term_list) == batch_size:
+                yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
+                do_term_list = []
+                do_isas_list = []
+                do_synonyms_list = []
+                xrefs = []
 
-    #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
-    def get_complete_url_ont (self, local_id, global_id):
-
-        complete_url = None
-
-        if 'OMIM' in global_id:
-            complete_url = 'https://www.omim.org/entry/' + local_id
-        if 'OMIM:PS' in global_id:
-            complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
-        if 'ORDO' in global_id:
-            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
-        if 'MESH' in global_id:
-            complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
-        if 'EFO' in global_id:
-            complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
-        if 'KEGG' in global_id:
-            complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
-        if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
-
-        return complete_url
+        if len(do_term_list) > 0:
+            yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
+            
+            

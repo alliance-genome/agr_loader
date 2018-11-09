@@ -40,7 +40,7 @@ class BGIETL(ETL):
 
             MATCH (g:Gene {primaryKey:row.primary_id})
             
-           MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 

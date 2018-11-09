@@ -36,7 +36,7 @@ class AggregateLoader(object):
 
         list_of_etls = {
             'GO': GOETL,
-            #'DO': DOETL,
+            'DO': DOETL,
             'SO': SOETL,
             'MI': MIETL,
             'BGI': BGIETL,
@@ -46,11 +46,9 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            ['GO'],
-            #['SO', 'MI'],
+            ['GO', 'DO', 'SO', 'MI'],
             #['BGI'],
             #['Allele'],
-            
             # ['Expression'],
             #['DiseaseAllele'],
             #['DiseaseGene'],

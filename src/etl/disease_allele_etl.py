@@ -119,8 +119,7 @@ class DiseaseAlleleETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
-                                                                       dataProviderPage)
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
                                                                              dataProviderPage,

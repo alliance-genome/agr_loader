@@ -1,10 +1,12 @@
 import uuid
 import logging
+from helpers import ETLHelper
 
 logger = logging.getLogger(__name__)
 
 class DiseaseAlleleHelper(object):
 
+    @staticmethod
     def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
         fishEnvId = None
         conditions = None
@@ -40,11 +42,11 @@ class DiseaseAlleleHelper(object):
                     if 'modPublicationId' in evidence['publication']:
                         publicationModId = evidence['publication'].get('modPublicationId')
                         localPubModId = publicationModId.split(":")[1]
-                        pubModUrl = DiseaseAlleleHelper.get_complete_pub_url(localPubModId, publicationModId)
+                        pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
                     if 'pubMedId' in evidence['publication']:
                         pubMedId = evidence['publication'].get('pubMedId')
                         localPubMedId = pubMedId.split(":")[1]
-                        pubMedUrl = DiseaseAlleleHelper.get_complete_pub_url(localPubMedId, pubMedId)
+                        pubMedUrl = ETLHelper.get_complete_pub_url(localPubMedId, pubMedId)
 
             if 'objectRelation' in diseaseRecord:
                 diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
@@ -110,24 +112,3 @@ class DiseaseAlleleHelper(object):
                 "allelicGeneId": allelicGeneId
             }
             return disease_feature
-
-
-    def get_complete_pub_url(local_id, global_id):
-        complete_url = None
-
-        if 'MGI' in global_id:
-            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        if 'RGD' in global_id:
-            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        if 'SGD' in global_id:
-            complete_url = 'http://www.yeastgenome.org/reference/' + local_id
-        if 'FB' in global_id:
-            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        if 'ZFIN' in global_id:
-            complete_url = 'http://zfin.org/' + local_id
-        if 'WB:' in global_id:
-            complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
-        if 'PMID:' in global_id:
-            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-
-        return complete_url

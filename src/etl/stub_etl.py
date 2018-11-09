@@ -21,7 +21,17 @@ class StubETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        pass
 
-    def get_generators(self, data):
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        
+        generators = self.get_generators(batch_size)
+
+        query_list = [
+            [StubETL.query_template, commit_size, "stub_data.csv"]
+        ]
+            
+        CSVTransactor.execute_transaction(generators, query_list)
+
+    def get_generators(self, batch_size):
         pass
