@@ -4,5 +4,6 @@ from .disease_allele_etl import DiseaseAlleleETL
 from .expression_etl import ExpressionETL
 from .bgi_etl import BGIETL
 from .so_etl import SOETL
+from .go_etl import GOETL
 from .mi_etl import MIETL
 from .helpers import *

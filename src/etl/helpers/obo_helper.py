@@ -2,23 +2,21 @@ import logging
 
 from ontobio import OntologyFactory
 
-from etl import ETL
-from files import Download
+from .etl_helper import ETLHelper
+from curses.ascii import SYN
 
 
 logger = logging.getLogger(__name__)
 
-class OExt(object):
+class OBOHelper(object):
 
 
-    def get_data(self, url, filename):
+    def get_data(self, filepath):
 
-        savepath = "tmp";
-        saved_path = Download(savepath, url, filename).download_file()
-        logger.info (saved_path)
-        ont = OntologyFactory().create(saved_path)
+        ont = OntologyFactory().create(filepath)
 
         parsed_line = ont.graph.copy().node
+        last_syn = ""
         for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
             node = ont.graph.node[k]
             if len(node) == 0:
@@ -59,9 +57,7 @@ class OExt(object):
                                 local_id = xrefId.split(":")[1].strip()
                                 prefix = xrefId.split(":")[0].strip()
                                 complete_url = self.get_complete_url_ont(local_id, xrefId)
-                                generated_xref = ETL.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference",
-                                                              "ontology_provided_cross_reference", xrefId, complete_url,
-                                                              xrefId + "ontology_provided_cross_reference")
+                                generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", xrefId, complete_url, xrefId + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                         else:
@@ -69,7 +65,7 @@ class OExt(object):
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = self.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETL.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
+                                generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
@@ -116,6 +112,8 @@ class OExt(object):
             if definition is None:
                 definition = ""
             else:
+                #definition = definition.replace('\n', ' ') # Remove new lines that cause this to split across two lines in the file
+                #definition = definition.replace('  ', ' ') # Remove any extra double space that might have been introduces in the last replace
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
@@ -155,45 +153,51 @@ class OExt(object):
                     alt_ids = [alt_ids]
             else:
                 alt_ids = []
-
+            
             dict_to_append = {
-                'o_genes': [],
-                'o_species': [],
+
+                'o_type': namespace,
                 'name': node.get('label'),
-                'o_synonyms': syns,
+                'href': 'http://amigo.geneontology.org/amigo/term/' + node['id'],
                 'name_key': node.get('label'),
                 'oid': node['id'],
                 'definition': definition,
+                'is_obsolete': is_obsolete,
+                'subset': subset,
+                'o_synonyms': syns,
                 'isas': isasWithoutNames,
                 'partofs': partofsWithoutNames,
                 'regulates': regulates,
                 'negatively_regulates': negatively_regulates,
                 'positively_regulates': positively_regulates,
-                'is_obsolete': is_obsolete,
-                'subset': subset,
-                'xrefs': xrefs,
-                'ontologyLabel': filename,
+                
+                #'o_genes': [],
+                #'o_species': [],
+                #'xrefs': xrefs,
+                #'ontologyLabel': filepath,
                 #TODO: fix links to not be passed for each ontology load.
-                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
-                'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +node['id'] + '#annot',
-                'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
-                'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
-                'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
-                'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
-                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
-                'zfin_link': 'https://zfin.org/'+node['id'],
-                'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                'oPrefix': prefix,
-                'crossReferences': xref_urls,
-                'defText': defText,
-                'defLinksProcessed': defLinksProcessed,
-                'oboFile': prefix,
-                'href': 'http://amigo.geneontology.org/amigo/term/' + node['id'],
-                'category': 'go',
-                'o_type': namespace,
-                'alt_ids': alt_ids,
+                #'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
+                #'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
+                #'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +node['id'] + '#annot',
+                #'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
+                #'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
+                #'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
+                #'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
+                #'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
+                #'zfin_link': 'https://zfin.org/'+node['id'],
+                #'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
+                #'oPrefix': prefix,
+                #'crossReferences': xref_urls,
+                #'defText': defText,
+                #'defLinksProcessed': defLinksProcessed,
+                #'oboFile': prefix,
+                #'category': 'go',
+                #'alt_ids': alt_ids,
             }
+            
+            if node['id'] == 'GO:0099616':
+                print(dict_to_append)
+            
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node
 

@@ -1,5 +1,5 @@
 import logging, coloredlogs
-from etl import AlleleETL, BGIETL, DiseaseAlleleETL, SOETL, MIETL, ExpressionETL
+from etl import *
 from transactors import CSVTransactor, Neo4jTransactor
 from transactions import Indicies
 from data_file_manager import DataFileManager
@@ -28,14 +28,14 @@ class AggregateLoader(object):
         # data_manager.process_config()
         # data_manager.download_and_validate()
 
-        Neo4jTransactor().start_threads(2)
+        Neo4jTransactor().start_threads(1)
         CSVTransactor().start_threads(4)
         
         logger.info("Creating indices.")
         Indicies().create_indices()
 
         list_of_etls = {
-            #'GO': GOETL,
+            'GO': GOETL,
             #'DO': DOETL,
             'SO': SOETL,
             'MI': MIETL,
@@ -46,10 +46,18 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            ['SO', 'MI'],
-            ['BGI'],
-            ['Allele'],
-            ['DiseaseAllele']
+            ['GO'],
+            #['SO', 'MI'],
+            #['BGI'],
+            #['Allele'],
+            
+            # ['Expression'],
+            #['DiseaseAllele'],
+            #['DiseaseGene'],
+            #['Phenotype'],
+            #['Orthology'],
+            #['GOAnnot'],
+            #['GeoXref'],
         ]
 
         for data_types in list_of_types:

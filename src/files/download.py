@@ -34,6 +34,7 @@ class Download(object):
             logger.info("Making temp file storage: %s" % (self.savepath+ "/" + self.filenameToSave))
             os.makedirs(os.path.dirname(self.savepath + "/" + self.filenameToSave))
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
+            logger.info("Downloading data file %s from: %s" % (self.filenameToSave, self.urlToRetrieve))
             urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
 
         else:

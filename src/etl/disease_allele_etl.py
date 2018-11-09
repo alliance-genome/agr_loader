@@ -3,6 +3,7 @@ import logging
 from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
+from etl.helpers import ETLHelper
 from etl.helpers import DiseaseAlleleHelper
 
 
@@ -121,7 +122,7 @@ class DiseaseAlleleETL(ETL):
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider,
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
                                                                              dataProviderPage,
                                                                              dataProviderPage, dataProvider,
                                                                              crossRefCompleteUrl,

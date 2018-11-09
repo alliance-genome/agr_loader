@@ -1,6 +1,6 @@
 import logging
 
-from etl import ETL
+from etl.helpers import ETLHelper
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class DOTransaction(object):
                 UNWIND events AS row
                     MATCH (o:DOTerm:Ontology {primaryKey:row.oid})
 
-        """ + ETL.get_cypher_xref_text()
+        """ + ETLHelper.get_cypher_xref_text()
 
         self.execute_transaction_batch(query, data, self.batch_size)
         self.execute_transaction_batch(queryXref, data, self.batch_size)

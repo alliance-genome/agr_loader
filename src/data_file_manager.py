@@ -1,4 +1,4 @@
-from files import JSONFile, TXTFile, S3File, TARFile
+from files import JSONFile, TXTFile, S3File, TARFile, Download
 
 class DataFileManager(object):
     
@@ -16,12 +16,22 @@ class DataFileManager(object):
 class DataTypeConfig(object):
 
     def __init__(self, data_type):
-        pass
+        self.path = "tmp"
 
     def get_data(self):
         path_to_file = "SO/so_1.7.obo"
         S3File(path_to_file, "tmp/").download()
         return TXTFile("tmp/" + path_to_file).get_data()
+
+    def get_go_data_file_path(self):
+        filename = "go.obo"
+        url = "http://snapshot.geneontology.org/ontology/go.obo"
+        return Download(self.path, url, filename).download_file()
+    
+    def get_do_data_file_path(self):
+        filename = "doid.obo"
+        url = "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo"
+        return Download(self.path, url, filename).download_file()
 
     def get_neo4j_commit_size(self):
         return 2500
