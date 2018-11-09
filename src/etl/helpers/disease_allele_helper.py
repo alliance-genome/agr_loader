@@ -1,6 +1,7 @@
 import uuid
 import logging
-from helpers import ETLHelper
+
+from etl.helpers import ETLHelper
 
 logger = logging.getLogger(__name__)
 

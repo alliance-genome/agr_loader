@@ -1,3 +1,3 @@
+from .etl_helper import ETLHelper
 from .disease_allele_helper import DiseaseAlleleHelper
 from .resource_descriptor_helper import ResourceDescriptorHelper
-from .etl_helper import ETLHelper
