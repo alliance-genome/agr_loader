@@ -59,6 +59,7 @@ class DataFileManager(object):
             logger.info('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig): # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
+    # TODO validation
 
     def process_config(self):
         validator = Validator(self.validation_schema)

@@ -39,7 +39,6 @@ class DataTypeConfig(object):
                     if downloadable_item[1].endswith('tar.gz'):
                         tar_object = TARFile(path, downloadable_item[1])
                         tar_object.extract_all()
-                # return TXTFile(path + "/" + path_to_file).get_data()
             else: 
                 logger.warn('No download path specified, assuming download is not required.')
 
