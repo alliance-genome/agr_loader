@@ -6,9 +6,8 @@ logger = logging.getLogger(__name__)
 
 class DataTypeConfig(object):
 
-    def __init__(self, data_type, data_type_content, submission_system_data):
+    def __init__(self, data_type, submission_system_data):
         self.data_type = data_type
-        self.data_type_content = data_type_content
         self.submission_system_data = submission_system_data
 
         # TODO These will be set by the config YAML.
@@ -18,7 +17,6 @@ class DataTypeConfig(object):
         self.list_of_subtype_objects = []
 
         logger.info(data_type)
-        logger.info(data_type_content)
         logger.info(submission_system_data)
 
     def get_data(self):
@@ -66,10 +64,6 @@ class DataTypeConfig(object):
             pass
 
     def get_single_filepath(self):
-        self.check_for_single()
-        return self.list_of_subtype_objects[0].get_filepath()
-    
-    def get_single_data(self):
         self.check_for_single()
         return self.list_of_subtype_objects[0].get_filepath()
 

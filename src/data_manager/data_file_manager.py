@@ -29,6 +29,7 @@ class DataFileManager(object):
         self.transformed_submission_system_data = {}
         
     def get_config(self, data_type):
+        # Get the object for a data type. If the object doesn't exist, this returns None.
         return self.master_data_dictionary.get(data_type)
 
     def dispatch_to_object(self):
@@ -47,11 +48,9 @@ class DataFileManager(object):
             elif config_entry == 'releaseVersion':
                 self.master_data_dictionary['releaseVersion'] = self.transformed_submission_system_data[config_entry]
             else: 
-                # Add the data type object to our master dictionary filed under the config_entry.
-                self.master_data_dictionary[config_entry] = DataTypeConfig(
-                    config_entry, 
-                    self.config_data[config_entry],
-                    data_from_submission_system)
+                # Create our data type object and add it to our master dictionary filed under the config_entry.
+                # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
+                self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry, data_from_submission_system)
 
     def download_and_validate(self):
         logger.info('Beginning download and validation.')
@@ -87,36 +86,32 @@ class DataFileManager(object):
         # Transform the submission system data to be "data-type centered".
         self.restructure_submission_system_data()
 
-        # Create our config objects, either "DataType" or "MOD".
+        # Create our config objects.
         self.dispatch_to_object()
 
     def restructure_submission_system_data(self):
+        # This transforms the submission system data into a more developer-friendly dictionary layout.
+
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
 
         # entry['tempExtractedFile'] is temporary since the final submission system will send the proper filename.
 
         for entry in self.submission_system_data['dataFiles']:
+            subType = entry['subType']
+
             if 'taxonId' in entry:
-                MOD = get_MOD_from_taxon(entry['taxonId'])
-                if entry['dataType'] in self.transformed_submission_system_data:
+                # We overwrite the subType with the MOD id (derived from the taxon id) using this service.
+                subType = get_MOD_from_taxon(entry['taxonId'])
+
+            if entry['dataType'] in self.transformed_submission_system_data:
                     self.transformed_submission_system_data[entry['dataType']].append(
-                        [MOD, entry['path'], entry['tempExtractedFile']]
+                        [subType, entry['path'], entry['tempExtractedFile']]
                     )
-                else:
+            else:
                     self.transformed_submission_system_data[entry['dataType']] = []
                     self.transformed_submission_system_data[entry['dataType']].append(
-                        [MOD, entry['path'], entry['tempExtractedFile']]
-                    )
-            else: # If we're dealing with non-MOD data.
-                if entry['dataType'] in self.transformed_submission_system_data:
-                    self.transformed_submission_system_data[entry['dataType']].append(
-                        [entry['subType'], entry['path'], entry['tempExtractedFile']]
-                    )
-                else:
-                    self.transformed_submission_system_data[entry['dataType']] = []
-                    self.transformed_submission_system_data[entry['dataType']].append(
-                        [entry['subType'], entry['path'], entry['tempExtractedFile']]
+                        [subType, entry['path'], entry['tempExtractedFile']]
                     )
 
         # pp = pprint.PrettyPrinter(indent=4)
