@@ -1,8 +1,8 @@
-import logging, coloredlogs
+import logging, coloredlogs, os
 from etl import AlleleETL, BGIETL, DiseaseAlleleETL, SOETL, MIETL, ExpressionETL
 from transactors import CSVTransactor, Neo4jTransactor
 from transactions import Indicies
-from data_file_manager import DataFileManager
+from data_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -24,9 +24,9 @@ class AggregateLoader(object):
     def run_loader(self):
 
         # TODO Allow the yaml file location to be overwritten by command line input (for Travis).
-        data_manager = DataFileManager('config/default.yml')
-        # data_manager.process_config()
-        # data_manager.download_and_validate()
+        data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
+        data_manager.process_config()
+        data_manager.download_and_validate()
 
         Neo4jTransactor().start_threads(2)
         CSVTransactor().start_threads(4)

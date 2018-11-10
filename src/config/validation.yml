@@ -1,8 +1,33 @@
-Schema_Version: 
-  type: num
-Release_Version: 
-  type: num
+schemaVersion:
+  regex: ^(\d(\.\d){3})$
+  required: True
+releaseVersion: 
+  regex: ^(\d(\.\d){3})$
+  required: True
 BGI:
   type: list
-Ontologies:
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Allele: 
   type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Disease: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Phenotype: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Expression: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+sequenceOntology: 
+  required: True
+  type: boolean
+geneOntology:
+  required: True
+  type: boolean
+diseaseOntology:
+  required: True
+  type: boolean
+molecularInteractionOntology:
+  required: True
+  type: boolean

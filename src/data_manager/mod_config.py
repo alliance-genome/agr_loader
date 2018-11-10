@@ -1,3 +1,0 @@
-class ModConfig(object):
-
-    pass

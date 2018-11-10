@@ -8,21 +8,310 @@
             "schemaVersion": "1.0.0.7",
             "dataType": "BGI",
             "taxonId": "7955",
-            "path": "1.0.0.7/BGI/7955/1.0.0.7\_BGI\_7955\_1.json",
+            "path": "ZFIN_1.0.0.7_3.tar.gz",
+            "tempExtractedFile": "ZFIN_1.0.0.7_basicGeneInformation.json",
             "uploadDate": 1522181715592
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "SO",
-            "path": "SO/so_1.7.obo",
+            "dataType": "BGI",
+            "taxonId": "6239",
+            "path": "WB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "WB_1.0.0.7_BGI.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "10090",
+            "path": "MGI_1.0.0.7_2.tar.gz",
+            "tempExtractedFile": "MGI_1.0.0.7_BGI.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "10116",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_BGI.10116.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "559292",
+            "path": "SGD_1.0.0.7_1.tar.gz",
+            "tempExtractedFile": "SGD_1.0.0.7_basicGeneInformation.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "7227",
+            "path": "FB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "FB_1.0.0.7_BGI.json",
+            "uploadDate": 1522181715592
+        },        
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "BGI",
+            "taxonId": "9606",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_BGI.9606.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "7955",
+            "path": "ZFIN_1.0.0.7_3.tar.gz",
+            "tempExtractedFile": "ZFIN_1.0.0.7_allele.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "6239",
+            "path": "WB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "WB_1.0.0.7_allele.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "10090",
+            "path": "MGI_1.0.0.7_2.tar.gz",
+            "tempExtractedFile": "MGI_1.0.0.7_allele.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "10116",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_allele.10116.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "559292",
+            "path": "SGD_1.0.0.7_1.tar.gz",
+            "tempExtractedFile": null,
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "7227",
+            "path": "FB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "FB_1.0.0.7_feature.json",
+            "uploadDate": 1522181715592
+        },        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Allele",
+            "taxonId": "9606",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": null,
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "7955",
+            "path": "ZFIN_1.0.0.7_3.tar.gz",
+            "tempExtractedFile": "ZFIN_1.0.0.7_disease.daf.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "6239",
+            "path": "WB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "WB_1.0.0.7_disease.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "10090",
+            "path": "MGI_1.0.0.7_2.tar.gz",
+            "tempExtractedFile": "MGI_1.0.0.7_disease.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "10116",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_disease.10116.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "559292",
+            "path": "SGD_1.0.0.7_1.tar.gz",
+            "tempExtractedFile": "SGD_1.0.0.7_disease.daf.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "7227",
+            "path": "FB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "FB_1.0.0.7_disease.json",
+            "uploadDate": 1522181715592
+        },        
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Disease",
+            "taxonId": "9606",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_disease.9606.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "7955",
+            "path": "ZFIN_1.0.0.7_3.tar.gz",
+            "tempExtractedFile": "ZFIN_1.0.0.7_phenotype.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "6239",
+            "path": "WB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "WB_1.0.0.7_phenotype.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "10090",
+            "path": "MGI_1.0.0.7_2.tar.gz",
+            "tempExtractedFile": "MGI_1.0.0.7_phenotype.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "10116",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_phenotype.10116.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "559292",
+            "path": "SGD_1.0.0.7_1.tar.gz",
+            "tempExtractedFile": "SGD_1.0.0.7_phenotype.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "7227",
+            "path": "FB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "FB_1.0.0.7_phenotype.json",
+            "uploadDate": 1522181715592
+        },        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Phenotype",
+            "taxonId": "9606",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_phenotype.9606.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "7955",
+            "path": "ZFIN_1.0.0.7_3.tar.gz",
+            "tempExtractedFile": "ZFIN_1.0.0.7_expression.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "6239",
+            "path": "WB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "WB_1.0.0.7_expression.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "10090",
+            "path": "MGI_1.0.0.7_2.tar.gz",
+            "tempExtractedFile": "MGI_1.0.0.7_expression.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "10116",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_expression.10116.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "559292",
+            "path": "SGD_1.0.0.7_1.tar.gz",
+            "tempExtractedFile": "SGD_1.0.0.7_expression.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "7227",
+            "path": "FB_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "FB_1.0.0.7_expression.json",
+            "uploadDate": 1522181715592
+        },        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Expression",
+            "taxonId": "9606",
+            "path": "RGD_1.0.0.7_4.tar.gz",
+            "tempExtractedFile": "RGD_1.0.0.7_expression.9606.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "geneOntology",
+            "subType": "GO",
+            "path": "http://snapshot.geneontology.org/ontology/go.obo",
+            "tempExtractedFile": "go.obo",
             "uploadDate": 1522181475376
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "DAF",
-            "taxonId": "7955",
-            "path": "1.0.0.7/DAF/7955/1.0.0.7\_DAF\_7955\_1.json",
-            "uploadDate": 1522180298184
+            "dataType": "diseaseOntology",
+            "subType": "DO",
+            "path": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/master/src/ontology/doid.obo",
+            "tempExtractedFile": "doid.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "molecularInteractionOntology",
+            "subType": "MI",
+            "path": null,
+            "tempExtractedFile": null,
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "sequenceOntology",
+            "subType": "SO",
+            "path": "SO/so_1.7.obo",
+            "tempExtractedFile": "so_1.7.obo",
+            "uploadDate": 1522181475376
         }
     ]
 }

@@ -20,5 +20,7 @@ class TARFile(object):
             if not os.path.exists(self.path + "/" + member.name):
                 logger.info("Extracting (%s->%s/%s)" % (member.name, self.path, member.name))
                 extract = True
+            else:
+                logger.info('%s/%s already exists, not extracting.' % (self.path, member.name))
         if extract is True:
             tfile.extractall(self.path)
