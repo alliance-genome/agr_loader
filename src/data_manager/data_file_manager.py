@@ -33,6 +33,8 @@ class DataFileManager(object):
         return self.master_data_dictionary.get(data_type)
 
     def dispatch_to_object(self):
+        # This function sends off our data types to become DataTypeConfig objects.
+        # The smaller SubTypeConfig objects are created in the DataTypeConfig functions, see data_type_config.py.
         for config_entry in self.config_data.keys():
             logger.info('Processing data type: %s' % (config_entry))
 
@@ -43,6 +45,8 @@ class DataFileManager(object):
                 logger.critical('Exiting.')
                 sys.exit(-1)
 
+            # We don't want to send off the schemaVersion or releaseVersion to become an object.
+            # So we just store it in our master dictionary as a string.
             if config_entry == 'schemaVersion':
                 self.master_data_dictionary['schemaVersion'] = self.transformed_submission_system_data[config_entry]
             elif config_entry == 'releaseVersion':
@@ -58,9 +62,13 @@ class DataFileManager(object):
             logger.info('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig): # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
-    # TODO validation
+    # TODO Add validation
 
     def process_config(self):
+        # This checks for the validity of the YAML file.
+        # See src/config/validation.yml for the layout of the schema.
+        # TODO Add requirement checking and more validation to the YAML schema.
+
         validator = Validator(self.validation_schema)
         validation_results = validator.validate(self.config_data)
 
@@ -86,7 +94,7 @@ class DataFileManager(object):
         # Transform the submission system data to be "data-type centered".
         self.restructure_submission_system_data()
 
-        # Create our config objects.
+        # Create our DataTypeConfig (which in turn create our SubTypeConfig) objects.
         self.dispatch_to_object()
 
     def restructure_submission_system_data(self):

@@ -20,9 +20,9 @@ class DataTypeConfig(object):
         logger.info(submission_system_data)
 
     def get_data(self):
-        # Grab the data (TODO validate) and create sub_type objects.
+        # Grab the data (TODO validate) and create SubTypeConfig objects.
         # Some of this algorithm is temporary.
-        # Files from the submission system will arrive without the need for unzipping, etc.
+        # e.g. Files from the submission system will arrive without the need for unzipping, etc.
 
         path = 'tmp'
 
