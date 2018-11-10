@@ -106,7 +106,11 @@ class DataFileManager(object):
         # entry['tempExtractedFile'] is temporary since the final submission system will send the proper filename.
 
         for entry in self.submission_system_data['dataFiles']:
-            subType = entry['subType']
+            
+            try:
+                subType = entry['subType']
+            except KeyError: # Assume there is no subType or it is assigned below.
+                subType = None 
 
             if 'taxonId' in entry:
                 # We overwrite the subType with the MOD id (derived from the taxon id) using this service.

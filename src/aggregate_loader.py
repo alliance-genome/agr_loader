@@ -1,6 +1,6 @@
 import logging, coloredlogs, os
 from etl import *
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
@@ -26,7 +26,10 @@ class AggregateLoader(object):
         # TODO Allow the yaml file location to be overwritten by command line input (for Travis).
         data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
         data_manager.process_config()
+
+        FileTransactor().start_threads(4)
         data_manager.download_and_validate()
+        FileTransactor().wait_for_queues()
 
         Neo4jTransactor().start_threads(1)
         CSVTransactor().start_threads(4)

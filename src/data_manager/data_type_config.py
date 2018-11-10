@@ -1,5 +1,6 @@
 from files import S3File, TXTFile, TARFile, Download
 import os, logging, sys
+from transactors import FileTransactor
 from .sub_type_config import SubTypeConfig
 
 logger = logging.getLogger(__name__)
@@ -20,25 +21,12 @@ class DataTypeConfig(object):
         logger.info(submission_system_data)
 
     def get_data(self):
-        # Grab the data (TODO validate) and create SubTypeConfig objects.
-        # Some of this algorithm is temporary.
-        # e.g. Files from the submission system will arrive without the need for unzipping, etc.
 
         path = 'tmp'
 
         for downloadable_item in self.submission_system_data:
-            if downloadable_item[1] is not None:
-                if downloadable_item[1].startswith('http'):
-                    download_filename = os.path.basename(downloadable_item[2])
-                    download_object = Download(path, downloadable_item[1], download_filename) # savepath, urlToRetieve, filenameToSave
-                    download_object.get_downloaded_data()
-                else:
-                    S3File(downloadable_item[1], path).download()
-                    if downloadable_item[1].endswith('tar.gz'):
-                        tar_object = TARFile(path, downloadable_item[1])
-                        tar_object.extract_all()
-            else: 
-                logger.warn('No download path specified, assuming download is not required.')
+            
+            FileTransactor.execute_transaction(downloadable_item)
 
             try:
                 sub_type = SubTypeConfig(downloadable_item[0], path + '/' + downloadable_item[2])
