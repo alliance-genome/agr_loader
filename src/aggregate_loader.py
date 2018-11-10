@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import logging, coloredlogs, os
-from etl import AlleleETL, BGIETL, DiseaseAlleleETL, SOETL, MIETL, ExpressionETL
-=======
-import logging, coloredlogs
 from etl import *
->>>>>>> 0126bcfc3bd2509cbcb0fa2de3f0279898385f2a
 from transactors import CSVTransactor, Neo4jTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
@@ -52,10 +47,10 @@ class AggregateLoader(object):
 
         list_of_types = [
             ['GO', 'DO', 'SO', 'MI'],
-            #['BGI'],
-            #['Allele'],
-            # ['Expression'],
-            #['DiseaseAllele'],
+            ['BGI'],
+            ['Allele'],
+            ['Expression'],
+            ['DiseaseAllele'],
             #['DiseaseGene'],
             #['Phenotype'],
             #['Orthology'],

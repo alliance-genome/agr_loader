@@ -1,6 +1,7 @@
 from itertools import islice, chain, tee
 import logging
 import sys
+from files import TXTFile
 
 from etl import ETL
 from transactors import CSVTransactor
@@ -22,7 +23,9 @@ class SOETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        data = self.data_type_config.get_data()
+
+        filepath = self.data_type_config.get_single_filepath()
+        data = TXTFile(filepath).get_data()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         #batch_size = self.data_type_config.get_generator_batch_size()

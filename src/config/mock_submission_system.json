@@ -283,7 +283,7 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "geneOntology",
+            "dataType": "GO",
             "subType": "GO",
             "path": "http://snapshot.geneontology.org/ontology/go.obo",
             "tempExtractedFile": "go.obo",
@@ -291,7 +291,7 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "diseaseOntology",
+            "dataType": "DO",
             "subType": "DO",
             "path": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/master/src/ontology/doid.obo",
             "tempExtractedFile": "doid.obo",
@@ -299,7 +299,7 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "molecularInteractionOntology",
+            "dataType": "MI",
             "subType": "MI",
             "path": null,
             "tempExtractedFile": null,
@@ -307,10 +307,10 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "sequenceOntology",
+            "dataType": "SO",
             "subType": "SO",
             "path": "SO/so_1.7.obo",
-            "tempExtractedFile": "so_1.7.obo",
+            "tempExtractedFile": "SO/so_1.7.obo",
             "uploadDate": 1522181475376
         }
     ]

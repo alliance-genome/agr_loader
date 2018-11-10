@@ -5,7 +5,9 @@ Allele: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
 Expression: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
 Phenotype: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
 Disease: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
-sequenceOntology: True
-geneOntology: True
-diseaseOntology: True
-molecularInteractionOntology: True
+# Individual ontologies below. This is a WIP.
+# Names will change and they will be grouped under "Ontologies".
+SO: True
+GO: True
+DO: True
+MI: True

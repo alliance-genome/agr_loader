@@ -19,15 +19,15 @@ Phenotype:
 Expression: 
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-sequenceOntology: 
+SO: 
   required: True
   type: boolean
-geneOntology:
+GO:
   required: True
   type: boolean
-diseaseOntology:
+DO:
   required: True
   type: boolean
-molecularInteractionOntology:
+MI:
   required: True
   type: boolean

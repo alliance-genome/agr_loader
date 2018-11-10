@@ -59,7 +59,6 @@ class DataFileManager(object):
             logger.info('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig): # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
-        quit()
 
     def process_config(self):
         validator = Validator(self.validation_schema)
@@ -76,13 +75,13 @@ class DataFileManager(object):
             logger.critical('Exiting')
             sys.exit(-1)
         
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint('self.config_data')
-        pp.pprint(self.config_data)
-        print('-------------------------------------------------')
-        pp.pprint('self.submission_system_data')
-        pp.pprint(self.submission_system_data)
-        print('-------------------------------------------------')
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint('self.config_data')
+        # pp.pprint(self.config_data)
+        # print('-------------------------------------------------')
+        # pp.pprint('self.submission_system_data')
+        # pp.pprint(self.submission_system_data)
+        # print('-------------------------------------------------')
 
         # Transform the submission system data to be "data-type centered".
         self.restructure_submission_system_data()
@@ -119,7 +118,7 @@ class DataFileManager(object):
                         [entry['subType'], entry['path'], entry['tempExtractedFile']]
                     )
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint('self.transformed_submission_system_data')
-        pp.pprint(self.transformed_submission_system_data)
-        print('-------------------------------------------------')
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint('self.transformed_submission_system_data')
+        # pp.pprint(self.transformed_submission_system_data)
+        # print('-------------------------------------------------')

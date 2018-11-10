@@ -70,7 +70,7 @@ class DOETL(ETL):
 
     def _load_and_process_data(self):
 
-        filepath = self.data_type_config.get_do_data_file_path()
+        filepath = self.data_type_config.get_single_filepath()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
