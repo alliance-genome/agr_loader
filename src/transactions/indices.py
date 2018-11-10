@@ -51,8 +51,7 @@ class Indicies(object):
         session.run("CREATE INDEX ON :ExpressionBioEntity(primaryKey)")
         session.run("CREATE INDEX ON :Assay(primaryKey)")
         session.run("CREATE INDEX ON :Stage(primaryKey)")
-        session.run("CREATE INDEX ON :Ontology(primaryKey)")
-        session.run("CREATE INDEX ON :GOTerm(primaryKey)")
+        
         session.run("CREATE INDEX ON :ZFATerm(primaryKey)")
         session.run("CREATE INDEX ON :ZFSTerm(primaryKey)")
         session.run("CREATE INDEX ON :CLTerm(primaryKey)")

@@ -3,6 +3,7 @@ import logging, uuid
 from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
+from etl.helpers import ETLHelper
 
 
 logger = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ class AlleleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Feature {primaryKey:row.dataId}) """ + ETL.get_cypher_xref_text()
+            MATCH (o:Feature {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -149,7 +150,7 @@ class AlleleETL(ETL):
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider,
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
                                                                              dataProviderPage,
                                                                              dataProviderPage, dataProvider,
                                                                              crossRefCompleteUrl,
@@ -207,7 +208,7 @@ class AlleleETL(ETL):
                         for page in pages:
                             if page == 'allele':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
-                                xref = ETL.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
+                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
                                 crossReferenceList.append(xref)
 

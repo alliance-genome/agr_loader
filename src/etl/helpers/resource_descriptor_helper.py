@@ -34,7 +34,6 @@ class ResourceDescriptorHelper(object):
 
         with codecs.open(self.savepath + "/" + self.filename, 'r', 'utf-8') as stream:
             try:
-                list_to_yield = []
                 data = yaml.load(stream)
                 for stanza in data:
                     pages = []

@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from services import UrlService
 from transactors import CSVTransactor
 
@@ -38,9 +39,8 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
-            MATCH (g:Gene {primaryKey:row.primary_id})
             
-           MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
@@ -102,7 +102,7 @@ class BGIETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETL.get_cypher_xref_text()
+            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -163,7 +163,7 @@ class BGIETL(ETL):
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(ETL.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
                 dataProviders.append(dataProvider)
                 logger.info("BGI using data provider: " + dataProvider)
 
@@ -235,7 +235,7 @@ class BGIETL(ETL):
                                 if page == 'gene/disease' and taxonId == 'NCBITaxon:559292':
                                     crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
 
-                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
+                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
@@ -243,14 +243,14 @@ class BGIETL(ETL):
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
-                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
+                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
                                 crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
-                                xrefMap = ETL.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
+                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
@@ -263,7 +263,7 @@ class BGIETL(ETL):
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
-                "species": ETL.species_lookup_by_taxonid(taxonId),
+                "species": ETLHelper.species_lookup_by_taxonid(taxonId),
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord.get('symbol'),
                 "primaryId": primary_id,

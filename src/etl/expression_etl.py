@@ -5,6 +5,7 @@ import uuid
 import ijson
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from services import UrlService
 from transactors import CSVTransactor
 
@@ -17,7 +18,7 @@ class ExpressionETL(ETL):
     xrefs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETL.get_cypher_xref_text()
+            MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETLHelper.get_cypher_xref_text()
 
     AddOther = """
     
@@ -439,7 +440,7 @@ class ExpressionETL(ETL):
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, self.xrefUrlMap,
                                                                                prefix, page)
 
-                                xref = ETL.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
+                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                           modGlobalCrossRefId, crossRefId + page)
                                 xref['ei_uuid'] = ei_uuid
                                 crossReferences.append(xref)
