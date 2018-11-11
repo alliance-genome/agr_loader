@@ -61,10 +61,10 @@ class SubTypeConfig(object):
             logger.warn('No schema or method found. Skipping validation.')
             return # Exit validation.
 
-        with open(schema_file_name) as schema_file:
+        with open(schema_file_name, encoding='utf-8') as schema_file:
             schema = json.load(schema_file)
 
-        with open(self.filepath) as data_file:
+        with open(self.filepath, encoding='utf-8') as data_file:
             data = json.load(data_file)
 
         # Defining a resolver for relative paths and schema issues, see https://github.com/Julian/jsonschema/issues/313
