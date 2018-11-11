@@ -29,6 +29,29 @@ class Download(object):
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
         return data
 
+    def get_downloaded_data_new(self):
+        logger.info("Downloading data from ..." + self.urlToRetrieve)
+        if not os.path.exists(self.savepath):
+            logger.info("Making temp file storage: %s" % (self.savepath))
+            os.makedirs(self.savepath)
+        if not os.path.exists(self.savepath + "/" + self.filenameToSave):
+            file = urllib.request.urlopen(self.urlToRetrieve)
+            data = file.read()
+            # Retry the retreival 5 times.
+            max_retries = 5
+            current_attempt = 0
+            while data is None:
+                file = urllib.request.urlopen(self.urlToRetrieve)
+                data = file.read()
+                current_attempt += 1
+                if current_attempt == max_retries:
+                    break
+            file.close()
+            return False
+        else:
+            logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
+            return True
+
     def download_file(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filenameToSave)):
             logger.info("Making temp file storage: %s" % (self.savepath+ "/" + self.filenameToSave))

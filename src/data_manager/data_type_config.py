@@ -24,15 +24,24 @@ class DataTypeConfig(object):
 
         path = 'tmp'
 
+        # Create our subtype objects.
         for downloadable_item in self.submission_system_data:
-            
-            FileTransactor.execute_transaction(downloadable_item)
+            if downloadable_item[2] is not None:
+                full_path_to_send = path + '/' + downloadable_item[2]
+            else:
+                full_path_to_send = None # If we don't have a path.
 
-            try:
-                sub_type = SubTypeConfig(downloadable_item[0], path + '/' + downloadable_item[2])
-            except TypeError:
-                sub_type = SubTypeConfig(downloadable_item[0], None) # If we don't have a path.
+            sub_type = SubTypeConfig(
+                self.data_type, 
+                downloadable_item[0], 
+                downloadable_item[1], 
+                full_path_to_send)
+
             self.list_of_subtype_objects.append(sub_type)
+
+            # Send it off to be queued and executed.
+            FileTransactor.execute_transaction(sub_type)
+
 
     def running_etl(self):
         return True
