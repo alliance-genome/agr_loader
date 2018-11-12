@@ -40,6 +40,29 @@ class SubTypeConfig(object):
             logger.warn('No download path specified, assuming download is not required.')
 
     def validate(self):
+        if self.filepath is None:
+            logger.warn('No file path found for sub type: %s from data type: %s ' % (self.sub_data_type, self.data_type))
+            logger.warn('Skipping validation.')
+            return
+
+        # TODO -- The method below can be reworked once we switch to the submission system.
+
+        # Begin temporary validation skipping method.
+        # This method attempts to create a _temp_val_check file via "open"
+        # If the file exists, it means the validation has already run and we should skip it.
+        # If the file doesn't exist, we should create it and run the validation.
+        self.already_downloaded = False
+        
+        try:
+            open(self.filepath + '_temp_val_check', 'x')
+        except FileExistsError:
+            self.already_downloaded = True
+        except TypeError: # if self.filepath is "None".
+            pass
+        # End of temporary validation method.
+
+        # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
+        # The submission system needs to be in place (files are downloaded as .json) for this to work.
         if self.already_downloaded is True:
             logger.info('File has been previously downloaded. Skipping validation.')
             return
