@@ -41,7 +41,7 @@ class SubTypeConfig(object):
 
     def validate(self):
         if self.filepath is None:
-            logger.warn('No file path found for sub type: %s from data type: %s ' % (self.sub_data_type, self.data_type))
+            logger.warn('No filepath found for sub type: %s from data type: %s ' % (self.sub_data_type, self.data_type))
             logger.warn('Skipping validation.')
             return
 
@@ -64,7 +64,7 @@ class SubTypeConfig(object):
         # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
         # The submission system needs to be in place (files are downloaded as .json) for this to work.
         if self.already_downloaded is True:
-            logger.info('File has been previously downloaded. Skipping validation.')
+            logger.info('File %s has been previously downloaded. Skipping validation.' % self.filepath)
             return
 
         logger.info("Attempting to validate: %s" % (self.filepath))
