@@ -273,13 +273,6 @@
             "path": "FB_1.0.0.7_4.tar.gz",
             "tempExtractedFile": "FB_1.0.0.7_expression.json",
             "uploadDate": 1522181715592
-        },        {
-            "schemaVersion": "1.0.0.7",
-            "dataType": "Expression",
-            "taxonId": "9606",
-            "path": "RGD_1.0.0.7_4.tar.gz",
-            "tempExtractedFile": "RGD_1.0.0.7_expression.9606.json",
-            "uploadDate": 1522181715592
         },
         {
             "schemaVersion": "1.0.0.7",

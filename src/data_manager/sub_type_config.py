@@ -1,5 +1,5 @@
 from files import S3File, TXTFile, TARFile, Download
-import os, logging, json
+import os, logging, json, sys
 import jsonschema as js
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,16 @@ class SubTypeConfig(object):
                     tar_object.extract_all()
         else: 
             logger.warn('No download path specified, assuming download is not required.')
+
+        # Check whether the file exists locally.
+        if self.filepath is not None:
+            try:
+                os.path.isfile(self.filepath)
+            except:
+                logger.critical('No local copy of the specified file found!')
+                logger.critical('Missing copy of %s for sub type: %s from data type: %s' % (self.filepath, self.sub_data_type, self.data_type))
+                logger.critical('Please check download functions or data source.')
+                sys.exit(-1)
 
     def validate(self):
         if self.filepath is None:
