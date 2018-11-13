@@ -1,10 +1,10 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
-Allele: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
-Expression: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
-Phenotype: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
-Disease: [FB, SGD, WB, ZFIN, SGD, RGD, Human]
+BGI: [FB, SGD, WB, ZFIN, RGD, Human]
+Allele: [FB, WB, ZFIN, RGD]
+Expression: [FB, SGD, WB, ZFIN, Human]
+Phenotype: [FB, SGD, WB, ZFIN, RGD, Human]
+Disease: [FB, SGD, WB, ZFIN, RGD, Human]
 # Individual ontologies below. This is a WIP.
 # Names will change and they will be grouped under "Ontologies".
 SO: True

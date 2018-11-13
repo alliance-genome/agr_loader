@@ -25,29 +25,28 @@ class SubTypeConfig(object):
         # Some of this algorithm is temporary.
         # e.g. Files from the submission system will arrive without the need for unzipping, etc.
         path = 'tmp'
-
-        if self.file_to_download is not None:
-            if self.file_to_download.startswith('http'):
-                download_filename = os.path.basename(self.file_to_download)
-                download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
-                self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
-            else:
-                self.already_downloaded = S3File(self.file_to_download, path).download_new()
-                if self.file_to_download.endswith('tar.gz'):
-                    tar_object = TARFile(path,self.file_to_download)
-                    tar_object.extract_all()
-        else: 
-            logger.warn('No download path specified, assuming download is not required.')
-
-        # Check whether the file exists locally.
+    
         if self.filepath is not None:
-            try:
-                os.path.isfile(self.filepath)
-            except:
-                logger.critical('No local copy of the specified file found!')
-                logger.critical('Missing copy of %s for sub type: %s from data type: %s' % (self.filepath, self.sub_data_type, self.data_type))
-                logger.critical('Please check download functions or data source.')
-                sys.exit(-1)
+            if not os.path.isfile(self.filepath):
+
+                if self.file_to_download.startswith('http'):
+                    download_filename = os.path.basename(self.file_to_download)
+                    download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
+                    self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
+                else:
+                    self.already_downloaded = S3File(self.file_to_download, path).download_new()
+                    if self.file_to_download.endswith('tar.gz'):
+                        tar_object = TARFile(path,self.file_to_download)
+                        tar_object.extract_all()
+                        # Check whether the file exists locally.
+                if self.filepath is not None:
+                    try:
+                        os.path.isfile(self.filepath)
+                    except:
+                        logger.critical('No local copy of the specified file found!')
+                        logger.critical('Missing copy of %s for sub type: %s from data type: %s' % (self.filepath, self.sub_data_type, self.data_type))
+                        logger.critical('Please check download functions or data source.')
+                        sys.exit(-1)
 
     def validate(self):
         if self.filepath is None:
@@ -74,7 +73,7 @@ class SubTypeConfig(object):
         # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
         # The submission system needs to be in place (files are downloaded as .json) for this to work.
         if self.already_downloaded is True:
-            logger.info('File %s has been previously downloaded. Skipping validation.' % self.filepath)
+            logger.info('Found temp validation file flag for %s. Skipping validation.' % self.filepath)
             return
 
         logger.info("Attempting to validate: %s" % (self.filepath))

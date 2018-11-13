@@ -95,24 +95,9 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "Allele",
-            "taxonId": "559292",
-            "path": "SGD_1.0.0.7_1.tar.gz",
-            "tempExtractedFile": null,
-            "uploadDate": 1522181715592
-        },
-        {
-            "schemaVersion": "1.0.0.7",
-            "dataType": "Allele",
             "taxonId": "7227",
             "path": "FB_1.0.0.7_4.tar.gz",
             "tempExtractedFile": "FB_1.0.0.7_feature.json",
-            "uploadDate": 1522181715592
-        },        {
-            "schemaVersion": "1.0.0.7",
-            "dataType": "Allele",
-            "taxonId": "9606",
-            "path": "RGD_1.0.0.7_4.tar.gz",
-            "tempExtractedFile": null,
             "uploadDate": 1522181715592
         },
         {

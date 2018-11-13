@@ -17,7 +17,7 @@ class FileTransactor(Transactor):
         super().__init__()
 
     def _get_name(self):
-        return "Filename %s" % self.threadid
+        return "FILE %s" % self.threadid
 
     def start_threads(self, thread_count):
         thread_pool = []
