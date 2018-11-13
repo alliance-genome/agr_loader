@@ -65,7 +65,7 @@ class AggregateLoader(object):
         start = time.time()
 
         logger.info("Extracting GO data.")
-        self.go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
+        self.go_dataset = OExt().get_data("http://current.geneontology.org/ontology/go.obo", "go.obo")
         logger.info("Loading GO data into Neo4j.")
         GOLoader(self.graph).load_go(self.go_dataset)
         # Does not get cleared because its used later self.go_dataset.clear()
