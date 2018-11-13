@@ -9,7 +9,7 @@ BGI:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Allele: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, WB, ZFIN, RGD, MGI]
 Disease: 
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -18,7 +18,7 @@ Phenotype:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Expression: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, MGI, Human]
 SO: 
   required: True
   type: boolean
