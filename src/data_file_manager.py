@@ -34,10 +34,10 @@ class DataTypeConfig(object):
         return Download(self.path, url, filename).download_file()
 
     def get_neo4j_commit_size(self):
-        return 2500
+        return 25000
 
     def get_generator_batch_size(self):
-        return 10000
+        return 5000
 
     def get_mod_configs(self):
 

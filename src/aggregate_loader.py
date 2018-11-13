@@ -47,10 +47,10 @@ class AggregateLoader(object):
 
         list_of_types = [
             ['GO', 'DO', 'SO', 'MI'],
-            #['BGI'],
-            #['Allele'],
-            # ['Expression'],
-            #['DiseaseAllele'],
+            ['BGI'],
+            ['Allele'],
+            #['Expression'],
+            ['DiseaseAllele'],
             #['DiseaseGene'],
             #['Phenotype'],
             #['Orthology'],
