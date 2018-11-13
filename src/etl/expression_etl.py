@@ -315,7 +315,7 @@ class ExpressionETL(ETL):
         
         for mod_config in self.data_type_config.get_mod_configs():
             logger.info("Loading BGI Data: %s" % mod_config.data_provider)
-            data_file = mod_config.get_expression_file_name()
+            data_file = mod_config.get_filepath()
             logger.info("Finished Loading BGI Data: %s" % mod_config.data_provider)
 
             if data_file == None:

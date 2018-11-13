@@ -6,6 +6,8 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from etl.helpers import DiseaseAlleleHelper
 
+from files import JSONFile
+
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +83,8 @@ class DiseaseAlleleETL(ETL):
 
         for mod_config in self.data_type_config.get_mod_configs():
             logger.info("Loading Disease Allele Data: %s" % mod_config.data_provider)
-            data = mod_config.get_disease_data()
+            filepath = mod_config.get_filepath()
+            data = JSONFile().get_data(filepath)
             logger.info("Finished Loading Disease Allele Data: %s" % mod_config.data_provider)
 
             if data == None:

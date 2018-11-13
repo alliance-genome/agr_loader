@@ -95,7 +95,8 @@ class AlleleETL(ETL):
 
         for mod_config in self.data_type_config.get_mod_configs():
             logger.info("Loading Allele Data: %s" % mod_config.data_provider)
-            data = mod_config.get_allele_data()
+            filepath = mod_config.get_filepath()
+            data = JSONFile().get_data(filepath)
             logger.info("Finished Loading Allele Data: %s" % mod_config.data_provider)
 
             if data == None:
