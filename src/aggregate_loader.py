@@ -30,7 +30,7 @@ class AggregateLoader(object):
         data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
         data_manager.process_config()
 
-        FileTransactor().start_threads(4)
+        FileTransactor().start_threads(12)
         data_manager.download_and_validate()
         FileTransactor().wait_for_queues()
 
