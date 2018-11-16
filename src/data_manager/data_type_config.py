@@ -12,11 +12,17 @@ class DataTypeConfig(object):
         self.submission_system_data = submission_system_data
 
         # TODO These will be set by the config YAML.
-        self.commit_size = 2500
-        self.batch_size = 10000
+        self.neo4j_commit_size = 25000
+        self.generator_batch_size = 10000
 
         self.list_of_subtype_objects = []
 
+<<<<<<< HEAD
+=======
+        #logger.info(data_type)
+        #logger.info(submission_system_data)
+
+>>>>>>> 205b70876c9a0657d851795fd5d54d5c396ca51b
     def get_data(self):
 
         path = 'tmp'
@@ -44,10 +50,10 @@ class DataTypeConfig(object):
         return True
 
     def get_neo4j_commit_size(self):
-        return self.commit_size
+        return self.neo4j_commit_size
 
     def get_generator_batch_size(self):
-        return self.get_generator_batch_size    
+        return self.generator_batch_size    
 
     def check_for_single(self):
         if len(self.list_of_subtype_objects) > 1:

@@ -30,6 +30,7 @@ class FileTransactor(Transactor):
 
     @staticmethod
     def execute_transaction(sub_type):
+        FileTransactor.count = FileTransactor.count + 1
         FileTransactor.queue.put((sub_type, FileTransactor.count))
         logger.info("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
 
@@ -46,8 +47,8 @@ class FileTransactor(Transactor):
 
     def download_and_validate_file(self, sub_type):
 
-        logger.info("%s: Processing file: %s" % (self._get_name(), sub_type.get_filepath()))
+        logger.info("%s: Getting data and downloading: %s" % (self._get_name(), sub_type.get_filepath()))
         sub_type.get_data()
-        logger.info("%s: Received file %s starting validation." % (self._get_name(), sub_type.get_filepath()))
+        logger.info("%s: Downloading data finished. Starting validation: %s" % (self._get_name(), sub_type.get_filepath()))
         sub_type.validate()
-        logger.info("%s: Validation for %s finished." % (self._get_name(), sub_type.get_filepath()))
+        logger.info("%s: Validation finish: %s" % (self._get_name(), sub_type.get_filepath()))
