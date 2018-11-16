@@ -1,16 +1,16 @@
 import logging, coloredlogs, os, sys
 
-# coloredlogs.install(level=logging.INFO,
-#     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
-#     field_styles={
-#         'asctime': {'color': 'green'}, 
-#         'hostname': {'color': 'magenta'}, 
-#         'levelname': {'color': 'white', 'bold': True}, 
-#         'name': {'color': 'blue'}, 
-#         'programname': {'color': 'cyan'}
-#     })
+coloredlogs.install(level=logging.INFO,
+    fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
+    field_styles={
+        'asctime': {'color': 'green'}, 
+        'hostname': {'color': 'magenta'}, 
+        'levelname': {'color': 'white', 'bold': True}, 
+        'name': {'color': 'blue'}, 
+        'programname': {'color': 'cyan'}
+    })
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+# logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 logger = logging.getLogger(__name__)
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
