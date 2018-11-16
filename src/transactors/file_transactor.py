@@ -48,5 +48,5 @@ class FileTransactor(object):
         logger.info("%s: Getting data and downloading: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
         sub_type.get_data()
         logger.info("%s: Downloading data finished. Starting validation: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
-        sub_type.validate()
+        # sub_type.validate()
         logger.info("%s: Validation finish: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))

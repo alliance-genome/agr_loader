@@ -40,7 +40,7 @@ class AggregateLoader(object):
         logger.info("Creating indices.")
         Indicies().create_indices()
 
-        list_of_etls = {
+        etl_dispatch = {
             'GO': GOETL,
             'DO': DOETL,
             'SO': SOETL,
@@ -68,7 +68,7 @@ class AggregateLoader(object):
             for data_type in data_types:
                 config = data_manager.get_config(data_type)
                 if config is not None:
-                    etl = list_of_etls[data_type](config)
+                    etl = etl_dispatch[data_type](config)
                     etl.run_etl()
             logger.info("Waiting for Queues to sync up")
             CSVTransactor().wait_for_queues()
