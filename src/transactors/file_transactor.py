@@ -1,12 +1,12 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from contextlib import ExitStack
 import csv, os, logging, sys, logging
-import logging
 from queue import Queue
 from files import S3File, TXTFile, TARFile, Download 
 
 from .transactor import Transactor
-
-logger = logging.getLogger(__name__)
 
 class FileTransactor(Transactor):
 

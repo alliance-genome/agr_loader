@@ -1,4 +1,6 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import uuid
 
 from etl import ETL
@@ -6,9 +8,6 @@ from etl.helpers import ETLHelper
 from services import UrlService
 from transactors import CSVTransactor
 from files import JSONFile
-
-
-logger = logging.getLogger(__name__)
 
 class BGIETL(ETL):
 

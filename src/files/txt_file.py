@@ -1,8 +1,7 @@
-import codecs
 import logging
-
-
 logger = logging.getLogger(__name__)
+
+import codecs
 
 class TXTFile(object):
 

@@ -1,13 +1,12 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from contextlib import ExitStack
 import csv
-import logging
 from queue import Queue
 
 from .transactor import Transactor
 from .neo4j_transactor import Neo4jTransactor
-
-
-logger = logging.getLogger(__name__)
 
 class CSVTransactor(Transactor):
 

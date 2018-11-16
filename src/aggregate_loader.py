@@ -1,8 +1,5 @@
 import logging, coloredlogs, os
-from etl import *
-from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
-from transactions import Indicies
-from data_manager import DataFileManager
+logger = logging.getLogger(__name__)
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -17,7 +14,11 @@ coloredlogs.install(level=logging.INFO,
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
 # to DEBUG the modules we want to see output for.
-logger = logging.getLogger(__name__)
+
+from etl import *
+from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
+from transactions import Indicies
+from data_manager import DataFileManager
 
 class AggregateLoader(object):
 

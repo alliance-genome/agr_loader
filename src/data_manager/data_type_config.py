@@ -1,9 +1,10 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from files import S3File, TXTFile, TARFile, Download
-import os, logging, sys
+import os, sys
 from transactors import FileTransactor
 from .sub_type_config import SubTypeConfig
-
-logger = logging.getLogger(__name__)
 
 class DataTypeConfig(object):
 

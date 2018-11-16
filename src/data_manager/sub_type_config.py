@@ -1,8 +1,9 @@
-from files import S3File, TXTFile, TARFile, Download
-import os, logging, json, sys
-import jsonschema as js
-
+import logging
 logger = logging.getLogger(__name__)
+
+from files import S3File, TXTFile, TARFile, Download
+import os, json, sys
+import jsonschema as js
 
 class SubTypeConfig(object):
 

@@ -1,11 +1,9 @@
 import logging
+logger = logging.getLogger(__name__)
 
 from transactors import CSVTransactor
 
 from etl import ETL
-
-
-logger = logging.getLogger(__name__)
 
 class StubETL(ETL):
 

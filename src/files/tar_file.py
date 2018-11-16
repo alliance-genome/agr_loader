@@ -1,9 +1,8 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import tarfile
-
-
-logger = logging.getLogger(__name__)
 
 class TARFile(object):
 

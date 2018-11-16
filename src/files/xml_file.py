@@ -1,9 +1,7 @@
 import logging
+logger = logging.getLogger(__name__)
 
 import xml.etree.ElementTree as ElementTree
-
-
-logger = logging.getLogger(__name__)
 
 class XMLFile(object):
 

@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 
 from transactors import CSVTransactor
 
@@ -6,9 +7,6 @@ from ontobio import OntologyFactory
 
 from etl import ETL
 from etl.helpers import ETLHelper
-
-
-logger = logging.getLogger(__name__)
 
 class DOETL(ETL):
 

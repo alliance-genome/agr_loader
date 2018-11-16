@@ -1,21 +1,20 @@
+import logging
+logger = logging.getLogger(__name__)
+
 import codecs
 import json
-import logging
 import os
 
 import jsonschema as js
 
-
-logger = logging.getLogger(__name__)
-
 class JSONFile(object):
 
     def get_data(self, filename):
-        logger.info("Loading json data from %s ..." % filename)
+        logger.info("Loading JSON data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             logger.info ("Opening JSONFile: %s" % filename)
             data = json.load(f)
-            logger.info ("JSon data extracted %s" % filename)
+            logger.info ("JSON data extracted %s" % filename)
         f.close()
         #self.validate_json(data, filename, jsonType)
         return data

@@ -1,13 +1,12 @@
-import logging, uuid
+import logging
+logger = logging.getLogger(__name__)
 
+import uuid
 from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
-
-
-logger = logging.getLogger(__name__)
 
 class AlleleETL(ETL):
 

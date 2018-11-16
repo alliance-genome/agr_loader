@@ -1,12 +1,10 @@
 import logging
+logger = logging.getLogger(__name__)
 
 from ontobio import OntologyFactory
 
 from etl import ETL
 from transactors import CSVTransactor
-
-
-logger = logging.getLogger(__name__)
 
 class GOETL(ETL):
 
