@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 class GenericOntology(ETL):
 
     query_template = """
-        UNWIND $data as row
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         //Create the Term node and set properties. primaryKey is required.
         MERGE (g:%s:Ontology {primaryKey:row.oid})

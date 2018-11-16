@@ -32,7 +32,8 @@ class CSVTransactor(Transactor):
     @staticmethod
     def execute_transaction(generator, query_list_with_params):
         for query_params in query_list_with_params:
-            query_to_run = query_params[0] % (query_params[1], query_params[2])
+            cypher_query_template = query_params.pop(0) # Remove the first item from the list.
+            query_to_run = cypher_query_template % tuple(query_params)
             query_params.append(query_to_run) # items [3] will be the final query to run
         CSVTransactor.count = CSVTransactor.count + 1
         CSVTransactor.queue.put((generator, query_list_with_params, CSVTransactor.count))
@@ -53,7 +54,7 @@ class CSVTransactor(Transactor):
 
         with ExitStack() as stack:
             # Open all necessary CSV files at once.
-            open_files = [stack.enter_context(open('tmp/' + query_params[2], 'w', encoding='utf-8')) for query_params in query_list_with_params]
+            open_files = [stack.enter_context(open('tmp/' + query_params[1], 'w', encoding='utf-8')) for query_params in query_list_with_params]
             
             csv_file_writer = [None] * len(open_files) # Create a list with 'None' placeholder entries.
 
@@ -77,7 +78,7 @@ class CSVTransactor(Transactor):
 
         query_batch = []
         for query_param in query_list_with_params:
-            query_batch.append([query_param[3], query_param[2]])
+            query_batch.append([query_param[2], query_param[1]]) # neo4j query and filename.
             
         Neo4jTransactor.execute_query_batch(query_batch)
 

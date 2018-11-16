@@ -7,7 +7,6 @@ from neo4j import GraphDatabase
 
 from transactors import Transactor
 
-
 logger = logging.getLogger(__name__)
 
 class Neo4jTransactor(Transactor):

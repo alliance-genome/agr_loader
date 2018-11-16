@@ -17,7 +17,7 @@ class FileTransactor(Transactor):
         super().__init__()
 
     def _get_name(self):
-        return "FILE %s" % self.threadid
+        return "FILE THREAD %s" % self.threadid
 
     def start_threads(self, thread_count):
         thread_pool = []
@@ -46,5 +46,8 @@ class FileTransactor(Transactor):
 
     def download_and_validate_file(self, sub_type):
 
+        logger.info("%s: Processing file: %s" % (self._get_name(), sub_type.get_filepath()))
         sub_type.get_data()
+        logger.info("%s: Received file %s starting validation." % (self._get_name(), sub_type.get_filepath()))
         sub_type.validate()
+        logger.info("%s: Validation for %s finished." % (self._get_name(), sub_type.get_filepath()))

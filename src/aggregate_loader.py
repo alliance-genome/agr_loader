@@ -31,7 +31,7 @@ class AggregateLoader(object):
         data_manager.download_and_validate()
         FileTransactor().wait_for_queues()
 
-        Neo4jTransactor().start_threads(1)
+        Neo4jTransactor().start_threads(4)
         CSVTransactor().start_threads(4)
         
         logger.info("Creating indices.")

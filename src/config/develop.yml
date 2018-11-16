@@ -5,9 +5,4 @@ Allele: [FB, WB, ZFIN, RGD]
 Expression: [FB, SGD, WB, ZFIN, Human]
 Phenotype: [FB, SGD, WB, ZFIN, RGD, Human]
 Disease: [FB, SGD, WB, ZFIN, RGD, Human]
-# Individual ontologies below. This is a WIP.
-# Names will change and they will be grouped under "Ontologies".
-SO: True
-GO: True
-DO: True
-MI: True
+Ontology: [GO, SO, DO, MI]
