@@ -17,12 +17,6 @@ class DataTypeConfig(object):
 
         self.list_of_subtype_objects = []
 
-<<<<<<< HEAD
-=======
-        #logger.info(data_type)
-        #logger.info(submission_system_data)
-
->>>>>>> 205b70876c9a0657d851795fd5d54d5c396ca51b
     def get_data(self):
 
         path = 'tmp'
