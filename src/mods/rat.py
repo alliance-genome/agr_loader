@@ -1,18 +1,19 @@
 from .mod import MOD
 
+
 class RGD(MOD):
 
     def __init__(self):
+
         self.species = "Rattus norvegicus"
-        self.loadFile = "RGD_1.0.0.4_6.tar.gz"
 
-        self.bgiName = "/RGD_1.0.0.4_BGI.10116.json"
-        self.diseaseName = "/RGD_1.0.0.4_disease.10116.json"
-        self.phenotypeName = "/RGD_1.0.0.4_phenotype.10116.json"
-        self.alleleName = "/RGD_1.0.0.4_allele.10116.json"
-        self.wtExpressionName = "/RGD_1.0.0.4_expression.10116.json"
-        self.geneAssociationFile = "gene_association_1.7.rgd.gz"
-
+        self.loadFile = "RGD_1.0.0.7_9.tar.gz"
+        self.bgiName = "/RGD_1.0.0.7_BGI.10116.json"
+        self.diseaseName = "/RGD_1.0.0.7_disease.10116.json"
+        self.phenotypeName = "/RGD_1.0.0.7_phenotype.10116.json"
+        self.alleleName = "/RGD_1.0.0.7_allele.10116.json"
+        self.wtExpressionName = "/RGD_1.0.0.7_expression.10116.json"
+        self.geneAssociationFile = "gene_association_2.0.rgd.gz"
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
         self.geoRetMax = "30000"
@@ -21,10 +22,6 @@ class RGD(MOD):
     def load_genes(self, batch_size, testObject, graph, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
-
-    @staticmethod
-    def gene_href(gene_id):
-        return "http://www.rgd.mcw.edu/rgdweb/report/gene/main.html?id=" + gene_id
 
     @staticmethod
     def get_organism_names():
@@ -56,7 +53,4 @@ class RGD(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

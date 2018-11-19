@@ -1,6 +1,5 @@
 from neo4j.v1 import GraphDatabase
 import os
-import pytest
 
 
 def execute_transaction(query):
@@ -27,33 +26,43 @@ def pytest_generate_tests(metafunc):
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
-        'test_node_exists': [dict(node='Ontology'), \
-                             dict(node='SOTerm'), \
-                             dict(node='DOTerm'), \
-                             dict(node='GOTerm'), \
-                             dict(node='MITerm'), \
-                             dict(node='Identifier'), \
-                             dict(node='Gene'), \
-                             dict(node='Synonym'), \
-                             dict(node='CrossReference'), \
-                             dict(node='Species'), \
-                             dict(node='Entity'), \
-                             dict(node='Chromosome'), \
-                             dict(node='DiseaseEntityJoin'), \
-                             dict(node='Association'), \
-                             dict(node='Publication'), \
-                             dict(node='EvidenceCode'), \
-                             dict(node='Feature'), \
-                             dict(node='Phenotype'), \
-                             dict(node='PhenotypeEntityJoin'), \
-                             dict(node='OrthologyGeneJoin'), \
-                             dict(node='OrthoAlgorithm'), \
-                             dict(node='Load'), \
-                             dict(node='Feature'), \
-                             dict(node='ExpressionBioEntity'), \
-                             dict(node='Stage'), \
-                             dict(node='BioEntityGeneExpressionJoin'), \
-                             dict(node='InteractionGeneJoin'), \
+        'test_node_exists': [dict(node='Ontology'),
+                             dict(node='SOTerm'),
+                             dict(node='DOTerm'),
+                             dict(node='GOTerm'),
+                             dict(node='MITerm'),
+                             dict(node='Identifier'),
+                             dict(node='Gene'),
+                             dict(node='Synonym'),
+                             dict(node='CrossReference'),
+                             dict(node='Species'),
+                             dict(node='Entity'),
+                             dict(node='Chromosome'),
+                             dict(node='DiseaseEntityJoin'),
+                             dict(node='Association'),
+                             dict(node='Publication'),
+                             dict(node='EvidenceCode'),
+                             dict(node='Feature'),
+                             dict(node='Phenotype'),
+                             dict(node='PhenotypeEntityJoin'),
+                             dict(node='OrthologyGeneJoin'),
+                             dict(node='OrthoAlgorithm'),
+                             dict(node='Load'),
+                             dict(node='ExpressionBioEntity'),
+                             dict(node='Stage'),
+                             dict(node='BioEntityGeneExpressionJoin'),
+                             dict(node='InteractionGeneJoin'),
+                             dict(node='ZFATerm'),
+                             dict(node='WBBTTerm'),
+                             dict(node='CLTerm'),
+                             dict(node='UBERONTerm'),
+                             dict(node='FBDVTerm'),
+                             dict(node='FBBTTerm'),
+                             dict(node='MATerm'),
+                             dict(node='EMAPATerm'),
+                             dict(node='MMUSDVTerm'),
+                             dict(node='BSPOTerm'),
+                             dict(node='WBLSTerm')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
@@ -105,8 +114,8 @@ class TestClass(object):
                             dict(node='Association', prop='primaryKey'), \
                             dict(node='Phenotype', prop='primaryKey'), \
                             dict(node='Phenotype', prop='phenotypeStatement'), \
-                            dict(node='Publication', prop='pubMedId'), \
-                           #dict(node='Publication', prop='pubModId'), \
+                            #dict(node='Publication', prop='pubMedId'), \
+                            #dict(node='Publication', prop='pubModId'), \
                             dict(node='Publication', prop='primaryKey'), \
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
@@ -136,7 +145,6 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'), \
                                dict(node='Gene', prop='uuid'), \
                                dict(node='Gene', prop='dataProvider'), \
-                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='GOTerm', prop='primaryKey'), \
                                #dict(node='SOTerm', prop='name'), \
                                dict(node='SOTerm', prop='primaryKey'), \
@@ -172,19 +180,20 @@ class TestClass(object):
                                dict(node='Phenotype', prop='phenotypeStatement'), \
                                dict(node='Association', prop='joinType'), \
                                dict(node='Association', prop='primaryKey'), \
-                               dict(node='Publication', prop='pubMedId'), \
+                               #dict(node='Publication', prop='pubMedId'), \
                                dict(node='Publication', prop='primaryKey'), \
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
                                dict(node='Feature', prop='dateProduced'), \
+                               dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
                                dict(node='MITerm', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='ExpressionBioEntity', prop='primaryKey'), \
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
                                dict(node='Stage', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement')
                                ],
 
         'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \

@@ -32,8 +32,8 @@ class OntologyExt(object):
                 for terms in term_ontology_full['_embedded']['terms']:
                     if terms['obo_id'] is not None: # Avoid weird "None" entry from ontName ontology.
                         dict_to_append = {
-                            'identifier' : terms['obo_id'],
-                            'label' : terms['label']
+                            'identifier': terms['obo_id'],
+                            'label': terms['label']
                         }
                         processed_list.append(dict_to_append)
 

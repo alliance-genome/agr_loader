@@ -4,13 +4,13 @@ class FlyBase(MOD):
 
     def __init__(self):
         self.species = "Drosophila melanogaster"
-        self.loadFile = "FB_1.0.0.4_3.tar.gz"
-        self.bgiName = "/FB_1.0.0.4_BGI.json"
-        self.diseaseName = "/FB_1.0.0.4_disease.json"
-        self.phenotypeName = "/FB_1.0.0.4_phenotype.json"
-        self.alleleName = "/FB_1.0.0.4_feature.json"
-        self.wtExpressionName = "/FB_1.0.0.4_expression.json"
-        self.geneAssociationFile = "gene_association_1.7.fb.gz"
+        self.loadFile = "FB_1.0.0.7_4.tar.gz"
+        self.bgiName = "/FB_1.0.0.7_BGI.json"
+        self.diseaseName = "/FB_1.0.0.7_disease.json"
+        self.phenotypeName = "/FB_1.0.0.7_phenotype.json"
+        self.alleleName = "/FB_1.0.0.7_feature.json"
+        self.wtExpressionName = "/FB_1.0.0.7_expression.json"
+        self.geneAssociationFile = "gene_association_2.0.fb.gz"
         self.identifierPrefix = "FB:"
         self.geoSpecies = "Drosophila+melanogaster"
         self.geoRetMax = "20000"
@@ -19,10 +19,6 @@ class FlyBase(MOD):
     def load_genes(self, batch_size, testObject, graph, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile,species)
         return data
-
-    @staticmethod
-    def gene_href(gene_id):
-        return "http://flybase.org/reports/" + gene_id + ".html"
 
     @staticmethod
     def get_organism_names():
@@ -54,7 +50,4 @@ class FlyBase(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

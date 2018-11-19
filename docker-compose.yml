@@ -1,12 +1,15 @@
-version: "2"
+version: "3.2"
 
 services:
   neo4j.nqc:
     container_name: neo4j.nqc
     image: agrdocker/agr_neo4j_env:latest
     volumes:
-      - dbstore:/data
-      - dbstore:/logs
+      - type: volume
+        source: agr_data_share
+        target: /var/lib/neo4j/import
+        volume:
+          nocopy: true
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -14,23 +17,34 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=4096m
+      - NEO4J_dbms_memory_heap_initialSize=4096m
 
   neo4j.qc:
     container_name: neo4j.qc
     image: agrdocker/agr_neo4j_qc_data_image:build
     volumes:
-      - dbstore:/data
-      - dbstore:/logs
+      - type: volume
+        source: agr_data_share
+        target: /var/lib/neo4j/import
+        volume:
+          nocopy: true
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=4096m  
+      - NEO4J_dbms_memory_heap_maxSize=4096m
+      - NEO4J_dbms_memory_heap_initialSize=4096m
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
+    volumes:
+      - type: volume
+        source: agr_data_share
+        target: /usr/src/app/tmp
+        volume:
+          nocopy: true
     networks:
       - esnet
     environment:
@@ -41,6 +55,12 @@ services:
 
   agr_loader_test:
     image: agrdocker/agr_loader_run:latest
+    volumes:
+      - type: volume
+        source: agr_data_share
+        target: /usr/src/app/tmp
+        volume:
+          nocopy: true
     networks:
       - esnet
     environment:
@@ -53,5 +73,4 @@ networks:
   esnet:
 
 volumes:
-  dbstore:
-    driver: local
+  agr_data_share:

@@ -1,4 +1,4 @@
-import os
+import os, csv, time
 import gc
 from loaders import *
 from loaders.transactions import *
@@ -9,14 +9,19 @@ from loaders.phenotype_loader import *
 from loaders.wt_expression_loader import *
 from loaders.resource_descriptor_loader import *
 from loaders.generic_anatomical_structure_ontology_loader import *
+from loaders.transactions.gene_disease_ortho import GeneDiseaseOrthoTransaction
+from loaders.transactions.wt_expression import WTExpressionTransaction
+from loaders.bgi_loader import BGILoader
+from loaders.disease_loader import DiseaseLoader
+from loaders.ortho_loader import OrthoLoader
+from loaders.allele_loader import AlleleLoader
 from mods import *
 from extractors import *
+from extractors.obo_ext import OExt
+from extractors.obo_ext_old import ObExto
 import time
 from neo4j.v1 import GraphDatabase
-from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.descriptions_writer import GeneDesc, JsonGDWriter
 from test import TestObject
-from services.gene_descriptions.descriptions_writer import Neo4jGDWriter
 from services.gene_descriptions.descriptions_generator import GeneDescGenerator
 import logging
 
@@ -30,8 +35,8 @@ class AggregateLoader(object):
         # Set size of BGI, disease batches extracted from MOD JSON file
         # for creating Python data structure.
         self.batch_size = 5000
-        self.mods = [MGI(), Human(), RGD(), SGD(), WormBase(), ZFIN(), FlyBase()]
-        #self.mods = [ZFIN()]
+        self.mods = [MGI(), Human(), RGD(), WormBase(), ZFIN(), SGD(), FlyBase()]
+        # self.mods = [Human()]
         self.testObject = TestObject(useTestObject, self.mods)
         self.dataset = {}
 
@@ -39,7 +44,7 @@ class AggregateLoader(object):
         self.geoMoEntrezIds = ""
 
         # Check for the use of test data.
-        if self.testObject.using_test_data() == True:
+        if self.testObject.using_test_data() is True:
             logger.warn("WARNING: Test data load enabled.")
             time.sleep(1)
 
@@ -55,7 +60,7 @@ class AggregateLoader(object):
 
     #TODO load_from_ontologies could be consolidated into this method, perhaps
     def load_from_ont(self, ontology_path, ontology_to_load, obo_file_name):
-        logger.info ("Extraction % data", ontology_to_load)
+        logger.info("Extraction % data", ontology_to_load)
         self.dataset = OExt().get_data(ontology_path, obo_file_name)
         logger.info("Loading % data into Neo4j.", ontology_to_load)
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.dataset, ontology_to_load+"TERM")
@@ -71,7 +76,8 @@ class AggregateLoader(object):
         # Does not get cleared because its used later self.go_dataset.clear()
 
         logger.info("Extracting DO data.")
-        self.do_dataset = OExt().get_data("http://purl.obolibrary.org/obo/doid.obo", "doid.obo")
+
+        self.do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
         logger.info("Loading DO data into Neo4j.")
         DOLoader(self.graph).load_do(self.do_dataset)
         # Does not get cleared because its used later self.do_dataset.clear()
@@ -160,9 +166,9 @@ class AggregateLoader(object):
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmusdv_dataset, "MMUSDVTerm")
         self.mmusdv_dataset.clear()
 
-        logger.info("Extracting BPSO data.")
+        logger.info("Extracting BSPO data.")
         self.bspo_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/bspo.obo", "bpso.obo")
-        logger.info("Loading BPSO data into Neo4j.")
+        logger.info("Loading BSPO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.bspo_dataset, "BSPOTerm")
         self.bspo_dataset.clear()
 
@@ -171,7 +177,7 @@ class AggregateLoader(object):
         logger.info("Loading MMO data into Neo4j.")
         GenericAnatomicalStructureOntologyLoader(self.graph).load_ontology(self.mmo_dataset, "MMOTerm")
         self.mmo_dataset.clear()
-
+        #
         logger.info("Extracting WBLS data.")
         self.wbls_dataset = ObExto().get_data("http://purl.obolibrary.org/obo/wbls.obo", "wbls.obo")
         logger.info("Loading WBLS data into Neo4j.")
@@ -181,8 +187,8 @@ class AggregateLoader(object):
         gc.collect()
 
         end = time.time()
-        logger.info ("total time to load ontologies: ")
-        logger.info (end - start)
+        logger.info("total time to load ontologies: ")
+        logger.info(end - start)
 
     def load_bgi(self, mod):
         genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
@@ -199,18 +205,20 @@ class AggregateLoader(object):
         logger.info("Extracting BGI data from each MOD.")
         #
         for mod in self.mods:
-             logger.info("Loading BGI data for %s into Neo4j." % mod.species)
 
-             genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
-             c = 0
-             start = time.time()
-             for gene_list_of_entries in genes:
-                BGILoader(self.graph).load_bgi(gene_list_of_entries)
-                c = c + len(gene_list_of_entries)
-             end = time.time()
-             logger.info("Average: %sr/s" % (round(c / (end - start), 2)))
+            logger.info("Loading BGI data for %s into Neo4j." % mod.species)
 
+            genes = mod.load_genes(self.batch_size, self.testObject, self.graph, mod.species)  # generator object
 
+            for gene_batch in genes:
+                # gene_batch is a generator of lists - genes, synonyms, secondaryIds, genomicLocations and xrefs
+                # respectively.
+                BGILoader(self.graph).load_bgi(list(gene_batch[0]),
+                                               list(gene_batch[1]),
+                                               list(gene_batch[2]),
+                                               list(gene_batch[3]),
+                                               list(gene_batch[4]))
+        #
         this_dir = os.path.split(__file__)[0]
         #initialize gene description generator from config file
         genedesc_generator = GeneDescGenerator(config_file_path=os.path.join(this_dir, "services", "gene_descriptions",
@@ -218,32 +226,57 @@ class AggregateLoader(object):
                                                go_ontology=self.go_dataset, do_ontology=self.do_dataset,
                                                graph_db=self.graph)
         cached_data_fetcher = None
-        #Loading annotation data for all MODs after completion of BGI data.
 
         for mod in self.mods:
+
+            # reduced the need for stub methods in mod.py, et al.  Human should only run loads that it has data for.
+            if mod.species != 'Homo sapiens':
+
+                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
+                alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
+                for allele_batch in alleles:
+
+                    AlleleLoader(self.graph).load_allele_objects(list(allele_batch[0]),
+                                                                 list(allele_batch[1]),
+                                                                 list(allele_batch[2]),
+                                                                 list(allele_batch[3]))
+
+                logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
+                data = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
+
+                # batch is a 10000 member iteration of the 'data' generator containing 12 lists that represent
+                # the expression data broken into smaller transactions to load to neo.
+                # we process it here in aggregate loader because once consumed, it will not return
+                # to its yeilded method (ie: if we unroll it in MOD.py, only one iteration will be consumed.
+                # 0-11 represent these lists in order: aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier,
+                # ccQualifier, aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData, uberonStageOtherData
+
+                for batch in data:
+                    WTExpressionLoader(self.graph).load_wt_expression_objects(list(batch[0]),
+                                                                              list(batch[1]),
+                                                                              list(batch[2]),
+                                                                              list(batch[3]),
+                                                                              list(batch[4]),
+                                                                              list(batch[5]),
+                                                                              list(batch[6]),
+                                                                              list(batch[7]),
+                                                                              list(batch[8]),
+                                                                              list(batch[9]),
+                                                                              list(batch[10]),
+                                                                              list(batch[11]),
+                                                                              list(batch[12]),
+                                                                              mod.species)
             #
-            logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
-            alleles = mod.load_allele_objects(self.batch_size, self.testObject, mod.species)
-            for allele_list_of_entries in alleles:
-                AlleleLoader(self.graph).load_allele_objects(allele_list_of_entries)
-
-
-            logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
-            xpats = mod.load_wt_expression_objects(self.batch_size, self.testObject, mod.species)
-            for xpat_list_of_entries in xpats:
-                 WTExpressionLoader(self.graph).load_wt_expression_objects(xpat_list_of_entries, mod.species)
             #
-
+                logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
+                features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
+                for feature_list_of_entries in features:
+                    DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             logger.info("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
             features = mod.load_disease_gene_objects(2000, self.testObject, mod.species)
             for feature_list_of_entries in features:
                 DiseaseLoader(self.graph).load_disease_gene_objects(feature_list_of_entries)
-
-            logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-            features = mod.load_disease_allele_objects(self.batch_size, self.testObject, self.graph, mod.species)
-            for feature_list_of_entries in features:
-                DiseaseLoader(self.graph).load_disease_allele_objects(feature_list_of_entries)
 
             logger.info("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
             phenos = mod.load_phenotype_objects(self.batch_size, self.testObject, mod.species)
@@ -252,8 +285,11 @@ class AggregateLoader(object):
 
             logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
             ortholog_data = OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size) # generator object
-            for ortholog_list_of_entries in ortholog_data:
-                OrthoLoader(self.graph).load_ortho(ortholog_list_of_entries)
+            for ortholog_batch in ortholog_data:
+                OrthoLoader(self.graph).load_ortho(list(ortholog_batch[0]),
+                                                   list(ortholog_batch[1]),
+                                                   list(ortholog_batch[2]),
+                                                   list(ortholog_batch[3]))
 
             logger.info("Extracting GO annotations for %s." % mod.__class__.__name__)
             go_annots = mod.extract_go_annots(self.testObject)
@@ -264,19 +300,70 @@ class AggregateLoader(object):
             geo_xrefs = mod.extract_geo_entrez_ids_from_geo(self.graph)
             logger.info("Loading GEO annotations for %s." % mod.__class__.__name__)
             GeoLoader(self.graph).load_geo_xrefs(geo_xrefs)
-            #
-            logger.info("generate gene descriptions for %s." % mod.__class__.__name__)
+
+            logger.info("Generating gene descriptions for %s." % mod.__class__.__name__)
             if mod.dataProvider:
                 cached_data_fetcher = genedesc_generator.generate_descriptions(
                     go_annotations=go_annots,
                     do_annotations=mod.load_disease_gene_objects(self.batch_size, self.testObject, mod.species),
+
                     do_annotations_allele=mod.load_disease_allele_objects(self.batch_size, self.testObject,
                                                                           self.graph, mod.species),
+                    ortho_data=OrthoExt().get_data(self.testObject, mod.__class__.__name__, self.batch_size),
                     data_provider=mod.dataProvider, cached_data_fetcher=cached_data_fetcher,
                     human=isinstance(mod, Human))
 
     def load_additional_datasets(self):
             logger.info("Extracting and Loading Molecular Interaction data.")
             mol_int_data = MolIntExt(self.graph).get_data(self.batch_size)
-            for mol_int_list_of_entries in mol_int_data:
-                MolIntLoader(self.graph).load_mol_int(mol_int_list_of_entries)
+
+            first_entry, first_entry_xref = next(mol_int_data) # Used for obtaining the keys in the dictionary.
+
+            fieldnames_keys = list(first_entry[0]) # Extract the fieldnames.
+            fieldnames_xref = list(first_entry_xref[0])
+
+            logger.info('Writing interactions to CSV.')
+            with open('tmp/interactions.csv', mode='w') as int_csv, open('tmp/xref_interactions.csv', mode='w') as int_xref:
+                interactions_writer = csv.DictWriter(int_csv, fieldnames=fieldnames_keys, quoting=csv.QUOTE_ALL)
+                xref_int_writer = csv.DictWriter(int_xref, fieldnames=fieldnames_xref, quoting=csv.QUOTE_ALL)
+
+                interactions_writer.writeheader() # Write the header.
+                interactions_writer.writerows(first_entry) # Write the first entry from earlier.
+
+                xref_int_writer.writeheader()
+                xref_int_writer.writerows(first_entry_xref)
+
+                for mol_int_list_of_entries, mol_int_xref_entries in mol_int_data:
+                    interactions_writer.writerows(mol_int_list_of_entries)
+                    xref_int_writer.writerows(mol_int_xref_entries)
+
+            logger.info('Loading interactions into Neo4j via CSV.')
+            MolIntLoader(self.graph).load_mol_int()
+            logger.info('Finished loading interactions into Neo4j via CSV.')
+
+            logger.info("retrieving gocc ribbon terms for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbon_data = tx.retrieve_gocc_ribbon_terms()
+
+            logger.info("loading gocc ribbon terms for all MODs")
+            tx.insert_gocc_ribbon_terms(gocc_ribbon_data)
+
+            logger.info("loading gocc self ribbon terms for all MODs")
+            gocc_self_ribbon_terms = tx.retrieve_gocc_self_ribbon_terms()
+
+            logger.info("inserting gocc self ribbon terms for all MODs")
+            tx.insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
+
+            logger.info("retrieving gocc ribbonless ebes for all MODs")
+            tx = WTExpressionTransaction(self.graph)
+            gocc_ribbonless_data = tx.retrieve_gocc_ribbonless_ebes()
+
+            logger.info("loading gocc ribbonless terms for all MODs")
+            tx.insert_ribonless_ebes(gocc_ribbonless_data)
+
+    def add_inferred_disease_annotations(self):
+            logger.info("Inferring Disease by Orthology Annotations")
+            tx = GeneDiseaseOrthoTransaction(self.graph)
+            orthologous_diseases_to_gene = tx.retreive_diseases_inferred_by_ortholog()
+            logger.info("Adding Inferred Disease Annotations")
+            tx.add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)

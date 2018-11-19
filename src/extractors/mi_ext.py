@@ -24,11 +24,19 @@ class MIExt(object):
             'MI:1262' : 'http://iid.ophid.utoronto.ca/iid/',
             'MI:1263' : 'http://www.molecularconnections.com',
             'MI:1264' : 'http://www.ntnu.no/home',
-            'MI:1332' : 'https://www.ebi.ac.uk/GOA/CVI',
-            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html'
+            'MI:1332' : 'http://www.ucl.ac.uk/functional-gene-annotation/psicquic/Tabs/bhf-ucl-dataset',
+            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html',
+            'MI:0463' : 'https://thebiogrid.org/'
         }
 
         return mi_term_url_dict.get(identifier)
+
+    @staticmethod
+    def add_definition(term):
+        try:
+            return term['annotation']['definition'][0]
+        except KeyError:
+            return None
 
     def get_data(self):
 
@@ -53,12 +61,13 @@ class MIExt(object):
             with urllib.request.urlopen(request_url) as url:
                 mi_term_ontology_full = json.loads(url.read().decode())
 
-                for terms in mi_term_ontology_full['_embedded']['terms']:
-                    if terms['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
+                for term in mi_term_ontology_full['_embedded']['terms']:
+                    if term['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
                         dict_to_append = {
-                            'identifier' : terms['obo_id'],
-                            'label' : terms['label'],
-                            'url' : self.add_miterm_url(terms['obo_id'])
+                            'identifier' : term['obo_id'],
+                            'label' : term['label'],
+                            'definition' : self.add_definition(term),
+                            'url' : self.add_miterm_url(term['obo_id'])
                         }
                         processed_mi_list.append(dict_to_append)
 

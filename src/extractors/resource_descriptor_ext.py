@@ -70,6 +70,22 @@ class ResourceDescriptor(object):
                                               "primaryKey": resource + page_name,
                                               "uuid": str(uuid.uuid4())}
                                 self.list_of_descriptor_maps_to_load.append(stanza_map)
+
+                                # TODO: fix special casing of NCBI links w/o pages in BGI
+                                if resource == 'NCBI_Gene':
+                                    stanza_map[resource] = {"resource": resource,
+                                                            "default_url": default_url,
+                                                            "gid_pattern": gid_pattern,
+                                                            "default_url_prefix": default_url_prefix,
+                                                            "default_url_suffix": default_url_suffix,
+                                                            "page_url": "",
+                                                            "page_name": "",
+                                                            "page_url_prefix": default_url_prefix,
+                                                            "page_url_suffix": default_url_suffix,
+                                                            "primaryKey": resource,
+                                                            "uuid": str(uuid.uuid4())
+                                                            }
+
                     else:
                         stanza_map[resource] = {"resource": resource,
                                       "default_url": default_url,

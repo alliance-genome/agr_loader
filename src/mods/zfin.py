@@ -5,15 +5,15 @@ class ZFIN(MOD):
     def __init__(self):
         self.species = "Danio rerio"
 
-        self.loadFile = "ZFIN_1.0.0.4_6.tar.gz"
+        self.loadFile = "ZFIN_1.0.0.7_3.tar.gz"
 
-        self.bgiName = "/ZFIN_1.0.0.4_1_BGI.json"
-        self.diseaseName = "/ZFIN_1.0.0.4_1_disease.json"
-        self.phenotypeName = "/ZFIN_1.0.0.4_1_phenotype.json"
-        self.alleleName = "/ZFIN_1.0.0.4_1_allele.json"
-        self.wtExpressionName = "/ZFIN_1.0.0.4_1_expression.json"
+        self.bgiName = "/ZFIN_1.0.0.7_basicGeneInformation.json"
+        self.diseaseName = "/ZFIN_1.0.0.7_disease.daf.json"
+        self.phenotypeName = "/ZFIN_1.0.0.7_phenotype.json"
+        self.alleleName = "/ZFIN_1.0.0.7_allele.json"
+        self.wtExpressionName = "/ZFIN_1.0.0.7_expression.json"
 
-        self.geneAssociationFile = "gene_association_1.7.zfin.gz"
+        self.geneAssociationFile = "gene_association_2.0.zfin.gz"
 
         self.identifierPrefix = "ZFIN:"
         self.geoSpecies = "Danio+rerio"
@@ -23,10 +23,6 @@ class ZFIN(MOD):
     def load_genes(self, batch_size, testObject, graph, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
-
-    @staticmethod
-    def gene_href(gene_id):
-        return "http://zfin.org/" + gene_id
 
     @staticmethod
     def get_organism_names():
@@ -58,7 +54,4 @@ class ZFIN(MOD):
 
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

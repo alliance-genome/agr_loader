@@ -1,8 +1,7 @@
 from files import S3File, TARFile
 import uuid, csv, re, sys
-import urllib.request, json, pprint, itertools
+import pprint, itertools
 from services import ResourceDescriptor
-from types import ModuleType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -117,14 +116,12 @@ class MolIntExt(object):
         for individual in entries:
 
             xref_dict = {}
-            xref_dict['uuid'] = str(uuid.uuid4())
-            xref_dict['globalCrossRefId'] = individual
-            xref_dict['name'] = individual
-            xref_dict['displayName'] = individual
-            xref_dict['primaryKey'] = individual
-            xref_dict['crossRefType'] = 'interaction'
             page = 'gene/interactions'
-            xref_dict['page'] = page
+
+            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+            # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
+            xref_dict['prefix'] = individual_prefix
+            xref_dict['localId'] = individual_body
 
             # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
@@ -142,11 +139,6 @@ class MolIntExt(object):
                     logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
 
-            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
-            # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
-            xref_dict['prefix'] = individual_prefix
-            xref_dict['localId'] = individual_body
-
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try: 
                     individual_url = self.resource_descriptor_dict.return_url(individual, page)
@@ -156,6 +148,20 @@ class MolIntExt(object):
                     self.missed_database_linkouts.add(individual_prefix)
             else: self.ignored_database_linkouts.add(individual_prefix)
 
+            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['globalCrossRefId'] = individual
+            xref_dict['name'] = individual
+            xref_dict['displayName'] = individual_body
+            xref_dict['primaryKey'] = individual
+            xref_dict['crossRefType'] = 'interaction'
+            xref_dict['page'] = page
+            xref_dict['reference_uuid'] = None # For association interactions (later).
+
+            # Special case for FlyBase as "individual" is not unique in their case.
+            # Individual_body needs to be used instead.
+            
+            if individual.startswith('flybase'):
+                xref_dict['primaryKey'] = individual_body
             xref_main_list.append(xref_dict)
 
         return xref_main_list
@@ -190,54 +196,63 @@ class MolIntExt(object):
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
-            'entrez gene/locuslink:[\\w\\d_-]*$'
+            'entrez gene/locuslink:.*'
         ]
 
-        # For use in wormbase / flybase lookups.
-        # If we run into an IndexError, there's no identifier to resolve and we return False.
-        # All valid identifiers in the PSI-MI TAB file should be "splittable".
-        try:
-            entry_stripped = row_entry.split(':')[1]
-        except IndexError:
-            return None
+        # If we're dealing with multiple identifiers separated by a pipe.
+        if '|' in row_entry:
+            row_entries = row_entry.split('|')
+        else:
+            row_entries = [row_entry]
+        
+        for individual_entry in row_entries:
 
-        prefixed_identifier = None
-
-        if row_entry.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
-            prefixed_identifier = 'WB:' + entry_stripped
-            if prefixed_identifier in master_gene_set:
-                return prefixed_identifier
-            else:
-                return None
-        elif row_entry.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
-            prefixed_identifier = 'FB:' + entry_stripped
-            if prefixed_identifier in master_gene_set:
-                return prefixed_identifier
-            else:
+            # For use in wormbase / flybase lookups.
+            # If we run into an IndexError, there's no identifier to resolve and we return False.
+            # All valid identifiers in the PSI-MI TAB file should be "splittable".
+            try:
+                entry_stripped = individual_entry.split(':')[1]
+            except IndexError:
                 return None
 
-        for regex_entry in list_of_crossref_regex_to_search:
-            regex_output = re.search(regex_entry, row_entry)
-            if regex_output is not None:
-                identifier = regex_output.group(0)
+            prefixed_identifier = None
 
-                for crossreference_type in master_crossreference_dictionary.keys():
-                    # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
-                    if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
-                        return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene(s).
+            if entry_stripped.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
+                prefixed_identifier = 'WB:' + entry_stripped
+                if prefixed_identifier in master_gene_set:
+                    return [prefixed_identifier] # Always return a list for later processing.
+                else:
+                    return None
+            elif entry_stripped.startswith('FB'): # TODO implement regex for WB / FB gene identifiers.
+                prefixed_identifier = 'FB:' + entry_stripped
+                if prefixed_identifier in master_gene_set:
+                    return [prefixed_identifier] # Always return a list for later processing.
+                else:
+                    return None
+
+            for regex_entry in list_of_crossref_regex_to_search:
+                regex_output = re.findall(regex_entry, individual_entry)
+                if regex_output is not None:
+                    for regex_match in regex_output: # We might have multiple regex matches. Search them all against our crossreferences.
+                        identifier = regex_match
+                        for crossreference_type in master_crossreference_dictionary.keys():
+                            # Using lowercase in the identifier to be consistent with Alliance lowercase identifiers.
+                            if identifier.lower() in master_crossreference_dictionary[crossreference_type]:
+                                return master_crossreference_dictionary[crossreference_type][identifier.lower()] # Return the corresponding Alliance gene(s).
 
         # If we can't resolve any of the crossReferences, return None
         return None            
 
     def get_data(self, batch_size):
         path = 'tmp'
-        filename = 'Alliance_molecular_interactions.txt'
-        filename_comp = 'INT/Alliance_molecular_interactions.tar.gz'
+        filename = 'Alliance_molecular_interactions_2.0.txt'
+        filename_comp = 'INT/Alliance_molecular_interactions_2.0.tar.gz'
 
         S3File(filename_comp, path).download()
         TARFile(path, filename_comp).extract_all()
 
         list_to_yield = []
+        xref_list_to_yield = []
 
         # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
@@ -250,15 +265,19 @@ class MolIntExt(object):
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0
+        total_interactions_loaded_count = 0
         pp = pprint.PrettyPrinter(indent=4)
+        counter = 0
 
         database_linkout_set = set()
 
         with open(path + "/" + filename, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
-            next(tsvin, None) # Skip the headers
-
             for row in tsvin:
+                
+                # Skip commented rows.
+                if row[0].startswith('#'):
+                    continue
                 
                 taxon_id_1 = row[9]
                 taxon_id_2 = row[10]
@@ -275,9 +294,9 @@ class MolIntExt(object):
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
                 
                 try: 
-                    identifier_linkout_list = self.process_interaction_identifier(row[13], row[24]) # Source ID for the UI table
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], row[24]) # Interactor ID for the UI table
                 except IndexError:
-                    identifier_linkout_list = self.process_interaction_identifier(row[13], None) # Source ID for the UI table
+                    identifier_linkout_list = self.process_interaction_identifier(row[13], None) # Interactor ID for the UI table
 
                 source_database = None
                 source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
@@ -317,6 +336,8 @@ class MolIntExt(object):
                 # Other hardcoded values to be used for now.
                 interactor_A_role = 'MI:0499' # Default to unspecified.
                 interactor_B_role = 'MI:0499' # Default to unspecified.
+                interactor_A_type = 'MI:0499' # Default to unspecified.
+                interactor_B_type = 'MI:0499' # Default to unspecified.
                 
                 try:
                     interactor_A_role = re.findall(r'"([^"]*)"', row[18])[0]
@@ -327,8 +348,15 @@ class MolIntExt(object):
                 except IndexError:
                     pass # Default to unspecified, see above.
                 
-                interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
-                interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
+                try:
+                    interactor_A_type = re.findall(r'"([^"]*)"', row[20])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
+
+                try:
+                    interactor_B_type = re.findall(r'"([^"]*)"', row[21])[0]
+                except IndexError:
+                    pass # Default to unspecified, see above.
 
                 interaction_type = None
                 interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
@@ -357,38 +385,50 @@ class MolIntExt(object):
                     'pub_med_url' : publication_url,
                     'uuid' : None,
                     'source_database' : source_database,
-                    'aggregation_database' :  aggregation_database,
-                    'interactor_id_and_linkout' : identifier_linkout_list # Crossreferences
+                    'aggregation_database' :  aggregation_database
                 }
 
+                # Remove possible duplicates from interactor lists.
+                interactor_A_resolved_no_dupes = list(set(interactor_A_resolved))
+                interactor_B_resolved_no_dupes = list(set(interactor_B_resolved))
+
                 # Get every possible combination of interactor A x interactor B (if multiple ids resulted from resolving the identifier.)
-                int_combos = list(itertools.product(interactor_A_resolved, interactor_B_resolved))
+                int_combos = list(itertools.product(interactor_A_resolved_no_dupes, interactor_B_resolved_no_dupes))
 
                 # Update the dictionary with every possible combination of interactor A x interactor B.
                 list_of_mol_int_dataset = [dict(mol_int_dataset, interactor_A=x, interactor_B=y, uuid=str(uuid.uuid4())) for x,y in int_combos]
-
+                total_interactions_loaded_count += len(list_of_mol_int_dataset) # Tracking successfully loaded identifiers.
                 resolved_a_b_count += 1 # Tracking successfully resolved identifiers.
 
-                # Establishes the number of entries to yield (return) at a time.
-                list_to_yield.extend(list_of_mol_int_dataset)
-                if len(list_to_yield) >= batch_size: # We're possibly extending by more than one at a time, need to add 'greater than'.
-                    yield list_to_yield
-                    list_to_yield[:] = []  # Empty the list.
+                # We need to also create new crossreference dicts for every new possible interaction combination.
+                new_identifier_linkout_list = []
+                for dataset_entry in list_of_mol_int_dataset:  
+                    for identifier_linkout in identifier_linkout_list:
+                        new_identifier_linkout_list.append(dict(identifier_linkout, reference_uuid=dataset_entry['uuid']))
+                
+                counter+=1
 
-            if len(list_to_yield) > 0:
-                yield list_to_yield
+                # Establishes the number of entries to yield (return) at a time.
+                xref_list_to_yield.extend(new_identifier_linkout_list)
+                list_to_yield.extend(list_of_mol_int_dataset)
+                if counter == batch_size:
+                    counter = 0
+                    yield list_to_yield, xref_list_to_yield
+                    list_to_yield = []
+                    xref_list_to_yield = []
+            
+            if counter > 0:
+                yield list_to_yield, xref_list_to_yield
 
         # TODO Change this to log printing and clean up the set output.
-        logger.info('Resolved identifiers and loaded %s interactions' % resolved_a_b_count)
+        logger.info('Resolved identifiers for %s PSI-MITAB interactions.' % resolved_a_b_count)
+        logger.info('Prepared to load %s total interactions (accounting for multiple possible identifier resolutions).' % total_interactions_loaded_count)
         logger.info('Successfully created linkouts for the following identifier databases:')
         pp.pprint(self.successful_database_linkouts)
 
-        logger.info('Could not resolve [and subsequently did not load] %s interactions' % unresolved_a_b_count)
+        logger.info('Could not resolve [and subsequently will not load] %s interactions' % unresolved_a_b_count)
         logger.info('Could not create linkouts for the following identifier databases:')
         pp.pprint(self.missed_database_linkouts)
 
         logger.info('The following linkout databases were ignored:')
         pp.pprint(self.ignored_database_linkouts)
-
-        # print('Database source linkout list')
-        # pp.pprint(database_linkout_set)

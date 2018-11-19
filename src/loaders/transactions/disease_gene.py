@@ -18,34 +18,33 @@ class DiseaseGeneTransaction(Transaction):
             // LOAD NODES
 
             MERGE (l:Load {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.dataProvider = row.dataProvider
-                SET l.loadName = "Disease"
+                SET l.dateProduced = row.dateProduced,
+                 l.dataProvider = row.dataProvider,
+                 l.loadName = "Disease"
 
-             MERGE (dga:Association {primaryKey:row.uuid})  
-                SET dga :DiseaseEntityJoin
+             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})  
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END | 
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d) 
-                    SET fafg.dataProvider = row.dataProvider 
-                    SET fafg.dateProduced = row.dateProduced 
-                    SET dga.joinType = 'is_marker_of'     )  
+                    SET fafg.dataProvider = row.dataProvider ,
+                     fafg.dateProduced = row.dateProduced ,
+                     dga.joinType = 'is_marker_of'     )  
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END | 
                 MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d) 
-                    SET fafg.dataProvider = row.dataProvider 
-                    SET fafg.dateProduced = row.dateProduced 
-                    SET dga.joinType = 'is_implicated_in'     )
+                    SET fafg.dataProvider = row.dataProvider ,
+                     fafg.dateProduced = row.dateProduced ,
+                     dga.joinType = 'is_implicated_in'     )
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga) 
             MERGE (dga)-[dadg:ASSOCIATION]->(d)  
 
             // PUBLICATIONS FOR GENE  
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey}) 
-                SET pubg.pubModId = row.pubModId 
-                SET pubg.pubMedId = row.pubMedId 
-                SET pubg.pubModUrl = row.pubModUrl 
-                SET pubg.pubMedUrl = row.pubMedUrl  
+                SET pubg.pubModId = row.pubModId ,
+                 pubg.pubMedId = row.pubMedId ,
+                 pubg.pubModUrl = row.pubModUrl ,
+                 pubg.pubMedUrl = row.pubMedUrl  
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(pubg)  
             MERGE (dga)-[dapug:EVIDENCE]->(pubg)  

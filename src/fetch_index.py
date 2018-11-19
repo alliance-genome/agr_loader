@@ -1,7 +1,6 @@
 from aggregate_loader import AggregateLoader
 import os
 import gc
-import time
 
 useTestObject = os.environ['TEST_SET']
 if useTestObject == "True":
@@ -19,3 +18,5 @@ if __name__ == '__main__':
     al.load_from_mods()
     gc.collect()
     al.load_additional_datasets()
+    # TODO get working on build server
+    al.add_inferred_disease_annotations()

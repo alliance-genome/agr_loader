@@ -6,13 +6,13 @@ class WormBase(MOD):
     def __init__(self):
         self.species = "Caenorhabditis elegans"
 
-        self.loadFile = "WB_1.0.0.4_2.tar.gz"
-        self.bgiName = "/WB_1.0.0.4_BGI.json"
-        self.diseaseName = "/WB_1.0.0.4_disease.json"
-        self.phenotypeName = "/WB_1.0.0.4_phenotype.json"
-        self.alleleName = "/WB_1.0.0.4_allele.json"
-        self.wtExpressionName= "/WB_1.0.0.4_expression.json"
-        self.geneAssociationFile = "gene_association_1.7.wb.gz"
+        self.loadFile = "WB_1.0.0.7_4.tar.gz"
+        self.bgiName = "/WB_1.0.0.7_BGI.json"
+        self.diseaseName = "/WB_1.0.0.7_disease.json"
+        self.phenotypeName = "/WB_1.0.0.7_phenotype.json"
+        self.alleleName = "/WB_1.0.0.7_allele.json"
+        self.wtExpressionName= "/WB_1.0.0.7_expression.json"
+        self.geneAssociationFile = "gene_association_2.0.wb.gz"
 
         self.identifierPrefix = "WB:"
         self.geoSpecies = "Caenorhabditis+elegans"
@@ -22,10 +22,6 @@ class WormBase(MOD):
     def load_genes(self, batch_size, testObject, graph, species):
         data = MOD.load_genes_mod(self, batch_size, testObject, self.bgiName, self.loadFile, species)
         return data
-
-    @staticmethod
-    def gene_href(gene_id):
-        return "http://www.wormbase.org/species/c_elegans/gene/" + gene_id
 
     @staticmethod
     def get_organism_names():
@@ -55,9 +51,7 @@ class WormBase(MOD):
         data = MOD.load_wt_expression_objects_mod(self, batch_size, testObject, self.wtExpressionName, self.loadFile)
         return data
 
+
     def extract_geo_entrez_ids_from_geo(self, graph):
         xrefs = MOD.extract_geo_entrez_ids_from_geo(self, self.geoSpecies, self.geoRetMax, graph)
-        # pprint.pprint("these are mouse xrefs")
-        # for xref in xrefs:
-        #     pprint.pprint(xref)
         return xrefs

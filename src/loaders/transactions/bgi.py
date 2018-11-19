@@ -10,46 +10,78 @@ class BGITransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def bgi_tx(self, data):
+    def bgi_tx(self, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences):
         '''
         Loads the BGI data into Neo4j.
         Is name_key necessary with symbol?
 
         '''
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(data)
-        # quit()
 
-        query = """
+        genomic_locations = """
+            UNWIND $data AS row
+                    
+                MATCH (o:Gene {primaryKey:row.primaryId})
+                MERGE (chrm:Chromosome {primaryKey:row.chromosome})
+
+                CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+                        SET gchrm.start = row.start ,
+                         gchrm.end = row.end ,
+                         gchrm.assembly = row.assembly ,
+                         gchrm.strand = row.strand
+                
+        """
+
+        gene_secondaryIds = """
+        
+         UNWIND $data AS row
+                MATCH (g:Gene {primaryKey:row.primary_id})
+                
+                MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                    SET second.name = row.secondary_id
+                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second)
+        
+
+        """
+        gene_synonyms = """
+        
+         UNWIND $data AS row
+                MATCH (g:Gene {primaryKey:row.primary_id})
+                
+               MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
+        """
+
+        gene_query = """
 
             UNWIND $data AS row
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "BGI"
-                SET l.release = row.release
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "BGI",
+                 l.release = row.release,
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
-                SET o.symbol = row.symbol
-                SET o.taxonId = row.taxonId
-                SET o.name = row.name
-                SET o.description = row.description
-                SET o.geneSynopsisUrl = row.geneSynopsisUrl
-                SET o.geneSynopsis = row.geneSynopsis
-                SET o.geneLiteratureUrl = row.geneLiteratureUrl
-                SET o.geneticEntityExternalUrl = row.geneticEntityExternalUrl
-                SET o.dateProduced = row.dateProduced
-                SET o.modGlobalCrossRefId = row.modGlobalCrossRefId
-                SET o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl
-                SET o.modLocalId = row.localId
-                SET o.modGlobalId = row.modGlobalId
-                SET o.uuid = row.uuid
-                SET o.dataProvider = row.dataProvider
-                SET o.dataProviders = row.dataProviders
+                SET o.symbol = row.symbol,
+                 o.taxonId = row.taxonId,
+                 o.name = row.name,
+                 o.description = row.description,
+                 o.geneSynopsisUrl = row.geneSynopsisUrl,
+                 o.geneSynopsis = row.geneSynopsis,
+                 o.geneLiteratureUrl = row.geneLiteratureUrl,
+                 o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
+                 o.dateProduced = row.dateProduced,
+                 o.modGlobalCrossRefId = row.modGlobalCrossRefId,
+                 o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
+                 o.modLocalId = row.localId,
+                 o.modGlobalId = row.modGlobalId,
+                 o.uuid = row.uuid,
+                 o.dataProvider = row.dataProvider,
+                 o.dataProviders = row.dataProviders
 
             MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
             //Create nodes for other identifiers.
@@ -59,18 +91,6 @@ class BGITransaction(Transaction):
                   //SET dp.dateProduced = row.dateProduced
                 //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
                // MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
-
-            FOREACH (entry in row.secondaryIds |           
-                MERGE (second:SecondaryId:Identifier {primaryKey:entry})
-                    SET second.name = entry
-                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
-                MERGE (l)-[las:LOADED_FROM]-(second))
-
-            FOREACH (entry in row.synonyms |           
-                MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                    SET syn.name = entry
-                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
-                MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
             MERGE (spec:Species {primaryKey: row.taxonId})
                 SET spec.species = row.species
@@ -83,34 +103,23 @@ class BGITransaction(Transaction):
             MERGE (l)-[laso:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            MERGE (o)-[x:ANNOTATED_TO]->(s)
+            MERGE (o)-[x:ANNOTATED_TO]->(s) """
 
-            //Create the entity relationship to the gene node.
-            //MERGE (o)-[c1:CREATED_BY]->(dp)
 
-            WITH o, row.crossReferences AS events
-            UNWIND events AS event
+        xrefs = """
+            UNWIND $data as event
+                MATCH (o:Gene {primaryKey:event.dataId})
+        
         """ + CreateCrossReference.get_cypher_xref_text("gene")
 
-        #TODO: make one query for all xref stanzas instead of duplicating in 4 different files: go.py, do.py, bgi.py, allele.py, geo_xref.py
+        if len(gene_dataset) > 0:
+            Transaction.execute_transaction(self, gene_query, gene_dataset)
+        if len(genomicLocations) > 0:
+            Transaction.execute_transaction(self, genomic_locations, genomicLocations)
+        if len(secondaryIds) > 0:
+            Transaction.execute_transaction(self, gene_secondaryIds, secondaryIds)
+        if len(synonyms) > 0:
+            Transaction.execute_transaction(self, gene_synonyms, synonyms)
+        if len(crossReferences) > 0:
+            Transaction.execute_transaction(self, xrefs, crossReferences)
 
-        locationQuery = """
-            UNWIND $data AS row
-                WITH row.genomeLocations AS locations
-                UNWIND locations AS location
-                    //TODO: this is super annoying -- without this second pass of merging gene, it creates new gene nodes!
-                    MATCH (o:Gene {primaryKey:location.geneLocPrimaryId})
-
-                    MERGE (chrm:Chromosome {primaryKey:location.chromosome})
-
-                    //gene->chromosome
-                    //each location should be unique - if this is merge, then we mistakenly overwrite the relationship properties on each iteration
-                    CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
-                        SET gchrm.start = location.start 
-                        SET gchrm.end = location.end 
-                        SET gchrm.assembly = location.assembly 
-                        SET gchrm.strand = location.strand
-                    
-        """
-        Transaction.execute_transaction(self, query, data)
-        Transaction.execute_transaction(self, locationQuery, data)

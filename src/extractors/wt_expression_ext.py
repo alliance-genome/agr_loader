@@ -1,9 +1,7 @@
 import uuid
 import ijson
 import codecs
-import pprint
 from files import S3File, TARFile, JSONFile
-from services import DataProvider
 from services import UrlService
 from services import CreateCrossReference
 from .resource_descriptor_ext import ResourceDescriptor
@@ -12,6 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class WTExpressionExt(object):
 
     def get_wt_expression_data(self, loadFile, expressionFile, batch_size, testObject):
@@ -19,41 +18,66 @@ class WTExpressionExt(object):
         S3File(loadFile, path).download()
         TARFile(path, loadFile).extract_all()
         loadFile = path + expressionFile
-        logger.info ("loadFile: " + loadFile)
+        logger.info("loadFile: " + loadFile)
         batch_size = 10000
-        list_to_yield = []
         xrefUrlMap = ResourceDescriptor().get_data()
-
-        dataProviders = []
-        loadKey = ""
+        counter = 0
         crossReferences = []
+        aoExpression = []
+        ccExpression = []
+        aoQualifier = []
+        aoSubstructure = []
+        aoSSQualifier = []
+        ccQualifier = []
+        aoccExpression = []
+        stageList = []
+        stageUberonData = []
+        uberonAOData =[]
+        uberonAOOtherData = []
+        uberonStageOtherData = []
 
         logger.info("streaming json data from %s ..." % loadFile)
         with codecs.open(loadFile, 'r', 'utf-8') as f:
-            logger.info ("file open")
+            logger.info("file open")
             for xpat in ijson.items(f, 'data.item'):
+                counter = counter + 1
+
                 pubMedUrl = None
                 pubModUrl = None
                 pubMedId = ""
                 publicationModId = ""
+                stageTermId = ""
+                stageName = ""
+                stageUberonTermId = ""
                 geneId = xpat.get('geneId')
 
                 if testObject.using_test_data() is True:
                     is_it_test_entry = testObject.check_for_test_id_entry(geneId)
                     if is_it_test_entry is False:
+                        counter = counter - 1
                         continue
-
-                whenExpressedStage = xpat.get('whenExpressedStage')
 
                 evidence = xpat.get('evidence')
 
                 if 'modPublicationId' in evidence:
                     publicationModId = evidence.get('modPublicationId')
-                    pubModLocalId = publicationModId.split(":")[1]
-                    pubModPrefix = publicationModId.split(":")[0]
-                    pubModUrl = UrlService.get_page_complete_url(pubModLocalId, xrefUrlMap, pubModPrefix, "gene/references")
+                    if publicationModId is not None:
+                        pubModLocalId = publicationModId.split(":")[1]
+                        if "MGI:" in publicationModId:
+                            pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
+                        if "ZFIN:" in publicationModId:
+                            pubModUrl = "http://zfin.org/" + publicationModId
+                        if "SGD:" in publicationModId:
+                            pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
+                        if "WB:" in publicationModId:
+                            pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
+                        if "RGD:" in publicationModId:
+                            pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
+                        if "FB:" in publicationModId:
+                            pubModUrl = "http://flybase.org/reports/" + pubModLocalId
+
                     if publicationModId is None:
-                        publicationModId =""
+                        publicationModId = ""
 
                 if 'pubMedId' in evidence:
                     pubMedId = evidence.get('pubMedId')
@@ -63,7 +87,9 @@ class WTExpressionExt(object):
                     if pubMedId is None:
                         pubMedId = ""
 
-                #dateAssigned = xpat.get('dateAssigned')
+                assay = xpat.get('assay')
+                ei_uuid = str(uuid.uuid4())
+                ebe_uuid = str(uuid.uuid4())
 
                 if 'crossReference' in xpat:
                     crossRef = xpat.get('crossReference')
@@ -75,85 +101,223 @@ class WTExpressionExt(object):
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page == 'allele':
+                            if page == 'gene/expression/annotation/detail':
                                 modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, xrefUrlMap,
                                                                                prefix, page)
-                                crossReferences.append(
-                                CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
-                                                          modGlobalCrossRefId, crossRefId + page))
 
-                if 'wildtypeExpressionTermIdentifiers' in xpat:
+                                xref = CreateCrossReference.get_xref(local_crossref_id, prefix, page, page, crossRefId,
+                                                          modGlobalCrossRefId, crossRefId + page)
+                                xref['ei_uuid'] = ei_uuid
+                                crossReferences.append(xref)
 
-                    wildtypeExpressionTermIdentifers = xpat.get('wildtypeExpressionTermIdentifiers')
-                    cellularComponentQualifierTermId = wildtypeExpressionTermIdentifers.get('cellularComponentQualifierTermId')
-                    cellularComponentTermId = wildtypeExpressionTermIdentifers.get('cellularComponentTermId')
-                    anatomicalStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalStructureTermId')
-                    anatomicalStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
+                whenExpressedStage = xpat.get('whenExpressed')
+
+                if 'stageTermId' in whenExpressedStage:
+                    stageTermId = whenExpressedStage.get('stageTermId')
+                if 'stageName' in whenExpressedStage:
+                    stageName = whenExpressedStage.get('stageName')
+                if whenExpressedStage.get('stageUberonSlimTerm') is not None:
+                    stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
+                    stageUberonTermId = stageUberonTermObject.get("uberonTerm")
+                    if stageUberonTermId is not None and stageUberonTermId != "post embryonic, pre-adult":
+                        stageUberon = {
+                            "uberonStageId": stageUberonTermId,
+                            "ei_uuid": ei_uuid
+                        }
+                        stageUberonData.append(stageUberon)
+                    if stageUberonTermId == "post embryonic, pre-adult":
+                        stageUberonOther = {
+                            "ei_uuid": ei_uuid
+                        }
+                        uberonStageOtherData.append(stageUberonOther)
+
+                if stageTermId is None or stageName == 'N/A':
+                    stageTermId = ""
+                    stageName = ""
+                    stageUberonTermId = ""
+
+                if stageName is not None:
+
+                    stage = {
+                        "stageTermId": stageTermId,
+                        "stageName": stageName,
+                        "ei_uuid": ei_uuid
+                    }
+
+                    stageList.append(stage)
+
+                else:
+                    stageUberonTermId = ""
+
+                if 'whereExpressed' in xpat:
+
+                    whereExpressed = xpat.get('whereExpressed')
+                    cellularComponentQualifierTermId = whereExpressed.get('cellularComponentQualifierTermId')
+                    cellularComponentTermId = whereExpressed.get('cellularComponentTermId')
+                    anatomicalStructureTermId = whereExpressed.get('anatomicalStructureTermId')
+                    anatomicalStructureQualifierTermId = whereExpressed.get(
                         'anatomicalStructureQualifierTermId')
-                    anatomicalSubStructureTermId = wildtypeExpressionTermIdentifers.get('anatomicalSubStructureTermId')
-                    anatomicalSubStructureQualifierTermId = wildtypeExpressionTermIdentifers.get(
+                    anatomicalSubStructureTermId = whereExpressed.get('anatomicalSubStructureTermId')
+                    anatomicalSubStructureQualifierTermId = whereExpressed.get(
                         'anatomicalSubStructureQualifierTermId')
-                    whereExpressedStatement = wildtypeExpressionTermIdentifers.get('whereExpressedStatement')
+                    whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
 
-                    if cellularComponentQualifierTermId is None:
-                        cellularComponentQualifierTermId = ""
+                    if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
+                        for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
+                            structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
+                            if structureUberonTermId is not None and structureUberonTermId != 'Other':
+                                structureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid,
+                                    "aoUberonId": structureUberonTermId
+                                }
+                                uberonAOData.append(structureUberonTerm)
+                            elif structureUberonTermId is not None and structureUberonTermId == 'Other':
+                                otherStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid
+                                }
+                                uberonAOOtherData.append(otherStructureUberonTerm)
+
+                    if whereExpressed.get('anatomicalSubStructureUberonSlimTermIds') is not None:
+                        for uberonSubStructureTermObject in whereExpressed.get('anatomicalSubStructureUberonSlimTermIds'):
+                            subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
+                            if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':
+                                subStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid,
+                                    "aoUberonId": subStructureUberonTermId
+                                }
+                                uberonAOData.append(subStructureUberonTerm)
+                            elif subStructureUberonTermId is not None and subStructureUberonTermId == 'Other':
+                                otherStructureUberonTerm = {
+                                    "ebe_uuid": ebe_uuid
+                                }
+                                uberonAOOtherData.append(otherStructureUberonTerm)
+
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
+
+                        AOExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "uuid": str(uuid.uuid4()),
+                            "assay": assay,
+                            "anatomicalStructureTermId": anatomicalStructureTermId,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+
+                        }
+                        aoExpression.append(AOExpression)
+
+                    if cellularComponentQualifierTermId is not None:
+
+                        CCQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "cellularComponentQualifierTermId": cellularComponentQualifierTermId
+
+                        }
+                        ccQualifier.append(CCQualifier)
+
                     if anatomicalStructureTermId is None:
                         anatomicalStructureTermId = ""
-                    if anatomicalStructureQualifierTermId is None:
-                        anatomicalStructureQualifierTermId = ""
-                    if anatomicalSubStructureTermId is None:
-                        anatomicalSubStructureTermId = ""
-                    if anatomicalSubStructureQualifierTermId is None:
-                        anatomicalSubStructureQualifierTermId = ""
+
+                        CCExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "assay": assay,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "cellularComponentTermId": cellularComponentTermId,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+                        }
+                        ccExpression.append(CCExpression)
+
+                    if anatomicalStructureQualifierTermId is not None:
+                        AOQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId
+                        }
+                        aoQualifier.append(AOQualifier)
+
+                    if anatomicalSubStructureTermId is not None:
+                        AOSubstructure = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalSubStructureTermId": anatomicalSubStructureTermId
+
+                        }
+                        aoSubstructure.append(AOSubstructure)
+
+                    if anatomicalSubStructureQualifierTermId is not None:
+                        AOSSQualifier = {
+                            "ebe_uuid": ebe_uuid,
+                            "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId
+
+                        }
+                        aoSSQualifier.append(AOSSQualifier)
+
                     if whereExpressedStatement is None:
                         whereExpressedStatement = ""
 
-                    assay = xpat.get('assay')
+                    if anatomicalStructureTermId is not None and anatomicalStructureTermId != "" \
+                            and cellularComponentTermId is not None and cellularComponentTermId != "":
 
-                    expression = {
-                        "geneId": geneId,
-                        "whenExpressedStage": whenExpressedStage,
-                       # "dateAssigned": dateAssigned,
-                        "pubMedId": pubMedId,
-                        "pubMedUrl": pubMedUrl,
-                        "pubModId": publicationModId,
-                        "pubModUrl": pubModUrl,
-                        "pubPrimaryKey": pubMedId + publicationModId,
-                        "uuid": str(uuid.uuid4()),
-                        "loadKey": loadKey,
-                        "type": "gene",
-                        "dataProviders": dataProviders,
-                        # "dataProviderType": dataProviderType,
-                        # "dateProduced": dateProduced,
-                        # "dataProvider": dataProviderSingle,
-                        "assay": assay,
-                        "crossReferences": crossReferences,
-                        "cellularComponentQualifierTermId": cellularComponentQualifierTermId,
-                        "cellularComponentTermId": cellularComponentTermId,
-                        "anatomicalStructureTermId": anatomicalStructureTermId,
-                        "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId,
-                        "anatomicalSubStructureTermId": anatomicalSubStructureTermId,
-                        "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId,
-                        "whereExpressedStatement": whereExpressedStatement,
-                        "expressionEntityPk": cellularComponentTermId + cellularComponentQualifierTermId + anatomicalStructureTermId + anatomicalStructureQualifierTermId + anatomicalSubStructureTermId + anatomicalSubStructureQualifierTermId,
-                        "pubPrimaryKey": pubMedId + publicationModId,
-                        "ei_uuid": str(uuid.uuid4()),
-                        "s_uuid": str(uuid.uuid4()),
-                        "ss_uuid": str(uuid.uuid4()),
-                        "cc_uuid": str(uuid.uuid4()),
-                        "ebe_uuid": str(uuid.uuid4())
-                    }
+                        AOCCExpression = {
+                            "geneId": geneId,
+                            "whenExpressedStage": whenExpressedStage,
+                            "pubMedId": pubMedId,
+                            "pubMedUrl": pubMedUrl,
+                            "pubModId": publicationModId,
+                            "pubModUrl": pubModUrl,
+                            "pubPrimaryKey": pubMedId + publicationModId,
+                            "uuid": str(uuid.uuid4()),
+                            "stageTermId": stageTermId,
+                            "stageName": stageName,
+                            "stageUberonTermId": stageUberonTermId,
+                            "assay": assay,
+                            "cellularComponentTermId": cellularComponentTermId,
+                            "anatomicalStructureTermId": anatomicalStructureTermId,
+                            "whereExpressedStatement": whereExpressedStatement,
+                            "ei_uuid": ei_uuid,
+                            "ebe_uuid": ebe_uuid
+                        }
 
-                    list_to_yield.append(expression)
-                    if len(list_to_yield) == batch_size:
-                        yield list_to_yield
-                        list_to_yield[:] = []  # Empty the list.
+                        aoccExpression.append(AOCCExpression)
 
-            if len(list_to_yield) > 0:
-                logger.info (geneId)
-                yield list_to_yield
+                if counter == batch_size:
+                    counter = 0
+                    logger.info("counter equals batch size")
+                    yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                           aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                           uberonStageOtherData, crossReferences)
+                    aoExpression = []
+                    ccExpression = []
+                    aoQualifier = []
+                    aoSubstructure = []
+                    aoSSQualifier = []
+                    ccQualifier = []
+                    aoccExpression = []
+                    stageList = []
+                    uberonStageOtherData = []
+                    stageUberonData = []
+                    uberonAOOtherData = []
+                    uberonAOData = []
+                    crossReferences = []
+                    #counter = 0
+
+            if counter > 0:
+                logger.info(geneId)
+                yield (aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                       aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                       uberonStageOtherData, crossReferences)
 
         f.close()
         # TODO: get dataProvider parsing working with ijson.

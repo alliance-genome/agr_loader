@@ -6,7 +6,7 @@ class AlleleTransaction(Transaction):
     def __init__(self, graph):
         Transaction.__init__(self, graph)
 
-    def allele_tx(self, data):
+    def allele_tx(self, allele_data, secondary_data, synonym_data, xref_data):
 
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(data)
@@ -23,24 +23,25 @@ class AlleleTransaction(Transaction):
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Allele"
-                SET l.release = row.release
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "Allele",
+                 l.release = row.release,
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
 
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
-                SET o.symbol = row.symbol
-                SET o.taxonId = row.taxonId
-                SET o.dateProduced = row.dateProduced
-                SET o.release = row.release
-                SET o.localId = row.localId
-                SET o.globalId = row.globalId
-                SET o.uuid = row.uuid
-                SET o.modCrossRefCompleteUrl = row.modGlobalCrossRefId
-                SET o.dataProviders = row.dataProviders
-                SET o.dataProvider = row.dataProvider
+                SET o.symbol = row.symbol,
+                 o.taxonId = row.taxonId,
+                 o.dateProduced = row.dateProduced,
+                 o.release = row.release,
+                 o.localId = row.localId,
+                 o.globalId = row.globalId,
+                 o.uuid = row.uuid,
+                 o.symbolText = row.symbolText,
+                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                 o.dataProviders = row.dataProviders,
+                 o.dataProvider = row.dataProvider
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
@@ -50,17 +51,6 @@ class AlleleTransaction(Transaction):
                 //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
             MERGE (l)-[lo:LOADED_FROM]-(o)
 
-            FOREACH (entry in row.secondaryIds |
-                MERGE (second:SecondaryId:Identifier {primaryKey:entry})
-                    SET second.name = entry
-                MERGE (o)-[aka1:ALSO_KNOWN_AS]->(second)
-                MERGE (l)-[las:LOADED_FROM]-(second))
-
-            FOREACH (entry in row.synonyms |
-                MERGE (syn:Synonym:Identifier {primaryKey:entry})
-                    SET syn.name = entry
-                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(syn)
-                MERGE (l)-[lasyn:LOADED_FROM]-(syn))
 
             MERGE (o)-[aspec:FROM_SPECIES]->(spec)
             MERGE (l)-[laspec:LOADED_FROM]-(spec)
@@ -71,9 +61,43 @@ class AlleleTransaction(Transaction):
             //Create the entity relationship to the gene node.
             MERGE (o)-[c1:CREATED_BY]->(ent)
 
-            WITH o, row.crossReferences AS events
-            UNWIND events AS event
+        """
 
-        """ + CreateCrossReference.get_cypher_xref_text("allele")
+        allele_secondaryIds = """
 
-        Transaction.execute_transaction(self, alleleQuery, data)
+         UNWIND $data AS row
+                MATCH (f:Feature {primaryKey:row.data_id})
+
+                MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                    SET second.name = row.secondary_id
+                MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
+
+
+        """
+        allele_synonyms = """
+
+         UNWIND $data AS row
+                MATCH (f:Feature {primaryKey:row.data_id})
+
+               MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (f)-[aka2:ALSO_KNOWN_AS]->(syn)
+        """
+
+        allele_xrefs = """
+            UNWIND $data as event
+                MATCH (o:Feature {primaryKey:event.dataId})
+        
+        """ + CreateCrossReference.get_cypher_xref_text("feature")
+
+        if len(allele_data) > 0:
+            Transaction.execute_transaction(self, alleleQuery, allele_data)
+        if len(secondary_data) > 0:
+            Transaction.execute_transaction(self, allele_secondaryIds, secondary_data)
+        if len(synonym_data) > 0:
+            Transaction.execute_transaction(self, allele_synonyms, synonym_data)
+        if len(xref_data) > 0:
+            Transaction.execute_transaction(self, allele_xrefs, xref_data)
+
+
+

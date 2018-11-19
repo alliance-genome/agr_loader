@@ -28,7 +28,7 @@ class JSONFile(object):
         elif jsonType == 'BGI':
             schema_file_name = 'schemas/gene/geneMetaData.json'
         elif jsonType == 'orthology':
-            schema_file_name = 'schemas/orthology/orthoMetaData.json'
+            schema_file_name = 'schemas/orthology/orthologyMetaData.json'
         elif jsonType == 'allele':
             schema_file_name = 'schemas/allele/alleleMetaData.json'
         elif jsonType == 'phenotype':
