@@ -14,7 +14,6 @@ class RGD(MOD):
         self.alleleName = "/RGD_1.0.0.7_allele.10116.json"
         self.wtExpressionName = "/RGD_1.0.0.7_expression.10116.json"
         self.geneAssociationFile = "gene_association_2.0.rgd.gz"
-
         self.identifierPrefix = "RGD:"
         self.geoSpecies = "Rattus+norvegicus"
         self.geoRetMax = "30000"
