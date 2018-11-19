@@ -1,4 +1,8 @@
 import logging, coloredlogs, os, sys
+from etl import *
+from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
+from transactions import Indicies
+from data_manager import DataFileManager
 
 coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -10,17 +14,13 @@ coloredlogs.install(level=logging.INFO,
         'programname': {'color': 'cyan'}
     })
 
-# logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
-logger = logging.getLogger(__name__)
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
 # to DEBUG the modules we want to see output for.
 
-from etl import *
-from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
-from transactions import Indicies
-from data_manager import DataFileManager
+# logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
+logger = logging.getLogger(__name__)
 
 class AggregateLoader(object):
 
@@ -40,6 +40,8 @@ class AggregateLoader(object):
         logger.info("Creating indices.")
         Indicies().create_indices()
 
+        #sys.exit(0)
+
         etl_dispatch = {
             'GO': GOETL,
             'DO': DOETL,
@@ -49,6 +51,14 @@ class AggregateLoader(object):
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
             'DiseaseAllele': DiseaseAlleleETL,
+            #'DiseaseGene': DiseaseGeneETL,
+            #'Phenotype': PhenotypeETL,
+            #'Orthology': OrthologyETL,
+            #'GOAnnot': GOAnnotETL,
+            #'GeoXref': GeoXrefETL,
+            #'ResourceDescriptor': ResourceDescriptorETL,
+            #'MolecularInteraction': MolecularInteractionETL,
+            #'GeneDiseaseOrthology': GeneDiseaseOrthologyETL,
         }
 
         list_of_types = [
@@ -56,7 +66,7 @@ class AggregateLoader(object):
             ['BGI'],
             ['Allele'],
             #['Expression'],
-            ['DiseaseAllele'],
+            #['DiseaseAllele'],
             #['DiseaseGene'],
             #['Phenotype'],
             #['Orthology'],
