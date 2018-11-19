@@ -48,6 +48,7 @@ class DataFileManager(object):
             self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry, self.transformed_submission_system_data[config_entry])
 
     def download_and_validate(self):
+
         logger.info('Beginning download and validation.')
         for entry in self.master_data_dictionary.keys():
             logger.info('Downloading %s data.' % entry)

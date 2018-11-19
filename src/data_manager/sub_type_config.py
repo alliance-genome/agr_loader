@@ -2,7 +2,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from files import S3File, TXTFile, TARFile, Download
-import os, json, sys
+import os, json, sys, subprocess, jsonref
+from pathlib import Path
+from urllib.parse import urljoin
 import jsonschema as js
 
 class SubTypeConfig(object):
@@ -94,19 +96,19 @@ class SubTypeConfig(object):
             logger.warn('No schema or method found. Skipping validation.')
             return # Exit validation.
 
-        with open(schema_file_name, encoding='utf-8') as schema_file:
-            schema = json.load(schema_file)
-
         with open(self.filepath, encoding='utf-8') as data_file:
             data = json.load(data_file)
 
-        # Defining a resolver for relative paths and schema issues, see https://github.com/Julian/jsonschema/issues/313
-        # and https://github.com/Julian/jsonschema/issues/274
-        sSchemaDir = os.path.dirname(os.path.abspath(schema_file_name))
-        oResolver = js.RefResolver(base_uri = 'file://' + sSchemaDir + '/', referrer = schema)
+        # These variables are used to dynamically "fill out" all the references in the schema file.
+        base_dir_url = Path(os.path.realpath(os.getcwd())).as_uri() + '/'
+        base_file_url = urljoin(base_dir_url, schema_file_name)
+
+        with open(schema_file_name, encoding='utf-8') as schema_file:
+            # jsonref builds out our json #ref for the schema validation to work correctly.
+            expanded_schema_file = jsonref.load(schema_file, base_uri=base_file_url)
 
         try:
-            js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
+            js.validate(data, expanded_schema_file)
             logger.info("'%s' successfully validated against '%s'" % (self.filepath, schema_file_name))
         except js.ValidationError as e:
             logger.critical(e.message)
