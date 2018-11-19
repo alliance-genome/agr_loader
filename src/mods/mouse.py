@@ -12,6 +12,7 @@ class MGI(MOD):
         self.diseaseName = "/MGI_1.0.0.7_disease.json"
         self.phenotypeName = "/MGI_1.0.0.7_phenotype.json"
         self.wtExpressionName = "/MGI_1.0.0.7_expression.json"
+
         self.geneAssociationFile = "gene_association_2.0.mgi.gz"
         self.geoSpecies = 'Mus+musculus'
         self.geoRetMax = "50000"
