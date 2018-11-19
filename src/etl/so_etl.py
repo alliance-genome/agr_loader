@@ -25,18 +25,19 @@ class SOETL(ETL):
     def _load_and_process_data(self):
 
         filepath = self.data_type_config.get_single_filepath()
-        data = TXTFile(filepath).get_data()
-
+        
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        #batch_size = self.data_type_config.get_generator_batch_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-        generators = self.get_generators(data)
+        generators = self.get_generators(filepath)
 
         so_file_query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
             
         CSVTransactor.execute_transaction(generators, so_file_query_list)
         
-    def get_generators(self, data):
+    def get_generators(self, filepath):
+        
+        data = TXTFile(filepath).get_data()
         so_list = []
         for current_line, next_line in self.get_current_next(data):
             so_dataset = {}

@@ -112,12 +112,12 @@ class BGIETL(ETL):
 
     def _load_and_process_data(self):
         
-        for mod_config in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading BGI Data: %s" % mod_config.get_data_provider())
-            filepath = mod_config.get_filepath()
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
+            filepath = sub_type.get_filepath()
             data = JSONFile().get_data(filepath)
             
-            logger.info("Finished Loading BGI Data: %s" % mod_config.get_data_provider())
+            logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
             # This order is the same as the lists yielded from the get_generators function.    
             # A list of tuples.
@@ -127,15 +127,15 @@ class BGIETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [BGIETL.gene_query_template, commit_size, "gene_data_" + mod_config.get_data_provider() + ".csv"],
-                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + mod_config.get_data_provider() + ".csv"],
-                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + mod_config.get_data_provider() + ".csv"],
-                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + mod_config.get_data_provider() + ".csv"],
-                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + mod_config.get_data_provider() + ".csv"]
+                [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
+                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
+                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
+                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"]
             ]
 
             # Obtain the generator
-            generators = self.get_generators(data, mod_config.get_data_provider(), batch_size)
+            generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)

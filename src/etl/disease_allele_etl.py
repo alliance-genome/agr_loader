@@ -81,14 +81,14 @@ class DiseaseAlleleETL(ETL):
 
     def _load_and_process_data(self):
 
-        for mod_config in self.data_type_config.get_mod_configs():
-            logger.info("Loading Disease Allele Data: %s" % mod_config.data_provider)
-            filepath = mod_config.get_filepath()
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            logger.info("Loading Disease Allele Data: %s" % sub_type.get_data_provider())
+            filepath = sub_type.get_filepath()
             data = JSONFile().get_data(filepath)
-            logger.info("Finished Loading Disease Allele Data: %s" % mod_config.data_provider)
+            logger.info("Finished Loading Disease Allele Data: %s" % sub_type.get_data_provider())
 
             if data == None:
-                logger.warn("No Data found for %s skipping" % mod_config.data_provider)
+                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
                 continue
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -96,11 +96,11 @@ class DiseaseAlleleETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [DiseaseAlleleETL.execute_feature_template, commit_size, "disease_allele_data_" + mod_config.data_provider + ".csv"],
+                [DiseaseAlleleETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             # Obtain the generator
-            generators = self.get_generators(data, mod_config.data_provider, batch_size)
+            generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)

@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 from queue import Queue
 import time
 
@@ -83,20 +84,25 @@ class Neo4jTransactor(Transactor):
             (query_batch, query_counter) = Neo4jTransactor.queue.get()
             logger.info("%s: Processing query batch: %s BatchSize: %s" % (self._get_name(), query_counter, len(query_batch)))
             batch_start = time.time()
-            # Save VIA pickle rather then NEO
-            #file_name = "tmp/transaction_%s" % batch_count
-            #file = open(file_name,'wb')
-            #logger.info("Writting to file: %s Records: %s" % (file_name, len(query_data)))
-            #pickle.dump((cypher_query, query_data), file)
-            #file.close() 
+
+            for_query_counter = 0
 
             for neo4j_query, filename in query_batch:
                 logger.info("%s: Processing query for file: %s QueryNum: %s QueueSize: %s" % (self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize()))
                 start = time.time()
                 try:
+                    
+                    # Save VIA pickle rather then NEO
+                    #file_name = "tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter)
+                    #file = open(file_name,'wb')
+                    #logger.info("Writting to file: tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter))
+                    #pickle.dump(neo4j_query, file)
+                    #file.close()
+                    
                     session = Neo4jTransactor.graph.session()
                     session.run(neo4j_query)
                     session.close()
+                    
                     end = time.time()
                     elapsed_time = end - start
                     logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s" % (self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
@@ -105,6 +111,8 @@ class Neo4jTransactor(Transactor):
                     logger.error("%s: Query Failed: %s" % (self._get_name(), neo4j_query))
                     #logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Neo4jTransactor.rework.qsize(), batch_count))
                     #Neo4jTransactor.queue.put((generator, filename, query, batch_count))
+                
+                for_query_counter = for_query_counter + 1
 
             batch_end = time.time()
             batch_elapsed_time = batch_end - batch_start
