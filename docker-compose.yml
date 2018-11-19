@@ -48,6 +48,7 @@ services:
     networks:
       - esnet
     environment:
+     - PYTHONUNBUFFERED=1
      - TEST_SET=False
      - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
@@ -64,6 +65,7 @@ services:
     networks:
       - esnet
     environment:
+     - PYTHONUNBUFFERED=1
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc

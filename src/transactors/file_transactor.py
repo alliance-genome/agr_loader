@@ -1,28 +1,26 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from contextlib import ExitStack
 import csv, os, logging, sys, logging
-import logging
 from queue import Queue
 from files import S3File, TXTFile, TARFile, Download 
+import threading
 
 from .transactor import Transactor
 
-logger = logging.getLogger(__name__)
-
-class FileTransactor(Transactor):
+class FileTransactor(object):
 
     count = 0
     queue = Queue(2000)
 
     def __init__(self):
-        super().__init__()
-
-    def _get_name(self):
-        return "FILE %s" % self.threadid
+        pass
 
     def start_threads(self, thread_count):
         thread_pool = []
         for n in range(0, thread_count):
-            runner = FileTransactor()
+            runner = threading.Thread(target=self.run)
             runner.threadid = n
             runner.daemon = True
             runner.start()
@@ -38,17 +36,17 @@ class FileTransactor(Transactor):
         FileTransactor.queue.join()
 
     def run(self):
-        logger.info("%s: Starting FileTransactor Thread Runner: " % self._get_name())
+        logger.info("%s: Starting FileTransactor Thread Runner." % threading.currentThread().getName())
         while True:
             ((sub_type, FileTransactor.count)) = FileTransactor.queue.get()
-            logger.info("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (self._get_name(), FileTransactor.count, FileTransactor.queue.qsize()))  
+            logger.info("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (threading.currentThread().getName(), FileTransactor.count, FileTransactor.queue.qsize()))  
             self.download_and_validate_file(sub_type)
             FileTransactor.queue.task_done()
 
     def download_and_validate_file(self, sub_type):
 
-        logger.info("%s: Getting Data and Downloading: %s" % (self._get_name(), sub_type.get_filepath()))
+        logger.info("%s: Getting data and downloading: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
         sub_type.get_data()
-        logger.info("%s: Downloading data finished starting Validation: %s" % (self._get_name(), sub_type.get_filepath()))
-        sub_type.validate()
-        logger.info("%s: Validation finish: %s" % (self._get_name(), sub_type.get_filepath()))
+        logger.info("%s: Downloading data finished. Starting validation: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        # sub_type.validate()
+        logger.info("%s: Validation finish: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))

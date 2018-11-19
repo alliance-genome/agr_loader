@@ -1,10 +1,12 @@
-import logging, os
+import logging
+logger = logging.getLogger(__name__)
+
+import os
 from test import TestObject
 import time
 
 from etl.helpers import ResourceDescriptorHelper
 
-logger = logging.getLogger(__name__)
 
 class ETL(object):
 

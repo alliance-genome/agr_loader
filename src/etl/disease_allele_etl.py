@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 
 from services import UrlService
 from transactors import CSVTransactor
@@ -7,9 +8,6 @@ from etl.helpers import ETLHelper
 from etl.helpers import DiseaseAlleleHelper
 
 from files import JSONFile
-
-
-logger = logging.getLogger(__name__)
 
 class DiseaseAlleleETL(ETL):
 

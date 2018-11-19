@@ -1,9 +1,10 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from files import S3File, TXTFile, TARFile, Download
-import os, logging, sys
+import os, sys
 from transactors import FileTransactor
 from .sub_type_config import SubTypeConfig
-
-logger = logging.getLogger(__name__)
 
 class DataTypeConfig(object):
 
@@ -16,9 +17,6 @@ class DataTypeConfig(object):
         self.generator_batch_size = 10000
 
         self.list_of_subtype_objects = []
-
-        #logger.info(data_type)
-        #logger.info(submission_system_data)
 
     def get_data(self):
 

@@ -1,4 +1,6 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import pickle
 from queue import Queue
@@ -7,9 +9,6 @@ import time
 from neo4j import GraphDatabase
 
 from transactors import Transactor
-
-
-logger = logging.getLogger(__name__)
 
 class Neo4jTransactor(Transactor):
 

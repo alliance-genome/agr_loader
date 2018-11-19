@@ -1,9 +1,8 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import zipfile
-
-
-logger = logging.getLogger(__name__)
 
 class ZIPFile(object):
 

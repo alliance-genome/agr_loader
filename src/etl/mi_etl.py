@@ -1,11 +1,10 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import urllib, json
 
 from etl import ETL
 from transactors import CSVTransactor
-
-
-logger = logging.getLogger(__name__)
 
 class MIETL(ETL):
 

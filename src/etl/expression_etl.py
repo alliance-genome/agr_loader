@@ -1,5 +1,7 @@
-import codecs
 import logging
+logger = logging.getLogger(__name__)
+
+import codecs
 import uuid
 
 import ijson
@@ -8,9 +10,6 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from services import UrlService
 from transactors import CSVTransactor
-
-
-logger = logging.getLogger(__name__)
 
 class ExpressionETL(ETL):
 
