@@ -50,7 +50,7 @@ class BGIETL(ETL):
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced,
+            ON CREATE SET l.dateProduced = row.dateProduced,
                  l.loadName = "BGI",
                  l.release = row.release,
                  l.dataProviders = row.dataProviders,
@@ -75,27 +75,21 @@ class BGIETL(ETL):
                  o.dataProvider = row.dataProvider,
                  o.dataProviders = row.dataProviders
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(o)
-            //Create nodes for other identifiers.
-
-            //FOREACH (dataProvider in row.dataProviders |
-                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
-                  //SET dp.dateProduced = row.dateProduced
-                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
-               // MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+            MERGE (l)-[:LOADED_FROM]-(o)
 
             MERGE (spec:Species {primaryKey: row.taxonId})
-                SET spec.species = row.species
-                SET spec.name = row.species
+            ON CREATE SET spec.species = row.species, 
+                spec.name = row.species
+            
             MERGE (o)-[:FROM_SPECIES]->(spec)
-            MERGE (l)-[laspec:LOADED_FROM]-(spec)
+            MERGE (l)-[:LOADED_FROM]-(spec)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            MERGE (l)-[laso:LOADED_FROM]-(s)
+            MERGE (l)-[:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            MERGE (o)-[x:ANNOTATED_TO]->(s) """
+            MERGE (o)-[:ANNOTATED_TO]->(s) """
 
     xrefs_template = """
 

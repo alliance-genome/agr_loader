@@ -4,7 +4,7 @@ from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
-coloredlogs.install(level=logging.INFO,
+coloredlogs.install(level=logging.DEBUG,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
     field_styles={
         'asctime': {'color': 'green'}, 
@@ -14,6 +14,8 @@ coloredlogs.install(level=logging.INFO,
         'programname': {'color': 'cyan'}
     })
 
+logger = logging.getLogger("ontobio.ontol") # Turn off huge output from ontobio
+logger.setLevel(logging.INFO)
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
@@ -37,10 +39,11 @@ class AggregateLoader(object):
         Neo4jTransactor().start_threads(4)
         CSVTransactor().start_threads(4)
         
-        logger.info("Creating indices.")
-        Indicies().create_indices()
-
-        #sys.exit(0)
+        if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
+            pass
+        else:
+            logger.info("Creating indices.")
+            #Indicies().create_indices()
 
         etl_dispatch = {
             'GO': GOETL,
@@ -50,8 +53,7 @@ class AggregateLoader(object):
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
-            'DiseaseAllele': DiseaseAlleleETL,
-            #'DiseaseGene': DiseaseGeneETL,
+            'Disease': DiseaseETL,
             #'Phenotype': PhenotypeETL,
             #'Orthology': OrthologyETL,
             #'GOAnnot': GOAnnotETL,
@@ -62,12 +64,11 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            ['GO', 'DO', 'SO', 'MI'],
-            ['BGI'],
-            ['Allele'],
+            #['GO', 'DO', 'SO', 'MI'],
+            #['BGI'],
+            #['Allele'],
             #['Expression'],
-            #['DiseaseAllele'],
-            #['DiseaseGene'],
+            ['Disease'],
             #['Phenotype'],
             #['Orthology'],
             #['GOAnnot'],

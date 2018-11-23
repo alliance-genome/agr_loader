@@ -5,7 +5,7 @@ from etl.helpers import ETLHelper
 
 logger = logging.getLogger(__name__)
 
-class DiseaseAlleleHelper(object):
+class DiseaseHelper(object):
 
     @staticmethod
     def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):

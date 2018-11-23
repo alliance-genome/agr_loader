@@ -5,11 +5,11 @@ from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
 from etl.helpers import ETLHelper
-from etl.helpers import DiseaseAlleleHelper
+from etl.helpers import DiseaseHelper
 
 from files import JSONFile
 
-class DiseaseAlleleETL(ETL):
+class DiseaseETL(ETL):
 
     execute_feature_template = """
         USING PERIODIC COMMIT %s
@@ -73,6 +73,54 @@ class DiseaseAlleleETL(ETL):
                 MERGE (dfa)-[daecode1f:EVIDENCE]->(ecode1f)
             ) """
 
+    execute_gene_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+            MATCH (gene:Gene {primaryKey:row.primaryId})
+            // LOAD NODES
+
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced,
+                    l.dataProvider = row.dataProvider,
+                    l.loadName = "Disease"
+
+            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+
+            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                    SET fafg.dataProvider = row.dataProvider,
+                        fafg.dateProduced = row.dateProduced,
+                        dga.joinType = 'is_marker_of')
+
+            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
+                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                    SET fafg.dataProvider = row.dataProvider,
+                        fafg.dateProduced = row.dateProduced,
+                        dga.joinType = 'is_implicated_in')
+
+            MERGE (gene)-[fdag:ASSOCIATION]->(dga)
+            MERGE (dga)-[dadg:ASSOCIATION]->(d)
+
+            // PUBLICATIONS FOR GENE
+            MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
+                SET pubg.pubModId = row.pubModId,
+                    pubg.pubMedId = row.pubMedId,
+                    pubg.pubModUrl = row.pubModUrl,
+                    pubg.pubMedUrl = row.pubMedUrl
+
+            MERGE (l)-[:LOADED_FROM]-(pubg)
+            MERGE (dga)-[dapug:EVIDENCE]->(pubg)
+
+            // EVIDENCE CODES FOR GENE
+            FOREACH (entity in row.ecodes |
+                MERGE (ecode1g:EvidenceCode {primaryKey:entity})
+                MERGE (dga)-[daecode1g:EVIDENCE]->(ecode1g)
+            )
+
+            """
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -94,12 +142,13 @@ class DiseaseAlleleETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [DiseaseAlleleETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [DiseaseETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             # Obtain the generator
             generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
-
+            
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
 
@@ -156,12 +205,12 @@ class DiseaseAlleleETL(ETL):
                 #     logger.info ("returning more than one gene: this is an error")
                 allelicGeneId = ''
 
-                disease_features = DiseaseAlleleHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, data_provider)
+                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, data_provider)
 
                 list_to_yield.append(disease_features)
                 if len(list_to_yield) == batch_size:
-                    yield [list_to_yield]
+                    yield [list_to_yield, list_to_yield]
                     list_to_yield = []
 
         if len(list_to_yield) > 0:
-            yield [list_to_yield]
+            yield [list_to_yield, list_to_yield]

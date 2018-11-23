@@ -1,4 +1,3 @@
-from .disease_gene import DiseaseGeneTransaction
 from .do import DOTransaction
 from .gene_description import GeneDescriptionTransaction
 from .gene_disease_ortho import GeneDiseaseOrthoTransaction
