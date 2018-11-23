@@ -25,8 +25,11 @@ class Transaction(Thread):
     else:
         port = 7687
 
-    uri = "bolt://" + host + ":" + str(port)
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+    if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
+        pass
+    else:
+        uri = "bolt://" + host + ":" + str(port)
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
     def __init__(self):
         Thread.__init__(self)

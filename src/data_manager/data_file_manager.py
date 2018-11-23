@@ -1,11 +1,13 @@
-import logging
-logger = logging.getLogger(__name__)
+import logging, yaml, os, pprint, sys
+
+from cerberus import Validator
 
 from files import *
-import logging, yaml, os, pprint, sys
-from .data_type_config import DataTypeConfig
-from cerberus import Validator
 from services import get_MOD_from_taxon
+
+from .data_type_config import DataTypeConfig
+
+logger = logging.getLogger(__name__)
 
 class DataFileManager(object):
     

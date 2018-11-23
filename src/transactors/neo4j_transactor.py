@@ -1,5 +1,4 @@
 import logging
-logger = logging.getLogger(__name__)
 
 import os
 import pickle
@@ -9,6 +8,8 @@ import time
 from neo4j import GraphDatabase
 
 from transactors import Transactor
+
+logger = logging.getLogger(__name__)
 
 class Neo4jTransactor(Transactor):
 
@@ -25,8 +26,12 @@ class Neo4jTransactor(Transactor):
     else:
         port = 7687
 
-    uri = "bolt://" + host + ":" + str(port)
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+    if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
+        using_pickle = True
+    else:
+        uri = "bolt://" + host + ":" + str(port)
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        using_pickle = False
 
     def __init__(self):
         super().__init__()
@@ -91,22 +96,23 @@ class Neo4jTransactor(Transactor):
                 start = time.time()
                 try:
                     
-                    # Save VIA pickle rather then NEO
-                    #file_name = "tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter)
-                    #file = open(file_name,'wb')
-                    #logger.info("Writting to file: tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter))
-                    #pickle.dump(neo4j_query, file)
-                    #file.close()
-                    
-                    session = Neo4jTransactor.graph.session()
-                    session.run(neo4j_query)
-                    session.close()
+                    if Neo4jTransactor.using_pickle == True:
+                        # Save VIA pickle rather then NEO
+                        file_name = "tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter)
+                        file = open(file_name,'wb')
+                        logger.info("Writting to file: tmp/temp/transaction_%s_%s" % (query_counter, for_query_counter))
+                        pickle.dump(neo4j_query, file)
+                        file.close()
+                    else:
+                        session = Neo4jTransactor.graph.session()
+                        session.run(neo4j_query)
+                        session.close()
                     
                     end = time.time()
                     elapsed_time = end - start
                     logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s" % (self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
                     logger.error("%s: Query Failed: %s" % (self._get_name(), neo4j_query))
                     #logger.warn("%s: Query Conflict, putting data back in rework Queue. Size: %s Batch#: %s" % (self.threadid, Neo4jTransactor.rework.qsize(), batch_count))
                     #Neo4jTransactor.queue.put((generator, filename, query, batch_count))
