@@ -13,49 +13,12 @@ class OntologyLoader(object):
 
     def run_loader(self):
         start = time.time()
-
-        ret = self.load_custom()
+        
         self.load_generic_list()
 
         end = time.time()
         logger.info ("Total time to load ontologies: %s", str(end - start))
         return ret
-
-    def load_custom(self):
-        logger.info("Extracting GO data.")
-        go_dataset = OExt().get_data("http://snapshot.geneontology.org/ontology/go.obo", "go.obo")
-        logger.info("Loading GO data into Neo4j.")
-        go_data_loaded = []
-        for n in go_dataset.nodes():
-            node = go_dataset.node(n)
-            if node.get('type') == "PROPERTY":
-                continue
-            go_data_loaded.append(node)
-        GOTransaction().go_tx(go_data_loaded)
-        # Does not get cleared because its used later self.go_dataset.clear()
-
-        logger.info("Extracting DO data.")
-        do_dataset = OExt().get_data("https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo", "doid.obo")
-        logger.info("Loading DO data into Neo4j.")
-        do_data_loaded = []
-        for n in do_dataset.nodes():
-            node = do_dataset.node(n)
-            if node.get('type') == "PROPERTY":
-                continue
-            if 'oid' in node:   # Primarily filters out the empty nodes
-                do_data_loaded.append(node)
-        DOTransaction().do_tx(do_data_loaded)
-        # Does not get cleared because its used later self.do_dataset.clear()
-
-        logger.info("Downloading MI data.")
-        mi_dataset = MIExt().get_data()
-        logger.info("Loading MI data into Neo4j.")
-        MITransaction().mi_tx(mi_dataset)
-
-        logger.info("Extracting SO data.")
-        so_dataset = SOExt().get_data()
-        logger.info("Loading SO data into Neo4j.")
-        SOTransaction().so_tx(so_dataset)
 
     def load_generic_list(self):
 

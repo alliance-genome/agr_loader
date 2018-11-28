@@ -1,8 +1,9 @@
 from extractors import *
 from files import S3File, TARFile, JSONFile
+from etl.helpers import ETLHelper
 from services import RetrieveGeoXrefService
 from test import TestObject
-import gzip
+import gzip, time
 import csv
 import os
 import logging
@@ -68,47 +69,6 @@ class MOD(object):
             return go_annot_list
 
 
-    def load_disease_gene_objects_mod(self, diseaseFileName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseFileName, 'disease')
-        disease_dict = DiseaseGeneExt().get_gene_disease_data(disease_data, self.batch_size, self.species)
-
-        return disease_dict
-
-    def load_disease_allele_objects_mod(self, diseaseFileName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        disease_data = JSONFile().get_data(path + diseaseFileName, 'disease')
-        disease_dict = DiseaseAlleleExt().get_allele_disease_data(disease_data, self.batch_size, self.species)
-        return disease_dict
-
-    def load_allele_objects_mod(self, alleleFileName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        alleleData = JSONFile().get_data(path + alleleFileName, 'allele')
-        alleleDict = AlleleExt().get_alleles(alleleData, self.batch_size, self.testObject, self.species)
-        return alleleDict
-
-    def load_phenotype_objects_mod(self, phenotypeFileName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        phenotype_data = JSONFile().get_data(path + phenotypeFileName, 'phenotype')
-        phenotype_dict = PhenotypeExt().get_phenotype_data(phenotype_data, self.batch_size, self.testObject, self.species)
-        return phenotype_dict
-
-    def load_genes_mod(self, bgiFileName, loadFile):
-        path = "tmp"
-        S3File(loadFile, path).download()
-        TARFile(path, loadFile).extract_all()
-        gene_data = JSONFile().get_data(path + bgiFileName, 'BGI')
-        gene_lists = BGIExt().get_data(gene_data, self.batch_size, self.testObject, self.species)
-        return gene_lists
-
     def load_wt_expression_objects_mod(self, expressionFileName, loadFile):
         data = WTExpressionExt().get_wt_expression_data(loadFile, expressionFileName, 10000, self.testObject)
         return data
@@ -129,10 +89,32 @@ class MOD(object):
                             entrezIds.append("NCBI_Gene:"+entrezId)
 
 
-        xrefs = RetrieveGeoXrefService().get_geo_xref(entrezIds)
+        xrefs = self.get_geo_xref(entrezIds)
 
         return xrefs
+    
+    def get_geo_xref(self, global_id_list):
 
-    def extract_ortho_data_mod(self, mod_name):
-        data = OrthoExt().get_data(self.testObject, mod_name, 20000) # generator object
-        return data
+        query = "match (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference) where cr.globalCrossRefId in {parameter} return g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"
+        geo_data = []
+        returnSet = Neo4jTransactor.run_single_parameter_query(query, global_id_list)
+        
+        counter = 0
+        
+        for record in returnSet:
+            counter += 1
+            genePrimaryKey = record["g.primaryKey"]
+            modLocalId = record["g.modLocalId"]
+            globalCrossRefId = record["cr.globalCrossRefId"]
+            geo_xref = ETLHelper.get_xref_dict(globalCrossRefId.split(":")[1], "NCBI_Gene",
+                                                     "gene/other_expression", "gene/other_expression", "GEO",
+                                                     "https://www.ncbi.nlm.nih.gov/sites/entrez?Db=geoprofiles&DbFrom=gene&Cmd=Link&LinkName=gene_geoprofiles&LinkReadableName=GEO%20Profiles&IdsFromResult="+globalCrossRefId.split(":")[1],
+                                                     globalCrossRefId+"gene/other_expression")
+            geo_xref["genePrimaryKey"] = genePrimaryKey
+            geo_xref["modLocalId"] = modLocalId
+
+            geo_data.append(geo_xref)
+
+        return geo_data
+
+

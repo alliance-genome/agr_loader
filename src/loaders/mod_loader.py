@@ -20,26 +20,12 @@ class ModLoader(object):
         self.mods = [MGI(batch_size), Human(batch_size), RGD(batch_size), SGD(batch_size), WormBase(batch_size), ZFIN(batch_size), FlyBase(batch_size)]
         #self.mods = [ZFIN()]
 
-    def run_bgi_loader(self):
-
-        logger.info("Extracting BGI data from each MOD.")
-        #
-        for mod in self.mods:
-            logger.info("Loading BGI data for %s into Neo4j." % mod.species)
-            genes = mod.load_genes()  # generator object
-            for gene_list in genes:
-                #logger.info("BGI genes: %s" % len(gene_list))
-                BGITransaction().bgi_tx(list(gene_list[0]), list(gene_list[1]), list(gene_list[2]), list(gene_list[3]), list(gene_list[4]))
 
     def run_other_loaders(self):
        
         for mod in self.mods:
             
             if mod.species != 'Homo sapiens':
-                logger.info("Loading MOD alleles for %s into Neo4j." % mod.species)
-                alleles = mod.load_allele_objects()
-                for allele_batch in alleles:
-                    AlleleTransaction().allele_tx(list(allele_batch[0]), list(allele_batch[1]), list(allele_batch[2]), list(allele_batch[3]))
             
                 logger.info("Loading MOD wt expression annotations for %s into Neo4j." % mod.species)
                 xpats = mod.load_wt_expression_objects()
@@ -49,26 +35,6 @@ class ModLoader(object):
                         list(batch[4]), list(batch[5]), list(batch[6]), list(batch[7]),
                         list(batch[8]), list(batch[9]), list(batch[10]), list(batch[11]),
                         list(batch[12]), mod.species)
-            
-                logger.info("Loading MOD allele disease annotations for %s into Neo4j." % mod.species)
-                do_annotations_allele = mod.load_disease_allele_objects()
-                for feature_list_of_entries in do_annotations_allele:
-                    DiseaseAlleleTransaction().disease_allele_object_tx(feature_list_of_entries)
-
-            logger.info("Loading MOD gene disease annotations for %s into Neo4j." % mod.species)
-            do_annotations = mod.load_disease_gene_objects()
-            for feature_list_of_entries in do_annotations:
-                DiseaseGeneTransaction().disease_gene_object_tx(feature_list_of_entries)
-
-            logger.info("Loading MOD phenotype annotations for %s into Neo4j." % mod.species)
-            phenos = mod.load_phenotype_objects()
-            for pheno_list_of_entries in phenos:
-                PhenotypeTransaction().phenotype_object_tx(pheno_list_of_entries, mod.species)
-
-            logger.info("Loading Orthology data for %s into Neo4j." % mod.species)
-            ortholog_data = mod.extract_ortho_data(mod.__class__.__name__)
-            for ortholog_batch in ortholog_data:
-                OrthoTransaction().ortho_tx(list(ortholog_batch[0]), list(ortholog_batch[1]), list(ortholog_batch[2]), list(ortholog_batch[3]))
 
             logger.info("Extracting GO annotations for %s." % mod.species)
             go_annots = mod.extract_go_annots()
