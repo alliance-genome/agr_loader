@@ -7,4 +7,6 @@ from .so_etl import SOETL
 from .do_etl import DOETL
 from .go_etl import GOETL
 from .mi_etl import MIETL
+from .phenotype_etl import PhenoTypeETL
+from .orthology_etl import OrthologyETL
 from .helpers import *

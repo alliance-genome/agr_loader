@@ -1,9 +1,12 @@
-import logging
+import logging, uuid
 logger = logging.getLogger(__name__)
 
 from transactors import CSVTransactor
 
 from etl import ETL
+from etl.helpers import ETLHelper
+from services import UrlService
+from files import JSONFile
 
 class StubETL(ETL):
 
@@ -28,7 +31,7 @@ class StubETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_list = [
-            [StubETL.query_template, commit_size, "stub_data.csv"]
+            [StubETL.query_template, commit_size, "stub_data.csv"],
         ]
             
         CSVTransactor.execute_transaction(generators, query_list)

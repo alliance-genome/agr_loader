@@ -1,0 +1,232 @@
+import logging, uuid
+logger = logging.getLogger(__name__)
+
+from transactors import CSVTransactor
+
+from etl import ETL
+from etl.helpers import ETLHelper
+from services import UrlService
+from files import JSONFile
+
+class PhenoTypeETL(ETL):
+
+    execute_feature_template = """
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            // GET PRIMARY DATA OBJECTS
+
+            // LOAD NODES
+            MATCH (feature:Feature {primaryKey:row.primaryId})
+            MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
+
+            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                SET p.phenotypeStatement = row.phenotypeStatement
+
+            MERGE (l:Load:Entity {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced,
+                 l.loadName = "Phenotype",
+                 l.dataProviders = row.dataProviders,
+                 l.dataProvider = row.dataProvider
+
+            MERGE (pa:Association {primaryKey:row.uuid})
+                SET pa :PhenotypeEntityJoin,
+                 pa.joinType = 'phenotype',
+                 pa.dataProviders = row.dataProviders
+
+            MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+
+            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
+            MERGE (pa)-[pad:ASSOCIATION]->(p)
+            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
+
+            //FOREACH (dataProvider in row.dataProviders |
+                //MERGE (dp:DataProvider {primaryKey:dataProvider})
+                //MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+
+            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                SET pubf.pubModId = row.pubModId,
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
+
+            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
+
+            """
+    execute_gene_template = """
+
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            // GET PRIMARY DATA OBJECTS
+
+            // LOAD NODES
+            MATCH (g:Gene {primaryKey:row.primaryId})
+
+            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                SET p.phenotypeStatement = row.phenotypeStatement
+
+            MERGE (l:Load {primaryKey:row.loadKey})
+                SET l.dateProduced = row.dateProduced
+                SET l.loadName = "Phenotype"
+                SET l.dataProviders = row.dataProviders
+                SET l.dataProvider = row.dataProvider
+
+            MERGE (pa:Association {primaryKey:row.uuid})
+                SET pa :PhenotypeEntityJoin
+                SET pa.joinType = 'phenotype'
+                SET pa.dataProviders = row.dataProviders
+                SET pa.dataProvider = row.dataProvider
+            
+             MERGE (pa)-[dfal:LOADED_FROM]-(l)
+                
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+
+            //FOREACH (dataProvider in row.dataProviders |
+              //  MERGE (dp:DataProvider {primaryKey:dataProvider})
+              //  MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
+              //  MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
+
+            // PUBLICATIONS FOR FEATURE
+
+            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                SET pubf.pubModId = row.pubModId
+                SET pubf.pubMedId = row.pubMedId
+                SET pubf.pubModUrl = row.pubModUrl
+                SET pubf.pubMedUrl = row.pubMedUrl
+
+            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
+
+        """
+
+    def __init__(self, config):
+        super().__init__()
+        self.data_type_config = config
+
+    def _load_and_process_data(self):
+
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            logger.info("Loading Phenotype Data: %s" % sub_type.get_data_provider())
+            filepath = sub_type.get_filepath()
+            data = JSONFile().get_data(filepath)
+            logger.info("Finished Loading Phenotype Data: %s" % sub_type.get_data_provider())
+
+            if data == None:
+                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+                continue
+    
+            commit_size = self.data_type_config.get_neo4j_commit_size()
+            batch_size = self.data_type_config.get_generator_batch_size()
+            
+            generators = self.get_generators(data, batch_size)
+    
+            query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_feature_template, commit_size, "phenotype_feature_data_" + sub_type.get_data_provider() + ".csv"],
+            ]
+                
+            CSVTransactor.execute_transaction(generators, query_list)
+
+    def get_generators(self, phenotype_data, batch_size):
+        list_to_yield = []
+        dateProduced = phenotype_data['metaData']['dateProduced']
+        dataProviders = []
+        dataProviderObject = phenotype_data['metaData']['dataProvider']
+
+        dataProviderCrossRef = dataProviderObject.get('crossReference')
+        dataProvider = dataProviderCrossRef.get('id')
+        dataProviderPages = dataProviderCrossRef.get('pages')
+        dataProviderCrossRefSet = []
+
+        loadKey = dateProduced + dataProvider + "_phenotype"
+
+        #TODO: get SGD to fix their files.
+
+        if dataProviderPages is not None:
+            for dataProviderPage in dataProviderPages:
+                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
+                                                                       dataProviderPage)
+
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
+                                                                             dataProviderPage,
+                                                                             dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl,
+                                                                             dataProvider + dataProviderPage))
+
+                dataProviders.append(dataProvider)
+                logger.info("data provider: " + dataProvider)
+
+        for pheno in phenotype_data['data']:
+
+            pubMedId = None
+            pubModId = None
+            pubMedUrl = None
+            pubModUrl = None
+            primaryId = pheno.get('objectId')
+            phenotypeStatement = pheno.get('phenotypeStatement')
+
+            if self.testObject.using_test_data() is True:
+                is_it_test_entry = self.testObject.check_for_test_id_entry(primaryId)
+                if is_it_test_entry is False:
+                    continue
+
+            evidence = pheno.get('evidence')
+
+            if 'modPublicationId' in evidence:
+                pubModId = evidence.get('modPublicationId')
+
+            if 'pubMedId' in evidence:
+                pubMedId = evidence.get('pubMedId')
+
+            if pubMedId is not None:
+                pubMedPrefix = pubMedId.split(":")[0]
+                pubMedLocalId = pubMedId.split(":")[1]
+                pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, ETL.xrefUrlMap, pubMedPrefix, primaryId)
+
+                pubModId = pheno.get('pubModId')
+
+            if pubModId is not None:
+                pubModPrefix = pubModId.split(":")[0]
+                pubModLocalId = pubModId.split(":")[1]
+                pubModUrl = UrlService.get_page_complete_url(pubModLocalId, ETL.xrefUrlMap, pubModPrefix, "gene/references")
+
+            if pubMedId is None:
+                pubMedId = ""
+
+            if pubModId is None:
+                pubModId = ""
+
+            dateAssigned = pheno.get('dateAssigned')
+
+            if pubModId is None and pubMedId is None:
+                logger.info (primaryId + "is missing pubMed and pubMod id")
+
+            phenotype_feature = {
+                "primaryId": primaryId,
+                "phenotypeStatement": phenotypeStatement,
+                "dateAssigned": dateAssigned,
+                "pubMedId": pubMedId,
+                "pubMedUrl": pubMedUrl,
+                "pubModId": pubModId,
+                "pubModUrl": pubModUrl,
+                "pubPrimaryKey": pubMedId + pubModId,
+                "uuid": str(uuid.uuid4()),
+                "loadKey": loadKey,
+                "type": "gene",
+                "dataProviders": dataProviders,
+                "dateProduced": dateProduced
+             }
+
+            list_to_yield.append(phenotype_feature)
+
+            if len(list_to_yield) == batch_size:
+                yield [list_to_yield, list_to_yield]
+                list_to_yield = []
+
+        if len(list_to_yield) > 0:
+            yield [list_to_yield, list_to_yield]

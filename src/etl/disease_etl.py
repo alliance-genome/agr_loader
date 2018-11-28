@@ -147,7 +147,7 @@ class DiseaseETL(ETL):
             ]
 
             # Obtain the generator
-            generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+            generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
             
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
