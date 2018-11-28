@@ -22,3 +22,6 @@ Expression:
 Ontology:
   type: list
   allowed: [GO, SO, DO, MI]
+Orthology:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]

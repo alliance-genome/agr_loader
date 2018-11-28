@@ -290,6 +290,54 @@
             "path": "SO/so_1.7.obo",
             "tempExtractedFile": "SO/so_1.7.obo",
             "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "SGD",
+            "path": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "RGD",
+            "path": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "Human",
+            "path": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "ZFIN",
+            "path": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "WB",
+            "path": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "FB",
+            "path": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
         }
     ]
 }
