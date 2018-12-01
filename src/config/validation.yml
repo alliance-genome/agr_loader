@@ -21,7 +21,25 @@ Expression:
   allowed: [FB, SGD, WB, ZFIN, MGI, Human]
 Ontology:
   type: list
-  allowed: [GO, SO, DO, MI]
+  allowed: 
+    - GO 
+    - SO 
+    - DO 
+    - MI 
+    - ZFA 
+    - ZFS 
+    - WBBT 
+    - CL 
+    - FBDV 
+    - FBBT
+    - FBCV
+    - MMUSDV
+    - BSPO
+    - MMO
+    - WBLS
+    - EMAPA
+    - MA
+    - UBERON
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]

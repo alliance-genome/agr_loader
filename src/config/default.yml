@@ -5,5 +5,23 @@ Allele: [FB, WB, ZFIN, RGD]
 Expression: [FB, SGD, WB, ZFIN, Human]
 Phenotype: [FB, SGD, WB, ZFIN, RGD, Human]
 Disease: [FB, SGD, WB, ZFIN, RGD, Human]
-Ontology: [GO, SO, DO, MI]
+Ontology:
+  - GO 
+  - SO 
+  - DO 
+  - MI 
+  - ZFA 
+  - ZFS 
+  - WBBT 
+  - CL 
+  - FBDV 
+  - FBBT
+  - FBCV
+  - MMUSDV
+  - BSPO
+  - MMO
+  - WBLS
+  - EMAPA
+  - MA
+  - UBERON
 Orthology: [FB, SGD, WB, ZFIN, RGD, Human]

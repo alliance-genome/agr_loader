@@ -1,3 +1,4 @@
+neotime==1.7.2
 py2neo
 neo4j-driver
 ijson

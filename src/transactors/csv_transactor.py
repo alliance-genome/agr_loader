@@ -32,8 +32,10 @@ class CSVTransactor(Transactor):
     def execute_transaction(generator, query_list_with_params):
         for query_params in query_list_with_params:
             cypher_query_template = query_params.pop(0) # Remove the first item from the list.
-            query_to_run = cypher_query_template % tuple(query_params)
-            query_params.append(query_to_run) # items [3] will be the final query to run
+            query_to_run = cypher_query_template % tuple(query_params) # Format the query with all remaining paramenters.
+            while len(query_params) > 2: # We need to remove extra params before we append the modified query.
+                query_params.pop() 
+            query_params.append(query_to_run) # The final query is 3 elemnts: commit size, filename, and modified (complete) query.
         CSVTransactor.count = CSVTransactor.count + 1
         CSVTransactor.queue.put((generator, query_list_with_params, CSVTransactor.count))
         logger.info("Execute Transaction Batch: %s QueueSize: %s " % (CSVTransactor.count, CSVTransactor.queue.qsize()))  
@@ -75,8 +77,15 @@ class CSVTransactor(Transactor):
                     csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
                     #logger.info("%s: Finished Writting %s entries to file: %s" % (self._get_name(), len(individual_list), current_filename))
 
+        solo_threaded_data_type = ['generic_ontology_', 'gene_']
+
         query_batch = []
+
         for query_param in query_list_with_params:
             query_batch.append([query_param[2], query_param[1]]) # neo4j query and filename.
-            
         Neo4jTransactor.execute_query_batch(query_batch)
+
+        if any(substring in query_list_with_params[0][1] for substring in solo_threaded_data_type):
+            logger.warn('Solo threading enabled. Waiting for queues.')
+            Neo4jTransactor().wait_for_queues()
+

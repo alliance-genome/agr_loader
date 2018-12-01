@@ -31,7 +31,7 @@ class BGIETL(ETL):
             MATCH (g:Gene {primaryKey:row.primary_id})
             
             MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
-                SET second.name = row.secondary_id
+                ON CREATE SET second.name = row.secondary_id
             MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
 
     gene_synonyms_template = """
@@ -41,7 +41,7 @@ class BGIETL(ETL):
             MATCH (g:Gene {primaryKey:row.primary_id})
             
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                SET syn.name = row.synonym
+                ON CREATE SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     gene_query_template = """
@@ -50,14 +50,14 @@ class BGIETL(ETL):
 
             //Create the load node(s)
             MERGE (l:Load:Entity {primaryKey:row.loadKey})
-            ON CREATE SET l.dateProduced = row.dateProduced,
+                ON CREATE SET l.dateProduced = row.dateProduced,
                  l.loadName = "BGI",
                  l.release = row.release,
                  l.dataProviders = row.dataProviders,
                  l.dataProvider = row.dataProvider
 
             //Create the Gene node and set properties. primaryKey is required.
-            MERGE (o:Gene {primaryKey:row.primaryId})
+            CREATE (o:Gene {primaryKey:row.primaryId})
                 SET o.symbol = row.symbol,
                  o.taxonId = row.taxonId,
                  o.name = row.name,
@@ -75,13 +75,13 @@ class BGIETL(ETL):
                  o.dataProvider = row.dataProvider,
                  o.dataProviders = row.dataProviders
 
-            MERGE (l)-[:LOADED_FROM]-(o)
+            CREATE (l)-[:LOADED_FROM]->(o)
 
             MERGE (spec:Species {primaryKey: row.taxonId})
             ON CREATE SET spec.species = row.species, 
                 spec.name = row.species
             
-            MERGE (o)-[:FROM_SPECIES]->(spec)
+            CREATE (o)-[:FROM_SPECIES]->(spec)
             MERGE (l)-[:LOADED_FROM]-(spec)
 
             //MERGE the SOTerm node and set the primary key.
@@ -89,7 +89,7 @@ class BGIETL(ETL):
             MERGE (l)-[:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
-            MERGE (o)-[:ANNOTATED_TO]->(s) """
+            CREATE (o)-[:ANNOTATED_TO]->(s) """
 
     xrefs_template = """
 

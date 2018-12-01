@@ -25,7 +25,12 @@ class S3File(object):
     def download_new(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
             logger.info("Making temp file storage: %s" % (self.savepath))
-            os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
+            try: 
+                os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
+            except FileExistsError:
+                # Occassionally, two threads can create the directory at almost the exact same time.
+                # This allows except should allow this condition to pass without issue.
+                pass
         url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             logger.info("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))

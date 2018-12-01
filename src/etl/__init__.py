@@ -10,3 +10,4 @@ from .mi_etl import MIETL
 from .phenotype_etl import PhenoTypeETL
 from .orthology_etl import OrthologyETL
 from .helpers import *
+from .generic_ontology_etl import GenericOntologyETL

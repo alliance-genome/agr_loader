@@ -32,18 +32,18 @@ class AggregateLoader(object):
         data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
         data_manager.process_config()
 
-        FileTransactor().start_threads(8)
+        FileTransactor().start_threads(7)
         data_manager.download_and_validate()
         FileTransactor().wait_for_queues()
 
         Neo4jTransactor().start_threads(4)
-        CSVTransactor().start_threads(4)
+        CSVTransactor().start_threads(7)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass
         else:
             logger.info("Creating indices.")
-            #Indicies().create_indices()
+            Indicies().create_indices()
 
         etl_dispatch = {
             'GO': GOETL,
@@ -56,6 +56,7 @@ class AggregateLoader(object):
             'Disease': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
+            'Ontology': GenericOntologyETL
             #'GOAnnot': GOAnnotETL,
             #'GeoXref': GeoXrefETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
@@ -64,11 +65,12 @@ class AggregateLoader(object):
         }
 
         list_of_types = [
-            #['GO', 'DO', 'SO', 'MI'],
-            #['BGI'],
-            #['Allele'],
-            #['Expression'],
-            #['Disease', 'Phenotype', 'Orthology'],
+            ['Ontology'],
+            ['GO', 'DO', 'SO', 'MI'],
+            ['BGI'],
+            ['Allele'],
+            ['Expression'],
+            ['Disease', 'Phenotype', 'Orthology'],
             #['GOAnnot'],
             #['GeoXref'],
         ]

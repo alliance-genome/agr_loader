@@ -123,4 +123,3 @@ class Neo4jTransactor(Transactor):
             batch_elapsed_time = batch_end - batch_start
             logger.info("%s: Query Batch finished: %s BatchSize: %s Time: %s" % (self._get_name(), query_counter, len(query_batch), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time))))
             Neo4jTransactor.queue.task_done()
-

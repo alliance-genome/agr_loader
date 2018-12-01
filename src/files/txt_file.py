@@ -16,4 +16,3 @@ class TXTFile(object):
                 lines.append(line)
         f.close()    
         return lines
-

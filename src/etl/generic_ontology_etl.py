@@ -1,23 +1,23 @@
 import logging
 logger = logging.getLogger(__name__)
 
-import uuid
+import uuid as id
 
 from etl import ETL
-from etl.helpers import ETLHelper
+from etl.helpers import ETLHelper, parseOBO
 from services import UrlService
 from transactors import CSVTransactor
-from files import JSONFile
+from files import TXTFile
 
-class GenericOntology(ETL):
+class GenericOntologyETL(ETL):
 
-    query_template = """
+    generic_ontology_term_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         //Create the Term node and set properties. primaryKey is required.
-        MERGE (g:%s:Ontology {primaryKey:row.oid})
-            SET g.definition = row.definition,
+        MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
+            ON CREATE SET g.definition = row.definition,
                 g.type = row.o_type,
                 g.href = row.href,
                 g.name = row.name,
@@ -31,40 +31,38 @@ class GenericOntology(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (g:%s:Ontology {primaryKey:row.oid})
-            MERGE (syn:Synonym:Identifier {primaryKey:entry})
-            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn))
+            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
+            MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
+            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
     generic_ontology_isas_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (g:%s:Ontology {primaryKey:row.oid})
-            MERGE (g2:%s:Ontology {primaryKey:isa})
-            MERGE (g)-[aka:IS_A]->(g2))
+            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
+            MERGE (g2:%sTerm:Ontology {primaryKey:row.isa})
+            MERGE (g)-[aka:IS_A]->(g2)
         """
 
     generic_ontology_partofs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (g:%s:Ontology {primaryKey:row.oid})
-            MERGE (g2:%s:Ontology {primaryKey:partof})
-            MERGE (g)-[aka:PART_OF]->(g2))
+            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
+            MERGE (g2:%s:Term:Ontology {primaryKey:row.partof})
+            MERGE (g)-[aka:PART_OF]->(g2)
         """
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
 
-
     def _load_and_process_data(self):
         
         for sub_type in self.data_type_config.get_sub_type_objects():
             logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
             filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
             
             logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
 
@@ -74,211 +72,148 @@ class GenericOntology(ETL):
             commit_size = self.data_type_config.get_neo4j_commit_size()
             batch_size = self.data_type_config.get_generator_batch_size()
 
+            ont_type = sub_type.get_data_provider()
+
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"]
+                [GenericOntologyETL.generic_ontology_term_template, commit_size, "generic_ontology_term_" + ont_type + ".csv", ont_type],
+                [GenericOntologyETL.generic_ontology_synonyms_template, commit_size, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+                [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
+                [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type]
             ]
 
             # Obtain the generator
-            generators = self.get_generators(data, mod_config.get_data_provider(), batch_size)
+            generators = self.get_generators(filepath, batch_size)
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
 
-    # def save_file(self, data_generator, filename):
+    def get_generators(self, filepath, batch_size):
 
-    def get_generators(self, gene_data, data_provider, batch_size):
+        o_data = TXTFile(filepath).get_data()
+        parsed_line = parseOBO(o_data)
 
-        dateProduced = gene_data['metaData']['dateProduced']
-        dataProviders = []
-        synonyms = []
-        secondaryIds = []
-        crossReferences = []
-        genomicLocations = []
-        gene_dataset = []
-        release = None
         counter = 0
+        terms = []
+        syns = []
+        isas = []
+        partofs = []
 
-        dataProviderObject = gene_data['metaData']['dataProvider']
+        for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+            counter += 1
+            o_syns = line.get('synonym')
+            defText = None
+            definition = ""
+            is_obsolete = "false"
+            ident = line['id']
+            prefix = ident.split(":")[0]
 
-        loadKey = dateProduced + dataProvider + "_BGI"
-
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
-                dataProviders.append(dataProvider)
-                logger.info("BGI using data provider: " + dataProvider)
-
-        if 'release' in gene_data['metaData']:
-            release = gene_data['metaData']['release']
-
-        for geneRecord in gene_data['data']:
-            counter = counter + 1
-
-
-            primary_id = geneRecord['primaryId']
-            global_id = geneRecord['primaryId']
-
-            local_id = global_id.split(":")[1]
-            geneLiteratureUrl = ""
-            geneticEntityExternalUrl = ""
-            modCrossReferenceCompleteUrl = ""
-            taxonId = geneRecord.get("taxonId")
-
-            if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
-                local_id = geneRecord['primaryId']
-
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(primary_id)
-                if is_it_test_entry is False:
-                    counter = counter - 1
-                    continue
-
-            #TODO: can we split this off into another class?
-
-            if 'crossReferences' in geneRecord:
-                for crossRef in geneRecord['crossReferences']:
-                    if ':' in crossRef.get('id'):
-                        crossRefId = crossRef.get('id')
-                        localCrossRefId = crossRefId.split(":")[1]
-                        prefix = crossRef.get('id').split(":")[0]
-                        pages = crossRef.get('pages')
-                        globalXrefId = crossRef.get('id')
-                        displayName = globalXrefId
-
-                        # some pages collection have 0 elements
-                        if pages is not None and len(pages) > 0:
-                            for page in pages:
-                                modCrossReferenceCompleteUrl = ""
-                                geneLiteratureUrl = ""
-                                displayName = ""
-
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
-
-                                if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
-
-                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
-
-                                if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
-
-                                if page == 'gene/spell':
-                                    displayName='Serial Patterns of Expression Levels Locator (SPELL)'
-
-                                # TODO: fix generic_cross_reference in SGD, RGD
-
-                                if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
-
-                                # TODO: fix gene/disease xrefs for SGD once resourceDescriptor change in develop
-                                # makes its way to the release branch.
-
-                                if page == 'gene/disease' and taxonId == 'NCBITaxon:559292':
-                                    crossRefCompleteUrl = "https://www.yeastgenome.org/locus/"+local_id+"/disease"
-
-                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
-                                xrefMap['dataId'] = primary_id
-                                crossReferences.append(xrefMap)
-
-                        else:
-                            if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
-                                crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
-                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
-                                xrefMap['dataId'] = primary_id
-                                crossReferences.append(xrefMap)
-
-                            else:
-                                crossRefPrimaryId = crossRef.get('id')
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
-                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
-                                xrefMap['dataId'] = primary_id
-                                crossReferences.append(xrefMap)
-
-            gene = {
-                "symbol": geneRecord.get('symbol'),
-                "name": geneRecord.get('name'),
-                "geneticEntityExternalUrl": geneticEntityExternalUrl,
-                "description": geneRecord.get('description'),
-                "soTermId": geneRecord['soTermId'],
-                "geneSynopsis": geneRecord.get('geneSynopsis'),
-                "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
-                "taxonId": geneRecord['taxonId'],
-                "species": ETLHelper.species_lookup_by_taxonid(taxonId),
-                "geneLiteratureUrl": geneLiteratureUrl,
-                "name_key": geneRecord.get('symbol'),
-                "primaryId": primary_id,
-                "category": "gene",
-                "dateProduced": dateProduced,
-                "dataProviders": dataProviders,
-                "dataProvider": data_provider,
-                "release": release,
-                "href": None,
-                "uuid": str(uuid.uuid4()),
-                "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
-                "localId": local_id,
-                "modGlobalCrossRefId": global_id,
-                "modGlobalId": global_id,
-                "loadKey": loadKey
-            }
-            gene_dataset.append(gene)
-
-            if 'genomeLocations' in geneRecord:
-                for genomeLocation in geneRecord['genomeLocations']:
-                    chromosome = genomeLocation['chromosome']
-                    assembly = genomeLocation['assembly']
-                    if 'startPosition' in genomeLocation:
-                        start = genomeLocation['startPosition']
+            if o_syns is not None:
+                if isinstance(o_syns, (list, tuple)):
+                    for syn in o_syns:
+                        syn = syn.split("\"")[1].strip()
+                        syns_dict_to_append = {
+                            'oid' : ident,
+                            'syn' : syn
+                        }
+                        syns.append(syns_dict_to_append) # Synonyms appended here.
+                else:
+                    syn = o_syns.split("\"")[1].strip()
+                    syns_dict_to_append = {
+                            'oid' : ident,
+                            'syn' : syn
+                        }
+                    syns.append(syns_dict_to_append) # Synonyms appended here.
+            display_synonym = line.get('property_value')
+            if display_synonym is not None:
+                if isinstance(display_synonym, (list, tuple)):
+                    display_synonym = display_synonym
+                else:
+                    if "DISPLAY_SYNONYM" in display_synonym:
+                        display_synonym = display_synonym.split("\"")[1].strip()
                     else:
-                        start = None
-                    if 'endPosition' in genomeLocation:
-                        end = genomeLocation['endPosition']
-                    else:
-                        end = None
-                    if 'strand' in geneRecord['genomeLocations']:
-                        strand = genomeLocation['strand']
-                    else:
-                        strand = None
-                    genomicLocations.append(
-                        {"primaryId": primary_id, "chromosome": chromosome, "start":
-                            start, "end": end, "strand": strand, "assembly": assembly})
+                        display_synonym = ""
 
-            if geneRecord.get('synonyms') is not None:
-                for synonym in geneRecord.get('synonyms'):
-                    geneSynonym = {
-                        "primary_id": primary_id,
-                        "synonym": synonym
-                    }
-                    synonyms.append(geneSynonym)
+            # is_a processing
+            o_is_as = line.get('is_a')
+            if o_is_as is not None:
+                if isinstance(o_is_as, (list, tuple)):
+                    for isa in o_is_as:
+                        isaWithoutName = isa.split("!")[0].strip()
+                        isas_dict_to_append ={
+                            'oid' : ident,
+                            'isa' : isaWithoutName
+                        }
+                        isas.append(isas_dict_to_append)
+                else:
+                    isaWithoutName = o_is_as.split("!")[0].strip()
+                    isas_dict_to_append ={
+                            'oid' : ident,
+                            'isa' : isaWithoutName
+                        }
+                    isas.append(isas_dict_to_append)
 
-            if geneRecord.get('secondaryIds') is not None:
-                for secondaryId in geneRecord.get('secondaryIds'):
-                    geneSecondaryId = {
-                        "primary_id": primary_id,
-                        "secondary_id": secondaryId
-                    }
-                    secondaryIds.append(geneSecondaryId)
-            
+            # part_of processing
+            o_part_of = line.get('part_of')
+            if o_part_of is not None:
+                if isinstance(o_part_of, (list, tuple)):
+                    for po in o_part_of:
+                        poWithoutName = po.split("!")[0].strip()
+                        partof_dict_to_append = {
+                            'oid' : ident,
+                            'partof' : poWithoutName
+                        }
+                        partofs.append(partof_dict_to_append)
+                else:
+                    poWithoutName = po.split("!")[0].strip()
+                    partof_dict_to_append = {
+                        'oid' : ident,
+                        'partof' : poWithoutName
+                        }
+                    partofs.append(partof_dict_to_append)
+
+            definition = line.get('def')
+            if definition is None:
+                definition = ""
+            else:
+                if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
+                    definition = definition.replace('\\\"', '\"') # Replace them with just a single "
+                else:
+                    definition = defText
+            if definition is None:
+                definition = ""
+
+            is_obsolete = line.get('is_obsolete')
+            if is_obsolete is None:
+                is_obsolete = "false"
+
+            if ident is None or ident == '':
+               logger.warn("Missing oid.")
+            else:
+                term_dict_to_append = {
+                    'name': line.get('name'),
+                    'name_key': line.get('name'),
+                    'oid': ident,
+                    'definition': definition,
+                    'is_obsolete': is_obsolete,
+                    'oPrefix': prefix,
+                    'defText': defText,
+                    'oboFile': prefix,
+                    'o_type': line.get('namespace'),
+                    'display_synonym': display_synonym
+                }
+
+                terms.append(term_dict_to_append)
+
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
-                gene_dataset = []
-                synonyms = []
-                secondaryIds = []
-                genomicLocations = []
-                crossReferences = []
+                yield [terms, syns, isas, partofs]
+                terms = []
+                syns = []
+                isas = []
+                partofs = []
 
         if counter > 0:
-            yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+            yield [terms, syns, isas, partofs]

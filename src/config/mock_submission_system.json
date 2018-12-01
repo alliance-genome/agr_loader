@@ -338,6 +338,118 @@
             "path": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json.tar.gz",
             "tempExtractedFile": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json",
             "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "ZFA",
+            "path": "http://purl.obolibrary.org/obo/zfa.obo",
+            "tempExtractedFile": "zfa.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "ZFS",
+            "path": "http://purl.obolibrary.org/obo/zfs.obo",
+            "tempExtractedFile": "zfs.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "WBBT",
+            "path": "http://purl.obolibrary.org/obo/wbbt.obo",
+            "tempExtractedFile": "wbbt.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "CL",
+            "path": "http://purl.obolibrary.org/obo/cl.obo",
+            "tempExtractedFile": "cl.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "FBDV",
+            "path": "http://purl.obolibrary.org/obo/fbdv.obo",
+            "tempExtractedFile": "fbdv.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "FBBT",
+            "path": "http://purl.obolibrary.org/obo/fbbt.obo",
+            "tempExtractedFile": "fbbt.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "FBCV",
+            "path": "http://purl.obolibrary.org/obo/fbcv.obo",
+            "tempExtractedFile": "fbcv.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "MMUSDV",
+            "path": "http://purl.obolibrary.org/obo/mmusdv.obo",
+            "tempExtractedFile": "mmusdv.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "BPSO",
+            "path": "http://purl.obolibrary.org/obo/bpso.obo",
+            "tempExtractedFile": "bpso.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "MMO",
+            "path": "http://purl.obolibrary.org/obo/mmo.obo",
+            "tempExtractedFile": "mmo.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "WBLS",
+            "path": "http://purl.obolibrary.org/obo/wbls.obo",
+            "tempExtractedFile": "wbls.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "EMAPA",
+            "path": "http://purl.obolibrary.org/obo/emapa.obo",
+            "tempExtractedFile": "emapa.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "MA",
+            "path": "http://www.informatics.jax.org/downloads/reports/adult_mouse_anatomy.obo",
+            "tempExtractedFile": "adult_mouse_anatomy.obo",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Ontology",
+            "subType": "UBERON",
+            "path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
+            "tempExtractedFile": "basic.obo",
+            "uploadDate": 1522181475376
         }
     ]
 }
