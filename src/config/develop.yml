@@ -1,11 +1,15 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [FB]
-Allele: [FB]
-Expression: [FB]
-Phenotype: [FB]
-Disease: [FB]
+BGI: [FB, SGD, WB, ZFIN, RGD, Human]
+Allele: [FB, WB, ZFIN, RGD]
+Expression: [FB, SGD, WB, ZFIN, Human]
+Phenotype: [FB, SGD, WB, ZFIN, RGD, Human]
+Disease: [FB, SGD, WB, ZFIN, RGD, Human]
 Ontology:
+  - GO 
+  - SO 
+  - DO 
+  - MI 
   - ZFA 
   - ZFS 
   - WBBT 
@@ -20,4 +24,4 @@ Ontology:
   - EMAPA
   - MA
   - UBERON
-Orthology: [FB]
+Orthology: [FB, SGD, WB, ZFIN, RGD, Human]

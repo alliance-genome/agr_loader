@@ -6,7 +6,7 @@ class ETLHelper(object):
     def get_cypher_xref_text():
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
-                    SET id.name = row.id,
+                    ON CREATE SET id.name = row.id,
                      id.globalCrossRefId = row.globalCrossRefId,
                      id.localId = row.localId,
                      id.crossRefCompleteUrl = row.crossRefCompleteUrl,

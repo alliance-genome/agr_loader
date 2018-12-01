@@ -74,6 +74,7 @@ class CSVTransactor(Transactor):
                         except Exception as e:
                             logger.critical("%s: Couldn't write to file: %s " % (self._get_name(), current_filename))
                             logger.critical(e)
+
                     csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
                     #logger.info("%s: Finished Writting %s entries to file: %s" % (self._get_name(), len(individual_list), current_filename))
 

@@ -48,13 +48,7 @@ class BGIETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            //Create the load node(s)
-            MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                ON CREATE SET l.dateProduced = row.dateProduced,
-                 l.loadName = "BGI",
-                 l.release = row.release,
-                 l.dataProviders = row.dataProviders,
-                 l.dataProvider = row.dataProvider
+            MATCH (l:Load:Entity {primaryKey:row.loadKey})
 
             //Create the Gene node and set properties. primaryKey is required.
             CREATE (o:Gene {primaryKey:row.primaryId})
@@ -72,15 +66,14 @@ class BGIETL(ETL):
                  o.modLocalId = row.localId,
                  o.modGlobalId = row.modGlobalId,
                  o.uuid = row.uuid,
-                 o.dataProvider = row.dataProvider,
-                 o.dataProviders = row.dataProviders
+                 o.dataProvider = row.dataProvider
 
             CREATE (l)-[:LOADED_FROM]->(o)
 
             MERGE (spec:Species {primaryKey: row.taxonId})
             ON CREATE SET spec.species = row.species, 
                 spec.name = row.species
-            
+
             CREATE (o)-[:FROM_SPECIES]->(spec)
             MERGE (l)-[:LOADED_FROM]-(spec)
 
@@ -98,10 +91,24 @@ class BGIETL(ETL):
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
+    gene_metadata_template = """
+
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        //Create the load node(s)
+        CREATE (l:Load:Entity {primaryKey:row.loadKey})
+            SET l.dateProduced = row.dateProduced,
+                l.loadName = "BGI",
+                l.release = row.release,
+                l.dataProviders = row.dataProviders,
+                l.dataProvider = row.dataProvider
+        """
+
     def __init__(self, config):
+        self.metadata_is_loaded = {} # Dictionary for optimizing metadata loading.
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         
@@ -120,6 +127,7 @@ class BGIETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
+                [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
                 [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
                 [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
@@ -133,17 +141,16 @@ class BGIETL(ETL):
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
 
-    # def save_file(self, data_generator, filename):
-
     def get_generators(self, gene_data, data_provider, batch_size):
 
         dateProduced = gene_data['metaData']['dateProduced']
-        dataProviders = []
+        # dataProviders = []
         synonyms = []
         secondaryIds = []
         crossReferences = []
         genomicLocations = []
         gene_dataset = []
+        gene_metadata = []
         release = None
         counter = 0
 
@@ -151,24 +158,45 @@ class BGIETL(ETL):
 
         dataProviderCrossRef = dataProviderObject.get('crossReference')
         dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        # dataProviderPages = dataProviderCrossRef.get('pages')
+        # dataProviderCrossRefSet = []
 
         loadKey = dateProduced + dataProvider + "_BGI"
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
-                dataProviders.append(dataProvider)
-                logger.info("BGI using data provider: " + dataProvider)
+        # If we're not tracking the metadata, create the entry in our tracker.
+        if not loadKey in self.metadata_is_loaded:
+            self.metadata_is_loaded[loadKey] = False
+
+        # if dataProviderPages is not None:
+        #     for dataProviderPage in dataProviderPages:
+        #         crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
+        #         dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+        #         dataProviders.append(dataProvider)
+        #         logger.info("BGI using data provider: " + dataProvider)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
 
+        if self.metadata_is_loaded[loadKey] is False:
+            gene_metadata = []
+            metadata_dict = {
+                'loadKey' : loadKey,
+                'loadName' : 'BGI',
+                'release' : release,
+                'dataProviders' : None,
+                'dataProvider' : dataProvider
+            }
+            gene_metadata.append(metadata_dict)
+
+        # CREATE (l:Load:Entity {primaryKey:row.loadKey})
+        #     SET l.dateProduced = row.dateProduced,
+        #         l.loadName = "BGI",
+        #         l.release = row.release,
+        #         l.dataProviders = row.dataProviders,
+        #         l.dataProvider = row.dataProvider
+
         for geneRecord in gene_data['data']:
             counter = counter + 1
-
 
             primary_id = geneRecord['primaryId']
             global_id = geneRecord['primaryId']
@@ -250,6 +278,8 @@ class BGIETL(ETL):
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
+            # TODO Metadata can be safely removed from this dictionary. Needs to be tested.
+
             gene = {
                 "symbol": geneRecord.get('symbol'),
                 "name": geneRecord.get('name'),
@@ -264,17 +294,14 @@ class BGIETL(ETL):
                 "name_key": geneRecord.get('symbol'),
                 "primaryId": primary_id,
                 "category": "gene",
-                "dateProduced": dateProduced,
-                "dataProviders": dataProviders,
-                "dataProvider": data_provider,
-                "release": release,
                 "href": None,
                 "uuid": str(uuid.uuid4()),
                 "modCrossRefCompleteUrl": modCrossReferenceCompleteUrl,
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
-                "loadKey": loadKey
+                "loadKey" : loadKey,
+                "dataProvider" : dataProvider
             }
             gene_dataset.append(gene)
 
@@ -314,10 +341,14 @@ class BGIETL(ETL):
                     }
                     secondaryIds.append(geneSecondaryId)
             
+            # We should have the metadata ready to go after the first loop of the generator.
+            self.metadata_is_loaded[loadKey] = True
+
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+                yield [gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+                gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
@@ -325,4 +356,4 @@ class BGIETL(ETL):
                 crossReferences = []
 
         if counter > 0:
-            yield [gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+            yield [gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
