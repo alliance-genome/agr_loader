@@ -7,6 +7,7 @@ from etl import ETL
 from etl.helpers import ETLHelper, parseOBO
 from services import UrlService
 from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 from files import TXTFile
 
 class GenericOntologyETL(ETL):
@@ -87,6 +88,8 @@ class GenericOntologyETL(ETL):
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
+            # logger.warn('Solo threading enabled. Waiting for queues.')
+            # Neo4jTransactor().wait_for_queues()
 
     def get_generators(self, filepath, batch_size):
 

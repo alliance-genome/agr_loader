@@ -77,15 +77,8 @@ class CSVTransactor(Transactor):
                     csv_file_writer[index].writerows(individual_list) # Write the remainder of the list content for this iteration.
                     #logger.info("%s: Finished Writting %s entries to file: %s" % (self._get_name(), len(individual_list), current_filename))
 
-        solo_threaded_data_type = ['generic_ontology_', 'gene_']
-
         query_batch = []
 
         for query_param in query_list_with_params:
             query_batch.append([query_param[2], query_param[1]]) # neo4j query and filename.
         Neo4jTransactor.execute_query_batch(query_batch)
-
-        if any(substring in query_list_with_params[0][1] for substring in solo_threaded_data_type):
-            logger.warn('Solo threading enabled. Waiting for queues.')
-            Neo4jTransactor().wait_for_queues()
-
