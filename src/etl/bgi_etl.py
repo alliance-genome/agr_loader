@@ -75,11 +75,11 @@ class BGIETL(ETL):
                 spec.name = row.species
 
             CREATE (o)-[:FROM_SPECIES]->(spec)
-            MERGE (l)-[:LOADED_FROM]-(spec)
+            //MERGE (l)-[:LOADED_FROM]-(spec)
 
             //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            MERGE (l)-[:LOADED_FROM]-(s)
+            //MERGE (l)-[:LOADED_FROM]-(s)
 
             //Create the relationship from the gene node to the SOTerm node.
             CREATE (o)-[:ANNOTATED_TO]->(s) """
