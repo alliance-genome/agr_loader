@@ -19,7 +19,3 @@ class ZFIN(MOD):
     def load_wt_expression_objects(self):
         data = self.load_wt_expression_objects_mod(self.wtExpressionName, self.loadFile)
         return data
-
-    def extract_geo_entrez_ids_from_geo(self):
-        data = self.extract_geo_entrez_ids_from_geo_mod(self.geoRetMax)
-        return data

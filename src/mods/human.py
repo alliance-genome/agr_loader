@@ -15,7 +15,3 @@ class Human(MOD):
         self.identifierPrefix = "" # None for Human.
         self.geoRetMax = "40000"
         self.dataProvider = "RGD"
-
-    def extract_geo_entrez_ids_from_geo(self):
-        xrefs = self.extract_geo_entrez_ids_from_geo_mod(self.geoRetMax)
-        return xrefs

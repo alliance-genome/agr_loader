@@ -1,23 +1,21 @@
 import json
-import logging, uuid, urllib, xmltodict
+import logging, urllib, xmltodict
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
-from files import JSONFile, Download
+from files import Download
 from transactors import CSVTransactor
 
 logger = logging.getLogger(__name__)
 
-
-
 class GeoXrefETL(ETL):
 
-    query_template = """
+    geoXrefQuery = """
+
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-        MERGE (n:Node {primaryKey:row.id})
-            SET n.name = row.name """
+        
+        MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -25,18 +23,17 @@ class GeoXrefETL(ETL):
 
     def _load_and_process_data(self):
 
-        
-
-        filepath = self.data_type_config.get_single_filepath()
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            logger.info(sub_type)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         #batch_size = self.data_type_config.get_generator_batch_size()
         batch_size = 100000
         
-        generators = self.get_generators(filepath, batch_size)
+        generators = self.get_generators(batch_size)
 
         query_list = [
-            [GeoXrefETL.query_template, commit_size, "stub_data.csv"],
+            [GeoXrefETL.geoXrefQuery, commit_size, "stub_data.csv"],
         ]
             
         CSVTransactor.execute_transaction(generators, query_list)

@@ -17,14 +17,6 @@ class MOD(object):
         self.batch_size = batch_size
         self.species = species
 
-
-
     def load_wt_expression_objects_mod(self, expressionFileName, loadFile):
         data = WTExpressionExt().get_wt_expression_data(loadFile, expressionFileName, 10000, self.testObject)
         return data
-
-
-
-
-
-

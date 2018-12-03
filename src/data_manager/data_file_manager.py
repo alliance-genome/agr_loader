@@ -1,8 +1,8 @@
-import logging, yaml, os, pprint, sys
+import logging, yaml, os, sys
 
 from cerberus import Validator
 
-from files import *
+from files import JSONFile
 from etl.helpers import ETLHelper
 from .data_type_config import DataTypeConfig
 
