@@ -14,6 +14,9 @@ class Neo4jTransactor(Transactor):
 
     count = 0
     queue = Queue(2000)
+    
+    if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
+        using_pickle = True
 
     def __init__(self):
         super().__init__()

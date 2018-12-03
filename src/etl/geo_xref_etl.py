@@ -25,7 +25,7 @@ class GeoXrefETL(ETL):
 
     def _load_and_process_data(self):
 
-
+        
 
         filepath = self.data_type_config.get_single_filepath()
 
