@@ -1,13 +1,11 @@
-import logging
-logger = logging.getLogger(__name__)
-
+from etl import ETL
+from files import TXTFile
 from itertools import islice, chain, tee
+from transactors import CSVTransactor
 import logging
 import sys
-from files import TXTFile
 
-from etl import ETL
-from transactors import CSVTransactor
+logger = logging.getLogger(__name__)
 
 class SOETL(ETL):
 

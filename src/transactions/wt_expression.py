@@ -1,5 +1,6 @@
 from .transaction import Transaction
 from etl import ETL
+from etl.helpers import ETLHelper
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class WTExpressionTransaction(Transaction):
         UNWIND $data as event
         MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:event.ei_uuid})
         
-        """ + ETL.get_cypher_xref_text()
+        """ + ETLHelper.get_cypher_xref_text()
 
         AddOther = """
         

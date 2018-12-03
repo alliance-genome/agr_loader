@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 class OBOHelper(object):
 
-
     def get_data(self, filepath):
 
         ont = OntologyFactory().create(filepath)
@@ -55,7 +54,7 @@ class OBOHelper(object):
                             if ":" in xrefId:
                                 local_id = xrefId.split(":")[1].strip()
                                 prefix = xrefId.split(":")[0].strip()
-                                complete_url = self.get_complete_url_ont(local_id, xrefId)
+                                complete_url = ETLHelper.get_complete_url_ont(local_id, xrefId)
                                 generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", xrefId, complete_url, xrefId + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
@@ -63,7 +62,7 @@ class OBOHelper(object):
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
-                                complete_url = self.get_complete_url_ont(local_id, o_xrefs)
+                                complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
                                 generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
@@ -170,6 +169,9 @@ class OBOHelper(object):
                 'negatively_regulates': negatively_regulates,
                 'positively_regulates': positively_regulates,
                 
+                ### This data might be needed for gene descriptions
+                ### Maybe should be turned into a different method in order
+                ### to keep the go do dict's smaller
                 #'o_genes': [],
                 #'o_species': [],
                 #'xrefs': xrefs,
@@ -202,24 +204,56 @@ class OBOHelper(object):
 
         return ont
 
-    #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
-    def get_complete_url_ont (self, local_id, global_id):
+    @staticmethod
+    def process_line(line, go_dict, withinTerm):
+        if len(line.strip()) == 0: # If the line is blank, reset withinTerm and kick it back.
+            withinTerm = False
+            return go_dict, withinTerm # The go_dict should be fully populated at this point.
+        else:
+            k, v = line.strip().split(':', 1) # Split the lines on the first ':'
+            v = v[1:] # Remove erroneous first character from the split. TODO Typical whitespace removal doesn't work? Why?
+            if k in go_dict:
+                if (type(go_dict[k]) is str): # If it's an entry with a single string, turn it into a list.
+                    temp_value = go_dict[k]
+                    go_dict[k] = [temp_value, v]
+                elif (type(go_dict[k]) is list): # If it's already a list, append to it.
+                    go_dict[k].append(v)
+            else:
+                go_dict[k] = v # If it's the first time we're seeing this key-value, make a new entry.
+    
+            return go_dict, withinTerm
 
-        complete_url = None
+    @staticmethod
+    def parseOBO(data):
+        ontologyData = []
+        go_dict = {}
+        withinTerm = False
+        withinTypedef = False
+    
+        # Ignores withinTypedef entries.
+    
+        for line in data:
+            if '[Term]' in line:
+                withinTerm = True
+                if go_dict: # If go_dict has data (from pervious [Term]) add it to the list first.
+                    ontologyData.append(go_dict)
+                    go_dict = {} # New empty dict.
+                else:
+                    continue
+            elif '[Typedef]' in line:
+                withinTypedef = True # Used for skipping data.
+            else:
+                if withinTerm is True:
+                    go_dict, withinTerm = OBOHelper.process_line(line, go_dict, withinTerm) # Process the line.
+                elif withinTypedef is True: # Skip Typedefs, look for empty line.
+                    if len(line.strip()) == 0:
+                        withinTypedef = False # Reset withinTypedef
+                    else:
+                        continue # Keep looking for the blank line to indicate the end of an entry.
+                else:
+                    continue # If we hit blank lines or nonsensical lines, keep going. Skips stuff at top of file.
+    
+        ontologyData.append(go_dict) # Append last entry.
+    
+        return ontologyData # Return the list of dicts.
 
-        if 'OMIM' in global_id:
-            complete_url = 'https://www.omim.org/entry/' + local_id
-        if 'OMIM:PS' in global_id:
-            complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
-        if 'ORDO' in global_id:
-            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
-        if 'MESH' in global_id:
-            complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
-        if 'EFO' in global_id:
-            complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
-        if 'KEGG' in global_id:
-            complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
-        if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
-
-        return complete_url

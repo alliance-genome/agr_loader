@@ -33,7 +33,7 @@ class CSVTransactor(Transactor):
         for query_params in query_list_with_params:
             cypher_query_template = query_params.pop(0) # Remove the first item from the list.
             query_to_run = cypher_query_template % tuple(query_params) # Format the query with all remaining paramenters.
-            while len(query_params) > 2: # We need to remove extra params before we append the modified query.
+            while len(query_params) > 2: # We need to remove extra params before we append the modified query. Assuming the last entry in the list is the filepath
                 query_params.pop() 
             query_params.append(query_to_run) # The final query is 3 elemnts: commit size, filename, and modified (complete) query.
         CSVTransactor.count = CSVTransactor.count + 1

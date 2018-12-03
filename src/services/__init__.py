@@ -1,3 +1,1 @@
 from .resource_descriptor import ResourceDescriptorService
-from .url_service import UrlService
-from .taxon_to_MOD import get_MOD_from_taxon

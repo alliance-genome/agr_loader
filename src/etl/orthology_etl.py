@@ -5,7 +5,6 @@ from transactors import CSVTransactor
 
 from etl import ETL
 from etl.helpers import ETLHelper
-from services import UrlService
 from files import JSONFile
 
 class OrthologyETL(ETL):
@@ -68,11 +67,11 @@ class OrthologyETL(ETL):
 
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
+            logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
             filepath = sub_type.get_filepath()
             data = JSONFile().get_data(filepath)
             
-            logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
+            logger.info("Finished Loading Orthology Data: %s" % sub_type.get_data_provider())
 
     
             commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -106,12 +105,10 @@ class OrthologyETL(ETL):
         dataProviders = []
 
         for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
-                                                                       dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
                 dataProviderCrossRefSet.append(
                     ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                  dataProvider + dataProviderPage))
+                                                  dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
 
         dataProviders.append(dataProvider)
 

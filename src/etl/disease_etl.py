@@ -1,7 +1,6 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -128,10 +127,10 @@ class DiseaseETL(ETL):
     def _load_and_process_data(self):
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Disease Allele Data: %s" % sub_type.get_data_provider())
+            logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())
             filepath = sub_type.get_filepath()
             data = JSONFile().get_data(filepath)
-            logger.info("Finished Loading Disease Allele Data: %s" % sub_type.get_data_provider())
+            logger.info("Finished Loading Disease Data: %s" % sub_type.get_data_provider())
 
             if data == None:
                 logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
@@ -169,13 +168,10 @@ class DiseaseETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
-                                                                             dataProviderPage,
-                                                                             dataProviderPage, dataProvider,
-                                                                             crossRefCompleteUrl,
-                                                                             dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider,
+                                                                             crossRefCompleteUrl, dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
                 logger.info("data provider: " + dataProvider)

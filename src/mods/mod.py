@@ -22,51 +22,7 @@ class MOD(object):
         else:
             self.testObject = TestObject(False)
 
-    def extract_go_annots_mod(self, geneAssociationFileName, identifierPrefix):
-        path = "tmp"
-        S3File("GO/ANNOT/" + geneAssociationFileName, path).download()
-        go_annot_dict = {}
-        go_annot_list = []
-        with gzip.open(path + "/GO/ANNOT/" + geneAssociationFileName, 'rt', encoding='utf-8') as file:
-            reader = csv.reader(file, delimiter='\t')
-            for line in reader:
-                if line[0].startswith('!'):
-                    continue
-                gene = identifierPrefix + line[1]
-                go_id = line[4]
-                dateProduced = line[14]
-                dataProvider = line[15]
-                qualifier = line[3]
-                if not qualifier:
-                    qualifier = ""
-                if gene in go_annot_dict:
-                    go_annot_dict[gene]['annotations'].append(
-                        {"go_id": go_id, "evidence_code": line[6], "aspect": line[8], "qualifier": qualifier})
-                else:
-                    go_annot_dict[gene] = {
-                        'gene_id': gene,
-                        'annotations': [{"go_id": go_id, "evidence_code": line[6], "aspect": line[8],
-                                         "qualifier": qualifier}],
-                        'species': self.species,
-                        'loadKey': dataProvider + "_" + dateProduced + "_" + "GAF",
-                        'dataProvider': dataProvider,
-                        'dateProduced': dateProduced,
-                    }
-        # Convert the dictionary into a list of dictionaries for Neo4j.
-        # Check for the use of testObject and only return test data if necessary.
-        if self.testObject.using_test_data() is True:
-            for entry in go_annot_dict:
-                if self.testObject.check_for_test_id_entry(go_annot_dict[entry]['gene_id']) is True:
-                    go_annot_list.append(go_annot_dict[entry])
-                    self.testObject.add_ontology_ids([annotation["go_id"] for annotation in
-                                                 go_annot_dict[entry]['annotations']])
-                else:
-                    continue
-            return go_annot_list
-        else:
-            for entry in go_annot_dict:
-                go_annot_list.append(go_annot_dict[entry])
-            return go_annot_list
+
 
 
     def load_wt_expression_objects_mod(self, expressionFileName, loadFile):

@@ -3,8 +3,7 @@ import logging, yaml, os, pprint, sys
 from cerberus import Validator
 
 from files import *
-from services import get_MOD_from_taxon
-
+from etl.helpers import ETLHelper
 from .data_type_config import DataTypeConfig
 
 logger = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ class DataFileManager(object):
         logger.info('Loading config file: %s' % (config_file_loc))
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file)
-
+        logger.debug("Config Data: %s" % self.config_data)
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
         logger.info('Loading validation schema: %s' % (validation_yaml_file_loc))
         validation_schema_file = open(validation_yaml_file_loc, 'r')
@@ -33,6 +32,7 @@ class DataFileManager(object):
         
     def get_config(self, data_type):
         # Get the object for a data type. If the object doesn't exist, this returns None.
+        logger.debug("Getting config for: %s" % self.master_data_dictionary)
         return self.master_data_dictionary.get(data_type)
 
     def dispatch_to_object(self):
@@ -95,9 +95,10 @@ class DataFileManager(object):
         config_data_list_of_tuples = []
         ontologies_to_transform = ('GO', 'SO', 'DO', 'MI') # These have non-generic loaders.
         for entry in self.config_data.keys():
+            logger.debug("Entry: %s" % entry)
             if entry != 'schemaVersion' or entry != 'releaseVersion':
                 for sub_entry in self.config_data[entry]:
-
+                    logger.debug("Sub Entry: %s" % sub_entry)
                     # Special case for transforming ontologies.
                     if sub_entry in ontologies_to_transform:
                         entry = sub_entry
@@ -108,20 +109,22 @@ class DataFileManager(object):
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
 
         for entry in self.submission_system_data['dataFiles']:
-
+            logger.debug("Entry %s" % entry)
             dataType = entry['dataType']
-
+            logger.debug("Data type: %s" % dataType)
             try:
                 subType = entry['subType']
             except KeyError: # Assume there is no subType or it is assigned below.
                 subType = None 
-
+                
+            logger.debug("Sub type: %s" % subType)
+            
             if 'taxonId' in entry:
                 # We overwrite the subType with the MOD id (derived from the taxon id) using this service.
-                subType = get_MOD_from_taxon(entry['taxonId'])
+                subType = ETLHelper.get_MOD_from_taxon(entry['taxonId'])
 
             if (dataType, subType) in config_data_list_of_tuples: # Filter our submission data against our config file.
-
+                logger.debug("Data type: %s Sub type: %s" % (dataType, subType))
                 if entry['dataType'] in self.transformed_submission_system_data:
                         self.transformed_submission_system_data[entry['dataType']].append(
                             [subType, entry['path'], entry['tempExtractedFile']]

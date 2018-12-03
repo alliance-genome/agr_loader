@@ -5,7 +5,6 @@ from transactors import CSVTransactor
 
 from etl import ETL
 from etl.helpers import ETLHelper
-from services import UrlService
 from files import JSONFile
 
 class StubETL(ETL):

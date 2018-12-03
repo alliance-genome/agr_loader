@@ -2,7 +2,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import uuid
-from services import UrlService
 from transactors import CSVTransactor
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -148,13 +147,10 @@ class AlleleETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
-                                                                       dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider, dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
-                                                                             dataProviderPage,
-                                                                             dataProviderPage, dataProvider,
-                                                                             crossRefCompleteUrl,
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
+                                                                             dataProviderPage, dataProvider, crossRefCompleteUrl,
                                                                              dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
@@ -208,7 +204,7 @@ class AlleleETL(ETL):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'allele':
-                                modGlobalCrossRefId = UrlService.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
+                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
                                 crossReferenceList.append(xref)

@@ -5,7 +5,6 @@ from transactors import CSVTransactor
 
 from etl import ETL
 from etl.helpers import ETLHelper
-from services import UrlService
 from files import JSONFile
 
 class PhenoTypeETL(ETL):
@@ -149,7 +148,7 @@ class PhenoTypeETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = UrlService.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
                                                                        dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
@@ -186,14 +185,14 @@ class PhenoTypeETL(ETL):
             if pubMedId is not None:
                 pubMedPrefix = pubMedId.split(":")[0]
                 pubMedLocalId = pubMedId.split(":")[1]
-                pubMedUrl = UrlService.get_no_page_complete_url(pubMedLocalId, ETL.xrefUrlMap, pubMedPrefix, primaryId)
+                pubMedUrl = ETLHelper.get_no_page_complete_url(pubMedLocalId, ETL.xrefUrlMap, pubMedPrefix, primaryId)
 
                 pubModId = pheno.get('pubModId')
 
             if pubModId is not None:
                 pubModPrefix = pubModId.split(":")[0]
                 pubModLocalId = pubModId.split(":")[1]
-                pubModUrl = UrlService.get_page_complete_url(pubModLocalId, ETL.xrefUrlMap, pubModPrefix, "gene/references")
+                pubModUrl = ETLHelper.get_page_complete_url(pubModLocalId, ETL.xrefUrlMap, pubModPrefix, "gene/references")
 
             if pubMedId is None:
                 pubMedId = ""

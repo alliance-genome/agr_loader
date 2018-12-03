@@ -4,8 +4,7 @@ logger = logging.getLogger(__name__)
 import uuid as id
 
 from etl import ETL
-from etl.helpers import ETLHelper, parseOBO
-from services import UrlService
+from etl.helpers import ETLHelper, OBOHelper
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 from files import TXTFile
@@ -94,7 +93,7 @@ class GenericOntologyETL(ETL):
     def get_generators(self, filepath, batch_size):
 
         o_data = TXTFile(filepath).get_data()
-        parsed_line = parseOBO(o_data)
+        parsed_line = OBOHelper.parseOBO(o_data)
 
         counter = 0
         terms = []

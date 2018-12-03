@@ -5,7 +5,6 @@ import uuid
 
 from etl import ETL
 from etl.helpers import ETLHelper
-from services import UrlService
 from transactors import CSVTransactor
 from files import JSONFile
 
@@ -235,15 +234,15 @@ class BGIETL(ETL):
                                 geneLiteratureUrl = ""
                                 displayName = ""
 
-                                crossRefCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
+                                crossRefCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
-                                    modCrossReferenceCompleteUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
+                                    modCrossReferenceCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
-                                geneticEntityExternalUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
+                                geneticEntityExternalUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/references':
-                                    geneLiteratureUrl = UrlService.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
+                                    geneLiteratureUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/spell':
                                     displayName='Serial Patterns of Expression Levels Locator (SPELL)'
@@ -251,7 +250,7 @@ class BGIETL(ETL):
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
+                                    crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
 
                                 # TODO: fix gene/disease xrefs for SGD once resourceDescriptor change in develop
                                 # makes its way to the release branch.
@@ -266,14 +265,14 @@ class BGIETL(ETL):
                         else:
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
                                 crossRefPrimaryId = crossRef.get('id') + '_' + primary_id
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
+                                crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
                                 xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "gene/panther", "gene/panther", displayName, crossRefCompleteUrl, crossRefPrimaryId + "gene/panther")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
-                                crossRefCompleteUrl = UrlService.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
+                                crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
                                 xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "generic_cross_reference", "generic_cross_reference", displayName, crossRefCompleteUrl, crossRefPrimaryId + "generic_cross_reference")
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)

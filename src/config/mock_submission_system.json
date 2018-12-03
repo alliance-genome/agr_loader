@@ -296,7 +296,7 @@
             "dataType": "Orthology",
             "subType": "SGD",
             "path": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_SGD_1.0.0.7_3.json",
             "uploadDate": 1522181475376
         },
         {
@@ -304,7 +304,7 @@
             "dataType": "Orthology",
             "subType": "RGD",
             "path": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_RGD_1.0.0.7_3.json",
             "uploadDate": 1522181475376
         },
         {
@@ -312,7 +312,15 @@
             "dataType": "Orthology",
             "subType": "Human",
             "path": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_Human_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Orthology",
+            "subType": "MGI",
+            "path": "ORTHO/RELOAD/orthology_MGI_1.0.0.7_3.json.tar.gz",
+            "tempExtractedFile": "orthology_MGI_1.0.0.7_3.json",
             "uploadDate": 1522181475376
         },
         {
@@ -320,7 +328,7 @@
             "dataType": "Orthology",
             "subType": "ZFIN",
             "path": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_ZFIN_1.0.0.7_3.json",
             "uploadDate": 1522181475376
         },
         {
@@ -328,7 +336,7 @@
             "dataType": "Orthology",
             "subType": "WB",
             "path": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_WB_1.0.0.7_3.json",
             "uploadDate": 1522181475376
         },
         {
@@ -336,7 +344,63 @@
             "dataType": "Orthology",
             "subType": "FB",
             "path": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json.tar.gz",
-            "tempExtractedFile": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json",
+            "tempExtractedFile": "orthology_FB_1.0.0.7_3.json",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "FB",
+            "path": "GO/ANNOT/gene_association_2.0.fb.gz",
+            "tempExtractedFile": "gene_association_2.0.fb",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "Human",
+            "path": "GO/ANNOT/gene_association_2.0.human.gz",
+            "tempExtractedFile": "gene_association_2.0.human",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "MGI",
+            "path": "GO/ANNOT/gene_association_2.0.mgi.gz",
+            "tempExtractedFile": "gene_association_2.0.mgi",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "RGD",
+            "path": "GO/ANNOT/gene_association_2.0.rgd.gz",
+            "tempExtractedFile": "gene_association_2.0.rgd",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "SGD",
+            "path": "GO/ANNOT/gene_association_2.0.sgd.gz",
+            "tempExtractedFile": "gene_association_2.0.sgd",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "WB",
+            "path": "GO/ANNOT/gene_association_2.0.wb.gz",
+            "tempExtractedFile": "gene_association_2.0.wb",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GOAnnot",
+            "subType": "ZFIN",
+            "path": "GO/ANNOT/gene_association_2.0.zfin.gz",
+            "tempExtractedFile": "gene_association_2.0.zfin",
             "uploadDate": 1522181475376
         },
         {

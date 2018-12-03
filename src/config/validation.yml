@@ -19,6 +19,9 @@ Phenotype:
 Expression: 
   type: list
   allowed: [FB, SGD, WB, ZFIN, MGI, Human]
+GOAnnot:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   type: list
   allowed: 

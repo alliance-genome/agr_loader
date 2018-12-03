@@ -1,11 +1,12 @@
 import logging
-logger = logging.getLogger(__name__)
-
-from files import S3File, TXTFile, TARFile, Download
 import os, json, sys, subprocess, jsonref
 from pathlib import Path
 from urllib.parse import urljoin
+
+from files import S3File, TXTFile, TARFile, Download
 import jsonschema as js
+
+logger = logging.getLogger(__name__)
 
 class SubTypeConfig(object):
 
@@ -19,6 +20,9 @@ class SubTypeConfig(object):
 
     def get_filepath(self):
         return self.filepath
+    
+    def get_file_to_download(self):
+        return self.file_to_download
 
     def get_data_provider(self):
         return self.sub_data_type
@@ -31,15 +35,19 @@ class SubTypeConfig(object):
     
         if self.filepath is not None:
             if not os.path.isfile(self.filepath):
-
+                logger.debug("File to download: " + self.file_to_download)
                 if self.file_to_download.startswith('http'):
                     download_filename = os.path.basename(self.file_to_download)
+                    logger.debug("Download Name: " + download_filename)
                     download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
                     self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
                 else:
+                    logger.debug("Downloading S3 File: " + self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download, path).download_new()
+                    logger.debug("File already downloaded: %s" % (self.already_downloaded))
                     if self.file_to_download.endswith('tar.gz'):
-                        tar_object = TARFile(path,self.file_to_download)
+                        logger.debug("Extracting all files: %s" % (self.file_to_download))
+                        tar_object = TARFile(path, self.file_to_download)
                         tar_object.extract_all()
                         # Check whether the file exists locally.
                 if self.filepath is not None:
@@ -50,6 +58,10 @@ class SubTypeConfig(object):
                         logger.critical('Missing copy of %s for sub type: %s from data type: %s' % (self.filepath, self.sub_data_type, self.data_type))
                         logger.critical('Please check download functions or data source.')
                         sys.exit(-1)
+            else:
+                logger.debug("File Path already downloaded: %s" % (self.filepath))
+        else:
+            logger.debug("File Path is None not downloading")
 
     def validate(self):
         if self.filepath is None:

@@ -4,7 +4,7 @@ from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
-coloredlogs.install(level=logging.DEBUG,
+coloredlogs.install(level=logging.INFO,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
     field_styles={
         'asctime': {'color': 'green'}, 
@@ -13,9 +13,6 @@ coloredlogs.install(level=logging.DEBUG,
         'name': {'color': 'blue'}, 
         'programname': {'color': 'cyan'}
     })
-
-logger = logging.getLogger("ontobio.ontol") # Turn off huge output from ontobio
-logger.setLevel(logging.INFO)
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
@@ -56,9 +53,8 @@ class AggregateLoader(object):
             'Disease': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
-            'Ontology': GenericOntologyETL
-            #'GOAnnot': GOAnnotETL,
-            #'GeoXref': GeoXrefETL,
+            'Ontology': GenericOntologyETL,
+            'GOAnnot': GOAnnotETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
             #'GeneDiseaseOrthology': GeneDiseaseOrthologyETL,
@@ -69,12 +65,12 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_types = [
-            ['Ontology'],
-            ['GO', 'DO', 'SO', 'MI'],
-            ['BGI'],
-            ['Allele'],
-            ['Expression'],
-            ['Disease', 'Phenotype', 'Orthology'],
+            #['Ontology'],
+            #['GO', 'DO', 'SO', 'MI'],
+            #['BGI'],
+            #['Allele'],
+            #['Expression'],
+            #['Disease', 'Phenotype', 'Orthology'],
             #['GOAnnot'],
             #['GeoXref'],
         ]

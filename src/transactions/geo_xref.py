@@ -1,6 +1,7 @@
 import logging
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from .transaction import Transaction
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,6 @@ class GeoXrefTransaction(Transaction):
                     UNWIND $data AS event
                     MATCH (o:Gene) where o.primaryKey = event.genePrimaryKey
 
-        """ + ETL.get_cypher_xref_text("geo_xref")
+        """ + ETLHelper.get_cypher_xref_text()
 
         self.execute_transaction(geoXrefQuery, data)
