@@ -30,7 +30,7 @@ class FileTransactor(object):
     def execute_transaction(sub_type):
         FileTransactor.count = FileTransactor.count + 1
         FileTransactor.queue.put((sub_type, FileTransactor.count))
-        logger.info("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
+        logger.debug("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
 
     def wait_for_queues(self):
         FileTransactor.queue.join()
@@ -39,7 +39,7 @@ class FileTransactor(object):
         logger.info("%s: Starting FileTransactor Thread Runner." % threading.currentThread().getName())
         while True:
             ((sub_type, FileTransactor.count)) = FileTransactor.queue.get()
-            logger.info("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (threading.currentThread().getName(), FileTransactor.count, FileTransactor.queue.qsize()))  
+            logger.debug("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (threading.currentThread().getName(), FileTransactor.count, FileTransactor.queue.qsize()))  
             self.download_and_validate_file(sub_type)
             FileTransactor.queue.task_done()
 
@@ -47,6 +47,6 @@ class FileTransactor(object):
 
         logger.info("%s: Getting data and downloading: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
         sub_type.get_data()
-        logger.info("%s: Downloading data finished. Starting validation: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        logger.debug("%s: Downloading data finished. Starting validation: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
         # sub_type.validate()
-        logger.info("%s: Validation finish: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        logger.debug("%s: Validation finish: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))

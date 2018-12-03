@@ -16,10 +16,6 @@ class ZFIN(MOD):
         self.geoRetMax = "100000"
         self.dataProvider = "ZFIN"
 
-    def extract_go_annots(self):
-        go_annot_list = self.extract_go_annots_mod(self.geneAssociationFile, self.identifierPrefix)
-        return go_annot_list
-
     def load_wt_expression_objects(self):
         data = self.load_wt_expression_objects_mod(self.wtExpressionName, self.loadFile)
         return data

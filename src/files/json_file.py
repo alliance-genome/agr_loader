@@ -12,9 +12,9 @@ class JSONFile(object):
     def get_data(self, filename):
         logger.info("Loading JSON data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
-            logger.info ("Opening JSONFile: %s" % filename)
+            logger.debug ("Opening JSONFile: %s" % filename)
             data = json.load(f)
-            logger.info ("JSON data extracted %s" % filename)
+            logger.debug ("JSON data extracted %s" % filename)
         f.close()
         #self.validate_json(data, filename, jsonType)
         return data

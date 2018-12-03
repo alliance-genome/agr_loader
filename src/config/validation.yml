@@ -22,6 +22,9 @@ Expression:
 GOAnnot:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GeoXref:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   type: list
   allowed: 

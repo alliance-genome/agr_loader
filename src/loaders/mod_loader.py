@@ -36,16 +36,6 @@ class ModLoader(object):
                         list(batch[8]), list(batch[9]), list(batch[10]), list(batch[11]),
                         list(batch[12]), mod.species)
 
-            logger.info("Extracting GO annotations for %s." % mod.species)
-            go_annots = mod.extract_go_annots()
-            logger.info("Loading GO annotations for %s into Neo4j." % mod.species)
-            GOAnnotTransaction().go_annot_tx(go_annots)
-
-            logger.info("Extracting GEO annotations for %s." % mod.species)
-            geo_xrefs = mod.extract_geo_entrez_ids_from_geo()
-            logger.info("Loading GEO annotations for %s." % mod.species)
-            GeoXrefTransaction().geo_xref_tx(geo_xrefs)
-
     def run_other_other_loaders(self):
 
         this_dir = os.path.split(__file__)[0]

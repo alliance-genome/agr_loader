@@ -37,7 +37,7 @@ class S3File(object):
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
             return False
         else:
-            logger.info("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
+            logger.debug("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
             return True
 
     def list_files(self):
