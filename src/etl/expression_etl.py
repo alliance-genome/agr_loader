@@ -61,22 +61,13 @@ class ExpressionETL(ETL):
                 MERGE (gej)-[geja:ASSAY]-(assay)
         
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
-                
-                //MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                 //   SET l.dateProduced = row.dateProduced
-                 //   SET l.loadName = "WT-Expression"
-                //    SET l.dataProviders = row.dataProviders
-                //    SET l.dataProvider = row.dataProvider
-            
-                //where only ao term exists
-            
+
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-              //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     SGDCCExpression = """
@@ -109,21 +100,12 @@ class ExpressionETL(ETL):
 
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
-               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                //    SET l.dateProduced = row.dateProduced
-                //    SET l.loadName = "WT-Expression"
-                //    SET l.dataProviders = row.dataProviders
-               //     SET l.dataProvider = row.dataProvider
-
-                //where only ao term exists
-
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-              //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     CCExpression = """
@@ -155,14 +137,6 @@ class ExpressionETL(ETL):
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
                     
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
-                
-               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                //    SET l.dateProduced = row.dateProduced
-                //    SET l.loadName = "WT-Expression"
-                //    SET l.dataProviders = row.dataProviders
-               //     SET l.dataProvider = row.dataProvider
-                    
-                //where only ao term exists
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -170,7 +144,6 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-              //MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     AOCCExpression = """
@@ -209,15 +182,6 @@ class ExpressionETL(ETL):
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
-                    
-
-               // MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                //    SET l.dateProduced = row.dateProduced
-               //     SET l.loadName = "WT-Expression"
-               //     SET l.dataProviders = row.dataProviders
-               //     SET l.dataProvider = row.dataProvider
-                    
-                //where only ao term exists
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -225,7 +189,6 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-              //  MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
                 MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     EASSubstructure = """

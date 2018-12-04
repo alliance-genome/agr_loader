@@ -13,20 +13,11 @@ class PhenoTypeETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            // GET PRIMARY DATA OBJECTS
-
-            // LOAD NODES
             MATCH (feature:Feature {primaryKey:row.primaryId})
             MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
-
-            MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced,
-                 l.loadName = "Phenotype",
-                 l.dataProviders = row.dataProviders,
-                 l.dataProvider = row.dataProvider
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
@@ -39,18 +30,12 @@ class PhenoTypeETL(ETL):
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
-            //FOREACH (dataProvider in row.dataProviders |
-                //MERGE (dp:DataProvider {primaryKey:dataProvider})
-                //MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
-                //MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
-
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
             MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
             """
@@ -59,19 +44,10 @@ class PhenoTypeETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            // GET PRIMARY DATA OBJECTS
-
-            // LOAD NODES
             MATCH (g:Gene {primaryKey:row.primaryId})
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
-
-            MERGE (l:Load {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced
-                SET l.loadName = "Phenotype"
-                SET l.dataProviders = row.dataProviders
-                SET l.dataProvider = row.dataProvider
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin
@@ -79,18 +55,9 @@ class PhenoTypeETL(ETL):
                 SET pa.dataProviders = row.dataProviders
                 SET pa.dataProvider = row.dataProvider
             
-             MERGE (pa)-[dfal:LOADED_FROM]-(l)
-                
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
-
-            //FOREACH (dataProvider in row.dataProviders |
-              //  MERGE (dp:DataProvider {primaryKey:dataProvider})
-              //  MERGE (pa)-[odp:DATA_PROVIDER]-(dp)
-              //  MERGE (l)-[ldp:DATA_PROVIDER]-(dp))
-
-            // PUBLICATIONS FOR FEATURE
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId
@@ -98,7 +65,6 @@ class PhenoTypeETL(ETL):
                 SET pubf.pubModUrl = row.pubModUrl
                 SET pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (l)-[loadAssociation:LOADED_FROM]-(pubf)
             MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
         """

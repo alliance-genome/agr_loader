@@ -47,8 +47,6 @@ class BGIETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (l:Load:Entity {primaryKey:row.loadKey})
-
             //Create the Gene node and set properties. primaryKey is required.
             CREATE (o:Gene {primaryKey:row.primaryId})
                 SET o.symbol = row.symbol,
@@ -67,20 +65,14 @@ class BGIETL(ETL):
                  o.uuid = row.uuid,
                  o.dataProvider = row.dataProvider
 
-            CREATE (l)-[:LOADED_FROM]->(o)
-
             MERGE (spec:Species {primaryKey: row.taxonId})
             ON CREATE SET spec.species = row.species, 
                 spec.name = row.species
 
             CREATE (o)-[:FROM_SPECIES]->(spec)
-            //MERGE (l)-[:LOADED_FROM]-(spec)
 
-            //MERGE the SOTerm node and set the primary key.
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            //MERGE (l)-[:LOADED_FROM]-(s)
 
-            //Create the relationship from the gene node to the SOTerm node.
             CREATE (o)-[:ANNOTATED_TO]->(s) """
 
     xrefs_template = """
