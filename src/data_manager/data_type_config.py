@@ -1,10 +1,12 @@
 import logging
+import sys
+
+from transactors import FileTransactor
+
+from .sub_type_config import SubTypeConfig
+
 logger = logging.getLogger(__name__)
 
-from files import S3File, TXTFile, TARFile, Download
-import os, sys
-from transactors import FileTransactor
-from .sub_type_config import SubTypeConfig
 
 class DataTypeConfig(object):
 
@@ -13,7 +15,7 @@ class DataTypeConfig(object):
         self.submission_system_data = submission_system_data
 
         # TODO These will be set by the config YAML.
-        self.neo4j_commit_size = 2500
+        self.neo4j_commit_size = 25000
         self.generator_batch_size = 10000
 
         self.list_of_subtype_objects = []

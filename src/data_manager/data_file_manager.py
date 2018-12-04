@@ -1,8 +1,8 @@
-import logging, yaml, os, pprint, sys
+import logging, yaml, os, sys
 
 from cerberus import Validator
 
-from files import *
+from files import JSONFile
 from etl.helpers import ETLHelper
 from .data_type_config import DataTypeConfig
 
@@ -43,7 +43,7 @@ class DataFileManager(object):
             if isinstance(self.transformed_submission_system_data[config_entry], str): # Skip string entries (e.g. schemaVersion, releaseVersion).
                 continue
 
-            logger.info('Processing DataType: %s' % (config_entry))
+            logger.debug('Processing DataType: %s' % (config_entry))
 
             # Create our data type object and add it to our master dictionary filed under the config_entry.
             # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
@@ -53,7 +53,7 @@ class DataFileManager(object):
 
         logger.info('Beginning download and validation.')
         for entry in self.master_data_dictionary.keys():
-            logger.info('Downloading %s data.' % entry)
+            logger.debug('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig): # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
 

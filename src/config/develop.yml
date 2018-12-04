@@ -6,6 +6,7 @@ Expression: [FB, SGD, WB, ZFIN, MGI, Human]
 Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   - GO 
   - SO 

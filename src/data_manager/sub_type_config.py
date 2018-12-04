@@ -1,9 +1,9 @@
 import logging
-import os, json, sys, subprocess, jsonref
+import os, json, sys, jsonref
 from pathlib import Path
 from urllib.parse import urljoin
 
-from files import S3File, TXTFile, TARFile, Download
+from files import S3File, TARFile, Download
 import jsonschema as js
 
 logger = logging.getLogger(__name__)
