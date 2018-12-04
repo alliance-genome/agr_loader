@@ -65,13 +65,13 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_types = [
-            #['Ontology'],
-            #['GO', 'DO', 'SO', 'MI'],
-            #['BGI'],
+            ['Ontology'],
+            ['GO', 'DO', 'SO', 'MI'],
+            ['BGI'],
             #['Allele'],
             #['Expression'],
             #['Disease', 'Phenotype', 'Orthology'],
-            #['GOAnnot'],
+            ['GOAnnot'],
             #['GeoXref'],
         ]
 

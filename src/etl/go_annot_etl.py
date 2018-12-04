@@ -55,7 +55,6 @@ class GOAnnotETL(ETL):
             if line[0].startswith('!'):
                 continue
             gene = prefix + line[1]
-            logger.info("gene is: " + gene)
             go_id = line[4]
             go_annot_dict = {
                 'gene_id': gene,
