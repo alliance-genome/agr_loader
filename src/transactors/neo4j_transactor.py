@@ -17,6 +17,8 @@ class Neo4jTransactor(Transactor):
     
     if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
         using_pickle = True
+    else:
+        using_pickle = False
 
     def __init__(self):
         super().__init__()
