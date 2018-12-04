@@ -71,7 +71,7 @@ class AggregateLoader(object):
             #['Allele'],
             #['Expression'],
             #['Disease', 'Phenotype', 'Orthology'],
-            ['GOAnnot'],
+            #['GOAnnot'],
             #['GeoXref'],
         ]
 
