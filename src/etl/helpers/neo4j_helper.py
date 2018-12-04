@@ -4,6 +4,7 @@ from neo4j.v1 import GraphDatabase
 
 logger = logging.getLogger(__name__)
 
+
 class Neo4jHelper(object):
 
     if "NEO4J_NQC_HOST" in os.environ:

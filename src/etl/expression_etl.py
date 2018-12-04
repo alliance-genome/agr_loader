@@ -1,14 +1,12 @@
 import logging
-logger = logging.getLogger(__name__)
-
 import codecs
 import uuid
-
 import ijson
-
 from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
+logger = logging.getLogger(__name__)
+
 
 class ExpressionETL(ETL):
 
@@ -279,7 +277,7 @@ class ExpressionETL(ETL):
             data_file = sub_type.get_filepath()
             logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
 
-            if data_file == None:
+            if data_file is None:
                 logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
                 continue
 
