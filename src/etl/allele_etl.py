@@ -17,14 +17,6 @@ class AlleleETL(ETL):
             MATCH (g:Gene {primaryKey: row.geneId})
             MATCH (s:Species {primaryKey: row.taxonId})
 
-            //Create the load node(s)
-            MERGE (l:Load:Entity {primaryKey:row.loadKey})
-                SET l.dateProduced = row.dateProduced,
-                 l.loadName = "Allele",
-                 l.release = row.release,
-                 l.dataProviders = row.dataProviders,
-                 l.dataProvider = row.dataProvider
-
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Feature {primaryKey:row.primaryId})
                 SET o.symbol = row.symbol,
@@ -41,21 +33,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
-            //FOREACH (dataProvider in row.dataProviders |
-                //MERGE (dp:DataProvider:Entity {primaryKey:dataProvider})
-                  //SET dp.dateProduced = row.dateProduced
-                //MERGE (o)-[odp:DATA_PROVIDER]-(dp)
-            MERGE (l)-[lo:LOADED_FROM]-(o)
-
-
-            MERGE (o)-[aspec:FROM_SPECIES]->(spec)
-            MERGE (l)-[laspec:LOADED_FROM]-(spec)
-
-            MERGE (o)<-[ag:IS_ALLELE_OF]->(g)
-            //Merge the entity node.
-
-            //Create the entity relationship to the gene node.
-            MERGE (o)-[c1:CREATED_BY]->(ent) """
+            MERGE (o)<-[:IS_ALLELE_OF]->(g) """
 
     allele_secondaryids_template = """
 
