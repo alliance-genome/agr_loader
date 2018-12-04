@@ -80,7 +80,7 @@ class Neo4jTransactor(Transactor):
                 except Exception as e:
                     logger.error(e)
                     #logger.error("%s: Query Failed: %s" % (self._get_name(), neo4j_query))
-                    logger.warn("%s: Query Conflict, putting data back in Queue to run later. %s" % (self._get_name(), neo4j_query))
+                    logger.warn("%s: Query Conflict, putting data back in Queue to run later. %s" % (self._get_name(), filename))
                     query_batch.insert(0, (neo4j_query, filename))
                     time.sleep(120)
                     Neo4jTransactor.queue.put((query_batch, query_counter))

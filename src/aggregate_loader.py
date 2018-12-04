@@ -73,8 +73,11 @@ class AggregateLoader(object):
             ['BGI'],
             ['Allele'],
             ['Expression'],
-            ['Disease', 'Phenotype', 'Orthology', 'GOAnnot'],
-            ['GeoXref'],
+            ['Disease'], # Locks Genes
+            ['Phenotype'], # Locks Genes
+            ['Orthology'], # Locks Genes
+            ['GOAnnot'], # Locks Genes
+            ['GeoXref'], # Locks Genes
         ]
 
         for data_types in list_of_types:
