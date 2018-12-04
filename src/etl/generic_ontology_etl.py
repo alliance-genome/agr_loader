@@ -59,7 +59,7 @@ class GenericOntologyETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
             filepath = sub_type.get_filepath()

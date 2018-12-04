@@ -11,10 +11,11 @@ from etl.helpers import ETLHelper
 class GOAnnotETL(ETL):
     query_template = """
         USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
             MATCH (g:Gene {primaryKey:row.gene_id})
             MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
-            MERGE (g)-[ggo:ANNOTATED_TO]->(go) """
+            MERGE (g)-[:ANNOTATED_TO]->(go) """
 
     def __init__(self, config):
         super().__init__()

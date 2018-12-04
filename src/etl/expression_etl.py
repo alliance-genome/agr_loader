@@ -312,12 +312,12 @@ class ExpressionETL(ETL):
     def _load_and_process_data(self):
         
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Expression Data: %s" % sub_type.data_provider)
+            logger.info("Loading Expression Data: %s" % sub_type.get_data_provider())
             data_file = sub_type.get_filepath()
-            logger.info("Finished Loading Expression Data: %s" % sub_type.data_provider)
+            logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
 
             if data_file == None:
-                logger.warn("No Data found for %s skipping" % sub_type.data_provider)
+                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
                 continue
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -325,20 +325,20 @@ class ExpressionETL(ETL):
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.SGDCCExpression, commit_size, "expression_SGDCCExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.data_provider + ".csv"],
-                [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.data_provider + ".csv"],
+                [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.SGDCCExpression, commit_size, "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             #[aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,

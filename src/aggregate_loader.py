@@ -4,7 +4,9 @@ from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
-coloredlogs.install(level=logging.INFO,
+debug_level = logging.INFO
+
+coloredlogs.install(level=debug_level,
     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
     field_styles={
         'asctime': {'color': 'green'}, 
@@ -33,7 +35,7 @@ class AggregateLoader(object):
         data_manager.download_and_validate()
         FileTransactor().wait_for_queues()
 
-        Neo4jTransactor().start_threads(4)
+        Neo4jTransactor().start_threads(2)
         CSVTransactor().start_threads(7)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
@@ -55,6 +57,7 @@ class AggregateLoader(object):
             'Orthology': OrthologyETL,
             'Ontology': GenericOntologyETL,
             'GOAnnot': GOAnnotETL,
+            'GeoXref': GeoXrefETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
             #'GeneDiseaseOrthology': GeneDiseaseOrthologyETL,
@@ -68,19 +71,23 @@ class AggregateLoader(object):
             ['Ontology'],
             ['GO', 'DO', 'SO', 'MI'],
             ['BGI'],
-            #['Allele'],
-            #['Expression'],
-            #['Disease', 'Phenotype', 'Orthology'],
-            #['GOAnnot'],
-            #['GeoXref'],
+            ['Allele'],
+            ['Expression'],
+            ['Disease', 'Phenotype', 'Orthology', 'GOAnnot'],
+            ['GeoXref'],
         ]
 
         for data_types in list_of_types:
+            logger.debug("Data Types: %s" % data_types)
             for data_type in data_types:
+                logger.debug("Data Type: %s" % data_type)
                 config = data_manager.get_config(data_type)
+                logger.debug("Config: %s" % config)
                 if config is not None:
                     etl = etl_dispatch[data_type](config)
                     etl.run_etl()
+                else:
+                    logger.info("No Config found for: %s" % data_type)
             logger.info("Waiting for Queues to sync up")
             CSVTransactor().wait_for_queues()
             Neo4jTransactor().wait_for_queues()

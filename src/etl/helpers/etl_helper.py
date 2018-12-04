@@ -71,6 +71,8 @@ class ETLHelper(object):
             return "Caenorhabditis elegans"
         elif provider in "SGD":
             return "Saccharomyces cerevisiae"
+        elif provider in "Human":
+            return "Homo sapiens"
         else:
             return None
 

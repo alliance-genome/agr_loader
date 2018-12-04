@@ -32,7 +32,7 @@ class DataFileManager(object):
         
     def get_config(self, data_type):
         # Get the object for a data type. If the object doesn't exist, this returns None.
-        logger.debug("Getting config for: %s" % self.master_data_dictionary)
+        logger.debug("Getting config for: [%s] -> Config[%s]" % (data_type, self.master_data_dictionary))
         return self.master_data_dictionary.get(data_type)
 
     def dispatch_to_object(self):
@@ -96,14 +96,16 @@ class DataFileManager(object):
         ontologies_to_transform = ('GO', 'SO', 'DO', 'MI') # These have non-generic loaders.
         for entry in self.config_data.keys():
             logger.debug("Entry: %s" % entry)
-            if entry != 'schemaVersion' or entry != 'releaseVersion':
+            if entry != 'schemaVersion' and entry != 'releaseVersion':
                 for sub_entry in self.config_data[entry]:
                     logger.debug("Sub Entry: %s" % sub_entry)
                     # Special case for transforming ontologies.
                     if sub_entry in ontologies_to_transform:
-                        entry = sub_entry
+                        config_data_list_of_tuples.append((sub_entry, sub_entry))
+                    else:
+                        config_data_list_of_tuples.append((entry, sub_entry)) # e.g. (Allele, FB) or (BGI, SGD)
 
-                    config_data_list_of_tuples.append((entry, sub_entry)) # e.g. (Allele, FB) or (BGI, SGD)
+        logger.debug("config_data_list_of_tuples: %s" % config_data_list_of_tuples)
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
@@ -131,6 +133,8 @@ class DataFileManager(object):
                         )
                 else:
                         self.transformed_submission_system_data[entry['dataType']] = []
-                        self.transformed_submission_system_data[entry['dataType']].append(
-                            [subType, entry['path'], entry['tempExtractedFile']]
-                    )
+                        self.transformed_submission_system_data[entry['dataType']].append([subType, entry['path'], entry['tempExtractedFile']])
+                        
+        logger.debug("Loaded Types: %s" % self.transformed_submission_system_data)
+        
+        
