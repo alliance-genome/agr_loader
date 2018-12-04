@@ -38,7 +38,7 @@ class CSVTransactor(Transactor):
             query_params.append(query_to_run) # The final query is 3 elemnts: commit size, filename, and modified (complete) query.
         CSVTransactor.count = CSVTransactor.count + 1
         CSVTransactor.queue.put((generator, query_list_with_params, CSVTransactor.count))
-        logger.info("Execute Transaction Batch: %s QueueSize: %s " % (CSVTransactor.count, CSVTransactor.queue.qsize()))  
+        logger.debug("Execute Transaction Batch: %s QueueSize: %s " % (CSVTransactor.count, CSVTransactor.queue.qsize()))  
 
     def wait_for_queues(self):
         CSVTransactor.queue.join()
@@ -47,7 +47,7 @@ class CSVTransactor(Transactor):
         logger.info("%s: Starting CSVTransactor Thread Runner: " % self._get_name())
         while True:
             ((generator, query_list_with_params, CSVTransactor.count)) = CSVTransactor.queue.get()
-            logger.info("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self._get_name(), CSVTransactor.count, CSVTransactor.queue.qsize()))  
+            logger.debug("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self._get_name(), CSVTransactor.count, CSVTransactor.queue.qsize()))  
             self.save_file(generator, query_list_with_params)
             CSVTransactor.queue.task_done()
 
@@ -64,7 +64,7 @@ class CSVTransactor(Transactor):
                     current_filename = open_files[index].name # Our current CSV output file.
 
                     if len(individual_list) == 0:
-                        logger.warn("%s: No data found when writing to csv! Skipping output file: %s" % (self._get_name(), current_filename))
+                        logger.debug("%s: No data found when writing to csv! Skipping output file: %s" % (self._get_name(), current_filename))
                         continue
 
                     if csv_file_writer[index] is None: # If we haven't yet created a DictWriter for this particular file.
