@@ -4,6 +4,7 @@ from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
+
 debug_level = logging.INFO
 
 coloredlogs.install(level=debug_level,
@@ -53,6 +54,7 @@ class AggregateLoader(object):
             'SO': SOETL,
             'MI': MIETL,
             'BGI': BGIETL,
+            'GenericOntology': GenericOntologyETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
             'Disease': DiseaseETL,
@@ -73,7 +75,7 @@ class AggregateLoader(object):
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_types = [
             ['Ontology'],
-            ['GO', 'DO', 'SO', 'MI'],
+            ['GO', 'DO', 'SO', 'MI', 'ZFA', 'UBERON', 'BPSO', 'MMO', 'ZFS'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
@@ -82,7 +84,6 @@ class AggregateLoader(object):
             ['Orthology'], # Locks Genes
             ['GOAnnot'], # Locks Genes
             ['GeoXref'], # Locks Genes
-            ['ExpressionRibbon']
         ]
 
         for data_types in list_of_types:
@@ -100,6 +101,9 @@ class AggregateLoader(object):
             CSVTransactor().wait_for_queues()
             Neo4jTransactor().wait_for_queues()
             logger.info("Queue sync finished")
+
+        # ETLs below get their data from an existent neo4j instance, rather than a file via the data manager
+        ExpressionRibbonETL().run_etl()
 
 
 if __name__ == '__main__':

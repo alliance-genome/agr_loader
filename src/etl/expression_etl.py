@@ -5,19 +5,14 @@ import ijson
 from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
+from transactions import Transaction
 logger = logging.getLogger(__name__)
 
 
 class ExpressionETL(ETL):
 
-
-    xrefs_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETLHelper.get_cypher_xref_text()
-
     AddOther = """
-    
+
         MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
             ON CREATE SET other.name = 'other'
         MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
@@ -27,6 +22,11 @@ class ExpressionETL(ETL):
             ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
             ON CREATE SET othergo.type = 'other'
             ON CREATE SET othergo.subset = 'goslim_agr' """
+
+    xrefs_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETLHelper.get_cypher_xref_text()
 
     AOExpression = """
         USING PERIODIC COMMIT %s
@@ -284,12 +284,14 @@ class ExpressionETL(ETL):
             commit_size = self.data_type_config.get_neo4j_commit_size()
             batch_size = self.data_type_config.get_generator_batch_size()
 
+            Transaction().execute_insert_transaction(self.AddOther, "other")
+
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
-                [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCExpression, commit_size,
+                 "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.SGDCCExpression, commit_size, "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
@@ -300,6 +302,8 @@ class ExpressionETL(ETL):
                 [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
                 [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.xrefs_template, commit_size,
+                 "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             #[aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
@@ -311,7 +315,6 @@ class ExpressionETL(ETL):
 
             # Prepare the transaction
             CSVTransactor.execute_transaction(generators, query_list)
-
 
     def get_generators(self, expressionFile, batch_size):
 

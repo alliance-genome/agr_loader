@@ -3,11 +3,11 @@ import os
 from queue import Queue
 from threading import Thread
 import time
-
 from neo4j import GraphDatabase
 
 
 logger = logging.getLogger(__name__)
+
 
 class Transaction(Thread):
 
@@ -60,6 +60,14 @@ class Transaction(Thread):
         for submission in self.split_into_chunks(data, batch_size):
             self.execute_transaction(query, submission)
         logger.info("Finished batch loading.")
+
+    def execute_insert_transaction(self, query, data):
+        start = time.time()
+        with self.graph.session() as session:
+            with session.begin_transaction() as tx:
+                tx.run(query, data=data)
+        end = time.time()
+        logger.info("Processed %s entries. %s r/s" % (len(data), round((len(data) / (end - start)), 2)))
 
     def split_into_chunks(self, data, batch_size):
         return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))

@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 from etl import ETL
-from helpers import Neo4jHelper
+from .helpers import Neo4jHelper
 from transactors import CSVTransactor
 
 class ExpressionRibbonETL(ETL):
@@ -37,9 +37,9 @@ class ExpressionRibbonETL(ETL):
 
     def _load_and_process_data(self):
 
-        logger.info("Finished Retrieving Expression Ribbon Data:")
+        logger.info("Starting Expression Ribbon Data:")
 
-        commit_size = self.data_type_config.get_neo4j_commit_size()
+        commit_size = "10000"
 
         query_list = [
             [ExpressionRibbonETL.insert_gocc_ribbon_terms, commit_size,
@@ -52,8 +52,12 @@ class ExpressionRibbonETL(ETL):
         # Obtain the generator
         generators = self.get_generators()
 
+        logger.info("Finished retrieving generators for ExpressionRibbonETL")
+
         # Prepare the transaction
         CSVTransactor.execute_transaction(generators, query_list)
+
+        logger.info("Finished ExpressionRibbonETL")
 
     def get_generators(self):
 
