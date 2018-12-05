@@ -2,16 +2,11 @@ import logging
 import codecs
 import uuid
 import ijson
-<<<<<<< HEAD
-=======
 import multiprocessing
 
->>>>>>> af8468ad26f0d8045d5bb6881f992a74018a8cc4
 from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
-from transactions import Transaction
-from transactions import Transaction
 logger = logging.getLogger(__name__)
 
 
