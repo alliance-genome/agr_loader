@@ -1,12 +1,13 @@
 import logging
-logger = logging.getLogger(__name__)
+import multiprocessing
 
-from transactors import CSVTransactor
 from etl import ETL
-from etl.helpers import ETLHelper
 from etl.helpers import DiseaseHelper
-
+from etl.helpers import ETLHelper
 from files import JSONFile
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
 
 class DiseaseETL(ETL):
 
@@ -101,31 +102,41 @@ class DiseaseETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
-            logger.info("Finished Loading Disease Data: %s" % sub_type.get_data_provider())
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-            if data == None:
-                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
-                continue
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        
+        logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        data = JSONFile().get_data(filepath)
+        logger.info("Finished Loading Disease Data: %s" % sub_type.get_data_provider())
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        if data == None:
+            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            return
 
-            # This needs to be in this format (template, param1, params2) others will be ignored
-            query_list = [
-                [DiseaseETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            ]
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-            # Obtain the generator
-            generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
-            
-            # Prepare the transaction
-            CSVTransactor.execute_transaction(generators, query_list)
+        # This needs to be in this format (template, param1, params2) others will be ignored
+        query_list = [
+            [DiseaseETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+        ]
+
+        # Obtain the generator
+        generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
+        
+        # Prepare the transaction
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, disease_data, batch_size, data_provider):
         list_to_yield = []

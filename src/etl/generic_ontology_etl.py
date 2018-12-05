@@ -1,13 +1,15 @@
-import logging
-logger = logging.getLogger(__name__)
-
-import uuid as id
+import logging, multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper, OBOHelper
+from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
-from files import TXTFile
+import uuid as id
+
+logger = logging.getLogger(__name__)
+
+
 
 class GenericOntologyETL(ETL):
 
@@ -59,36 +61,45 @@ class GenericOntologyETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            
-            logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-            # This order is the same as the lists yielded from the get_generators function.    
-            # A list of tuples.
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        
+        logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        # This order is the same as the lists yielded from the get_generators function.    
+        # A list of tuples.
 
-            ont_type = sub_type.get_data_provider()
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-            # This needs to be in this format (template, param1, params2) others will be ignored
-            query_list = [
-                [GenericOntologyETL.generic_ontology_term_template, commit_size, "generic_ontology_term_" + ont_type + ".csv", ont_type],
-                [GenericOntologyETL.generic_ontology_synonyms_template, commit_size, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
-                [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
-                [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type]
-            ]
+        ont_type = sub_type.get_data_provider()
 
-            # Obtain the generator
-            generators = self.get_generators(filepath, batch_size)
+        # This needs to be in this format (template, param1, params2) others will be ignored
+        query_list = [
+            [GenericOntologyETL.generic_ontology_term_template, commit_size, "generic_ontology_term_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_synonyms_template, commit_size, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
+            [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type]
+        ]
 
-            # Prepare the transaction
-            CSVTransactor.execute_transaction(generators, query_list)
-            # logger.warn('Solo threading enabled. Waiting for queues.')
-            # Neo4jTransactor().wait_for_queues()
+        # Obtain the generator
+        generators = self.get_generators(filepath, batch_size)
+
+        # Prepare the transaction
+        CSVTransactor.save_file_static(generators, query_list)
+        # logger.warn('Solo threading enabled. Waiting for queues.')
+        # Neo4jTransactor().wait_for_queues()
 
     def get_generators(self, filepath, batch_size):
 
@@ -191,7 +202,7 @@ class GenericOntologyETL(ETL):
                 is_obsolete = "false"
 
             if ident is None or ident == '':
-               logger.warn("Missing oid.")
+                logger.warn("Missing oid.")
             else:
                 term_dict_to_append = {
                     'name': line.get('name'),

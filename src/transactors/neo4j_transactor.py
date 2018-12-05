@@ -1,19 +1,18 @@
 import logging
-
+import multiprocessing
 import os
 import pickle
-from queue import Queue
-from etl.helpers import Neo4jHelper
 import time
 
-from transactors import Transactor
+from neo4j.v1 import GraphDatabase
+
 
 logger = logging.getLogger(__name__)
 
-class Neo4jTransactor(Transactor):
+class Neo4jTransactor(object):
 
     count = 0
-    queue = Queue(2000)
+    queue = None
     
     if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
         using_pickle = True
@@ -21,19 +20,26 @@ class Neo4jTransactor(Transactor):
         using_pickle = False
 
     def __init__(self):
-        super().__init__()
+        pass
 
     def _get_name(self):
-        return "Neo4j %s" % self.threadid
+        return "Neo4jTransactor %s" % multiprocessing.current_process().name
 
     def start_threads(self, thread_count):
-        thread_pool = []
-        for n in range(0, thread_count):
-            runner = Neo4jTransactor()
-            runner.threadid = n
-            runner.daemon = True
-            runner.start()
-            thread_pool.append(runner)
+        m = multiprocessing.Manager()
+        q = m.Queue()
+        Neo4jTransactor.queue = q
+        self.thread_pool = []
+        for i in range(0, thread_count):
+            p = multiprocessing.Process(target=self.run, name=str(i))
+            p.start()
+            self.thread_pool.append(p)
+
+    def shutdown(self):
+        logger.info("Shutting down Neo4jTransactor threads: %s" % len(self.thread_pool))
+        for thread in self.thread_pool:
+            thread.terminate()
+        logger.info("Finished Shutting down Neo4jTransactor threads")
 
     @staticmethod
     def execute_query_batch(query_batch):
@@ -45,10 +51,28 @@ class Neo4jTransactor(Transactor):
         Neo4jTransactor.queue.join()
 
     def run(self):
+        
+        if "NEO4J_NQC_HOST" in os.environ:
+            host = os.environ['NEO4J_NQC_HOST']
+        else:
+            host = "localhost"
+            
+        if "NEO4J_NQC_PORT" in os.environ:
+            port = int(os.environ['NEO4J_NQC_PORT'])
+        else:
+            port = 7687
+    
+        uri = "bolt://" + host + ":" + str(port)
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        
         logger.info("%s: Starting Neo4jTransactor Thread Runner: " % self._get_name())
         while True:
-
-            (query_batch, query_counter) = Neo4jTransactor.queue.get()
+            try:
+                (query_batch, query_counter) = Neo4jTransactor.queue.get()
+            except EOFError as error:
+                logger.info("Queue Closed exiting: %s" % error)
+                return
+            
             logger.debug("%s: Processing query batch: %s BatchSize: %s" % (self._get_name(), query_counter, len(query_batch)))
             batch_start = time.time()
 
@@ -66,11 +90,11 @@ class Neo4jTransactor(Transactor):
                         # Save VIA pickle rather then NEO
                         file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         file = open(file_name,'wb')
-                        logger.info("Writting to file: tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter))
+                        logger.debug("Writting to file: tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter))
                         pickle.dump(neo4j_query, file)
                         file.close()
                     else:
-                        session = Neo4jHelper.graph.session()
+                        session = graph.session()
                         session.run(neo4j_query)
                         session.close()
                     
@@ -82,7 +106,7 @@ class Neo4jTransactor(Transactor):
                     #logger.error("%s: Query Failed: %s" % (self._get_name(), neo4j_query))
                     logger.warn("%s: Query Conflict, putting data back in Queue to run later. %s" % (self._get_name(), filename))
                     query_batch.insert(0, (neo4j_query, filename))
-                    time.sleep(120)
+                    time.sleep(12)
                     Neo4jTransactor.queue.put((query_batch, query_counter))
                     break
                 

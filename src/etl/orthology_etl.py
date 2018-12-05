@@ -1,11 +1,13 @@
 import logging, uuid
-logger = logging.getLogger(__name__)
-
-from transactors import CSVTransactor
+import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
+
 
 class OrthologyETL(ETL):
 
@@ -64,29 +66,37 @@ class OrthologyETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
-            
-            logger.info("Finished Loading Orthology Data: %s" % sub_type.get_data_provider())
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-    
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        data = JSONFile().get_data(filepath)
+        
+        logger.info("Finished Loading Orthology Data: %s" % sub_type.get_data_provider())
+
+
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        
+        generators = self.get_generators(data, batch_size)
+
+        query_list = [
+            [OrthologyETL.query_template, commit_size, "orthology_data_" + sub_type.get_data_provider() + ".csv"],
+            [OrthologyETL.matched_algorithm_template, commit_size, "orthology_matched_data_" + sub_type.get_data_provider() + ".csv"],
+            [OrthologyETL.unmatched_algorithm_template, commit_size, "orthology_unmatched_data_" + sub_type.get_data_provider() + ".csv"],
+            [OrthologyETL.not_called_template, commit_size, "orthology_called_data_" + sub_type.get_data_provider() + ".csv"],
+        ]
             
-            generators = self.get_generators(data, batch_size)
-    
-            query_list = [
-                [OrthologyETL.query_template, commit_size, "orthology_data_" + sub_type.get_data_provider() + ".csv"],
-                [OrthologyETL.matched_algorithm_template, commit_size, "orthology_matched_data_" + sub_type.get_data_provider() + ".csv"],
-                [OrthologyETL.unmatched_algorithm_template, commit_size, "orthology_unmatched_data_" + sub_type.get_data_provider() + ".csv"],
-                [OrthologyETL.not_called_template, commit_size, "orthology_called_data_" + sub_type.get_data_provider() + ".csv"],
-            ]
-                
-            CSVTransactor.execute_transaction(generators, query_list)
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, ortho_data, batch_size):
 

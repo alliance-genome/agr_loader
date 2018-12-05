@@ -87,7 +87,7 @@ class GOETL(ETL):
         
         generators = self.get_generators(filepath, batch_size)
 
-        go_file_query_list = [
+        query_list = [
             [GOETL.query_template, commit_size, "go_term_data.csv"],
             [GOETL.goterm_isas_template, commit_size, "go_isas_data.csv"],
             [GOETL.goterm_partofs_template, commit_size, "go_partofs_data.csv"],
@@ -96,8 +96,8 @@ class GOETL(ETL):
             [GOETL.goterm_negatively_regulates_template, commit_size, "go_negatively_regulates_data.csv"],
             [GOETL.goterm_positively_regulates_template, commit_size, "go_positively_regulates_data.csv"],
         ]
-            
-        CSVTransactor.execute_transaction(generators, go_file_query_list)
+        
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, filepath, batch_size):
         

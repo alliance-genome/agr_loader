@@ -1,4 +1,4 @@
-import logging, coloredlogs, os, sys
+import logging, coloredlogs, os, sys, multiprocessing
 from etl import *
 from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
@@ -35,12 +35,14 @@ class AggregateLoader(object):
         data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
         data_manager.process_config()
 
-        FileTransactor().start_threads(7)
-        data_manager.download_and_validate()
-        FileTransactor().wait_for_queues()
+        ft = FileTransactor()
 
-        Neo4jTransactor().start_threads(2)
-        CSVTransactor().start_threads(7)
+        ft.start_threads(10)
+        data_manager.download_and_validate()
+        ft.wait_for_queues()
+
+        nt = Neo4jTransactor()
+        nt.start_threads(7)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass
@@ -72,7 +74,7 @@ class AggregateLoader(object):
         # After each list, the loader will "pause" and wait for that item to finish.
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
-        list_of_types = [
+        list_of_etl_groups = [
             ['Ontology'],
             ['GO', 'DO', 'SO', 'MI'],
             ['BGI'],
@@ -86,21 +88,29 @@ class AggregateLoader(object):
             ['ExpressionRibbon'],
         ]
 
-        for data_types in list_of_types:
-            logger.debug("Data Types: %s" % data_types)
-            for data_type in data_types:
-                logger.debug("Data Type: %s" % data_type)
-                config = data_manager.get_config(data_type)
+        for etl_group in list_of_etl_groups:
+            logger.debug("ETL's in group: %s" % etl_group)
+            thread_pool = []
+            for etl_name in etl_group:
+                logger.debug("ETL Name: %s" % etl_name)
+                config = data_manager.get_config(etl_name)
                 logger.debug("Config: %s" % config)
                 if config is not None:
-                    etl = etl_dispatch[data_type](config)
-                    etl.run_etl()
+                    etl = etl_dispatch[etl_name](config)
+                    p = multiprocessing.Process(target=etl.run_etl)
+                    p.start()
+                    thread_pool.append(p)
                 else:
-                    logger.info("No Config found for: %s" % data_type)
+                    logger.info("No Config found for: %s" % etl_name)
+            for thread in thread_pool:
+                thread.join()
+                
             logger.info("Waiting for Queues to sync up")
-            CSVTransactor().wait_for_queues()
             Neo4jTransactor().wait_for_queues()
             logger.info("Queue sync finished")
+            
+        ft.shutdown()
+        nt.shutdown()
 
         # ETLs below get their data from an existent neo4j instance, rather than a file via the data manager
         # ExpressionRibbonETL().run_etl()

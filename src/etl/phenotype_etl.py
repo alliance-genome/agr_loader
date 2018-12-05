@@ -1,11 +1,13 @@
 import logging, uuid
-logger = logging.getLogger(__name__)
-
-from transactors import CSVTransactor
+import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
+
 
 class PhenoTypeETL(ETL):
 
@@ -74,8 +76,18 @@ class PhenoTypeETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
+
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        
             logger.info("Loading Phenotype Data: %s" % sub_type.get_data_provider())
             filepath = sub_type.get_filepath()
             data = JSONFile().get_data(filepath)
@@ -83,7 +95,7 @@ class PhenoTypeETL(ETL):
 
             if data == None:
                 logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
-                continue
+                return
     
             commit_size = self.data_type_config.get_neo4j_commit_size()
             batch_size = self.data_type_config.get_generator_batch_size()
@@ -95,7 +107,7 @@ class PhenoTypeETL(ETL):
                 [PhenoTypeETL.execute_feature_template, commit_size, "phenotype_feature_data_" + sub_type.get_data_provider() + ".csv"],
             ]
                 
-            CSVTransactor.execute_transaction(generators, query_list)
+            CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, phenotype_data, batch_size):
         list_to_yield = []

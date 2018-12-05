@@ -25,13 +25,12 @@ class SOETL(ETL):
         filepath = self.data_type_config.get_single_filepath()
         
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
 
         generators = self.get_generators(filepath)
 
-        so_file_query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
-            
-        CSVTransactor.execute_transaction(generators, so_file_query_list)
+        query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
+
+        CSVTransactor.save_file_static(generators, query_list)
         
     def get_generators(self, filepath):
         

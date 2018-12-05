@@ -1,11 +1,10 @@
-import logging, uuid, gzip, csv
-
-logger = logging.getLogger(__name__)
-
-from transactors import CSVTransactor
+import logging, gzip, csv, multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
 
 
 class GOAnnotETL(ETL):
@@ -22,31 +21,40 @@ class GOAnnotETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_file_to_download()
-            file = gzip.open("tmp/" + filepath, 'rt', encoding='utf-8')
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-            logger.info("Finished Loading GOAnnot Data: %s" % sub_type.get_data_provider())
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_file_to_download()
+        file = gzip.open("tmp/" + filepath, 'rt', encoding='utf-8')
 
-            # This order is the same as the lists yielded from the get_generators function.
-            # A list of tuples.
+        logger.info("Finished Loading GOAnnot Data: %s" % sub_type.get_data_provider())
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        # This order is the same as the lists yielded from the get_generators function.
+        # A list of tuples.
 
-            generators = self.get_generators(
-                file,
-                ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
-                batch_size
-            )
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-            query_list = [
-                [GOAnnotETL.query_template, commit_size, "go_annot_" + sub_type.get_data_provider() + ".csv"],
-            ]
+        generators = self.get_generators(
+            file,
+            ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
+            batch_size
+        )
 
-            CSVTransactor.execute_transaction(generators, query_list)
+        query_list = [
+            [GOAnnotETL.query_template, commit_size, "go_annot_" + sub_type.get_data_provider() + ".csv"],
+        ]
+
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, file, prefix, batch_size):
         go_annot_list = []

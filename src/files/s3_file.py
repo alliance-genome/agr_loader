@@ -1,8 +1,9 @@
 import logging
+import os, time
+import urllib.request
+
 logger = logging.getLogger(__name__)
 
-import os
-import urllib.request
 
 class S3File(object):
 
