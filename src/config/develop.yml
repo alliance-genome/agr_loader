@@ -3,10 +3,6 @@ releaseVersion: 2.1.0.0
 BGI: [SGD]
 Ontology:
   - GO
-  - ZFA 
-  - ZFS
-  - CL
-  - BSPO
   - MMO
   - UBERON
 Expression: [SGD]

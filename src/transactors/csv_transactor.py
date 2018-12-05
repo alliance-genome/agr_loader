@@ -15,7 +15,7 @@ class CSVTransactor(object):
             cypher_query_template = query_params.pop(0) # Remove the first item from the list.
             query_to_run = cypher_query_template % tuple(query_params) # Format the query with all remaining paramenters.
             while len(query_params) > 2: # We need to remove extra params before we append the modified query. Assuming the last entry in the list is the filepath
-                query_params.pop() 
+                query_params.pop()
             query_params.append(query_to_run)
 
         with ExitStack() as stack:
