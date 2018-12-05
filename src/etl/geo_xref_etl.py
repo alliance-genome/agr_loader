@@ -1,4 +1,4 @@
-import json, time, random
+import json, time, random, multiprocessing
 import logging, urllib, xmltodict
 
 from etl import ETL
@@ -22,21 +22,22 @@ class GeoXrefETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            species_encoded = urllib.parse.quote_plus(ETLHelper.species_lookup_by_data_provider(sub_type.get_data_provider()))
 
+            species_encoded = urllib.parse.quote_plus(ETLHelper.species_lookup_by_data_provider(sub_type.get_data_provider()))
+    
             commit_size = self.data_type_config.get_neo4j_commit_size()
             #batch_size = self.data_type_config.get_generator_batch_size()
             batch_size = 100000
         
             generators = self.get_generators(batch_size, species_encoded)
-
+    
             query_list = [
                 [GeoXrefETL.geoXrefQuery, commit_size, "geoxref_data_" + sub_type.get_data_provider() + ".csv"],
             ]
             
-            CSVTransactor.execute_transaction(generators, query_list)
+            CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, batch_size, species_encoded):
     

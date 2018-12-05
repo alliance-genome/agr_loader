@@ -1,30 +1,26 @@
 import logging
+import multiprocessing
+
 logger = logging.getLogger(__name__)
-
-from contextlib import ExitStack
-import csv, os, logging, sys, logging
-from queue import Queue
-from files import S3File, TXTFile, TARFile, Download 
-import threading
-
-from .transactor import Transactor
 
 class FileTransactor(object):
 
     count = 0
-    queue = Queue(2000)
+    queue = None
 
     def __init__(self):
-        pass
+        m = multiprocessing.Manager()
+        FileTransactor.queue = m.Queue()
+    
+    def _get_name(self):
+        return "FileTransactor %s" % multiprocessing.current_process().name
 
     def start_threads(self, thread_count):
-        thread_pool = []
-        for n in range(0, thread_count):
-            runner = threading.Thread(target=self.run)
-            runner.threadid = n
-            runner.daemon = True
-            runner.start()
-            thread_pool.append(runner)
+        self.thread_pool = []
+        for i in range(0, thread_count):
+            p = multiprocessing.Process(target=self.run, name=str(i))
+            p.start()
+            self.thread_pool.append(p)
 
     @staticmethod
     def execute_transaction(sub_type):
@@ -34,19 +30,30 @@ class FileTransactor(object):
 
     def wait_for_queues(self):
         FileTransactor.queue.join()
+        
+    def shutdown(self):       
+        logger.info("Shutting down FileTransactor threads: %s" % len(self.thread_pool))
+        for thread in self.thread_pool:
+            thread.terminate()
+        logger.info("Finished Shutting down FileTransactor threads")
 
     def run(self):
-        logger.info("%s: Starting FileTransactor Thread Runner." % threading.currentThread().getName())
+        logger.info("%s: Starting FileTransactor Thread Runner." % self._get_name())
         while True:
-            ((sub_type, FileTransactor.count)) = FileTransactor.queue.get()
-            logger.debug("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (threading.currentThread().getName(), FileTransactor.count, FileTransactor.queue.qsize()))  
+            try:
+                ((sub_type, FileTransactor.count)) = FileTransactor.queue.get()
+            except EOFError as error:
+                logger.info("Queue Closed exiting: %s" % error)
+                return
+            logger.debug("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (self._get_name(), FileTransactor.count, FileTransactor.queue.qsize()))  
             self.download_and_validate_file(sub_type)
             FileTransactor.queue.task_done()
+        #EOFError
 
     def download_and_validate_file(self, sub_type):
 
-        logger.info("%s: Getting data and downloading: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        logger.info("%s: Getting data and downloading: %s" % (self._get_name(), sub_type.get_filepath()))
         sub_type.get_data()
-        logger.debug("%s: Downloading data finished. Starting validation: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        logger.debug("%s: Downloading data finished. Starting validation: %s" % (self._get_name(), sub_type.get_filepath()))
         # sub_type.validate()
-        logger.debug("%s: Validation finish: %s" % (threading.currentThread().getName(), sub_type.get_filepath()))
+        logger.debug("%s: Validation finish: %s" % (self._get_name(), sub_type.get_filepath()))

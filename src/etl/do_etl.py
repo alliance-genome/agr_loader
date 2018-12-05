@@ -81,8 +81,8 @@ class DOETL(ETL):
             [DOETL.doterm_synonyms_template, commit_size, "do_synonyms_data.csv"],
             [DOETL.xrefs_template, commit_size, "do_xrefs_data.csv"],
         ]
-            
-        CSVTransactor.execute_transaction(generators, query_list)
+        
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, filepath, batch_size):
         

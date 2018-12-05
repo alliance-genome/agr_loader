@@ -26,10 +26,10 @@ class MIETL(ETL):
     def _load_and_process_data(self):
         generators = self.get_generators()
 
-        mi_file_query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
-            
-        CSVTransactor.execute_transaction(generators, mi_file_query_list)
+        query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
 
+        CSVTransactor.save_file_static(generators, query_list)
+        
     @staticmethod
     def add_miterm_url(identifier):
         mi_term_url_dict = {

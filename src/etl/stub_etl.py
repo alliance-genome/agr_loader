@@ -1,11 +1,13 @@
 import logging, uuid
-logger = logging.getLogger(__name__)
-
-from transactors import CSVTransactor
+import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
+
 
 class StubETL(ETL):
 
@@ -21,8 +23,19 @@ class StubETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        thread_pool = []
+        
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-        filepath = self.data_type_config.get_single_filepath()
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+
+        filepath = sub_type.get_single_filepath()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -33,7 +46,7 @@ class StubETL(ETL):
             [StubETL.query_template, commit_size, "stub_data.csv"],
         ]
             
-        CSVTransactor.execute_transaction(generators, query_list)
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, filepath, batch_size):
         pass

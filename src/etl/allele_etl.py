@@ -1,11 +1,14 @@
 import logging
-logger = logging.getLogger(__name__)
-
+import multiprocessing
 import uuid
-from transactors import CSVTransactor
+
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
+from transactors import CSVTransactor
+
+logger = logging.getLogger(__name__)
+
 
 class AlleleETL(ETL):
 
@@ -69,36 +72,45 @@ class AlleleETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading Allele Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
-            logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-            if data == None:
-                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
-                continue
+        for thread in thread_pool:
+            thread.join()
+  
+    def _process_sub_type(self, sub_type):
+        
+        logger.info("Loading Allele Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        data = JSONFile().get_data(filepath)
+        logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
 
-            # This order is the same as the lists yielded from the get_generators function.    
-            # A list of tuples.
+        if data == None:
+            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            return
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        # This order is the same as the lists yielded from the get_generators function.    
+        # A list of tuples.
 
-            # This needs to be in this format (template, param1, params2) others will be ignored
-            query_list = [
-                [AlleleETL.allele_query_template, commit_size, "allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [AlleleETL.allele_secondaryids_template, commit_size, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-                [AlleleETL.allele_synonyms_template, commit_size, "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
-                [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            ]
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-            # Obtain the generator
-            generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+        # This needs to be in this format (template, param1, params2) others will be ignored
+        query_list = [
+            [AlleleETL.allele_query_template, commit_size, "allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_secondaryids_template, commit_size, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_synonyms_template, commit_size, "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
+        ]
 
-            # Prepare the transaction
-            CSVTransactor.execute_transaction(generators, query_list)
+        # Obtain the generator
+        generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+
+        CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, allele_data, data_provider, batch_size):
 

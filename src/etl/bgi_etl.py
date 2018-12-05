@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import uuid
-
+import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
@@ -103,34 +103,46 @@ class BGIETL(ETL):
 
     def _load_and_process_data(self):
         
+        thread_pool = []
+        
         for sub_type in self.data_type_config.get_sub_type_objects():
-            logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
-            
-            logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
 
-            # This order is the same as the lists yielded from the get_generators function.    
-            # A list of tuples.
+        for thread in thread_pool:
+            thread.join()
+    
+    def _process_sub_type(self, sub_type):
+        
+        logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        data = JSONFile().get_data(filepath)
+        
+        logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        # This order is the same as the lists yielded from the get_generators function.    
+        # A list of tuples.
 
-            # This needs to be in this format (template, param1, params2) others will be ignored
-            query_list = [
-                [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-                [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"]
-            ]
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
 
-            # Obtain the generator
-            generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+        # This needs to be in this format (template, param1, params2) others will be ignored
+        query_list = [
+            [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"]
+        ]
 
-            # Prepare the transaction
-            CSVTransactor.execute_transaction(generators, query_list)
+        # Obtain the generator
+        generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+
+        # Prepare the transaction
+        CSVTransactor.save_file_static(generators, query_list)
+        #CSVTransactor.execute_transaction(generators, query_list)
 
     def get_generators(self, gene_data, data_provider, batch_size):
 
