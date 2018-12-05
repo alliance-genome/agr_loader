@@ -61,6 +61,7 @@ class AggregateLoader(object):
             'Ontology': GenericOntologyETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
+            'ExpressionRibbon': ExpressionRibbonETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
             #'GeneDiseaseOrthology': GeneDiseaseOrthologyETL,
@@ -81,6 +82,7 @@ class AggregateLoader(object):
             ['Orthology'], # Locks Genes
             ['GOAnnot'], # Locks Genes
             ['GeoXref'], # Locks Genes
+            ['ExpressionRibbon']
         ]
 
         for data_types in list_of_types:
