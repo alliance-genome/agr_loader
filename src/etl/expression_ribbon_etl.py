@@ -3,6 +3,7 @@ logger = logging.getLogger(__name__)
 from etl import ETL
 from .helpers import Neo4jHelper
 from transactors import CSVTransactor
+import multiprocessing
 
 class ExpressionRibbonETL(ETL):
 
@@ -37,9 +38,19 @@ class ExpressionRibbonETL(ETL):
         """
 
     def _load_and_process_data(self):
+        thread_pool = []
 
-        logger.info("Starting Expression Ribbon Data:")
-        logger.info("seriously")
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p.start()
+            thread_pool.append(p)
+
+        for thread in thread_pool:
+            thread.join()
+
+    def _process_sub_type(self, sub_type):
+
+        logger.info("Starting Expression Ribbon Data")
         query_list = [
             [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
              "expression_gocc_ribbon_terms.csv"],
@@ -54,6 +65,7 @@ class ExpressionRibbonETL(ETL):
                       self.retrieve_gocc_ribbonless_ebes()]
 
         CSVTransactor.execute_transaction(generators, query_list)
+        logger.info("Finished Expression Ribbon Data")
 
     def get_ribbon_terms(self):
 
