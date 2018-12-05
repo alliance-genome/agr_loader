@@ -46,7 +46,7 @@ class CSVTransactor(Transactor):
     def run(self):
         logger.info("%s: Starting CSVTransactor Thread Runner: " % self._get_name())
         while True:
-            ((generator, query_list_with_params, CSVTransactor.count)) = CSVTransactor.queue.get()
+            (generator, query_list_with_params, CSVTransactor.count) = CSVTransactor.queue.get()
             logger.debug("%s: Pulled CSV Transaction Batch: %s QueueSize: %s " % (self._get_name(), CSVTransactor.count, CSVTransactor.queue.qsize()))  
             self.save_file(generator, query_list_with_params)
             CSVTransactor.queue.task_done()

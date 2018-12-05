@@ -54,7 +54,6 @@ class AggregateLoader(object):
             'SO': SOETL,
             'MI': MIETL,
             'BGI': BGIETL,
-            'GenericOntology': GenericOntologyETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
             'Disease': DiseaseETL,
@@ -75,15 +74,16 @@ class AggregateLoader(object):
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_types = [
             ['Ontology'],
-            ['GO', 'DO', 'SO', 'MI', 'ZFA', 'UBERON', 'BPSO', 'MMO', 'ZFS'],
+            ['GO', 'DO', 'SO', 'MI'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
-            ['Disease'], # Locks Genes
-            ['Phenotype'], # Locks Genes
-            ['Orthology'], # Locks Genes
-            ['GOAnnot'], # Locks Genes
-            ['GeoXref'], # Locks Genes
+            ['Disease'],  # Locks Genes
+            ['Phenotype'],  # Locks Genes
+            ['Orthology'],  # Locks Genes
+            ['GOAnnot'],  # Locks Genes
+            ['GeoXref'],  # Locks Genes
+            ['ExpressionRibbon'],
         ]
 
         for data_types in list_of_types:
@@ -103,7 +103,8 @@ class AggregateLoader(object):
             logger.info("Queue sync finished")
 
         # ETLs below get their data from an existent neo4j instance, rather than a file via the data manager
-        ExpressionRibbonETL().run_etl()
+        # ExpressionRibbonETL().run_etl()
+        # GeneDiseaseOrthology().run_etl()
 
 
 if __name__ == '__main__':

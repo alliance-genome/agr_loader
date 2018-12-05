@@ -62,7 +62,7 @@ class Neo4jTransactor(Transactor):
                 start = time.time()
                 try:
                     
-                    if Neo4jTransactor.using_pickle == True:
+                    if Neo4jTransactor.using_pickle is True:
                         # Save VIA pickle rather then NEO
                         file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         file = open(file_name,'wb')

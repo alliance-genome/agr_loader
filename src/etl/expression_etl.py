@@ -6,6 +6,7 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
 from transactions import Transaction
+from transactions import Transaction
 logger = logging.getLogger(__name__)
 
 
@@ -283,8 +284,9 @@ class ExpressionETL(ETL):
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
             batch_size = self.data_type_config.get_generator_batch_size()
-
             Transaction().execute_insert_transaction(self.AddOther, "other")
+
+            # Transaction().execute_insert_transaction(self.AddOther, "other")
 
             # This needs to be in this format (template, param1, params2) others will be ignored
             query_list = [
@@ -385,6 +387,7 @@ class ExpressionETL(ETL):
                         pubMedId = ""
 
                 assay = xpat.get('assay')
+                #logger.info("expression assay: " + assay)
                 ei_uuid = str(uuid.uuid4())
                 ebe_uuid = str(uuid.uuid4())
 

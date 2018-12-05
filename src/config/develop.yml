@@ -1,23 +1,13 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [ZFIN]
+BGI: [SGD]
 Ontology:
   - GO
-  - SO
-  - DO
-  - MI 
   - ZFA 
-  - ZFS 
-  - WBBT 
-  - CL 
-  - FBDV 
-  - FBBT
-  - FBCV
-  - MMUSDV
+  - ZFS
+  - CL
   - BSPO
   - MMO
-  - WBLS
-  - EMAPA
-  - MA
   - UBERON
-Expression: [ZFIN]
+Expression: [SGD]
+ExpressionRibbon: [other]

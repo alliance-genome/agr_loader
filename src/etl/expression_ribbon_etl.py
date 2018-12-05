@@ -6,8 +6,9 @@ from transactors import CSVTransactor
 
 class ExpressionRibbonETL(ETL):
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
+        self.data_type_config = config
 
     insert_gocc_self_ribbon_terms = """
                 USING PERIODIC COMMIT %s
@@ -38,39 +39,49 @@ class ExpressionRibbonETL(ETL):
     def _load_and_process_data(self):
 
         logger.info("Starting Expression Ribbon Data:")
-
-        commit_size = "10000"
-
+        logger.info("seriously")
         query_list = [
-            [ExpressionRibbonETL.insert_gocc_ribbon_terms, commit_size,
-             "expression_gocc_ribbon_terms" + ".csv"],
-            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, commit_size,
+            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
+             "expression_gocc_ribbon_terms.csv"],
+            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
              "expression_gocc_self_ribbon_terms" + ".csv"],
-            [ExpressionRibbonETL.insert_ribonless_ebes, commit_size,
+            [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
              "expression_ribbonless_ebes" + ".csv"]
         ]
-        # Obtain the generator
-        generators = self.get_generators()
 
-        logger.info("Finished retrieving generators for ExpressionRibbonETL")
+        generators = [self.get_ribbon_terms(),
+                      self.retrieve_gocc_self_ribbon_terms(),
+                      self.retrieve_gocc_ribbonless_ebes()]
 
-        # Prepare the transaction
         CSVTransactor.execute_transaction(generators, query_list)
 
-        logger.info("Finished ExpressionRibbonETL")
+    def get_ribbon_terms(self):
 
-    def get_generators(self):
+        logger.info("made it to the gocc ribbon retrieve")
 
-        gocc_ribbon_data = self.retrieve_gocc_ribbon_terms()
-        gocc_self_ribbon_data = self.retrieve_gocc_self_ribbon_terms()
-        gocc_ribbonless_data = self.retrieve_gocc_ribbonless_ebes()
+        expression_gocc_ribbon_retrieve = """
+                    MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+                    where slimTerm.subset =~ '.*goslim_agr.*'
+                    return ebe.primaryKey, slimTerm.primaryKey
+                    """
 
-        yield [gocc_ribbon_data, gocc_self_ribbon_data, gocc_ribbonless_data]
+        returnSet = Neo4jHelper().run_single_query(expression_gocc_ribbon_retrieve)
+
+        gocc_ribbon_data = []
+
+        for record in returnSet:
+            row = dict(ebe_id=record["ebe.primaryKey"],
+                       go_id=record["slimTerm.primaryKey"])
+            gocc_ribbon_data.append(row)
+
+        yield [gocc_ribbon_data]
 
     def retrieve_gocc_ribbon_terms(self):
+
+        logger.info("made it to the gocc ribbon retrieve")
         expression_gocc_ribbon_retrieve = """
-            MATCH (ebe:ExpressionBioEntity)-->(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
-            where all (subset IN ['goslim_agr'] where subset in slimTerm.subset)
+            MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+            where slimTerm.subset =~ '.*goslim_agr.*'
             return ebe.primaryKey, slimTerm.primaryKey
             """
 
@@ -83,14 +94,14 @@ class ExpressionRibbonETL(ETL):
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
 
-        return gocc_ribbon_data
+        yield [gocc_ribbon_data]
 
     def retrieve_gocc_self_ribbon_terms(self):
         gocc_self_ribbon_data = []
 
         gocc_self_ribbon_ebes = """
             MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
-            where 'goslim_agr' in got.subset
+            where got.subset =~ '.*goslim_agr.*'
             return ebe.primaryKey, got.primaryKey; 
         """
 
@@ -101,7 +112,7 @@ class ExpressionRibbonETL(ETL):
 
             gocc_self_ribbon_data.append(row)
 
-        return gocc_self_ribbon_data
+        yield [gocc_self_ribbon_data]
 
     def retrieve_gocc_ribbonless_ebes(self):
         ribbonless_ebes = """
@@ -116,5 +127,5 @@ class ExpressionRibbonETL(ETL):
             row = dict(ebe_id=record["ebe.primaryKey"])
             gocc_ribbonless_data.append(row)
 
-        return gocc_ribbonless_data
+        yield [gocc_ribbonless_data]
 
