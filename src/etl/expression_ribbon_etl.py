@@ -54,15 +54,15 @@ class ExpressionRibbonETL(ETL):
         query_list = [
             [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
              "expression_gocc_ribbon_terms.csv"],
-            #[ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
-            # "expression_gocc_self_ribbon_terms" + ".csv"],
-            #[ExpressionRibbonETL.insert_ribonless_ebes, "10000",
-            # "expression_ribbonless_ebes" + ".csv"]
+            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
+             "expression_gocc_self_ribbon_terms" + ".csv"],
+            [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
+             "expression_ribbonless_ebes" + ".csv"]
         ]
 
         generators = [self.get_ribbon_terms(),
-                      #self.retrieve_gocc_self_ribbon_terms(),
-                      #self.retrieve_gocc_ribbonless_ebes()
+                      self.retrieve_gocc_self_ribbon_terms(),
+                      self.retrieve_gocc_ribbonless_ebes()
                       ]
 
         CSVTransactor.save_file_static(generators, query_list)
@@ -86,6 +86,7 @@ class ExpressionRibbonETL(ETL):
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
+
 
         yield [gocc_ribbon_data]
 

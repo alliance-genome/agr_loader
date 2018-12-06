@@ -27,14 +27,14 @@ class GeneDiseaseOrthoETL(ETL):
                 CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     SET dga.dataProvider = 'Alliance'
 
-                FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
+                FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
                     CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'biomarker_via_orthology')
 
-                FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
+                FOREACH (rel IN CASE when row.relationshipType = 'IS_IMPLICATED_IN' THEN [1] ELSE [] END |
+                    CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
@@ -68,6 +68,8 @@ class GeneDiseaseOrthoETL(ETL):
 
         self.create_pub()
 
+        logger.info("gene disease ortho pub created")
+
         generators = [self.retrieve_gene_disease_ortho()]
 
         CSVTransactor.save_file_static(generators, query_list)
@@ -85,7 +87,10 @@ class GeneDiseaseOrthoETL(ETL):
               MERGE (:EvidenceCode {primaryKey:"IEA"})
                     """
 
+        logger.info("pub creation started")
         Transaction().execute_transaction(addPub, "gene_disease_ortho")
+
+        logger.info("pub creation finished")
 
     def retrieve_gene_disease_ortho(selfs):
         logger.info("reached gene disease ortho retrieval")
@@ -106,14 +111,15 @@ class GeneDiseaseOrthoETL(ETL):
 
         gene_disease_ortho_data = []
 
-        if returnSet is not None:
-            for record in returnSet:
-                row = dict(primaryId=record["geneID"],
-                        fromGeneId=record["fromGeneID"],
-                        relationshipType=record["relationType"].lower(),
-                        doId=record["doId"],
-                        dateProduced=datetime.now(),
-                        uuid=str(uuid.uuid4()))
-                gene_disease_ortho_data.append(row)
+        for record in returnSet:
+            row = dict(primaryId=record["geneID"],
+                    fromGeneId=record["fromGeneID"],
+                    relationshipType=record["relationType"],
+                    doId=record["doId"],
+                    dateProduced=datetime.now(),
+                    uuid=str(uuid.uuid4()))
+            gene_disease_ortho_data.append(row)
+            logger.info("primaryId")
+            logger.info(record["geneID"],record["fromGeneID"],record["relationType"].lower(),record["doId"])
 
-            yield [gene_disease_ortho_data]
+        yield [gene_disease_ortho_data]

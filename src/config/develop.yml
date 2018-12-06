@@ -1,10 +1,16 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [SGD, ZFIN, WB]
+BGI: [SGD, ZFIN]
 Ontology:
   - DO
+  - GO
+  - ZFA
+  - ZFS
+  - BSPO
+  - CL
   - UBERON
-Disease: [SGD]
+Disease: [SGD, ZFIN]
 Expression: [SGD, ZFIN]
 Orthology: [SGD, ZFIN]
 GeneDiseaseOrtho: [other]
+ExpressionRibbon: [other]
