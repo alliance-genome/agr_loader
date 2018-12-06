@@ -94,7 +94,7 @@ class GeneDiseaseOrthoETL(ETL):
         retrieve_gene_disease_ortho = """
                 MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
                 MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
-                    WHERE o.strictFilter
+                    WHERE o.strictFilter = "True"
                     AND da.uuid = dej.primaryKey
                     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
                 RETURN DISTINCT gene2.primaryKey AS geneID,
@@ -112,7 +112,7 @@ class GeneDiseaseOrthoETL(ETL):
                     fromGeneId=record["fromGeneID"],
                     relationshipType=record["relationType"].lower(),
                     doId=record["doId"],
-                    dateProduced=datetime.datetime.now(),
+                    dateProduced=datetime.now(),
                     uuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
