@@ -336,10 +336,6 @@ class ExpressionETL(ETL):
                 "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             ]
 
-        #aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
-        #aoSSQualifier, ccQualifier,
-        #stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-        #uberonStageOtherData, crossReferences
 
         # Obtain the generator
         generators = self.get_generators(data_file, batch_size)
@@ -668,8 +664,8 @@ class ExpressionETL(ETL):
                     #counter = 0
 
             if counter > 0:
-                yield [aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
-                       aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                       stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                        uberonStageOtherData, crossReferences]
 
         # TODO: get dataProvider parsing working with ijson.

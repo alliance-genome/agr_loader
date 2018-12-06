@@ -62,14 +62,13 @@ class GeneDiseaseOrthoETL(ETL):
 
         logger.info("Starting Gene Disease Ortho Data")
         query_list = [
-            [GeneDiseaseOrthoETL.insert_gene_disease_ortho, "10000",
+            [self.insert_gene_disease_ortho, "10000",
              "gene_disease_by_orthology.csv"]
         ]
 
         self.create_pub()
 
-        generators = [self.retrieve_gene_disease_ortho()
-                      ]
+        generators = [self.retrieve_gene_disease_ortho()]
 
         CSVTransactor.save_file_static(generators, query_list)
         logger.info("Finished Gene Disease Ortho Data")
@@ -107,13 +106,14 @@ class GeneDiseaseOrthoETL(ETL):
 
         gene_disease_ortho_data = []
 
-        for record in returnSet:
-            row = dict(primaryId=record["geneID"],
-                    fromGeneId=record["fromGeneID"],
-                    relationshipType=record["relationType"].lower(),
-                    doId=record["doId"],
-                    dateProduced=datetime.now(),
-                    uuid=str(uuid.uuid4()))
-            gene_disease_ortho_data.append(row)
+        if returnSet is not None:
+            for record in returnSet:
+                row = dict(primaryId=record["geneID"],
+                        fromGeneId=record["fromGeneID"],
+                        relationshipType=record["relationType"].lower(),
+                        doId=record["doId"],
+                        dateProduced=datetime.now(),
+                        uuid=str(uuid.uuid4()))
+                gene_disease_ortho_data.append(row)
 
-        yield [gene_disease_ortho_data]
+            yield [gene_disease_ortho_data]
