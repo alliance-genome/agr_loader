@@ -48,23 +48,24 @@ class ExpressionRibbonETL(ETL):
         for thread in thread_pool:
             thread.join()
 
-    def _process_sub_type(self, sub_type):
+    def _process_sub_type(self, subtype):
 
         logger.info("Starting Expression Ribbon Data")
         query_list = [
             [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
              "expression_gocc_ribbon_terms.csv"],
-            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
-             "expression_gocc_self_ribbon_terms" + ".csv"],
-            [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
-             "expression_ribbonless_ebes" + ".csv"]
+            #[ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
+            # "expression_gocc_self_ribbon_terms" + ".csv"],
+            #[ExpressionRibbonETL.insert_ribonless_ebes, "10000",
+            # "expression_ribbonless_ebes" + ".csv"]
         ]
 
         generators = [self.get_ribbon_terms(),
-                      self.retrieve_gocc_self_ribbon_terms(),
-                      self.retrieve_gocc_ribbonless_ebes()]
+                      #self.retrieve_gocc_self_ribbon_terms(),
+                      #self.retrieve_gocc_ribbonless_ebes()
+                      ]
 
-        CSVTransactor.execute_transaction(generators, query_list)
+        CSVTransactor.save_file_static(generators, query_list)
         logger.info("Finished Expression Ribbon Data")
 
     def get_ribbon_terms(self):

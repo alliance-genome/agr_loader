@@ -289,7 +289,7 @@ class ExpressionETL(ETL):
         data_file = sub_type.get_filepath()
         logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
 
-        if data_file == None:
+        if data_file is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
@@ -328,7 +328,7 @@ class ExpressionETL(ETL):
 
 
     def get_generators(self, expressionFile, batch_size):
-
+        logger.info("made it to the expression generator")
         counter = 0
         crossReferences = []
         aoExpression = []

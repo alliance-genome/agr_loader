@@ -65,9 +65,10 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'ExpressionRibbon': ExpressionRibbonETL,
+            #'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
+            #'ExpressionRibbon': ExpressionRibbonETL, # expression loader not currently writing data
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
-            #'GeneDiseaseOrthology': GeneDiseaseOrthologyETL,
         }
 
         # This is the order in which data types are loaded.
@@ -85,6 +86,7 @@ class AggregateLoader(object):
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
+            #['GeneDiseaseOrtho'],
             ['ExpressionRibbon'],
         ]
 
@@ -111,10 +113,6 @@ class AggregateLoader(object):
             
         ft.shutdown()
         nt.shutdown()
-
-        # ETLs below get their data from an existent neo4j instance, rather than a file via the data manager
-        # ExpressionRibbonETL().run_etl()
-        # GeneDiseaseOrthology().run_etl()
 
 
 if __name__ == '__main__':

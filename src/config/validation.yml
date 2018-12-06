@@ -52,3 +52,6 @@ Orthology:
 ExpressionRibbon:
   type: list
   allowed: [other]
+GeneDiseaseOrtho:
+  type: list
+  allowed: [other]
