@@ -170,7 +170,6 @@ class DiseaseETL(ETL):
             release = ''
 
         for diseaseRecord in disease_data['data']:
-            logger.info(diseaseRecord)
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType == "gene":
