@@ -56,24 +56,23 @@ class FileTransactor(object):
         filepath = sub_type.get_filepath()
         filepath_to_download = sub_type.get_file_to_download()
 
-        logger.info("%s: Checking whether file is already in the download queue: %s" % (self._get_name(), filepath_to_download))
+        logger.info("%s: Acquiring file: %s from filepath: %s" % (self._get_name(), filepath, filepath_to_download))
+
+        logger.debug("%s: Checking whether the file is currently downloading: %s" % (self._get_name(), filepath_to_download))
 
         if filepath_to_download in filetracking_queue:
-            logger.info("%s: File already exists in download queue: %s" % (self._get_name(), filepath_to_download))
-            logger.info("%s: Waiting for file to exit download queue before proceeding: %s" % (self._get_name(), filepath_to_download))
+            logger.debug("%s: The file is already downloading, waiting for it to finish: %s" % (self._get_name(), filepath_to_download))
             while filepath_to_download in filetracking_queue:
                 sleep(1)
-            logger.info("%s: File no longer found in download queue, proceeding: %s" % (self._get_name(), filepath_to_download))
+            logger.debug("%s: File no longer downloading, proceeding: %s" % (self._get_name(), filepath_to_download))
             sub_type.get_data()
         else:
-            logger.info("%s: File not found in download queue. Adding file: %s" % (self._get_name(), filepath_to_download))
+            logger.debug("%s: File not currently downloading, initiating download: %s" % (self._get_name(), filepath_to_download))
             filetracking_queue.append(filepath_to_download)
-            sleep(5)
-            logger.info("%s: Getting data and downloading: %s" % (self._get_name(), filepath))
             sub_type.get_data()
-            logger.info("%s: Download complete. Removing item from download queue: %s" % (self._get_name(), filepath_to_download))
+            logger.debug("%s: Download complete. Removing item from download queue: %s" % (self._get_name(), filepath_to_download))
             filetracking_queue.remove(filepath_to_download)
 
         logger.debug("%s: Downloading data finished. Starting validation: %s" % (self._get_name(), filepath))
         # sub_type.validate()
-        logger.debug("%s: Validation finish: %s" % (self._get_name(), filepath))
+        logger.debug("%s: Validation finished: %s" % (self._get_name(), filepath))

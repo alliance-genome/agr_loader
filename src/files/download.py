@@ -4,6 +4,8 @@ logger = logging.getLogger(__name__)
 import os
 import urllib.request
 
+#TODO Consolidate these functions with s3_file.py
+
 class Download(object):
 
     def __init__(self, savepath, urlToRetieve, filenameToSave):
