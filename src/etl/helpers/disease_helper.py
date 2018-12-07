@@ -10,13 +10,9 @@ class DiseaseHelper(object):
 
     @staticmethod
     def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
-        fishEnvId = None
-        conditions = None
         qualifier = None
         publicationModId = None
         pubMedId = None
-
-        diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
         primaryId = diseaseRecord.get('objectId')
 
@@ -75,42 +71,43 @@ class DiseaseHelper(object):
             if 'evidenceCodes' in diseaseRecord['evidence']:
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
-            if diseaseRecord.get('taxonId') == 'taxon:559292':
-                taxonId = "NCBITaxon:559292"
-            else:
-                taxonId = diseaseRecord.get('taxonId')
-
             disease_feature = {
-                "primaryId": primaryId,
-                "diseaseObjectName": diseaseRecord.get('objectName'),
-                "diseaseObjectType": diseaseObjectType,
-                "taxonId": taxonId,
-                "diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
-                "with": diseaseRecord.get('with'),
                 "doId": diseaseRecord.get('DOid'),
-                "pubMedId": pubMedId,
-                "pubMedUrl": pubMedUrl,
-                "pubModId": publicationModId,
-                "pubModUrl": pubModUrl,
-                "pubPrimaryKey": pubMedId + publicationModId,
-                "release": release,
+                "primaryId": primaryId,
+                "uuid": annotationUuid,
                 "dataProviders": dataProviders,
-                "dataProvider": dataProviderSingle,
                 "relationshipType": diseaseAssociationType,
                 "dateProduced": dateProduced,
-                "qualifier": qualifier,
-                "doDisplayId": diseaseRecord.get('DOid'),
-                "doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
-                "doPrefix": "DOID",
-                # doing the typing in neo, but this is for backwards compatibility in ES
+                "dataProvider": dataProviderSingle,
+                
+                "pubPrimaryKey": pubMedId + publicationModId,
+                
+                "pubModId": publicationModId,
+                "pubMedId": pubMedId,
+                "pubMedUrl": pubMedUrl,
+                "pubModUrl": pubModUrl,
+                
                 "ecodes": ecodes,
-                "definition": diseaseRecord.get('definition'),
-                "inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
-                "experimentalConditions": conditions,
-                "fishEnvId": fishEnvId,
-                "additionalGeneticComponents": additionalGeneticComponents,
-                "uuid": annotationUuid,
-                "loadKey": loadKey,
-                "allelicGeneId": allelicGeneId
+                
+                ## Not used in current load
+                #"diseaseObjectName": diseaseRecord.get('objectName'),
+                #"diseaseObjectType": diseaseObjectType,
+                #"taxonId": taxonId,
+                #"diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
+                #"with": diseaseRecord.get('with'),
+                #"release": release,
+                #"qualifier": qualifier,
+                #"doDisplayId": diseaseRecord.get('DOid'),
+                #"doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
+                #"doPrefix": "DOID",
+                # doing the typing in neo, but this is for backwards compatibility in ES
+                
+                #"definition": diseaseRecord.get('definition'),
+                #"inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
+                #"experimentalConditions": conditions,
+                #"fishEnvId": fishEnvId,
+                #"additionalGeneticComponents": additionalGeneticComponents,
+                #"loadKey": loadKey,
+                #"allelicGeneId": allelicGeneId
             }
             return disease_feature

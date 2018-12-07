@@ -3,6 +3,7 @@ logger = logging.getLogger(__name__)
 
 import os
 import tarfile
+import time
 
 class TARFile(object):
 
@@ -15,7 +16,23 @@ class TARFile(object):
 
         members_to_extract = []
         extract = False
-        tfile = tarfile.open(self.path + "/" + self.tarfilename, 'r')
+
+        attempts = 0
+        # Our little retry loop. Implemented due to speed-related writing errors.
+        # TODO Replace / update with "tenacity" module.
+        while attempts < 3:
+            try: 
+                tfile = tarfile.open(self.path + "/" + self.tarfilename, 'r')
+                break
+            except tarfile.ReadError as e:
+                logger.warn('ReadError encountered when opening tar file.')
+                logger.warn('Sleeping for 2 seconds and trying again.')
+                logger.warn(e)
+                attempts += 1
+                time.sleep(2)
+        if attempts == 3:
+            raise tarfile.ReadError('Tar file could not be read after 3 attempts: %s + "/" + %s' % (self.path, self.tarfilename))
+
         for member in tfile.getmembers():
             lower_name = member.name.lower()
             if 'gff' in lower_name:

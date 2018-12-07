@@ -7,7 +7,6 @@ from .sub_type_config import SubTypeConfig
 
 logger = logging.getLogger(__name__)
 
-
 class DataTypeConfig(object):
 
     def __init__(self, data_type, submission_system_data):
@@ -41,7 +40,6 @@ class DataTypeConfig(object):
 
             # Send it off to be queued and executed.
             FileTransactor.execute_transaction(sub_type)
-
 
     def running_etl(self):
         return True

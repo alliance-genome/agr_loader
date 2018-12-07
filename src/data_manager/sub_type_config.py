@@ -2,6 +2,7 @@ import logging
 import os, json, sys, jsonref
 from pathlib import Path
 from urllib.parse import urljoin
+from transactors import FileTransactor
 
 from files import S3File, TARFile, Download
 import jsonschema as js
