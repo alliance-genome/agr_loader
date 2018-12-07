@@ -111,7 +111,7 @@ class AggregateLoader(object):
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        logger.info('Loader finished. Elapsed time: %s' % elapsed_time)
+        logger.info('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 if __name__ == '__main__':
     AggregateLoader().run_loader()
