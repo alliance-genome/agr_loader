@@ -173,26 +173,16 @@ class DiseaseETL(ETL):
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType == "gene":
-                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
-                gene_list_to_yield.append(disease_features)
+                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                if disease_record is not None:
+                    gene_list_to_yield.append(disease_record)
                  
             elif diseaseObjectType == "allele":
-                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
-                allele_list_to_yield.append(disease_features)
+                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                if disease_record is not None:
+                    allele_list_to_yield.append(disease_record)
             else:
                 continue
-            
-                # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
-                # featurePrimaryId = diseaseRecord.get('objectId')
-                # returnSet = Transaction.run_single_parameter_query(query, featurePrimaryId)
-                # counter = 0
-                # allelicGeneId = ''
-                # for gene in returnSet:
-                #     counter += 1
-                #     allelicGeneId = gene["g.primaryKey"]
-                # if counter > 1:
-                #     allelicGeneId = ''
-                #     logger.info ("returning more than one gene: this is an error")
 
             if len(allele_list_to_yield) == batch_size or len(gene_list_to_yield) == batch_size:
                 yield [allele_list_to_yield, gene_list_to_yield]
