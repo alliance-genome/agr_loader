@@ -1,4 +1,4 @@
-import logging, coloredlogs, os, sys, multiprocessing
+import logging, coloredlogs, os, sys, multiprocessing, time
 from etl import *
 from transactors import CSVTransactor, Neo4jTransactor, FileTransactor
 from transactions import Indicies
@@ -38,7 +38,7 @@ class AggregateLoader(object):
         ft.wait_for_queues()
 
         nt = Neo4jTransactor()
-        nt.start_threads(7)
+        nt.start_threads(4)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass
@@ -82,6 +82,8 @@ class AggregateLoader(object):
             ['GeoXref'], # Locks Genes
         ]
 
+        start_time = time.time()
+
         for etl_group in list_of_etl_groups:
             logger.debug("ETL's in group: %s" % etl_group)
             thread_pool = []
@@ -105,6 +107,11 @@ class AggregateLoader(object):
             
         ft.shutdown()
         nt.shutdown()
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        logger.info('Loader finished. Elapsed time: %s' % elapsed_time)
 
 if __name__ == '__main__':
     AggregateLoader().run_loader()
