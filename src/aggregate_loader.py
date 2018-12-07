@@ -59,15 +59,15 @@ class AggregateLoader(object):
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
+            'ExpressionRibbon': ExpressionRibbonETL,
             'Disease': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
             'Ontology': GenericOntologyETL,
+            # 'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
-            'ExpressionRibbon': ExpressionRibbonETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            'Closure': ClosureETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
         }
@@ -79,17 +79,17 @@ class AggregateLoader(object):
         list_of_etl_groups = [
             ['Ontology'],
             ['GO', 'DO', 'SO', 'MI'],
+            # ['Closure'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
+            ['ExpressionRibbon'],
             ['Disease'],  # Locks Genes
             ['Phenotype'],  # Locks Genes
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
-            ['ExpressionRibbon'],
-            ['Closure'],
         ]
 
         start_time = time.time()

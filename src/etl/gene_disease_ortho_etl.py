@@ -77,7 +77,7 @@ class GeneDiseaseOrthoETL(ETL):
 
     def create_pub(self):
 
-        logger.info("made it to the gocc ribbon retrieve")
+        logger.info("made it to the create pub for gene disease ortho")
 
         addPub = """              
         
@@ -85,6 +85,7 @@ class GeneDiseaseOrthoETL(ETL):
                   SET pubg.pubModId = "MGI:6194238"
                   SET pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})
+              
                     """
 
         logger.info("pub creation started")
