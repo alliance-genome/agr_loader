@@ -34,7 +34,9 @@ class DOETL(ETL):
              doterm.zfinLink = row.zfin_link,
              doterm.flybaseLink = row.flybase_link,
              doterm.wormbaseLink = row.wormbase_link,
-             doterm.sgdLink = row.sgd_link """
+             doterm.sgdLink = row.sgd_link 
+             
+            MERGE (doterm)-[ggcg:IS_A_PART_OF_SELF_CLOSURE]->(doterm)"""
     
     doterm_synonyms_template = """
         USING PERIODIC COMMIT %s

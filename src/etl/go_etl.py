@@ -20,7 +20,8 @@ class GOETL(ETL):
              g.subset = row.subset,
              g.nameKey = row.name_key,
              g.is_obsolete = row.is_obsolete,
-             g.href = row.href """
+             g.href = row.href 
+            MERGE (g)-[ggcg:IS_A_PART_OF_SELF_CLOSURE]->(g)"""
 
     goterm_isas_template = """
         USING PERIODIC COMMIT %s

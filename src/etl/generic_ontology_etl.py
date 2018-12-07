@@ -27,6 +27,7 @@ class GenericOntologyETL(ETL):
                 g.is_obsolete = row.is_obsolete,
                 g.href = row.href,
                 g.display_synonym = row.display_synonym
+        MERGE (g)-[gccg:IS_A_PART_OF_SELF_CLOSURE]->(g)
         """
 
     generic_ontology_synonyms_template = """

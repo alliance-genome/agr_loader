@@ -66,7 +66,8 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'ExpressionRibbon': ExpressionRibbonETL,
-            #'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
+            'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
+            'Closure': ClosureETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
         }
@@ -86,8 +87,9 @@ class AggregateLoader(object):
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
-            #['GeneDiseaseOrtho'],
+            ['GeneDiseaseOrtho'],
             ['ExpressionRibbon'],
+            ['Closure'],
         ]
 
         start_time = time.time()
