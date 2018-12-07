@@ -119,7 +119,7 @@ class DiseaseETL(ETL):
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Disease Data: %s" % sub_type.get_data_provider())
 
-        if data == None:
+        if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 

@@ -49,3 +49,9 @@ Ontology:
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ExpressionRibbon:
+  type: list
+  allowed: [other]
+GeneDiseaseOrtho:
+  type: list
+  allowed: [other]

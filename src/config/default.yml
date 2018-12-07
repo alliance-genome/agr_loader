@@ -27,3 +27,5 @@ Ontology:
   - MA
   - UBERON
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ExpressionRibbon: [other]
+GeneDiseaseOrtho: [other]

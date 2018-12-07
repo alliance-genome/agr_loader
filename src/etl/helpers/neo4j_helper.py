@@ -4,6 +4,7 @@ from neo4j.v1 import GraphDatabase
 
 logger = logging.getLogger(__name__)
 
+
 class Neo4jHelper(object):
 
     if "NEO4J_NQC_HOST" in os.environ:
@@ -34,6 +35,7 @@ class Neo4jHelper(object):
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query)
         return returnSet
+
     
     #def execute_transaction_batch(self, query, data, batch_size):
     #    logger.info("Executing batch query. Please wait...")

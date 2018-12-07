@@ -1,15 +1,15 @@
 import logging
-logger = logging.getLogger(__name__)
-
 import codecs
 import uuid
-
 import ijson
 import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from transactors import CSVTransactor
+from transactions import Transaction
+logger = logging.getLogger(__name__)
+
 
 class ExpressionETL(ETL):
 
@@ -18,18 +18,6 @@ class ExpressionETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETLHelper.get_cypher_xref_text()
-
-    AddOther = """
-    
-        MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
-            ON CREATE SET other.name = 'other'
-        MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
-            ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
-        MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
-            ON CREATE SET othergo.name = 'other locations'
-            ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
-            ON CREATE SET othergo.type = 'other'
-            ON CREATE SET othergo.subset = 'goslim_agr' """
 
     AOExpression = """
         USING PERIODIC COMMIT %s
@@ -45,23 +33,23 @@ class ExpressionETL(ETL):
             
             WITH g, assay, otast, row
 
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
                     SET gex.uuid = row.ei_uuid
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
                 
-                MERGE (gej)-[geja:ASSAY]-(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
         
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
+                CREATE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -69,7 +57,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     SGDCCExpression = """
 
@@ -83,23 +71,23 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = otcct.name
 
-                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
                     SET gex.uuid = row.ei_uuid
 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
 
-                MERGE (gej)-[geja:ASSAY]-(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -107,7 +95,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     CCExpression = """
 
@@ -121,23 +109,23 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
                     SET gex.uuid = row.ei_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (gej)-[geja:ASSAY]-(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -145,7 +133,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     AOCCExpression = """
         
@@ -166,14 +154,14 @@ class ExpressionETL(ETL):
                 MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                 
-                MERGE (g)-[gex:EXPRESSED_IN]-(e)
+                MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     SET gex.uuid = row.ei_uuid
                              
                 MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
                     SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (gej)-[geja:ASSAY]-(assay)
+                MERGE (gej)-[geja:ASSAY]->(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
@@ -277,6 +265,7 @@ class ExpressionETL(ETL):
         thread_pool = []
         
         for sub_type in self.data_type_config.get_sub_type_objects():
+
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
             p.start()
             thread_pool.append(p)
@@ -288,9 +277,10 @@ class ExpressionETL(ETL):
         
         logger.info("Loading Expression Data: %s" % sub_type.get_data_provider())
         data_file = sub_type.get_filepath()
-        logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
+        data_provider = sub_type.get_data_provider()
 
-        if data_file == None:
+
+        if data_file is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
@@ -298,37 +288,87 @@ class ExpressionETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.SGDCCExpression, commit_size, "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
-        ]
 
-        #[aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
-        #    aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-        #    uberonStageOtherData, crossReferences]
+        if data_provider == 'SGD':
+            query_list = [
+                [ExpressionETL.AOExpression, commit_size,
+                 "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.SGDCCExpression, commit_size,
+                 "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.AOCCExpression, commit_size,
+                 "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASQualified, commit_size,
+                 "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSubstructure, commit_size,
+                 "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSQualified, commit_size,
+                 "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCQExpression, commit_size,
+                 "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.stageExpression, commit_size,
+                 "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStage, commit_size,
+                 "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAOOther, commit_size,
+                 "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStageOther, commit_size,
+                 "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.xrefs_template, commit_size,
+                 "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            ]
+        else:
+            query_list = [
+                [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
+                [ExpressionETL.xrefs_template, commit_size,
+                "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            ]
+
 
         # Obtain the generator
         generators = self.get_generators(data_file, batch_size)
+
+        # add the 'other' nodes to support the expression ribbon components.
+        self.add_other()
 
         # Prepare the transaction
         CSVTransactor.save_file_static(generators, query_list)
         #CSVTransactor.execute_transaction(generators, query_list)
         logger.info("Sending Generator to CSV extractor: %s" % sub_type.get_data_provider())
 
-    def get_generators(self, expressionFile, batch_size):
+        logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
+    def add_other(self):
 
+        logger.info("made it to the addOther statement")
+
+        AddOther = """
+
+            MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+                ON CREATE SET other.name = 'other'
+            MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
+            MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                ON CREATE SET othergo.name = 'other locations'
+                ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
+                ON CREATE SET othergo.type = 'other'
+                ON CREATE SET othergo.subset = 'goslim_agr' """
+
+        Transaction().execute_transaction(AddOther, "expression_ribbon_other")
+
+
+    def get_generators(self, expressionFile, batch_size):
+        logger.info("made it to the expression generator")
         counter = 0
         crossReferences = []
         aoExpression = []
@@ -396,6 +436,7 @@ class ExpressionETL(ETL):
                         pubMedId = ""
 
                 assay = xpat.get('assay')
+                #logger.info("expression assay: " + assay)
                 ei_uuid = str(uuid.uuid4())
                 ebe_uuid = str(uuid.uuid4())
 
@@ -603,8 +644,9 @@ class ExpressionETL(ETL):
                 if counter == batch_size:
                     counter = 0
                     logger.debug("counter equals batch size")
-                    yield [aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
-                           aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                    yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
+                           aoSSQualifier, ccQualifier,
+                           stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                            uberonStageOtherData, crossReferences]
                     aoExpression = []
                     ccExpression = []
@@ -622,8 +664,8 @@ class ExpressionETL(ETL):
                     #counter = 0
 
             if counter > 0:
-                yield [aoExpression, ccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
-                       aoccExpression, stageList, stageUberonData, uberonAOData, uberonAOOtherData,
+                yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                       stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                        uberonStageOtherData, crossReferences]
 
         # TODO: get dataProvider parsing working with ijson.

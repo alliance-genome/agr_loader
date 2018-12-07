@@ -5,6 +5,7 @@ from .transaction import Transaction
 
 logger = logging.getLogger(__name__)
 
+
 class GeneDiseaseOrthoTransaction(Transaction):
     
     def __init__(self):

@@ -18,7 +18,7 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         //Create the Term node and set properties. primaryKey is required.
-        MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
+        MERGE (g:%sTerm:Ontology:AnatomyOntology {primaryKey:row.oid})
             ON CREATE SET g.definition = row.definition,
                 g.type = row.o_type,
                 g.href = row.href,

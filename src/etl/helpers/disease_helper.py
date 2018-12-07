@@ -5,6 +5,7 @@ from etl.helpers import ETLHelper
 
 logger = logging.getLogger(__name__)
 
+
 class DiseaseHelper(object):
 
     @staticmethod

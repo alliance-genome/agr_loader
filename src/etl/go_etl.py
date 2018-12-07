@@ -10,10 +10,10 @@ class GOETL(ETL):
 
     query_template = """
         USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' as row
 
         //Create the GOTerm node and set properties. primaryKey is required.
-        MERGE (g:GOTerm:Ontology {primaryKey:row.oid})
+        CREATE (g:GOTerm:Ontology {primaryKey:row.oid})
             SET g.definition = row.definition,
              g.type = row.o_type,
              g.name = row.name ,
