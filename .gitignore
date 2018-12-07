@@ -7,3 +7,4 @@ tmp
 venv/*
 *.pyc
 .settings
+src/config/develop.yml
