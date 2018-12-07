@@ -74,7 +74,7 @@ class ExpressionETL(ETL):
             CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = otcct.name
 
-                CREATE (g)-[gex:EXPRESSED_IN]-(e)
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
                     SET gex.uuid = row.ei_uuid
 
                 CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})

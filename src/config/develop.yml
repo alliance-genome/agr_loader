@@ -1,31 +1,17 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Allele: [FB, WB, ZFIN, RGD, MGI]
-Expression: [FB, SGD, WB, ZFIN, MGI, Human]
-Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+BGI: [SGD, ZFIN]
+Expression: [SGD, ZFIN]
+Disease: [SGD, ZFIN]
 Ontology:
   - GO
   - SO
   - DO
-  - MI
   - ZFA
   - ZFS
-  - WBBT
   - CL
-  - FBDV
-  - FBBT
-  - FBCV
-  - MMUSDV
   - BSPO
   - MMO
-  - WBLS
-  - EMAPA
-  - MA
   - UBERON
-Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Orthology: [SGD, ZFIN]
 ExpressionRibbon: [other]
-GeneDiseaseOrtho: [other]
