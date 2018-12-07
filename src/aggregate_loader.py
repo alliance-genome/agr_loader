@@ -114,7 +114,6 @@ class AggregateLoader(object):
             logger.info("Waiting for Queues to sync up")
             Neo4jTransactor().wait_for_queues()
             logger.info("Queue sync finished")
-            
         
         nt.shutdown()
 
