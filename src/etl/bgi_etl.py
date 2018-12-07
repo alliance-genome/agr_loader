@@ -118,8 +118,6 @@ class BGIETL(ETL):
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        
-        logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
         # This order is the same as the lists yielded from the get_generators function.    
         # A list of tuples.
@@ -143,6 +141,8 @@ class BGIETL(ETL):
         # Prepare the transaction
         CSVTransactor.save_file_static(generators, query_list)
         #CSVTransactor.execute_transaction(generators, query_list)
+
+        logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
     def get_generators(self, gene_data, data_provider, batch_size):
 

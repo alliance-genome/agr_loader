@@ -283,6 +283,22 @@
             "tempExtractedFile": null,
             "uploadDate": 1522181475376
         },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "ExpressionRibbon",
+            "subType": "other",
+            "path": null,
+            "tempExtractedFile": null,
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "GeneDiseaseOrtho",
+            "subType": "other",
+            "path": null,
+            "tempExtractedFile": null,
+            "uploadDate": 1522181475376
+        },
         { "schemaVersion": "1.0.0.7", "dataType": "GeoXref", "subType": "MGI", "path": null, "tempExtractedFile": null, "uploadDate": 1522181475376 },
         { "schemaVersion": "1.0.0.7", "dataType": "GeoXref", "subType": "WB", "path": null, "tempExtractedFile": null, "uploadDate": 1522181475376 },
         { "schemaVersion": "1.0.0.7", "dataType": "GeoXref", "subType": "FB", "path": null, "tempExtractedFile": null, "uploadDate": 1522181475376 },

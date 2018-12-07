@@ -13,3 +13,5 @@ from .helpers import *
 from .generic_ontology_etl import GenericOntologyETL
 from .go_annot_etl import GOAnnotETL
 from .geo_xref_etl import GeoXrefETL
+from .expression_ribbon_etl import ExpressionRibbonETL
+from .gene_disease_ortho_etl import GeneDiseaseOrthoETL

@@ -9,6 +9,7 @@ from neo4j.v1 import GraphDatabase
 
 logger = logging.getLogger(__name__)
 
+
 class Neo4jTransactor(object):
 
     count = 0
@@ -86,7 +87,7 @@ class Neo4jTransactor(object):
                 start = time.time()
                 try:
                     
-                    if Neo4jTransactor.using_pickle == True:
+                    if Neo4jTransactor.using_pickle is True:
                         # Save VIA pickle rather then NEO
                         file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         file = open(file_name,'wb')
@@ -116,5 +117,3 @@ class Neo4jTransactor(object):
             batch_elapsed_time = batch_end - batch_start
             logger.debug("%s: Query Batch finished: %s BatchSize: %s Time: %s" % (self._get_name(), query_counter, len(query_batch), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time))))
             Neo4jTransactor.queue.task_done()
-            
-            

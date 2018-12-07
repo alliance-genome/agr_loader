@@ -8,15 +8,16 @@ from .data_type_config import DataTypeConfig
 
 logger = logging.getLogger(__name__)
 
+
 class DataFileManager(object):
     
     def __init__(self, config_file_loc):
-        logger.info('Loading config file: %s' % (config_file_loc))
+        logger.info('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file)
         logger.debug("Config Data: %s" % self.config_data)
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
-        logger.info('Loading validation schema: %s' % (validation_yaml_file_loc))
+        logger.info('Loading validation schema: %s' % validation_yaml_file_loc)
         validation_schema_file = open(validation_yaml_file_loc, 'r')
         self.validation_schema = yaml.load(validation_schema_file)
 
