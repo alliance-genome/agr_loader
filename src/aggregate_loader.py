@@ -40,9 +40,10 @@ class AggregateLoader(object):
         ft.start_threads(10)
         data_manager.download_and_validate()
         ft.wait_for_queues()
-
+        ft.shutdown()
+        
         nt = Neo4jTransactor()
-        nt.start_threads(4)
+        nt.start_threads(7)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass
@@ -112,13 +113,13 @@ class AggregateLoader(object):
             Neo4jTransactor().wait_for_queues()
             logger.info("Queue sync finished")
             
-        ft.shutdown()
+        
         nt.shutdown()
 
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        logger.info('Loader finished. Elapsed time: %s' % elapsed_time)
+        logger.info('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 
 if __name__ == '__main__':
