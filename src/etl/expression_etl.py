@@ -278,7 +278,7 @@ class ExpressionETL(ETL):
         logger.info("Loading Expression Data: %s" % sub_type.get_data_provider())
         data_file = sub_type.get_filepath()
         data_provider = sub_type.get_data_provider()
-        logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
+
 
         if data_file is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
@@ -287,7 +287,6 @@ class ExpressionETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-# [ExpressionETL.SGDCCExpression, commit_size, "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
         # This needs to be in this format (template, param1, params2) others will be ignored
 
         if data_provider == 'SGD':
@@ -348,6 +347,7 @@ class ExpressionETL(ETL):
         #CSVTransactor.execute_transaction(generators, query_list)
         logger.info("Sending Generator to CSV extractor: %s" % sub_type.get_data_provider())
 
+        logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
     def add_other(self):
 
         logger.info("made it to the addOther statement")

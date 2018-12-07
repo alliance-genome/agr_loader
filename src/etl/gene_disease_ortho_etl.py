@@ -70,7 +70,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         logger.info("gene disease ortho pub created")
 
-        generators = [self.retrieve_gene_disease_ortho()]
+        generators = [GeneDiseaseOrthoETL.retrieve_gene_disease_ortho()]
 
         CSVTransactor.save_file_static(generators, query_list)
         logger.info("Finished Gene Disease Ortho Data")
@@ -119,7 +119,5 @@ class GeneDiseaseOrthoETL(ETL):
                     dateProduced=datetime.now(),
                     uuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
-            logger.info("primaryId")
-            logger.info(record["geneID"],record["fromGeneID"],record["relationType"].lower(),record["doId"])
 
         yield [gene_disease_ortho_data]

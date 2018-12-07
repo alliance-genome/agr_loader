@@ -65,8 +65,7 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'ExpressionRibbon': ExpressionRibbonETL,
-            'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            'ExpressionRibbon': ExpressionRibbonETL,
+            #'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
             #'ResourceDescriptor': ResourceDescriptorETL,
             #'MolecularInteraction': MolecularInteractionETL,
         }
@@ -86,7 +85,7 @@ class AggregateLoader(object):
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
-            ['GeneDiseaseOrtho'],
+            #['GeneDiseaseOrtho'],
             ['ExpressionRibbon'],
         ]
 
