@@ -55,3 +55,6 @@ ExpressionRibbon:
 GeneDiseaseOrtho:
   type: list
   allowed: [other]
+SearchClosure:
+  type: list
+  allowed: [other]

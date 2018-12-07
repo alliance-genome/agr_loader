@@ -37,6 +37,23 @@ class ExpressionRibbonETL(ETL):
                     MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
         """
 
+    expression_gocc_ribbon_retrieve = """
+                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+                where slimTerm.subset =~ '.*goslim_agr.*'
+                return ebe.primaryKey, slimTerm.primaryKey
+                """
+
+    gocc_self_ribbon_ebes = """
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
+        where got.subset =~ '.*goslim_agr.*'
+        return ebe.primaryKey, got.primaryKey; 
+        """
+
+    ribbonless_ebes = """
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
+        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey;           
+    """
+
     def _load_and_process_data(self):
         thread_pool = []
 
@@ -53,17 +70,15 @@ class ExpressionRibbonETL(ETL):
         logger.info("Starting Expression Ribbon Data")
         query_list = [
             [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
-             "expression_gocc_ribbon_terms.csv"],
-            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
-             "expression_gocc_self_ribbon_terms" + ".csv"],
-            [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
-             "expression_ribbonless_ebes" + ".csv"]
+             "expression_gocc_ribbon_terms.csv"] ,
+             [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
+              "expression_gocc_self_ribbon_terms" + ".csv"],
+             [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
+              "expression_ribbonless_ebes" + ".csv"]
         ]
 
-        generators = [self.get_ribbon_terms(),
-                      self.retrieve_gocc_self_ribbon_terms(),
-                      self.retrieve_gocc_ribbonless_ebes()
-                      ]
+        generators = self.get_ribbon_terms()
+
 
         CSVTransactor.save_file_static(generators, query_list)
         logger.info("Finished Expression Ribbon Data")
@@ -72,74 +87,33 @@ class ExpressionRibbonETL(ETL):
 
         logger.info("made it to the gocc ribbon retrieve")
 
-        expression_gocc_ribbon_retrieve = """
-                    MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
-                    where slimTerm.subset =~ '.*goslim_agr.*'
-                    return ebe.primaryKey, slimTerm.primaryKey
-                    """
 
-        returnSet = Neo4jHelper().run_single_query(expression_gocc_ribbon_retrieve)
+        returnSetRT = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve)
 
         gocc_ribbon_data = []
 
-        for record in returnSet:
+        for record in returnSetRT:
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
 
-
-        yield [gocc_ribbon_data]
-
-    def retrieve_gocc_ribbon_terms(self):
-
-        logger.info("made it to the gocc ribbon retrieve")
-        expression_gocc_ribbon_retrieve = """
-            MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
-            where slimTerm.subset =~ '.*goslim_agr.*'
-            return ebe.primaryKey, slimTerm.primaryKey
-            """
-
-        returnSet = Neo4jHelper().run_single_query(expression_gocc_ribbon_retrieve)
-
-        gocc_ribbon_data = []
-
-        for record in returnSet:
-            row = dict(ebe_id=record["ebe.primaryKey"],
-                       go_id=record["slimTerm.primaryKey"])
-            gocc_ribbon_data.append(row)
-
-        yield [gocc_ribbon_data]
-
-    def retrieve_gocc_self_ribbon_terms(self):
         gocc_self_ribbon_data = []
 
-        gocc_self_ribbon_ebes = """
-            MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
-            where got.subset =~ '.*goslim_agr.*'
-            return ebe.primaryKey, got.primaryKey; 
-        """
+        returnSetSRT = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes)
 
-        returnSet = Neo4jHelper().run_single_query(gocc_self_ribbon_ebes)
-        for record in returnSet:
+        for record in returnSetSRT:
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["got.primaryKey"])
 
             gocc_self_ribbon_data.append(row)
 
-        yield [gocc_self_ribbon_data]
-
-    def retrieve_gocc_ribbonless_ebes(self):
-        ribbonless_ebes = """
-            MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm) 
-            WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey;           
-        """
-        returnSet = Neo4jHelper().run_single_query(ribbonless_ebes)
+        returnSetRLE = Neo4jHelper().run_single_query(self.ribbonless_ebes)
 
         gocc_ribbonless_data = []
 
-        for record in returnSet:
+        for record in returnSetRLE:
             row = dict(ebe_id=record["ebe.primaryKey"])
             gocc_ribbonless_data.append(row)
 
-        yield [gocc_ribbonless_data]
+        yield [gocc_ribbon_data, gocc_self_ribbon_data, gocc_ribbonless_data]
 

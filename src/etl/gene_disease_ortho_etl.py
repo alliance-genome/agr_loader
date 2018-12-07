@@ -70,7 +70,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         logger.info("gene disease ortho pub created")
 
-        generators = [GeneDiseaseOrthoETL.retrieve_gene_disease_ortho()]
+        generators = self.retrieve_gene_disease_ortho()
 
         CSVTransactor.save_file_static(generators, query_list)
         logger.info("Finished Gene Disease Ortho Data")
