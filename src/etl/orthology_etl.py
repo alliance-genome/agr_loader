@@ -19,47 +19,29 @@ class OrthologyETL(ETL):
             MATCH(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
             MATCH(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
     
-            MERGE (g1)-[orth:ORTHOLOGOUS {primaryKey:row.uuid}]->(g2)
-                SET orth.isBestScore = row.isBestScore,
-                 orth.isBestRevScore = row.isBestRevScore,
-                 orth.confidence = row.confidence,
-                 orth.strictFilter = row.strictFilter,
-                 orth.moderateFilter = row.moderateFilter
+            CREATE (g1)-[orth:ORTHOLOGOUS]->(g2)
+                SET orth.primaryKey = row.uuid,
+                    orth.isBestScore = row.isBestScore,
+                    orth.isBestRevScore = row.isBestRevScore,
+                    orth.confidence = row.confidence,
+                    orth.strictFilter = row.strictFilter,
+                    orth.moderateFilter = row.moderateFilter
     
             //Create the Association node to be used for the object/doTerm
-            MERGE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
                 SET oa.joinType = 'orthologous'
-            MERGE (g1)-[a1:ASSOCIATION]->(oa)
-            MERGE (oa)-[a2:ASSOCIATION]->(g2)
+            CREATE (g1)-[a1:ASSOCIATION]->(oa)
+            CREATE (oa)-[a2:ASSOCIATION]->(g2) """
 
-    """
-
-    matched_algorithm_template = """
+    algorithm_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (match:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa)-[m:MATCHED]->(match)
-    """
-
-    unmatched_algorithm_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (notmatch:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa)-[m:NOT_MATCHED]->(notmatch)
-    """
-
-    not_called_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
-            MATCH (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (notcalled:OrthoAlgorithm {name:row.algorithm})
-                MERGE (oa)-[m:NOT_CALLED]->(notcalled)
-    """
+            MATCH (ogj:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+            WITH ogj, oa, row
+                CALL apoc.create.relationship(ogj, row.reltype, {}, oa) YIELD rel
+                RETURN rel """
 
     def __init__(self, config):
         super().__init__()
@@ -91,9 +73,7 @@ class OrthologyETL(ETL):
 
         query_list = [
             [OrthologyETL.query_template, commit_size, "orthology_data_" + sub_type.get_data_provider() + ".csv"],
-            [OrthologyETL.matched_algorithm_template, commit_size, "orthology_matched_data_" + sub_type.get_data_provider() + ".csv"],
-            [OrthologyETL.unmatched_algorithm_template, commit_size, "orthology_unmatched_data_" + sub_type.get_data_provider() + ".csv"],
-            [OrthologyETL.not_called_template, commit_size, "orthology_called_data_" + sub_type.get_data_provider() + ".csv"],
+            [OrthologyETL.algorithm_template, commit_size, "orthology_algorithm_data_" + sub_type.get_data_provider() + ".csv"],
         ]
             
         CSVTransactor.save_file_static(generators, query_list)
@@ -101,10 +81,9 @@ class OrthologyETL(ETL):
     def get_generators(self, ortho_data, batch_size):
 
         counter = 0
-        matched_data = []
-        unmatched_data = []
+        
         ortho_data_list = []
-        notcalled_data = []
+        algorithm_data = []
 
         dataProviderObject = ortho_data['metaData']['dataProvider']
 
@@ -170,32 +149,33 @@ class OrthologyETL(ETL):
                 for matched in orthoRecord.get('predictionMethodsMatched'):
                     matched_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": matched
+                        "algorithm": matched,
+                        "reltype": "MATCHED"
                     }
-                    matched_data.append(matched_dataset)
+                    algorithm_data.append(matched_dataset)
 
                 for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
                     unmatched_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": unmatched
+                        "algorithm": unmatched,
+                        "reltype": "NOT_MATCHED"
                     }
-                    unmatched_data.append(unmatched_dataset)
+                    algorithm_data.append(unmatched_dataset)
 
                 for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
                     notcalled_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": notcalled
+                        "algorithm": notcalled,
+                        "reltype": "NOT_CALLED"
                     }
-                    notcalled_data.append(notcalled_dataset)
+                    algorithm_data.append(notcalled_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
                 if counter == batch_size:
-                    yield [ortho_data_list, matched_data, unmatched_data, notcalled_data]
+                    yield [ortho_data_list, algorithm_data]
                     ortho_data_list = []
-                    matched_data = []
-                    unmatched_data = []
-                    notcalled_data = []
+                    algorithm_data = []
                     counter = 0
 
         if counter > 0:
-            yield [ortho_data_list, matched_data, unmatched_data, notcalled_data]
+            yield [ortho_data_list, algorithm_data]

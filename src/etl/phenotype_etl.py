@@ -23,20 +23,20 @@ class PhenoTypeETL(ETL):
 
             MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
-                 pa.joinType = 'phenotype',
-                 pa.dataProviders = row.dataProviders
+                    pa.joinType = 'phenotype',
+                    pa.dataProviders = row.dataProviders
 
-            MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+            CREATE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
-            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
-            MERGE (pa)-[pad:ASSOCIATION]->(p)
-            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
+            CREATE (feature)-[fpaf:ASSOCIATION]->(pa)
+            CREATE (pa)-[pad:ASSOCIATION]->(p)
+            CREATE (ag)-[agpa:ASSOCIATION]->(pa)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
@@ -52,20 +52,20 @@ class PhenoTypeETL(ETL):
                 SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityJoin
-                SET pa.joinType = 'phenotype'
-                SET pa.dataProviders = row.dataProviders
-                SET pa.dataProvider = row.dataProvider
+                SET pa :PhenotypeEntityJoin,
+                    pa.joinType = 'phenotype',
+                    pa.dataProviders = row.dataProviders,
+                    pa.dataProvider = row.dataProvider
             
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+                CREATE (pa)-[pad:ASSOCIATION]->(p)
+                CREATE (g)-[gpa:ASSOCIATION]->(pa)
+                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId
-                SET pubf.pubMedId = row.pubMedId
-                SET pubf.pubModUrl = row.pubModUrl
-                SET pubf.pubMedUrl = row.pubMedUrl
+                SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
 
