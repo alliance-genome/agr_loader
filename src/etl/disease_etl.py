@@ -139,7 +139,9 @@ class DiseaseETL(ETL):
         CSVTransactor.save_file_static(generators, query_list)
 
     def get_generators(self, disease_data, batch_size, data_provider):
-        list_to_yield = []
+        gene_list_to_yield = []
+        allele_list_to_yield = []
+        
         dateProduced = disease_data['metaData']['dateProduced']
 
         dataProviders = []
@@ -152,7 +154,6 @@ class DiseaseETL(ETL):
         dataProviderCrossRefSet = []
 
         #TODO: get SGD to fix their files.
-
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
@@ -169,12 +170,18 @@ class DiseaseETL(ETL):
             release = ''
 
         for diseaseRecord in disease_data['data']:
-
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
-            if diseaseObjectType != "allele":
-                continue
+            if diseaseObjectType == "gene":
+                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                gene_list_to_yield.append(disease_features)
+                 
+            elif diseaseObjectType == "allele":
+                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                allele_list_to_yield.append(disease_features)
             else:
+                continue
+            
                 # query = "match (g:Gene)-[]-(f:Feature) where f.primaryKey = {parameter} return g.primaryKey"
                 # featurePrimaryId = diseaseRecord.get('objectId')
                 # returnSet = Transaction.run_single_parameter_query(query, featurePrimaryId)
@@ -186,14 +193,11 @@ class DiseaseETL(ETL):
                 # if counter > 1:
                 #     allelicGeneId = ''
                 #     logger.info ("returning more than one gene: this is an error")
-                allelicGeneId = ''
 
-                disease_features = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, data_provider)
+            if len(allele_list_to_yield) == batch_size or len(gene_list_to_yield) == batch_size:
+                yield [allele_list_to_yield, gene_list_to_yield]
+                allele_list_to_yield = []
+                gene_list_to_yield = []
 
-                list_to_yield.append(disease_features)
-                if len(list_to_yield) == batch_size:
-                    yield [list_to_yield, list_to_yield]
-                    list_to_yield = []
-
-        if len(list_to_yield) > 0:
-            yield [list_to_yield, list_to_yield]
+        if len(allele_list_to_yield) > 0 or len(gene_list_to_yield) > 0:
+            yield [allele_list_to_yield, gene_list_to_yield]
