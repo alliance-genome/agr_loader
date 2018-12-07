@@ -19,7 +19,7 @@ class ClosureETL(ETL):
                         MERGE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent)
                    """
     retrieve_isa_partof_closure = """
-            MATCH (childTerm:GOTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:GOTerm:Ontology) 
+            MATCH (childTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:Ontology) 
                 RETURN childTerm.primaryKey, parentTerm.primaryKey
                    """
 
@@ -57,6 +57,6 @@ class ClosureETL(ETL):
         for record in returnSet:
             row = dict(child_id=record["childTerm.primaryKey"],
                        parent_id=record["parentTerm.primaryKey"])
-        closure_data.append(row)
+            closure_data.append(row)
 
         yield [closure_data]

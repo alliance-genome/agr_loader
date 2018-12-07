@@ -64,7 +64,7 @@ class AggregateLoader(object):
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
             'Ontology': GenericOntologyETL,
-            # 'Closure': ClosureETL,
+            'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
@@ -79,7 +79,7 @@ class AggregateLoader(object):
         list_of_etl_groups = [
             ['Ontology'],
             ['GO', 'DO', 'SO', 'MI'],
-            # ['Closure'],
+            ['Closure'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
