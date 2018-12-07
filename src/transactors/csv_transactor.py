@@ -27,6 +27,9 @@ class CSVTransactor(object):
             for generator_entry in generator:
                 for index, individual_list in enumerate(generator_entry):
                     current_filename = open_files[index].name # Our current CSV output file.
+                    
+                    # Remove None's from list which cause the write rows to crash
+                    individual_list = [x for x in individual_list if x is not None]
 
                     if len(individual_list) == 0:
                         logger.debug("No data found when writing to csv! Skipping output file: %s" % (current_filename))
