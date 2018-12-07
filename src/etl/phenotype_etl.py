@@ -21,7 +21,7 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:Association {primaryKey:row.uuid})
+            CREATE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders
@@ -38,9 +38,8 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
-
-            """
+            CREATE (pa)-[dapuf:EVIDENCE]->(pubf) """
+            
     execute_gene_template = """
 
             USING PERIODIC COMMIT %s
@@ -51,7 +50,7 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:Association {primaryKey:row.uuid})
+            CREATE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders,
@@ -67,9 +66,7 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf)
-
-        """
+            CREATE (pa)-[dapuf:EVIDENCE]->(pubf) """
 
     def __init__(self, config):
         super().__init__()
