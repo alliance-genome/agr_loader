@@ -5,7 +5,7 @@ import uuid
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 from files import JSONFile
 
 class BGIETL(ETL):
@@ -138,9 +138,9 @@ class BGIETL(ETL):
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        # Prepare the transaction
-        CSVTransactor.save_file_static(generators, query_list)
-        #CSVTransactor.execute_transaction(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 

@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 import urllib, json
 
 from etl import ETL
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 
 class MIETL(ETL):
 
@@ -28,7 +28,9 @@ class MIETL(ETL):
 
         query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
         
     @staticmethod
     def add_miterm_url(identifier):

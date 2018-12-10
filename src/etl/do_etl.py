@@ -1,12 +1,12 @@
 import logging
-logger = logging.getLogger(__name__)
-
-from transactors import CSVTransactor
 
 from ontobio import OntologyFactory
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from transactors import CSVTransactor, Neo4jTransactor
+
+logger = logging.getLogger(__name__)
 
 class DOETL(ETL):
 
@@ -84,7 +84,9 @@ class DOETL(ETL):
             [DOETL.xrefs_template, commit_size, "do_xrefs_data.csv"],
         ]
         
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
         

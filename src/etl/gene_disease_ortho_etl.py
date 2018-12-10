@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 from etl import ETL
 from .helpers import Neo4jHelper
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 from transactions import Transaction
 import multiprocessing
 import uuid, logging
@@ -72,7 +72,10 @@ class GeneDiseaseOrthoETL(ETL):
 
         generators = self.retrieve_gene_disease_ortho()
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        
         logger.info("Finished Gene Disease Ortho Data")
 
     def create_pub(self):
@@ -93,7 +96,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         logger.info("pub creation finished")
 
-    def retrieve_gene_disease_ortho(selfs):
+    def retrieve_gene_disease_ortho(self):
         logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho = """

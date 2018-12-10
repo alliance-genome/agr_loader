@@ -4,7 +4,7 @@ import logging, urllib, xmltodict
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
 from files import Download
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,9 @@ class GeoXrefETL(ETL):
                 [GeoXrefETL.geoXrefQuery, commit_size, "geoxref_data_" + sub_type.get_data_provider() + ".csv"],
             ]
             
-            CSVTransactor.save_file_static(generators, query_list)
+            query_and_file_list = self.process_query_params(query_list)
+            CSVTransactor.save_file_static(generators, query_and_file_list)
+            Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, batch_size, species_encoded):
     

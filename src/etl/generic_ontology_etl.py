@@ -97,10 +97,9 @@ class GenericOntologyETL(ETL):
         # Obtain the generator
         generators = self.get_generators(filepath, batch_size)
 
-        # Prepare the transaction
-        CSVTransactor.save_file_static(generators, query_list)
-        # logger.warn('Solo threading enabled. Waiting for queues.')
-        # Neo4jTransactor().wait_for_queues()
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
 

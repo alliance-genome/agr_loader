@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 from etl import ETL
 from .helpers import Neo4jHelper
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 import multiprocessing
 
 class ExpressionRibbonETL(ETL):
@@ -80,7 +80,10 @@ class ExpressionRibbonETL(ETL):
         generators = self.get_ribbon_terms()
 
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        
         logger.info("Finished Expression Ribbon Data")
 
     def get_ribbon_terms(self):

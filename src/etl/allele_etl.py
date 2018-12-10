@@ -5,7 +5,7 @@ import uuid
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,9 @@ class AlleleETL(ETL):
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, allele_data, data_provider, batch_size):
 

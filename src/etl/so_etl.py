@@ -1,7 +1,7 @@
 from etl import ETL
 from files import TXTFile
 from itertools import islice, chain, tee
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 import logging
 import sys
 
@@ -32,7 +32,9 @@ class SOETL(ETL):
 
         query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
         
     def get_generators(self, filepath):
         

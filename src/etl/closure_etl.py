@@ -2,14 +2,11 @@ import logging
 logger = logging.getLogger(__name__)
 from etl import ETL
 from .helpers import Neo4jHelper
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 import multiprocessing
 
 class ClosureETL(ETL):
 
-    def __init__(self, config):
-        super().__init__()
-        self.data_type_config = config
 
     insert_isa_partof_closure = """
                 USING PERIODIC COMMIT %s
@@ -22,6 +19,10 @@ class ClosureETL(ETL):
             MATCH (childTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:Ontology) 
                 RETURN childTerm.primaryKey, parentTerm.primaryKey
                    """
+
+    def __init__(self, config):
+        super().__init__()
+        self.data_type_config = config
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -38,13 +39,15 @@ class ClosureETL(ETL):
 
         logger.info("Starting isa_partof_ Closure")
         query_list = [
-            [ClosureETL.insert_isa_partof_closure, "10000",
-             "isa_partof_closure_terms.csv"] ,
+            [ClosureETL.insert_isa_partof_closure, "10000", "isa_partof_closure_terms.csv"] ,
         ]
 
         generators = self.get_closure_terms()
 
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        
         logger.info("Finished isa_partof Closure")
 
     def get_closure_terms(self):

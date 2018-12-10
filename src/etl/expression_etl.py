@@ -1,13 +1,11 @@
 import logging
 import codecs
 import uuid
-import ijson
-import multiprocessing
+import ijson, multiprocessing
 
 from etl import ETL
-from etl.helpers import ETLHelper
-from transactors import CSVTransactor
-from transactions import Transaction
+from etl.helpers import ETLHelper, Neo4jHelper
+from transactors import CSVTransactor, Neo4jTransactor
 logger = logging.getLogger(__name__)
 
 
@@ -260,25 +258,33 @@ class ExpressionETL(ETL):
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
-
+    
+    
     def _load_and_process_data(self):
-        thread_pool = []
+        # add the 'other' nodes to support the expression ribbon components.
+        self.add_other()
         
+        thread_pool = []
+        query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, query_tracking_list))
             p.start()
             thread_pool.append(p)
 
         for thread in thread_pool:
             thread.join()
-  
-    def _process_sub_type(self, sub_type):
-        
+
+        queries = []
+        for item in query_tracking_list:
+            queries.append(item)
+            
+        Neo4jTransactor.execute_query_batch(queries)
+            
+    def _process_sub_type(self, sub_type, query_tracking_list):
+
         logger.info("Loading Expression Data: %s" % sub_type.get_data_provider())
         data_file = sub_type.get_filepath()
         data_provider = sub_type.get_data_provider()
-
 
         if data_file is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
@@ -289,68 +295,41 @@ class ExpressionETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
 
-        if data_provider == 'SGD':
-            query_list = [
-                [ExpressionETL.AOExpression, commit_size,
-                 "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.SGDCCExpression, commit_size,
-                 "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.AOCCExpression, commit_size,
-                 "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASQualified, commit_size,
-                 "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASSubstructure, commit_size,
-                 "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASSQualified, commit_size,
-                 "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.CCQExpression, commit_size,
-                 "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.stageExpression, commit_size,
-                 "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonStage, commit_size,
-                 "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonAOOther, commit_size,
-                 "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonStageOther, commit_size,
-                 "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.xrefs_template, commit_size,
-                 "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            ]
-        else:
-            query_list = [
-                [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
-                [ExpressionETL.xrefs_template, commit_size,
-                "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            ]
+        query_list = [[ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]]
 
+        if data_provider == 'SGD':
+            query_list += [[ExpressionETL.SGDCCExpression, commit_size,  "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"]]
+        else:
+            query_list += [[ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
+            
+        query_list += [
+            [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.CCQExpression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.stageExpression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.uberonStage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"]
+        ]
 
         # Obtain the generator
         generators = self.get_generators(data_file, batch_size)
 
-        # add the 'other' nodes to support the expression ribbon components.
-        self.add_other()
-
-        # Prepare the transaction
-        CSVTransactor.save_file_static(generators, query_list)
-        #CSVTransactor.execute_transaction(generators, query_list)
-        logger.info("Sending Generator to CSV extractor: %s" % sub_type.get_data_provider())
-
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        
+        for item in query_and_file_list:
+            query_tracking_list.append(item)
+        
         logger.info("Finished Loading Expression Data: %s" % sub_type.get_data_provider())
+
     def add_other(self):
 
-        logger.info("made it to the addOther statement")
+        logger.debug("made it to the addOther statement")
 
         AddOther = """
 
@@ -364,7 +343,7 @@ class ExpressionETL(ETL):
                 ON CREATE SET othergo.type = 'other'
                 ON CREATE SET othergo.subset = 'goslim_agr' """
 
-        Transaction().execute_transaction(AddOther, "expression_ribbon_other")
+        Neo4jHelper.run_single_query(AddOther)
 
 
     def get_generators(self, expressionFile, batch_size):

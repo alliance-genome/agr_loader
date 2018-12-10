@@ -4,7 +4,7 @@ import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -85,26 +85,28 @@ class PhenoTypeETL(ETL):
   
     def _process_sub_type(self, sub_type):
         
-            logger.info("Loading Phenotype Data: %s" % sub_type.get_data_provider())
-            filepath = sub_type.get_filepath()
-            data = JSONFile().get_data(filepath)
-            logger.info("Finished Loading Phenotype Data: %s" % sub_type.get_data_provider())
+        logger.info("Loading Phenotype Data: %s" % sub_type.get_data_provider())
+        filepath = sub_type.get_filepath()
+        data = JSONFile().get_data(filepath)
+        logger.info("Finished Loading Phenotype Data: %s" % sub_type.get_data_provider())
 
-            if data == None:
-                logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
-                return
-    
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
+        if data == None:
+            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            return
+
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        
+        generators = self.get_generators(data, batch_size)
+
+        query_list = [
+            [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [PhenoTypeETL.execute_feature_template, commit_size, "phenotype_feature_data_" + sub_type.get_data_provider() + ".csv"],
+        ]
             
-            generators = self.get_generators(data, batch_size)
-    
-            query_list = [
-                [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [PhenoTypeETL.execute_feature_template, commit_size, "phenotype_feature_data_" + sub_type.get_data_provider() + ".csv"],
-            ]
-                
-            CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, phenotype_data, batch_size):
         list_to_yield = []

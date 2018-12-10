@@ -5,7 +5,7 @@ from etl import ETL
 from etl.helpers import DiseaseHelper
 from etl.helpers import ETLHelper
 from files import JSONFile
-from transactors import CSVTransactor
+from transactors import CSVTransactor, Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -135,8 +135,9 @@ class DiseaseETL(ETL):
         # Obtain the generator
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
         
-        # Prepare the transaction
-        CSVTransactor.save_file_static(generators, query_list)
+        query_and_file_list = self.process_query_params(query_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, disease_data, batch_size, data_provider):
         gene_list_to_yield = []
