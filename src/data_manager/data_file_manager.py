@@ -1,4 +1,4 @@
-import logging, yaml, os, sys
+import logging, yaml, os, sys, pprint
 
 from cerberus import Validator
 
@@ -83,6 +83,23 @@ class DataFileManager(object):
         # Create our DataTypeConfig (which in turn create our SubTypeConfig) objects.
         self.dispatch_to_object()
 
+    def _search_submission_data(self, dataType, subType):
+
+            returned_dict = None
+
+            try:
+                returned_dict = next(item for item in self.submission_system_data['dataFiles'] if item['dataType'] == dataType and item['subType'] == subType)
+            except StopIteration:
+                logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
+                logger.warn('Creating entry with \'None\' path and extracted path.')
+                returned_dict = {
+                    'dataType' : dataType,
+                    'subType' : subType,
+                    'path' : None,
+                    'tempExtractedFile' : None
+                }
+            return returned_dict
+
     def query_submission_system(self):
         # This function uses the "mock" submission system data but will eventually use the actual submission system.
 
@@ -93,49 +110,31 @@ class DataFileManager(object):
         # Temporary code below (to be modified or removed).
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        config_data_list_of_tuples = []
         ontologies_to_transform = ('GO', 'SO', 'DO', 'MI') # These have non-generic loaders.
-        for entry in self.config_data.keys():
-            logger.debug("Entry: %s" % entry)
-            if entry != 'schemaVersion' and entry != 'releaseVersion':
-                for sub_entry in self.config_data[entry]:
-                    logger.debug("Sub Entry: %s" % sub_entry)
-                    # Special case for transforming ontologies.
-                    if sub_entry in ontologies_to_transform:
-                        config_data_list_of_tuples.append((sub_entry, sub_entry))
-                    else:
-                        config_data_list_of_tuples.append((entry, sub_entry)) # e.g. (Allele, FB) or (BGI, SGD)
-
-        logger.debug("config_data_list_of_tuples: %s" % config_data_list_of_tuples)
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
 
-        for entry in self.submission_system_data['dataFiles']:
-            logger.debug("Entry %s" % entry)
-            dataType = entry['dataType']
-            logger.debug("Data type: %s" % dataType)
-            try:
-                subType = entry['subType']
-            except KeyError: # Assume there is no subType or it is assigned below.
-                subType = None 
-                
-            logger.debug("Sub type: %s" % subType)
-            
-            if 'taxonId' in entry:
-                # We overwrite the subType with the MOD id (derived from the taxon id) using this service.
-                subType = ETLHelper.get_MOD_from_taxon(entry['taxonId'])
+        for entry in self.config_data.keys(): # Iterate through our config file.
+            logger.debug("Entry: %s" % entry)
+            if entry != 'schemaVersion' and entry != 'releaseVersion': # Skip these entries (addressed above).
+                self.transformed_submission_system_data[entry] = [] # Create our empty list.
 
-            if (dataType, subType) in config_data_list_of_tuples: # Filter our submission data against our config file.
-                logger.debug("Data type: %s Sub type: %s" % (dataType, subType))
-                if entry['dataType'] in self.transformed_submission_system_data:
-                        self.transformed_submission_system_data[entry['dataType']].append(
-                            [subType, entry['path'], entry['tempExtractedFile']]
-                        )
-                else:
-                        self.transformed_submission_system_data[entry['dataType']] = []
-                        self.transformed_submission_system_data[entry['dataType']].append([subType, entry['path'], entry['tempExtractedFile']])
+                for sub_entry in self.config_data[entry]:
+                    logger.debug("Sub Entry: %s" % sub_entry)
+
+                    # Grab the dictionary of data from our submission system.
+                    logger.info("Entry: %s" % entry)
+                    logger.info("Sub Entry: %s" % sub_entry)
+                    submission_system_dict = self._search_submission_data(entry, sub_entry)
+
+                    path = submission_system_dict.get('path')
+                    tempExtractedFile = submission_system_dict.get('tempExtractedFile')
+
+                    if sub_entry in ontologies_to_transform: # Special case for storing ontologies with non-generic loaders.
+                        self.transformed_submission_system_data[sub_entry] = []
+                        self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
+                    else:
+                        self.transformed_submission_system_data[entry].append([sub_entry, path, tempExtractedFile])
                         
         logger.debug("Loaded Types: %s" % self.transformed_submission_system_data)
-        
-        

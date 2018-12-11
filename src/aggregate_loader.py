@@ -4,7 +4,6 @@ from transactors import Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
 
-
 debug_level = logging.INFO
 
 coloredlogs.install(level=debug_level,
@@ -26,10 +25,11 @@ field_styles={
 
 logger = logging.getLogger(__name__)
 
-
 class AggregateLoader(object):
 
     def run_loader(self):
+
+        start_time = time.time()
 
         # TODO Allow the yaml file location to be overwritten by command line input (for Travis).
         data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
@@ -92,7 +92,7 @@ class AggregateLoader(object):
             ['GeneDiseaseOrtho'],
         ]
 
-        start_time = time.time()
+        etl_time_tracker_list = []
 
         for etl_group in list_of_etl_groups:
             etl_group_start_time = time.time()
@@ -115,13 +115,17 @@ class AggregateLoader(object):
             logger.info("Waiting for Queues to sync up")
             Neo4jTransactor().wait_for_queues()
             etl_elapsed_time = time.time() - etl_group_start_time
-            logger.info("Finished ETL group: %s, Elapsed time: %s" % (etl_group, time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
-        
+            etl_time_message = ("Finished ETL group: %s, Elapsed time: %s" % (etl_group, time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
+            logger.info(etl_time_message)
+            etl_time_tracker_list.append(etl_time_message)
+
         nt.shutdown()
 
         end_time = time.time()
         elapsed_time = end_time - start_time
 
+        for time_item in etl_time_tracker_list:
+            logger.info(time_item)
         logger.info('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 

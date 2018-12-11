@@ -191,7 +191,23 @@ class ETLHelper(object):
     
         return taxon_mod_dict[taxon_id]
         
+    @staticmethod
+    def get_taxon_from_MOD(MOD):
     
+        taxon_mod_dict = {
+            'ZFIN' : '7955',
+            'WB' : '6239',
+            'MGI' : '10090',
+            'RGD' : '10116',
+            'SGD' : '559292',
+            'FB' : '7227',
+            'Human' : '9606'
+        }
+
+        # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
+        return taxon_mod_dict.get(MOD, MOD)
+
+
     @staticmethod
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
         completeUrl = ""
