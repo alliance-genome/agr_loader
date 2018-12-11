@@ -142,7 +142,7 @@ class DiseaseETL(ETL):
     def get_generators(self, disease_data, batch_size, data_provider):
         gene_list_to_yield = []
         allele_list_to_yield = []
-        
+        counter = 0
         dateProduced = disease_data['metaData']['dateProduced']
 
         dataProviders = []
@@ -171,6 +171,7 @@ class DiseaseETL(ETL):
             release = ''
 
         for diseaseRecord in disease_data['data']:
+            counter = counter + 1
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType == "gene":
@@ -185,10 +186,11 @@ class DiseaseETL(ETL):
             else:
                 continue
 
-            if len(allele_list_to_yield) == batch_size or len(gene_list_to_yield) == batch_size:
+            if counter == batch_size:
                 yield [allele_list_to_yield, gene_list_to_yield]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
+                counter = 0
 
-        if len(allele_list_to_yield) > 0 or len(gene_list_to_yield) > 0:
+        if counter > 0:
             yield [allele_list_to_yield, gene_list_to_yield]

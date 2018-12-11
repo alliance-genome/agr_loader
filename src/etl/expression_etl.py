@@ -621,8 +621,6 @@ class ExpressionETL(ETL):
                         aoccExpression.append(AOCCExpression)
 
                 if counter == batch_size:
-                    counter = 0
-                    logger.debug("counter equals batch size")
                     yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
                            aoSSQualifier, ccQualifier,
                            stageList, stageUberonData, uberonAOData, uberonAOOtherData,
@@ -640,7 +638,7 @@ class ExpressionETL(ETL):
                     uberonAOOtherData = []
                     uberonAOData = []
                     crossReferences = []
-                    #counter = 0
+                    counter = 0
 
             if counter > 0:
                 yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
