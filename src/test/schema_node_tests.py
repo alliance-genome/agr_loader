@@ -55,7 +55,6 @@ class TestClass(object):
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                            dict(node='Gene', prop='dateProduced'), \
                             dict(node='Gene', prop='geneLiteratureUrl'), \
                             dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                             dict(node='Gene', prop='taxonId'), \
@@ -92,7 +91,6 @@ class TestClass(object):
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
-                            dict(node='Entity', prop='dateProduced'), \
                             dict(node='Entity', prop='primaryKey'), \
                             dict(node='Chromosome', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
@@ -109,7 +107,6 @@ class TestClass(object):
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
                             dict(node='GOTerm', prop='definition'), \
@@ -123,7 +120,6 @@ class TestClass(object):
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                               dict(node='Gene', prop='dateProduced'), \
                                dict(node='Gene', prop='geneLiteratureUrl'), \
                                dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                                dict(node='Gene', prop='taxonId'), \
@@ -158,7 +154,6 @@ class TestClass(object):
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
-                               dict(node='Entity', prop='dateProduced'), \
                                dict(node='Entity', prop='primaryKey'), \
                                dict(node='Chromosome', prop='primaryKey'), \
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
@@ -174,7 +169,6 @@ class TestClass(object):
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
