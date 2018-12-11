@@ -7,6 +7,7 @@ from .sub_type_config import SubTypeConfig
 
 logger = logging.getLogger(__name__)
 
+
 class DataTypeConfig(object):
 
     def __init__(self, data_type, submission_system_data):
@@ -28,7 +29,7 @@ class DataTypeConfig(object):
             if downloadable_item[2] is not None:
                 full_path_to_send = path + '/' + downloadable_item[2]
             else:
-                full_path_to_send = None # If we don't have a path.
+                full_path_to_send = None  # If we don't have a path.
 
             sub_type = SubTypeConfig(
                 self.data_type, 

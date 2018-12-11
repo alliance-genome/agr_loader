@@ -15,10 +15,10 @@ Disease:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Phenotype: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 Expression: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 GOAnnot:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
