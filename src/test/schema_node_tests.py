@@ -1,8 +1,8 @@
-from transactions import Transaction
+from etl import Neo4jHelper
 import os
 
 def execute_transaction(query):
-    return Transaction.run_single_query(query) 
+    return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):

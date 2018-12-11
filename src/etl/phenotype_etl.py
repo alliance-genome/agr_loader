@@ -113,7 +113,7 @@ class PhenoTypeETL(ETL):
         dateProduced = phenotype_data['metaData']['dateProduced']
         dataProviders = []
         dataProviderObject = phenotype_data['metaData']['dataProvider']
-
+        counter = 0
         dataProviderCrossRef = dataProviderObject.get('crossReference')
         dataProvider = dataProviderCrossRef.get('id')
         dataProviderPages = dataProviderCrossRef.get('pages')
@@ -133,7 +133,7 @@ class PhenoTypeETL(ETL):
                 logger.debug("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
-
+            counter = counter + 1
             pubMedId = None
             pubModId = None
             pubMedUrl = None
@@ -195,9 +195,10 @@ class PhenoTypeETL(ETL):
 
             list_to_yield.append(phenotype_feature)
 
-            if len(list_to_yield) == batch_size:
+            if counter == batch_size:
                 yield [list_to_yield, list_to_yield]
                 list_to_yield = []
+                counter = 0
 
-        if len(list_to_yield) > 0:
+        if counter > 0:
             yield [list_to_yield, list_to_yield]

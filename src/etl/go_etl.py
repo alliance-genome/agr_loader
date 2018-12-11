@@ -114,8 +114,10 @@ class GOETL(ETL):
         go_regulates_list = []
         go_negatively_regulates_list = []
         go_positively_regulates_list = []
+        counter = 0
         
         for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
+            counter = counter + 1
             node = ont.graph.node[k]
             if len(node) == 0:
                 continue
@@ -219,7 +221,7 @@ class GOETL(ETL):
             
             go_term_list.append(dict_to_append)
             
-            if len(go_term_list) == batch_size:
+            if counter == batch_size:
                 yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list]
                 go_term_list = []
                 go_isas_list = []
@@ -228,8 +230,9 @@ class GOETL(ETL):
                 go_regulates_list = []
                 go_negatively_regulates_list = []
                 go_positively_regulates_list = []
+                counter = 0
 
-        if len(go_term_list) > 0:
+        if counter > 0:
             yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list]  
 
         

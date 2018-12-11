@@ -1,9 +1,8 @@
-from transactions import Transaction
-import os
+from etl import Neo4jHelper
 
 
 def execute_transaction(query):
-    return Transaction.run_single_query(query)  
+    return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
@@ -12,6 +11,7 @@ def pytest_generate_tests(metafunc):
     argnames = sorted(funcarglist[0])
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
             for funcargs in funcarglist])
+
 
 class TestClass(object):
     # a map specifying multiple argument sets for a test method

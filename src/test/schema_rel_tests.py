@@ -1,5 +1,6 @@
-from transactions import Transaction
+from etl import Neo4jHelper
 import os
+
 
 def pytest_generate_tests(metafunc):
     # called once per each test function
@@ -69,6 +70,6 @@ class TestClass(object):
     def test_rel_exists(self, node1, node2):
         query = 'MATCH (n:%s)-[]-(m:%s) RETURN DISTINCT COUNT(n) as count' % (node1, node2)
 
-        result = Transaction.run_single_query(query)
+        result = Neo4jHelper.run_single_query(query)
         for record in result:
             assert record["count"] > 0
