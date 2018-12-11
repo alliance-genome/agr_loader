@@ -95,7 +95,8 @@ class AggregateLoader(object):
         start_time = time.time()
 
         for etl_group in list_of_etl_groups:
-            logger.debug("ETL's in group: %s" % etl_group)
+            etl_group_start_time = time.time()
+            logger.info("Starting ETL group: %s" % etl_group)
             thread_pool = []
             for etl_name in etl_group:
                 logger.debug("ETL Name: %s" % etl_name)
@@ -113,7 +114,8 @@ class AggregateLoader(object):
                 
             logger.info("Waiting for Queues to sync up")
             Neo4jTransactor().wait_for_queues()
-            logger.info("Queue sync finished")
+            etl_elapsed_time = time.time() - etl_group_start_time
+            logger.info("Finished ETL group: %s, Elapsed time: %s" % (etl_group, time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
         
         nt.shutdown()
 
