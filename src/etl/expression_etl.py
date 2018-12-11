@@ -347,7 +347,7 @@ class ExpressionETL(ETL):
 
 
     def get_generators(self, expressionFile, batch_size):
-        logger.info("made it to the expression generator")
+        logger.debug("made it to the expression generator")
         counter = 0
         crossReferences = []
         aoExpression = []

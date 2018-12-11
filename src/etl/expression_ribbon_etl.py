@@ -55,26 +55,12 @@ class ExpressionRibbonETL(ETL):
     """
 
     def _load_and_process_data(self):
-        thread_pool = []
-
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
-
-        for thread in thread_pool:
-            thread.join()
-
-    def _process_sub_type(self, subtype):
 
         logger.info("Starting Expression Ribbon Data")
         query_list = [
-            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000",
-             "expression_gocc_ribbon_terms.csv"] ,
-             [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000",
-              "expression_gocc_self_ribbon_terms" + ".csv"],
-             [ExpressionRibbonETL.insert_ribonless_ebes, "10000",
-              "expression_ribbonless_ebes" + ".csv"]
+            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000", "expression_gocc_ribbon_terms.csv"] ,
+            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000", "expression_gocc_self_ribbon_terms" + ".csv"],
+            [ExpressionRibbonETL.insert_ribonless_ebes, "10000", "expression_ribbonless_ebes" + ".csv"]
         ]
 
         generators = self.get_ribbon_terms()
@@ -88,7 +74,7 @@ class ExpressionRibbonETL(ETL):
 
     def get_ribbon_terms(self):
 
-        logger.info("made it to the gocc ribbon retrieve")
+        logger.debug("made it to the gocc ribbon retrieve")
 
 
         returnSetRT = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve)

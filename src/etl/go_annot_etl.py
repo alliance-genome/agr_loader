@@ -14,7 +14,7 @@ class GOAnnotETL(ETL):
         
             MATCH (g:Gene {primaryKey:row.gene_id})
             MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
-            MERGE (g)-[:ANNOTATED_TO]->(go) """
+            CREATE (g)-[:ANNOTATED_TO]->(go) """
 
     def __init__(self, config):
         super().__init__()
@@ -23,15 +23,22 @@ class GOAnnotETL(ETL):
     def _load_and_process_data(self):
         thread_pool = []
         
+        query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,query_tracking_list))
             p.start()
             thread_pool.append(p)
 
         for thread in thread_pool:
             thread.join()
+            
+        queries = []
+        for item in query_tracking_list:
+            queries.append(item)
+            
+        Neo4jTransactor.execute_query_batch(queries)
   
-    def _process_sub_type(self, sub_type):
+    def _process_sub_type(self, sub_type, query_tracking_list):
         logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_file_to_download()
         file = gzip.open("tmp/" + filepath, 'rt', encoding='utf-8')
@@ -44,11 +51,7 @@ class GOAnnotETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        generators = self.get_generators(
-            file,
-            ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
-            batch_size
-        )
+        generators = self.get_generators(file, ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()), batch_size)
 
         query_list = [
             [GOAnnotETL.query_template, commit_size, "go_annot_" + sub_type.get_data_provider() + ".csv"],
@@ -56,7 +59,9 @@ class GOAnnotETL(ETL):
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        
+        for item in query_and_file_list:
+            query_tracking_list.append(item)
 
     def get_generators(self, file, prefix, batch_size):
         go_annot_list = []

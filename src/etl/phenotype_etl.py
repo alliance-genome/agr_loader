@@ -125,17 +125,12 @@ class PhenoTypeETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider,
-                                                                       dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider,
-                                                                             dataProviderPage,
-                                                                             dataProviderPage, dataProvider,
-                                                                             crossRefCompleteUrl,
-                                                                             dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                logger.debug("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
 

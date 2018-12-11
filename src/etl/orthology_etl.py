@@ -40,7 +40,7 @@ class OrthologyETL(ETL):
             MATCH (ogj:Association:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             WITH ogj, oa, row
-                CALL apoc.create.relationship(ogj, row.reltype, {}, oa) YIELD rel
+                CALL apoc.create.relationship(ogj, row.reltype, NULL, oa) YIELD rel
                 RETURN rel """
 
     def __init__(self, config):
@@ -50,20 +50,25 @@ class OrthologyETL(ETL):
     def _load_and_process_data(self):
         thread_pool = []
         
+        query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, query_tracking_list))
             p.start()
             thread_pool.append(p)
 
         for thread in thread_pool:
             thread.join()
+        
+        queries = []
+        for item in query_tracking_list:
+            queries.append(item)
+            
+        Neo4jTransactor.execute_query_batch(queries)
   
-    def _process_sub_type(self, sub_type):
+    def _process_sub_type(self, sub_type, query_tracking_list):
         logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-
-
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -77,7 +82,9 @@ class OrthologyETL(ETL):
             
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        
+        for item in query_and_file_list:
+            query_tracking_list.append(item)
 
         logger.info("Finished Loading Orthology Data: %s" % sub_type.get_data_provider())
 
