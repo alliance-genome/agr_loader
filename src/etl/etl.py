@@ -23,7 +23,6 @@ class ETL(object):
     def run_etl(self):
         self._load_and_process_data()
 
-
     def process_query_params(self, query_list_with_params):
         # generators = list of yielded lists from parser
         # query_list_with_parms = list of queries, each with batch size and CSV file name.

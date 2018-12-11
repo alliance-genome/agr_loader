@@ -8,14 +8,14 @@ from data_manager import DataFileManager
 debug_level = logging.INFO
 
 coloredlogs.install(level=debug_level,
-fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
-field_styles={
-    'asctime': {'color': 'green'},
-    'hostname': {'color': 'magenta'},
-    'levelname': {'color': 'white', 'bold': True},
-    'name': {'color': 'blue'},
-    'programname': {'color': 'cyan'}
-})
+                    fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
+                    field_styles={
+                            'asctime': {'color': 'green'},
+                            'hostname': {'color': 'magenta'},
+                            'levelname': {'color': 'white', 'bold': True},
+                            'name': {'color': 'blue'},
+                            'programname': {'color': 'cyan'}
+                    })
 
 # This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
 # So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
