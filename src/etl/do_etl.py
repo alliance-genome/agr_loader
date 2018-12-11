@@ -97,8 +97,10 @@ class DOETL(ETL):
         do_isas_list = []
         do_synonyms_list = []
         xrefs = []
+        counter = 0
         
         for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
+            counter = counter + 1
             node = ont.graph.node[k]
             if len(node) == 0:
                 continue
@@ -251,14 +253,15 @@ class DOETL(ETL):
             do_term_list.append(dict_to_append)
             
 
-            if len(do_term_list) == batch_size:
+            if counter == batch_size:
                 yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
                 do_term_list = []
                 do_isas_list = []
                 do_synonyms_list = []
                 xrefs = []
+                counter = 0
 
-        if len(do_term_list) > 0:
+        if counter > 0:
             yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
             
             
