@@ -286,7 +286,7 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "ExpressionRibbon",
-            "subType": "other",
+            "subType": "ExpressionRibbon",
             "path": null,
             "tempExtractedFile": null,
             "uploadDate": 1522181475376
@@ -294,7 +294,7 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "GeneDiseaseOrtho",
-            "subType": "other",
+            "subType": "GeneDiseaseOrtho",
             "path": null,
             "tempExtractedFile": null,
             "uploadDate": 1522181475376
@@ -302,7 +302,7 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "Closure",
-            "subType": "other",
+            "subType": "Closure",
             "path": null,
             "tempExtractedFile": null,
             "uploadDate": 1522181475376

@@ -51,10 +51,10 @@ Orthology:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:
   type: list
-  allowed: [other]
+  allowed: [ExpressionRibbon]
 GeneDiseaseOrtho:
   type: list
-  allowed: [other]
+  allowed: [GeneDiseaseOrtho]
 Closure:
   type: list
-  allowed: [other]
+  allowed: [Closure]
