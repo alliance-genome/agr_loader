@@ -2,7 +2,7 @@ schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Allele: [FB, WB, ZFIN, RGD, MGI]
-Expression: [FB, SGD, WB, ZFIN, MGI, Human]
+Expression: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -27,6 +27,6 @@ Ontology:
   - MA
   - UBERON
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-ExpressionRibbon: [other]
-GeneDiseaseOrtho: [other]
-Closure: [other]
+ExpressionRibbon: [ExpressionRibbon]
+GeneDiseaseOrtho: [GeneDiseaseOrtho]
+Closure: [Closure]

@@ -15,10 +15,10 @@ Disease:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Phenotype: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 Expression: 
   type: list
-  allowed: [FB, SGD, WB, ZFIN, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 GOAnnot:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -51,10 +51,10 @@ Orthology:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:
   type: list
-  allowed: [other]
+  allowed: [ExpressionRibbon]
 GeneDiseaseOrtho:
   type: list
-  allowed: [other]
+  allowed: [GeneDiseaseOrtho]
 Closure:
   type: list
-  allowed: [other]
+  allowed: [Closure]
