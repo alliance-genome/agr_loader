@@ -7,31 +7,45 @@ logger = logging.getLogger(__name__)
 
 class Neo4jHelper(object):
 
-    if "NEO4J_NQC_HOST" in os.environ:
-        host = os.environ['NEO4J_NQC_HOST']
-    else:
-        host = "localhost"
-        
-    if "NEO4J_NQC_PORT" in os.environ:
-        port = int(os.environ['NEO4J_NQC_PORT'])
-    else:
-        port = 7687
-
-    uri = "bolt://" + host + ":" + str(port)
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
     @staticmethod
     def run_single_parameter_query(query, parameter):
+        if "NEO4J_NQC_HOST" in os.environ:
+            host = os.environ['NEO4J_NQC_HOST']
+        else:
+            host = "localhost"
+            
+        if "NEO4J_NQC_PORT" in os.environ:
+            port = int(os.environ['NEO4J_NQC_PORT'])
+        else:
+            port = 7687
+    
+        uri = "bolt://" + host + ":" + str(port)
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        
         logger.debug("Running run_single_parameter_query. Please wait...")
         logger.debug("Query: %s" % query)
-        with Neo4jHelper.graph.session() as session:
+        with graph.session() as session:
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query, parameter=parameter)
         return returnSet
     
     @staticmethod
     def run_single_query(query):
-        with Neo4jHelper.graph.session() as session:
+        
+        if "NEO4J_NQC_HOST" in os.environ:
+            host = os.environ['NEO4J_NQC_HOST']
+        else:
+            host = "localhost"
+            
+        if "NEO4J_NQC_PORT" in os.environ:
+            port = int(os.environ['NEO4J_NQC_PORT'])
+        else:
+            port = 7687
+    
+        uri = "bolt://" + host + ":" + str(port)
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        
+        with graph.session() as session:
             with session.begin_transaction() as tx:
                 returnSet = tx.run(query)
         return returnSet
