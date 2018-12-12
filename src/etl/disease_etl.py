@@ -4,6 +4,7 @@ import multiprocessing
 from etl import ETL
 from etl.helpers import DiseaseHelper
 from etl.helpers import ETLHelper
+from etl.helpers import Neo4jHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -111,7 +112,20 @@ class DiseaseETL(ETL):
 
         for thread in thread_pool:
             thread.join()
-  
+
+        self.delete_empty_nodes()
+
+    def delete_empty_nodes(self):
+
+        logger.debug("delete empty nodes")
+
+        deleteEmptyDONodes = """
+                MATCH (dd:DOTerm) WHERE keys(dd)[0] = 'primaryKey' and size(keys(dd)) = 1
+                DETACH DELETE (dd)
+        """
+
+        Neo4jHelper.run_single_query(deleteEmptyDONodes)
+        
     def _process_sub_type(self, sub_type):
         
         logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())
