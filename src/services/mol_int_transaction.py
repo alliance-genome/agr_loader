@@ -1,9 +1,8 @@
-from .transaction import Transaction
 import logging
 
 logger = logging.getLogger(__name__)
 
-class MolIntTransaction(Transaction):
+class MolIntTransaction(object):
 
     def __init__(self):
         self.batch_size = 3000

@@ -1,9 +1,9 @@
-from .transaction import Transaction
+
 import logging
 
 logger = logging.getLogger(__name__)
 
-class ResourceDescriptorTransaction(Transaction):
+class ResourceDescriptorTransaction(object):
 
     def resource_descriptor_tx(self, data):
         '''

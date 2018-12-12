@@ -1,11 +1,12 @@
 import logging
 import csv
 
-from extractors import *
-from transactions import *
+from .mol_int_ext import MolIntExt
+from .mol_int_transaction import MolIntTransaction
+from .resource_descriptor import ResourceDescriptorService
+from .resource_descriptor_transaction import ResourceDescriptorTransaction
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 class OtherDataLoader(object):
     def __init__(self):
@@ -47,32 +48,4 @@ class OtherDataLoader(object):
 
     def load_resource_descriptors(self):
         logger.info("Extracting and loading resource descriptors")
-        ResourceDescriptorTransaction().resource_descriptor_tx(ResourceDescriptor().get_data())
-
-    def load_additional_datasets(self):
-
-        logger.info("retrieving gocc ribbon terms for all MODs")
-
-        gocc_ribbon_data = WTExpressionTransaction().retrieve_gocc_ribbon_terms()
-
-        logger.info("loading gocc ribbon terms for all MODs")
-        WTExpressionTransaction().insert_gocc_ribbon_terms(gocc_ribbon_data)
-
-        logger.info("loading gocc self ribbon terms for all MODs")
-        gocc_self_ribbon_terms = WTExpressionTransaction().retrieve_gocc_self_ribbon_terms()
-
-        logger.info("inserting gocc self ribbon terms for all MODs")
-        WTExpressionTransaction().insert_gocc_self_ribbon_terms(gocc_self_ribbon_terms)
-
-        logger.info("retrieving gocc ribbonless ebes for all MODs")
-
-        gocc_ribbonless_data = WTExpressionTransaction().retrieve_gocc_ribbonless_ebes()
-
-        logger.info("loading gocc ribbonless terms for all MODs")
-        WTExpressionTransaction().insert_ribonless_ebes(gocc_ribbonless_data)
-
-    def add_inferred_disease_annotations(self):
-            logger.info("Inferring Disease by Orthology Annotations")
-            orthologous_diseases_to_gene = GeneDiseaseOrthoTransaction().retreive_diseases_inferred_by_ortholog()
-            logger.info("Adding Inferred Disease Annotations")
-            GeneDiseaseOrthoTransaction().add_disease_inferred_by_ortho_tx(orthologous_diseases_to_gene)
+        ResourceDescriptorTransaction().resource_descriptor_tx(ResourceDescriptorService().get_data())

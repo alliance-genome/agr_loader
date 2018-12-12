@@ -1,5 +1,6 @@
 import logging, coloredlogs, os, multiprocessing, time
 from etl import *
+from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from transactions import Indicies
 from data_manager import DataFileManager
@@ -49,7 +50,7 @@ class AggregateLoader(object):
             pass
         else:
             logger.info("Creating indices.")
-            Indicies().create_indices()
+            Neo4jHelper.create_indices()
 
         # This is the list of ETLs used for loading data.
         # The key (left) is derived from a value in the config YAML file.
