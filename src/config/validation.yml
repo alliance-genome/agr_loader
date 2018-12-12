@@ -57,4 +57,22 @@ GeneDiseaseOrtho:
   allowed: [GeneDiseaseOrtho]
 Closure:
   type: list
-  allowed: [Closure]
+  allowed: 
+    - GO 
+    - SO 
+    - DO 
+    - MI 
+    - ZFA 
+    - ZFS 
+    - WBBT 
+    - CL 
+    - FBDV 
+    - FBBT
+    - FBCV
+    - MMUSDV
+    - BSPO
+    - MMO
+    - WBLS
+    - EMAPA
+    - MA
+    - UBERON

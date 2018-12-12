@@ -127,7 +127,7 @@ class DataFileManager(object):
                     path = submission_system_dict.get('path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
 
-                    if sub_entry in ontologies_to_transform: # Special case for storing ontologies with non-generic loaders.
+                    if sub_entry in ontologies_to_transform and entry == 'Ontology': # Special case for storing ontologies with non-generic loaders.
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:

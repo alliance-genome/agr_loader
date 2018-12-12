@@ -29,4 +29,22 @@ Ontology:
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure: [Closure]
+Closure:
+  - GO
+  - SO
+  - DO
+  - MI
+  - ZFA
+  - ZFS
+  - WBBT
+  - CL
+  - FBDV
+  - FBBT
+  - FBCV
+  - MMUSDV
+  - BSPO
+  - MMO
+  - WBLS
+  - EMAPA
+  - MA
+  - UBERON
