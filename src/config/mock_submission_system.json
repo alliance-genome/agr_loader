@@ -477,9 +477,9 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "Ontology",
-            "subType": "BPSO",
-            "path": "http://purl.obolibrary.org/obo/bpso.obo",
-            "tempExtractedFile": "bpso.obo",
+            "subType": "BSPO",
+            "path": "http://purl.obolibrary.org/obo/bspo.obo",
+            "tempExtractedFile": "bspo.obo",
             "uploadDate": 1522181475376
         },
         {

@@ -122,10 +122,6 @@ class DataFileManager(object):
 
                 for sub_entry in self.config_data[entry]:
                     logger.debug("Sub Entry: %s" % sub_entry)
-
-                    # Grab the dictionary of data from our submission system.
-                    logger.info("Entry: %s" % entry)
-                    logger.info("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
 
                     path = submission_system_dict.get('path')
