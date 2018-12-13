@@ -128,14 +128,14 @@ class GenericOntologyETL(ETL):
                         syn = syn.split("\"")[1].strip()
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : syn
+                            'syn' : syn.strip()
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                 else:
                     syn = o_syns.split("\"")[1].strip()
                     syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : syn
+                            'syn' : syn.strip()
                         }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
             display_synonym = line.get('property_value')
@@ -214,7 +214,7 @@ class GenericOntologyETL(ETL):
                     'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
-                    'display_synonym': display_synonym
+                    'display_synonym': display_synonym.strip()
                 }
 
                 terms.append(term_dict_to_append)
