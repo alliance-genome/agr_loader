@@ -125,7 +125,7 @@ class DiseaseETL(ETL):
         """
 
         Neo4jHelper.run_single_query(deleteEmptyDONodes)
-        
+
     def _process_sub_type(self, sub_type):
         
         logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())

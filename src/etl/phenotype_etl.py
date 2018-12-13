@@ -21,16 +21,16 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
 
-            CREATE (pa:Association {primaryKey:row.uuid})
+            MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders
 
-            CREATE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+            MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
-            CREATE (feature)-[fpaf:ASSOCIATION]->(pa)
-            CREATE (pa)-[pad:ASSOCIATION]->(p)
-            CREATE (ag)-[agpa:ASSOCIATION]->(pa)
+            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
+            MERGE (pa)-[pad:ASSOCIATION]->(p)
+            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId,
@@ -50,15 +50,15 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 SET p.phenotypeStatement = row.phenotypeStatement
 
-            CREATE (pa:Association {primaryKey:row.uuid})
+            MERGE (pa:Association {primaryKey:row.uuid})
                 SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders,
                     pa.dataProvider = row.dataProvider
             
-                CREATE (pa)-[pad:ASSOCIATION]->(p)
-                CREATE (g)-[gpa:ASSOCIATION]->(pa)
-                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId,
@@ -66,7 +66,7 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-            CREATE (pa)-[dapuf:EVIDENCE]->(pubf) """
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf) """
 
     def __init__(self, config):
         super().__init__()

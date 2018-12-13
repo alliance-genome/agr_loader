@@ -48,32 +48,32 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             //Create the Gene node and set properties. primaryKey is required.
-            CREATE (o:Gene {primaryKey:row.primaryId})
-                SET o.symbol = row.symbol,
-                 o.taxonId = row.taxonId,
-                 o.name = row.name,
-                 o.description = row.description,
-                 o.geneSynopsisUrl = row.geneSynopsisUrl,
-                 o.geneSynopsis = row.geneSynopsis,
-                 o.geneLiteratureUrl = row.geneLiteratureUrl,
-                 o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
-                 o.dateProduced = row.dateProduced,
-                 o.modGlobalCrossRefId = row.modGlobalCrossRefId,
-                 o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
-                 o.modLocalId = row.localId,
-                 o.modGlobalId = row.modGlobalId,
-                 o.uuid = row.uuid,
-                 o.dataProvider = row.dataProvider
+            MERGE (o:Gene {primaryKey:row.primaryId})
+                ON CREATE SET o.symbol = row.symbol,
+                              o.taxonId = row.taxonId,
+                              o.name = row.name,
+                              o.description = row.description,
+                              o.geneSynopsisUrl = row.geneSynopsisUrl,
+                              o.geneSynopsis = row.geneSynopsis,
+                              o.geneLiteratureUrl = row.geneLiteratureUrl,
+                              o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
+                              o.dateProduced = row.dateProduced,
+                              o.modGlobalCrossRefId = row.modGlobalCrossRefId,
+                              o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
+                              o.modLocalId = row.localId,
+                              o.modGlobalId = row.modGlobalId,
+                              o.uuid = row.uuid,
+                              o.dataProvider = row.dataProvider
 
             MERGE (spec:Species {primaryKey: row.taxonId})
-            ON CREATE SET spec.species = row.species, 
-                spec.name = row.species
+              ON CREATE SET spec.species = row.species, 
+                            spec.name = row.species
 
-            CREATE (o)-[:FROM_SPECIES]->(spec)
+            MERGE (o)-[:FROM_SPECIES]->(spec)
 
             MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
 
-            CREATE (o)-[:ANNOTATED_TO]->(s) """
+            MERGE (o)-[:ANNOTATED_TO]->(s) """
 
     xrefs_template = """
 
@@ -191,13 +191,6 @@ class BGIETL(ETL):
             }
             gene_metadata.append(metadata_dict)
 
-        # CREATE (l:Load:Entity {primaryKey:row.loadKey})
-        #     SET l.dateProduced = row.dateProduced,
-        #         l.loadName = "BGI",
-        #         l.release = row.release,
-        #         l.dataProviders = row.dataProviders,
-        #         l.dataProvider = row.dataProvider
-
         for geneRecord in gene_data['data']:
             counter = counter + 1
 
@@ -218,8 +211,6 @@ class BGIETL(ETL):
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
-
-            #TODO: can we split this off into another class?
 
             if 'crossReferences' in geneRecord:
                 for crossRef in geneRecord['crossReferences']:
@@ -304,7 +295,8 @@ class BGIETL(ETL):
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
                 "loadKey" : loadKey,
-                "dataProvider" : dataProvider
+                "dataProvider" : dataProvider,
+                "dateProduced": dateProduced
             }
             gene_dataset.append(gene)
 
