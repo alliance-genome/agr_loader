@@ -125,15 +125,15 @@ class BGIETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences
+        # gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"
-            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]]
+            [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -325,7 +325,7 @@ class BGIETL(ETL):
                 for synonym in geneRecord.get('synonyms'):
                     geneSynonym = {
                         "primary_id": primary_id,
-                        "synonym": synonym
+                        "synonym": synonym.strip()
                     }
                     synonyms.append(geneSynonym)
 

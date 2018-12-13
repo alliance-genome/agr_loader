@@ -179,7 +179,7 @@ class PhenoTypeETL(ETL):
 
             phenotype_feature = {
                 "primaryId": primaryId,
-                "phenotypeStatement": phenotypeStatement,
+                "phenotypeStatement": phenotypeStatement.strip(),
                 "dateAssigned": dateAssigned,
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
