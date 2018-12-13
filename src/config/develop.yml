@@ -8,15 +8,15 @@ Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
-  - GO
-  - SO
-  - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBDV
+  - GO 
+  - SO 
+  - DO 
+  - MI 
+  - ZFA 
+  - ZFS 
+  - WBBT 
+  - CL 
+  - FBDV 
   - FBBT
   - FBCV
   - MMUSDV
@@ -48,3 +48,4 @@ Closure:
   - EMAPA
   - MA
   - UBERON
+Interactions: [MolecularInteraction]

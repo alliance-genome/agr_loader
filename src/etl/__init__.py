@@ -16,3 +16,4 @@ from .geo_xref_etl import GeoXrefETL
 from .expression_ribbon_etl import ExpressionRibbonETL
 from .gene_disease_ortho_etl import GeneDiseaseOrthoETL
 from .closure_etl import ClosureETL
+from .molecular_interaction_etl import MolecularInteractionETL
