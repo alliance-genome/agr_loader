@@ -19,7 +19,7 @@ class DOETL(ETL):
         MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
             SET doterm.name = row.name,
              doterm.nameKey = row.name_key,
-             doterm.definition = row.defText,
+             doterm.definition = row.definition,
              doterm.defLinks = row.defLinksProcessed,
              doterm.is_obsolete = row.is_obsolete,
              doterm.subset = row.subset,

@@ -81,7 +81,6 @@ class AggregateLoader(object):
         list_of_etl_groups = [
             ['Ontology'],
             ['GO', 'DO', 'SO', 'MI'],
-            ['Closure'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
@@ -92,7 +91,8 @@ class AggregateLoader(object):
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
-            ['Interactions']
+            ['Interactions'],
+            ['Closure']
         ]
 
         etl_time_tracker_list = []
