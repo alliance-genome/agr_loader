@@ -50,7 +50,6 @@ class Neo4jHelper(object):
                 returnSet = tx.run(query)
         return returnSet
 
-    
     #def execute_transaction_batch(self, query, data, batch_size):
     #    logger.info("Executing batch query. Please wait...")
     #    logger.debug("Query: " + query)

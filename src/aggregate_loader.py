@@ -68,8 +68,7 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            #'ResourceDescriptor': ResourceDescriptorETL,
-            #'MolecularInteraction': MolecularInteractionETL,
+            'MolecularInteraction': MolecularInteractionETL            
         }
 
         # This is the order in which data types are loaded.
@@ -90,6 +89,7 @@ class AggregateLoader(object):
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
+            ['MolecularInteraction']
         ]
 
         etl_time_tracker_list = []

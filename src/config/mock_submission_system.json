@@ -514,6 +514,14 @@
             "path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
             "tempExtractedFile": "basic.obo",
             "uploadDate": 1522181475376
-        }
+        },
+        {
+            "schemaVersion": "1.0.0.7",
+            "dataType": "Interactions",
+            "subType": "MolInt",
+            "path": "INT/Alliance_molecular_interactions.tar.gz",
+            "tempExtractedFile": "INT/Alliance_molecular_interactions.txt",
+            "uploadDate": 1522181475376
+        },
     ]
 }
