@@ -48,4 +48,4 @@ Closure:
   - EMAPA
   - MA
   - UBERON
-Interactions: [MolecularInteractions]
+Interactions: [MolecularInteraction]

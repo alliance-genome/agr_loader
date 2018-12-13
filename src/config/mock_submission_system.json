@@ -518,10 +518,10 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "Interactions",
-            "subType": "MolInt",
+            "subType": "MolecularInteraction",
             "path": "INT/Alliance_molecular_interactions.tar.gz",
-            "tempExtractedFile": "INT/Alliance_molecular_interactions.txt",
+            "tempExtractedFile": "Alliance_molecular_interactions_2.0.txt",
             "uploadDate": 1522181475376
-        },
+        }
     ]
 }

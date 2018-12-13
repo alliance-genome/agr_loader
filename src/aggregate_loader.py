@@ -51,11 +51,14 @@ class AggregateLoader(object):
             logger.info("Creating indices.")
             Indicies().create_indices()
 
+        # This is the list of ETLs used for loading data.
+        # The key (left) is derived from a value in the config YAML file.
+        # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
-            'GO': GOETL,
-            'DO': DOETL,
-            'SO': SOETL,
-            'MI': MIETL,
+            'GO': GOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
+            'DO': DOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
+            'SO': SOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
+            'MI': MIETL, # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
@@ -68,7 +71,7 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            'MolecularInteraction': MolecularInteractionETL            
+            'Interactions': MolecularInteractionETL            
         }
 
         # This is the order in which data types are loaded.
@@ -89,7 +92,7 @@ class AggregateLoader(object):
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
-            ['MolecularInteraction']
+            ['Interactions']
         ]
 
         etl_time_tracker_list = []

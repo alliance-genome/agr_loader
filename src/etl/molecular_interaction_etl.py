@@ -63,7 +63,7 @@ class MolecularInteractionETL(ETL):
 
     query_xref = """
             USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\'' AS row
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             // This needs to be a MERGE below.
             MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
@@ -95,11 +95,14 @@ class MolecularInteractionETL(ETL):
 
         filepath = self.data_type_config.get_single_filepath()
 
-        generators = self.get_generators(filepath)
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+
+        generators = self.get_generators(filepath, batch_size)
 
         query_list = [
-                     [MolIntETL.query_template, 10000, "mol_int_data.csv"],
-                     [MolIntETL.query_xref, 10000, "mol_int_xref.csv"]
+                     [MolecularInteractionETL.query_template, commit_size, "mol_int_data.csv"],
+                     [MolecularInteractionETL.query_xref, commit_size, "mol_int_xref.csv"]
                      ]
 
         query_and_file_list = self.process_query_params(query_list)
@@ -222,14 +225,16 @@ class MolecularInteractionETL(ETL):
                     logger.critical('PSI-MITAB row entry: %s' % (additional_row))
                     sys.exit(-1)
 
+            # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try: 
                     individual_url = self.resource_descriptor_dict.return_url(individual, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
-                    self.successful_database_linkouts.add(individual_prefix)
+                    # self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
-                    self.missed_database_linkouts.add(individual_prefix)
-            else: self.ignored_database_linkouts.add(individual_prefix)
+                    pass
+                    # self.missed_database_linkouts.add(individual_prefix)
+            # else: self.ignored_database_linkouts.add(individual_prefix)
 
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
@@ -326,7 +331,7 @@ class MolecularInteractionETL(ETL):
         # If we can't resolve any of the crossReferences, return None
         return None            
 
-    def get_generators(self, filepath):
+    def get_generators(self, filepath, batch_size):
 
         list_to_yield = []
         xref_list_to_yield = []
@@ -344,12 +349,18 @@ class MolecularInteractionETL(ETL):
         unresolved_a_b_count = 0
         total_interactions_loaded_count = 0
 
-        database_linkout_set = set()
+        # database_linkout_set = set()
 
         with open(filepath, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
+            counter = 0
+            total_counter = 0
             for row in tsvin:
-                
+                counter += 1
+                total_counter += 1
+                if total_counter % 100000 == 0:
+                    logger.info('Processing row %s.' % total_counter)
+
                 # Skip commented rows.
                 if row[0].startswith('#'):
                     continue
@@ -376,7 +387,7 @@ class MolecularInteractionETL(ETL):
                 source_database = None
                 source_database = re.findall(r'"([^"]*)"', row[12])[0] # grab the MI identifier between two quotes ""
 
-                database_linkout_set.add(source_database)
+                # database_linkout_set.add(source_database)
 
                 aggregation_database = 'MI:0670' # IMEx
 
@@ -481,23 +492,21 @@ class MolecularInteractionETL(ETL):
                     for identifier_linkout in identifier_linkout_list:
                         new_identifier_linkout_list.append(dict(identifier_linkout, reference_uuid=dataset_entry['uuid']))
                 
-                counter+=1
-
                 # Establishes the number of entries to yield (return) at a time.
                 xref_list_to_yield.extend(new_identifier_linkout_list)
                 list_to_yield.extend(list_of_mol_int_dataset)
             
-            yield [list_to_yield, xref_list_to_yield]
+                if counter == batch_size:
+                    counter = 0
+                    yield list_to_yield, xref_list_to_yield
+                    list_to_yield = []
+                    xref_list_to_yield = []
+            
+            if counter > 0:
+                yield list_to_yield, xref_list_to_yield
 
         # TODO Clean up the set output.
         logger.info('Resolved identifiers for %s PSI-MITAB interactions.' % resolved_a_b_count)
         logger.info('Prepared to load %s total interactions (accounting for multiple possible identifier resolutions).' % total_interactions_loaded_count)
-        logger.info('Successfully created linkouts for the following identifier databases:')
-        logger.info(self.successful_database_linkouts)
 
         logger.info('Could not resolve [and subsequently will not load] %s interactions' % unresolved_a_b_count)
-        logger.info('Could not create linkouts for the following identifier databases:')
-        logger.info(self.missed_database_linkouts)
-
-        logger.info('The following linkout databases were ignored:')
-        logger.info(self.ignored_database_linkouts)

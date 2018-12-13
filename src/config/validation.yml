@@ -78,4 +78,4 @@ Closure:
     - UBERON
 Interactions:
   type: list
-  allowd: [MolecularInteractions]
+  allowed: [MolecularInteraction]
