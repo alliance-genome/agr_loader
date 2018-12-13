@@ -125,14 +125,14 @@ def test_every_species_has_phenotype_has_pub():
             "RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        assert record["counter"] == 6
 
 
 def test_phenotype_for_all_species_exists():
     query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        assert record["counter"] == 6
 
 
 def test_expression_for_non_human_species_exists():

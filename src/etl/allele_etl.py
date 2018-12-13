@@ -205,7 +205,7 @@ class AlleleETL(ETL):
                 for syn in alleleRecord.get('synonyms'):
                     allele_synonym = {
                         "data_id": alleleRecord.get('primaryId'),
-                        "synonym": syn
+                        "synonym": syn.strip()
                     }
                     allele_synonyms.append(allele_synonym)
 

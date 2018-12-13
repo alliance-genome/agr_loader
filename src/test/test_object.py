@@ -34,9 +34,9 @@ class TestObject(object):
             # phenotype objects
             'MGI:2670749', 'MGI:2656842',
             # disease objects
-            'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338',
+            'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             # expression
-            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484'
+            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
         }
 
         self.wormbaseIdSet = {
@@ -50,7 +50,7 @@ class TestObject(object):
             'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
-            'WB:WBGene00004488',
+            'WB:WBGene00004488', 'WB:WBGene00000898',
         }
 
         self.sgdIdSet = {
@@ -60,7 +60,7 @@ class TestObject(object):
             # disease
             'SGD:S000005481', 'SGD:S000005246',
             # expression
-            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002'
+            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002',
         }
 
         self.zfinIdSet = {
@@ -89,7 +89,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-980526-474', 'ZFIN:ZDB-GENE-000627-1', 'ZFIN:ZDB-GENE-050913-20', 'ZFIN:ZDB-GENE-030912-6',
             'ZFIN:ZDB-GENE-131121-260', 'ZFIN:ZDB-GENE-980526-368', 'ZFIN:ZDB-GENE-051101-2', 'ZFIN:ZDB-GENE-090311-1',
             'ZFIN:ZDB-GENE-040426-2889', 'ZFIN:ZDB-GENE-140619-1', 'ZFIN:ZDB-GENE-990714-29',
-            'ZFIN:ZDB-GENE-030131-7696',
+            'ZFIN:ZDB-GENE-030131-7696', 'ZFIN:ZDB-GENE-060312-41',
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
@@ -103,15 +103,14 @@ class TestObject(object):
             # expression
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
-            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006',
-
+            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499',
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
             'RGD:1581495', 'RGD:2322065', 'RGD:1309063', 'RGD:2845', 'RGD:628748', 'RGD:1581476',
             'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801',
             # disease pheno specific test objects
-            'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329',
+            'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329', 'RGD:2917', 'RGD:2869',
             # expression
             'RGD:3884', 'RGD:3889',
             # allele gene and alleles
@@ -122,7 +121,7 @@ class TestObject(object):
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709', 'HGNC:6526', 'HGNC:6553', 'HGNC:7218',
             'HGNC:6560', 'HGNC:6551', 'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
-            'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811',
+            'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811', 'HGNC:6091',
         }
 
         self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
