@@ -19,10 +19,10 @@ class PhenoTypeETL(ETL):
             MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
-                SET p.phenotypeStatement = row.phenotypeStatement
+                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityJoin,
+                ON CREATE SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders
 
@@ -33,12 +33,12 @@ class PhenoTypeETL(ETL):
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
+                ON CREATE SET pubf.pubModId = row.pubModId,
                     pubf.pubMedId = row.pubMedId,
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-            CREATE (pa)-[dapuf:EVIDENCE]->(pubf) """
+            MERGE (pa)-[dapuf:EVIDENCE]->(pubf) """
             
     execute_gene_template = """
 
@@ -48,10 +48,10 @@ class PhenoTypeETL(ETL):
             MATCH (g:Gene {primaryKey:row.primaryId})
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
-                SET p.phenotypeStatement = row.phenotypeStatement
+                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:Association {primaryKey:row.uuid})
-                SET pa :PhenotypeEntityJoin,
+                ON CREATE SET pa :PhenotypeEntityJoin,
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders,
                     pa.dataProvider = row.dataProvider
@@ -61,7 +61,7 @@ class PhenoTypeETL(ETL):
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
+                ON CREATE SET pubf.pubModId = row.pubModId,
                     pubf.pubMedId = row.pubMedId,
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl

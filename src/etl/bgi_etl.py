@@ -17,8 +17,8 @@ class BGIETL(ETL):
             MATCH (o:Gene {primaryKey:row.primaryId})
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
-            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
-            SET gchrm.start = row.start ,
+            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
+            ON CREATE SET gchrm.start = row.start ,
                 gchrm.end = row.end ,
                 gchrm.assembly = row.assembly ,
                 gchrm.strand = row.strand """
@@ -38,9 +38,9 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
-            
+                
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                ON CREATE SET syn.name = row.synonym
+                    SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     gene_query_template = """
@@ -125,14 +125,15 @@ class BGIETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
+        # gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.gene_synonyms_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"]
+            [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"
+            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]]
         ]
 
         # Obtain the generator
@@ -342,7 +343,7 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
@@ -351,4 +352,4 @@ class BGIETL(ETL):
                 crossReferences = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, synonyms, secondaryIds, genomicLocations, crossReferences]
+            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
