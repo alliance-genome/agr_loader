@@ -88,12 +88,12 @@ def test_spell_crossRefType():
         assert record["counter"] < 1
 
 
-def test_gene_has_automated_description():
-    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
-            "and g.automatedGeneSynopsis is not null return count(g) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+# def test_gene_has_automated_description():
+#     query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
+#             "and g.automatedGeneSynopsis is not null return count(g) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] == 1
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -320,7 +320,7 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
 
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
     query = "match (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm), " \
-            "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " \
+            "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " ƒ\
             "and do.name = 'holoprosencephaly 3' " \
             "return count(deg) as counter"
     result = execute_transaction(query)
