@@ -48,6 +48,8 @@ class GeneDiseaseOrthoETL(ETL):
 
 
     def _load_and_process_data(self):
+        self.create_pub()
+
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
@@ -65,8 +67,6 @@ class GeneDiseaseOrthoETL(ETL):
             [self.insert_gene_disease_ortho, "10000",
              "gene_disease_by_orthology.csv"]
         ]
-
-        self.create_pub()
 
         logger.info("gene disease ortho pub created")
 
