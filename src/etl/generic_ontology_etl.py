@@ -88,7 +88,7 @@ class GenericOntologyETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [GenericOntologyETL.generic_ontology_term_template, commit_size, "generic_ontology_term_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_term_template, 600000, "generic_ontology_term_" + ont_type + ".csv", ont_type],
             [GenericOntologyETL.generic_ontology_synonyms_template, commit_size, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
             [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type]

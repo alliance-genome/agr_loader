@@ -55,10 +55,10 @@ class AggregateLoader(object):
         # The key (left) is derived from a value in the config YAML file.
         # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
-            'GO': GOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
-            'DO': DOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
-            'SO': SOETL, # Special case. Grouped under "Ontology" but has a unique ETL.
-            'MI': MIETL, # Special case. Grouped under "Ontology" but has a unique ETL.
+            'GO': GOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,

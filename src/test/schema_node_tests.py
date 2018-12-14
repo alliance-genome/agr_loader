@@ -186,7 +186,6 @@ class TestClass(object):
                              dict(node='Association', prop='primaryKey'), \
                              dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                             dict(node='Phenotype', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \

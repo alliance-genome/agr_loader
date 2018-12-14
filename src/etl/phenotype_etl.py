@@ -16,6 +16,7 @@ class PhenoTypeETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (feature:Feature {primaryKey:row.primaryId})
+            
             MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
@@ -90,7 +91,7 @@ class PhenoTypeETL(ETL):
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Phenotype Data: %s" % sub_type.get_data_provider())
 
-        if data == None:
+        if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
@@ -178,7 +179,7 @@ class PhenoTypeETL(ETL):
                 logger.info (primaryId + "is missing pubMed and pubMod id")
 
             phenotype_feature = {
-                "primaryId": primaryId,
+                "primaryId": primaryId.strip(),
                 "phenotypeStatement": phenotypeStatement.strip(),
                 "dateAssigned": dateAssigned,
                 "pubMedId": pubMedId,
