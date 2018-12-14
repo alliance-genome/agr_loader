@@ -214,7 +214,7 @@ class GenericOntologyETL(ETL):
                     'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
-                    'display_synonym': display_synonym.strip()
+                    'display_synonym': display_synonym
                 }
 
                 terms.append(term_dict_to_append)
