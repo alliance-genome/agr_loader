@@ -92,7 +92,7 @@ class GeneDiseaseOrthoETL(ETL):
                     """
 
         logger.info("pub creation started")
-        Transaction().execute_transaction(addPub, "gene_disease_ortho")
+        Neo4jHelper().run_single_query(addPub)
 
         logger.info("pub creation finished")
 
