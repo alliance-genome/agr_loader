@@ -34,6 +34,7 @@ class GenericOntologyETL(ETL):
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
+                    SET syn.name = row.syn
             MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
@@ -116,7 +117,8 @@ class GenericOntologyETL(ETL):
             [GenericOntologyETL.generic_ontology_negregs_template, commit_size, "generic_ontology_negregs_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_posregs_template, commit_size, "generic_ontology_posregs_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_regulates_template, commit_size, "generic_ontology_regulates_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_synonyms_template, 600000, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type]
+            [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
+             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator

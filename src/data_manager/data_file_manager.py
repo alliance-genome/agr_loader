@@ -93,10 +93,10 @@ class DataFileManager(object):
                 logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.warn('Creating entry with \'None\' path and extracted path.')
                 returned_dict = {
-                    'dataType' : dataType,
-                    'subType' : subType,
-                    'path' : None,
-                    'tempExtractedFile' : None
+                    'dataType': dataType,
+                    'subType': subType,
+                    'path': None,
+                    'tempExtractedFile': None
                 }
             return returned_dict
 
@@ -110,7 +110,7 @@ class DataFileManager(object):
         # Temporary code below (to be modified or removed).
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        ontologies_to_transform = ('SO', 'DO', 'MI')  # These have non-generic loaders.
+        ontologies_to_transform = ('GO','SO', 'DO', 'MI')  # These have non-generic loaders.
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']

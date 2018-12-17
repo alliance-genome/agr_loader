@@ -57,6 +57,7 @@ class AggregateLoader(object):
         # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'GO': GenericOntologyETL,
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
@@ -80,7 +81,7 @@ class AggregateLoader(object):
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_etl_groups = [
             ['Ontology'],
-            ['DO', 'SO', 'MI'],
+            ['GO', 'DO', 'SO', 'MI'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
