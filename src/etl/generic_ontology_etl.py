@@ -16,7 +16,7 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         //Create the Term node and set properties. primaryKey is required.
-        MERGE (g:%sTerm:Ontology:AnatomyOntology {primaryKey:row.oid})
+        MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
             ON CREATE SET g.definition = row.definition,
                 g.type = row.o_type,
                 g.href = row.href,
@@ -24,7 +24,8 @@ class GenericOntologyETL(ETL):
                 g.nameKey = row.name_key,
                 g.is_obsolete = row.is_obsolete,
                 g.href = row.href,
-                g.display_synonym = row.display_synonym
+                g.display_synonym = row.display_synonym,
+                g.subsets = row.subsets
         MERGE (g)-[gccg:IS_A_PART_OF_SELF_CLOSURE]->(g)
         """
 
@@ -79,6 +80,7 @@ class GenericOntologyETL(ETL):
             MATCH (g1:%sTerm {primaryKey:row.primary_id})
             MERGE (g2:%sTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2) """
+
 
     def __init__(self, config):
         super().__init__()
@@ -141,6 +143,7 @@ class GenericOntologyETL(ETL):
         negregs = []
         posregs = []
         regs = []
+        subsets = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
@@ -150,7 +153,7 @@ class GenericOntologyETL(ETL):
             definition = ""
             is_obsolete = "false"
             syn = ""
-            ident = line['id']
+            ident = line['id'].strip()
             prefix = ident.split(":")[0]
 
             if o_syns is not None:
@@ -178,6 +181,9 @@ class GenericOntologyETL(ETL):
                         display_synonym = display_synonym.split("\"")[1].strip()
                     else:
                         display_synonym = ""
+            # subset
+            newSubset = line.get('subset')
+            subsets.append(newSubset)
 
             # is_a processing
             o_is_as = line.get('is_a')
@@ -300,7 +306,8 @@ class GenericOntologyETL(ETL):
                     'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
-                    'display_synonym': display_synonym
+                    'display_synonym': display_synonym,
+                    'subsets': subsets
                 }
 
                 terms.append(term_dict_to_append)
@@ -315,4 +322,4 @@ class GenericOntologyETL(ETL):
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, negregs, posregs, regs, syns]
+            yield [terms, isas, partofs, negregs, posregs, regs, syns ]

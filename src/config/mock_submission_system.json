@@ -263,7 +263,7 @@
             "schemaVersion": "1.0.0.7",
             "dataType": "Ontology",
             "subType": "GO",
-            "path": "http://snapshot.geneontology.org/ontology/go.obo",
+            "path": "http://current.geneontology.org/ontology/go.obo",
             "tempExtractedFile": "go.obo",
             "uploadDate": 1522181475376
         },

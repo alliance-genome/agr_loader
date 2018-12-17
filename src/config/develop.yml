@@ -1,5 +1,7 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Expression: [FB, SGD, WB, ZFIN, RGD, MGI]
 Ontology:
   - GO
   - SO
@@ -19,22 +21,5 @@ Ontology:
   - EMAPA
   - MA
   - UBERON
-Closure:
-  - GO
-  - SO
-  - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBDV
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - UBERON
+  - ECO
+ExpressionRibbon: [ExpressionRibbon]
