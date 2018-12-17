@@ -25,6 +25,7 @@ coloredlogs.install(level=debug_level,
 
 logger = logging.getLogger(__name__)
 
+
 class AggregateLoader(object):
 
     def run_loader(self):
@@ -55,10 +56,9 @@ class AggregateLoader(object):
         # The key (left) is derived from a value in the config YAML file.
         # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
-            'GO': GOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
-            'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'Expression': ExpressionETL,
@@ -80,7 +80,7 @@ class AggregateLoader(object):
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_etl_groups = [
             ['Ontology'],
-            ['GO', 'DO', 'SO', 'MI'],
+            ['DO', 'SO', 'MI'],
             ['BGI'],
             ['Allele'],
             ['Expression'],

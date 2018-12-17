@@ -218,6 +218,7 @@ class ExpressionETL(ETL):
 
             MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
             MERGE (s:Stage {primaryKey:row.stageName})
+                ON CREATE SET s.name = row.stageName
             MERGE (ei)-[eotcctq:DURING]-(s) """
 
     uberonAO = """  

@@ -168,6 +168,25 @@ class ETLHelper(object):
         new_identifier = speciesDict[taxon_id] + identifier
 
         return new_identifier
+
+    @staticmethod
+    def get_short_species_abbreviation(taxon_id):
+        if taxon_id == 'NCBI_Taxon:7955':
+            return 'Dre'
+        if taxon_id == 'NCBI_Taxon:7227':
+            return 'Dme'
+        if taxon_id == 'NCBI_Taxon:10090':
+            return 'Mmu'
+        if taxon_id == 'NCBI_Taxon:6239':
+            return 'Cel'
+        if taxon_id == 'NCBI_Taxon:10116':
+            return 'Rno'
+        if taxon_id == 'NCBI_Taxon:559292':
+            return 'Sce'
+        if taxon_id == 'NCBI_Taxon:9606':
+            return 'Hsa'
+        else:
+            return 'Alliance'
     
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):

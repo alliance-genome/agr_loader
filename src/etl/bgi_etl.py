@@ -65,7 +65,8 @@ class BGIETL(ETL):
                               o.modLocalId = row.localId,
                               o.modGlobalId = row.modGlobalId,
                               o.uuid = row.uuid,
-                              o.dataProvider = row.dataProvider
+                              o.dataProvider = row.dataProvider,
+                              o.symbolWithSpecies = row.symbolWithSpecies
 
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
@@ -206,6 +207,8 @@ class BGIETL(ETL):
             geneticEntityExternalUrl = ""
             modCrossReferenceCompleteUrl = ""
             taxonId = geneRecord.get("taxonId")
+            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(taxonId)
+
 
             if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
                 local_id = geneRecord['primaryId']
@@ -280,6 +283,8 @@ class BGIETL(ETL):
 
             gene = {
                 "symbol": geneRecord.get('symbol'),
+                # globallyUniqueSymbolWithSpecies requested by search group
+                "symbolWithSpecies": geneRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                 "name": geneRecord.get('name'),
                 "geneticEntityExternalUrl": geneticEntityExternalUrl,
                 "description": geneRecord.get('description'),

@@ -46,6 +46,7 @@ Ontology:
     - EMAPA
     - MA
     - UBERON
+    - ECO
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -76,6 +77,7 @@ Closure:
     - EMAPA
     - MA
     - UBERON
+    - ECO
 Interactions:
   type: list
   allowed: [MolecularInteraction]
