@@ -147,6 +147,7 @@ class GenericOntologyETL(ETL):
             defText = None
             definition = ""
             is_obsolete = "false"
+            syn = ""
             ident = line['id']
             prefix = ident.split(":")[0]
 
@@ -156,7 +157,7 @@ class GenericOntologyETL(ETL):
                         syn = syn.split("\"")[1].strip()
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : syn.strip()
+                            'syn' : syn
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                 else:
@@ -312,4 +313,4 @@ class GenericOntologyETL(ETL):
                 partofs = []
 
         if counter > 0:
-            yield [terms, syns, isas, partofs, negregs, posregs, regs, syns]
+            yield [terms, isas, partofs, negregs, posregs, regs, syns]
