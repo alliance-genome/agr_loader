@@ -153,7 +153,7 @@ class ETLHelper(object):
                 return identifier[len(prefix):]
 
     @staticmethod
-    def add_agr_prefix_by_species(identifier, taxon_id):
+    def add_agr_prefix_by_species_taxon(identifier, taxon_id):
         speciesDict = {
             7955: 'ZFIN:',
             6239: 'WB:',
@@ -184,7 +184,7 @@ class ETLHelper(object):
             '6239' : 'WB',
             '10090' : 'MGI',
             '10116' : 'RGD',
-            '559292' : 'SGD',
+            '4932' : 'SGD',
             '7227' : 'FB',
             '9606' : 'Human'
         }
@@ -199,7 +199,7 @@ class ETLHelper(object):
             'WB' : '6239',
             'MGI' : '10090',
             'RGD' : '10116',
-            'SGD' : '559292',
+            'SGD' : '4932',
             'FB' : '7227',
             'Human' : '9606'
         }
