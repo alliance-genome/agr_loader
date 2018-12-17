@@ -165,7 +165,7 @@ class PhenoTypeETL(ETL):
             if pubModId is not None:
                 pubModPrefix = pubModId.split(":")[0]
                 pubModLocalId = pubModId.split(":")[1]
-                pubModUrl = ETLHelper.get_page_complete_url(pubModLocalId, ETL.xrefUrlMap, pubModPrefix, "gene/references")
+                pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
 
             if pubMedId is None:
                 pubMedId = ""
