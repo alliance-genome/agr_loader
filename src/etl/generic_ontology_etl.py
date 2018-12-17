@@ -223,61 +223,60 @@ class GenericOntologyETL(ETL):
                         }
                     partofs.append(partof_dict_to_append)
 
-            o_posreg = line.get('positively_regulates')
-            if o_posreg is not None:
-                if isinstance(o_posreg, (list, tuple)):
-                    for pr in o_posreg:
+            if prefix == 'GO':
+                o_posreg = line.get('positively_regulates')
+                if o_posreg is not None:
+                    if isinstance(o_posreg, (list, tuple)):
+                        for pr in o_posreg:
+                            prWithoutName = pr.split("!")[0].strip()
+                            positively_regulates_dict_to_append = {
+                                'oid' : ident,
+                                'positevly_regulates' : prWithoutName
+                            }
+                            posregs.append(positively_regulates_dict_to_append)
+                    else:
                         prWithoutName = pr.split("!")[0].strip()
-                        partof_dict_to_append = {
+                        positively_regulates_dict_to_append = {
                             'oid' : ident,
                             'positevly_regulates' : prWithoutName
-                        }
+                            }
                         posregs.append(positively_regulates_dict_to_append)
-                else:
-                    prWithoutName = pr.split("!")[0].strip()
-                    positively_regulates_dict_to_append = {
-                        'oid' : ident,
-                        'positevly_regulates' : prWithoutName
-                        }
-                    posregs.append(positively_regulates_dict_to_append)
 
-            o_negreg = line.get('negatively_regulates')
-            if o_negreg is not None:
-                if isinstance(o_negreg, (list, tuple)):
-                    for nr in o_negreg:
+                o_negreg = line.get('negatively_regulates')
+                if o_negreg is not None:
+                    if isinstance(o_negreg, (list, tuple)):
+                        for nr in o_negreg:
+                            nrWithoutName = nr.split("!")[0].strip()
+                            negatively_regulates_dict_to_append = {
+                                'oid' : ident,
+                                'negatively_regulates' : nrWithoutName
+                            }
+                            negregs.append(negatively_regulates_dict_to_append)
+                    else:
                         nrWithoutName = nr.split("!")[0].strip()
                         negatively_regulates_dict_to_append = {
                             'oid' : ident,
                             'negatively_regulates' : nrWithoutName
-                        }
+                            }
                         negregs.append(negatively_regulates_dict_to_append)
-                else:
-                    nrWithoutName = nr.split("!")[0].strip()
-                    negatively_regulates_dict_to_append = {
-                        'oid' : ident,
-                        'negatively_regulates' : nrWithoutName
-                        }
-                    negregs.append(negatively_regulates_dict_to_append)
 
-            o_reg = line.get('negatively_regulates')
-            if o_reg is not None:
-                if isinstance(o_reg, (list, tuple)):
-                    for reg in o_reg:
-                        rWithoutName = reg.split("!")[0].strip()
+                o_reg = line.get('negatively_regulates')
+                if o_reg is not None:
+                    if isinstance(o_reg, (list, tuple)):
+                        for reg in o_reg:
+                            rWithoutName = reg.split("!")[0].strip()
+                            negatively_regulates_dict_to_append = {
+                                'oid' : ident,
+                                'negatively_regulates' : rWithoutName
+                            }
+                            regs.append(negatively_regulates_dict_to_append)
+                    else:
+                        rWithoutName = po.split("!")[0].strip()
                         negatively_regulates_dict_to_append = {
                             'oid' : ident,
                             'negatively_regulates' : rWithoutName
-                        }
+                            }
                         regs.append(negatively_regulates_dict_to_append)
-                else:
-                    rWithoutName = po.split("!")[0].strip()
-                    negatively_regulates_dict_to_append = {
-                        'oid' : ident,
-                        'negatively_regulates' : rWithoutName
-                        }
-                    regs.append(negatively_regulates_dict_to_append)
-
-
             definition = line.get('def')
             if definition is None:
                 definition = ""
@@ -322,4 +321,4 @@ class GenericOntologyETL(ETL):
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, negregs, posregs, regs, syns ]
+            yield [terms, isas, partofs, negregs, posregs, regs, syns]
