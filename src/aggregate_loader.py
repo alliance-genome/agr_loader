@@ -61,6 +61,7 @@ class AggregateLoader(object):
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'Allele': AlleleETL,
+            'GO': GOETL,
             'Expression': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
             'Disease': DiseaseETL,
@@ -79,8 +80,9 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_etl_groups = [
-            ['Ontology'],
             ['DO', 'SO', 'MI'],
+            ['GO'],
+            ['Ontology'],
             ['BGI'],
             ['Allele'],
             ['Expression'],

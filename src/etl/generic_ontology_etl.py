@@ -100,8 +100,7 @@ class GenericOntologyETL(ETL):
     def _process_sub_type(self, sub_type):
         logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        
-        logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+
 
         # This order is the same as the lists yielded from the get_generators function.    
         # A list of tuples.
@@ -129,6 +128,8 @@ class GenericOntologyETL(ETL):
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+
+        logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
 
     def get_generators(self, filepath, batch_size):
 
@@ -260,23 +261,23 @@ class GenericOntologyETL(ETL):
                             }
                         negregs.append(negatively_regulates_dict_to_append)
 
-                o_reg = line.get('negatively_regulates')
+                o_reg = line.get('regulates')
                 if o_reg is not None:
                     if isinstance(o_reg, (list, tuple)):
                         for reg in o_reg:
                             rWithoutName = reg.split("!")[0].strip()
-                            negatively_regulates_dict_to_append = {
+                            regulates_dict_to_append = {
                                 'oid' : ident,
-                                'negatively_regulates' : rWithoutName
+                                'regulates' : rWithoutName
                             }
-                            regs.append(negatively_regulates_dict_to_append)
+                            regs.append(regulates_dict_to_append)
                     else:
-                        rWithoutName = po.split("!")[0].strip()
-                        negatively_regulates_dict_to_append = {
+                        rWithoutName = reg.split("!")[0].strip()
+                        regulates_dict_to_append = {
                             'oid' : ident,
-                            'negatively_regulates' : rWithoutName
+                            'regulates' : rWithoutName
                             }
-                        regs.append(negatively_regulates_dict_to_append)
+                        regs.append(regulates_dict_to_append)
             definition = line.get('def')
             if definition is None:
                 definition = ""
