@@ -1,10 +1,13 @@
+from itertools import permutations
 import logging, uuid
 import multiprocessing
+from random import shuffle
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,26 +36,47 @@ class OrthologyETL(ETL):
             CREATE (g1)-[a1:ASSOCIATION]->(oa)
             CREATE (oa)-[a2:ASSOCIATION]->(g2) """
 
-    algorithm_template = """
+    not_matched_algorithm_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MATCH (ogj:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
-            WITH ogj, oa, row
-                CALL apoc.create.relationship(ogj, row.reltype, NULL, oa) YIELD rel
-                RETURN rel """
+            CREATE (ogj)-[:NOT_MATCHED]->(oa) """
+    
+    matched_algorithm_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
+            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+            CREATE (ogj)-[:MATCHED]->(oa) """
+            
+    notcalled_algorithm_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
+            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+            CREATE (ogj)-[:NOT_CALLED]->(oa) """
+            
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        
+        sub_types = []
+        
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            sub_types.append(sub_type.get_data_provider())
+            
         thread_pool = []
         
         query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, query_tracking_list))
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, sub_types, query_tracking_list))
             p.start()
             thread_pool.append(p)
 
@@ -63,9 +87,27 @@ class OrthologyETL(ETL):
         for item in query_tracking_list:
             queries.append(item)
             
-        Neo4jTransactor.execute_query_batch(queries)
+        
+        algo_queries = []
+        
+        for item in queries:
+            if "algorithm" in item[1]:
+                algo_queries.append(item)
+
+        main_list = self.get_randomized_list(sub_types)
+            
+        for file_set in main_list:
+            for pair in file_set:
+                for item in queries:
+                    if pair[0] + "_" + pair[1] in item[1]:
+                        logger.debug("Pair: %s Item: %s" % (pair, item[1]))
+                        Neo4jTransactor.execute_query_batch([item])
+            
+            Neo4jTransactor().wait_for_queues()
+            
+        Neo4jTransactor.execute_query_batch(algo_queries)
   
-    def _process_sub_type(self, sub_type, query_tracking_list):
+    def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
         logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
@@ -73,14 +115,20 @@ class OrthologyETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         
-        generators = self.get_generators(data, batch_size)
+        generators = self.get_generators(data, sub_type.get_data_provider(), sub_types, batch_size)
 
-        query_list = [
-            [OrthologyETL.query_template, commit_size, "orthology_data_" + sub_type.get_data_provider() + ".csv"],
-            [OrthologyETL.algorithm_template, commit_size, "orthology_algorithm_data_" + sub_type.get_data_provider() + ".csv"],
-        ]
+        query_list = []
+
+        for mod_sub_type in sub_types:
+            if mod_sub_type != sub_type.get_data_provider():
+                query_list.append([OrthologyETL.query_template, "100000", "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
+ 
+        query_list.append([OrthologyETL.matched_algorithm_template, commit_size, "orthology_matched_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
+        query_list.append([OrthologyETL.not_matched_algorithm_template, commit_size, "orthology_not_matched_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
+        query_list.append([OrthologyETL.notcalled_algorithm_template, commit_size, "orthology_notcalled_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
             
         query_and_file_list = self.process_query_params(query_list)
+        
         CSVTransactor.save_file_static(generators, query_and_file_list)
         
         for item in query_and_file_list:
@@ -88,12 +136,49 @@ class OrthologyETL(ETL):
 
         logger.info("Finished Loading Orthology Data: %s" % sub_type.get_data_provider())
 
-    def get_generators(self, ortho_data, batch_size):
+    def get_randomized_list(self, sub_types):
+        pairs = [perm for perm in permutations( sub_types, 2)]
+        
+        list_o = [] 
+        counter = 0;
+        while (len(list_o) == 0 or len(list_o) > len(sub_types) * 2) and counter < 10000:
+        
+            list_o = []
+        
+            shuffle(pairs)
+            for pair in pairs:
+                inserted = False
+                for item in list_o:
+                    found = False
+                    for item2 in item:
+                        if pair[0] in item2 or pair[1] in item2:
+                            found = True
+                            break 
+                    if not found:
+                        item.append(pair)
+                        inserted = True
+                        break
+                if not inserted:
+                    list_o.append([pair])
+                 
+            counter += 1
+        
+        return list_o
+
+
+    def get_generators(self, ortho_data, sub_type, sub_types, batch_size):
 
         counter = 0
+
+        matched_algorithm_data = []
+        unmatched_algorithm_data = []
+        notcalled_algorithm_data = []
         
-        ortho_data_list = []
-        algorithm_data = []
+        list_of_mod_lists = {}
+        
+        for mod_sub_type in sub_types:
+            if mod_sub_type != sub_type:
+                list_of_mod_lists[mod_sub_type] = []
 
         dataProviderObject = ortho_data['metaData']['dataProvider']
 
@@ -119,14 +204,15 @@ class OrthologyETL(ETL):
             gene2 = ETLHelper.process_identifiers(orthoRecord['gene2'], dataProviders)
             # 'DRSC:'' removed, local ID, functions as display ID.
 
-            gene1Species = orthoRecord['gene1Species']
-            gene2Species = orthoRecord['gene2Species']
+            gene1SpeciesTaxonId = orthoRecord['gene1Species']
+            gene2SpeciesTaxonId = orthoRecord['gene2Species']
 
             # Prefixed according to AGR prefixes.
-            gene1AgrPrimaryId = ETLHelper.add_agr_prefix_by_species(gene1, gene1Species)
+            gene1AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene1, gene1SpeciesTaxonId)
 
             # Prefixed according to AGR prefixes.
-            gene2AgrPrimaryId = ETLHelper.add_agr_prefix_by_species(gene2, gene2Species)
+            gene2AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene2, gene2SpeciesTaxonId)
+            gene2DataProvider = ETLHelper.get_MOD_from_taxon(str(gene2SpeciesTaxonId))
 
             counter = counter + 1
 
@@ -154,38 +240,56 @@ class OrthologyETL(ETL):
                     'moderateFilter': orthoRecord['moderateFilter'],
                     'uuid': ortho_uuid
                 }
-                ortho_data_list.append(ortho_dataset)
+                list_of_mod_lists[gene2DataProvider].append(ortho_dataset)
 
                 for matched in orthoRecord.get('predictionMethodsMatched'):
                     matched_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": matched,
-                        "reltype": "MATCHED"
+                        "algorithm": matched
                     }
-                    algorithm_data.append(matched_dataset)
+                    matched_algorithm_data.append(matched_dataset)
 
                 for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
                     unmatched_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": unmatched,
-                        "reltype": "NOT_MATCHED"
+                        "algorithm": unmatched
                     }
-                    algorithm_data.append(unmatched_dataset)
+                    unmatched_algorithm_data.append(unmatched_dataset)
 
                 for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
                     notcalled_dataset = {
                         "uuid": ortho_uuid,
-                        "algorithm": notcalled,
-                        "reltype": "NOT_CALLED"
+                        "algorithm": notcalled
                     }
-                    algorithm_data.append(notcalled_dataset)
+                    notcalled_algorithm_data.append(notcalled_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
                 if counter == batch_size:
-                    yield [ortho_data_list, algorithm_data]
-                    ortho_data_list = []
-                    algorithm_data = []
+                    list_to_yeild = []
+                    for mod_sub_type in sub_types:
+                        if mod_sub_type != sub_type:
+                            list_to_yeild.append(list_of_mod_lists[mod_sub_type])
+                    list_to_yeild.append(matched_algorithm_data)
+                    list_to_yeild.append(unmatched_algorithm_data)
+                    list_to_yeild.append(notcalled_algorithm_data)
+                      
+                    yield list_to_yeild
+                    
+                    for mod_sub_type in sub_types:
+                        if mod_sub_type != sub_type:
+                            list_of_mod_lists[mod_sub_type] = []
+                    matched_algorithm_data = []
+                    unmatched_algorithm_data = []
+                    notcalled_algorithm_data = []
                     counter = 0
 
         if counter > 0:
-            yield [ortho_data_list, algorithm_data]
+            list_to_yeild = []
+            for mod_sub_type in sub_types:
+                if mod_sub_type != sub_type:
+                    list_to_yeild.append(list_of_mod_lists[mod_sub_type])
+            list_to_yeild.append(matched_algorithm_data)
+            list_to_yeild.append(unmatched_algorithm_data)
+            list_to_yeild.append(notcalled_algorithm_data)
+                    
+            yield list_to_yeild
