@@ -87,12 +87,35 @@ def test_spell_crossRefType():
     for record in result:
         assert record["counter"] < 1
 
-# def test_gene_has_automated_description():
-#     query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
-#             "and g.automatedGeneSynopsis is not null return count(g) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] == 1
+
+def test_gene_has_automated_description():
+     query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
+             "and g.automatedGeneSynopsis is not null return count(g) as counter"
+     result = execute_transaction(query)
+     for record in result:
+        assert record["counter"] == 1
+
+
+def test_gene_has_all_three_automated_description_components():
+    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000004695', 'SGD:S000004916', " \
+            "'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284'," \
+               "'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596'," \
+               "'SGD:S000004777', 'SGD:S000006074','SGD:S000002678', 'SGD:S000003487', "\
+               "'SGD:S000000458', 'SGD:S000006068', 'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844'," \
+               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',"\
+               "'ZFIN:ZDB-GENE-040426-1294', 'FB:FBgn0027655', 'FB:FBgn0045035','RGD:68337', 'RGD:2332', " \
+               "'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043'," \
+               "'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+            "and not (g.automatedGeneSynopsis =~ '.*xhibits.*'" \
+                "or g.automatedGeneSynopsis =~ '.*nvolved in.*'" \
+                "or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
+                "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
+                "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
+            "and not g.automatedGeneSynopsis =~ '.*sed to study.*'" \
+            "and not g.automatedGeneSynopsis =~ '.*rthologous to.*' return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -351,3 +374,5 @@ def test_human_gene_has_mouse_ortho_disease_annotation():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
