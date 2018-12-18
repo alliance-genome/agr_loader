@@ -49,6 +49,7 @@ Closure:
   - ECO
   - UBERON
 Interactions: [MolecularInteraction]
+GeneDescriptions: [GeneDescriptions]
 
 # Loader configuration values are below.
 # Please modify with caution!

@@ -79,6 +79,9 @@ Closure:
 Interactions:
   type: list
   allowed: [MolecularInteraction]
+GeneDescriptions:
+  type: list
+  allowed: [GeneDescriptions]
 FileTransactorThreads:
   type: integer
   required: True
