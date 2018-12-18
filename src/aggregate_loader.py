@@ -2,7 +2,6 @@ import logging, coloredlogs, os, multiprocessing, time
 from etl import *
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
-from transactions import Indicies
 from data_manager import DataFileManager
 
 debug_level = logging.INFO

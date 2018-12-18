@@ -3,7 +3,6 @@ logger = logging.getLogger(__name__)
 from etl import ETL
 from .helpers import Neo4jHelper
 from transactors import CSVTransactor, Neo4jTransactor
-from transactions import Transaction
 import multiprocessing
 import uuid, logging
 from datetime import datetime

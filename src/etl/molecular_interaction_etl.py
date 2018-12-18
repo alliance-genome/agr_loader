@@ -6,7 +6,6 @@ import uuid, csv, re, sys, itertools
 from .helpers import ResourceDescriptorHelper2, Neo4jHelper
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
-from transactions import Transaction
 
 class MolecularInteractionETL(ETL):
 
