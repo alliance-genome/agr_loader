@@ -60,6 +60,8 @@ class AggregateLoader(object):
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'UBERON': GenericOntologyETL,
+            'CL': GenericOntologyETL,
             'BGI': BGIETL,
             'Allele': AlleleETL,
             'GO': GOETL,
@@ -84,6 +86,8 @@ class AggregateLoader(object):
             ['DO', 'SO', 'MI'],
             ['GO'],
             ['Ontology'],
+            ['UBERON'],
+            ['CL'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
