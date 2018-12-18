@@ -115,7 +115,7 @@ def test_gene_has_all_three_automated_description_components():
             "and not g.automatedGeneSynopsis =~ '.*rthologous to.*' return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
