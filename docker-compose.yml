@@ -50,11 +50,17 @@ services:
     networks:
       - esnet
     environment:
-     - PYTHONUNBUFFERED=1
-     - TEST_SET=False
-     - UNIT_TESTS=False
-     - NEO4J_NQC_HOST=neo4j.nqc
-     - NEO4J_NQC_PORT=7687
+      - PYTHONUNBUFFERED=1
+      - TEST_SET=False
+      - UNIT_TESTS=False
+      - NEO4J_NQC_HOST=neo4j.nqc
+      - NEO4J_NQC_PORT=7687
+    entrypoint:
+      - python3
+      - -u 
+      - src/aggregate_loader.py
+      - -c 
+      - develop.yml
 
   agr_loader_test:
     image: agrdocker/agr_loader_run:latest
@@ -72,6 +78,12 @@ services:
      - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
+    entrypoint:
+      - python3
+      - -u 
+      - src/aggregate_loader.py
+      - -c 
+      - test.yml
 
 networks:
   esnet:

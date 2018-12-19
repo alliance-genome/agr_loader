@@ -8,15 +8,15 @@ Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
-  - GO
-  - SO
-  - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBDV
+  - GO 
+  - SO 
+  - DO 
+  - MI 
+  - ZFA 
+  - ZFS 
+  - WBBT 
+  - CL 
+  - FBDV 
   - FBBT
   - FBCV
   - MMUSDV
@@ -51,3 +51,9 @@ Closure:
   - UBERON
   - ECO
 Interactions: [MolecularInteraction]
+
+# Loader configuration values are below.
+# Please modify with caution!
+
+FileTransactorThreads: 10
+Neo4jTransactorThreads: 7
