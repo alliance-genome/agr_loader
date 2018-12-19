@@ -151,7 +151,7 @@ def test_every_species_has_phenotype_has_pub():
 
 
 def test_phenotype_for_all_species_exists():
-    query = "MATCH (s:Species)--()-[sigj:ASSOCIATION]-(p:Phenotype) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--()--(p:Phenotype) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6
@@ -173,7 +173,7 @@ def test_goannot_for_all_species_exists():
 
 
 def test_molint_for_all_species_exists():
-    query = "MATCH (s:Species)--()-[hp:ANNOTATED_TO]-(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--()--(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7

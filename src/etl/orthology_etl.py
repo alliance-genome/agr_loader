@@ -1,8 +1,8 @@
 from itertools import permutations
 import logging, uuid
-import multiprocessing
+import multiprocessing, ijson
 from random import shuffle
-
+import codecs
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
@@ -110,12 +110,12 @@ class OrthologyETL(ETL):
     def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
         logger.info("Loading Orthology Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        data = JSONFile().get_data(filepath)
+        #data = JSONFile().get_data(filepath)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         
-        generators = self.get_generators(data, sub_type.get_data_provider(), sub_types, batch_size)
+        generators = self.get_generators(filepath, sub_type.get_data_provider(), sub_types, batch_size)
 
         query_list = []
 
@@ -166,130 +166,116 @@ class OrthologyETL(ETL):
         return list_o
 
 
-    def get_generators(self, ortho_data, sub_type, sub_types, batch_size):
+    def get_generators(self, datafile, sub_type, sub_types, batch_size):
 
         counter = 0
 
         matched_algorithm_data = []
         unmatched_algorithm_data = []
         notcalled_algorithm_data = []
-        
+
         list_of_mod_lists = {}
-        
+
         for mod_sub_type in sub_types:
             if mod_sub_type != sub_type:
                 list_of_mod_lists[mod_sub_type] = []
 
-        dataProviderObject = ortho_data['metaData']['dataProvider']
+        logger.debug("streaming json data from %s ..." % datafile)
+        with codecs.open(datafile, 'r', 'utf-8') as f:
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
-        dataProviders = []
+            for orthoRecord in ijson.items(f, 'data.item'):
+                # Sort out identifiers and prefixes.
+                gene1 = ETLHelper.process_identifiers(orthoRecord['gene1'])
+                # 'DRSC:'' removed, local ID, functions as display ID.
+                gene2 = ETLHelper.process_identifiers(orthoRecord['gene2'])
+                # 'DRSC:'' removed, local ID, functions as display ID.
 
-        for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
-                dataProviderCrossRefSet.append(
-                    ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                  dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+                gene1SpeciesTaxonId = orthoRecord['gene1Species']
+                gene2SpeciesTaxonId = orthoRecord['gene2Species']
 
-        dataProviders.append(dataProvider)
+                # Prefixed according to AGR prefixes.
+                gene1AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene1, gene1SpeciesTaxonId)
 
-        for orthoRecord in ortho_data['data']:
+                # Prefixed according to AGR prefixes.
+                gene2AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene2, gene2SpeciesTaxonId)
+                gene2DataProvider = ETLHelper.get_MOD_from_taxon(str(gene2SpeciesTaxonId))
 
-            # Sort out identifiers and prefixes.
-            gene1 = ETLHelper.process_identifiers(orthoRecord['gene1'], dataProviders)
-            # 'DRSC:'' removed, local ID, functions as display ID.
-            gene2 = ETLHelper.process_identifiers(orthoRecord['gene2'], dataProviders)
-            # 'DRSC:'' removed, local ID, functions as display ID.
+                counter = counter + 1
 
-            gene1SpeciesTaxonId = orthoRecord['gene1Species']
-            gene2SpeciesTaxonId = orthoRecord['gene2Species']
+                ortho_uuid = str(uuid.uuid4())
 
-            # Prefixed according to AGR prefixes.
-            gene1AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene1, gene1SpeciesTaxonId)
+                if self.testObject.using_test_data() is True:
+                    is_it_test_entry = self.testObject.check_for_test_id_entry(gene1AgrPrimaryId)
+                    is_it_test_entry2 = self.testObject.check_for_test_id_entry(gene2AgrPrimaryId)
+                    if is_it_test_entry is False and is_it_test_entry2 is False:
+                        counter = counter - 1
+                        continue
 
-            # Prefixed according to AGR prefixes.
-            gene2AgrPrimaryId = ETLHelper.add_agr_prefix_by_species_taxon(gene2, gene2SpeciesTaxonId)
-            gene2DataProvider = ETLHelper.get_MOD_from_taxon(str(gene2SpeciesTaxonId))
+                if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
 
-            counter = counter + 1
+                    ortho_dataset = {
+                        'isBestScore': orthoRecord['isBestScore'],
+                        'isBestRevScore': orthoRecord['isBestRevScore'],
 
-            ortho_uuid = str(uuid.uuid4())
+                        'gene1AgrPrimaryId': gene1AgrPrimaryId,
+                        'gene2AgrPrimaryId': gene2AgrPrimaryId,
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(gene1AgrPrimaryId)
-                is_it_test_entry2 = self.testObject.check_for_test_id_entry(gene2AgrPrimaryId)
-                if is_it_test_entry is False and is_it_test_entry2 is False:
-                    counter = counter - 1
-                    continue
+                        'confidence': orthoRecord['confidence'],
 
-            if gene1AgrPrimaryId is not None and gene2AgrPrimaryId is not None:
-
-                ortho_dataset = {
-                    'isBestScore': orthoRecord['isBestScore'],
-                    'isBestRevScore': orthoRecord['isBestRevScore'],
-
-                    'gene1AgrPrimaryId': gene1AgrPrimaryId,
-                    'gene2AgrPrimaryId': gene2AgrPrimaryId,
-
-                    'confidence': orthoRecord['confidence'],
-
-                    'strictFilter': orthoRecord['strictFilter'],
-                    'moderateFilter': orthoRecord['moderateFilter'],
-                    'uuid': ortho_uuid
-                }
-                list_of_mod_lists[gene2DataProvider].append(ortho_dataset)
-
-                for matched in orthoRecord.get('predictionMethodsMatched'):
-                    matched_dataset = {
-                        "uuid": ortho_uuid,
-                        "algorithm": matched
+                        'strictFilter': orthoRecord['strictFilter'],
+                        'moderateFilter': orthoRecord['moderateFilter'],
+                        'uuid': ortho_uuid
                     }
-                    matched_algorithm_data.append(matched_dataset)
+                    list_of_mod_lists[gene2DataProvider].append(ortho_dataset)
 
-                for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
-                    unmatched_dataset = {
-                        "uuid": ortho_uuid,
-                        "algorithm": unmatched
-                    }
-                    unmatched_algorithm_data.append(unmatched_dataset)
+                    for matched in orthoRecord.get('predictionMethodsMatched'):
+                        matched_dataset = {
+                            "uuid": ortho_uuid,
+                            "algorithm": matched
+                        }
+                        matched_algorithm_data.append(matched_dataset)
 
-                for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
-                    notcalled_dataset = {
-                        "uuid": ortho_uuid,
-                        "algorithm": notcalled
-                    }
-                    notcalled_algorithm_data.append(notcalled_dataset)
+                    for unmatched in orthoRecord.get('predictionMethodsNotMatched'):
+                        unmatched_dataset = {
+                            "uuid": ortho_uuid,
+                            "algorithm": unmatched
+                        }
+                        unmatched_algorithm_data.append(unmatched_dataset)
 
-                # Establishes the number of entries to yield (return) at a time.
-                if counter == batch_size:
-                    list_to_yeild = []
-                    for mod_sub_type in sub_types:
-                        if mod_sub_type != sub_type:
-                            list_to_yeild.append(list_of_mod_lists[mod_sub_type])
-                    list_to_yeild.append(matched_algorithm_data)
-                    list_to_yeild.append(unmatched_algorithm_data)
-                    list_to_yeild.append(notcalled_algorithm_data)
+                    for notcalled in orthoRecord.get('predictionMethodsNotCalled'):
+                        notcalled_dataset = {
+                            "uuid": ortho_uuid,
+                            "algorithm": notcalled
+                        }
+                        notcalled_algorithm_data.append(notcalled_dataset)
+
+                    # Establishes the number of entries to yield (return) at a time.
+                    if counter == batch_size:
+                        list_to_yeild = []
+                        for mod_sub_type in sub_types:
+                            if mod_sub_type != sub_type:
+                                list_to_yeild.append(list_of_mod_lists[mod_sub_type])
+                        list_to_yeild.append(matched_algorithm_data)
+                        list_to_yeild.append(unmatched_algorithm_data)
+                        list_to_yeild.append(notcalled_algorithm_data)
                       
-                    yield list_to_yeild
+                        yield list_to_yeild
                     
-                    for mod_sub_type in sub_types:
-                        if mod_sub_type != sub_type:
-                            list_of_mod_lists[mod_sub_type] = []
-                    matched_algorithm_data = []
-                    unmatched_algorithm_data = []
-                    notcalled_algorithm_data = []
-                    counter = 0
+                        for mod_sub_type in sub_types:
+                            if mod_sub_type != sub_type:
+                                list_of_mod_lists[mod_sub_type] = []
+                        matched_algorithm_data = []
+                        unmatched_algorithm_data = []
+                        notcalled_algorithm_data = []
+                        counter = 0
 
-        if counter > 0:
-            list_to_yeild = []
-            for mod_sub_type in sub_types:
-                if mod_sub_type != sub_type:
-                    list_to_yeild.append(list_of_mod_lists[mod_sub_type])
-            list_to_yeild.append(matched_algorithm_data)
-            list_to_yeild.append(unmatched_algorithm_data)
-            list_to_yeild.append(notcalled_algorithm_data)
+            if counter > 0:
+                list_to_yeild = []
+                for mod_sub_type in sub_types:
+                    if mod_sub_type != sub_type:
+                        list_to_yeild.append(list_of_mod_lists[mod_sub_type])
+                list_to_yeild.append(matched_algorithm_data)
+                list_to_yeild.append(unmatched_algorithm_data)
+                list_to_yeild.append(notcalled_algorithm_data)
                     
-            yield list_to_yeild
+                yield list_to_yeild

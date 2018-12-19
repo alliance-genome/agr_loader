@@ -8,15 +8,15 @@ Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
-  - GO 
-  - SO 
-  - DO 
-  - MI 
-  - ZFA 
-  - ZFS 
-  - WBBT 
-  - CL 
-  - FBDV 
+  - GO
+  - SO
+  - DO
+  - MI
+  - ZFA
+  - ZFS
+  - WBBT
+  - CL
+  - FBDV
   - FBBT
   - FBCV
   - MMUSDV
@@ -56,4 +56,4 @@ Interactions: [MolecularInteraction]
 # Please modify with caution!
 
 FileTransactorThreads: 10
-Neo4jTransactorThreads: 3
+Neo4jTransactorThreads: 4

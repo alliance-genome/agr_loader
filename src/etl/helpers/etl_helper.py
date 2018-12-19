@@ -1,4 +1,7 @@
 import uuid
+import logging
+logger = logging.getLogger(__name__)
+
 
 class ETLHelper(object):
     
@@ -140,17 +143,14 @@ class ETLHelper(object):
         return complete_url
     
     @staticmethod
-    def process_identifiers(identifier, dataProviders):
-        for dataProvider in dataProviders:
-            dataProviderDict = {
-                'DRSC': 'DRSC:'
-            }
+    def process_identifiers(identifier):
+        if identifier.startswith("DRSC:"):
+            # strip off DSRC prefix
+            id = identifier.split(":", 1)[1]
+            return id
+        else:
+            return identifier
 
-            # Remove the prefix of the identifier based on the dataProvider.
-            prefix = dataProviderDict[dataProvider]
-
-            if identifier.startswith(prefix):
-                return identifier[len(prefix):]
 
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
@@ -199,28 +199,28 @@ class ETLHelper(object):
     def get_MOD_from_taxon(taxon_id):
     
         taxon_mod_dict = {
-            '7955' : 'ZFIN',
-            '6239' : 'WB',
-            '10090' : 'MGI',
-            '10116' : 'RGD',
-            '4932' : 'SGD',
-            '7227' : 'FB',
-            '9606' : 'Human'
+            '7955': 'ZFIN',
+            '6239': 'WB',
+            '10090': 'MGI',
+            '10116': 'RGD',
+            '4932': 'SGD',
+            '7227': 'FB',
+            '9606': 'Human'
         }
-    
+
         return taxon_mod_dict[taxon_id]
         
     @staticmethod
     def get_taxon_from_MOD(MOD):
     
         taxon_mod_dict = {
-            'ZFIN' : '7955',
-            'WB' : '6239',
-            'MGI' : '10090',
-            'RGD' : '10116',
-            'SGD' : '4932',
-            'FB' : '7227',
-            'Human' : '9606'
+            'ZFIN': '7955',
+            'WB': '6239',
+            'MGI': '10090',
+            'RGD': '10116',
+            'SGD': '4932',
+            'FB': '7227',
+            'Human': '9606'
         }
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
