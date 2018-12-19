@@ -54,21 +54,23 @@ class DataFileManager(object):
         # The smaller SubTypeConfig objects are created in the DataTypeConfig functions, see data_type_config.py.
         
         for config_entry in self.transformed_submission_system_data.keys():
-            if isinstance(self.transformed_submission_system_data[config_entry], str): # Skip string entries (e.g. schemaVersion, releaseVersion).
+            # Skip string entries (e.g. schemaVersion, releaseVersion).
+            if isinstance(self.transformed_submission_system_data[config_entry], str):
                 continue
 
-            logger.debug('Processing DataType: %s' % (config_entry))
+            logger.debug('Processing DataType: %s' % config_entry)
 
             # Create our data type object and add it to our master dictionary filed under the config_entry.
             # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
-            self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry, self.transformed_submission_system_data[config_entry])
+            self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry,
+                                                                       self.transformed_submission_system_data[config_entry])
 
     def download_and_validate(self):
 
         logger.info('Beginning download and validation.')
         for entry in self.master_data_dictionary.keys():
             logger.debug('Downloading %s data.' % entry)
-            if isinstance(self.master_data_dictionary[entry], DataTypeConfig): # If we're dealing with an object.
+            if isinstance(self.master_data_dictionary[entry], DataTypeConfig):  # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
 
     def process_config(self):
@@ -101,7 +103,8 @@ class DataFileManager(object):
             returned_dict = None
 
             try:
-                returned_dict = next(item for item in self.submission_system_data['dataFiles'] if item['dataType'] == dataType and item['subType'] == subType)
+                returned_dict = next(item for item in self.submission_system_data['dataFiles']
+                                     if item['dataType'] == dataType and item['subType'] == subType)
             except StopIteration:
                 logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.warn('Creating entry with \'None\' path and extracted path.')
@@ -146,7 +149,8 @@ class DataFileManager(object):
                     path = submission_system_dict.get('path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
 
-                    if sub_entry in ontologies_to_transform and entry == 'Ontology': # Special case for storing ontologies with non-generic loaders.
+                    # Special case for storing ontologies with non-generic loaders.
+                    if sub_entry in ontologies_to_transform and entry == 'Ontology':
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:

@@ -7,7 +7,6 @@ from data_manager import DataFileManager
 parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
 parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
-
 args = parser.parse_args()
 
 if args.verbose:
@@ -33,6 +32,7 @@ coloredlogs.install(level=debug_level,
 # format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
 
 logger = logging.getLogger(__name__)
+
 
 class AggregateLoader(object):
 
