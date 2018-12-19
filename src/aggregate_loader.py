@@ -44,7 +44,7 @@ class AggregateLoader(object):
         ft.shutdown()
         
         nt = Neo4jTransactor()
-        nt.start_threads(7)
+        nt.start_threads(1)
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass
@@ -59,9 +59,8 @@ class AggregateLoader(object):
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
-            'UBERON': GenericOntologyETL,
-            'CL': GenericOntologyETL,
             'BGI': BGIETL,
+            'Ontology': GenericOntologyETL,
             'Allele': AlleleETL,
             'GO': GOETL,
             'Expression': ExpressionETL,
@@ -69,7 +68,6 @@ class AggregateLoader(object):
             'Disease': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
-            'Ontology': GenericOntologyETL,
             'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,

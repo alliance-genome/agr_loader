@@ -57,31 +57,6 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:PART_OF]->(g2)
         """
 
-    generic_ontology_regulates_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (g1:%sTerm {primaryKey:row.primary_id})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:REGULATES]->(g2) """
-
-    generic_ontology_negregs_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (g1:%sTerm {primaryKey:row.primary_id})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2) """
-
-    generic_ontology_posregs_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (g1:%sTerm {primaryKey:row.primary_id})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2) """
-
-
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -115,9 +90,6 @@ class GenericOntologyETL(ETL):
             [GenericOntologyETL.generic_ontology_term_template, 600000, "generic_ontology_term_" + ont_type + ".csv", ont_type],
             [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_negregs_template, commit_size, "generic_ontology_negregs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_posregs_template, commit_size, "generic_ontology_posregs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_regulates_template, commit_size, "generic_ontology_regulates_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
         ]
@@ -141,9 +113,6 @@ class GenericOntologyETL(ETL):
         syns = []
         isas = []
         partofs = []
-        negregs = []
-        posregs = []
-        regs = []
         subsets = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
@@ -224,60 +193,6 @@ class GenericOntologyETL(ETL):
                         }
                     partofs.append(partof_dict_to_append)
 
-            if prefix == 'GO':
-                o_posreg = line.get('positively_regulates')
-                if o_posreg is not None:
-                    if isinstance(o_posreg, (list, tuple)):
-                        for pr in o_posreg:
-                            prWithoutName = pr.split("!")[0].strip()
-                            positively_regulates_dict_to_append = {
-                                'oid' : ident,
-                                'positevly_regulates' : prWithoutName
-                            }
-                            posregs.append(positively_regulates_dict_to_append)
-                    else:
-                        prWithoutName = pr.split("!")[0].strip()
-                        positively_regulates_dict_to_append = {
-                            'oid' : ident,
-                            'positevly_regulates' : prWithoutName
-                            }
-                        posregs.append(positively_regulates_dict_to_append)
-
-                o_negreg = line.get('negatively_regulates')
-                if o_negreg is not None:
-                    if isinstance(o_negreg, (list, tuple)):
-                        for nr in o_negreg:
-                            nrWithoutName = nr.split("!")[0].strip()
-                            negatively_regulates_dict_to_append = {
-                                'oid' : ident,
-                                'negatively_regulates' : nrWithoutName
-                            }
-                            negregs.append(negatively_regulates_dict_to_append)
-                    else:
-                        nrWithoutName = nr.split("!")[0].strip()
-                        negatively_regulates_dict_to_append = {
-                            'oid' : ident,
-                            'negatively_regulates' : nrWithoutName
-                            }
-                        negregs.append(negatively_regulates_dict_to_append)
-
-                o_reg = line.get('regulates')
-                if o_reg is not None:
-                    if isinstance(o_reg, (list, tuple)):
-                        for reg in o_reg:
-                            rWithoutName = reg.split("!")[0].strip()
-                            regulates_dict_to_append = {
-                                'oid' : ident,
-                                'regulates' : rWithoutName
-                            }
-                            regs.append(regulates_dict_to_append)
-                    else:
-                        rWithoutName = reg.split("!")[0].strip()
-                        regulates_dict_to_append = {
-                            'oid' : ident,
-                            'regulates' : rWithoutName
-                            }
-                        regs.append(regulates_dict_to_append)
             definition = line.get('def')
             if definition is None:
                 definition = ""
@@ -306,8 +221,7 @@ class GenericOntologyETL(ETL):
                     'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
-                    'display_synonym': display_synonym,
-                    'subsets': subsets
+                    'display_synonym': display_synonym
                 }
 
                 terms.append(term_dict_to_append)
@@ -315,11 +229,11 @@ class GenericOntologyETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [terms, isas, partofs, negregs, posregs, regs, syns]
+                yield [terms, isas, partofs, syns]
                 terms = []
                 syns = []
                 isas = []
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, negregs, posregs, regs, syns]
+            yield [terms, isas, partofs, syns]
