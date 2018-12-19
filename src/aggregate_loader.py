@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description='Load data into the Neo4j database 
 parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
 
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
 if args.verbose:
     debug_level = logging.DEBUG
