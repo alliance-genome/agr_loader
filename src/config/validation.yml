@@ -81,3 +81,9 @@ Closure:
 Interactions:
   type: list
   allowed: [MolecularInteraction]
+FileTransactorThreads:
+  type: integer
+  required: True
+Neo4jTransactorThreads:
+  type: integer
+  required: True

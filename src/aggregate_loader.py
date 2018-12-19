@@ -1,10 +1,19 @@
-import logging, coloredlogs, os, multiprocessing, time
+import logging, coloredlogs, os, multiprocessing, time, argparse, time
 from etl import *
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
 
-debug_level = logging.INFO
+parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
+parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
+parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
+
+args = parser.parse_args()
+
+if args.verbose:
+    debug_level = logging.DEBUG
+else:
+    debug_level = logging.INFO
 
 coloredlogs.install(level=debug_level,
                     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -25,26 +34,29 @@ coloredlogs.install(level=debug_level,
 
 logger = logging.getLogger(__name__)
 
-
 class AggregateLoader(object):
 
     def run_loader(self):
 
+        if args.verbose:
+            logger.warn('DEBUG mode enabled!')
+            time.sleep(3)
+
         start_time = time.time()
 
-        # TODO Allow the yaml file location to be overwritten by command line input (for Travis).
-        data_manager = DataFileManager(os.path.abspath('src/config/develop.yml'))
+        data_manager = DataFileManager(os.path.abspath('src/config/' + args.config))
         data_manager.process_config()
 
         ft = FileTransactor()
 
-        ft.start_threads(10)
+        ft.start_threads(data_manager.get_FT_thread_settings())
         data_manager.download_and_validate()
         ft.wait_for_queues()
         ft.shutdown()
         
         nt = Neo4jTransactor()
-        nt.start_threads(1)
+
+        nt.start_threads(data_manager.get_NT_thread_settings())
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
             pass

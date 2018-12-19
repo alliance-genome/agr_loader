@@ -12,14 +12,21 @@ logger = logging.getLogger(__name__)
 class DataFileManager(object):
     
     def __init__(self, config_file_loc):
+        # Load config yaml.
         logger.info('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file)
         logger.debug("Config Data: %s" % self.config_data)
+
+        # Load validation yaml.
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
         logger.info('Loading validation schema: %s' % validation_yaml_file_loc)
         validation_schema_file = open(validation_yaml_file_loc, 'r')
         self.validation_schema = yaml.load(validation_schema_file)
+
+        # Assign values for thread counts.
+        self.FileTransactorThreads = self.config_data['FileTransactorThreads']
+        self.Neo4jTransactorThreads = self.config_data['Neo4jTransactorThreads']
 
         # Loading a JSON blurb from a file as a placeholder for submission system query.
         mock_submission_system_file_loc = os.path.abspath('src/config/mock_submission_system.json')
@@ -31,6 +38,12 @@ class DataFileManager(object):
         # Dictionary for transformed submission system data.
         self.transformed_submission_system_data = {}
         
+    def get_FT_thread_settings(self):
+        return self.FileTransactorThreads
+
+    def get_NT_thread_settings(self):
+        return self.Neo4jTransactorThreads
+
     def get_config(self, data_type):
         # Get the object for a data type. If the object doesn't exist, this returns None.
         logger.debug("Getting config for: [%s] -> Config[%s]" % (data_type, self.master_data_dictionary))
@@ -115,11 +128,17 @@ class DataFileManager(object):
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
 
+        config_values_to_ignore = [
+            'schemaVersion', # Manually assigned above.
+            'releaseVersion', # Manually assigned above.
+            'FileTransactorThreads',
+            'Neo4jTransactorThreads'
+        ]
+
         for entry in self.config_data.keys(): # Iterate through our config file.
             logger.debug("Entry: %s" % entry)
-            if entry != 'schemaVersion' and entry != 'releaseVersion': # Skip these entries (addressed above).
+            if entry not in config_values_to_ignore: # Skip these entries.
                 self.transformed_submission_system_data[entry] = [] # Create our empty list.
-
                 for sub_entry in self.config_data[entry]:
                     logger.debug("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
@@ -132,5 +151,7 @@ class DataFileManager(object):
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:
                         self.transformed_submission_system_data[entry].append([sub_entry, path, tempExtractedFile])
+            else:
+                logger.debug("Ignoring entry: %s" % entry)
                         
         logger.debug("Loaded Types: %s" % self.transformed_submission_system_data)
