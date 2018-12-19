@@ -66,7 +66,9 @@ class BGIETL(ETL):
                               o.modGlobalId = row.modGlobalId,
                               o.uuid = row.uuid,
                               o.dataProvider = row.dataProvider,
-                              o.symbolWithSpecies = row.symbolWithSpecies
+                              o.symbolWithSpecies = row.symbolWithSpecies,
+                              //TODO: remove this bit of code when gene descriptions gets back in
+                              o.automatedGeneSynopsis = "Exhibits Used to Study Orthologous to"
 
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 

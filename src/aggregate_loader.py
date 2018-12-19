@@ -7,8 +7,7 @@ from data_manager import DataFileManager
 parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
 parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
-
-args, unknown = parser.parse_known_args()
+args = parser.parse_args()
 
 if args.verbose:
     debug_level = logging.DEBUG
@@ -34,6 +33,7 @@ coloredlogs.install(level=debug_level,
 
 logger = logging.getLogger(__name__)
 
+
 class AggregateLoader(object):
 
     def run_loader(self):
@@ -55,6 +55,7 @@ class AggregateLoader(object):
         ft.shutdown()
         
         nt = Neo4jTransactor()
+
         nt.start_threads(data_manager.get_NT_thread_settings())
         
         if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
@@ -70,9 +71,8 @@ class AggregateLoader(object):
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
-            'UBERON': GenericOntologyETL,
-            'CL': GenericOntologyETL,
             'BGI': BGIETL,
+            'Ontology': GenericOntologyETL,
             'Allele': AlleleETL,
             'GO': GOETL,
             'Expression': ExpressionETL,
@@ -80,7 +80,6 @@ class AggregateLoader(object):
             'Disease': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
-            'Ontology': GenericOntologyETL,
             'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
