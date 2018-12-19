@@ -31,7 +31,6 @@ Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
-  - GO
   - SO
   - DO
   - MI
