@@ -3,6 +3,7 @@ from etl import *
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
+from common import ContextInfo
 
 parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
 parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
@@ -44,8 +45,10 @@ class AggregateLoader(object):
 
         start_time = time.time()
 
-        data_manager = DataFileManager(os.path.abspath('src/config/' + args.config))
-        data_manager.process_config()
+        context_info = ContextInfo()
+        context_info.config_file_location = os.path.abspath('src/config/' + args.config)
+        context_info.verbose = args.verbose
+        data_manager = DataFileManager(context_info.config_file_location)
 
         ft = FileTransactor()
 
