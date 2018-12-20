@@ -18,7 +18,7 @@ class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
 
-        'test_relationship_exists': [dict(node1='Ontology',relationship='ISA_PARTOF_CLOSURE',node2='Ontology')]
+        'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='SOTerm'),
@@ -218,14 +218,14 @@ class TestClass(object):
     # MATCH (n:Gene) WITH DISTINCT keys(n) AS keys UNWIND keys AS keyslisting WITH DISTINCT keyslisting AS allfields RETURN allfields;
 
     def test_node_exists(self, node):
-        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % (node)
+        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % node
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0
 
-    def test_relation_exists(self, node, relation, node2):
-        query = 'MATCH  (n:%s)-(r:%s)-(o:%s) return count(n)' % (node, relation, node2)
+    def test_relationship_exists(self, relationship):
+        query = 'MATCH ()-[r:%s]-() return count(r) as count' % relationship
 
         result = execute_transaction(query)
         for record in result:
