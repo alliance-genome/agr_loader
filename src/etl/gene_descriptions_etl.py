@@ -39,6 +39,7 @@ class GeneDescriptionsETL(ETL):
                                                 ontology_cache_path=os.path.join(this_dir, "gd_cache", "go.obo"),
                                                 config=gd_config)
         for sub_type in self.data_type_config.get_sub_type_objects():
+
             data_provider = sub_type.get_data_provider()
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -51,8 +52,7 @@ class GeneDescriptionsETL(ETL):
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    @staticmethod
-    def get_generators(data_provider, gd_data_manager, gd_config):
+    def get_generators(self, data_provider, gd_data_manager, gd_config):
         query = "match (g:Gene) where g.dataProvider = {parameter}"
         return_set = Neo4jHelper.run_single_parameter_query(query, data_provider)
         descriptions = []
