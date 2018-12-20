@@ -4,12 +4,13 @@ from cerberus import Validator
 
 from files import JSONFile
 from etl.helpers import ETLHelper
+from common import Singleton
 from .data_type_config import DataTypeConfig
 
 logger = logging.getLogger(__name__)
 
 
-class DataFileManager(object):
+class DataFileManager(metaclass=Singleton):
     
     def __init__(self, config_file_loc):
         # Load config yaml.
