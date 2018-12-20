@@ -38,6 +38,9 @@ class DataFileManager(metaclass=Singleton):
 
         # Dictionary for transformed submission system data.
         self.transformed_submission_system_data = {}
+
+        # process config file during initialization
+        self.process_config()
         
     def get_FT_thread_settings(self):
         return self.FileTransactorThreads
