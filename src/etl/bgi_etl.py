@@ -278,7 +278,7 @@ class BGIETL(ETL):
                                 crossRefPrimaryId = crossRef.get('id')
                                 crossRefCompleteUrl = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term="+localCrossRefId
 
-                                xrefMap = ETLHelper.get_xref(localCrossRefId, prefix,
+                                xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix,
                                                                         "generic_cross_reference",
                                                                         "generic_cross_reference", displayName,
                                                                         crossRefCompleteUrl,

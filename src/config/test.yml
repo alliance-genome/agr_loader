@@ -1,6 +1,12 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Allele: [FB, WB, ZFIN, RGD, MGI]
+Expression: [FB, SGD, WB, ZFIN, RGD, MGI]
+Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI]
+Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   - GO
   - SO
@@ -21,9 +27,32 @@ Ontology:
   - MA
   - UBERON
   - ECO
+Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ExpressionRibbon: [ExpressionRibbon]
+GeneDiseaseOrtho: [GeneDiseaseOrtho]
+Closure:
+  - SO
+  - DO
+  - MI
+  - ZFA
+  - ZFS
+  - WBBT
+  - CL
+  - FBDV
+  - FBBT
+  - FBCV
+  - MMUSDV
+  - BSPO
+  - MMO
+  - WBLS
+  - EMAPA
+  - MA
+  - UBERON
+  - ECO
+Interactions: [MolecularInteraction]
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
-Neo4jTransactorThreads: 7
+Neo4jTransactorThreads: 5
