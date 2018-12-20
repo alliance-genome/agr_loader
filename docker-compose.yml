@@ -16,8 +16,9 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=4096m
-      - NEO4J_dbms_memory_heap_initialSize=4096m
+      - NEO4J_dbms_memory_heap_maxSize=4000m
+      - NEO4J_dbms_memory_heap_initialSize=2000m
+      - NEO4J_dbms_memory_pagecache_size=7000m
 
   neo4j.qc:
     container_name: neo4j.qc
@@ -34,8 +35,9 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=4096m
-      - NEO4J_dbms_memory_heap_initialSize=4096m
+      - NEO4J_dbms_memory_heap_maxSize=8000m
+      - NEO4J_dbms_memory_heap_initialSize=8000m
+      - NEO4J_dbms_memory_pagecache_size=8000m
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
@@ -48,10 +50,17 @@ services:
     networks:
       - esnet
     environment:
-     - TEST_SET=False
-     - UNIT_TESTS=False
-     - NEO4J_NQC_HOST=neo4j.nqc
-     - NEO4J_NQC_PORT=7687
+      - PYTHONUNBUFFERED=1
+      - TEST_SET=False
+      - UNIT_TESTS=False
+      - NEO4J_NQC_HOST=neo4j.nqc
+      - NEO4J_NQC_PORT=7687
+    entrypoint:
+      - python3
+      - -u 
+      - src/aggregate_loader.py
+      - -c 
+      - develop.yml
 
   agr_loader_test:
     image: agrdocker/agr_loader_run:latest
@@ -64,10 +73,37 @@ services:
     networks:
       - esnet
     environment:
+     - PYTHONUNBUFFERED=1
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
+    entrypoint:
+      - python3
+      - -u 
+      - src/aggregate_loader.py
+      - -c 
+      - test.yml
+
+  agr_loader_test_unit_tests:
+    image: agrdocker/agr_loader_run:latest
+    volumes:
+      - type: volume
+        source: agr_data_share
+        target: /usr/src/app/tmp
+        volume:
+          nocopy: true
+    networks:
+      - esnet
+    environment:
+     - PYTHONUNBUFFERED=1
+     - TEST_SET=True
+     - UNIT_TESTS=False
+     - NEO4J_NQC_HOST=neo4j.nqc
+     - NEO4J_NQC_PORT=7687
+    entrypoint:
+      - pytest
+      - --verbose
 
 networks:
   esnet:

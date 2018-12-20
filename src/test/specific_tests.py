@@ -1,19 +1,8 @@
-from neo4j.v1 import GraphDatabase
-import os
+from etl import Neo4jHelper
 
 
 def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result
+    return Neo4jHelper.run_single_query(query)
 
 
 def test_fgf8a_exists():
@@ -21,13 +10,6 @@ def test_fgf8a_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
-
-
-# def test_hip1_exists():
-#     query = "MATCH (g:Gene) WHERE g.symbol = 'Hip1' RETURN count(g) AS count"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["count"] > 0
 
 
 def test_doterm_exists():
@@ -100,11 +82,33 @@ def test_spell_crossRefType():
 
 
 def test_gene_has_automated_description():
-    query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
-            "and g.automatedGeneSynopsis is not null return count(g) as counter"
+     query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
+             "and g.automatedGeneSynopsis is not null return count(g) as counter"
+     result = execute_transaction(query)
+     for record in result:
+        assert record["counter"] == 1
+
+
+def test_gene_has_all_three_automated_description_components():
+    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000004695', 'SGD:S000004916', " \
+            "'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284'," \
+               "'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596'," \
+               "'SGD:S000004777', 'SGD:S000006074','SGD:S000002678', 'SGD:S000003487', "\
+               "'SGD:S000000458', 'SGD:S000006068', 'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844'," \
+               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',"\
+               "'ZFIN:ZDB-GENE-040426-1294', 'FB:FBgn0027655', 'FB:FBgn0045035','RGD:68337', 'RGD:2332', " \
+               "'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043'," \
+               "'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+            "and not (g.automatedGeneSynopsis =~ '.*xhibits.*'" \
+                "or g.automatedGeneSynopsis =~ '.*nvolved in.*'" \
+                "or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
+                "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
+                "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
+            "and not g.automatedGeneSynopsis =~ '.*sed to study.*'" \
+            "and not g.automatedGeneSynopsis =~ '.*rthologous to.*' return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -124,6 +128,7 @@ def test_ZDB_ALT_160129_6_has_at_least_one_disease():
 
 def test_do_terms_have_parents():
     query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() " \
+            "and d.primaryKey =~ 'DO:.*'" \
             "and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -135,11 +140,33 @@ def test_every_species_has_phenotype_has_pub():
             "RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        assert record["counter"] == 6
 
 
 def test_phenotype_for_all_species_exists():
-    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--()--(p:Phenotype) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 6
+
+
+def test_disease_for_all_species_exists():
+    query = "MATCH (s:Species)--()-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm) " \
+            "RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
+
+
+def test_goannot_for_all_species_exists():
+    query = "MATCH (s:Species)--()-[hp:ANNOTATED_TO]-(got:GOTerm) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
+
+
+def test_molint_for_all_species_exists():
+    query = "MATCH (s:Species)--()--(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
@@ -337,6 +364,7 @@ def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
     for record in result:
         assert record["counter"] > 0
 
+
 def test_gene_has_two_ortho_disease_annotations():
     query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
             "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
@@ -352,6 +380,7 @@ def test_human_gene_has_zebrafish_ortho_disease_annotation():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
 
 def test_worm_gene_has_human_alzheimers_via_ortho():
     query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
@@ -428,27 +457,9 @@ def test_human_gene_has_rgd_references_cross_reference():
         assert record["counter"] == 1
 
 
-def test_gene_has_two_ortho_disease_annotations():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
-def test_human_gene_has_zebrafish_ortho_disease_annotation():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41' " \
-            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
-def test_human_gene_has_mouse_ortho_disease_annotation():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'MGI:1919338' " \
-            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+def test_gene_has_symbol_with_species():
+    query = "match (gene:Gene) where gene.symbolWithSpecies = 'fgf8a (Dre)' and gene.symbol = 'fgf8a' " \
+            "return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0

@@ -6,3 +6,5 @@ tmp
 .idea/*
 venv/*
 *.pyc
+.settings
+src/config/develop.yml

@@ -1,19 +1,9 @@
-from neo4j.v1 import GraphDatabase
+from etl import Neo4jHelper
 import os
 
 
 def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result    
+    return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
@@ -23,9 +13,13 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
                                     for funcargs in funcarglist])
 
+
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
+
+        'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE')],
+
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='SOTerm'),
                              dict(node='DOTerm'),
@@ -66,7 +60,6 @@ class TestClass(object):
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                            dict(node='Gene', prop='dateProduced'), \
                             dict(node='Gene', prop='geneLiteratureUrl'), \
                             dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                             dict(node='Gene', prop='taxonId'), \
@@ -103,7 +96,6 @@ class TestClass(object):
                             dict(node='Species', prop='name'), \
                             dict(node='Species', prop='species'), \
                             dict(node='Species', prop='primaryKey'), \
-                            dict(node='Entity', prop='dateProduced'), \
                             dict(node='Entity', prop='primaryKey'), \
                             dict(node='Chromosome', prop='primaryKey'), \
                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
@@ -120,7 +112,6 @@ class TestClass(object):
                             dict(node='EvidenceCode', prop='primaryKey'), \
                             dict(node='Feature', prop='primaryKey'), \
                             dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='dateProduced'), \
                             dict(node='Feature', prop='uuid'), \
                             dict(node='Feature', prop='dataProvider'), \
                             dict(node='GOTerm', prop='definition'), \
@@ -134,7 +125,6 @@ class TestClass(object):
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                               dict(node='Gene', prop='dateProduced'), \
                                dict(node='Gene', prop='geneLiteratureUrl'), \
                                dict(node='Gene', prop='modCrossRefCompleteUrl'), \
                                dict(node='Gene', prop='taxonId'), \
@@ -169,7 +159,6 @@ class TestClass(object):
                                dict(node='Species', prop='name'), \
                                dict(node='Species', prop='species'), \
                                dict(node='Species', prop='primaryKey'), \
-                               dict(node='Entity', prop='dateProduced'), \
                                dict(node='Entity', prop='primaryKey'), \
                                dict(node='Chromosome', prop='primaryKey'), \
                                dict(node='DiseaseEntityJoin', prop='joinType'), \
@@ -185,7 +174,6 @@ class TestClass(object):
                                dict(node='EvidenceCode', prop='primaryKey'), \
                                dict(node='Feature', prop='primaryKey'), \
                                dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dateProduced'), \
                                dict(node='Feature', prop='dataProvider'), \
                                dict(node='Feature', prop='globalId'), \
                                dict(node='Feature', prop='uuid'), \
@@ -201,7 +189,6 @@ class TestClass(object):
                              dict(node='Association', prop='primaryKey'), \
                              dict(node='DiseaseEntityJoin', prop='primaryKey'), \
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                             dict(node='Phenotype', prop='primaryKey'), \
                              dict(node='Chromosome', prop='primaryKey'), \
                              dict(node='Entity', prop='primaryKey'), \
                              dict(node='Species', prop='primaryKey'), \
@@ -231,7 +218,14 @@ class TestClass(object):
     # MATCH (n:Gene) WITH DISTINCT keys(n) AS keys UNWIND keys AS keyslisting WITH DISTINCT keyslisting AS allfields RETURN allfields;
 
     def test_node_exists(self, node):
-        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % (node)
+        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % node
+
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] > 0
+
+    def test_relationship_exists(self, relationship):
+        query = 'MATCH ()-[r:%s]-() return count(r) as count' % relationship
 
         result = execute_transaction(query)
         for record in result:

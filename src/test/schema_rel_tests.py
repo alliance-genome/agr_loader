@@ -1,19 +1,5 @@
-from neo4j.v1 import GraphDatabase
+from etl import Neo4jHelper
 import os
-
-
-def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result    
 
 
 def pytest_generate_tests(metafunc):
@@ -47,14 +33,11 @@ class TestClass(object):
                             dict(node1='Feature', node2='Synonym'),
                             dict(node1='Gene', node2='Ontology:GOTerm'),
                             dict(node1='Gene', node2='Ontology:SOTerm'),
-                            dict(node1='Gene', node2='Entity'),
-                            dict(node1='Feature', node2='Entity'),
                             dict(node1='Gene', node2='Chromosome'),
                             dict(node1='Gene', node2='DiseaseEntityJoin:Association'),
                             dict(node1='Identifier:SecondaryId', node2='Gene'),
                             dict(node1='Identifier:Synonym', node2='Gene'),
                             dict(node1='Species', node2='Gene'),
-                            dict(node1='Entity', node2='Gene'),
                             dict(node1='CrossReference', node2='Gene'),
                             dict(node1='Chromosome', node2='Gene'),
                             dict(node1='DiseaseEntityJoin:Association', node2='Gene'),
@@ -84,6 +67,6 @@ class TestClass(object):
     def test_rel_exists(self, node1, node2):
         query = 'MATCH (n:%s)-[]-(m:%s) RETURN DISTINCT COUNT(n) as count' % (node1, node2)
 
-        result = execute_transaction(query)
+        result = Neo4jHelper.run_single_query(query)
         for record in result:
             assert record["count"] > 0

@@ -1,0 +1,89 @@
+schemaVersion:
+  regex: ^(\d(\.\d){3})$
+  required: True
+releaseVersion: 
+  regex: ^(\d(\.\d){3})$
+  required: True
+BGI:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Allele: 
+  type: list
+  allowed: [FB, WB, ZFIN, RGD, MGI]
+Disease: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Phenotype: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
+Expression: 
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
+GOAnnot:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GeoXref:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Ontology:
+  type: list
+  allowed: 
+    - GO 
+    - SO 
+    - DO 
+    - MI 
+    - ZFA 
+    - ZFS 
+    - WBBT 
+    - CL 
+    - FBDV 
+    - FBBT
+    - FBCV
+    - MMUSDV
+    - BSPO
+    - MMO
+    - WBLS
+    - EMAPA
+    - MA
+    - UBERON
+    - ECO
+Orthology:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ExpressionRibbon:
+  type: list
+  allowed: [ExpressionRibbon]
+GeneDiseaseOrtho:
+  type: list
+  allowed: [GeneDiseaseOrtho]
+Closure:
+  type: list
+  allowed: 
+    - GO 
+    - SO 
+    - DO 
+    - MI 
+    - ZFA 
+    - ZFS 
+    - WBBT 
+    - CL 
+    - FBDV 
+    - FBBT
+    - FBCV
+    - MMUSDV
+    - BSPO
+    - MMO
+    - WBLS
+    - EMAPA
+    - MA
+    - UBERON
+    - ECO
+Interactions:
+  type: list
+  allowed: [MolecularInteraction]
+FileTransactorThreads:
+  type: integer
+  required: True
+Neo4jTransactorThreads:
+  type: integer
+  required: True

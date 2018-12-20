@@ -20,11 +20,11 @@ run: build
 	docker-compose up agr_loader
 
 run_test: build
-	docker-compose up agr_loader_test
-	docker-compose run agr_loader_test pytest --verbose
+	docker-compose run agr_loader_test
+	docker-compose run agr_loader_test_unit_tests
 
 unit_tests:
-	docker-compose run agr_loader_test pytest --verbose
+	docker-compose run agr_loader_test_unit_tests
 
 bash:
 	docker-compose up agr_loader bash

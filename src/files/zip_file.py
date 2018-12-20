@@ -1,9 +1,8 @@
-import zipfile
-import os
 import logging
-
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+import os
+import zipfile
 
 class ZIPFile(object):
 

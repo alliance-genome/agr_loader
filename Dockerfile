@@ -10,4 +10,4 @@ ADD . .
 
 RUN mkdir -p /var/lib/neo4j/import
 
-CMD ["python3", "-u", "src/fetch_index.py"]
+CMD ["python3", "-u", "src/aggregate_loader.py"]

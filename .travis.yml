@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 language: python
 
@@ -16,4 +16,4 @@ before_install:
   
 script:
   - docker-compose up agr_loader_test
-  - docker-compose run agr_loader_test pytest --verbose
+  - docker-compose run agr_loader_test_unit_tests

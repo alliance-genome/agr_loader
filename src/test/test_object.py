@@ -3,16 +3,15 @@
 # The testIdSet is used to "filter" these entries in the appropriate extractor files.
 import logging
 
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class TestObject(object):
 
-    def __init__(self, useTestObject, modList):
+    def __init__(self, useTestObject):
         # TODO Separate gene ids from other forms of id?
 
-        self.modList = modList
         self.useTestObject = useTestObject
 
         self.mgiIdSet = {
@@ -37,7 +36,9 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             # expression
-            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484'
+            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
+            # gene descriptions
+            'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043',
         }
 
         self.wormbaseIdSet = {
@@ -51,7 +52,9 @@ class TestObject(object):
             'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
-            'WB:WBGene00004488', 'WB:WBGene00000898'
+            'WB:WBGene00004488', 'WB:WBGene00000898',
+            # gene descriptions
+            'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844',
         }
 
         self.sgdIdSet = {
@@ -61,7 +64,12 @@ class TestObject(object):
             # disease
             'SGD:S000005481', 'SGD:S000005246',
             # expression
-            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002'
+            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002',
+            # gene descriptions
+            'SGD:S000004695', 'SGD:S000004916', 'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284',
+            'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074',
+            'SGD:S000002678', 'SGD:S000003487', 'SGD:S000000458', 'SGD:S000006068',
+
         }
 
         self.zfinIdSet = {
@@ -90,7 +98,10 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-980526-474', 'ZFIN:ZDB-GENE-000627-1', 'ZFIN:ZDB-GENE-050913-20', 'ZFIN:ZDB-GENE-030912-6',
             'ZFIN:ZDB-GENE-131121-260', 'ZFIN:ZDB-GENE-980526-368', 'ZFIN:ZDB-GENE-051101-2', 'ZFIN:ZDB-GENE-090311-1',
             'ZFIN:ZDB-GENE-040426-2889', 'ZFIN:ZDB-GENE-140619-1', 'ZFIN:ZDB-GENE-990714-29',
-            'ZFIN:ZDB-GENE-030131-7696',
+            'ZFIN:ZDB-GENE-030131-7696', 'ZFIN:ZDB-GENE-060312-41',
+            # gene descriptions
+            'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',
+            'ZFIN:ZDB-GENE-040426-1294',
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
@@ -105,7 +116,8 @@ class TestObject(object):
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499',
-
+            # gene descriptions
+            'FB:FBgn0027655', 'FB:FBgn0045035',
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
@@ -117,6 +129,8 @@ class TestObject(object):
             'RGD:3884', 'RGD:3889',
             # allele gene and alleles
             'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
+            # gene descriptions
+            'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787',
         }
 
         self.humanTestSet = {
@@ -124,16 +138,9 @@ class TestObject(object):
             'HGNC:6560', 'HGNC:6551', 'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811', 'HGNC:6091',
+            # gene descriptions
+            'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291',
         }
-
-        self.testOntologyTerms = {'DOID:0110741', 'DOID:0110739', 'DOID:10021', 'DOID:10030', 'DOID:0001816',
-                             'DOID:0060171', 'DOID:1115', 'DOID:0001816', 'DOID:14330', 'DOID:9452',
-                             'DOID:9455', 'DOID:1059', 'DOID:9409',
-                             'GO:0019899', 'GO:0005515', 'GO:0043393', 'GO:0022607',
-                             'GO:0009952', 'GO:0005764', 'GO:0060271', 'GO:0048263',
-                             'GO:0007492', 'GO:0030902', 'GO:0070121', 'GO:0030901', 'GO:0030182',
-                             'GO:0042664', 'GO:0030916', 'GO:0021571', 'GO:0061195', 'GO:0048705', 'GO:0030335',
-                             'GO:0048709'}
 
         self.modMap = {"RGD": self.rgdTestSet,
                   "MGI": self.mgiIdSet,
@@ -143,33 +150,13 @@ class TestObject(object):
                   "FlyBase": self.flybaseIdSet,
                   "Human": self.humanTestSet}
 
-        #TODO use method below, or add more mods here as they become available. add back in RGD human
         self.testIdSet = self.zfinIdSet.union(self.mgiIdSet.union(self.wormbaseIdSet).union(self.flybaseIdSet).union(self.sgdIdSet).union(self.rgdTestSet).union(self.humanTestSet))
-
-    def assemble_test_data(modList, modMap):
-        testIdSet = {}
-        for aggregateLoaderMOD in modList:
-            logger.info (aggregateLoaderMOD)
-            for modToTest, modTestIdSet in modMap.items():
-                logger.info (modToTest)
-                if aggregateLoaderMOD == modToTest:
-                    testIdSet.union(modTestIdSet)
-        return testIdSet
 
     def using_test_data(self):
         return self.useTestObject
 
     def check_for_test_id_entry(self, primaryId):
         if primaryId in self.testIdSet:
-            return True
-        else:
-            return False
-
-    def add_ontology_ids(self, oIdList):
-        self.testOntologyTerms.update(oIdList)
-
-    def check_for_test_ontology_entry(self, termId):
-        if termId in self.testOntologyTerms:
             return True
         else:
             return False

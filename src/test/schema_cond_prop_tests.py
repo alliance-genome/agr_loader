@@ -1,21 +1,8 @@
-from neo4j.v1 import GraphDatabase
-import os
+from etl import Neo4jHelper
 
-# Tests for properties under conditional situations.
-# e.g. CrossReferences with external URLs when the CrossReference prefix is PANTHER.
 
 def execute_transaction(query):
-    host = os.environ['NEO4J_NQC_HOST']
-    port = os.environ['NEO4J_NQC_PORT']
-    uri = "bolt://" + host + ":" + port
-    graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"))
-
-    result = None
-
-    with graph.session() as session:
-        result = session.run(query)
-
-    return result    
+    return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
@@ -24,6 +11,7 @@ def pytest_generate_tests(metafunc):
     argnames = sorted(funcarglist[0])
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
             for funcargs in funcarglist])
+
 
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
