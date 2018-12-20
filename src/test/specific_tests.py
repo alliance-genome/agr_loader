@@ -369,7 +369,97 @@ def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
             "return count(deg) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 6
+        assert record["counter"] > 0
+
+def test_gene_has_two_ortho_disease_annotations():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_gene_has_zebrafish_ortho_disease_annotation():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41' " \
+            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+def test_worm_gene_has_human_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'"  \
+            "and ortho.primaryKey = 'HGNC:6091'" \
+            "return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_worm_gene_has_rat_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'" \
+            "and ortho.primaryKey = 'RGD:2869'" \
+            "return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_worm_gene2_has_rat_alzheimers_via_ortho():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
+            "where gene.primaryKey = 'WB:WBGene00000898'" \
+            "and do.primaryKey = 'DOID:10652'" \
+            "and ortho.primaryKey = 'RGD:2917'" \
+            "return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_gene_has_mouse_ortho_disease_annotation():
+    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
+            "where ortho.primaryKey = 'MGI:1919338' " \
+            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_gene_has_hgnc_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'gene'" \
+            "and cr.globalCrossRefId = 'HGNC:11204'" \
+            "and cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_human_gene_has_rgd_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'generic_cross_reference'" \
+            "and cr.globalCrossRefId = 'RGD:1322513'" \
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_human_gene_has_rgd_references_cross_reference():
+    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
+            "and cr.crossRefType = 'gene/references'" \
+            "and cr.globalCrossRefId = 'RGD:1322513'" \
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?view=5&id=1322513'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
 
 
 def test_gene_has_two_ortho_disease_annotations():
