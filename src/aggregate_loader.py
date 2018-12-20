@@ -34,6 +34,7 @@ coloredlogs.install(level=debug_level,
 
 logger = logging.getLogger(__name__)
 
+
 class AggregateLoader(object):
 
     def run_loader(self):

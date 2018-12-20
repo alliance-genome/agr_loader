@@ -274,6 +274,18 @@ class BGIETL(ETL):
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
 
+                            elif prefix == 'RGD':  # TODO handle human generic cross reference to RGD in resourceDescr.
+                                crossRefPrimaryId = crossRef.get('id')
+                                crossRefCompleteUrl = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term="+localCrossRefId
+
+                                xrefMap = ETLHelper.get_xref(localCrossRefId, prefix,
+                                                                        "generic_cross_reference",
+                                                                        "generic_cross_reference", displayName,
+                                                                        crossRefCompleteUrl,
+                                                                        crossRefPrimaryId + "generic_cross_reference")
+                                xrefMap['dataId'] = primary_id
+                                crossReferences.append(xrefMap)
+
                             else:
                                 crossRefPrimaryId = crossRef.get('id')
                                 crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, primary_id)
