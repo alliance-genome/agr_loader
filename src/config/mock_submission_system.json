@@ -32,7 +32,7 @@
             "schemaVersion": "1.0.0.7",
             "dataType": "BGI",
             "subType": "RGD",
-            "path": "RGD_1.0.0.7_4.tar.gz",
+            "path": "RGD_1.0.0.7_9.tar.gz",
             "tempExtractedFile": "RGD_1.0.0.7_BGI.10116.json",
             "uploadDate": 1522181715592
         },
@@ -56,7 +56,7 @@
             "schemaVersion": "1.0.0.7",
             "dataType": "BGI",
             "subType": "Human",
-            "path": "RGD_1.0.0.7_4.tar.gz",
+            "path": "RGD_1.0.0.7_9.tar.gz",
             "tempExtractedFile": "RGD_1.0.0.7_BGI.9606.json",
             "uploadDate": 1522181715592
         },
