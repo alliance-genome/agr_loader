@@ -17,6 +17,9 @@ def pytest_generate_tests(metafunc):
 class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
+
+        'test_relationship_exists': [dict(node1='Ontology',relationship='ISA_PARTOF_CLOSURE',node2='Ontology')]
+
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='SOTerm'),
                              dict(node='DOTerm'),
@@ -216,6 +219,13 @@ class TestClass(object):
 
     def test_node_exists(self, node):
         query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % (node)
+
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] > 0
+
+    def test_relation_exists(self, node, relation, node2):
+        query = 'MATCH  (n:%s)-(r:%s)-(o:%s) return count(n)' % (node, relation, node2)
 
         result = execute_transaction(query)
         for record in result:

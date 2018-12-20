@@ -55,4 +55,4 @@ Interactions: [MolecularInteraction]
 # Please modify with caution!
 
 FileTransactorThreads: 10
-Neo4jTransactorThreads: 5
+Neo4jTransactorThreads: 3

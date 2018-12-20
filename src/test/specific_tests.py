@@ -459,7 +459,7 @@ def test_human_gene_has_rgd_references_cross_reference():
 
 def test_gene_has_symbol_with_species():
     query = "match (gene:Gene) where gene.symbolWithSpecies = 'fgf8a (Dre)' and gene.symbol = 'fgf8a' " \
-            "return count(d) as counter"
+            "return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
