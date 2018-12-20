@@ -10,6 +10,8 @@ from transactors import CSVTransactor, Neo4jTransactor
 from genedescriptions.data_manager import DataManager
 from genedescriptions.commons import DataType, Gene
 from genedescriptions.precanned_modules import set_gene_ontology_module
+from common import ContextInfo
+from data_manager import DataFileManager
 
 logger = logging.getLogger(__name__)
 
@@ -31,22 +33,34 @@ class GeneDescriptionsETL(ETL):
 
     def _load_and_process_data(self):
         # create gene descriptions data manager load common data
+        context_info = ContextInfo()
+        data_manager = DataFileManager(context_info.config_file_location)
+        go_onto_config = data_manager.get_config('GO')
+        go_annot_config = data_manager.get_config('GOAnnot')
+        data_providers = [sub.get_data_provider() for sub in go_annot_config.get_sub_type_objects()]
+        go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
         gd_config = GenedescConfigParser(os.path.join(this_dir, os.pardir, "config", "gene_descriptions.yml"))
         gd_data_manager = DataManager(do_relations=None, go_relations=["subClassOf", "BFO:0000050"])
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO,
-                                                ontology_url=self.data_type_config.get_single_filepath(),
-                                                ontology_cache_path=os.path.join(this_dir, "gd_cache", "go.obo"),
+                                                ontology_url="file://" +
+                                                             os.path.join(os.getcwd(),
+                                                                          go_onto_config.get_single_filepath()),
+                                                ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache",
+                                                                                 "go.obo"),
                                                 config=gd_config)
-        for sub_type in self.data_type_config.get_sub_type_objects():
-
-            data_provider = sub_type.get_data_provider()
-
+        for data_provider in data_providers:
+            gd_data_manager.load_associations_from_file(
+                associations_type=DataType.GO, associations_url="file://" + os.path.join(
+                    os.getcwd(), go_annot_sub_dict[data_provider].get_single_filepath()),
+                associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" +
+                                                     data_provider + ".gaf"),
+                config=gd_config)
             commit_size = self.data_type_config.get_neo4j_commit_size()
             generators = self.get_generators(data_provider, gd_data_manager, gd_config)
             query_list = [
                 [GeneDescriptionsETL.GeneDescriptionsQuery, commit_size, "genedescriptions_data_" +
-                 sub_type.get_data_provider() + ".csv"], ]
+                 data_provider + ".csv"], ]
             
             query_and_file_list = self.process_query_params(query_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
