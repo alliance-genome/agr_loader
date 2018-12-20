@@ -98,8 +98,6 @@ class AggregateLoader(object):
             ['DO', 'SO', 'MI'],
             ['GO'],
             ['Ontology'],
-            ['UBERON'],
-            ['CL'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
