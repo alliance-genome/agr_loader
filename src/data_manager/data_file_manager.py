@@ -4,12 +4,13 @@ from cerberus import Validator
 
 from files import JSONFile
 from etl.helpers import ETLHelper
+from common import Singleton
 from .data_type_config import DataTypeConfig
 
 logger = logging.getLogger(__name__)
 
 
-class DataFileManager(object):
+class DataFileManager(metaclass=Singleton):
     
     def __init__(self, config_file_loc):
         # Load config yaml.
@@ -37,6 +38,9 @@ class DataFileManager(object):
 
         # Dictionary for transformed submission system data.
         self.transformed_submission_system_data = {}
+
+        # process config file during initialization
+        self.process_config()
         
     def get_FT_thread_settings(self):
         return self.FileTransactorThreads
