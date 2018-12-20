@@ -16,8 +16,4 @@ before_install:
   
 script:
   - docker-compose up agr_loader_test
-<<<<<<< HEAD
   - docker-compose run agr_loader_test_unit_tests
-=======
-  - docker-compose run agr_loader_test pytest --verbose
->>>>>>> develop
