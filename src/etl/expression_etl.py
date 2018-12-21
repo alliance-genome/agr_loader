@@ -69,23 +69,23 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    SET e.whereExpressedStatement = otcct.name
+            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    ON CREATE SET e.whereExpressedStatement = otcct.name
 
-                CREATE (g)-[gex:EXPRESSED_IN]->(e)
-                    SET gex.uuid = row.ei_uuid
+                MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                    ON CREATE SET gex.uuid = row.ei_uuid
 
-                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression',
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    ON CREATE SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
 
-                CREATE (gej)-[geja:ASSAY]->(assay)
+                MERGE (gej)-[geja:ASSAY]->(assay)
 
-                CREATE (g)-[ggej:ASSOCIATION]->(gej)
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
 
-                CREATE (e)-[egej:ASSOCIATION]->(gej)
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
 
-                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -93,7 +93,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     CCExpression = """
 
@@ -107,31 +107,31 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    SET e.whereExpressedStatement = row.whereExpressedStatement
+            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                CREATE (g)-[gex:EXPRESSED_IN]->(e)
-                    SET gex.uuid = row.ei_uuid
+                MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                    ON CREATE SET gex.uuid = row.ei_uuid
                              
-                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression',
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    ON CREATE SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                CREATE (gej)-[geja:ASSAY]->(assay)
+                MERGE (gej)-[geja:ASSAY]->(assay)
 
-                CREATE (g)-[ggej:ASSOCIATION]->(gej)
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                CREATE (e)-[egej:ASSOCIATION]->(gej)
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
                     
-                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId,
+                    ON CREATE SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     AOCCExpression = """
         
