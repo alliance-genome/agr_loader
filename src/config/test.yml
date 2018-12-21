@@ -18,7 +18,6 @@ Ontology:
   - CL
   - FBDV
   - FBBT
-  - FBCV
   - MMUSDV
   - BSPO
   - MMO
@@ -41,7 +40,6 @@ Closure:
   - CL
   - FBDV
   - FBBT
-  - FBCV
   - MMUSDV
   - BSPO
   - MMO
