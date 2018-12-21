@@ -25,12 +25,13 @@ Ontology:
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Uberon: [UBERON]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
+  - GO
   - SO
   - DO
   - MI
@@ -47,12 +48,12 @@ Closure:
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
+  - UBERON
 Interactions: [MolecularInteraction]
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
-Neo4jTransactorThreads: 3
+Neo4jTransactorThreads: 7

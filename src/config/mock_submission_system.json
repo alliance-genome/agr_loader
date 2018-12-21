@@ -517,7 +517,7 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "Ontology",
+            "dataType": "Uberon",
             "subType": "UBERON",
             "path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
             "tempExtractedFile": "basic.obo",

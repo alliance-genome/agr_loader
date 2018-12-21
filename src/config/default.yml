@@ -8,26 +8,25 @@ Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
-  - GO 
-  - SO 
-  - DO 
-  - MI 
-  - ZFA 
-  - ZFS 
-  - WBBT 
-  - CL 
-  - FBDV 
+  - GO
+  - SO
+  - DO
+  - MI
+  - ZFA
+  - ZFS
+  - WBBT
+  - CL
+  - FBDV
   - FBBT
-  - FBCV
   - MMUSDV
   - BSPO
   - MMO
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+Uberon: [UBERON]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
@@ -41,15 +40,14 @@ Closure:
   - CL
   - FBDV
   - FBBT
-  - FBCV
   - MMUSDV
   - BSPO
   - MMO
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
+  - UBERON
 Interactions: [MolecularInteraction]
 
 # Loader configuration values are below.

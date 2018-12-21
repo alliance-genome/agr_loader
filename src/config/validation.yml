@@ -45,8 +45,10 @@ Ontology:
     - WBLS
     - EMAPA
     - MA
-    - UBERON
     - ECO
+Uberon:
+  type: list
+  allowed: [UBERON]
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -76,8 +78,8 @@ Closure:
     - WBLS
     - EMAPA
     - MA
-    - UBERON
     - ECO
+    - UBERON
 Interactions:
   type: list
   allowed: [MolecularInteraction]

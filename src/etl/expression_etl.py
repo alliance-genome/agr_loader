@@ -29,28 +29,26 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
             
-            WITH g, assay, otast, row
-
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
+                    SET gex.uuid = row.ei_uuid
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
                 
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
         
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
+                CREATE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
+                    SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
@@ -304,7 +302,7 @@ class ExpressionETL(ETL):
             query_list += [[ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
             
         query_list += [
-            [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.AOCCExpression, 700000, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
