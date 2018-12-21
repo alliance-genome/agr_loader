@@ -31,23 +31,23 @@ class ExpressionETL(ETL):
             
             WITH g, assay, otast, row
 
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+                CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
+                    SET gex.uuid = row.ei_uuid
                 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
                 
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
         
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
+                CREATE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -55,7 +55,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     SGDCCExpression = """
 
@@ -69,23 +69,23 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = otcct.name
+            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = otcct.name
 
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
+                    SET gex.uuid = row.ei_uuid
 
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
 
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -93,7 +93,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     CCExpression = """
 
@@ -107,31 +107,31 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                    SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                CREATE (g)-[gex:EXPRESSED_IN]->(e)
+                    SET gex.uuid = row.ei_uuid
                              
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
+                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                CREATE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                CREATE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                CREATE (e)-[egej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                CREATE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
+                    SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     AOCCExpression = """
         
