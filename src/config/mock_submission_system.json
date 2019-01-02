@@ -445,10 +445,10 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "FBDV",
-            "subType": "FBDV",
-            "path": "http://purl.obolibrary.org/obo/fbdv.obo",
-            "tempExtractedFile": "fbdv.obo",
+            "dataType": "Ontology",
+            "subType": "FBCV",
+            "path": "http://purl.obolibrary.org/obo/fbcv.obo",
+            "tempExtractedFile": "fbcv.obo",
             "uploadDate": 1522181475376
         },
         {
@@ -517,7 +517,7 @@
         },
         {
             "schemaVersion": "1.0.0.7",
-            "dataType": "Uberon",
+            "dataType": "Ontology",
             "subType": "UBERON",
             "path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
             "tempExtractedFile": "basic.obo",

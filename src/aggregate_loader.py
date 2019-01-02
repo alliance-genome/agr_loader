@@ -95,23 +95,21 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_etl_groups = [
-            ['DO', 'SO', 'MI'],
-            ['GO'],
+            ['GO', 'DO', 'SO', 'MI'],
             ['Ontology'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
+            ['ExpressionRibbon'],
             ['Disease'],  # Locks Genes
             ['Phenotype'],  # Locks Genes
+            ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['Interactions'],
-            ['ExpressionRibbon'],
-            ['Orthology'],  # Locks Genes
             ['Closure']
         ]
-
         etl_time_tracker_list = []
 
         for etl_group in list_of_etl_groups:

@@ -185,8 +185,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBDVTerm' in LABELS(otast)
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBDVTerm' in LABELS(otasst)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
         
@@ -195,8 +195,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBDVTerm' in LABELS(otast)
+                WHERE NOT 'UBERONTerm' in LABELS(otastq)
+                    AND NOT 'FBDVTerm' in LABELS(otastq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
         
@@ -205,8 +205,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBDVTerm' in LABELS(otast)
+                WHERE NOT 'UBERONTerm' in LABELS(otasstq)
+                    AND NOT 'FBDVTerm' in LABELS(otasstq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             
             MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
@@ -216,8 +216,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBDVTerm' in LABELS(otast)
+                WHERE NOT 'UBERONTerm' in LABELS(otcctq)
+                    AND NOT 'FBDVTerm' in LABELS(otcctq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                       
             MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """

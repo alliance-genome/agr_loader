@@ -37,6 +37,7 @@ Ontology:
     - WBBT 
     - CL
     - FBBT
+    - FBCV
     - MMUSDV
     - BSPO
     - MMO
@@ -44,12 +45,7 @@ Ontology:
     - EMAPA
     - MA
     - ECO
-Uberon:
-  type: list
-  allowed: [UBERON]
-FBDV:
-  type: list
-  allowed: [FBDV]
+    - UBERON
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -70,7 +66,7 @@ Closure:
     - ZFS 
     - WBBT 
     - CL 
-    - FBDV 
+    - FBCV
     - FBBT
     - MMUSDV
     - BSPO
