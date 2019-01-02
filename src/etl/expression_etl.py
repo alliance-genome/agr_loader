@@ -29,7 +29,7 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
                 WHERE NOT 'UBERONTerm' in LABELS(otast)
-                AND NOT 'FBDVTerm' in LABELS(otast)
+                AND NOT 'FBCVTerm' in LABELS(otast)
             
             CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
@@ -146,7 +146,7 @@ class ExpressionETL(ETL):
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})                 
                 WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBDVTerm' in LABELS(otast)
+                    AND NOT 'FBCVTerm' in LABELS(otast)
 
             WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
@@ -186,7 +186,7 @@ class ExpressionETL(ETL):
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBDVTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
         
@@ -196,7 +196,7 @@ class ExpressionETL(ETL):
 
             MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otastq)
-                    AND NOT 'FBDVTerm' in LABELS(otastq)
+                    AND NOT 'FBCVTerm' in LABELS(otastq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
         
@@ -206,7 +206,7 @@ class ExpressionETL(ETL):
 
             MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otasstq)
-                    AND NOT 'FBDVTerm' in LABELS(otasstq)
+                    AND NOT 'FBCVTerm' in LABELS(otasstq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             
             MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
@@ -217,7 +217,7 @@ class ExpressionETL(ETL):
 
             MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otcctq)
-                    AND NOT 'FBDVTerm' in LABELS(otcctq)
+                    AND NOT 'FBCVTerm' in LABELS(otcctq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                       
             MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """

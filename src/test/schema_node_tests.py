@@ -50,7 +50,7 @@ class TestClass(object):
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
                              dict(node='UBERONTerm'),
-                             dict(node='FBDVTerm'),
+                             dict(node='FBCVTerm'),
                              dict(node='FBBTTerm'),
                              dict(node='MATerm'),
                              dict(node='EMAPATerm'),
