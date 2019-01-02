@@ -74,8 +74,6 @@ class AggregateLoader(object):
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
-            'FBDV': GenericOntologyETL,
-            'UBERON': GenericOntologyETL,
             'BGI': BGIETL,
             'Ontology': GenericOntologyETL,
             'Allele': AlleleETL,
@@ -109,8 +107,6 @@ class AggregateLoader(object):
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['Interactions'],
-            ['UBERON'],
-            ['FBDV'],
             ['ExpressionRibbon'],
             ['Orthology'],  # Locks Genes
             ['Closure']
