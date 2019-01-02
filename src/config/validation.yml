@@ -35,8 +35,7 @@ Ontology:
     - ZFA 
     - ZFS 
     - WBBT 
-    - CL 
-    - FBDV 
+    - CL
     - FBBT
     - MMUSDV
     - BSPO
@@ -48,6 +47,9 @@ Ontology:
 Uberon:
   type: list
   allowed: [UBERON]
+FBDV:
+  type: list
+  allowed: [FBDV]
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]

@@ -130,7 +130,7 @@ class DataFileManager(metaclass=Singleton):
         # Temporary code below (to be modified or removed).
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        ontologies_to_transform = ('UBERON', 'GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
+        ontologies_to_transform = ('FBDV', 'UBERON', 'GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
@@ -154,7 +154,9 @@ class DataFileManager(metaclass=Singleton):
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
 
                     # Special case for storing ontologies with non-generic loaders.
-                    if sub_entry in ontologies_to_transform and entry == 'Ontology' or entry == 'Uberon':
+                    if sub_entry in ontologies_to_transform and entry == 'Ontology' \
+                            or entry == 'Uberon' \
+                            or entry == 'FBDV':
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:

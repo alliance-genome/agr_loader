@@ -74,6 +74,7 @@ class AggregateLoader(object):
             'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'FBDV': GenericOntologyETL,
             'UBERON': GenericOntologyETL,
             'BGI': BGIETL,
             'Ontology': GenericOntologyETL,
@@ -102,15 +103,16 @@ class AggregateLoader(object):
             ['BGI'],
             ['Allele'],
             ['Expression'],
-            ['UBERON'],
-            ['ExpressionRibbon'],
             ['Disease'],  # Locks Genes
             ['Phenotype'],  # Locks Genes
-            ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['Interactions'],
+            ['UBERON'],
+            ['FBDV'],
+            ['ExpressionRibbon'],
+            ['Orthology'],  # Locks Genes
             ['Closure']
         ]
 

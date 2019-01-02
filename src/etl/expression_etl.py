@@ -27,7 +27,9 @@ class ExpressionETL(ETL):
             MATCH (g:Gene {primaryKey:row.geneId})
 
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                AND NOT 'FBDVTerm' in LABELS(otast)
             
             CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
@@ -142,7 +144,9 @@ class ExpressionETL(ETL):
             MATCH (g:Gene {primaryKey:row.geneId})
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
-            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
+            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})                 
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBDVTerm' in LABELS(otast)
 
             WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
@@ -181,6 +185,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBDVTerm' in LABELS(otast)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
         
@@ -189,6 +195,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBDVTerm' in LABELS(otast)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
         
@@ -197,6 +205,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBDVTerm' in LABELS(otast)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             
             MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
@@ -206,6 +216,8 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBDVTerm' in LABELS(otast)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                       
             MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
@@ -224,7 +236,7 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
-            MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})     
+            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})     
             MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
 
     uberonStage = """
@@ -232,7 +244,7 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
-            MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
+            MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
             
             MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
 
@@ -241,7 +253,7 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
-            MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
+            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
             MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
 
     uberonStageOther = """
@@ -249,7 +261,7 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
             
             MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
 

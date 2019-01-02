@@ -26,6 +26,7 @@ Ontology:
   - ECO
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Uberon: [UBERON]
+FBDV: [FBDV]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
@@ -44,6 +45,7 @@ Closure:
   - WBLS
   - EMAPA
   - MA
+  - FBDV
   - ECO
   - UBERON
 Interactions: [MolecularInteraction]

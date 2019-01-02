@@ -54,6 +54,40 @@ class ExpressionRibbonETL(ETL):
         WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;           
     """
 
+    uberonAO = """  
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
+            MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})     
+            MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
+
+    uberonStage = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
+            MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
+
+            MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
+
+    uberonAOOther = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
+            MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
+            MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
+
+    uberonStageOther = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+            MATCH (u:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+
+            MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
+
     def _load_and_process_data(self):
 
         logger.info("Starting Expression Ribbon Data")
