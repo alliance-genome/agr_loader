@@ -15,5 +15,5 @@ before_install:
   - docker build -t agrdocker/agr_loader_run:latest .
   
 script:
-  - docker-compose up agr_loader_test
+  - docker-compose up agr_loader_travis
   - docker-compose run agr_loader_test_unit_tests

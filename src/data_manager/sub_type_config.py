@@ -95,12 +95,12 @@ class SubTypeConfig(object):
         logger.info("Attempting to validate: %s" % (self.filepath))
 
         schema_lookup_dict = {
-            'Disease' : 'schemas/disease/diseaseMetaDataDefinition.json',
-            'BGI' : 'schemas/gene/geneMetaData.json',
-            'Orthology' : 'schemas/orthology/orthologyMetaData.json',
-            'Allele' : 'schemas/allele/alleleMetaData.json',
-            'Phenotype' : 'schemas/phenotype/phenotypeMetaDataDefinition.json',
-            'Expression' : 'schemas/expression/wildtypeExpressionMetaDataDefinition.json'
+            'Disease': 'schemas/disease/diseaseMetaDataDefinition.json',
+            'BGI': 'schemas/gene/geneMetaData.json',
+            'Orthology': 'schemas/orthology/orthologyMetaData.json',
+            'Allele': 'schemas/allele/alleleMetaData.json',
+            'Phenotype': 'schemas/phenotype/phenotypeMetaDataDefinition.json',
+            'Expression': 'schemas/expression/wildtypeExpressionMetaDataDefinition.json'
         }
 
         schema_file_name = schema_lookup_dict.get(self.data_type)
