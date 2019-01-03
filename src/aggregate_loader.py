@@ -95,7 +95,8 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, SO, MI, there will be a pause, etc.
         list_of_etl_groups = [
-            ['GO', 'DO', 'SO', 'MI'],
+            ['DO', 'SO', 'MI'],
+            ['GO'],
             ['Ontology'],
             ['BGI'],
             ['Allele'],
