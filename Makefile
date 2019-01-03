@@ -19,11 +19,13 @@ removedb:
 run: build
 	docker-compose up agr_loader
 
-run_test_travis:  build
-        docker-compose run agr_loader_travis
-        docker-compose run agr_loader_test_unit_tests
+run_test_travis:  
+	build
+	docker-compose run agr_loader_travis
+	docker-compose run agr_loader_test_unit_tests
 
-run_test: build
+run_test: 
+	build
 	docker-compose run agr_loader_test
 	docker-compose run agr_loader_test_unit_tests
 

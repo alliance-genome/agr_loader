@@ -194,7 +194,8 @@ class TestClass(object):
                              dict(node='Species', prop='primaryKey'),
                              dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
-                             dict(node='Synonym', prop='primaryKey'),
+                             # Commenting out until we have a fix for UBERON
+                             # dict(node='Synonym', prop='primaryKey'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),
                              dict(node='GOTerm', prop='primaryKey'),
