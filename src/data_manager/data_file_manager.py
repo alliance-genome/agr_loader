@@ -136,8 +136,8 @@ class DataFileManager(metaclass=Singleton):
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
 
         config_values_to_ignore = [
-            'schemaVersion', # Manually assigned above.
-            'releaseVersion', # Manually assigned above.
+            'schemaVersion',  # Manually assigned above.
+            'releaseVersion',  # Manually assigned above.
             'FileTransactorThreads',
             'Neo4jTransactorThreads'
         ]

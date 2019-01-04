@@ -16,7 +16,6 @@ Ontology:
   - ZFS
   - WBBT
   - CL
-  - FBDV
   - FBBT
   - FBCV
   - MMUSDV
@@ -25,8 +24,8 @@ Ontology:
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
+  - UBERON
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
@@ -39,7 +38,6 @@ Closure:
   - ZFS
   - WBBT
   - CL
-  - FBDV
   - FBBT
   - FBCV
   - MMUSDV
@@ -48,8 +46,8 @@ Closure:
   - WBLS
   - EMAPA
   - MA
-  - UBERON
   - ECO
+  - UBERON
 Interactions: [MolecularInteraction]
 
 # Loader configuration values are below.

@@ -446,9 +446,9 @@
         {
             "schemaVersion": "1.0.0.7",
             "dataType": "Ontology",
-            "subType": "FBDV",
-            "path": "http://purl.obolibrary.org/obo/fbdv.obo",
-            "tempExtractedFile": "fbdv.obo",
+            "subType": "FBCV",
+            "path": "http://purl.obolibrary.org/obo/fbcv.obo",
+            "tempExtractedFile": "fbcv.obo",
             "uploadDate": 1522181475376
         },
         {

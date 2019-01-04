@@ -98,8 +98,6 @@ class AggregateLoader(object):
             ['DO', 'SO', 'MI'],
             ['GO'],
             ['Ontology'],
-            ['UBERON'],
-            ['CL'],
             ['BGI'],
             ['Allele'],
             ['Expression'],
@@ -113,7 +111,6 @@ class AggregateLoader(object):
             ['Interactions'],
             ['Closure']
         ]
-
         etl_time_tracker_list = []
 
         for etl_group in list_of_etl_groups:

@@ -54,6 +54,7 @@ class ExpressionRibbonETL(ETL):
         WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;           
     """
 
+
     def _load_and_process_data(self):
 
         logger.info("Starting Expression Ribbon Data")

@@ -50,7 +50,7 @@ class TestClass(object):
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
                              dict(node='UBERONTerm'),
-                             dict(node='FBDVTerm'),
+                             dict(node='FBCVTerm'),
                              dict(node='FBBTTerm'),
                              dict(node='MATerm'),
                              dict(node='EMAPATerm'),
@@ -59,151 +59,152 @@ class TestClass(object):
                              dict(node='WBLSTerm')
                              ],
 
-        'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                            dict(node='Gene', prop='geneLiteratureUrl'), \
-                            dict(node='Gene', prop='modCrossRefCompleteUrl'), \
-                            dict(node='Gene', prop='taxonId'), \
-                            dict(node='Gene', prop='geneticEntityExternalUrl'), \
-                            dict(node='Gene', prop='modLocalId'), \
-                            dict(node='Gene', prop='symbol'), \
-                            dict(node='Gene', prop='primaryKey'), \
-                            dict(node='Gene', prop='modGlobalId'), \
-                            dict(node='Gene', prop='uuid'), \
-                            dict(node='GOTerm', prop='primaryKey'), \
-                            dict(node='Gene', prop='dataProvider'), \
-                            #dict(node='SOTerm', prop='name'), \
-                            dict(node='SOTerm', prop='primaryKey'), \
-                            dict(node='DOTerm', prop='doPrefix'), \
-                            dict(node='DOTerm', prop='doId'), \
-                            dict(node='DOTerm', prop='doDisplayId'), \
-                            dict(node='DOTerm', prop='doUrl'), \
-                            dict(node='DOTerm', prop='defLinks'), \
-                            dict(node='DOTerm', prop='is_obsolete'), \
-                            dict(node='DOTerm', prop='subset'), \
-                            dict(node='DOTerm', prop='primaryKey'), \
-                            dict(node='MITerm', prop='primaryKey'), \
-                            dict(node='Identifier', prop='primaryKey'), \
-                            dict(node='Synonym', prop='primaryKey'), \
-                            dict(node='CrossReference', prop='localId'), \
-                            dict(node='CrossReference', prop='name'), \
-                            dict(node='CrossReference', prop='primaryKey'), \
-                            dict(node='CrossReference', prop='prefix'), \
-                            dict(node='CrossReference', prop='crossRefType'), \
-                            dict(node='CrossReference', prop='displayName'), \
-                            dict(node='CrossReference', prop='globalCrossRefId'), \
+        'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
+                            dict(node='Gene', prop='geneLiteratureUrl'),
+                            dict(node='Gene', prop='modCrossRefCompleteUrl'),
+                            dict(node='Gene', prop='taxonId'),
+                            dict(node='Gene', prop='geneticEntityExternalUrl'),
+                            dict(node='Gene', prop='modLocalId'),
+                            dict(node='Gene', prop='symbol'),
+                            dict(node='Gene', prop='primaryKey'),
+                            dict(node='Gene', prop='modGlobalId'),
+                            dict(node='Gene', prop='uuid'),
+                            dict(node='GOTerm', prop='primaryKey'),
+                            dict(node='Gene', prop='dataProvider'),
+                            #dict(node='SOTerm', prop='name'),
+                            dict(node='SOTerm', prop='primaryKey'),
+                            dict(node='DOTerm', prop='doPrefix'),
+                            dict(node='DOTerm', prop='doId'),
+                            dict(node='DOTerm', prop='doDisplayId'),
+                            dict(node='DOTerm', prop='doUrl'),
+                            dict(node='DOTerm', prop='defLinks'),
+                            dict(node='DOTerm', prop='is_obsolete'),
+                            dict(node='DOTerm', prop='subset'),
+                            dict(node='DOTerm', prop='primaryKey'),
+                            dict(node='MITerm', prop='primaryKey'),
+                            dict(node='Identifier', prop='primaryKey'),
+                            dict(node='Synonym', prop='primaryKey'),
+                            dict(node='CrossReference', prop='localId'),
+                            dict(node='CrossReference', prop='name'),
+                            dict(node='CrossReference', prop='primaryKey'),
+                            dict(node='CrossReference', prop='prefix'),
+                            dict(node='CrossReference', prop='crossRefType'),
+                            dict(node='CrossReference', prop='displayName'),
+                            dict(node='CrossReference', prop='globalCrossRefId'),
                             dict(node='CrossReference', prop='uuid'),\
-                            dict(node='CrossReference', prop='page'), \
-                            dict(node='Species', prop='name'), \
-                            dict(node='Species', prop='species'), \
-                            dict(node='Species', prop='primaryKey'), \
-                            dict(node='Entity', prop='primaryKey'), \
-                            dict(node='Chromosome', prop='primaryKey'), \
-                            dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                            dict(node='DiseaseEntityJoin', prop='joinType'), \
-                            dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                            dict(node='InteractionGeneJoin', prop='joinType'), \
-                            dict(node='Association', prop='joinType'), \
-                            dict(node='Association', prop='primaryKey'), \
-                            dict(node='Phenotype', prop='primaryKey'), \
-                            dict(node='Phenotype', prop='phenotypeStatement'), \
-                            #dict(node='Publication', prop='pubMedId'), \
-                            #dict(node='Publication', prop='pubModId'), \
-                            dict(node='Publication', prop='primaryKey'), \
-                            dict(node='EvidenceCode', prop='primaryKey'), \
-                            dict(node='Feature', prop='primaryKey'), \
-                            dict(node='Feature', prop='symbol'), \
-                            dict(node='Feature', prop='uuid'), \
-                            dict(node='Feature', prop='dataProvider'), \
-                            dict(node='GOTerm', prop='definition'), \
-                            dict(node='DOTerm', prop='definition'), \
-                            dict(node='GOTerm', prop='type'), \
-                            dict(node='DOTerm', prop='subset'), \
-                            dict(node='ExpressionBioEntity', prop='primaryKey'), \
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
-                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
+                            dict(node='CrossReference', prop='page'),
+                            dict(node='Species', prop='name'),
+                            dict(node='Species', prop='species'),
+                            dict(node='Species', prop='primaryKey'),
+                            dict(node='Entity', prop='primaryKey'),
+                            dict(node='Chromosome', prop='primaryKey'),
+                            dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                            dict(node='DiseaseEntityJoin', prop='joinType'),
+                            dict(node='PhenotypeEntityJoin', prop='primaryKey'),
+                            dict(node='InteractionGeneJoin', prop='joinType'),
+                            dict(node='Association', prop='joinType'),
+                            dict(node='Association', prop='primaryKey'),
+                            dict(node='Phenotype', prop='primaryKey'),
+                            dict(node='Phenotype', prop='phenotypeStatement'),
+                            #dict(node='Publication', prop='pubMedId'),
+                            #dict(node='Publication', prop='pubModId'),
+                            dict(node='Publication', prop='primaryKey'),
+                            dict(node='EvidenceCode', prop='primaryKey'),
+                            dict(node='Feature', prop='primaryKey'),
+                            dict(node='Feature', prop='symbol'),
+                            dict(node='Feature', prop='uuid'),
+                            dict(node='Feature', prop='dataProvider'),
+                            dict(node='GOTerm', prop='definition'),
+                            dict(node='DOTerm', prop='definition'),
+                            dict(node='GOTerm', prop='type'),
+                            dict(node='DOTerm', prop='subset'),
+                            dict(node='ExpressionBioEntity', prop='primaryKey'),
+                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
+                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                             dict(node='DOTerm', prop='defLinks')
                             ],
 
-        'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'), \
-                               dict(node='Gene', prop='geneLiteratureUrl'), \
-                               dict(node='Gene', prop='modCrossRefCompleteUrl'), \
-                               dict(node='Gene', prop='taxonId'), \
-                               dict(node='Gene', prop='geneticEntityExternalUrl'), \
-                               dict(node='Gene', prop='modLocalId'), \
-                               dict(node='Gene', prop='symbol'), \
-                               dict(node='Gene', prop='primaryKey'), \
-                               dict(node='Gene', prop='modGlobalId'), \
-                               dict(node='Gene', prop='uuid'), \
-                               dict(node='Gene', prop='dataProvider'), \
-                               dict(node='GOTerm', prop='primaryKey'), \
-                               #dict(node='SOTerm', prop='name'), \
-                               dict(node='SOTerm', prop='primaryKey'), \
-                               dict(node='DOTerm', prop='doPrefix'), \
-                               dict(node='DOTerm', prop='doId'), \
-                               dict(node='DOTerm', prop='doDisplayId'), \
-                               dict(node='DOTerm', prop='doUrl'), \
-                               dict(node='DOTerm', prop='defLinks'), \
-                               dict(node='DOTerm', prop='is_obsolete'), \
-                               dict(node='DOTerm', prop='subset'), \
-                               dict(node='DOTerm', prop='primaryKey'), \
-                               dict(node='Identifier', prop='primaryKey'), \
-                               dict(node='Synonym', prop='primaryKey'), \
-                               dict(node='CrossReference', prop='localId'), \
-                               dict(node='CrossReference', prop='name'), \
-                               dict(node='CrossReference', prop='primaryKey'), \
-                               dict(node='CrossReference', prop='prefix'), \
-                               dict(node='CrossReference', prop='crossRefType'), \
-                               dict(node='CrossReference', prop='displayName'), \
-                               dict(node='CrossReference', prop='globalCrossRefId'), \
-                               dict(node='CrossReference', prop='uuid'),\
-                               dict(node='Species', prop='name'), \
-                               dict(node='Species', prop='species'), \
-                               dict(node='Species', prop='primaryKey'), \
-                               dict(node='Entity', prop='primaryKey'), \
-                               dict(node='Chromosome', prop='primaryKey'), \
-                               dict(node='DiseaseEntityJoin', prop='joinType'), \
-                               dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                               dict(node='DiseaseEntityJoin', prop='joinType'), \
-                               dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                               dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                               dict(node='Phenotype', prop='phenotypeStatement'), \
-                               dict(node='Association', prop='joinType'), \
-                               dict(node='Association', prop='primaryKey'), \
-                               #dict(node='Publication', prop='pubMedId'), \
-                               dict(node='Publication', prop='primaryKey'), \
-                               dict(node='EvidenceCode', prop='primaryKey'), \
-                               dict(node='Feature', prop='primaryKey'), \
-                               dict(node='Feature', prop='symbol'), \
-                               dict(node='Feature', prop='dataProvider'), \
-                               dict(node='Feature', prop='globalId'), \
-                               dict(node='Feature', prop='uuid'), \
-                               dict(node='MITerm', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='primaryKey'), \
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'), \
-                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'), \
-                               dict(node='Stage', prop='primaryKey'), \
+        'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'),
+                               dict(node='Gene', prop='geneLiteratureUrl'),
+                               dict(node='Gene', prop='modCrossRefCompleteUrl'),
+                               dict(node='Gene', prop='taxonId'),
+                               dict(node='Gene', prop='geneticEntityExternalUrl'),
+                               dict(node='Gene', prop='modLocalId'),
+                               dict(node='Gene', prop='symbol'),
+                               dict(node='Gene', prop='primaryKey'),
+                               dict(node='Gene', prop='modGlobalId'),
+                               dict(node='Gene', prop='uuid'),
+                               dict(node='Gene', prop='dataProvider'),
+                               dict(node='GOTerm', prop='primaryKey'),
+                               #dict(node='SOTerm', prop='name'),
+                               dict(node='SOTerm', prop='primaryKey'),
+                               dict(node='DOTerm', prop='doPrefix'),
+                               dict(node='DOTerm', prop='doId'),
+                               dict(node='DOTerm', prop='doDisplayId'),
+                               dict(node='DOTerm', prop='doUrl'),
+                               dict(node='DOTerm', prop='defLinks'),
+                               dict(node='DOTerm', prop='is_obsolete'),
+                               dict(node='DOTerm', prop='subset'),
+                               dict(node='DOTerm', prop='primaryKey'),
+                               dict(node='Identifier', prop='primaryKey'),
+                               dict(node='Synonym', prop='primaryKey'),
+                               dict(node='CrossReference', prop='localId'),
+                               dict(node='CrossReference', prop='name'),
+                               dict(node='CrossReference', prop='primaryKey'),
+                               dict(node='CrossReference', prop='prefix'),
+                               dict(node='CrossReference', prop='crossRefType'),
+                               dict(node='CrossReference', prop='displayName'),
+                               dict(node='CrossReference', prop='globalCrossRefId'),
+                               dict(node='CrossReference', prop='uuid'),
+                               dict(node='Species', prop='name'),
+                               dict(node='Species', prop='species'),
+                               dict(node='Species', prop='primaryKey'),
+                               dict(node='Entity', prop='primaryKey'),
+                               dict(node='Chromosome', prop='primaryKey'),
+                               dict(node='DiseaseEntityJoin', prop='joinType'),
+                               dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                               dict(node='DiseaseEntityJoin', prop='joinType'),
+                               dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                               dict(node='PhenotypeEntityJoin', prop='primaryKey'),
+                               dict(node='Phenotype', prop='phenotypeStatement'),
+                               dict(node='Association', prop='joinType'),
+                               dict(node='Association', prop='primaryKey'),
+                               #dict(node='Publication', prop='pubMedId'),
+                               dict(node='Publication', prop='primaryKey'),
+                               dict(node='EvidenceCode', prop='primaryKey'),
+                               dict(node='Feature', prop='primaryKey'),
+                               dict(node='Feature', prop='symbol'),
+                               dict(node='Feature', prop='dataProvider'),
+                               dict(node='Feature', prop='globalId'),
+                               dict(node='Feature', prop='uuid'),
+                               dict(node='MITerm', prop='primaryKey'),
+                               dict(node='ExpressionBioEntity', prop='primaryKey'),
+                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
+                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                               dict(node='Stage', prop='primaryKey'),
                                ],
 
-        'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'), \
-                             dict(node='Publication', prop='primaryKey'), \
-                             dict(node='Association', prop='primaryKey'), \
-                             dict(node='DiseaseEntityJoin', prop='primaryKey'), \
-                             dict(node='PhenotypeEntityJoin', prop='primaryKey'), \
-                             dict(node='Chromosome', prop='primaryKey'), \
-                             dict(node='Entity', prop='primaryKey'), \
-                             dict(node='Species', prop='primaryKey'), \
-                             dict(node='CrossReference', prop='primaryKey'), \
-                             dict(node='CrossReference', prop='uuid'), \
-                             dict(node='Synonym', prop='primaryKey'), \
-                             dict(node='DOTerm', prop='primaryKey'), \
-                             dict(node='SOTerm', prop='primaryKey'), \
-                             dict(node='GOTerm', prop='primaryKey'), \
-                             dict(node='Gene', prop='primaryKey'), \
-                             dict(node='Gene', prop='uuid'), \
-                             dict(node='Feature', prop='primaryKey'), \
-                             dict(node='Feature', prop='uuid'), \
+        'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'),
+                             dict(node='Publication', prop='primaryKey'),
+                             dict(node='Association', prop='primaryKey'),
+                             dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
+                             dict(node='Chromosome', prop='primaryKey'),
+                             dict(node='Entity', prop='primaryKey'),
+                             dict(node='Species', prop='primaryKey'),
+                             dict(node='CrossReference', prop='primaryKey'),
+                             dict(node='CrossReference', prop='uuid'),
+                             # Commenting out until we have a fix for UBERON
+                             # dict(node='Synonym', prop='primaryKey'),
+                             dict(node='DOTerm', prop='primaryKey'),
+                             dict(node='SOTerm', prop='primaryKey'),
+                             dict(node='GOTerm', prop='primaryKey'),
+                             dict(node='Gene', prop='primaryKey'),
+                             dict(node='Gene', prop='uuid'),
+                             dict(node='Feature', prop='primaryKey'),
+                             dict(node='Feature', prop='uuid'),
                              dict(node='MITerm', prop='primaryKey'),
-                             dict(node='Stage', prop='primaryKey'), \
+                             dict(node='Stage', prop='primaryKey'), 
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),

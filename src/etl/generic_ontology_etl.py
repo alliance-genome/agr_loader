@@ -91,7 +91,7 @@ class GenericOntologyETL(ETL):
             [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
-             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator

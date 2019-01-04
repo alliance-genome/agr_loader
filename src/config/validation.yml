@@ -35,8 +35,7 @@ Ontology:
     - ZFA 
     - ZFS 
     - WBBT 
-    - CL 
-    - FBDV 
+    - CL
     - FBBT
     - FBCV
     - MMUSDV
@@ -45,8 +44,8 @@ Ontology:
     - WBLS
     - EMAPA
     - MA
-    - UBERON
     - ECO
+    - UBERON
 Orthology:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
@@ -67,17 +66,16 @@ Closure:
     - ZFS 
     - WBBT 
     - CL 
-    - FBDV 
-    - FBBT
     - FBCV
+    - FBBT
     - MMUSDV
     - BSPO
     - MMO
     - WBLS
     - EMAPA
     - MA
-    - UBERON
     - ECO
+    - UBERON
 Interactions:
   type: list
   allowed: [MolecularInteraction]
