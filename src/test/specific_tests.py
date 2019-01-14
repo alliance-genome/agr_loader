@@ -34,7 +34,7 @@ def test_species_disease_pub_gene_exists():
 
 
 def test_species_disease_pub_allele_exists():
-    query = "MATCH (s:Species)--(f:Feature)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    query = "MATCH (s:Species)--(a:Allele)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
@@ -119,8 +119,8 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
 
 
 def test_ZDB_ALT_160129_6_has_at_least_one_disease():
-    query = "MATCH (d:DOTerm)-[]-(f:Feature) where f.dataProvider = 'ZFIN' " \
-            "and f.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(f) as counter"
+    query = "MATCH (d:DOTerm)-[]-(a:Allele) where a.dataProvider = 'ZFIN' " \
+            "and a.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(a) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
