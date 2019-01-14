@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 
 class PhenoTypeETL(ETL):
 
-    execute_feature_template = """
+    execute_allele_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (feature:Feature {primaryKey:row.primaryId})
+            MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             
-            MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(feature)
+            MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(allele)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
@@ -27,9 +27,9 @@ class PhenoTypeETL(ETL):
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders
 
-            MERGE (feature)-[featurep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+            MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
 
-            MERGE (feature)-[fpaf:ASSOCIATION]->(pa)
+            MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
 
@@ -102,7 +102,7 @@ class PhenoTypeETL(ETL):
 
         query_list = [
             [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_feature_template, commit_size, "phenotype_feature_data_" + sub_type.get_data_provider() + ".csv"],
+            [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
         ]
             
         query_and_file_list = self.process_query_params(query_list)
@@ -178,7 +178,7 @@ class PhenoTypeETL(ETL):
             if pubModId is None and pubMedId is None:
                 logger.info (primaryId + "is missing pubMed and pubMod id")
 
-            phenotype_feature = {
+            phenotype_allele = {
                 "primaryId": primaryId.strip(),
                 "phenotypeStatement": phenotypeStatement.strip(),
                 "dateAssigned": dateAssigned,
@@ -194,7 +194,7 @@ class PhenoTypeETL(ETL):
                 "dateProduced": dateProduced
              }
 
-            list_to_yield.append(phenotype_feature)
+            list_to_yield.append(phenotype_allele)
 
             if counter == batch_size:
                 yield [list_to_yield, list_to_yield]

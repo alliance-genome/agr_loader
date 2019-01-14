@@ -12,33 +12,33 @@ logger = logging.getLogger(__name__)
 
 class DiseaseETL(ETL):
 
-    execute_feature_template = """
+    execute_allele_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
-            MATCH (feature:Feature {primaryKey:row.primaryId})
-            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(feature)
+            MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                 SET dfa.dataProviders = row.dataProviders
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (feature)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_implicated_in'
             )
 
-            MERGE (feature)-[fdaf:ASSOCIATION]->(dfa)
+            MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
             MERGE (g)-[gadf:ASSOCIATION]->(dfa)
 
@@ -142,7 +142,7 @@ class DiseaseETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [DiseaseETL.execute_feature_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
         ]
 
