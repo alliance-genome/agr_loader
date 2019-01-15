@@ -52,9 +52,9 @@ class GeneDescriptionsETL(ETL):
         for data_provider in data_providers:
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url="file://" + os.path.join(
-                    os.getcwd(), go_annot_sub_dict[data_provider].get_single_filepath()),
+                    os.getcwd(), "tmp", go_annot_sub_dict[data_provider].file_to_download),
                 associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" +
-                                                     data_provider + ".gaf"),
+                                                     data_provider + ".gaf.gz"),
                 config=gd_config)
             commit_size = self.data_type_config.get_neo4j_commit_size()
             generators = self.get_generators(data_provider, gd_data_manager, gd_config)
@@ -67,12 +67,15 @@ class GeneDescriptionsETL(ETL):
             Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config):
-        query = "match (g:Gene) where g.dataProvider = {parameter}"
+        query = "match (g:Gene) where g.dataProvider = {parameter} return g.primaryKey, g.symbol"
         return_set = Neo4jHelper.run_single_parameter_query(query, data_provider)
         descriptions = []
         for record in return_set:
             gene = Gene(id=record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=gene.id, gene_name=gene.name, add_gene_name=False)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
-            descriptions.append(gene_desc.description)
+            descriptions.append({
+                "genePrimaryKey": gene_desc.gene_id,
+                "geneDescription": gene_desc.description
+            })
         yield [descriptions]
