@@ -176,7 +176,7 @@ go_sentences_options:
         PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS: 3
         INFERRED_BY_CURATORS_AND_AUTHORS: 4
         ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS: 5
-    go_prepostfix_sentences_map:
+    prepostfix_sentences_map:
         - aspect: F
           group: EXPERIMENTAL
           qualifier: ""
@@ -488,23 +488,27 @@ go_sentences_options:
                 prefix: "predicted to be"
                 postfix: ""
 
-    go_truncate_others_aggregation_word: several
-    go_truncate_others_terms:
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
         F: "functions"
         P: "processes"
         C: "cellular components"
         D: "diseases"
-
     remove_parents_if_children_are_present: true
+    remove_children_if_parent_is_present: false
     trim_terms_by_common_ancestors: true
-    trim_if_more_than_terms: 3
+    trimming_algorithm: ic
     max_num_terms: 3
     trim_min_distance_from_root:
-        F: 3
-        P: 5
-        C: 5
+      F: 3
+      P: 5
+      C: 5
+    add_multiple_if_covers_more_children: false
+    remove_overlapped_terms: true
+    slim_url: http://current.geneontology.org/ontology/subsets/goslim_generic.obo
+    slim_bonus_perc: 0.5
 
-do_sentences_options:
+do_exp_sentences_options:
     exclude_terms:
         - "DOID:0050736"
         - "DOID:0050737"
@@ -532,70 +536,79 @@ do_sentences_options:
         TAS:
             group: EXPERIMENTAL
             priority: 5
-        IEP:
-            group: BIOMARKER
-            priority: 6
     group_priority:
         EXPERIMENTAL: 1
-        BIOMARKER: 2
-    do_prepostfix_sentences_map:
+    prepostfix_sentences_map:
         - aspect: "D"
           group: EXPERIMENTAL
           qualifier: ""
           prefix: "used to study"
           postfix: ""
-        - aspect: "D"
-          group: BIOMARKER
-          qualifier: ""
-          prefix: "biomarker of"
-          postfix: ""
-    do_prepostfix_sentences_map_humans:
+    prepostfix_sentences_map_humans:
         - aspect: "D"
           group: EXPERIMENTAL
           qualifier: ""
           prefix: "implicated in"
           postfix: ""
-        - aspect: "D"
-          group: BIOMARKER
-          qualifier: ""
-          prefix: "biomarker of"
-          postfix: ""
-
     remove_parents_if_children_are_present: true
+    remove_children_if_parent_is_present: false
     trim_terms_by_common_ancestors: true
-    trim_if_more_than_terms: 5
+    trimming_algorithm: ic
     max_num_terms: 5
     trim_min_distance_from_root:
         D: 4
-    do_truncate_others_aggregation_word: several
-    do_truncate_others_terms:
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
         D: "diseases"
+    add_multiple_if_covers_more_children: true
+    slim_url: ''
+    slim_bonus_perc: 0
+
+do_biomarker_sentences_options:
+    evidence_codes:
+        IEP:
+            group: BIOMARKER
+            priority: 1
+    group_priority:
+        BIOMARKER: 1
+    prepostfix_sentences_map:
+         - aspect: "D"
+           group: BIOMARKER
+           qualifier: ""
+           prefix: "biomarker of"
+           postfix: ""
+    prepostfix_sentences_map_humans:
+         - aspect: "D"
+           group: BIOMARKER
+           qualifier: ""
+           prefix: "biomarker of"
+           postfix: ""
+    remove_parents_if_children_are_present: true
+    remove_children_if_parent_is_present: false
+    trim_terms_by_common_ancestors: true
+    trimming_algorithm: ic
+    max_num_terms: 5
+    trim_min_distance_from_root:
+        D: 4
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
+        D: "diseases"
+    add_multiple_if_covers_more_children: true
 
 do_via_orth_sentences_options:
-    exclude_terms:
-        - "DOID:0050736"
-        - "DOID:0050737"
-        - "DOID:0050739"
-        - "DOID:0050177"
-        - "DOID:630"
-        - "DOID:225"
-        - "DOID:7"
-        - "DOID:0080015"
-        - "DOID:0050117"
-        - "DOID:0080014"
     evidence_codes:
         DVO:
             group: ORTHOLOGY_BASED
             priority: 1
     group_priority:
         ORTHOLOGY_BASED: 1
-    do_prepostfix_sentences_map:
+    prepostfix_sentences_map:
         - aspect: "D"
           group: ORTHOLOGY_BASED
           qualifier: ""
           prefix: "human orthologs of this gene implicated in"
           postfix: ""
-    do_prepostfix_sentences_map_humans:
+    prepostfix_sentences_map_humans:
         - aspect: "D"
           group: ORTHOLOGY_BASED
           qualifier: ""
@@ -603,11 +616,13 @@ do_via_orth_sentences_options:
           postfix: ""
 
     remove_parents_if_children_are_present: true
+    remove_children_if_parent_is_present: false
     trim_terms_by_common_ancestors: true
-    trim_if_more_than_terms: 5
+    trimming_algorithm: ic
     max_num_terms: 5
     trim_min_distance_from_root:
         D: 4
-    do_truncate_others_aggregation_word: several
-    do_truncate_others_terms:
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
         D: "diseases"
+    add_multiple_if_covers_more_children: true
