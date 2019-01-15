@@ -115,6 +115,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Gene(localId)")
         session.run("CREATE INDEX ON :Load(primaryKey)")
         session.run("CREATE INDEX ON :Feature(primaryKey)")
+        session.run("CREATE INDEX ON :Allele(primaryKey)")
         session.run("CREATE INDEX ON :MITerm(primaryKey)")
         session.run("CREATE INDEX ON :Phenotype(primaryKey)")
         session.run("CREATE INDEX ON :ExpressionBioEntity(primaryKey)")
