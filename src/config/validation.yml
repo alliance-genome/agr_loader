@@ -81,7 +81,7 @@ Interactions:
   allowed: [MolecularInteraction]
 GeneDescriptions:
   type: list
-  allowed: [GeneDescriptions]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 FileTransactorThreads:
   type: integer
   required: True
