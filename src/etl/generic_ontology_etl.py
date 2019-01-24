@@ -125,32 +125,28 @@ class GenericOntologyETL(ETL):
             syn = ""
             ident = line['id'].strip()
             prefix = ident.split(":")[0]
+            display_synonym = ""
 
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
-                        syn = syn.split("\"")[1].strip()
+                        synsplit = syn.split("\"")[1].strip()
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : syn
+                            'syn' : synsplit
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
+                        if "DISPLAY_SYNONYM" in syn:
+                            display_synonym = synsplit
                 else:
-                    syn = o_syns.split("\"")[1].strip()
+                    synsplit = o_syns.split("\"")[1].strip()
                     syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : syn
+                            'syn' : synsplit
                         }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
-            display_synonym = line.get('property_value')
-            if display_synonym is not None:
-                if isinstance(display_synonym, (list, tuple)):
-                    display_synonym = display_synonym
-                else:
-                    if "DISPLAY_SYNONYM" in display_synonym:
-                        display_synonym = display_synonym.split("\"")[1].strip()
-                    else:
-                        display_synonym = ""
+                    if "DISPLAY_SYNONYM" in syn:
+                        display_synonym = synsplit
             # subset
             newSubset = line.get('subset')
             subsets.append(newSubset)
