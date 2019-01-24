@@ -39,6 +39,12 @@ class GeneDescriptionsETL(ETL):
         RETURN g.primaryKey, g.symbol
         """
 
+    GetAllGenesHumanQuery = """
+
+        MATCH (g:Gene) where g.dataProvider = {parameter} AND g.primaryKey CONTAINS "HGNC:"
+        RETURN g.primaryKey, g.symbol
+        """
+
     GetGeneDiseaseAnnotQuery = """
     
         MATCH (d:DOTerm)-[r {dataProvider: {parameter}}]-(g:Gene)-[:ASSOCIATION]->(dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
@@ -121,7 +127,10 @@ class GeneDescriptionsETL(ETL):
                 go_association_url=go_annot_url, do_ontology_url=do_onto_url, do_association_url=do_annot_url)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
-        return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesQuery, data_provider)
+        if data_provider == "Human":
+            return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
+        else:
+            return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesQuery, data_provider)
         descriptions = []
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
         for record in return_set:
