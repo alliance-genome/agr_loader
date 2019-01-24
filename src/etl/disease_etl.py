@@ -22,7 +22,7 @@ class DiseaseETL(ETL):
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                SET dfa.dataProviders = row.dataProviders
+                SET dfa.dataProvider = row.dataProvider
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
@@ -65,6 +65,7 @@ class DiseaseETL(ETL):
             MATCH (gene:Gene {primaryKey:row.primaryId})
 
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                SET dga.dataProvider = row.dataProvider
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
