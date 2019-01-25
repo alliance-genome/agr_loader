@@ -187,7 +187,7 @@ def get_gene_data_from_neo4j(data_provider):
 
 
 def get_inferred_genes_for_allele(allele_primary_key):
-    db_query = "match (o:Feature)-[:IS_ALLELE_OF]-(g:Gene) where o.primaryKey = {allelePrimaryKey} return " \
+    db_query = "match (o:Allele)-[:IS_ALLELE_OF]-(g:Gene) where o.primaryKey = {allelePrimaryKey} return " \
                "g.symbol, g.primaryKey"
     result_set = query_db(query=db_query, parameters={"allelePrimaryKey": allele_primary_key})
     return [Gene(result["g.primaryKey"], result["g.symbol"], False, False) for result in result_set]
@@ -220,7 +220,7 @@ def get_disease_annotations_via_orthology(data_provider):
     AND da.uuid = dej.primaryKey 
     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
     AND gene2.dataProvider = {dataProvider}
-    OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Feature)-[da3:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
+    OPTIONAL MATCH (disease:DOTerm)-[da2:ASSOCIATION]-(gene2:Gene)-[ag:IS_ALLELE_OF]->(:Allele)-[da3:IS_IMPLICATED_IN|IS_MARKER_FOR]-(disease:DOTerm)
     WHERE da2 IS null  // filters relations that already exist
     AND da3 IS null // filter where allele already has disease association
     RETURN DISTINCT gene2.primaryKey AS geneID,

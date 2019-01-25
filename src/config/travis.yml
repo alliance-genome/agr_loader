@@ -51,5 +51,5 @@ Interactions: [MolecularInteraction]
 # Loader configuration values are below.
 # Please modify with caution!
 
-FileTransactorThreads: 10
+FileTransactorThreads: 7
 Neo4jTransactorThreads: 3
