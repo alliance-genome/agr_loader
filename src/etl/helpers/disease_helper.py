@@ -71,7 +71,7 @@ class DiseaseHelper(object):
             if 'evidenceCodes' in diseaseRecord['evidence']:
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
-            disease_feature = {
+            disease_allele = {
                 "doId": diseaseRecord.get('DOid'),
                 "primaryId": primaryId,
                 "uuid": annotationUuid,
@@ -110,4 +110,4 @@ class DiseaseHelper(object):
                 #"loadKey": loadKey,
                 #"allelicGeneId": allelicGeneId
             }
-            return disease_feature
+            return disease_allele

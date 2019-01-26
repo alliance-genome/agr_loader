@@ -21,7 +21,7 @@ class AlleleETL(ETL):
             MATCH (s:Species {primaryKey: row.taxonId})
 
             //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Feature {primaryKey:row.primaryId})
+            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
                  o.taxonId = row.taxonId,
                  o.dateProduced = row.dateProduced,
@@ -43,7 +43,7 @@ class AlleleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (f:Feature {primaryKey:row.data_id})
+            MATCH (f:Allele:Feature {primaryKey:row.data_id})
 
             MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                 SET second.name = row.secondary_id
@@ -54,18 +54,18 @@ class AlleleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (f:Feature {primaryKey:row.data_id})
+            MATCH (a:Allele:Feature {primaryKey:row.data_id})
 
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
-            MERGE (f)-[aka2:ALSO_KNOWN_AS]->(syn) """
+            MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     allele_xrefs_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Feature {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Allele:Feature {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()

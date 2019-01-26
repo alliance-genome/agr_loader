@@ -38,8 +38,8 @@ Closure:
   - ZFS
   - WBBT
   - CL
-  - FBCV
   - FBBT
+  - FBCV
   - MMUSDV
   - BSPO
   - MMO
@@ -54,5 +54,5 @@ GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 # Loader configuration values are below.
 # Please modify with caution!
 
-FileTransactorThreads: 10
-Neo4jTransactorThreads: 7
+FileTransactorThreads: 7
+Neo4jTransactorThreads: 3
