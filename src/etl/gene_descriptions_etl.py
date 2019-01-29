@@ -136,6 +136,8 @@ class GeneDescriptionsETL(ETL):
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
+            if len(key_diseases[gene.id]) > 5:
+                logger.debug("Gene " + gene.id + " has more than 5 key diseases")
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                orthologs_key_diseases=key_diseases[gene.id])
             if gene.id in best_orthologs:
