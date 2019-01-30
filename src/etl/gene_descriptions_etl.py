@@ -102,6 +102,7 @@ class GeneDescriptionsETL(ETL):
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider() for sub_type in self.data_type_config.get_sub_type_objects()]:
+            logger.info("Generating gene descriptions for " + prvdr)
             data_provider = prvdr if prvdr != "Human" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
@@ -136,13 +137,14 @@ class GeneDescriptionsETL(ETL):
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
-            if len(key_diseases[gene.id]) > 5:
-                logger.debug("Gene " + gene.id + " has more than 5 key diseases")
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                orthologs_key_diseases=key_diseases[gene.id])
             if gene.id in best_orthologs:
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
+            if len(key_diseases[gene.id]) > 5:
+                logger.debug("Gene with more than 5 key diseases: " + gene.id + " " + gene.name + " " +
+                             gene_desc.description)
             if gene_desc.description != "":
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
