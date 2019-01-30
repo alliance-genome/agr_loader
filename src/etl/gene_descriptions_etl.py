@@ -126,6 +126,7 @@ class GeneDescriptionsETL(ETL):
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
         gene_prefix = ""
+        mgi_fix_prefix = "MGI:" if data_provider == "MGI" else ""
         if data_provider == "Human":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
@@ -136,7 +137,9 @@ class GeneDescriptionsETL(ETL):
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
-            set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
+            gene_go = Gene(id=mgi_fix_prefix + gene_prefix + record["g.primaryKey"], name=record["g.symbol"],
+                           dead=False, pseudo=False)
+            set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene_go)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                orthologs_key_diseases=key_diseases[gene.id])
             if gene.id in best_orthologs:
@@ -145,7 +148,7 @@ class GeneDescriptionsETL(ETL):
             if len(key_diseases[gene.id]) > 5:
                 logger.debug("Gene with more than 5 key diseases: " + gene.id + " " + gene.name + " " +
                              gene_desc.description)
-            if gene_desc.description != "":
+            if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
                     "geneDescription": gene_desc.description
