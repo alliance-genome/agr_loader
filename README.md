@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/alliance-genome/agr_loader.svg?branch=develop)](https://travis-ci.org/alliance-genome/agr_loader)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5259a0e847c04c72a4a9c4f34fabfed5)](https://www.codacy.com/project/christabone/agr_loader/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alliance-genome/agr_loader&amp;utm_campaign=Badge_Grade_Dashboard)
 
-
 # Alliance of Genome Resources Loader
 An initial loader prototype for the web portal of the Alliance of Genome
 Resources.
