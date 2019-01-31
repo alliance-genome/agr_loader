@@ -141,7 +141,7 @@ class GeneDescriptionsETL(ETL):
                            dead=False, pseudo=False)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene_go)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
-                               orthologs_key_diseases=key_diseases[gene.id])
+                               orthologs_key_diseases=key_diseases[gene.id], human=data_provider == "Human")
             if gene.id in best_orthologs:
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
