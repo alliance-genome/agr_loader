@@ -25,7 +25,7 @@ class BGIETL(ETL):
                 gchrm.strand = row.strand
 
             FOREACH (binNumber IN SPLIT(row.bins, '|') |
-                MERGE (bin:GenomicLocationBin {primarykey:(row.assembly + "-" + row.chromosome + "-" + binNumber)})
+                MERGE (bin:GenomicLocationBin {primaryKey:(row.assembly + "-" + row.chromosome + "-" + binNumber)})
                 ON CREATE SET bin.number = toInt(binNumber),
                     bin.assembly = row.assembly
 
