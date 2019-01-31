@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import uuid
+import math
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -13,16 +14,24 @@ class BGIETL(ETL):
     genomic_locations_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                
+
             MATCH (o:Gene {primaryKey:row.primaryId})
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = row.start ,
-                gchrm.end = row.end ,
-                gchrm.assembly = row.assembly ,
-                gchrm.strand = row.strand """
-    
+            ON CREATE SET gchrm.start = row.start,
+                gchrm.end = row.end,
+                gchrm.assembly = row.assembly,
+                gchrm.strand = row.strand
+
+            FOREACH (binNumber IN SPLIT(row.bins, '|') |
+                MERGE (bin:GenomicLocationBin {primarykey:(row.assembly + "-" + row.chromosome + "-" + binNumber)})
+                ON CREATE SET bin.number = toInt(binNumber),
+                    bin.assembly = row.assembly
+
+                MERGE (bin)-[:LOCATED_ON]->(chrm)
+                MERGE (o)-[:LOCATED_IN]->(bin))"""
+
     gene_secondaryIds_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -339,9 +348,25 @@ class BGIETL(ETL):
                         strand = genomeLocation['strand']
                     else:
                         strand = None
+                    if primary_id and start and end and assembly and chromosome:
+                        binSize = 500
+                        if start < end:
+                            minCoordinate = start
+                            maxCoordinate = end
+                        else:
+                            minCoordinate = end
+                            maxCoordinate = start
+
+                        startBin = math.floor(minCoordinate / binSize)
+                        endBin = math.ceil(maxCoordinate / binSize)
+                        bins = []
+                        for item in list(range(startBin,endBin)):
+                            bins.append(str(item))
+                        binsStr = "|".join(bins)
+
                     genomicLocations.append(
                         {"primaryId": primary_id, "chromosome": chromosome, "start":
-                            start, "end": end, "strand": strand, "assembly": assembly})
+                            start, "end": end, "strand": strand, "assembly": assembly, "bins": binsStr})
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
