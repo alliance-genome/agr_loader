@@ -22,15 +22,23 @@ class BGIETL(ETL):
             ON CREATE SET gchrm.start = row.start,
                 gchrm.end = row.end,
                 gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand
+                gchrm.strand = row.strand """
+
+    genomic_locations_bins_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Gene {primaryKey:row.primaryId})
+            MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             FOREACH (binNumber IN SPLIT(row.bins, '|') |
                 MERGE (bin:GenomicLocationBin {primaryKey:(row.assembly + "-" + row.chromosome + "-" + binNumber)})
                 ON CREATE SET bin.number = toInt(binNumber),
                     bin.assembly = row.assembly
 
-                MERGE (bin)-[:LOCATED_ON]->(chrm)
-                MERGE (o)-[:LOCATED_IN]->(bin))"""
+                MERGE (o)-[:LOCATED_IN]->(bin)
+                MERGE (bin)-[:LOCATED_ON]->(chrm)) """
+
 
     gene_secondaryIds_template = """
         USING PERIODIC COMMIT %s
@@ -147,6 +155,7 @@ class BGIETL(ETL):
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.genomic_locations_bins_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
@@ -340,29 +349,39 @@ class BGIETL(ETL):
                         start = genomeLocation['startPosition']
                     else:
                         start = None
+
                     if 'endPosition' in genomeLocation:
                         end = genomeLocation['endPosition']
                     else:
                         end = None
+
                     if 'strand' in geneRecord['genomeLocations']:
                         strand = genomeLocation['strand']
                     else:
                         strand = None
+
                     if primary_id and start and end and assembly and chromosome:
                         binSize = 500
-                        if start < end:
-                            minCoordinate = start
-                            maxCoordinate = end
-                        else:
-                            minCoordinate = end
-                            maxCoordinate = start
+                        try:
+                            startInt = int(start)
+                            endInt = int(end)
+                            if startInt < endInt:
+                                minCoordinate = startInt
+                                maxCoordinate = endInt
+                            else:
+                                minCoordinate = endInt
+                                maxCoordinate = startInt
 
-                        startBin = math.floor(minCoordinate / binSize)
-                        endBin = math.ceil(maxCoordinate / binSize)
-                        bins = []
-                        for item in list(range(startBin,endBin)):
-                            bins.append(str(item))
-                        binsStr = "|".join(bins)
+                            startBin = math.floor(minCoordinate / binSize)
+                            endBin = math.ceil(maxCoordinate / binSize)
+                            bins = []
+                            for item in list(range(startBin,endBin)):
+                                bins.append(str(item))
+                            binsStr = "|".join(bins)
+                        except ValueError:
+                            bins = ""
+                            print("either start or end of genomic location is not an integer " + primary_id)
+
 
                     genomicLocations.append(
                         {"primaryId": primary_id, "chromosome": chromosome, "start":
