@@ -1,4 +1,4 @@
-import logging, yaml, os, sys, pprint
+import logging, yaml, os, sys, json, urllib3
 
 from cerberus import Validator
 
@@ -6,6 +6,7 @@ from files import JSONFile
 from etl.helpers import ETLHelper
 from common import Singleton
 from .data_type_config import DataTypeConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +31,15 @@ class DataFileManager(metaclass=Singleton):
         self.Neo4jTransactorThreads = self.config_data['Neo4jTransactorThreads']
 
         # Loading a JSON blurb from a file as a placeholder for submission system query.
-        mock_submission_system_file_loc = os.path.abspath('src/config/mock_submission_system.json')
-        self.submission_system_data = JSONFile().get_data(mock_submission_system_file_loc)
+        other_file_meta_data = os.path.abspath('src/config/mock_submission_system.json')
+        self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
+        http = urllib3.PoolManager()
+        submission_data = http.request('GET',
+                                       'https://www.alliancegenome.org/api/data/snapshot?system=production&releaseVersion=2.1.0.0')
+        self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
+
+        for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
+            self.submission_system_data['snapShot']['dataFiles'].append(dataFile)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}
@@ -102,13 +110,17 @@ class DataFileManager(metaclass=Singleton):
         # Create our DataTypeConfig (which in turn create our SubTypeConfig) objects.
         self.dispatch_to_object()
 
-    def _search_submission_data(self, dataType, subType):
+    def _search_submission_data(self, dataType, subEntry):
 
             returned_dict = None
+            if dataType != 'Ontology' and dataType != 'Interactions':
+                subType = ETLHelper().get_taxon_from_MOD(subEntry)
+            else:
+                subType = subEntry
 
             try:
-                returned_dict = next(item for item in self.submission_system_data['dataFiles']
-                                     if item['dataType'] == dataType and item['subType'] == subType)
+                returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
+                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType)
             except StopIteration:
                 logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.warn('Creating entry with \'None\' path and extracted path.')
@@ -132,8 +144,8 @@ class DataFileManager(metaclass=Singleton):
         # The list of tuples below is created to filter out submission system data against our config file.
         ontologies_to_transform = ('GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
 
-        self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['releaseVersion']
-        self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['schemaVersion']
+        self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']
+        self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']
 
         config_values_to_ignore = [
             'schemaVersion',  # Manually assigned above.
@@ -150,7 +162,7 @@ class DataFileManager(metaclass=Singleton):
                     logger.debug("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
 
-                    path = submission_system_dict.get('path')
+                    path = submission_system_dict.get('s3path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
 
                     # Special case for storing ontologies with non-generic loaders.

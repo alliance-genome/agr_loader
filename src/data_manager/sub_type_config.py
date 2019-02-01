@@ -9,6 +9,7 @@ import jsonschema as js
 
 logger = logging.getLogger(__name__)
 
+
 class SubTypeConfig(object):
 
     def __init__(self, data_type, sub_data_type, file_to_download, filepath):
@@ -43,7 +44,7 @@ class SubTypeConfig(object):
                     download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
                     self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
                 else:
-                    logger.debug("Downloading S3 File: " + self.file_to_download)
+                    logger.debug("Downloading JSON File: " + self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download, path).download_new()
                     logger.debug("File already downloaded: %s" % (self.already_downloaded))
                     if self.file_to_download.endswith('tar.gz'):

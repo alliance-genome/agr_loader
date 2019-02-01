@@ -203,7 +203,7 @@ class ETLHelper(object):
             '6239': 'WB',
             '10090': 'MGI',
             '10116': 'RGD',
-            '4932': 'SGD',
+            '559292': 'SGD',
             '7227': 'FB',
             '9606': 'Human'
         }
@@ -218,7 +218,7 @@ class ETLHelper(object):
             'WB': '6239',
             'MGI': '10090',
             'RGD': '10116',
-            'SGD': '4932',
+            'SGD': '559292',
             'FB': '7227',
             'Human': '9606'
         }
