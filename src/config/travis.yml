@@ -1,10 +1,10 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Allele: [FB, WB, ZFIN, RGD, MGI]
+ALLELE: [FB, WB, ZFIN, RGD, MGI]
 Expression: [FB, SGD, WB, ZFIN, RGD, MGI]
 Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI]
-Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:

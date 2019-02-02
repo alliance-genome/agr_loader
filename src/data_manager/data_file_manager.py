@@ -40,6 +40,7 @@ class DataFileManager(metaclass=Singleton):
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(dataFile)
+        # logger.info (self.submission_system_data)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}
@@ -113,14 +114,23 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, dataType, subEntry):
 
             returned_dict = None
-            if dataType != 'Ontology' and dataType != 'Interactions':
+            if dataType != 'Ontology' \
+                    and dataType != 'Interactions' \
+                    and dataType != "Phenotype" \
+                    and dataType != "Expression"\
+                    and dataType != "GeoXref"\
+                    and dataType != "Orthology":
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
 
+            logger.info(dataType)
+            logger.info(subType)
             try:
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
-                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType)
+                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType
+                                     )
+
             except StopIteration:
                 logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.warn('Creating entry with \'None\' path and extracted path.')
