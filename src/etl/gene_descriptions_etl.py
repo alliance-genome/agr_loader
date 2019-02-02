@@ -248,21 +248,29 @@ class GeneDescriptionsETL(ETL):
                 "no-version"
             json_desc_writer.overall_properties.species = gd_file_name
             json_desc_writer.overall_properties.release_version = release_version
-            json_desc_writer.overall_properties.date = datetime.date.today().strftime("%B %d, %Y")
-            file_name = gd_file_name + "_gene_desc_" + datetime.date.today().strftime("%Y-%m-%d")
+            cur_date = datetime.date.today().strftime("%Y%m%d")
+            json_desc_writer.overall_properties.date = cur_date
+            file_name = cur_date + "_" + gd_file_name
+            latest_file_name = gd_file_name + "_gene_desc_latest"
             file_path = "tmp/" + file_name
             json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True)
             json_desc_writer.write_plain_text(file_path=file_path + ".txt")
             json_desc_writer.write_tsv(file_path=file_path + ".tsv")
             client = boto3.client('s3', aws_access_key_id=os.environ['AWS_ACCESS_KEY'],
                                   aws_secret_access_key=os.environ['AWS_SECRET_KEY'])
-            pre_release = "/pre-release/" if os.environ["GENERATE_REPORTS"] == "pre-release" else "/"
+            pre_release = "/pre-release/" if os.environ["GENERATE_REPORTS"] == "pre-release" else "/release/"
             if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true" or \
                     os.environ["GENERATE_REPORTS"] == "pre-release":
                 client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + file_name + ".json")
-                client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" +
-                                   release_version + pre_release + file_name + ".txt")
-                client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" +
-                                   release_version + pre_release + file_name + ".tsv")
-            # TODO create symlink to latest version
+                                   pre_release + cur_date + "/" + file_name + ".json")
+                client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
+                                   pre_release + cur_date + "/" + file_name + ".txt")
+                client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
+                                   pre_release + cur_date + "/" + file_name + ".tsv")
+                if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true":
+                    client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                       ".json")
+                    client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                       ".txt")
+                    client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                       ".tsv")
