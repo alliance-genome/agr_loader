@@ -114,12 +114,13 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, dataType, subEntry):
 
             returned_dict = None
+            #  TODO: remove this shortcut in favor of an enumeration/class that wraps
+            #  TODO: a customizable JSON file that can be used to do development
+            #  TODO: ahead of values or files being entered into the submission system.
             if dataType != 'Ontology' \
                     and dataType != 'Interactions' \
                     and dataType != "Phenotype" \
-                    and dataType != "Expression"\
-                    and dataType != "GeoXref"\
-                    and dataType != "Orthology":
+                    and dataType != "Expression":
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
@@ -174,6 +175,8 @@ class DataFileManager(metaclass=Singleton):
 
                     path = submission_system_dict.get('s3path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
+                    if tempExtractedFile is None or tempExtractedFile == '':
+                        tempExtractedFile = submission_system_dict.get('s3path')
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'Ontology':
