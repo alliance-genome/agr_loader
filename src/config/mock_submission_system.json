@@ -10,7 +10,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "7955",
+                "taxonIDPart": "ZFIN",
                 "s3path": "ZFIN_1.0.0.7_3.tar.gz",
                 "tempExtractedFile": "ZFIN_1.0.0.7_phenotype.json",
                 "uploadDate": 1522181715592
@@ -18,7 +18,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "6239",
+                "taxonIDPart": "WB",
                 "s3path": "WB_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "WB_1.0.0.7_phenotype.json",
                 "uploadDate": 1522181715592
@@ -26,7 +26,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "10090",
+                "taxonIDPart": "MGI",
                 "s3path": "MGI_1.0.0.7_2.tar.gz",
                 "tempExtractedFile": "MGI_1.0.0.7_phenotype.json",
                 "uploadDate": 1522181715592
@@ -34,7 +34,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "10116",
+                "taxonIDPart": "RGD",
                 "s3path": "RGD_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "RGD_1.0.0.7_phenotype.10116.json",
                 "uploadDate": 1522181715592
@@ -42,7 +42,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "559292",
+                "taxonIDPart": "SGD",
                 "s3path": "SGD_1.0.0.7_1.tar.gz",
                 "tempExtractedFile": "SGD_1.0.0.7_phenotype.json",
                 "uploadDate": 1522181715592
@@ -50,7 +50,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "7227",
+                "taxonIDPart": "FB",
                 "s3path": "FB_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "FB_1.0.0.7_phenotype.json",
                 "uploadDate": 1522181715592
@@ -58,7 +58,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Phenotype",
-                "taxonIDPart": "9606",
+                "taxonIDPart": "RGD",
                 "s3path": "RGD_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "RGD_1.0.0.7_phenotype.9606.json",
                 "uploadDate": 1522181715592
@@ -66,7 +66,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "7955",
+                "taxonIDPart": "ZFIN",
                 "s3path": "ZFIN_1.0.0.7_3.tar.gz",
                 "tempExtractedFile": "ZFIN_1.0.0.7_expression.json",
                 "uploadDate": 1522181715592
@@ -74,7 +74,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "6239",
+                "taxonIDPart": "WB",
                 "s3path": "WB_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "WB_1.0.0.7_expression.json",
                 "uploadDate": 1522181715592
@@ -82,7 +82,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "10090",
+                "taxonIDPart": "MGI",
                 "s3path": "MGI_1.0.0.7_2.tar.gz",
                 "tempExtractedFile": "MGI_1.0.0.7_expression.json",
                 "uploadDate": 1522181715592
@@ -90,7 +90,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "10116",
+                "taxonIDPart": "Human",
                 "s3path": "RGD_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "RGD_1.0.0.7_expression.10116.json",
                 "uploadDate": 1522181715592
@@ -98,7 +98,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "559292",
+                "taxonIDPart": "SGD",
                 "s3path": "SGD_1.0.0.7_1.tar.gz",
                 "tempExtractedFile": "SGD_1.0.0.7_expression.json",
                 "uploadDate": 1522181715592
@@ -106,7 +106,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Expression",
-                "taxonIDPart": "7227",
+                "taxonIDPart": "FB",
                 "s3path": "FB_1.0.0.7_4.tar.gz",
                 "tempExtractedFile": "FB_1.0.0.7_expression.json",
                 "uploadDate": 1522181715592
@@ -146,7 +146,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "559292",
+                "taxonIDPart": "SGD",
                 "s3path": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_SGD_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -154,7 +154,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "10116",
+                "taxonIDPart": "RGD",
                 "s3path": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_RGD_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -162,7 +162,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "9606",
+                "taxonIDPart": "Human",
                 "s3path": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_Human_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -170,7 +170,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "10090",
+                "taxonIDPart": "MGI",
                 "s3path": "ORTHO/RELOAD/orthology_MGI_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_MGI_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -178,7 +178,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "7955",
+                "taxonIDPart": "ZFIN",
                 "s3path": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_ZFIN_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -186,7 +186,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "6239",
+                "taxonIDPart": "WB",
                 "s3path": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_WB_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -194,7 +194,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Orthology",
-                "taxonIDPart": "7227",
+                "taxonIDPart": "FB",
                 "s3path": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json.tar.gz",
                 "tempExtractedFile": "orthology_FB_1.0.0.7_3.json",
                 "uploadDate": 1522181475376
@@ -202,7 +202,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "7227",
+                "taxonIDPart": "FB",
                 "s3path": "GO/ANNOT/gene_association_2.0.fb.gz",
                 "tempExtractedFile": "gene_association_2.0.fb",
                 "uploadDate": 1522181475376
@@ -210,7 +210,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "9606",
+                "taxonIDPart": "Human",
                 "s3path": "GO/ANNOT/gene_association_2.0.human.gz",
                 "tempExtractedFile": "gene_association_2.0.human",
                 "uploadDate": 1522181475376
@@ -218,7 +218,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "10090",
+                "taxonIDPart": "MGI",
                 "s3path": "GO/ANNOT/gene_association_2.0.mgi.gz",
                 "tempExtractedFile": "gene_association_2.0.mgi",
                 "uploadDate": 1522181475376
@@ -226,7 +226,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "10116",
+                "taxonIDPart": "RGD",
                 "s3path": "GO/ANNOT/gene_association_2.0.rgd.gz",
                 "tempExtractedFile": "gene_association_2.0.rgd",
                 "uploadDate": 1522181475376
@@ -234,7 +234,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "559292",
+                "taxonIDPart": "SGD",
                 "s3path": "GO/ANNOT/gene_association_2.0.sgd.gz",
                 "tempExtractedFile": "gene_association_2.0.sgd",
                 "uploadDate": 1522181475376
@@ -242,7 +242,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "6239",
+                "taxonIDPart": "WB",
                 "s3path": "GO/ANNOT/gene_association_2.0.wb.gz",
                 "tempExtractedFile": "gene_association_2.0.wb",
                 "uploadDate": 1522181475376
@@ -250,7 +250,7 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
-                "taxonIDPart": "7955",
+                "taxonIDPart": "ZFIN",
                 "s3path": "GO/ANNOT/gene_association_2.0.zfin.gz",
                 "tempExtractedFile": "gene_association_2.0.zfin",
                 "uploadDate": 1522181475376
