@@ -120,7 +120,8 @@ class DataFileManager(metaclass=Singleton):
             if dataType != 'Ontology' \
                     and dataType != 'Interactions' \
                     and dataType != 'Phenotype' \
-                    and dataType != 'Expression':
+                    and dataType != 'Expression' \
+                    and dataType != 'GOAnnot':
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
@@ -144,13 +145,6 @@ class DataFileManager(metaclass=Singleton):
             return returned_dict
 
     def query_submission_system(self):
-        # This function uses the "mock" submission system data but will eventually use the actual submission system.
-
-        # Code to request the submission system data will probably live here.
-        # for entry in self.config_data etc. etc. 
-        # Create a curl request.
-
-        # Temporary code below (to be modified or removed).
 
         # The list of tuples below is created to filter out submission system data against our config file.
         ontologies_to_transform = ('GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
