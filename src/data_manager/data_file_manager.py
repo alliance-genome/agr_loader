@@ -1,4 +1,4 @@
-import logging, yaml, os, sys, json, urllib3
+import logging, yaml, os, sys, json, urllib3, requests
 
 from cerberus import Validator
 
@@ -31,21 +31,31 @@ class DataFileManager(metaclass=Singleton):
         self.Neo4jTransactorThreads = self.config_data['Neo4jTransactorThreads']
 
         # Loading a JSON blurb from a file as a placeholder for submission system query.
-        other_file_meta_data = os.path.abspath('src/config/mock_submission_system.json')
+        other_file_meta_data = os.path.abspath('src/config/local_submission.json')
         self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
         http = urllib3.PoolManager()
 
         # make a snapshot
+        # TODO: currently fails on SSL_CERT issue
         system = os.environ.get('NET')
         release = os.environ.get('RELEASE')
-        api_access_token = os.environ.get('API_KEY')
+        # api_access_token = os.environ.get('API_KEY')
+        # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
+        #                 + system \
+        #                + '&releaseVersion=' \
+        #                + release
+        # requests.post(snapshot_url, data={"api_access_token": api_access_token})
+
+        # use the recently created snapshot
         submission_data = http.request('GET',
-                                       'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release)
+                                       'https://www.alliancegenome.org/api/data/snapshot?system='
+                                       + system
+                                       + '&releaseVersion='
+                                       + release)
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(dataFile)
-        # logger.info (self.submission_system_data)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}

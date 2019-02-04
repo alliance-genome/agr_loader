@@ -10,4 +10,6 @@ ADD . .
 
 RUN mkdir -p /var/lib/neo4j/import
 
+RUN apt-get install ca-certificates
+
 CMD ["python3", "-u", "src/aggregate_loader.py"]

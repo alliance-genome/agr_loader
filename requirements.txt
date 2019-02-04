@@ -16,3 +16,4 @@ cerberus
 jsonref
 argparse
 jsonmerge
+requests
