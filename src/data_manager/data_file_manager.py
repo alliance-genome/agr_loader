@@ -40,7 +40,7 @@ class DataFileManager(metaclass=Singleton):
         release = os.environ.get('RELEASE')
         api_access_token = os.environ.get('API_KEY')
         submission_data = http.request('GET',
-                                       'https://www.alliancegenome.org/api/data/snapshot?system=production&releaseVersion=2.1.0.0')
+                                       'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release)
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
@@ -128,8 +128,6 @@ class DataFileManager(metaclass=Singleton):
             else:
                 subType = subEntry
 
-            logger.info(dataType)
-            logger.info(subType)
             try:
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
                                      if item['dataType'] == dataType and item['taxonIDPart'] == subType
