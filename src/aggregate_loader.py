@@ -76,11 +76,11 @@ class AggregateLoader(object):
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'Ontology': GenericOntologyETL,
-            'Allele': AlleleETL,
+            'ALLELE': AlleleETL,
             'GO': GOETL,
             'Expression': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
-            'Disease': DiseaseETL,
+            'DAF': DiseaseETL,
             'Phenotype': PhenoTypeETL,
             'Orthology': OrthologyETL,
             'Closure': ClosureETL,
@@ -99,10 +99,10 @@ class AggregateLoader(object):
             ['GO'],
             ['Ontology'],
             ['BGI'],
-            ['Allele'],
+            ['ALLELE'],
             ['Expression'],
             ['ExpressionRibbon'],
-            ['Disease'],  # Locks Genes
+            ['DAF'],  # Locks Genes
             ['Phenotype'],  # Locks Genes
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes

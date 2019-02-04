@@ -204,6 +204,7 @@ class ETLHelper(object):
             '10090': 'MGI',
             '10116': 'RGD',
             '559292': 'SGD',
+            '4932': 'SGD',
             '7227': 'FB',
             '9606': 'Human'
         }

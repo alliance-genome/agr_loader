@@ -119,8 +119,8 @@ class DataFileManager(metaclass=Singleton):
             #  TODO: ahead of values or files being entered into the submission system.
             if dataType != 'Ontology' \
                     and dataType != 'Interactions' \
-                    and dataType != "Phenotype" \
-                    and dataType != "Expression":
+                    and dataType != 'Phenotype' \
+                    and dataType != 'Expression':
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
