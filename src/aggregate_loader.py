@@ -78,10 +78,10 @@ class AggregateLoader(object):
             'Ontology': GenericOntologyETL,
             'ALLELE': AlleleETL,
             'GO': GOETL,
-            'Expression': ExpressionETL,
+            'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
             'DAF': DiseaseETL,
-            'Phenotype': PhenoTypeETL,
+            'PHENOTYPE': PhenoTypeETL,
             'Orthology': OrthologyETL,
             'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
@@ -100,10 +100,10 @@ class AggregateLoader(object):
             ['Ontology'],
             ['BGI'],
             ['ALLELE'],
-            ['Expression'],
+            ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['DAF'],  # Locks Genes
-            ['Phenotype'],  # Locks Genes
+            ['PHENOTYPE'],  # Locks Genes
             ['Orthology'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes

@@ -34,6 +34,11 @@ class DataFileManager(metaclass=Singleton):
         other_file_meta_data = os.path.abspath('src/config/mock_submission_system.json')
         self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
         http = urllib3.PoolManager()
+
+        # make a snapshot
+        system = os.environ.get('NET')
+        release = os.environ.get('RELEASE')
+        api_access_token = os.environ.get('API_KEY')
         submission_data = http.request('GET',
                                        'https://www.alliancegenome.org/api/data/snapshot?system=production&releaseVersion=2.1.0.0')
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
@@ -114,14 +119,11 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, dataType, subEntry):
 
             returned_dict = None
-            #  TODO: remove this shortcut in favor of an enumeration/class that wraps
-            #  TODO: a customizable JSON file that can be used to do development
-            #  TODO: ahead of values or files being entered into the submission system.
+
             if dataType != 'Ontology' \
                     and dataType != 'Interactions' \
-                    and dataType != 'Phenotype' \
-                    and dataType != 'Expression' \
-                    and dataType != 'GOAnnot':
+                    and dataType != 'GOAnnot'\
+                    and dataType != 'Orthology':
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry

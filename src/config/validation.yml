@@ -13,10 +13,10 @@ ALLELE:
 DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Phenotype: 
+PHENOTYPE:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
-Expression: 
+EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 GOAnnot:
