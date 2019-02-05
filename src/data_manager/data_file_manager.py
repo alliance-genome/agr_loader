@@ -37,8 +37,16 @@ class DataFileManager(metaclass=Singleton):
 
         # make a snapshot
         # TODO: currently fails on SSL_CERT issue
-        system = os.environ.get('NET')
-        release = os.environ.get('RELEASE')
+        if "NET" in os.environ:
+            system = os.environ['NET']
+        else:
+            system = "production"
+
+        if "RELEASE" in os.environ:
+            system = os.environ['RELEASE']
+        else:
+            system = "2.0.0.0"
+
         # api_access_token = os.environ.get('API_KEY')
         # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
         #                 + system \
@@ -47,11 +55,7 @@ class DataFileManager(metaclass=Singleton):
         # requests.post(snapshot_url, data={"api_access_token": api_access_token})
 
         # use the recently created snapshot
-        submission_data = http.request('GET',
-                                       'https://www.alliancegenome.org/api/data/snapshot?system='
-                                       + system
-                                       + '&releaseVersion='
-                                       + release)
+        submission_data = http.request('GET', 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release)
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
