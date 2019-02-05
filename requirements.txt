@@ -15,3 +15,5 @@ verboselogs
 cerberus
 jsonref
 argparse
+jsonmerge
+requests
