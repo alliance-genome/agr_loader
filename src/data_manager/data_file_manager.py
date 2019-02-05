@@ -43,9 +43,9 @@ class DataFileManager(metaclass=Singleton):
             system = "production"
 
         if "RELEASE" in os.environ:
-            system = os.environ['RELEASE']
+            release = os.environ['RELEASE']
         else:
-            system = "2.0.0.0"
+            release = "0.0.0.0"
 
         # api_access_token = os.environ.get('API_KEY')
         # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
