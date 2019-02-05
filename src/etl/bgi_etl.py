@@ -377,7 +377,7 @@ class BGIETL(ETL):
                             binPrimaryKey = taxonId + "-" + assembly + "-" + chromosome + "-" + str(binNumber)
                             genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
                                      "genePrimaryId": primary_id, "chromosome": chromosome,
-                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber)
+                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
                     else:
                         logger.warn("either primary_id, start, end, assembly, chromosome of the gene %s is not definied" % primary_id)
 
