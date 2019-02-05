@@ -56,7 +56,14 @@ class DataFileManager(metaclass=Singleton):
         # requests.post(snapshot_url, data={"api_access_token": api_access_token})
 
         # use the recently created snapshot
-        submission_data = http.request('GET', 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release)
+        api_url = 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release
+        submission_data = http.request('GET', api_url)
+
+        if submission_data.status != 200:
+            logger.error("Status: %s" % submission_data.status)
+            logger.error("No Data came from API: %s" % api_url)
+            sys.exit(-1)
+
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
