@@ -33,6 +33,7 @@ class DataFileManager(metaclass=Singleton):
         # Loading a JSON blurb from a file as a placeholder for submission system query.
         other_file_meta_data = os.path.abspath('src/config/local_submission.json')
         self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
+        urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
         # make a snapshot
