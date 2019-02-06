@@ -26,6 +26,8 @@ class DataTypeConfig(object):
 
         # Create our subtype objects.
         for downloadable_item in self.submission_system_data:
+            logger.debug("downloadable_item")
+            logger.debug(downloadable_item)
             if downloadable_item[2] is not None:
                 full_path_to_send = path + '/' + downloadable_item[2]
             else:
