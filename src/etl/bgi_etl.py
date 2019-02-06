@@ -360,7 +360,7 @@ class BGIETL(ETL):
                         strand = None
 
                     if primary_id and start and end and assembly and chromosome:
-                        binSize = 500
+                        binSize = 2000
                         startInt = int(start)
                         endInt = int(end)
                         if startInt < endInt:
@@ -378,12 +378,9 @@ class BGIETL(ETL):
                             genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
                                      "genePrimaryId": primary_id, "chromosome": chromosome,
                                     "taxonId": taxonId, "assembly": assembly, "number": binNumber})
-                    else:
-                        logger.warn("either primary_id, start, end, assembly, chromosome of the gene %s is not definied" % primary_id)
 
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
-
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
