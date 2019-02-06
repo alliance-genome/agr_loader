@@ -360,7 +360,7 @@ class BGIETL(ETL):
                         strand = None
 
                     if primary_id and start and end and assembly and chromosome:
-                        binSize = 500
+                        binSize = 2000
                         startInt = int(start)
                         endInt = int(end)
                         if startInt < endInt:
