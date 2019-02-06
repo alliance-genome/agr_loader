@@ -27,6 +27,7 @@ class TestClass(object):
                             dict(node1='Gene', node2='Identifier:SecondaryId'),
                             dict(node1='Gene', node2='CrossReference'),
                             dict(node1='Gene', node2='Species'),
+                            dict(node1='Gene', node2='GenomicLocationBin'),
                             dict(node1='Load', node2='Gene'),
                             dict(node1='Allele', node2='Species'),
                             dict(node1='Allele', node2='SecondaryId'),

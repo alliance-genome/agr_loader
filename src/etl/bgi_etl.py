@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import uuid
+import math
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -13,16 +14,30 @@ class BGIETL(ETL):
     genomic_locations_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                
+
             MATCH (o:Gene {primaryKey:row.primaryId})
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = row.start ,
-                gchrm.end = row.end ,
-                gchrm.assembly = row.assembly ,
+            ON CREATE SET gchrm.start = row.start,
+                gchrm.end = row.end,
+                gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand """
-    
+
+    genomic_locations_bins_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Gene {primaryKey:row.genePrimaryId})
+            MERGE (chrm:Chromosome {primaryKey:row.chromosome})
+
+            MERGE (bin:GenomicLocationBin {primaryKey:row.binPrimaryKey})
+            ON CREATE SET bin.number = toInt(row.number),
+               bin.assembly = row.assembly
+
+            MERGE (o)-[:LOCATED_IN]->(bin)
+            MERGE (bin)-[:LOCATED_ON]->(chrm) """
+
     gene_secondaryIds_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -131,13 +146,14 @@ class BGIETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms
+        # gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.genomic_locations_bins_template, commit_size, "gene_genomicLocationBins_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
@@ -159,6 +175,7 @@ class BGIETL(ETL):
         secondaryIds = []
         crossReferences = []
         genomicLocations = []
+        genomicLocationBins = []
         gene_dataset = []
         gene_metadata = []
         release = None
@@ -331,17 +348,42 @@ class BGIETL(ETL):
                         start = genomeLocation['startPosition']
                     else:
                         start = None
+
                     if 'endPosition' in genomeLocation:
                         end = genomeLocation['endPosition']
                     else:
                         end = None
+
                     if 'strand' in geneRecord['genomeLocations']:
                         strand = genomeLocation['strand']
                     else:
                         strand = None
-                    genomicLocations.append(
-                        {"primaryId": primary_id, "chromosome": chromosome, "start":
-                            start, "end": end, "strand": strand, "assembly": assembly})
+
+                    if primary_id and start and end and assembly and chromosome:
+                        binSize = 500
+                        startInt = int(start)
+                        endInt = int(end)
+                        if startInt < endInt:
+                            minCoordinate = startInt
+                            maxCoordinate = endInt
+                        else:
+                            minCoordinate = endInt
+                            maxCoordinate = startInt
+
+                        startBin = math.floor(minCoordinate / binSize)
+                        endBin = math.ceil(maxCoordinate / binSize)
+
+                        for binNumber in list(range(startBin,endBin)):
+                            binPrimaryKey = taxonId + "-" + assembly + "-" + chromosome + "-" + str(binNumber)
+                            genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
+                                     "genePrimaryId": primary_id, "chromosome": chromosome,
+                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
+                    else:
+                        logger.warn("either primary_id, start, end, assembly, chromosome of the gene %s is not definied" % primary_id)
+
+                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
+                                 start, "end": end, "strand": strand, "assembly": assembly})
+
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
@@ -365,13 +407,14 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
+                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
                 genomicLocations = []
+                genomicLocationBins = []
                 crossReferences = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
+            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
