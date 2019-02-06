@@ -153,7 +153,7 @@ class BGIETL(ETL):
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.genomic_locations_bins_template, commit_size, "gene_genomicLocationBins_" + sub_type.get_data_provider() + ".csv"],
+#            [BGIETL.genomic_locations_bins_template, commit_size, "gene_genomicLocationBins_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
@@ -359,31 +359,28 @@ class BGIETL(ETL):
                     else:
                         strand = None
 
-                    if primary_id and start and end and assembly and chromosome:
-                        binSize = 500
-                        startInt = int(start)
-                        endInt = int(end)
-                        if startInt < endInt:
-                            minCoordinate = startInt
-                            maxCoordinate = endInt
-                        else:
-                            minCoordinate = endInt
-                            maxCoordinate = startInt
-
-                        startBin = math.floor(minCoordinate / binSize)
-                        endBin = math.ceil(maxCoordinate / binSize)
-
-                        for binNumber in list(range(startBin,endBin)):
-                            binPrimaryKey = taxonId + "-" + assembly + "-" + chromosome + "-" + str(binNumber)
-                            genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
-                                     "genePrimaryId": primary_id, "chromosome": chromosome,
-                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
-                    else:
-                        logger.warn("either primary_id, start, end, assembly, chromosome of the gene %s is not definied" % primary_id)
+#                    if primary_id and start and end and assembly and chromosome:
+#                        binSize = 2000
+#                        startInt = int(start)
+#                        endInt = int(end)
+#                        if startInt < endInt:
+#                            minCoordinate = startInt
+#                            maxCoordinate = endInt
+#                        else:
+#                            minCoordinate = endInt
+#                            maxCoordinate = startInt
+#
+#                        startBin = math.floor(minCoordinate / binSize)
+#                        endBin = math.ceil(maxCoordinate / binSize)
+#
+#                        for binNumber in list(range(startBin,endBin)):
+#                            binPrimaryKey = taxonId + "-" + assembly + "-" + chromosome + "-" + str(binNumber)
+#                            genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
+#                                     "genePrimaryId": primary_id, "chromosome": chromosome,
+#                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
 
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
-
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
