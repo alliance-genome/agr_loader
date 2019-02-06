@@ -382,7 +382,6 @@ class BGIETL(ETL):
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
 
-
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):
                     geneSynonym = {
