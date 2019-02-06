@@ -1,4 +1,4 @@
-import logging
+import logging, re
 
 from ontobio import OntologyFactory
 
@@ -197,7 +197,9 @@ class DOETL(ETL):
                     if len(split_definition) > 1:
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
-                            defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
+                            defLinks = defLinks.rstrip("]").replace("[", "")
+                            defLinksUnprocessed.append(defLinks)
+
 
 
             for dl in defLinksUnprocessed:
@@ -205,6 +207,7 @@ class DOETL(ETL):
                 dl = dl.replace("url:", "")
                 dl = dl.replace("URL:", "")
                 dl = dl.replace("\\:", ":")
+                dl = dl.replace('\\', '')
 
                 if "," in dl:
                     dl = dl.split(",")

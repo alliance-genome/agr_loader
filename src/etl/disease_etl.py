@@ -50,12 +50,7 @@ class DiseaseETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (dfa)-[dapuf:EVIDENCE]->(pubf)
-
-            // EVIDENCE CODES FOR FEATURE
-            FOREACH (entity in row.ecodes|
-                MERGE (ecode1f:EvidenceCode {primaryKey:entity})
-                MERGE (dfa)-[daecode1f:EVIDENCE]->(ecode1f)
-            ) """
+            """
 
     execute_gene_template = """
         USING PERIODIC COMMIT %s
@@ -91,13 +86,17 @@ class DiseaseETL(ETL):
 
             MERGE (dga)-[dapug:EVIDENCE]->(pubg)
 
-            // EVIDENCE CODES FOR GENE
-            FOREACH (entity in row.ecodes |
-                MERGE (ecode1g:EvidenceCode {primaryKey:entity})
-                MERGE (dga)-[daecode1g:EVIDENCE]->(ecode1g)
-            )
 
             """
+    execute_ecode_template ="""
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (dgae:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+            MERGE (ecode1g:EvidenceCode {primaryKey:row.ecode})
+            MERGE (dgae)-[daecode1g:EVIDENCE]->(ecode1g)
+                
+    """
 
     def __init__(self, config):
         super().__init__()
@@ -145,6 +144,8 @@ class DiseaseETL(ETL):
         query_list = [
             [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_ecode_template, commit_size,
+             "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -157,6 +158,7 @@ class DiseaseETL(ETL):
     def get_generators(self, disease_data, batch_size, data_provider):
         gene_list_to_yield = []
         allele_list_to_yield = []
+        evidence_code_list_to_yield = []
         counter = 0
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -192,20 +194,29 @@ class DiseaseETL(ETL):
             if diseaseObjectType == "gene":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
+                    for ecode in disease_record.get('ecodes'):
+                        ecode_map = {"uuid:": disease_record.get('uuid'),
+                                      "ecode:": ecode}
+                        evidence_code_list_to_yield.append(ecode_map)
                     gene_list_to_yield.append(disease_record)
                  
             elif diseaseObjectType == "allele":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
+                    for ecode in disease_record.get('ecodes'):
+                        ecode_map = {"uuid:": disease_record.get('uuid'),
+                                      "ecode:": ecode}
+                        evidence_code_list_to_yield.append(ecode_map)
                     allele_list_to_yield.append(disease_record)
             else:
                 continue
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield]
+                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
+                evidence_code_list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, evidence_code_list_to_yield]
