@@ -31,7 +31,7 @@ class CSVTransactor(object):
                         # for this particular file.
                         logger.debug("Saving data to output file: %s" % current_filename)
                         try:
-                            csv_file_writer[index] = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_ALL)
+                            csv_file_writer[index] = csv.DictWriter(open_files[index], fieldnames=list(individual_list[0]), quoting=csv.QUOTE_NONNUMERIC)
                             csv_file_writer[index].writeheader()  # Write the headers.
                         except Exception as e:
                             logger.critical("Couldn't write to file: %s " % current_filename)
