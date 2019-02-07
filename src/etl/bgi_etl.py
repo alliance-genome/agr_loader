@@ -232,9 +232,10 @@ class BGIETL(ETL):
         expressionAtlasGenePages = {}
         if data_provider in expressionAtlasSitemaps:
             for ea_url in expressionAtlasSitemaps[data_provider]:
-                with urllib.request.urlopen(ea_url) as response:
+                req = urllib.request.Request(ea_url)
+                with urllib.request.urlopen(req) as response:
                     urlset = xmltodict.parse(response.read())["urlset"]
-                    for key, value in urlset.items():
+                    for value in urlset.values():
                         if isinstance(value, (list,)):
                             for element in value:
                                 url = element['loc']
