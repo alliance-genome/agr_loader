@@ -144,8 +144,7 @@ class DiseaseETL(ETL):
         query_list = [
             [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_ecode_template, commit_size,
-             "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"]
+            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -198,15 +197,18 @@ class DiseaseETL(ETL):
                         ecode_map = {"uuid:": disease_record.get('uuid'),
                                       "ecode:": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
+
                     gene_list_to_yield.append(disease_record)
                  
             elif diseaseObjectType == "allele":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"uuid:": disease_record.get('uuid'),
-                                      "ecode:": ecode}
+                        ecode_map = {"uuid": disease_record.get('uuid'),
+                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
+                        if disease_record.get('primaryId') == 'ZFIN:ZDB-ALT-151012-9':
+                            logger.info(disease_record.get('uuid'))
                     allele_list_to_yield.append(disease_record)
             else:
                 continue
