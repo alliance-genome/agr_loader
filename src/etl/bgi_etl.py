@@ -3,6 +3,8 @@ logger = logging.getLogger(__name__)
 
 import uuid
 import math
+import urllib
+import xmltodict
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -82,8 +84,10 @@ class BGIETL(ETL):
                               o.uuid = row.uuid,
                               o.dataProvider = row.dataProvider,
                               o.symbolWithSpecies = row.symbolWithSpecies,
+                              o.expressionAltasUrl = row.expressionAtlasUrl,
                               //TODO: remove this bit of code when gene descriptions gets back in
                               o.automatedGeneSynopsis = "Exhibits Used to Study Orthologous to"
+
 
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
@@ -123,9 +127,9 @@ class BGIETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        
+
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
             p.start()
@@ -185,6 +189,7 @@ class BGIETL(ETL):
 
         dataProviderCrossRef = dataProviderObject.get('crossReference')
         dataProvider = dataProviderCrossRef.get('id')
+
         # dataProviderPages = dataProviderCrossRef.get('pages')
         # dataProviderCrossRefSet = []
 
@@ -214,6 +219,26 @@ class BGIETL(ETL):
                 'dataProvider' : dataProvider
             }
             gene_metadata.append(metadata_dict)
+
+        expressionAtlasSitemaps = {"WB": ["http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml"],
+                                   "ZFIN": ["http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml"],
+                                   "FB": ["http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml"],
+                                   "RGD": ["http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
+                                           "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml"],
+                                   "SGD": ["http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml"],
+                                   "MGI": ["http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml"]}
+
+        expressionAtlasGenePages = {}
+        if data_provider in expressionAtlasSitemaps:
+            for ea_url in expressionAtlasSitemaps[data_provider]:
+                with urllib.request.urlopen(ea_url) as response:
+                    urlset = xmltodict.parse(response.read())["urlset"]
+                    for key, value in urlset.items():
+                        if isinstance(value, (list,)):
+                            for element in value:
+                                url = element['loc']
+                                expressionAtlasGene = url.split("/")[-1]
+                                expressionAtlasGenePages[expressionAtlasGene] = url
 
         for geneRecord in gene_data['data']:
             counter = counter + 1
@@ -338,7 +363,7 @@ class BGIETL(ETL):
                 "dataProvider" : dataProvider,
                 "dateProduced": dateProduced
             }
-            gene_dataset.append(gene)
+
 
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
@@ -397,21 +422,36 @@ class BGIETL(ETL):
                         "secondary_id": secondaryId
                     }
                     secondaryIds.append(geneSecondaryId)
-            
+
+            gene["expressionAtlasUrl"] = None
+            if taxonId == "559292":
+                for secondaryId in secondaryIds:
+                    lowercaseId = secondarId.lower()
+                    if lowercaseId in expressionAtlasGenePages:
+                        gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
+                        print(gene)
+                        break
+            else:
+                lowercaseId = local_id.lower()
+                if lowercaseId in expressionAtlasGenePages:
+                    gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
+                    print(gene)
+
+
+            gene_dataset.append(gene)
             # We should have the metadata ready to go after the first loop of the generator.
             self.metadata_is_loaded[loadKey] = True
 
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
+                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
                 genomicLocations = []
-                genomicLocationBins = []
                 crossReferences = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
+            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]

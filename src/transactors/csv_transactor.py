@@ -16,6 +16,7 @@ class CSVTransactor(object):
             
             csv_file_writer = [None] * len(open_files)  # Create a list with 'None' placeholder entries.
 
+            print(open_files)
             for generator_entry in generator:
                 for index, individual_list in enumerate(generator_entry):
                     current_filename = open_files[index].name  # Our current CSV output file.
