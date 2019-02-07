@@ -232,7 +232,7 @@ class BGIETL(ETL):
         expressionAtlasGenePages = {}
         if data_provider in expressionAtlasSitemaps:
             for ea_url in expressionAtlasSitemaps[data_provider]:
-                if url.lower().startswith('http'):
+                if ea_url.lower().startswith('http'):
                     req = urllib.request.Request(ea_url)
                 else:
                     raise ValueError from None
