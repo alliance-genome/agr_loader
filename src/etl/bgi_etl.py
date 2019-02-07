@@ -3,7 +3,7 @@ logger = logging.getLogger(__name__)
 
 import uuid
 import math
-import urllib
+import urllib.request
 import xmltodict
 import multiprocessing
 from etl import ETL
@@ -232,10 +232,7 @@ class BGIETL(ETL):
         expressionAtlasGenePages = {}
         if data_provider in expressionAtlasSitemaps:
             for ea_url in expressionAtlasSitemaps[data_provider]:
-                if ea_url.lower().startswith('http'):
-                    req = urllib.request.Request(ea_url)
-                else:
-                    raise ValueError from None
+                req = urllib.request.Request(ea_url)
                 with urllib.request.urlopen(req) as response:
                     urlset = xmltodict.parse(response.read())["urlset"]
                     for value in urlset.values():
