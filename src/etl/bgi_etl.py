@@ -427,7 +427,7 @@ class BGIETL(ETL):
             gene["expressionAtlasUrl"] = None
             if taxonId == "559292":
                 for secondaryId in secondaryIds:
-                    lowercaseId = secondarId.lower()
+                    lowercaseId = secondaryId.lower()
                     if lowercaseId in expressionAtlasGenePages:
                         gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
                         break
