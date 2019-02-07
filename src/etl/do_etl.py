@@ -1,4 +1,4 @@
-import logging, re
+import logging
 
 from ontobio import OntologyFactory
 
