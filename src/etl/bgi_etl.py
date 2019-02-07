@@ -146,7 +146,7 @@ class BGIETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms
+        # gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
@@ -404,14 +404,13 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
+                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
                 genomicLocations = []
-                genomicLocationBins = []
                 crossReferences = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, genomicLocationBins, crossReferences, synonyms]
+            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
