@@ -429,14 +429,11 @@ class BGIETL(ETL):
                     lowercaseId = secondarId.lower()
                     if lowercaseId in expressionAtlasGenePages:
                         gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
-                        print(gene)
                         break
             else:
                 lowercaseId = local_id.lower()
                 if lowercaseId in expressionAtlasGenePages:
                     gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
-                    print(gene)
-
 
             gene_dataset.append(gene)
             # We should have the metadata ready to go after the first loop of the generator.
