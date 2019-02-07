@@ -153,7 +153,6 @@ class BGIETL(ETL):
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
-#            [BGIETL.genomic_locations_bins_template, commit_size, "gene_genomicLocationBins_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]

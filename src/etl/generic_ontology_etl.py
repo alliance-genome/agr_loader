@@ -25,7 +25,7 @@ class GenericOntologyETL(ETL):
                 g.is_obsolete = row.is_obsolete,
                 g.href = row.href,
                 g.display_synonym = row.display_synonym,
-                g.subsets = row.subsets
+                g.subsets = apoc.convert.fromJsonList(row.subsets)
         MERGE (g)-[gccg:IS_A_PART_OF_SELF_CLOSURE]->(g)
         """
 
