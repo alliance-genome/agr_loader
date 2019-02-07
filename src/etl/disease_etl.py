@@ -194,8 +194,8 @@ class DiseaseETL(ETL):
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"uuid:": disease_record.get('uuid'),
-                                      "ecode:": ecode}
+                        ecode_map = {"uuid": disease_record.get('uuid'),
+                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
                     gene_list_to_yield.append(disease_record)
