@@ -19,8 +19,8 @@ class BGIETL(ETL):
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = row.start,
-                gchrm.end = row.end,
+            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand """
 
