@@ -138,7 +138,7 @@ class BGIETL(ETL):
         
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        if filepath == None:
+        if filepath is None:
             logger.error("Can't find input file for %s" % sub_type)
             sys.exit()
 
