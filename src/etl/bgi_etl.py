@@ -1,4 +1,4 @@
-import logging
+import logging, sys
 logger = logging.getLogger(__name__)
 
 import uuid
@@ -138,6 +138,10 @@ class BGIETL(ETL):
         
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
+        if filepath == None:
+            logger.error("Can't find input file for %s" % sub_type)
+            sys.exit()
+
         data = JSONFile().get_data(filepath)
 
         # This order is the same as the lists yielded from the get_generators function.    
