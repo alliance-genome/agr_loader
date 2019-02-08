@@ -463,3 +463,19 @@ def test_gene_has_symbol_with_species():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_genome_start_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.start <> toInt(gf.start) return count(gf) " \
+            "as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_end_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.end <> toInt(gf.end) " \
+            "return count(gf) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
