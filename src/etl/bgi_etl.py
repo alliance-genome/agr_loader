@@ -1,4 +1,4 @@
-import logging
+import logging, sys
 logger = logging.getLogger(__name__)
 
 import uuid
@@ -19,8 +19,8 @@ class BGIETL(ETL):
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = row.start,
-                gchrm.end = row.end,
+            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand """
 
@@ -138,6 +138,10 @@ class BGIETL(ETL):
         
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
+        if filepath is None:
+            logger.error("Can't find input file for %s" % sub_type)
+            sys.exit()
+
         data = JSONFile().get_data(filepath)
 
         # This order is the same as the lists yielded from the get_generators function.    
