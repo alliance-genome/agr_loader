@@ -65,7 +65,7 @@ class MolecularInteractionETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             // This needs to be a MERGE below.
-            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
+            MATCH (g1:Gene) WHERE g1.primaryKey = row.primaryKey
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     ON CREATE SET id.name = row.name,
                         id.globalCrossRefId = row.globalCrossRefId,
@@ -80,6 +80,26 @@ class MolecularInteractionETL(ETL):
 
                 MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
 
+    query_mod_xref = """
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            // This needs to be a MERGE below.
+            MATCH (o:Gene {primaryKey:row.dataId})
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.name,
+                        id.globalCrossRefId = row.globalCrossRefId,
+                        id.localId = row.localId,
+                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                        id.prefix = row.prefix,
+                        id.crossRefType = row.crossRefType,
+                        id.uuid = row.uuid,
+                        id.page = row.page,
+                        id.primaryKey = row.primaryKey,
+                        id.displayName = row.displayName
+
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """             
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -89,6 +109,7 @@ class MolecularInteractionETL(ETL):
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
         self.ignored_database_linkouts = set()
+        self.successful_MOD_interaction_xrefs = []
 
     def _load_and_process_data(self):
 
@@ -101,7 +122,8 @@ class MolecularInteractionETL(ETL):
 
         query_list = [
                      [MolecularInteractionETL.query_template, commit_size, "mol_int_data.csv"],
-                     [MolecularInteractionETL.query_xref, commit_size, "mol_int_xref.csv"]
+                     [MolecularInteractionETL.query_xref, commit_size, "mol_int_xref.csv"],
+                     [MolecularInteractionETL.query_mod_xref, commit_size, "mol_int_MOD_xref.csv"]
                      ]
 
         query_and_file_list = self.process_query_params(query_list)
@@ -253,6 +275,41 @@ class MolecularInteractionETL(ETL):
 
         return xref_main_list
 
+    def add_mod_interaction_links(self, gene_id):
+        # Create an XREF linking back to interaction pages at each MOD for a particular gene.
+        xref_dict = {}
+        page = 'gene/MODinteractions'
+
+        individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(gene_id)
+        individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
+
+        # Exception for MGI
+        if individual_prefix == 'MGI':
+            xref_dict['displayName'] = gene_id
+            xref_dict['name'] = gene_id
+            xref_dict['globalCrossRefId'] = gene_id
+            xref_dict['primaryKey'] = gene_id + page
+        else:
+            xref_dict['displayName'] = individual_body
+            xref_dict['name'] = individual_body
+            xref_dict['globalCrossRefId'] = individual_body
+            xref_dict['primaryKey'] = individual_body + page
+
+        # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
+        xref_dict['prefix'] = individual_prefix
+        xref_dict['localId'] = individual_body
+        xref_dict['crossRefCompleteUrl'] = individual_url
+        xref_dict['uuid'] = str(uuid.uuid4())
+        xref_dict['crossRefType'] = 'MODinteraction'
+        xref_dict['page'] = page
+        xref_dict['reference_uuid'] = str(uuid.uuid4())
+        xref_dict['dataId'] = gene_id # For matching to the gene when creating the xref relationship in Neo.
+
+        # Add the gene_id of the identifier to a global list so we don't create unnecessary xrefs.
+        self.successful_MOD_interaction_xrefs.append(gene_id)
+
+        return xref_dict
+
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
         interactor_A_rows = [0, 2, 4, 22]
         interactor_B_rows = [1, 3, 5, 23]
@@ -334,6 +391,7 @@ class MolecularInteractionETL(ETL):
 
         list_to_yield = []
         xref_list_to_yield = []
+        mod_xref_list_to_yield = []
 
         # TODO Taxon species needs to be pulled out into a standalone module to be used by other scripts. 
         # TODO External configuration script for these types of filters? Not a fan of hard-coding.
@@ -491,18 +549,29 @@ class MolecularInteractionETL(ETL):
                     for identifier_linkout in identifier_linkout_list:
                         new_identifier_linkout_list.append(dict(identifier_linkout, reference_uuid=dataset_entry['uuid']))
                 
+                # Create dictionaries for xrefs from Alliance genes to MOD interaction sections of gene reports.
+                for primary_gene_to_link in interactor_A_resolved_no_dupes:
+                    # We have the potential for numerous duplicate xrefs. 
+                    # Check whether we've made this xref previously by looking in a list.
+                    # Should cut down loading time for Neo4j significantly.
+                    # Hopefully the lookup is not too long -- this should be refined if it's slow.
+                    if primary_gene_to_link not in self.successful_MOD_interaction_xrefs:
+                        mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
+                        mod_xref_list_to_yield.append(mod_xref_dataset)
+
                 # Establishes the number of entries to yield (return) at a time.
                 xref_list_to_yield.extend(new_identifier_linkout_list)
                 list_to_yield.extend(list_of_mol_int_dataset)
             
                 if counter == batch_size:
                     counter = 0
-                    yield list_to_yield, xref_list_to_yield
+                    yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
                     list_to_yield = []
                     xref_list_to_yield = []
+                    mod_xref_list_to_yield = []
             
             if counter > 0:
-                yield list_to_yield, xref_list_to_yield
+                yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
 
         # TODO Clean up the set output.
         logger.info('Resolved identifiers for %s PSI-MITAB interactions.' % resolved_a_b_count)
