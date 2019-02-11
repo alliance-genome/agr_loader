@@ -98,7 +98,7 @@ class MolecularInteractionETL(ETL):
                         id.primaryKey = row.primaryKey,
                         id.displayName = row.displayName
 
-                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """             
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """            
 
     def __init__(self, config):
         super().__init__()
@@ -225,7 +225,7 @@ class MolecularInteractionETL(ETL):
             xref_dict = {}
             page = 'gene/interactions'
 
-            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+            individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(individual)
             # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
             xref_dict['prefix'] = individual_prefix
             xref_dict['localId'] = individual_body
@@ -280,7 +280,7 @@ class MolecularInteractionETL(ETL):
         xref_dict = {}
         page = 'gene/MODinteractions'
 
-        individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(gene_id)
+        individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(gene_id)
         individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
 
         # Exception for MGI
@@ -550,7 +550,7 @@ class MolecularInteractionETL(ETL):
                 
                 # Create dictionaries for xrefs from Alliance genes to MOD interaction sections of gene reports.
                 for primary_gene_to_link in interactor_A_resolved_no_dupes:
-                    # We have the potential for numerous duplicate xrefs. 
+                    # We have the potential for numerous duplicate xrefs.
                     # Check whether we've made this xref previously by looking in a list.
                     # Should cut down loading time for Neo4j significantly.
                     # Hopefully the lookup is not too long -- this should be refined if it's slow.
