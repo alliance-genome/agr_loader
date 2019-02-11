@@ -65,7 +65,7 @@ class MolecularInteractionETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             // This needs to be a MERGE below.
-            MATCH (g1:Gene) WHERE g1.primaryKey = row.primaryKey
+            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     ON CREATE SET id.name = row.name,
                         id.globalCrossRefId = row.globalCrossRefId,
