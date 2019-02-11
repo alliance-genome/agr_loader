@@ -295,7 +295,6 @@ class MolecularInteractionETL(ETL):
             xref_dict['globalCrossRefId'] = individual_body
             xref_dict['primaryKey'] = individual_body + page
 
-        # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
         xref_dict['prefix'] = individual_prefix
         xref_dict['localId'] = individual_body
         xref_dict['crossRefCompleteUrl'] = individual_url
