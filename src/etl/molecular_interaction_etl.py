@@ -65,20 +65,7 @@ class MolecularInteractionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         // This needs to be a MERGE below.
-        MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
-            MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
-                ON CREATE SET id.name = row.name,
-                    id.globalCrossRefId = row.globalCrossRefId,
-                    id.localId = row.localId,
-                    id.crossRefCompleteUrl = row.crossRefCompleteUrl,
-                    id.prefix = row.prefix,
-                    id.crossRefType = row.crossRefType,
-                    id.uuid = row.uuid,
-                    id.page = row.page,
-                    id.primaryKey = row.primaryKey,
-                    id.displayName = row.displayName
-
-            MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
+        MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid """ + ETLHelper.get_cypher_xref_text()        
 
     query_mod_xref = """
 
@@ -541,9 +528,10 @@ class MolecularInteractionETL(ETL):
                     # Check whether we've made this xref previously by looking in a list.
                     # Should cut down loading time for Neo4j significantly.
                     # Hopefully the lookup is not too long -- this should be refined if it's slow.
-                    if primary_gene_to_link not in self.successful_MOD_interaction_xrefs:
-                        mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
-                        mod_xref_list_to_yield.append(mod_xref_dataset)
+                    if not primary_gene_to_link.startswith('ZFIN'): # Ignore ZFIN interaction pages.
+                        if primary_gene_to_link not in self.successful_MOD_interaction_xrefs:
+                            mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
+                            mod_xref_list_to_yield.append(mod_xref_dataset)
 
                 # Establishes the number of entries to yield (return) at a time.
                 xref_list_to_yield.extend(new_identifier_linkout_list)
