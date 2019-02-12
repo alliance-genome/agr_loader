@@ -48,18 +48,18 @@ class DataFileManager(metaclass=Singleton):
             release = "0.0.0.0"
 
         # API_KEY Must be defined in local environment (not committed to github!)
-        if "API_KEY" in os.environ:
-            api_access_token = os.environ.get('API_KEY')
-        else:
-            logger.error("ERROR: please define an API_KEY in your local environment. ")
-
-        # create a snapshot on each run of the loader
-        logger.info("making submission system snapshot")
-        snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
-                       + system \
-                       + '&releaseVersion=' \
-                       + release
-        snapshot = requests.post(snapshot_url, data={"api_access_token": api_access_token})
+        # if "API_KEY" in os.environ:
+        #     api_access_token = os.environ.get('API_KEY')
+        # else:
+        #     logger.error("ERROR: please define an API_KEY in your local environment. ")
+        #
+        # # create a snapshot on each run of the loader
+        # logger.info("making submission system snapshot")
+        # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
+        #                + system \
+        #                + '&releaseVersion=' \
+        #                + release
+        # snapshot = requests.post(snapshot_url, data={"api_access_token": api_access_token})
 
         # use the recently created snapshot
         api_url = 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release
