@@ -3,8 +3,7 @@ logger = logging.getLogger(__name__)
 
 import uuid, csv, re, sys, itertools
 
-from .helpers import ResourceDescriptorHelper2, Neo4jHelper
-from etl.helpers import ETLHelper
+from .helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -62,12 +61,11 @@ class MolecularInteractionETL(ETL):
     """
 
     query_xref = """
-<<<<<<< HEAD
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         // This needs to be a MERGE below.
-        MATCH (g1:Gene) WHERE g1.primaryKey = row.primaryKey
+        MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
             MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                 ON CREATE SET id.name = row.name,
                     id.globalCrossRefId = row.globalCrossRefId,
@@ -88,46 +86,6 @@ class MolecularInteractionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()        
-=======
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            // This needs to be a MERGE below.
-            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
-                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
-                    ON CREATE SET id.name = row.name,
-                        id.globalCrossRefId = row.globalCrossRefId,
-                        id.localId = row.localId,
-                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
-                        id.prefix = row.prefix,
-                        id.crossRefType = row.crossRefType,
-                        id.uuid = row.uuid,
-                        id.page = row.page,
-                        id.primaryKey = row.primaryKey,
-                        id.displayName = row.displayName
-
-                MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
-
-    query_mod_xref = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            // This needs to be a MERGE below.
-            MATCH (o:Gene {primaryKey:row.dataId})
-                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
-                    ON CREATE SET id.name = row.name,
-                        id.globalCrossRefId = row.globalCrossRefId,
-                        id.localId = row.localId,
-                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
-                        id.prefix = row.prefix,
-                        id.crossRefType = row.crossRefType,
-                        id.uuid = row.uuid,
-                        id.page = row.page,
-                        id.primaryKey = row.primaryKey,
-                        id.displayName = row.displayName
-
-                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """            
->>>>>>> cd6cacba73fb8daecc441114cc83b43b80e07610
 
     def __init__(self, config):
         super().__init__()
