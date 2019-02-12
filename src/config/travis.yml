@@ -28,6 +28,7 @@ Ontology:
   - UBERON
 Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
+ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
   - SO

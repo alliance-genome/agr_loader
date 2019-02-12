@@ -80,6 +80,7 @@ class AggregateLoader(object):
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
+            'ExpressionRibbonOther': ExpressionRibbonOtherETL,
             'DAF': DiseaseETL,
             'PHENOTYPE': PhenoTypeETL,
             'Orthology': OrthologyETL,
@@ -102,6 +103,7 @@ class AggregateLoader(object):
             ['ALLELE'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
+            ['ExpressionRibbonOther'],
             ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
             ['Orthology'],  # Locks Genes
