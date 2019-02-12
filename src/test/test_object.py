@@ -126,7 +126,7 @@ class TestObject(object):
             # disease pheno specific test objects
             'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329', 'RGD:2917', 'RGD:2869',
             # expression
-            'RGD:3884', 'RGD:3889',
+            'RGD:3884', 'RGD:3889', 'RGD:2129',
             # allele gene and alleles
             'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
             # gene descriptions
