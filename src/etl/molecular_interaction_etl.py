@@ -260,12 +260,12 @@ class MolecularInteractionETL(ETL):
         # Exception for MGI
         if individual_prefix == 'MGI':
             xref_dict['displayName'] = gene_id
-            xref_dict['name'] = gene_id
+            xref_dict['id'] = gene_id
             xref_dict['globalCrossRefId'] = gene_id
             xref_dict['primaryKey'] = gene_id + page
         else:
             xref_dict['displayName'] = individual_body
-            xref_dict['name'] = individual_body
+            xref_dict['id'] = individual_body
             xref_dict['globalCrossRefId'] = individual_body
             xref_dict['primaryKey'] = individual_body + page
 
