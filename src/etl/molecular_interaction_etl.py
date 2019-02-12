@@ -62,6 +62,7 @@ class MolecularInteractionETL(ETL):
     """
 
     query_xref = """
+<<<<<<< HEAD
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -87,6 +88,46 @@ class MolecularInteractionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()        
+=======
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            // This needs to be a MERGE below.
+            MATCH (oa:InteractionGeneJoin :Association) WHERE oa.primaryKey = row.reference_uuid
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.name,
+                        id.globalCrossRefId = row.globalCrossRefId,
+                        id.localId = row.localId,
+                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                        id.prefix = row.prefix,
+                        id.crossRefType = row.crossRefType,
+                        id.uuid = row.uuid,
+                        id.page = row.page,
+                        id.primaryKey = row.primaryKey,
+                        id.displayName = row.displayName
+
+                MERGE (oa)-[gcr:CROSS_REFERENCE]->(id) """
+
+    query_mod_xref = """
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            // This needs to be a MERGE below.
+            MATCH (o:Gene {primaryKey:row.dataId})
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.name,
+                        id.globalCrossRefId = row.globalCrossRefId,
+                        id.localId = row.localId,
+                        id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                        id.prefix = row.prefix,
+                        id.crossRefType = row.crossRefType,
+                        id.uuid = row.uuid,
+                        id.page = row.page,
+                        id.primaryKey = row.primaryKey,
+                        id.displayName = row.displayName
+
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """            
+>>>>>>> cd6cacba73fb8daecc441114cc83b43b80e07610
 
     def __init__(self, config):
         super().__init__()
@@ -213,7 +254,7 @@ class MolecularInteractionETL(ETL):
             xref_dict = {}
             page = 'gene/interactions'
 
-            individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(individual)
+            individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(individual)
             # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
             xref_dict['prefix'] = individual_prefix
             xref_dict['localId'] = individual_body
@@ -268,7 +309,7 @@ class MolecularInteractionETL(ETL):
         xref_dict = {}
         page = 'gene/MODinteractions'
 
-        individual_prefix, individual_body, separator = self.resource_descriptor_dict.split_identifier(gene_id)
+        individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(gene_id)
         individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
 
         # Exception for MGI
@@ -283,7 +324,6 @@ class MolecularInteractionETL(ETL):
             xref_dict['globalCrossRefId'] = individual_body
             xref_dict['primaryKey'] = individual_body + page
 
-        # Capitalize the prefix to match the YAML and change the prefix if necessary to match the YAML.
         xref_dict['prefix'] = individual_prefix
         xref_dict['localId'] = individual_body
         xref_dict['crossRefCompleteUrl'] = individual_url
@@ -539,7 +579,7 @@ class MolecularInteractionETL(ETL):
                 
                 # Create dictionaries for xrefs from Alliance genes to MOD interaction sections of gene reports.
                 for primary_gene_to_link in interactor_A_resolved_no_dupes:
-                    # We have the potential for numerous duplicate xrefs. 
+                    # We have the potential for numerous duplicate xrefs.
                     # Check whether we've made this xref previously by looking in a list.
                     # Should cut down loading time for Neo4j significantly.
                     # Hopefully the lookup is not too long -- this should be refined if it's slow.
