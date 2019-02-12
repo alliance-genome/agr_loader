@@ -233,7 +233,7 @@ class MolecularInteractionETL(ETL):
 
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
-            xref_dict['name'] = individual
+            xref_dict['id'] = individual # Used for name.
             xref_dict['displayName'] = individual_body
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
