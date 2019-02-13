@@ -37,7 +37,6 @@ class DataFileManager(metaclass=Singleton):
         http = urllib3.PoolManager()
 
         # make a snapshot
-        # TODO: currently fails on SSL_CERT issue
         if "NET" in os.environ:
             system = os.environ['NET']
         else:
@@ -48,12 +47,19 @@ class DataFileManager(metaclass=Singleton):
         else:
             release = "0.0.0.0"
 
-        # api_access_token = os.environ.get('API_KEY')
+        # API_KEY Must be defined in local environment (not committed to github!)
+        # if "API_KEY" in os.environ:
+        #     api_access_token = os.environ.get('API_KEY')
+        # else:
+        #     logger.error("ERROR: please define an API_KEY in your local environment. ")
+        #
+        # # create a snapshot on each run of the loader
+        # logger.info("making submission system snapshot")
         # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
-        #                 + system \
+        #                + system \
         #                + '&releaseVersion=' \
         #                + release
-        # requests.post(snapshot_url, data={"api_access_token": api_access_token})
+        # snapshot = requests.post(snapshot_url, data={"api_access_token": api_access_token})
 
         # use the recently created snapshot
         api_url = 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release

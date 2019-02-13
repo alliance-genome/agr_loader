@@ -52,6 +52,9 @@ Orthology:
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
+ExpressionRibbonOther:
+  type: list
+  allowed: [ExpressionRibbonOther]
 GeneDiseaseOrtho:
   type: list
   allowed: [GeneDiseaseOrtho]
