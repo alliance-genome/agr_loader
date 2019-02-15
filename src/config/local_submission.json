@@ -41,62 +41,6 @@
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "SGD",
-                "s3path": "ORTHO/RELOAD/orthology_SGD_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_SGD_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "RGD",
-                "s3path": "ORTHO/RELOAD/orthology_RGD_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_RGD_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "Human",
-                "s3path": "ORTHO/RELOAD/orthology_Human_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_Human_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "MGI",
-                "s3path": "ORTHO/RELOAD/orthology_MGI_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_MGI_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "ZFIN",
-                "s3path": "ORTHO/RELOAD/orthology_ZFIN_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_ZFIN_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "WB",
-                "s3path": "ORTHO/RELOAD/orthology_WB_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_WB_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Orthology",
-                "taxonIDPart": "FB",
-                "s3path": "ORTHO/RELOAD/orthology_FB_1.0.0.7_3.json.tar.gz",
-                "tempExtractedFile": "orthology_FB_1.0.0.7_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
                 "dataType": "GOAnnot",
                 "taxonIDPart": "FB",
                 "s3path": "GO/ANNOT/gene_association_2.0.fb.gz",
