@@ -148,10 +148,7 @@ class DataFileManager(metaclass=Singleton):
 
             returned_dict = None
 
-            if dataType != 'Ontology' \
-                    and dataType != 'Interactions' \
-                    and dataType != 'GOAnnot'\
-                    and dataType != 'Orthology':
+            if dataType != 'Ontology' and dataType != 'Interactions' and dataType != 'GOAnnot':
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry

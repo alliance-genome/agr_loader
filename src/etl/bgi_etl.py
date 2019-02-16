@@ -87,7 +87,8 @@ class BGIETL(ETL):
 
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
-                            spec.name = row.species
+                            spec.name = row.species,
+                            spec.phylogeneticOrder = row.speciesPhylogeneticOrder
 
             MERGE (o)-[:FROM_SPECIES]->(spec)
 
@@ -327,6 +328,7 @@ class BGIETL(ETL):
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
                 "species": ETLHelper.species_lookup_by_taxonid(taxonId),
+                "speciesPhylogeneticOrder": ETLHelper.get_species_order(taxonId),
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord.get('symbol'),
                 "primaryId": primary_id,

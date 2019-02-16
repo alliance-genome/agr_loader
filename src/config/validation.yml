@@ -46,7 +46,7 @@ Ontology:
     - MA
     - ECO
     - UBERON
-Orthology:
+ORTHO:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:

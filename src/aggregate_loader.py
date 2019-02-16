@@ -83,7 +83,7 @@ class AggregateLoader(object):
             'ExpressionRibbonOther': ExpressionRibbonOtherETL,
             'DAF': DiseaseETL,
             'PHENOTYPE': PhenoTypeETL,
-            'Orthology': OrthologyETL,
+            'ORTHO': OrthologyETL,
             'Closure': ClosureETL,
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
@@ -106,7 +106,7 @@ class AggregateLoader(object):
             ['ExpressionRibbonOther'],
             ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
-            ['Orthology'],  # Locks Genes
+            ['ORTHO'],  # Locks Genes
             ['GOAnnot'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
