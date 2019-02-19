@@ -92,7 +92,7 @@ class GeneDescriptionsETL(ETL):
         do_onto_config = data_manager.get_config('DO')
         go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
-        gd_config = GenedescConfigParser(os.path.join(this_dir, os.pardir, "config", "gene_descriptions.yml"))
+        gd_config = GenedescConfigParser(os.path.join(this_dir, os.pardir, os.pardir, "gene_descriptions.yml"))
         gd_data_manager = DataManager(do_relations=None, go_relations=["subClassOf", "BFO:0000050"])
         go_onto_path = "file://" + os.path.join(os.getcwd(), go_onto_config.get_single_filepath())
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO, ontology_url=go_onto_path, config=gd_config,
@@ -126,7 +126,6 @@ class GeneDescriptionsETL(ETL):
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
         gene_prefix = ""
-        mgi_fix_prefix = "MGI:" if data_provider == "MGI" else ""
         if data_provider == "Human":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
@@ -137,17 +136,15 @@ class GeneDescriptionsETL(ETL):
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
-            gene_go = Gene(id=mgi_fix_prefix + gene_prefix + record["g.primaryKey"], name=record["g.symbol"],
-                           dead=False, pseudo=False)
-            set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene_go)
+            set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                orthologs_key_diseases=key_diseases[gene.id], human=data_provider == "Human")
             if gene.id in best_orthologs:
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
             if len(key_diseases[gene.id]) > 5:
-                logger.debug("Gene with more than 5 key diseases: " + gene.id + " " + gene.name + " " +
-                             gene_desc.description)
+                logger.debug("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
+                             gene_desc.do_orthology_description + "\t" + ",".join(key_diseases[gene.id]))
             if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
@@ -208,14 +205,14 @@ class GeneDescriptionsETL(ETL):
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
                              len(feature_annots) == 1]
         GeneDescriptionsETL.add_annotations(annotations, feature_annot_set, data_provider)
-        disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
-            GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
-        for orth_annot in disease_via_orth_records:
-            annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
-                gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
-                ecode="DVO", prvdr=data_provider))
-            if orth_annot["publicationId"] == "RGD:7240710":
-                key_diseases[orth_annot["geneId"]].add(orth_annot["DOId"])
+        #disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
+        #    GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
+        #for orth_annot in disease_via_orth_records:
+        #    annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
+        #        gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
+        #        ecode="DVO", prvdr=data_provider))
+        #    if orth_annot["publicationId"] == "RGD:7240710":
+        #        key_diseases[orth_annot["geneId"]].add(orth_annot["DOId"])
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.do_ontology)
 
@@ -262,15 +259,18 @@ class GeneDescriptionsETL(ETL):
             if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true" or \
                     os.environ["GENERATE_REPORTS"] == "pre-release":
                 client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".json")
+                                   pre_release + cur_date + "/" + file_name + ".json",
+                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
                 client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".txt")
+                                   pre_release + cur_date + "/" + file_name + ".txt",
+                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
                 client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".tsv")
+                                   pre_release + cur_date + "/" + file_name + ".tsv",
+                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
                 if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true":
                     client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".json")
+                                       ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
                     client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".txt")
+                                       ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
                     client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".tsv")
+                                       ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
