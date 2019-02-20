@@ -26,7 +26,7 @@ class GenericOntologyETL(ETL):
                 g.href = row.href,
                 g.display_synonym = row.display_synonym,
                 g.subsets = apoc.convert.fromJsonList(row.subsets)
-        MERGE (g)-[gccg:IS_A_PART_OF_SELF_CLOSURE]->(g)
+        MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
     generic_ontology_synonyms_template = """
