@@ -133,6 +133,13 @@ class GOETL(ETL):
             is_obsolete = "false"
 
             if "meta" in node:
+                meta = node.get('meta')
+                basicPropertyValues = meta.get('basicPropertyValues')
+                for propertyValueMap in basicPropertyValues:
+                    pred = propertyValueMap['pred']
+                    val = propertyValueMap['val']
+                    if pred == 'OIO:hasOBONamespace':
+                        type = val
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                     for synonym in syns:
@@ -206,12 +213,12 @@ class GOETL(ETL):
                     "primary_id2": item
                 }
                 go_positively_regulates_list.append(dictionary)
-            
-            
+
+
             dict_to_append = {
                 'oid': k,
                 'definition': definition,
-                'type': node.get('type'),
+                'type': type,
                 'name': node.get('label'),
                 'subset': subset,
                 'name_key': node.get('label'),

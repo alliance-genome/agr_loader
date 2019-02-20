@@ -4,6 +4,7 @@ from files import Download
 
 logger = logging.getLogger(__name__)
 
+
 class ResourceDescriptorHelper2(object):
 
     def __init__(self):
