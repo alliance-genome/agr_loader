@@ -65,7 +65,7 @@ class GeneDescriptionsETL(ETL):
     GetFilteredHumanOrthologsQuery = """
         
         MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->(g2:Gene)
-        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND orth.strictFilter = 'True'
+        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND orth.strictFilter = true
         MATCH (ogj)-[:MATCHED]->(oa:OrthoAlgorithm)
         RETURN g.primaryKey AS geneId, g2.primaryKey AS orthoId, g2.symbol AS orthoSymbol, g2.name AS orthoName, oa.name AS algorithm
         """
@@ -140,6 +140,7 @@ class GeneDescriptionsETL(ETL):
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                orthologs_key_diseases=key_diseases[gene.id], human=data_provider == "Human")
             if gene.id in best_orthologs:
+                gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
             if len(key_diseases[gene.id]) > 5:
@@ -183,8 +184,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode[1:-1] for ecode in annot["ECode"][1:-1].split(", ")] if \
-                annot["relType"] != "IS_MARKER_FOR" else ["IEP"]
+            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["IEP"]
             for ecode in ecodes:
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
