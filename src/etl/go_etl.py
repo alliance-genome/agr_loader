@@ -14,14 +14,14 @@ class GOETL(ETL):
 
         //Create the GOTerm node and set properties. primaryKey is required.
         CREATE (g:GOTerm:Ontology {primaryKey:row.oid})
-            SET g.definition = row.definition,
-             g.type = row.type,
+            SET g.definition = row.definition,ƒ
+             g.type = row.term_type,
              g.name = row.name ,
              g.subset = row.subset,
              g.nameKey = row.name_key,
              g.is_obsolete = row.is_obsolete,
              g.href = row.href 
-            MERGE (g)-[ggcg:IS_A_PART_OF_SELF_CLOSURE]->(g)"""
+            MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
 
     goterm_isas_template = """
         USING PERIODIC COMMIT %s
@@ -139,7 +139,7 @@ class GOETL(ETL):
                     pred = propertyValueMap['pred']
                     val = propertyValueMap['val']
                     if pred == 'OIO:hasOBONamespace':
-                        type = val
+                        term_type = val
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                     for synonym in syns:
@@ -218,7 +218,7 @@ class GOETL(ETL):
             dict_to_append = {
                 'oid': k,
                 'definition': definition,
-                'type': type,
+                'type': term_type,
                 'name': node.get('label'),
                 'subset': subset,
                 'name_key': node.get('label'),
