@@ -514,3 +514,11 @@ def test_ortho_is_best_rev_score_is_boolean():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
+
+
+def test_go_term_has_type_biological_process():
+    query = "match (go:GOTerm) where go.primaryKey = 'GO:0000003' and go.type = 'biological_process' " \
+            "return count(go) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
