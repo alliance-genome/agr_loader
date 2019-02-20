@@ -15,7 +15,7 @@ class GOETL(ETL):
         //Create the GOTerm node and set properties. primaryKey is required.
         CREATE (g:GOTerm:Ontology {primaryKey:row.oid})
             SET g.definition = row.definition,
-             g.type = row.term_type,
+             g.type = row.type,
              g.name = row.name ,
              g.subset = row.subset,
              g.nameKey = row.name_key,
