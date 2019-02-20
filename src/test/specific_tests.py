@@ -463,3 +463,54 @@ def test_gene_has_symbol_with_species():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_genome_start_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.start <> toInt(gf.start) return count(gf) " \
+            "as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_end_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.end <> toInt(gf.end) " \
+            "return count(gf) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_best_score_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) where orth.isBestScore <> toBoolean(orth.isBestScore) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_strict_filter_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.strictFilter <> toBoolean(orth.strictFilter) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_moderate_filter_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.moderateFilter <> toBoolean(orth.moderateFilter) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_best_rev_score_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.isBestRevScore <> toBoolean(orth.isBestRevScore) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1

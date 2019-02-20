@@ -43,16 +43,16 @@ class FileTransactor(object):
         logger.info("%s: Starting FileTransactor Thread Runner." % self._get_name())
         while True:
             try:
-                ((sub_type, FileTransactor.count)) = FileTransactor.queue.get()
+                (sub_type, FileTransactor.count) = FileTransactor.queue.get()
             except EOFError as error:
                 logger.info("Queue Closed exiting: %s" % error)
                 return
             logger.debug("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (self._get_name(), FileTransactor.count, FileTransactor.queue.qsize()))  
-            self.download_and_validate_file(sub_type, filetracking_queue)
+            self.download_file(sub_type, filetracking_queue)
             FileTransactor.queue.task_done()
         #EOFError
 
-    def download_and_validate_file(self, sub_type, filetracking_queue):
+    def download_file(self, sub_type, filetracking_queue):
         filepath = sub_type.get_filepath()
         filepath_to_download = sub_type.get_file_to_download()
 
@@ -72,7 +72,3 @@ class FileTransactor(object):
             sub_type.get_data()
             logger.debug("%s: Download complete. Removing item from download queue: %s" % (self._get_name(), filepath_to_download))
             filetracking_queue.remove(filepath_to_download)
-
-        logger.debug("%s: Downloading data finished. Starting validation: %s" % (self._get_name(), filepath))
-        # sub_type.validate()
-        logger.debug("%s: Validation finished: %s" % (self._get_name(), filepath))

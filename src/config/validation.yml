@@ -7,16 +7,16 @@ releaseVersion:
 BGI:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Allele: 
+ALLELE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
-Disease: 
+DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Phenotype: 
+PHENOTYPE:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
-Expression: 
+EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 GOAnnot:
@@ -46,12 +46,15 @@ Ontology:
     - MA
     - ECO
     - UBERON
-Orthology:
+ORTHO:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
+ExpressionRibbonOther:
+  type: list
+  allowed: [ExpressionRibbonOther]
 GeneDiseaseOrtho:
   type: list
   allowed: [GeneDiseaseOrtho]

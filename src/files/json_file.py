@@ -7,6 +7,7 @@ import os
 
 import jsonschema as js
 
+
 class JSONFile(object):
 
     def get_data(self, filename):

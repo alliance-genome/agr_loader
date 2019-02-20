@@ -29,13 +29,7 @@ class ExpressionRibbonETL(ETL):
                    MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                    """
 
-    insert_ribonless_ebes = """
-                USING PERIODIC COMMIT %s
-                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                    MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_id})
-                    MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
-                    MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
-        """
+
 
     expression_gocc_ribbon_retrieve = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
@@ -49,19 +43,14 @@ class ExpressionRibbonETL(ETL):
         return ebe.primaryKey, got.primaryKey; 
         """
 
-    ribbonless_ebes = """
-        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology) 
-        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;           
-    """
 
 
     def _load_and_process_data(self):
 
         logger.info("Starting Expression Ribbon Data")
         query_list = [
-            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "10000", "expression_gocc_ribbon_terms.csv"] ,
-            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "10000", "expression_gocc_self_ribbon_terms" + ".csv"],
-            [ExpressionRibbonETL.insert_ribonless_ebes, "10000", "expression_ribbonless_ebes" + ".csv"]
+            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "30000", "expression_gocc_ribbon_terms.csv"] ,
+            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "30000", "expression_gocc_self_ribbon_terms" + ".csv"]
         ]
 
         generators = self.get_ribbon_terms()
@@ -97,13 +86,5 @@ class ExpressionRibbonETL(ETL):
 
             gocc_self_ribbon_data.append(row)
 
-        returnSetRLE = Neo4jHelper().run_single_query(self.ribbonless_ebes)
-
-        gocc_ribbonless_data = []
-
-        for record in returnSetRLE:
-            row = dict(ebe_id=record["ebe.primaryKey"])
-            gocc_ribbonless_data.append(row)
-
-        yield [gocc_ribbon_data, gocc_self_ribbon_data, gocc_ribbonless_data]
+        yield [gocc_ribbon_data, gocc_self_ribbon_data]
 

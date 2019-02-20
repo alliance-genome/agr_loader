@@ -1,10 +1,10 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-Allele: [FB, WB, ZFIN, RGD, MGI]
-Expression: [FB, SGD, WB, ZFIN, RGD, MGI]
-Phenotype: [FB, SGD, WB, ZFIN, RGD, MGI]
-Disease: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ALLELE: [FB, WB, ZFIN, RGD, MGI]
+EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
+PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
+DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
@@ -26,8 +26,9 @@ Ontology:
   - MA
   - ECO
   - UBERON
-Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
+ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
   - SO

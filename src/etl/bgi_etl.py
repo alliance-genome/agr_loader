@@ -1,7 +1,8 @@
-import logging
+import logging, sys
 logger = logging.getLogger(__name__)
 
 import uuid
+import math
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -13,16 +14,30 @@ class BGIETL(ETL):
     genomic_locations_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                
+
             MATCH (o:Gene {primaryKey:row.primaryId})
             MERGE (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = row.start ,
-                gchrm.end = row.end ,
-                gchrm.assembly = row.assembly ,
+            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
+                gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand """
-    
+
+    genomic_locations_bins_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Gene {primaryKey:row.genePrimaryId})
+            MERGE (chrm:Chromosome {primaryKey:row.chromosome})
+
+            MERGE (bin:GenomicLocationBin {primaryKey:row.binPrimaryKey})
+            ON CREATE SET bin.number = toInt(row.number),
+               bin.assembly = row.assembly
+
+            MERGE (o)-[:LOCATED_IN]->(bin)
+            MERGE (bin)-[:LOCATED_ON]->(chrm) """
+
     gene_secondaryIds_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -70,7 +85,8 @@ class BGIETL(ETL):
                               
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
-                            spec.name = row.species
+                            spec.name = row.species,
+                            spec.phylogeneticOrder = row.speciesPhylogeneticOrder
 
             MERGE (o)-[:FROM_SPECIES]->(spec)
 
@@ -121,6 +137,10 @@ class BGIETL(ETL):
         
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
+        if filepath is None:
+            logger.error("Can't find input file for %s" % sub_type)
+            sys.exit()
+
         data = JSONFile().get_data(filepath)
 
         # This order is the same as the lists yielded from the get_generators function.    
@@ -157,6 +177,7 @@ class BGIETL(ETL):
         secondaryIds = []
         crossReferences = []
         genomicLocations = []
+        genomicLocationBins = []
         gene_dataset = []
         gene_metadata = []
         release = None
@@ -305,6 +326,7 @@ class BGIETL(ETL):
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
                 "species": ETLHelper.species_lookup_by_taxonid(taxonId),
+                "speciesPhylogeneticOrder": ETLHelper.get_species_order(taxonId),
                 "geneLiteratureUrl": geneLiteratureUrl,
                 "name_key": geneRecord.get('symbol'),
                 "primaryId": primary_id,
@@ -329,17 +351,39 @@ class BGIETL(ETL):
                         start = genomeLocation['startPosition']
                     else:
                         start = None
+
                     if 'endPosition' in genomeLocation:
                         end = genomeLocation['endPosition']
                     else:
                         end = None
+
                     if 'strand' in geneRecord['genomeLocations']:
                         strand = genomeLocation['strand']
                     else:
                         strand = None
-                    genomicLocations.append(
-                        {"primaryId": primary_id, "chromosome": chromosome, "start":
-                            start, "end": end, "strand": strand, "assembly": assembly})
+
+#                    if primary_id and start and end and assembly and chromosome:
+#                        binSize = 2000
+#                        startInt = int(start)
+#                        endInt = int(end)
+#                        if startInt < endInt:
+#                            minCoordinate = startInt
+#                            maxCoordinate = endInt
+#                        else:
+#                            minCoordinate = endInt
+#                            maxCoordinate = startInt
+#
+#                        startBin = math.floor(minCoordinate / binSize)
+#                        endBin = math.ceil(maxCoordinate / binSize)
+#
+#                        for binNumber in list(range(startBin,endBin)):
+#                            binPrimaryKey = taxonId + "-" + assembly + "-" + chromosome + "-" + str(binNumber)
+#                            genomicLocationBins.append({"binPrimaryKey": binPrimaryKey,
+#                                     "genePrimaryId": primary_id, "chromosome": chromosome,
+#                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
+
+                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
+                                 start, "end": end, "strand": strand, "assembly": assembly})
 
             if geneRecord.get('synonyms') is not None:
                 for synonym in geneRecord.get('synonyms'):

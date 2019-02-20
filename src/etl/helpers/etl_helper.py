@@ -40,6 +40,28 @@ class ETLHelper(object):
         return crossReference
 
     @staticmethod
+    def get_species_order(taxon_id):
+        if taxon_id in "NCBITaxon:7955":
+            return 40
+        elif taxon_id in "NCBITaxon:6239":
+            return 60
+        elif taxon_id in "NCBITaxon:10090":
+            return 30
+        elif taxon_id in "NCBITaxon:10116":
+            return 20
+        elif taxon_id in "NCBITaxon:4932":
+            return 70
+        elif taxon_id in "taxon:559292":
+            return 70
+        elif taxon_id in "NCBITaxon:7227":
+            return 50
+        elif taxon_id in "NCBITaxon:9606":
+            return 10
+        else:
+            return None
+
+
+    @staticmethod
     def species_lookup_by_taxonid(taxon_id):
         if taxon_id in "NCBITaxon:7955":
             return "Danio rerio"
@@ -203,6 +225,7 @@ class ETLHelper(object):
             '6239': 'WB',
             '10090': 'MGI',
             '10116': 'RGD',
+            '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
             '9606': 'Human'
@@ -218,7 +241,7 @@ class ETLHelper(object):
             'WB': '6239',
             'MGI': '10090',
             'RGD': '10116',
-            'SGD': '4932',
+            'SGD': '559292',
             'FB': '7227',
             'Human': '9606'
         }

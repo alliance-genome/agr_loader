@@ -1,0 +1,228 @@
+{
+    "status": "success",
+    "message": null,
+    "snapShot": {
+        "releaseVersion": "2.1.0.0",
+        "schemaVersion": "1.0.0.7",
+        "system": "production",
+        "snapShotDate": 1523284823719,
+        "dataFiles": [
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "GO",
+                "s3path": "http://current.geneontology.org/ontology/go.obo",
+                "tempExtractedFile": "go.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "DO",
+                "s3path": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo",
+                "tempExtractedFile": "doid.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "MI",
+                "s3path": null,
+                "tempExtractedFile": null,
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "SO",
+                "s3path": "SO/so_1.7.obo",
+                "tempExtractedFile": "SO/so_1.7.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "FB",
+                "s3path": "GO/ANNOT/gene_association_2.0.fb.gz",
+                "tempExtractedFile": "gene_association_2.0.fb",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "Human",
+                "s3path": "GO/ANNOT/gene_association_2.0.human.gz",
+                "tempExtractedFile": "gene_association_2.0.human",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "MGI",
+                "s3path": "GO/ANNOT/gene_association_2.0.mgi.gz",
+                "tempExtractedFile": "gene_association_2.0.mgi",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "RGD",
+                "s3path": "GO/ANNOT/gene_association_2.0.rgd.gz",
+                "tempExtractedFile": "gene_association_2.0.rgd",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "SGD",
+                "s3path": "GO/ANNOT/gene_association_2.0.sgd.gz",
+                "tempExtractedFile": "gene_association_2.0.sgd",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "WB",
+                "s3path": "GO/ANNOT/gene_association_2.0.wb.gz",
+                "tempExtractedFile": "gene_association_2.0.wb",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "GOAnnot",
+                "taxonIDPart": "ZFIN",
+                "s3path": "GO/ANNOT/gene_association_2.0.zfin.gz",
+                "tempExtractedFile": "gene_association_2.0.zfin",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "ZFA",
+                "s3path": "http://purl.obolibrary.org/obo/zfa.obo",
+                "tempExtractedFile": "zfa.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "ECO",
+                "s3path": "http://purl.obolibrary.org/obo/eco.obo",
+                "tempExtractedFile": "eco.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "ZFS",
+                "s3path": "http://purl.obolibrary.org/obo/zfs.obo",
+                "tempExtractedFile": "zfs.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "WBBT",
+                "s3path": "http://purl.obolibrary.org/obo/wbbt.obo",
+                "tempExtractedFile": "wbbt.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "CL",
+                "s3path": "http://purl.obolibrary.org/obo/cl.obo",
+                "tempExtractedFile": "cl.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "FBCV",
+                "s3path": "http://purl.obolibrary.org/obo/fbcv.obo",
+                "tempExtractedFile": "fbcv.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "FBBT",
+                "s3path": "http://purl.obolibrary.org/obo/fbbt.obo",
+                "tempExtractedFile": "fbbt.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "FBCV",
+                "s3path": "http://purl.obolibrary.org/obo/fbcv.obo",
+                "tempExtractedFile": "fbcv.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "MMUSDV",
+                "s3path": "http://purl.obolibrary.org/obo/mmusdv.obo",
+                "tempExtractedFile": "mmusdv.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "BSPO",
+                "s3path": "http://purl.obolibrary.org/obo/bspo.obo",
+                "tempExtractedFile": "bspo.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "MMO",
+                "s3path": "http://purl.obolibrary.org/obo/mmo.obo",
+                "tempExtractedFile": "mmo.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "WBLS",
+                "s3path": "http://purl.obolibrary.org/obo/wbls.obo",
+                "tempExtractedFile": "wbls.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "EMAPA",
+                "s3path": "http://purl.obolibrary.org/obo/emapa.obo",
+                "tempExtractedFile": "emapa.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "MA",
+                "s3path": "http://www.informatics.jax.org/downloads/reports/adult_mouse_anatomy.obo",
+                "tempExtractedFile": "adult_mouse_anatomy.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Ontology",
+                "taxonIDPart": "UBERON",
+                "s3path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "Interactions",
+                "taxonIDPart": "MolecularInteraction",
+                "s3path": "INT/Alliance_molecular_interactions.tar.gz",
+                "tempExtractedFile": "Alliance_molecular_interactions_2.0.txt",
+                "uploadDate": 1522181475376
+            }
+        ]
+    }
+}
