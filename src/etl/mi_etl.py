@@ -17,6 +17,7 @@ class MIETL(ETL):
             SET g.label = row.label
             SET g.url = row.url
             SET g.definition = row.definition
+        MERGE (g)-[ggmg:IS_A_PART_OF_CLOSURE]->(g)
     """
 
     def __init__(self, config):

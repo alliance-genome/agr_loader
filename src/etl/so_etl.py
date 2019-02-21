@@ -16,7 +16,7 @@ class SOETL(ETL):
         MERGE (s:SOTerm:Ontology {primaryKey:row.id})
             SET s.name = row.name 
          
-            MERGE (s)-[ggcg:IS_A_PART_OF_SELF_CLOSURE]->(s)"""
+            MERGE (s)-[ggcg:IS_A_PART_OF_CLOSURE]->(s)"""
 
     def __init__(self, config):
         super().__init__()
