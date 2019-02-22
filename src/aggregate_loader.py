@@ -25,14 +25,8 @@ coloredlogs.install(level=debug_level,
                             'programname': {'color': 'cyan'}
                     })
 
-# This has to be done because the OntoBio module does not use DEBUG it uses INFO which spews output.
-# So we have to set the default to WARN in order to "turn off" OntoBio and then "turn on" by setting 
-# to DEBUG the modules we want to see output for.
-
-# logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-# format='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s')
-
 logger = logging.getLogger(__name__)
+logging.getLogger("ontobio").setLevel(logging.ERROR)
 
 
 class AggregateLoader(object):
@@ -88,7 +82,8 @@ class AggregateLoader(object):
             'GOAnnot': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            'Interactions': MolecularInteractionETL            
+            'Interactions': MolecularInteractionETL,
+            'GeneDescriptions': GeneDescriptionsETL
         }
 
         # This is the order in which data types are loaded.
@@ -111,7 +106,8 @@ class AggregateLoader(object):
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['Interactions'],
-            ['Closure']
+            ['Closure'],
+            ['GeneDescriptions']
         ]
         etl_time_tracker_list = []
 
