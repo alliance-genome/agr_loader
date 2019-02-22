@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import boto3
 from etl import ETL
-from etl.helpers import ETLHelper, Neo4jHelper
+from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
@@ -59,7 +59,8 @@ class GeneDescriptionsETL(ETL):
         WHERE f.dataProvider = {parameter}
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
         MATCH (dga)-[:EVIDENCE]->(e:EvidenceCode)
-        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, e.primaryKey AS ECode, type(r) AS relType
+        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, 
+        e.primaryKey AS ECode, type(r) AS relType
         """
 
     GetFilteredHumanOrthologsQuery = """
