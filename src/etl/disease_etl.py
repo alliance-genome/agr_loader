@@ -62,7 +62,7 @@ class DiseaseETL(ETL):
 
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                 SET dga.dataProvider = row.dataProvider
-                SET dfa.sortOrder = 1
+                SET dga.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
