@@ -100,7 +100,7 @@ class TestClass(object):
                             dict(node='Species', prop='name'),
                             dict(node='Species', prop='species'),
                             dict(node='Species', prop='primaryKey'),
-                            dict(node='Species', proper='phylogeneticOrder'),
+                            dict(node='Species', prop='phylogeneticOrder'),
                             dict(node='Entity', prop='primaryKey'),
                             dict(node='Chromosome', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='primaryKey'),
