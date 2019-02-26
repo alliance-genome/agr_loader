@@ -35,7 +35,7 @@ class GeneDescriptionsETL(ETL):
 
     GetAllGenesQuery = """
         
-        MATCH (g:Gene) where g.dataProvider = {parameter} 
+        MATCH (g:Gene) where g.dataProvider = {parameter} AND NOT g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol
         """
 
