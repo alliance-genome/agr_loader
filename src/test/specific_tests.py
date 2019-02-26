@@ -481,6 +481,22 @@ def test_genome_end_is_long():
         assert record["counter"] < 1
 
 
+def test_phylogenetic_order_is_int():
+    query = "match (g:Species) where g.phylogeneticOrder <> toInt(g.phylogeneticOrder) " \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_all_species_have_order():
+    query = "match (g:Species) where g.phylogeneticOrder is null " \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
 def test_ortho_is_best_score_is_boolean():
     query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) where orth.isBestScore <> toBoolean(orth.isBestScore) " \
             "return count(orth) as counter"
