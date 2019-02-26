@@ -51,7 +51,7 @@ class ETLHelper(object):
             return 20
         elif taxon_id in "NCBITaxon:4932":
             return 70
-        elif taxon_id in "taxon:559292":
+        elif taxon_id in "NCBITaxon:559292":
             return 70
         elif taxon_id in "NCBITaxon:7227":
             return 50
