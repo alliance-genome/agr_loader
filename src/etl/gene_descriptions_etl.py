@@ -101,18 +101,18 @@ class GeneDescriptionsETL(ETL):
         # create gene descriptions data manager and load common data
         context_info = ContextInfo()
         data_manager = DataFileManager(context_info.config_file_location)
-        #go_onto_config = data_manager.get_config('GO')
+        go_onto_config = data_manager.get_config('GO')
         go_annot_config = data_manager.get_config('GOAnnot')
         do_onto_config = data_manager.get_config('DO')
         go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
         gd_config = GenedescConfigParser(os.path.join(this_dir, os.pardir, os.pardir, "gene_descriptions.yml"))
         gd_data_manager = DataManager(do_relations=None, go_relations=["subClassOf", "BFO:0000050"])
-        #go_onto_path = "file://" + os.path.join(os.getcwd(), go_onto_config.get_single_filepath())
-        #gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO, ontology_url=go_onto_path, config=gd_config,
-        #                                        ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go.obo"))
-        gd_data_manager.set_ontology(ontology_type=DataType.GO,
-                                     ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.GO), config=gd_config)
+        go_onto_path = "file://" + os.path.join(os.getcwd(), go_onto_config.get_single_filepath())
+        gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO, ontology_url=go_onto_path, config=gd_config,
+                                                ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go.obo"))
+        #gd_data_manager.set_ontology(ontology_type=DataType.GO,
+        #                             ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.GO), config=gd_config)
         do_onto_path = "file://" + os.path.join(os.getcwd(), do_onto_config.get_single_filepath())
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
@@ -221,7 +221,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["IEP"]
+            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
