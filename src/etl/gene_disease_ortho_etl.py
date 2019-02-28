@@ -24,8 +24,8 @@ class GeneDiseaseOrthoETL(ETL):
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                    ON CREATE SET dga.dataProvider = 'Alliance'
-                    ON CREATE SET dga.sortOrder = 10
+                    ON CREATE SET dga.dataProvider = 'Alliance',
+                                  dga.sortOrder = 10
 
                 FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
                     CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
