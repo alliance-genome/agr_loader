@@ -185,7 +185,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["IEP"]
+            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
