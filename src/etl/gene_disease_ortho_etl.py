@@ -23,9 +23,9 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                    SET dga.dataProvider = 'Alliance'
-                    SET dga.sortOrder = 10
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                    ON CREATE SET dga.dataProvider = 'Alliance'
+                    ON CREATE SET dga.sortOrder = 10
 
                 FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
                     CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
@@ -40,7 +40,8 @@ class GeneDiseaseOrthoETL(ETL):
                         dga.joinType = 'implicated_via_orthology')
 
                 CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
-
+                    SET pubEJ.joinType = 'pub_evidence_code_join'
+                    
                 CREATE (gene)-[fdag:ASSOCIATION]->(dga)
                 CREATE (dga)-[dadg:ASSOCIATION]->(d)
                 CREATE (dga)-[dapug:EVIDENCE]->(pubEJ)
@@ -120,13 +121,18 @@ class GeneDiseaseOrthoETL(ETL):
         gene_disease_ortho_data = []
 
         for record in returnSet:
+            primaryId = record["geneID"]
+            doId = record["doId"]
+            relationshipType = record["relationType"]
+            diseaseUniqueKey = primaryId+doId+relationshipType
+
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
                     relationshipType=record["relationType"],
                     doId=record["doId"],
                     dateProduced=datetime.now(),
                     uuid=str(uuid.uuid4()),
-                    diseaseUniqueKey=record["geneID"]+record["doId"]+record["relationType"])
+                    diseaseUniqueKey=diseaseUniqueKey)
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

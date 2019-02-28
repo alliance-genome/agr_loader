@@ -54,6 +54,8 @@ class DiseaseETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
             MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+            
             MERGE (dfa)-[dapug:EVIDENCE {uuid:row.uuid}]->(pubEJ)
             
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
@@ -94,6 +96,7 @@ class DiseaseETL(ETL):
                     pubg.pubMedUrl = row.pubMedUrl
             
             MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
             MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
