@@ -23,7 +23,7 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                     SET dga.dataProvider = 'Alliance'
                     SET dga.sortOrder = 10
 
@@ -39,11 +39,15 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
+                CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+
                 CREATE (gene)-[fdag:ASSOCIATION]->(dga)
                 CREATE (dga)-[dadg:ASSOCIATION]->(d)
-                CREATE (dga)-[dapug:EVIDENCE]->(pub)
+                CREATE (dga)-[dapug:EVIDENCE]->(pubEJ)
                 CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
-                CREATE (dga)-[daecode1g:EVIDENCE]->(ecode)
+                
+                CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
+                CREATE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
     """
 
 
@@ -101,7 +105,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         retrieve_gene_disease_ortho = """
                 MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-                MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+                MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
                     WHERE o.strictFilter
                     AND da.uuid = dej.primaryKey
                     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
@@ -121,7 +125,8 @@ class GeneDiseaseOrthoETL(ETL):
                     relationshipType=record["relationType"],
                     doId=record["doId"],
                     dateProduced=datetime.now(),
-                    uuid=str(uuid.uuid4()))
+                    uuid=str(uuid.uuid4()),
+                    diseaseUniqueKey=record["geneID"]+record["doId"]+record["relationType"])
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

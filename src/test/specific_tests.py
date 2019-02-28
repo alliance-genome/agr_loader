@@ -27,14 +27,16 @@ def test_isobsolete_false():
 
 
 def test_species_disease_pub_gene_exists():
-    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+            "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_species_disease_pub_allele_exists():
-    query = "MATCH (s:Species)--(a:Allele)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    query = "MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+            "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
@@ -346,7 +348,7 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(ec:EvidenceCode) " \
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(ec:EvidenceCode) " \
             "where ec.primaryKey = 'IEA'" \
             "and deg.dataProvider = 'Alliance'" \
             "return count(gene) as counter"

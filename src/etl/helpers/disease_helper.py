@@ -71,8 +71,11 @@ class DiseaseHelper(object):
             if 'evidenceCodes' in diseaseRecord['evidence']:
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
+            doId = diseaseRecord.get('DOid')
+            diseaseUniqueKey = primaryId+doId+diseaseAssociationType
             disease_allele = {
-                "doId": diseaseRecord.get('DOid'),
+                "diseaseUniqueKey": diseaseUniqueKey,
+                "doId": doId,
                 "primaryId": primaryId,
                 "uuid": annotationUuid,
                 "dataProviders": dataProviders,

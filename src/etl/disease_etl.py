@@ -21,19 +21,21 @@ class DiseaseETL(ETL):
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
-            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                SET dfa.dataProvider = row.dataProvider
-                SET dfa.sortOrder = 1
+            //This is an intentional MERGE, please leave as is
+            
+            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                ON CREATE SET dfa.dataProvider = row.dataProvider
+                ON CREATE SET dfa.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_implicated_in'
@@ -44,13 +46,17 @@ class DiseaseETL(ETL):
             MERGE (g)-[gadf:ASSOCIATION]->(dfa)
 
             // PUBLICATIONS FOR FEATURE
+            
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-
-            MERGE (dfa)-[dapuf:EVIDENCE]->(pubf)
+           
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.uuid}]->(pubEJ)
+            
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
             """
 
     execute_gene_template = """
@@ -60,43 +66,46 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (gene:Gene {primaryKey:row.primaryId})
 
-            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider
                 SET dga.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = row.dataProvider,
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'is_marker_of')
+                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
+                    ON CREATE SET fafg.dataProvider = row.dataProvider,
+                                  fafg.dateProduced = row.dateProduced,
+                                  dga.joinType = 'is_marker_of')
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = row.dataProvider,
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'is_implicated_in')
+                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
+                    ON CREATE SET fafg.dataProvider = row.dataProvider,
+                                  fafg.dateProduced = row.dateProduced,
+                                  dga.joinType = 'is_implicated_in')
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
 
             // PUBLICATIONS FOR GENE
+    
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
                 SET pubg.pubModId = row.pubModId,
                     pubg.pubMedId = row.pubMedId,
                     pubg.pubModUrl = row.pubModUrl,
                     pubg.pubMedUrl = row.pubMedUrl
+            
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
 
-            MERGE (dga)-[dapug:EVIDENCE]->(pubg)
-
+            MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
+            MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
 
             """
     execute_ecode_template ="""
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (dgae:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+            MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
             MERGE (ecode1g:EvidenceCode {primaryKey:row.ecode})
-            MERGE (dgae)-[daecode1g:EVIDENCE]->(ecode1g)
+            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(ecode1g)
                 
     """
 
@@ -209,8 +218,6 @@ class DiseaseETL(ETL):
                         ecode_map = {"uuid": disease_record.get('uuid'),
                                       "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
-                        if disease_record.get('primaryId') == 'ZFIN:ZDB-ALT-151012-9':
-                            logger.info(disease_record.get('uuid'))
                     allele_list_to_yield.append(disease_record)
             else:
                 continue
