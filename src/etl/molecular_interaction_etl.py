@@ -273,7 +273,7 @@ class MolecularInteractionETL(ETL):
         xref_dict['localId'] = individual_body
         xref_dict['crossRefCompleteUrl'] = individual_url
         xref_dict['uuid'] = str(uuid.uuid4())
-        xref_dict['crossRefType'] = 'MODinteraction'
+        xref_dict['crossRefType'] = page
         xref_dict['page'] = page
         xref_dict['reference_uuid'] = str(uuid.uuid4())
         xref_dict['dataId'] = gene_id # For matching to the gene when creating the xref relationship in Neo.
