@@ -23,7 +23,7 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     ON CREATE SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10
 
