@@ -122,10 +122,6 @@ class GeneDiseaseOrthoETL(ETL):
         gene_disease_ortho_data = []
 
         for record in returnSet:
-            primaryId = record["geneID"]
-            doId = record["doId"]
-            relationshipType = record["relationType"]
-            diseaseUniqueKey = primaryId+doId+relationshipType
 
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
