@@ -86,7 +86,7 @@ class BGIETL(ETL):
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
                             spec.name = row.species,
-                            spec.phylogeneticOrder = row.speciesPhylogeneticOrder
+                            spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
 
             MERGE (o)-[:FROM_SPECIES]->(spec)
 

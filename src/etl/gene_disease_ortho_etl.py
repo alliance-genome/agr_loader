@@ -23,8 +23,9 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    SET dga.dataProvider = 'Alliance'
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                    ON CREATE SET dga.dataProvider = 'Alliance',
+                                  dga.sortOrder = 10
 
                 FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
                     CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
@@ -38,11 +39,16 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
-                CREATE (gene)-[fdag:ASSOCIATION]->(dga)
-                CREATE (dga)-[dadg:ASSOCIATION]->(d)
-                CREATE (dga)-[dapug:EVIDENCE]->(pub)
-                CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
-                CREATE (dga)-[daecode1g:EVIDENCE]->(ecode)
+                MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
+                    ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                    
+                MERGE (gene)-[fdag:ASSOCIATION]->(dga)
+                MERGE (dga)-[dadg:ASSOCIATION]->(d)
+                MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
+                MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
+                
+                MERGE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
+                MERGE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
     """
 
 
@@ -84,8 +90,8 @@ class GeneDiseaseOrthoETL(ETL):
         addPub = """              
         
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
-                  SET pubg.pubModId = "MGI:6194238"
-                  SET pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
+                  ON CREATE SET pubg.pubModId = "MGI:6194238",
+                                pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})
               
                     """
@@ -100,7 +106,8 @@ class GeneDiseaseOrthoETL(ETL):
 
         retrieve_gene_disease_ortho = """
                 MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-                MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+                MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
+                [:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
                     WHERE o.strictFilter
                     AND da.uuid = dej.primaryKey
                     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
@@ -115,12 +122,14 @@ class GeneDiseaseOrthoETL(ETL):
         gene_disease_ortho_data = []
 
         for record in returnSet:
+
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
                     relationshipType=record["relationType"],
                     doId=record["doId"],
                     dateProduced=datetime.now(),
-                    uuid=str(uuid.uuid4()))
+                    uuid=str(uuid.uuid4()),
+                    pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]
