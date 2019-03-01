@@ -56,7 +56,7 @@ class GeneDescriptionsETL(ETL):
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
         WHERE g.dataProvider = {parameter}
-        MATCH (dga)-[:EVIDENCE]->(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId, e.primaryKey AS ECode, 
             type(r) AS relType
         """
@@ -67,7 +67,7 @@ class GeneDescriptionsETL(ETL):
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE f.dataProvider = {parameter}
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
-        MATCH (dga)-[:EVIDENCE]->(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, 
         e.primaryKey AS ECode, type(r) AS relType
         """
