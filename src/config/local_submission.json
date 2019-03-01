@@ -19,7 +19,7 @@
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Ontology",
                 "taxonIDPart": "DO",
-                "s3path": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/834f2cacd7876b74915928cafdcaf663ac5f089f/src/ontology/doid.obo",
+                "s3path": "http://purl.obolibrary.org/obo/doid.obo",
                 "tempExtractedFile": "doid.obo",
                 "uploadDate": 1522181475376
             },
