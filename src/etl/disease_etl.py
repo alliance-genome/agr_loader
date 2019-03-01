@@ -48,7 +48,7 @@ class DiseaseETL(ETL):
             // PUBLICATIONS FOR FEATURE
             
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
+                ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
@@ -90,7 +90,7 @@ class DiseaseETL(ETL):
             // PUBLICATIONS FOR GENE
     
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubg.pubModId = row.pubModId,
+                ON CREATE SET pubg.pubModId = row.pubModId,
                     pubg.pubMedId = row.pubMedId,
                     pubg.pubModUrl = row.pubModUrl,
                     pubg.pubMedUrl = row.pubMedUrl

@@ -357,6 +357,24 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
         assert record["counter"] > 0
 
 
+def test_gene_to_disease_annotation_via_ortho_has_publication():
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+            "where" \
+            " deg.dataProvider = 'Alliance'" \
+            "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_to_disease_annotation_has_publication():
+        query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+                "return count(gene) as counter"
+        result = execute_transaction(query)
+        for record in result:
+            assert record["counter"] > 0
+
+
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
     query = "match (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm), " \
             "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " \

@@ -39,16 +39,16 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
-                CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
-                    SET pubEJ.joinType = 'pub_evidence_code_join'
+                MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+                    ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
                     
-                CREATE (gene)-[fdag:ASSOCIATION]->(dga)
-                CREATE (dga)-[dadg:ASSOCIATION]->(d)
-                CREATE (dga)-[dapug:EVIDENCE]->(pubEJ)
-                CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
+                MERGE (gene)-[fdag:ASSOCIATION]->(dga)
+                MERGE (dga)-[dadg:ASSOCIATION]->(d)
+                MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
+                MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
                 
-                CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
-                CREATE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+                MERGE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
+                MERGE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
     """
 
 
@@ -90,8 +90,8 @@ class GeneDiseaseOrthoETL(ETL):
         addPub = """              
         
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
-                  SET pubg.pubModId = "MGI:6194238"
-                  SET pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
+                  ON CREATE SET pubg.pubModId = "MGI:6194238"
+                                pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})
               
                     """
