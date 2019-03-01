@@ -90,7 +90,7 @@ class GeneDiseaseOrthoETL(ETL):
         addPub = """              
         
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
-                  ON CREATE SET pubg.pubModId = "MGI:6194238"
+                  ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})
               
