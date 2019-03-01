@@ -106,7 +106,8 @@ class GeneDiseaseOrthoETL(ETL):
 
         retrieve_gene_disease_ortho = """
                 MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-                MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+                MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
+                [:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
                     WHERE o.strictFilter
                     AND da.uuid = dej.primaryKey
                     AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
