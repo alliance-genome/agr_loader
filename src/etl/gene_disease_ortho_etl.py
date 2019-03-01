@@ -39,7 +39,7 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
-                MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+                MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
                     ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -48,7 +48,7 @@ class GeneDiseaseOrthoETL(ETL):
                 MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
                 
                 MERGE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
-                MERGE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+                MERGE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
     """
 
 
@@ -133,7 +133,7 @@ class GeneDiseaseOrthoETL(ETL):
                     doId=record["doId"],
                     dateProduced=datetime.now(),
                     uuid=str(uuid.uuid4()),
-                    diseaseUniqueKey=diseaseUniqueKey)
+                    pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]
