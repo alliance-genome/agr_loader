@@ -10,7 +10,7 @@ from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
-from ontobio import AssociationSetFactory
+from ontobio import AssociationSetFactory, OntologyFactory
 from transactors import CSVTransactor, Neo4jTransactor
 from genedescriptions.data_manager import DataManager
 from genedescriptions.commons import DataType, Gene
@@ -35,7 +35,7 @@ class GeneDescriptionsETL(ETL):
 
     GetAllGenesQuery = """
         
-        MATCH (g:Gene) where g.dataProvider = {parameter} 
+        MATCH (g:Gene) where g.dataProvider = {parameter} AND NOT g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol
         """
 
@@ -45,39 +45,52 @@ class GeneDescriptionsETL(ETL):
         RETURN g.primaryKey, g.symbol
         """
 
+    GetGOTermsPairs = """
+
+        MATCH (term1:GOTerm:Ontology)-[r:IS_A|PART_OF]->(term2) 
+        RETURN term1.primaryKey, term1.name, term1.type, term2.primaryKey, term2.name, term2.type, type(r) AS rel_type
+        """
+
     GetGeneDiseaseAnnotQuery = """
     
-        MATCH (d:DOTerm)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->(dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
+        MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
+        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
         WHERE g.dataProvider = {parameter}
-        MATCH (dga)-[:EVIDENCE]->(e:EvidenceCode)
-        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId, e.primaryKey AS ECode, type(r) AS relType
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
+        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId, e.primaryKey AS ECode, 
+            type(r) AS relType
         """
 
     GetFeatureDiseaseAnnotQuery = """
 
-        MATCH (d:DOTerm)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(f)-[:ASSOCIATION]->(dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
+        MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(f)-[:ASSOCIATION]->
+        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE f.dataProvider = {parameter}
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
-        MATCH (dga)-[:EVIDENCE]->(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, 
         e.primaryKey AS ECode, type(r) AS relType
         """
 
     GetFilteredHumanOrthologsQuery = """
         
-        MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->(g2:Gene)
-        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND orth.strictFilter = true
+        MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->
+        (g2:Gene)
+        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND 
+        orth.strictFilter = true
         MATCH (ogj)-[:MATCHED]->(oa:OrthoAlgorithm)
-        RETURN g.primaryKey AS geneId, g2.primaryKey AS orthoId, g2.symbol AS orthoSymbol, g2.name AS orthoName, oa.name AS algorithm
+        RETURN g.primaryKey AS geneId, g2.primaryKey AS orthoId, g2.symbol AS orthoSymbol, g2.name AS orthoName, 
+        oa.name AS algorithm
         """
 
     GetDiseaseViaOrthologyQuery = """
     
-        MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|:IS_MODEL_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+        MATCH (disease:DOTerm:Ontology)-[da:IS_IMPLICATED_IN|:IS_MODEL_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
         MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(p:Publication)
         WHERE o.strictFilter = 'True' AND gene1.taxonId ='NCBITaxon:9606' AND da.uuid = dej.primaryKey 
         AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"] AND gene2.dataProvider = {parameter}
-        RETURN DISTINCT gene2.primaryKey AS geneId, gene2.symbol AS geneSymbol, disease.primaryKey AS DOId, p.primaryKey AS publicationId
+        RETURN DISTINCT gene2.primaryKey AS geneId, gene2.symbol AS geneSymbol, disease.primaryKey AS DOId, 
+        p.primaryKey AS publicationId
         """
 
     def __init__(self, config):
@@ -98,6 +111,8 @@ class GeneDescriptionsETL(ETL):
         go_onto_path = "file://" + os.path.join(os.getcwd(), go_onto_config.get_single_filepath())
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO, ontology_url=go_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go.obo"))
+        #gd_data_manager.set_ontology(ontology_type=DataType.GO,
+        #                             ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.GO), config=gd_config)
         do_onto_path = "file://" + os.path.join(os.getcwd(), do_onto_config.get_single_filepath())
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
@@ -156,6 +171,27 @@ class GeneDescriptionsETL(ETL):
         yield [descriptions]
 
     @staticmethod
+    def get_ontology(data_type: DataType):
+        ontology = OntologyFactory().create()
+        if data_type == DataType.GO:
+            terms_pairs = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetGOTermsPairs, None)
+            for terms_pair in terms_pairs:
+                GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                    terms_pair["term1.primaryKey"], terms_pair["term1.name"], terms_pair["term1.type"], ontology)
+                GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                    terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"], ontology)
+                ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
+                                    relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
+        return ontology
+
+    @staticmethod
+    def add_neo_term_to_ontobio_ontology_if_not_exists(term_id, term_label, term_type, ontology):
+        if not ontology.has_node(term_id):
+            if not ontology.has_node(term_id):
+                ontology.add_node(id=term_id, label=term_label, meta={"basicPropertyValues": [
+                    {"pred": "OIO:hasOBONamespace", "val": term_type}]})
+
+    @staticmethod
     def create_disease_annotation_record(gene_id, gene_symbol, do_term_id, ecode, prvdr):
         return {"source_line": "",
                 "subject": {
@@ -185,7 +221,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["IEP"]
+            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
