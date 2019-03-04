@@ -23,8 +23,8 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    ON CREATE SET dga.dataProvider = 'Alliance',
+                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                    SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10
 
                 FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
@@ -39,16 +39,16 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
-                MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
-                    ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
+                    SET pubEJ.joinType = 'pub_evidence_code_join'
                     
-                MERGE (gene)-[fdag:ASSOCIATION]->(dga)
-                MERGE (dga)-[dadg:ASSOCIATION]->(d)
-                MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
-                MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
+                CREATE (gene)-[fdag:ASSOCIATION]->(dga)
+                CREATE (dga)-[dadg:ASSOCIATION]->(d)
+                CREATE (dga)-[dapug:EVIDENCE]->(pubEJ)
+                CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
                 
-                MERGE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
-                MERGE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
+                CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
+                CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
     """
 
 
