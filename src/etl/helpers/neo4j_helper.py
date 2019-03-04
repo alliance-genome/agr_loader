@@ -91,6 +91,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Transgene(primaryKey)")
         session.run("CREATE INDEX ON :Fish(primaryKey)")
         session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
+        session.run("CREATE INDEX ON :DiseaseEntityJoin(primaryKey)")
         session.run("CREATE INDEX ON :EnvironmentCondition(primaryKey)")
         session.run("CREATE INDEX ON :Environment(primaryKey)")
         session.run("CREATE INDEX ON :Species(primaryKey)")
