@@ -23,8 +23,8 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:EvidenceCode {primaryKey:"IEA"})
 
-                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    ON CREATE SET dga.dataProvider = 'Alliance',
+                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                    SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10
 
                 FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
