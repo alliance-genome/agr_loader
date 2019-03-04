@@ -54,10 +54,6 @@ GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 
 # Loader configuration values are below.
 # Please modify with caution!
-]
-
-# Loader configuration values are below.
-# Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
