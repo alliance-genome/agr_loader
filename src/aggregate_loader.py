@@ -79,7 +79,7 @@ class AggregateLoader(object):
             'PHENOTYPE': PhenoTypeETL,
             'ORTHO': OrthologyETL,
             'Closure': ClosureETL,
-            'GOAnnot': GOAnnotETL,
+            'GAF': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
             'Interactions': MolecularInteractionETL,
@@ -102,7 +102,7 @@ class AggregateLoader(object):
             ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
             ['ORTHO'],  # Locks Genes
-            ['GOAnnot'],  # Locks Genes
+            ['GAF'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['Interactions'],
