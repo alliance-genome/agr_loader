@@ -19,7 +19,7 @@ PHENOTYPE:
 EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
-GOAnnot:
+GAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref:

@@ -102,7 +102,7 @@ class GeneDescriptionsETL(ETL):
         context_info = ContextInfo()
         data_manager = DataFileManager(context_info.config_file_location)
         go_onto_config = data_manager.get_config('GO')
-        go_annot_config = data_manager.get_config('GOAnnot')
+        go_annot_config = data_manager.get_config('GAF')
         do_onto_config = data_manager.get_config('DO')
         go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
@@ -124,7 +124,7 @@ class GeneDescriptionsETL(ETL):
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
-                associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf.gz"),
+                associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf"),
                 config=gd_config)
             key_diseases = defaultdict(set)
             gd_data_manager.set_associations(

@@ -5,7 +5,7 @@ ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   - GO

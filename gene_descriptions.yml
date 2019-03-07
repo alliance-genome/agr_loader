@@ -444,6 +444,27 @@ do_exp_sentences_options:
         TAS:
             group: EXPERIMENTAL
             priority: 5
+        IGI:
+            group: EXPERIMENTAL
+            priority: 6
+        CEA:
+            group: EXPERIMENTAL
+            priority: 7
+        CEC:
+            group: EXPERIMENTAL
+            priority: 8
+        EXP:
+            group: EXPERIMENTAL
+            priority: 9
+        IPM:
+            group: EXPERIMENTAL
+            priority: 10
+        IED:
+            group: EXPERIMENTAL
+            priority: 11
+        IEP:
+            group: EXPERIMENTAL
+            priority: 12
     group_priority:
         EXPERIMENTAL: 1
     prepostfix_sentences_map:
