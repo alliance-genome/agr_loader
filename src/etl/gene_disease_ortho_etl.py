@@ -91,7 +91,7 @@ class GeneDiseaseOrthoETL(ETL):
         
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
-                                pubg.pubModUrl = "http://www.informatics.jax.org/reference/summary?id=mgi:6194238"
+                                pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
               MERGE (:EvidenceCode {primaryKey:"IEA"})
               
                     """
@@ -105,12 +105,13 @@ class GeneDiseaseOrthoETL(ETL):
         logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho = """
-                MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-                MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
+           MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+            MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
                 [:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
+                with collect(distinct ec.primaryKey) as evCodes, o, da, dej, ec, gene1, gene2, disease
                     WHERE o.strictFilter
                     AND da.uuid = dej.primaryKey
-                    AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"]
+                    AND (any(x IN evCodes where NOT x in ["IEA", "ISS", "ISO"]))
                 RETURN DISTINCT gene2.primaryKey AS geneID,
                     gene1.primaryKey AS fromGeneID,
                     type(da) AS relationType,

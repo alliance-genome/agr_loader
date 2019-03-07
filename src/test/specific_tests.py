@@ -92,9 +92,7 @@ def test_gene_has_automated_description():
 
 
 def test_gene_has_all_three_automated_description_components():
-    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000004695', 'SGD:S000000364', 'SGD:S000002284'," \
-              "'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074', " \
-              "'SGD:S000002678', 'SGD:S000003487', 'SGD:S000000458', 'SGD:S000006068', 'WB:WBGene00000227'," \
+    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
               "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
               "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
@@ -554,3 +552,11 @@ def test_go_term_has_type_biological_process():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
+
+
+def test_sgd_gene_has_gene_disease_ortho():
+    query = "match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene) where g.primaryKey " \
+            "= 'SGD:S000002536' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1

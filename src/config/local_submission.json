@@ -41,62 +41,6 @@
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "FB",
-                "s3path": "GO/ANNOT/gene_association_2.0.fb.gz",
-                "tempExtractedFile": "gene_association_2.0.fb",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "Human",
-                "s3path": "GO/ANNOT/gene_association_2.0.human.gz",
-                "tempExtractedFile": "gene_association_2.0.human",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "MGI",
-                "s3path": "GO/ANNOT/gene_association_2.0.mgi.gz",
-                "tempExtractedFile": "gene_association_2.0.mgi",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "RGD",
-                "s3path": "GO/ANNOT/gene_association_2.0.rgd.gz",
-                "tempExtractedFile": "gene_association_2.0.rgd",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "SGD",
-                "s3path": "GO/ANNOT/gene_association_2.0.sgd.gz",
-                "tempExtractedFile": "gene_association_2.0.sgd",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "WB",
-                "s3path": "GO/ANNOT/gene_association_2.0.wb.gz",
-                "tempExtractedFile": "gene_association_2.0.wb",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "GOAnnot",
-                "taxonIDPart": "ZFIN",
-                "s3path": "GO/ANNOT/gene_association_2.0.zfin.gz",
-                "tempExtractedFile": "gene_association_2.0.zfin",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
                 "dataType": "Ontology",
                 "taxonIDPart": "ZFA",
                 "s3path": "http://purl.obolibrary.org/obo/zfa.obo",
