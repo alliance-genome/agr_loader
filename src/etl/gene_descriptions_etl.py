@@ -237,7 +237,9 @@ class GeneDescriptionsETL(ETL):
                                                                    data_provider)
         allele_do_annot = defaultdict(list)
         for feature_annot in feature_annot_set:
-            allele_do_annot[(feature_annot["alleleId"], feature_annot["DOId"])].append(feature_annot)
+            if all([feature_annot["geneId"] != annot[0] for annot in allele_do_annot[(feature_annot["alleleId"],
+                                                                                      feature_annot["DOId"])]]):
+                allele_do_annot[(feature_annot["alleleId"], feature_annot["DOId"])].append(feature_annot)
         # keep only disease annotations through simple entities (e.g., alleles related to one gene only)
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
                              len(feature_annots) == 1]
