@@ -61,6 +61,7 @@ def test_zfin_gene_has_expression_link():
 
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
+            "and cr.crossRefType <> 'interaction' " \
             "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
