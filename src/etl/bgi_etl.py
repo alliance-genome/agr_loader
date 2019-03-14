@@ -11,13 +11,17 @@ from files import JSONFile
 
 class BGIETL(ETL):
 
+    soterms_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (o:Gene {primaryKey:row.primaryKey})
+            MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
+            MERGE (o)-[:ANNOTATED_TO]->(s)"""
+
     chromosomes_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            CREATE (chrm:Chromosome {primaryKey: row.primaryKey,
-                                     assembly: row.assembly,
-                                     chromosome: row.chromosome,
-                                     taxonId: row.taxonID}) """
+            MERGE (chrm:Chromosome {primaryKey: row.primaryKey}) """
 
     genomic_locations_template = """
         USING PERIODIC COMMIT %s
@@ -97,10 +101,6 @@ class BGIETL(ETL):
                             spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
 
             MERGE (o)-[:FROM_SPECIES]->(spec)
-
-            MERGE (s:SOTerm:Ontology {primaryKey:row.soTermId})
-        
-            MERGE (o)-[:ANNOTATED_TO]->(s) 
             MERGE (o)-[:LOADED_FROM]->(l) """
 
     xrefs_template = """
@@ -162,11 +162,12 @@ class BGIETL(ETL):
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.soterms_template, commit_size, "gene_soterms_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.chromosomes_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.chromosomes_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"]
+            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -189,7 +190,8 @@ class BGIETL(ETL):
         genomicLocationBins = []
         gene_dataset = []
         gene_metadata = []
-        chromosomeMap = Dict()
+        geneToSoTerms = []
+        chromosomes = {}
         release = None
         counter = 0
 
@@ -324,6 +326,10 @@ class BGIETL(ETL):
 
             # TODO Metadata can be safely removed from this dictionary. Needs to be tested.
 
+            geneToSoTerms.append({
+                "primaryKey": primary_id,
+                "soTermId": geneRecord['soTermId']})
+
             gene = {
                 "symbol": geneRecord.get('symbol'),
                 # globallyUniqueSymbolWithSpecies requested by search group
@@ -331,7 +337,6 @@ class BGIETL(ETL):
                 "name": geneRecord.get('name'),
                 "geneticEntityExternalUrl": geneticEntityExternalUrl,
                 "description": geneRecord.get('description'),
-                "soTermId": geneRecord['soTermId'],
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
                 "taxonId": geneRecord['taxonId'],
@@ -357,12 +362,8 @@ class BGIETL(ETL):
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
                     assembly = genomeLocation['assembly']
-                    chromosomeKey = dataProvider + "-" + chromosome + "-" + assembly
-                    if chromosomeKey not in chromosomeMap:
-                        chromosomeMap[choromosomeKey] = {"primararyKey": chromosomeKey,
-                                                       "assembly": assembly,
-                                                       "chromosome": chromosome,
-                                                       "taxonId": taxonId}
+                    if chromosome not in chromosomes:
+                        chromosomes[chromosome] = {"primaryKey": chromosome}
 
                     if 'startPosition' in genomeLocation:
                         start = genomeLocation['startPosition']
@@ -399,7 +400,7 @@ class BGIETL(ETL):
 #                                     "genePrimaryId": primary_id, "chromosome": chromosome,
 #                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
 
-                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosomeKey, "start":
+                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
 
             if geneRecord.get('synonyms') is not None:
@@ -422,18 +423,16 @@ class BGIETL(ETL):
             self.metadata_is_loaded[loadKey] = True
 
             # Establishes the number of genes to yield (return) at a time.
-            if counter == batch_size:
+            if counter == batch_size: # only sending unique chromosomes, hense empty list here.
                 counter = 0
-                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms, chromosomes]
+                yield [gene_metadata, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
                 genomicLocations = []
                 crossReferences = []
-                chromosomes = []
-
-        chromosomes = chromosomeMap.values()
+                geneToSoTerms = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms, chromosomes]
+            yield [gene_metadata, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, synonyms]
