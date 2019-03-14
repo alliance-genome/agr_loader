@@ -11,12 +11,20 @@ from files import JSONFile
 
 class BGIETL(ETL):
 
+    chromosomes_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CREATE (chrm:Chromosome {primaryKey: row.chromosome,
+                                     assembly: row.assembly,
+                                     chromosome: row.chromosome,
+                                     taxonId: row.taxonID}) """
+
     genomic_locations_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.primaryId})
-            MERGE (chrm:Chromosome {primaryKey:row.chromosome})
+            MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
@@ -180,6 +188,7 @@ class BGIETL(ETL):
         genomicLocationBins = []
         gene_dataset = []
         gene_metadata = []
+        chromosomes = Dict()
         release = None
         counter = 0
 
@@ -347,6 +356,13 @@ class BGIETL(ETL):
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
                     assembly = genomeLocation['assembly']
+                    chromosomeKey = dataProvider + "-" + chromosome + "-" + assembly
+                    if chromosomeKey not in chromosomes:
+                        chromosomes[choromosomeKey] = {"primararyKey": chromosomeKey,
+                                                       "assembly": assembly,
+                                                       "chromosome": chromosome,
+                                                       "taxonId": taxonId}
+
                     if 'startPosition' in genomeLocation:
                         start = genomeLocation['startPosition']
                     else:
@@ -382,7 +398,7 @@ class BGIETL(ETL):
 #                                     "genePrimaryId": primary_id, "chromosome": chromosome,
 #                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
 
-                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
+                    genomicLocations.append({"primaryId": primary_id, "chromosome": chromosomeKey, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
 
             if geneRecord.get('synonyms') is not None:
