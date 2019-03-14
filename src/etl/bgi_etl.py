@@ -14,7 +14,7 @@ class BGIETL(ETL):
     chromosomes_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            CREATE (chrm:Chromosome {primaryKey: row.chromosome,
+            CREATE (chrm:Chromosome {primaryKey: row.primaryKey,
                                      assembly: row.assembly,
                                      chromosome: row.chromosome,
                                      taxonId: row.taxonID}) """
@@ -165,7 +165,8 @@ class BGIETL(ETL):
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
+            [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.chromosomes_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -188,7 +189,7 @@ class BGIETL(ETL):
         genomicLocationBins = []
         gene_dataset = []
         gene_metadata = []
-        chromosomes = Dict()
+        chromosomeMap = Dict()
         release = None
         counter = 0
 
@@ -357,8 +358,8 @@ class BGIETL(ETL):
                     chromosome = genomeLocation['chromosome']
                     assembly = genomeLocation['assembly']
                     chromosomeKey = dataProvider + "-" + chromosome + "-" + assembly
-                    if chromosomeKey not in chromosomes:
-                        chromosomes[choromosomeKey] = {"primararyKey": chromosomeKey,
+                    if chromosomeKey not in chromosomeMap:
+                        chromosomeMap[choromosomeKey] = {"primararyKey": chromosomeKey,
                                                        "assembly": assembly,
                                                        "chromosome": chromosome,
                                                        "taxonId": taxonId}
@@ -423,13 +424,16 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
+                yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms, chromosomes]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
                 secondaryIds = []
                 genomicLocations = []
                 crossReferences = []
+                chromosomes = []
+
+        chromosomes = chromosomeMap.values()
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms]
+            yield [gene_metadata, gene_dataset, secondaryIds, genomicLocations, crossReferences, synonyms, chromosomes]
