@@ -71,6 +71,8 @@ class TestObject(object):
             'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074',
             'SGD:S000002678', 'SGD:S000003487', 'SGD:S000000458', 'SGD:S000006068', 'SGD:S000005269', 'SGD:S000007324',
             'SGD:S000004241', 'SGD:S000002536',
+            # expression
+            'SGD:S000002200',
 
         }
 
@@ -104,6 +106,8 @@ class TestObject(object):
             # gene descriptions
             'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',
             'ZFIN:ZDB-GENE-040426-1294', 'ZFIN:ZDB-GENE-040718-10',
+            # genomic locations
+            'ZFIN:ZDB-GENE-990415-8',
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',

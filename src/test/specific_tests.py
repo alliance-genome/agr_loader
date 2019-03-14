@@ -561,3 +561,11 @@ def test_sgd_gene_has_gene_disease_ortho():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 1
+
+
+def test_mmo_term_has_display_alias():
+    query = "match (mmo:MMOTerm) where mmo.primaryKey " \
+            "= 'MMO:0000642' and mmo.display_synonym = 'protein expression' return count(mmo) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
