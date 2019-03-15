@@ -1,9 +1,11 @@
 import logging, coloredlogs, os, multiprocessing, time, argparse, time
-from etl import *
-from etl.helpers import Neo4jHelper
-from transactors import Neo4jTransactor, FileTransactor
-from data_manager import DataFileManager
+
 from common import ContextInfo
+from data_manager import DataFileManager
+from etl import *
+from etl.helpers.neo4j_helper import Neo4jHelper
+from transactors import Neo4jTransactor, FileTransactor
+
 
 parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
 parser.add_argument('-c', '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory', default='default.yml')
