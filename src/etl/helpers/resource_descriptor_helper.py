@@ -28,13 +28,7 @@ class ResourceDescriptorHelper(object):
         url = "https://github.com/alliance-genome/agr_schemas/blob/develop/" + self.filename
         filepath = self.savepath + "/" + self.filename
         if not os.path.exists(filepath):
-            try:
-                response = urllib.request.urlopen(url)
-            except Exception as e:
-                import traceback
-                logger.error('generic exception: ' + traceback.format_exc())
-                logger.error('urllib exception: ' + e)
-                sys.exit(1)
+            response = urllib.request.urlopen(url)
 
             with open(filepath, 'wb') as outfile:
                 shutil.copyfileobj(response, outfile)

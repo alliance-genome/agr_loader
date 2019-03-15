@@ -49,7 +49,7 @@ class Neo4jTransactor(object):
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
     def wait_for_queues(self):
-        Neo4jTransactor.queue.join()
+        ETL.wait_for_threads(self.thread_pool, Neo4jTransactor.queue)
 
     def run(self):
         

@@ -1,6 +1,7 @@
 import logging
 import multiprocessing
 from time import sleep
+from etl import *
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,7 @@ class FileTransactor(object):
         logger.debug("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
 
     def wait_for_queues(self):
-        ELT.wait_for_threads(self.thread_pool)
-        FileTransactor.queue.join()
+        ETL.wait_for_threads(self.thread_pool, FileTransactor.queue)
         
     def shutdown(self):       
         logger.info("Shutting down FileTransactor threads: %s" % len(self.thread_pool))

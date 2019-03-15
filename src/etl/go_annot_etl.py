@@ -29,8 +29,7 @@ class GOAnnotETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
             
         queries = []
         for item in query_tracking_list:

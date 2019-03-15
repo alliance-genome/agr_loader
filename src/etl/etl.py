@@ -1,5 +1,5 @@
 import logging
-import os
+import os, sys
 from test import TestObject
 import time
 
@@ -23,23 +23,31 @@ class ETL(object):
     def run_etl(self):
         self._load_and_process_data()
 
-    def wait_for_threads(thread_pool):
-        for thread in thread_pool:
-            thread.join()
+    def wait_for_threads(thread_pool, queue=None):
+        logger.info("Waiting for Threads to finish: %s" % len(thread_pool))
 
         while len(thread_pool) > 0:
+            logger.info("Checking Threads: %s" % len(thread_pool))
             for (index, thread) in enumerate(thread_pool):
-                sleep(0.5)
-                if thread.exitcode is None and not thread.is_alive():
+                logger.info("Thread Alive: %s Exitcode: %s" % (thread.is_alive(), thread.exitcode))
+                if (thread.exitcode is None or thread.exitcode == 0) and not thread.is_alive():
+                    logger.info("Thread Finished Removing from pool: ")
                     thread.join()
                     del thread_pool[index]
-                elif thread.exitcode < 0:
-                    # Kill all child threads
+                elif thread.exitcode is not None and thread.exitcode != 0:
+                    logger.info("Thread has Problems Killing Children: ")
                     for thread1 in thread_pool:
                         thread1.terminate()
-                        sys.exit(-1)
+                    sys.exit(-1)
                 else:
                     pass
+            if queue is not None:
+                logger.info("Queue Size: %s" % queue.qsize())
+                if queue.empty():
+                    queue.join()
+                    return
+
+            time.sleep(5)
 
 
     def process_query_params(self, query_list_with_params):

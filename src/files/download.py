@@ -19,24 +19,12 @@ class Download(object):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            try:
-                response = urllib.request.urlopen(self.urlToRetrieve)
-            except Exception as e:
-                import traceback
-                logger.error('generic exception: ' + traceback.format_exc())
-                logger.error('urllib exception: ' + e)
-                sys.exit(1)
+            logger.error('urllib exception: ' + e)
 
             data = response.read()
             # retry the retrieval
             if data is None:
-                try:
-                    response = urllib.request.urlopen(self.urlToRetrieve)
-                except Exception as e:
-                    import traceback
-                    logger.error('generic exception: ' + traceback.format_exc())
-                    logger.error('urllib exception: ' + e)
-                    sys.exit(1)
+                response = urllib.request.urlopen(self.urlToRetrieve)
 
                 data = response.read()
             response.close()
@@ -50,11 +38,7 @@ class Download(object):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            try:
-                urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
-            except Exception as e:
-                logger.error("could not retrieve:", e)
-                sys.exit(1)
+            urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
 
             return False
         else:
@@ -67,11 +51,7 @@ class Download(object):
             os.makedirs(os.path.dirname(self.savepath + "/" + self.filenameToSave))
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
             logger.info("Downloading data file %s from: %s" % (self.filenameToSave, self.urlToRetrieve))
-            try:
-                urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
-            except Exception as e:
-                logger.error("could not retrieve:", e)
-                sys.exit(1)
+            urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
 
         else:
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))

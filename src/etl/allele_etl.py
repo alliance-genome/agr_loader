@@ -79,7 +79,7 @@ class AlleleETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        ETL.wait_for_threads()
+        ETL.wait_for_threads(thread_pool)
   
     def _process_sub_type(self, sub_type):
         

@@ -70,14 +70,9 @@ class MIETL(ETL):
         mi_term_ontology_full = None
 
         # TODO Make size configurable?
-        logger.info('Downloading MI ontology terms via: https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?size=500')
-        try:
-            response = urllib.request.urlopen("https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?size=500")
-        except Exception as e:
-            import traceback
-            logger.error('generic exception: ' + traceback.format_exc())
-            logger.error('urllib exception: ', e)
-            sys.exit(1)
+        logger.info('Downloading MI ontology terms via: https://www.ebi.ac.uk/ol/api/ontologies/mi/terms?size=500')
+
+        response = urllib.request.urlopen("https://www.ebi.a.uk/ols/api/ontologies/mi/terms?size=500")
 
         mi_term_ontology = json.loads(response.read().decode())
 
@@ -92,13 +87,7 @@ class MIETL(ETL):
             request_url = 'https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?page=%s&size=500' % (i)
             logger.info('Retrieving terms from page %s of %s.' % (i+1, total_pages))
 
-            try:
-                response = urllib.request.urlopen(request_url)
-            except Exception as e:
-                import traceback
-                logger.error('generic exception: ' + traceback.format_exc())
-                logger.error('urllib exception: ' + e)
-                sys.exit(1)
+            response = urllib.request.urlopen(request_url)
 
             mi_term_ontology_full = json.loads(response.read().decode())
 
