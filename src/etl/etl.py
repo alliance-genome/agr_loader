@@ -1,5 +1,5 @@
 import logging
-import os
+import os, sys
 from test import TestObject
 import time
 
@@ -22,6 +22,34 @@ class ETL(object):
 
     def run_etl(self):
         self._load_and_process_data()
+
+    def wait_for_threads(thread_pool, queue=None):
+        logger.debug("Waiting for Threads to finish: %s" % len(thread_pool))
+
+        while len(thread_pool) > 0:
+            logger.debug("Checking Threads: %s" % len(thread_pool))
+            for (index, thread) in enumerate(thread_pool):
+                logger.debug("Thread Alive: %s Exitcode: %s" % (thread.is_alive(), thread.exitcode))
+                if (thread.exitcode is None or thread.exitcode == 0) and not thread.is_alive():
+                    logger.debug("Thread Finished Removing from pool: ")
+                    thread.join()
+                    del thread_pool[index]
+                elif thread.exitcode is not None and thread.exitcode != 0:
+                    logger.debug("Thread has Problems Killing Children: ")
+                    for thread1 in thread_pool:
+                        thread1.terminate()
+                    sys.exit(-1)
+                else:
+                    pass
+
+            if queue is not None:
+                logger.debug("Queue Size: %s" % queue.qsize())
+                if queue.empty():
+                    queue.join()
+                    return
+
+            time.sleep(5)
+
 
     def process_query_params(self, query_list_with_params):
         # generators = list of yielded lists from parser

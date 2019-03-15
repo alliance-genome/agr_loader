@@ -26,8 +26,11 @@ class ResourceDescriptorHelper(object):
             logger.info("Making temp file storage: " + self.savepath)
             os.makedirs(self.savepath)
         url = "https://github.com/alliance-genome/agr_schemas/blob/develop/" + self.filename
-        if not os.path.exists(self.savepath + "/" + self.filename):
-            with urllib.request.urlopen(url) as response, open(self.savepath + "/" + self.filename, 'wb') as outfile:
+        filepath = self.savepath + "/" + self.filename
+        if not os.path.exists(filepath):
+            response = urllib.request.urlopen(url)
+
+            with open(filepath, 'wb') as outfile:
                 shutil.copyfileobj(response, outfile)
         else:
             logger.info("File: " + self.savepath + "/" + self.filename + " already exists not downloading")

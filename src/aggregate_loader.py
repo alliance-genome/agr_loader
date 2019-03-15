@@ -10,7 +10,7 @@ parser.add_argument('-c', '--config', help='Specify the filename of the YAML con
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
 args = parser.parse_args()
 
-if args.verbose:
+if args.verbose or ("DEBUG" in os.environ and os.environ['DEBUG'] == "True"):
     debug_level = logging.DEBUG
 else:
     debug_level = logging.INFO
@@ -48,6 +48,7 @@ class AggregateLoader(object):
 
         ft.start_threads(data_manager.get_FT_thread_settings())
         data_manager.download_and_validate()
+        ft.check_for_thread_errors()
         ft.wait_for_queues()
         ft.shutdown()
         
@@ -126,11 +127,11 @@ class AggregateLoader(object):
                     thread_pool.append(p)
                 else:
                     logger.info("No Config found for: %s" % etl_name)
-            for thread in thread_pool:
-                thread.join()
+            ETL.wait_for_threads(thread_pool)
                 
             logger.info("Waiting for Queues to sync up")
-            Neo4jTransactor().wait_for_queues()
+            nt.check_for_thread_errors()
+            nt.wait_for_queues()
             etl_elapsed_time = time.time() - etl_group_start_time
             etl_time_message = ("Finished ETL group: %s, Elapsed time: %s" % (etl_group, time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
             logger.info(etl_time_message)
