@@ -31,8 +31,11 @@ class FileTransactor(object):
         FileTransactor.queue.put((sub_type, FileTransactor.count))
         logger.debug("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
 
+    def check_for_thread_errors(self):
+        ETL.wait_for_threads(self.thread_pool)
+
     def wait_for_queues(self):
-        ETL.wait_for_threads(self.thread_pool, FileTransactor.queue)
+        FileTransactor.queue.join()
         
     def shutdown(self):       
         logger.info("Shutting down FileTransactor threads: %s" % len(self.thread_pool))

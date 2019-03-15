@@ -49,8 +49,11 @@ class Neo4jTransactor(object):
         logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s " % (Neo4jTransactor.count, len(query_batch), Neo4jTransactor.queue.qsize()))
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
+    def check_for_thread_errors(self):
+        ETL.wait_for_threads(self.thread_pool)
+
     def wait_for_queues(self):
-        ETL.wait_for_threads(self.thread_pool, Neo4jTransactor.queue)
+        Neo4jTransactor.queue.join()
 
     def run(self):
         
