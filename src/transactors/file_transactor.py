@@ -1,7 +1,9 @@
 import logging
 import multiprocessing
 from time import sleep
-from etl import *
+
+from etl import ETL
+
 
 logger = logging.getLogger(__name__)
 

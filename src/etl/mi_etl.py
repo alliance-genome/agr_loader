@@ -1,10 +1,12 @@
 import logging
-logger = logging.getLogger(__name__)
-
-import urllib, json, sys
+import urllib, json
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
+
+logger = logging.getLogger(__name__)
+
+
 
 class MIETL(ETL):
 

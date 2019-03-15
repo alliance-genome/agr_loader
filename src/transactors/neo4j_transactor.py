@@ -3,9 +3,10 @@ import multiprocessing
 import os
 import pickle
 import time
-from etl import *
 
 from neo4j.v1 import GraphDatabase
+
+from etl import ETL
 
 
 logger = logging.getLogger(__name__)
