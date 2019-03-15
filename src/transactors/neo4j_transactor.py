@@ -63,8 +63,9 @@ class Neo4jTransactor(object):
         else:
             port = 7687
     
-        uri = "bolt://" + host + ":" + str(port)
-        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        if Neo4jTransactor.using_pickle is False:
+            uri = "bolt://" + host + ":" + str(port)
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.info("%s: Starting Neo4jTransactor Thread Runner: " % self._get_name())
         while True:

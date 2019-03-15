@@ -31,6 +31,7 @@ class FileTransactor(object):
         logger.debug("Execute Transaction Batch: %s QueueSize: %s " % (FileTransactor.count, FileTransactor.queue.qsize()))  
 
     def wait_for_queues(self):
+        ELT.wait_for_threads(self.thread_pool)
         FileTransactor.queue.join()
         
     def shutdown(self):       

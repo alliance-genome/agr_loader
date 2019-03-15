@@ -126,8 +126,7 @@ class AggregateLoader(object):
                     thread_pool.append(p)
                 else:
                     logger.info("No Config found for: %s" % etl_name)
-            for thread in thread_pool:
-                thread.join()
+            ETL.wait_for_threads(thread_pool)
                 
             logger.info("Waiting for Queues to sync up")
             Neo4jTransactor().wait_for_queues()

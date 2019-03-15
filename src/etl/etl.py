@@ -23,6 +23,25 @@ class ETL(object):
     def run_etl(self):
         self._load_and_process_data()
 
+    def wait_for_threads(thread_pool):
+        for thread in thread_pool:
+            thread.join()
+
+        while len(thread_pool) > 0:
+            for (index, thread) in enumerate(thread_pool):
+                sleep(0.5)
+                if thread.exitcode is None and not thread.is_alive():
+                    thread.join()
+                    del thread_pool[index]
+                elif thread.exitcode < 0:
+                    # Kill all child threads
+                    for thread1 in thread_pool:
+                        thread1.terminate()
+                        sys.exit(-1)
+                else:
+                    pass
+
+
     def process_query_params(self, query_list_with_params):
         # generators = list of yielded lists from parser
         # query_list_with_parms = list of queries, each with batch size and CSV file name.
