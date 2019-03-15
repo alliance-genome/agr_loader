@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
-import urllib.request, sys
+import urllib.request
 
 #TODO Consolidate these functions with s3_file.py
 
