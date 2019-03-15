@@ -129,7 +129,7 @@ class AggregateLoader(object):
             ETL.wait_for_threads(thread_pool)
                 
             logger.info("Waiting for Queues to sync up")
-            Neo4jTransactor().wait_for_queues()
+            nt.wait_for_queues()
             etl_elapsed_time = time.time() - etl_group_start_time
             etl_time_message = ("Finished ETL group: %s, Elapsed time: %s" % (etl_group, time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
             logger.info(etl_time_message)
