@@ -50,7 +50,7 @@ class Neo4jTransactor(object):
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
     def check_for_thread_errors(self):
-        ETL.wait_for_threads(self.thread_pool)
+        ETL.wait_for_threads(self.thread_pool, Neo4jTransactor.queue)
 
     def wait_for_queues(self):
         Neo4jTransactor.queue.join()

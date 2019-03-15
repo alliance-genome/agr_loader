@@ -23,7 +23,7 @@ class ETL(object):
     def run_etl(self):
         self._load_and_process_data()
 
-    def wait_for_threads(thread_pool):
+    def wait_for_threads(thread_pool, queue=None):
         logger.debug("Waiting for Threads to finish: %s" % len(thread_pool))
 
         while len(thread_pool) > 0:
@@ -42,7 +42,14 @@ class ETL(object):
                 else:
                     pass
 
+            if queue is not None:
+                logger.debug("Queue Size: %s" % queue.qsize())
+                if queue.empty():
+                    queue.join()
+                    return
+
             time.sleep(5)
+
 
     def process_query_params(self, query_list_with_params):
         # generators = list of yielded lists from parser

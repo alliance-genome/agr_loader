@@ -10,7 +10,7 @@ parser.add_argument('-c', '--config', help='Specify the filename of the YAML con
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
 args = parser.parse_args()
 
-if args.verbose:
+if args.verbose or ("DEBUG" in os.environ and os.environ['DEBUG'] == "True"):
     debug_level = logging.DEBUG
 else:
     debug_level = logging.INFO
