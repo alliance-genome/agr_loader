@@ -20,13 +20,7 @@ class S3File(object):
         url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             logger.info("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
-            try:
-                urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
-            except Exception as e:
-                import traceback
-                logger.error('generic exception: ' + traceback.format_exc())
-                logger.error('urllib exception: ' + e)
-                sys.exit(1)
+            urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
             logger.info("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
         return self.savepath + "/" + self.filename
@@ -58,13 +52,7 @@ class S3File(object):
         url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
             logger.info("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
-            try:
-                urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
-            except Exception as e:
-                import traceback
-                logger.error('generic exception: ' + traceback.format_exc())
-                logger.error('urllib exception: ' + e)
-                sys.exit(1)
+            urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
             return False
         else:
             logger.debug("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
