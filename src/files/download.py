@@ -19,13 +19,13 @@ class Download(object):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            data = response.read()
+            file = urllib.request.urlopen(self.urlToRetrieve)
+            data = file.read()
             # retry the retrieval
             if data is None:
-                response = urllib.request.urlopen(self.urlToRetrieve)
-
-                data = response.read()
-            response.close()
+                file = urllib.request.urlopen(self.urlToRetrieve)
+                data = file.read()
+            file.close()
         else:
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
         return data
@@ -37,7 +37,6 @@ class Download(object):
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
             urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
-
             return False
         else:
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
