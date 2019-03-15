@@ -72,7 +72,7 @@ class MIETL(ETL):
         # TODO Make size configurable?
         logger.info('Downloading MI ontology terms via: https://www.ebi.ac.uk/ol/api/ontologies/mi/terms?size=500')
 
-        response = urllib.request.urlopen("https://www.ebi.a.uk/ols/api/ontologies/mi/terms?size=500")
+        response = urllib.request.urlopen("https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?size=500")
 
         mi_term_ontology = json.loads(response.read().decode())
 
