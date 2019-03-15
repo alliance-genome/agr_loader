@@ -1,6 +1,6 @@
 import logging
 import os, time
-import urllib.request, sys
+import urllib.request
 import sys
 
 logger = logging.getLogger(__name__)
