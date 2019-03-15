@@ -62,8 +62,7 @@ class GeneDiseaseOrthoETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, subtype):
 

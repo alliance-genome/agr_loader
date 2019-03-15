@@ -199,7 +199,7 @@ class TestClass(object):
                              #dict(node='GenomicLocationBin', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                             dict(node='Chromosome', prop='primaryKey'),
+                             #dict(node='Chromosome', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
                              dict(node='CrossReference', prop='primaryKey'),

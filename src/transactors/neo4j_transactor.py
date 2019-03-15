@@ -6,6 +6,8 @@ import time
 
 from neo4j.v1 import GraphDatabase
 
+from etl import ETL
+
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,9 @@ class Neo4jTransactor(object):
         logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s " % (Neo4jTransactor.count, len(query_batch), Neo4jTransactor.queue.qsize()))
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
+    def check_for_thread_errors(self):
+        ETL.wait_for_threads(self.thread_pool, Neo4jTransactor.queue)
+
     def wait_for_queues(self):
         Neo4jTransactor.queue.join()
 
@@ -63,8 +68,9 @@ class Neo4jTransactor(object):
         else:
             port = 7687
     
-        uri = "bolt://" + host + ":" + str(port)
-        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+        if Neo4jTransactor.using_pickle is False:
+            uri = "bolt://" + host + ":" + str(port)
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.info("%s: Starting Neo4jTransactor Thread Runner: " % self._get_name())
         while True:
