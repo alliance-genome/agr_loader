@@ -19,8 +19,6 @@ class Download(object):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
         if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            logger.error('urllib exception: ' + e)
-
             data = response.read()
             # retry the retrieval
             if data is None:
