@@ -3,7 +3,7 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 from common import ContextInfo
 from data_manager import DataFileManager
 from etl import *
-from etl.helpers.neo4j_helper import Neo4jHelper
+from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 
 
