@@ -3,6 +3,7 @@ from .allele_etl import AlleleETL
 from .disease_etl import DiseaseETL
 from .expression_etl import ExpressionETL
 from .bgi_etl import BGIETL
+from .expression_atlas_etl import ExpressionAtlasETL
 from .so_etl import SOETL
 from .do_etl import DOETL
 from .go_etl import GOETL

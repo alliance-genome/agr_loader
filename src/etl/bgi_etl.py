@@ -95,8 +95,7 @@ class BGIETL(ETL):
                               o.modGlobalId = row.modGlobalId,
                               o.uuid = row.uuid,
                               o.dataProvider = row.dataProvider,
-                              o.symbolWithSpecies = row.symbolWithSpecies,
-                              o.expressionAltasUrl = row.expressionAtlasUrl,
+                              o.symbolWithSpecies = row.symbolWithSpecies
                               
             MERGE (spec:Species {primaryKey: row.taxonId})
               ON CREATE SET spec.species = row.species, 
@@ -241,18 +240,18 @@ class BGIETL(ETL):
                                    "SGD": ["http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml"],
                                    "MGI": ["http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml"]}
 
-        expressionAtlasGenePages = {}
-        if data_provider in expressionAtlasSitemaps:
-            for ea_url in expressionAtlasSitemaps[data_provider]:
-                req = urllib.request.Request(ea_url)
-                with urllib.request.urlopen(req) as response:
-                    urlset = xmltodict.parse(response.read())["urlset"]
-                    for value in urlset.values():
-                        if isinstance(value, (list,)):
-                            for element in value:
-                                url = element['loc']
-                                expressionAtlasGene = url.split("/")[-1]
-                                expressionAtlasGenePages[expressionAtlasGene] = url
+#        expressionAtlasGenePages = {}
+#        if data_provider in expressionAtlasSitemaps:
+#            for ea_url in expressionAtlasSitemaps[data_provider]:
+#                req = urllib.request.Request(ea_url)
+#                with urllib.request.urlopen(req) as response:
+#                    urlset = xmltodict.parse(response.read())["urlset"]
+#                    for value in urlset.values():
+#                        if isinstance(value, (list,)):
+#                            for element in value:
+#                                url = element['loc']
+#                                expressionAtlasGene = url.split("/")[-1]
+#                                expressionAtlasGenePages[expressionAtlasGene] = url
 
         for geneRecord in gene_data['data']:
             counter = counter + 1
@@ -444,17 +443,17 @@ class BGIETL(ETL):
                     }
                     secondaryIds.append(geneSecondaryId)
 
-            gene["expressionAtlasUrl"] = None
-            if taxonId == "559292":
-                for secondaryId in secondaryIds:
-                    lowercaseId = secondaryId.lower()
-                    if lowercaseId in expressionAtlasGenePages:
-                        gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
-                        break
-            else:
-                lowercaseId = local_id.lower()
-                if lowercaseId in expressionAtlasGenePages:
-                    gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
+#            gene["expressionAtlasUrl"] = None
+#            if taxonId == "559292":
+#                for secondaryId in secondaryIds:
+#                    lowercaseId = secondaryId.lower()
+#                    if lowercaseId in expressionAtlasGenePages:
+#                        gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
+#                        break
+#            else:
+#                lowercaseId = local_id.lower()
+#                if lowercaseId in expressionAtlasGenePages:
+#                    gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
 
             gene_dataset.append(gene)
             # We should have the metadata ready to go after the first loop of the generator.

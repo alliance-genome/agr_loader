@@ -37,7 +37,7 @@ class ResourceDescriptorHelper(object):
 
         with codecs.open(self.savepath + "/" + self.filename, 'r', 'utf-8') as stream:
             try:
-                data = yaml.load(stream)
+                data = yaml.load(stream, Loader=yaml.SafeLoader)
                 for stanza in data:
                     pages = []
                     stanza_map = {}

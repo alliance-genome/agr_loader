@@ -162,57 +162,57 @@
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "ExpressionAtlas",
-                "taxonIDPart": "WB",
+                "taxonIDPart": "6239",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_wb.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionATLAS",
-                "taxonIDPart": "ZFIN",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "7955",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_zfin.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAltas",
-                "taxonIDPart": "FB",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "7227",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_fb.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "ExpressionAtlas",
-                "taxonIDPart": "RGD",
+                "taxonIDPart": "10116",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_rgd.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "ExpressionAtlas",
-                "taxonIDPart": "Human",
+                "taxonIDPart": "9606",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_human.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "ExpressionAtlas",
-                "taxonIDPart": "SGD",
+                "taxonIDPart": "559292",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_sgd.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
                 "dataType": "ExpressionAtlas",
-                "taxonIDPart": "MGI",
+                "taxonIDPart": "10090",
                 "s3path": "http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml",
-                "tempExtractedFile": "basic.obo",
+                "tempExtractedFile": "expression_atlas_sitemap_mgi.xml",
                 "uploadDate": 1522181475376
             },
             {
