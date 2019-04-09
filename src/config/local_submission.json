@@ -273,6 +273,62 @@
             },
             {
                 "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "WB",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionATLAS",
+                "taxonIDPart": "ZFIN",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAltas",
+                "taxonIDPart": "FB",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "RGD",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "HUMAN",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "SGD",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": "ExpressionAtlas",
+                "taxonIDPart": "MGI",
+                "s3path": "http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml",
+                "tempExtractedFile": "basic.obo",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
                 "dataType": "Interactions",
                 "taxonIDPart": "MolecularInteraction",
                 "s3path": "INT/Alliance_molecular_interactions.tar.gz",
