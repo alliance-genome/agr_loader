@@ -231,15 +231,6 @@ class BGIETL(ETL):
             }
             gene_metadata.append(metadata_dict)
 
-        # These sitemap URLs are listed here: https://www.ebi.ac.uk/gxa/sitemap.xml
-        expressionAtlasSitemaps = {"WB": ["http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml"],
-                                   "ZFIN": ["http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml"],
-                                   "FB": ["http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml"],
-                                   "RGD": ["http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
-                                           "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml"],
-                                   "SGD": ["http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml"],
-                                   "MGI": ["http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml"]}
-
 #        expressionAtlasGenePages = {}
 #        if data_provider in expressionAtlasSitemaps:
 #            for ea_url in expressionAtlasSitemaps[data_provider]:
