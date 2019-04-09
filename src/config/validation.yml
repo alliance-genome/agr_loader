@@ -19,7 +19,7 @@ PHENOTYPE:
 EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
-GOAnnot:
+GAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref:
@@ -46,12 +46,15 @@ Ontology:
     - MA
     - ECO
     - UBERON
-Orthology:
+ORTHO:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
+ExpressionRibbonOther:
+  type: list
+  allowed: [ExpressionRibbonOther]
 GeneDiseaseOrtho:
   type: list
   allowed: [GeneDiseaseOrtho]
@@ -79,6 +82,9 @@ Closure:
 Interactions:
   type: list
   allowed: [MolecularInteraction]
+GeneDescriptions:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 FileTransactorThreads:
   type: integer
   required: True

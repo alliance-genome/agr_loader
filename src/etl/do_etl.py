@@ -20,7 +20,7 @@ class DOETL(ETL):
             SET doterm.name = row.name,
              doterm.nameKey = row.name_key,
              doterm.definition = row.definition,
-             doterm.defLinks = row.defLinksProcessed,
+             doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
              doterm.is_obsolete = row.is_obsolete,
              doterm.subset = row.subset,
              doterm.doDisplayId = row.oid,
@@ -36,7 +36,7 @@ class DOETL(ETL):
              doterm.wormbaseLink = row.wormbase_link,
              doterm.sgdLink = row.sgd_link 
              
-            MERGE (doterm)-[ggcg:IS_A_PART_OF_SELF_CLOSURE]->(doterm)"""
+            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
     
     doterm_synonyms_template = """
         USING PERIODIC COMMIT %s
@@ -197,7 +197,9 @@ class DOETL(ETL):
                     if len(split_definition) > 1:
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
-                            defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
+                            defLinks = defLinks.rstrip("]").replace("[", "")
+                            defLinksUnprocessed.append(defLinks)
+
 
 
             for dl in defLinksUnprocessed:
@@ -205,6 +207,7 @@ class DOETL(ETL):
                 dl = dl.replace("url:", "")
                 dl = dl.replace("URL:", "")
                 dl = dl.replace("\\:", ":")
+                dl = dl.replace('\\', '')
 
                 if "," in dl:
                     dl = dl.split(",")

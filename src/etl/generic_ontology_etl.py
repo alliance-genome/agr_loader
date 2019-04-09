@@ -25,8 +25,8 @@ class GenericOntologyETL(ETL):
                 g.is_obsolete = row.is_obsolete,
                 g.href = row.href,
                 g.display_synonym = row.display_synonym,
-                g.subsets = row.subsets
-        MERGE (g)-[gccg:IS_A_PART_OF_SELF_CLOSURE]->(g)
+                g.subsets = apoc.convert.fromJsonList(row.subsets)
+        MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
     generic_ontology_synonyms_template = """
@@ -69,8 +69,7 @@ class GenericOntologyETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
   
     def _process_sub_type(self, sub_type):
         logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
@@ -145,7 +144,7 @@ class GenericOntologyETL(ETL):
                             'syn' : synsplit
                         }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
-                    if "DISPLAY_SYNONYM" in syn:
+                    if "DISPLAY_SYNONYM" in o_syns:
                         display_synonym = synsplit
             # subset
             newSubset = line.get('subset')

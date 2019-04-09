@@ -29,8 +29,7 @@ class GOAnnotETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
             
         queries = []
         for item in query_tracking_list:
@@ -41,7 +40,10 @@ class GOAnnotETL(ETL):
     def _process_sub_type(self, sub_type, query_tracking_list):
         logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_file_to_download()
-        file = gzip.open("tmp/" + filepath, 'rt', encoding='utf-8')
+        filepath = 'tmp/' + filepath
+        logger.info("goannot path" + filepath)
+        file = open(filepath, "r")
+
 
         logger.info("Finished Loading GOAnnot Data: %s" % sub_type.get_data_provider())
 

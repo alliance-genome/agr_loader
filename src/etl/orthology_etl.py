@@ -24,11 +24,11 @@ class OrthologyETL(ETL):
     
             CREATE (g1)-[orth:ORTHOLOGOUS]->(g2)
                 SET orth.primaryKey = row.uuid,
-                    orth.isBestScore = row.isBestScore,
-                    orth.isBestRevScore = row.isBestRevScore,
+                    orth.isBestScore = apoc.convert.toBoolean(row.isBestScore),
+                    orth.isBestRevScore = apoc.convert.toBoolean(row.isBestRevScore),
                     orth.confidence = row.confidence,
-                    orth.strictFilter = row.strictFilter,
-                    orth.moderateFilter = row.moderateFilter
+                    orth.strictFilter = apoc.convert.toBoolean(row.strictFilter),
+                    orth.moderateFilter = apoc.convert.toBoolean(row.moderateFilter)
     
             //Create the Association node to be used for the object/doTerm
             CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
@@ -80,8 +80,7 @@ class OrthologyETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
         
         queries = []
         for item in query_tracking_list:

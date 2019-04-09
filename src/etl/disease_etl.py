@@ -21,18 +21,21 @@ class DiseaseETL(ETL):
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
-            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                SET dfa.dataProvider = row.dataProvider
+            //This is an intentional MERGE, please leave as is
+            
+            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                ON CREATE SET dfa.dataProvider = row.dataProvider
+                ON CREATE SET dfa.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_marker_of'
             )
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
+                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
                 SET faf.dateProduced = row.dateProduced,
                  faf.dataProvider = row.dataProvider,
                  dfa.joinType = 'is_implicated_in'
@@ -43,19 +46,20 @@ class DiseaseETL(ETL):
             MERGE (g)-[gadf:ASSOCIATION]->(dfa)
 
             // PUBLICATIONS FOR FEATURE
+            
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
+                ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-
-            MERGE (dfa)-[dapuf:EVIDENCE]->(pubf)
-
-            // EVIDENCE CODES FOR FEATURE
-            FOREACH (entity in row.ecodes|
-                MERGE (ecode1f:EvidenceCode {primaryKey:entity})
-                MERGE (dfa)-[daecode1f:EVIDENCE]->(ecode1f)
-            ) """
+           
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+            
+            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.uuid}]->(pubEJ)
+            
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+            """
 
     execute_gene_template = """
         USING PERIODIC COMMIT %s
@@ -64,40 +68,49 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (gene:Gene {primaryKey:row.primaryId})
 
-            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider
+                SET dga.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = row.dataProvider,
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'is_marker_of')
+                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
+                    ON CREATE SET fafg.dataProvider = row.dataProvider,
+                                  fafg.dateProduced = row.dateProduced,
+                                  dga.joinType = 'is_marker_of')
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = row.dataProvider,
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'is_implicated_in')
+                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
+                    ON CREATE SET fafg.dataProvider = row.dataProvider,
+                                  fafg.dateProduced = row.dateProduced,
+                                  dga.joinType = 'is_implicated_in')
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
 
             // PUBLICATIONS FOR GENE
+    
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubg.pubModId = row.pubModId,
+                ON CREATE SET pubg.pubModId = row.pubModId,
                     pubg.pubMedId = row.pubMedId,
                     pubg.pubModUrl = row.pubModUrl,
                     pubg.pubMedUrl = row.pubMedUrl
+            
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (dga)-[dapug:EVIDENCE]->(pubg)
-
-            // EVIDENCE CODES FOR GENE
-            FOREACH (entity in row.ecodes |
-                MERGE (ecode1g:EvidenceCode {primaryKey:entity})
-                MERGE (dga)-[daecode1g:EVIDENCE]->(ecode1g)
-            )
+            MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
+            MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
 
             """
+    execute_ecode_template ="""
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
+            MERGE (ecode1g:EvidenceCode {primaryKey:row.ecode})
+            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(ecode1g)
+                
+    """
 
     def __init__(self, config):
         super().__init__()
@@ -111,8 +124,7 @@ class DiseaseETL(ETL):
             p.start()
             thread_pool.append(p)
 
-        for thread in thread_pool:
-            thread.join()
+        ETL.wait_for_threads(thread_pool)
 
         self.delete_empty_nodes()
 
@@ -145,6 +157,7 @@ class DiseaseETL(ETL):
         query_list = [
             [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -157,6 +170,7 @@ class DiseaseETL(ETL):
     def get_generators(self, disease_data, batch_size, data_provider):
         gene_list_to_yield = []
         allele_list_to_yield = []
+        evidence_code_list_to_yield = []
         counter = 0
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -192,20 +206,30 @@ class DiseaseETL(ETL):
             if diseaseObjectType == "gene":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
+                    for ecode in disease_record.get('ecodes'):
+                        ecode_map = {"uuid": disease_record.get('uuid'),
+                                      "ecode": ecode}
+                        evidence_code_list_to_yield.append(ecode_map)
+
                     gene_list_to_yield.append(disease_record)
                  
             elif diseaseObjectType == "allele":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
                 if disease_record is not None:
+                    for ecode in disease_record.get('ecodes'):
+                        ecode_map = {"uuid": disease_record.get('uuid'),
+                                      "ecode": ecode}
+                        evidence_code_list_to_yield.append(ecode_map)
                     allele_list_to_yield.append(disease_record)
             else:
                 continue
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield]
+                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
+                evidence_code_list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield]

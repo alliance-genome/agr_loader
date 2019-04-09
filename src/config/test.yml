@@ -5,7 +5,7 @@ ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GOAnnot: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 Ontology:
   - GO
@@ -26,8 +26,9 @@ Ontology:
   - MA
   - ECO
   - UBERON
-Orthology: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
+ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
   - GO
@@ -49,6 +50,8 @@ Closure:
   - ECO
   - UBERON
 Interactions: [MolecularInteraction]
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+
 
 # Loader configuration values are below.
 # Please modify with caution!

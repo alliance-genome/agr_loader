@@ -38,7 +38,7 @@ class TestObject(object):
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
             # gene descriptions
-            'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043',
+            'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043', 'MGI:104807',
         }
 
         self.wormbaseIdSet = {
@@ -54,7 +54,8 @@ class TestObject(object):
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
             'WB:WBGene00004488', 'WB:WBGene00000898',
             # gene descriptions
-            'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844',
+            'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
+            'WB:WBVar00239315'
         }
 
         self.sgdIdSet = {
@@ -68,7 +69,10 @@ class TestObject(object):
             # gene descriptions
             'SGD:S000004695', 'SGD:S000004916', 'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284',
             'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074',
-            'SGD:S000002678', 'SGD:S000003487', 'SGD:S000000458', 'SGD:S000006068',
+            'SGD:S000002678', 'SGD:S000003487', 'SGD:S000000458', 'SGD:S000006068', 'SGD:S000005269', 'SGD:S000007324',
+            'SGD:S000004241', 'SGD:S000002536',
+            # expression
+            'SGD:S000002200',
 
         }
 
@@ -89,7 +93,7 @@ class TestObject(object):
             # disease specific test objects
             'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-990415-122',
             'ZFIN:ZDB-GENE-980526-41',
-            'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-980203-1091',
+            'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-980203-1091', 'ZFIN:ZDB-ALT-121210-2',
             'ZFIN:ZDB-GENE-000816-1', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-GENE-980526-41',
             'ZFIN:ZDB-GENE-980526-166', 'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-GENE-020905-1',
             'ZFIN:ZDB-GENE-060312-41',
@@ -101,7 +105,9 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-030131-7696', 'ZFIN:ZDB-GENE-060312-41',
             # gene descriptions
             'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',
-            'ZFIN:ZDB-GENE-040426-1294',
+            'ZFIN:ZDB-GENE-040426-1294', 'ZFIN:ZDB-GENE-040718-10',
+            # genomic locations
+            'ZFIN:ZDB-GENE-990415-8',
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
@@ -117,7 +123,7 @@ class TestObject(object):
             # disease
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499',
             # gene descriptions
-            'FB:FBgn0027655', 'FB:FBgn0045035',
+            'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
@@ -126,11 +132,11 @@ class TestObject(object):
             # disease pheno specific test objects
             'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329', 'RGD:2917', 'RGD:2869',
             # expression
-            'RGD:3884', 'RGD:3889',
+            'RGD:3884', 'RGD:3889', 'RGD:2129',
             # allele gene and alleles
             'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
             # gene descriptions
-            'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787',
+            'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787', 'RGD:621409',
         }
 
         self.humanTestSet = {
@@ -139,7 +145,7 @@ class TestObject(object):
             # disease pheno specific test objects
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811', 'HGNC:6091',
             # gene descriptions
-            'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291',
+            'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

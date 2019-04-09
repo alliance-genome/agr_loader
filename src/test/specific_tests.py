@@ -27,14 +27,16 @@ def test_isobsolete_false():
 
 
 def test_species_disease_pub_gene_exists():
-    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+            "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_species_disease_pub_allele_exists():
-    query = "MATCH (s:Species)--(a:Allele)--(dg:DiseaseEntityJoin)--(p:Publication) RETURN COUNT(p) AS count"
+    query = "MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+            "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
@@ -59,6 +61,7 @@ def test_zfin_gene_has_expression_link():
 
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
+            "and cr.crossRefType <> 'interaction' " \
             "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -90,22 +93,16 @@ def test_gene_has_automated_description():
 
 
 def test_gene_has_all_three_automated_description_components():
-    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000004695', 'SGD:S000004916', " \
-            "'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284'," \
-               "'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596'," \
-               "'SGD:S000004777', 'SGD:S000006074','SGD:S000002678', 'SGD:S000003487', "\
-               "'SGD:S000000458', 'SGD:S000006068', 'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844'," \
-               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-GENE-040426-1294',"\
-               "'ZFIN:ZDB-GENE-040426-1294', 'FB:FBgn0027655', 'FB:FBgn0045035','RGD:68337', 'RGD:2332', " \
-               "'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043'," \
-               "'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
-            "and not (g.automatedGeneSynopsis =~ '.*xhibits.*'" \
-                "or g.automatedGeneSynopsis =~ '.*nvolved in.*'" \
-                "or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
-                "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
-                "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
-            "and not g.automatedGeneSynopsis =~ '.*sed to study.*'" \
-            "and not g.automatedGeneSynopsis =~ '.*rthologous to.*' return count(g) as counter"
+    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
+              "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
+              "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
+              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+            "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
+              "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
+              "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
+              "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
+            "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
+              "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 0
@@ -346,13 +343,31 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(ec:EvidenceCode) " \
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(ec:EvidenceCode) " \
             "where ec.primaryKey = 'IEA'" \
             "and deg.dataProvider = 'Alliance'" \
             "return count(gene) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_gene_to_disease_annotation_via_ortho_has_publication():
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+            "where" \
+            " deg.dataProvider = 'Alliance'" \
+            "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_to_disease_annotation_has_publication():
+        query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+                "return count(gene) as counter"
+        result = execute_transaction(query)
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
@@ -460,6 +475,97 @@ def test_human_gene_has_rgd_references_cross_reference():
 def test_gene_has_symbol_with_species():
     query = "match (gene:Gene) where gene.symbolWithSpecies = 'fgf8a (Dre)' and gene.symbol = 'fgf8a' " \
             "return count(gene) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_genome_start_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.start <> toInt(gf.start) return count(gf) " \
+            "as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_end_is_long():
+    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.end <> toInt(gf.end) " \
+            "return count(gf) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_phylogenetic_order_is_int():
+    query = "match (g:Species) where g.phylogeneticOrder <> toInt(g.phylogeneticOrder) " \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_all_species_have_order():
+    query = "match (g:Species) where g.phylogeneticOrder is null " \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_best_score_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) where orth.isBestScore <> toBoolean(orth.isBestScore) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_strict_filter_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.strictFilter <> toBoolean(orth.strictFilter) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_moderate_filter_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.moderateFilter <> toBoolean(orth.moderateFilter) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_ortho_is_best_rev_score_is_boolean():
+    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
+            "where orth.isBestRevScore <> toBoolean(orth.isBestRevScore) " \
+            "return count(orth) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_go_term_has_type_biological_process():
+    query = "match (go:GOTerm) where go.primaryKey = 'GO:0000003' and go.type = 'biological_process' " \
+            "return count(go) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_sgd_gene_has_gene_disease_ortho():
+    query = "match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene) where g.primaryKey " \
+            "= 'SGD:S000002536' return count(d) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+
+
+def test_mmo_term_has_display_alias():
+    query = "match (mmo:MMOTerm) where mmo.primaryKey " \
+            "= 'MMO:0000642' and mmo.display_synonym = 'protein expression' return count(mmo) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0

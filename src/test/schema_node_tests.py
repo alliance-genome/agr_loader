@@ -46,6 +46,7 @@ class TestClass(object):
                              dict(node='Stage'),
                              dict(node='BioEntityGeneExpressionJoin'),
                              dict(node='InteractionGeneJoin'),
+                             #dict(node='GenomicLocationBin'),
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
@@ -69,6 +70,9 @@ class TestClass(object):
                             dict(node='Gene', prop='primaryKey'),
                             dict(node='Gene', prop='modGlobalId'),
                             dict(node='Gene', prop='uuid'),
+                            #dict(node='GenomicLocationBin', prop='primaryKey'),
+                            #dict(node='GenomicLocationBin', prop='assembly'),
+                            #dict(node='GenomicLocationBin', prop='number'),
                             dict(node='GOTerm', prop='primaryKey'),
                             dict(node='Gene', prop='dataProvider'),
                             #dict(node='SOTerm', prop='name'),
@@ -96,10 +100,12 @@ class TestClass(object):
                             dict(node='Species', prop='name'),
                             dict(node='Species', prop='species'),
                             dict(node='Species', prop='primaryKey'),
+                            dict(node='Species', prop='phylogeneticOrder'),
                             dict(node='Entity', prop='primaryKey'),
                             dict(node='Chromosome', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='joinType'),
+                            dict(node='DiseaseEntityJoin', prop='sortOrder'),
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                             dict(node='InteractionGeneJoin', prop='joinType'),
                             dict(node='Association', prop='joinType'),
@@ -135,6 +141,12 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'),
                                dict(node='Gene', prop='uuid'),
                                dict(node='Gene', prop='dataProvider'),
+<<<<<<< HEAD
+=======
+                               #dict(node='GenomicLocationBin', prop='primaryKey'),
+                               #dict(node='GenomicLocationBin', prop='assembly'),
+                               #dict(node='GenomicLocationBin', prop='number'),
+>>>>>>> master
                                dict(node='GOTerm', prop='primaryKey'),
                                #dict(node='SOTerm', prop='name'),
                                dict(node='SOTerm', prop='primaryKey'),
@@ -184,12 +196,16 @@ class TestClass(object):
                                dict(node='Stage', prop='primaryKey'),
                                ],
 
-        'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'),
+        'test_prop_unique': [#dict(node='EvidenceCode', prop='primaryKey'),
                              dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
+<<<<<<< HEAD
+=======
+                             #dict(node='GenomicLocationBin', prop='primaryKey'),
+>>>>>>> master
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                             dict(node='Chromosome', prop='primaryKey'),
+                             #dict(node='Chromosome', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
                              dict(node='CrossReference', prop='primaryKey'),

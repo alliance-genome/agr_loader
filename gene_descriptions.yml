@@ -1,0 +1,578 @@
+go_sentences_options:
+    exclude_terms:
+        - "GO:0008150"
+        - "GO:0003674"
+        - "GO:0005575"
+        - "GO:0005488"
+        - "GO:0005515"
+        - "GO:0044877"
+    rename_terms:
+        "(.*)molting cycle, collagen and cuticulin-based cuticle(.*)": "\\1molting cycle\\2"
+        "(.*)molting cycle, chitin-based cuticle(.*)": "\\1molting cycle\\2"
+        "(.*)multicellular organism growth(.*)": "\\1growth\\2"
+        "(.*)embryo development ending in birth or egg hatching(.*)": "\\1embryo development\\2"
+        "(.*)synaptic transmission, (\\w+)(.*)": "\\1\\2 synaptic transmission\\3"
+        "(.*)postsynaptic synaptic(.*)": "\\1postsynaptic\\2"
+        "^(?!.*activity)(.*)binding(.*)$": "\\1binding activity\\2"
+    evidence_codes:
+        EXP:
+            group: EXPERIMENTAL
+            priority: 1
+        IDA:
+            group: EXPERIMENTAL
+            priority: 2
+        IPI:
+            group: EXPERIMENTAL
+            priority: 3
+        IMP:
+            group: EXPERIMENTAL
+            priority: 4
+        IGI:
+            group: EXPERIMENTAL
+            priority: 5
+        IEP:
+            group: EXPERIMENTAL
+            priority: 6
+        HTP:
+            group: HIGH_THROUGHPUT_EXPERIMENTAL
+            priority: 7
+        HDA:
+            group: HIGH_THROUGHPUT_EXPERIMENTAL
+            priority: 8
+        HMP:
+            group: HIGH_THROUGHPUT_EXPERIMENTAL
+            priority: 9
+        HGI:
+            group: HIGH_THROUGHPUT_EXPERIMENTAL
+            priority: 10
+        HEP:
+            group: HIGH_THROUGHPUT_EXPERIMENTAL
+            priority: 11
+        ISS:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 13
+        ISO:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 14
+        ISA:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 15
+        ISM:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 16
+        IBA:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 12
+        IBD:
+            group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+            priority: 17
+        TAS:
+            group: INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 18
+        IC:
+            group: INFERRED_BY_CURATORS_AND_AUTHORS
+            priority: 19
+        RCA:
+            group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+            priority: 21
+        IEA:
+            group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+            priority: 20
+    group_priority:
+        EXPERIMENTAL: 1
+        HIGH_THROUGHPUT_EXPERIMENTAL: 2
+        PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS: 3
+        INFERRED_BY_CURATORS_AND_AUTHORS: 4
+        ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS: 5
+    prepostfix_sentences_map:
+        - aspect: F
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "exhibits"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "a"
+                postfix: ""
+        - aspect: F
+          group: EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "contributes as a"
+                postfix: ""
+        - aspect: F
+          group: EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "contributes as a"
+                postfix: ""
+        - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: ""
+          prefix: "exhibits"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "a"
+                postfix: ""
+        - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "a"
+                postfix: ""
+        - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "colocalizes with a"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to have"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to be a"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to contribute as a"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
+                postfix: ""
+        - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "predicted to have"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to be a"
+                postfix: ""
+        - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to contribute as a"
+                postfix: ""
+        - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to have"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to be a"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to contribute as a"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "predicted to colocalize with a"
+                postfix: ""
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: ""
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to be involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "predicted to be involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to be involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "predicted to contribute to"
+          postfix: ""
+          special_cases:
+        - aspect: C
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "localizes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: ""
+          prefix: "localizes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "colocalizes_with"
+          prefix: "colocalizes with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to localize to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: ""
+          prefix: "predicted to localize to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "colocalizes_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: ""
+          prefix: "predicted to localize to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "colocalize_with"
+          prefix: "predicted to colocalize with"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
+        F: "functions"
+        P: "processes"
+        C: "cellular components"
+        D: "diseases"
+    remove_parents_if_children_are_present: true
+    remove_children_if_parent_is_present: false
+    trim_terms_by_common_ancestors: true
+    trimming_algorithm: naive
+    max_num_terms: 3
+    trim_min_distance_from_root:
+      F: 3
+      P: 5
+      C: 5
+    add_multiple_if_covers_more_children: false
+    remove_overlapped_terms: true
+    slim_url: http://current.geneontology.org/ontology/subsets/goslim_generic.obo
+    slim_bonus_perc: 0.5
+
+do_exp_sentences_options:
+    exclude_terms:
+        - "DOID:0050736"
+        - "DOID:0050737"
+        - "DOID:0050739"
+        - "DOID:0050177"
+        - "DOID:630"
+        - "DOID:225"
+        - "DOID:7"
+        - "DOID:0080015"
+        - "DOID:0050117"
+        - "DOID:0080014"
+    evidence_codes:
+        IMP:
+            group: EXPERIMENTAL
+            priority: 1
+        IDA:
+            group: EXPERIMENTAL
+            priority: 2
+        IAGP:
+            group: EXPERIMENTAL
+            priority: 3
+        IC:
+            group: EXPERIMENTAL
+            priority: 4
+        TAS:
+            group: EXPERIMENTAL
+            priority: 5
+        IGI:
+            group: EXPERIMENTAL
+            priority: 6
+        CEA:
+            group: EXPERIMENTAL
+            priority: 7
+        CEC:
+            group: EXPERIMENTAL
+            priority: 8
+        EXP:
+            group: EXPERIMENTAL
+            priority: 9
+        IPM:
+            group: EXPERIMENTAL
+            priority: 10
+        IED:
+            group: EXPERIMENTAL
+            priority: 11
+        IEP:
+            group: EXPERIMENTAL
+            priority: 12
+    group_priority:
+        EXPERIMENTAL: 1
+    prepostfix_sentences_map:
+        - aspect: "D"
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "used to study"
+          postfix: ""
+    prepostfix_sentences_map_humans:
+        - aspect: "D"
+          group: EXPERIMENTAL
+          qualifier: ""
+          prefix: "implicated in"
+          postfix: ""
+    remove_parents_if_children_are_present: false
+    remove_children_if_parent_is_present: false
+    trim_terms_by_common_ancestors: true
+    trimming_algorithm: naive
+    max_num_terms: 5
+    trim_min_distance_from_root:
+        D: 4
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
+        D: "diseases"
+    add_multiple_if_covers_more_children: true
+    slim_url: ''
+    slim_bonus_perc: 0
+
+do_biomarker_sentences_options:
+    exclude_terms:
+      - "DOID:0050736"
+      - "DOID:0050737"
+      - "DOID:0050739"
+      - "DOID:0050177"
+      - "DOID:630"
+      - "DOID:225"
+      - "DOID:7"
+      - "DOID:0080015"
+      - "DOID:0050117"
+      - "DOID:0080014"
+    evidence_codes:
+        BMK:
+            group: BIOMARKER
+            priority: 1
+    group_priority:
+        BIOMARKER: 1
+    prepostfix_sentences_map:
+         - aspect: "D"
+           group: BIOMARKER
+           qualifier: ""
+           prefix: "biomarker of"
+           postfix: ""
+    prepostfix_sentences_map_humans:
+         - aspect: "D"
+           group: BIOMARKER
+           qualifier: ""
+           prefix: "biomarker of"
+           postfix: ""
+    remove_parents_if_children_are_present: false
+    remove_children_if_parent_is_present: false
+    trim_terms_by_common_ancestors: true
+    trimming_algorithm: naive
+    max_num_terms: 5
+    trim_min_distance_from_root:
+        D: 4
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
+        D: "diseases"
+    add_multiple_if_covers_more_children: true
+
+do_via_orth_sentences_options:
+    exclude_terms:
+      - "DOID:0050736"
+      - "DOID:0050737"
+      - "DOID:0050739"
+      - "DOID:0050177"
+      - "DOID:630"
+      - "DOID:225"
+      - "DOID:7"
+      - "DOID:0080015"
+      - "DOID:0050117"
+      - "DOID:0080014"
+    evidence_codes:
+        DVO:
+            group: ORTHOLOGY_BASED
+            priority: 1
+    group_priority:
+        ORTHOLOGY_BASED: 1
+    prepostfix_sentences_map:
+        - aspect: "D"
+          group: ORTHOLOGY_BASED
+          qualifier: ""
+          prefix: "human ortholog(s) of this gene implicated in"
+          postfix: ""
+    prepostfix_sentences_map_humans:
+        - aspect: "D"
+          group: ORTHOLOGY_BASED
+          qualifier: ""
+          prefix: "ortholog(s) of this gene implicated in"
+          postfix: ""
+    remove_parents_if_children_are_present: false
+    remove_children_if_parent_is_present: false
+    trim_terms_by_common_ancestors: true
+    trimming_algorithm: naive
+    max_num_terms: 5
+    trim_min_distance_from_root:
+        D: 4
+    truncate_others_aggregation_word: several
+    truncate_others_terms:
+        D: "diseases"
+    add_multiple_if_covers_more_children: true

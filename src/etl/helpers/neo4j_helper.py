@@ -1,6 +1,6 @@
 import os, logging
 
-from neo4j.v1 import GraphDatabase
+from neo4j import GraphDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Transgene(primaryKey)")
         session.run("CREATE INDEX ON :Fish(primaryKey)")
         session.run("CREATE INDEX ON :DiseaseObject(primaryKey)")
+        session.run("CREATE INDEX ON :DiseaseEntityJoin(primaryKey)")
         session.run("CREATE INDEX ON :EnvironmentCondition(primaryKey)")
         session.run("CREATE INDEX ON :Environment(primaryKey)")
         session.run("CREATE INDEX ON :Species(primaryKey)")
@@ -121,6 +122,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :ExpressionBioEntity(primaryKey)")
         session.run("CREATE INDEX ON :Assay(primaryKey)")
         session.run("CREATE INDEX ON :Stage(primaryKey)")
+        session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
         
         session.run("CREATE INDEX ON :ZFATerm(primaryKey)")
         session.run("CREATE INDEX ON :ZFSTerm(primaryKey)")
