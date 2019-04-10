@@ -147,7 +147,8 @@ class DataFileManager(metaclass=Singleton):
 
             returned_dict = None
 
-            if dataType != 'Ontology' and dataType != 'Interactions' and dataType != 'GOAnnot':
+            # These following types are found in the local submission file
+            if dataType not in ['Ontology', 'Interactions', 'GOAnnot', 'ExpressionAtlas']:
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry

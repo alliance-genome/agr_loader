@@ -3,8 +3,6 @@ logger = logging.getLogger(__name__)
 
 import uuid
 import math
-import urllib.request
-import xmltodict
 import multiprocessing
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -231,19 +229,6 @@ class BGIETL(ETL):
             }
             gene_metadata.append(metadata_dict)
 
-#        expressionAtlasGenePages = {}
-#        if data_provider in expressionAtlasSitemaps:
-#            for ea_url in expressionAtlasSitemaps[data_provider]:
-#                req = urllib.request.Request(ea_url)
-#                with urllib.request.urlopen(req) as response:
-#                    urlset = xmltodict.parse(response.read())["urlset"]
-#                    for value in urlset.values():
-#                        if isinstance(value, (list,)):
-#                            for element in value:
-#                                url = element['loc']
-#                                expressionAtlasGene = url.split("/")[-1]
-#                                expressionAtlasGenePages[expressionAtlasGene] = url
-
         for geneRecord in gene_data['data']:
             counter = counter + 1
 
@@ -433,18 +418,6 @@ class BGIETL(ETL):
                         "secondary_id": secondaryId
                     }
                     secondaryIds.append(geneSecondaryId)
-
-#            gene["expressionAtlasUrl"] = None
-#            if taxonId == "559292":
-#                for secondaryId in secondaryIds:
-#                    lowercaseId = secondaryId.lower()
-#                    if lowercaseId in expressionAtlasGenePages:
-#                        gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
-#                        break
-#            else:
-#                lowercaseId = local_id.lower()
-#                if lowercaseId in expressionAtlasGenePages:
-#                    gene["expressionAtlasUrl"] = expressionAtlasGenePages[lowercaseId]
 
             gene_dataset.append(gene)
             # We should have the metadata ready to go after the first loop of the generator.
