@@ -198,7 +198,6 @@ class BGIETL(ETL):
 
         dataProviderCrossRef = dataProviderObject.get('crossReference')
         dataProvider = dataProviderCrossRef.get('id')
-
         # dataProviderPages = dataProviderCrossRef.get('pages')
         # dataProviderCrossRefSet = []
 
@@ -357,7 +356,6 @@ class BGIETL(ETL):
                 "dateProduced": dateProduced
             }
             gene_dataset.append(gene)
-
 
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
