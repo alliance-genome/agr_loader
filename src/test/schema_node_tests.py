@@ -141,12 +141,9 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'),
                                dict(node='Gene', prop='uuid'),
                                dict(node='Gene', prop='dataProvider'),
-<<<<<<< HEAD
-=======
                                #dict(node='GenomicLocationBin', prop='primaryKey'),
                                #dict(node='GenomicLocationBin', prop='assembly'),
                                #dict(node='GenomicLocationBin', prop='number'),
->>>>>>> master
                                dict(node='GOTerm', prop='primaryKey'),
                                #dict(node='SOTerm', prop='name'),
                                dict(node='SOTerm', prop='primaryKey'),
@@ -199,10 +196,7 @@ class TestClass(object):
         'test_prop_unique': [#dict(node='EvidenceCode', prop='primaryKey'),
                              dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
-<<<<<<< HEAD
-=======
                              #dict(node='GenomicLocationBin', prop='primaryKey'),
->>>>>>> master
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                              #dict(node='Chromosome', prop='primaryKey'),
