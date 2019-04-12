@@ -1,4 +1,4 @@
-import logging
+ logging
 
 import yaml, re, sys
 
@@ -12,7 +12,7 @@ class ResourceDescriptorService(object):
     def __init__(self):
 
         # TODO This should eventually be tied to the schemas submodule.       
-        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/develop/resourceDescriptors.yaml'
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
         resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
 
         self.yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
