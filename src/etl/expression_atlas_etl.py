@@ -12,12 +12,17 @@ from transactors import CSVTransactor, Neo4jTransactor
 logger = logging.getLogger(__name__)
 
 class ExpressionAtlasETL(ETL):
-    get_all_gene_primary_to_ensmbl_ids_query = """
+    get_all_gene_primary_to_ensmbl_ids_template = """
         MATCH (g:Gene)-[:CROSS_REFERENCE]-(c:CrossReference)
         WHERE c.globalCrossRefId STARTS WITH 'ENSEMBL:'
         RETURN g.primaryKey, c.globalCrossRefId"""
 
-    get_genes_with_expression_atlas_links_query = """
+    get_mod_gene_symbol_to_primary_ids_template = """
+        MATCH (g:Gene)
+        WHERE g.dataProvider = {parameter}
+        RETURN g.primaryKey, g.symbol"""
+
+    get_genes_with_expression_atlas_links_template = """
         MATCH (g:Gene)
         WHERE LOWER(g.primaryKey) IN {parameter}
         RETURN g.primaryKey, g.modLocalId"""
@@ -36,6 +41,7 @@ class ExpressionAtlasETL(ETL):
     def _load_and_process_data(self):
         thread_pool = []
         ensgToGenePrimaryIdMap = self._get_primary_gene_ids_to_ensembl_ids()
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, ensgToGenePrimaryIdMap))
             p.start()
@@ -44,17 +50,17 @@ class ExpressionAtlasETL(ETL):
         ETL.wait_for_threads(thread_pool)
 
     def _get_primary_gene_ids_to_ensembl_ids(self):
-        returnSet = Neo4jHelper.run_single_query(ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_query)
+        returnSet = Neo4jHelper.run_single_query(ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_template)
+        return {record["c.globalCrossRefId"].split(":")[1].lower(): record["g.primaryKey"] for record in returnSet}
 
-        primaryIdToEnsgId = dict()
-        for record in returnSet:
-            primaryIdToEnsgId[record["c.globalCrossRefId"].split(":")[1].lower()] = record["g.primaryKey"]
-
-        return primaryIdToEnsgId
+    def _get_mod_gene_symbol_to_primary_ids(self, dataProvider):
+        returnSet = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_template, dataProvider)
+        return {record["g.symbol"].lower(): record["g.primaryKey"] for record in returnSet}
 
     # Returns only pages for genes that we have in the Alliance
     def _get_expression_atlas_gene_pages(self, sub_type, dataProvider, ensgToGenePrimaryIdMap):
         filepath = sub_type.get_filepath()
+        geneSymbolToPrimaryIdMap = self._get_mod_gene_symbol_to_primary_ids(dataProvider)
 
         expressionAtlasGenePages = {}
         with open(filepath) as fd:
@@ -66,6 +72,8 @@ class ExpressionAtlasETL(ETL):
                         expressionAtlasGene = url.split("/")[-1]
                         if expressionAtlasGene in ensgToGenePrimaryIdMap:
                             expressionAtlasGenePages[ensgToGenePrimaryIdMap[expressionAtlasGene].lower()] = url
+                        elif expressionAtlasGene in geneSymbolToPrimaryIdMap:
+                            expressionAtlasGenePages[geneSymbolToPrimaryIdMap[expressionAtlasGene].lower()] = url
                         else:
                             allianceGene = dataProvider + ":" + expressionAtlasGene
                             expressionAtlasGenePages[allianceGene.lower()] = url
@@ -90,7 +98,7 @@ class ExpressionAtlasETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, expressionAtlasGenePages, dataProvider, batch_size):
-        returnSet = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,
+        returnSet = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_genes_with_expression_atlas_links_template,
                                                            list(expressionAtlasGenePages.keys()))
 
         counter = 0
