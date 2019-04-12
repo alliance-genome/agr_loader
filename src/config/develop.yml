@@ -50,7 +50,7 @@ Closure:
   - MA
   - ECO
   - UBERON
-#Interactions: [MolecularInteraction]
+Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 
 # Loader configuration values are below.

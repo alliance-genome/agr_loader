@@ -356,6 +356,7 @@ class BGIETL(ETL):
                 "dataProvider" : dataProvider,
                 "dateProduced": dateProduced
             }
+            gene_dataset.append(gene)
 
 
             if 'genomeLocations' in geneRecord:
@@ -419,7 +420,6 @@ class BGIETL(ETL):
                     }
                     secondaryIds.append(geneSecondaryId)
 
-            gene_dataset.append(gene)
             # We should have the metadata ready to go after the first loop of the generator.
             self.metadata_is_loaded[loadKey] = True
 
