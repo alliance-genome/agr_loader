@@ -1,4 +1,4 @@
-import logging, sys, uuid
+import logging, sys
 logger = logging.getLogger(__name__)
 
 import multiprocessing
@@ -6,7 +6,6 @@ import xmltodict
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
-from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
 logger = logging.getLogger(__name__)
