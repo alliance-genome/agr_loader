@@ -399,12 +399,12 @@ class MolecularInteractionETL(ETL):
                 taxon_id_2 = row[10]
 
                 # After we pass all our filtering / continue opportunities, we start working with the variables.
-                taxon_id_1_re = re.search('\d+', taxon_id_1)
+                taxon_id_1_re = re.search(r'\d+', taxon_id_1)
                 taxon_id_1_to_load = 'NCBITaxon:' + taxon_id_1_re.group(0)
 
                 taxon_id_2_to_load = None
                 if taxon_id_2 is not '-':
-                    taxon_id_2_re = re.search('\d+', taxon_id_2)
+                    taxon_id_2_re = re.search(r'\d+', taxon_id_2)
                     taxon_id_2_to_load = 'NCBITaxon:' + taxon_id_2_re.group(0)
                 else:
                     taxon_id_2_to_load = taxon_id_1_to_load # self interaction
@@ -439,7 +439,7 @@ class MolecularInteractionETL(ETL):
                 publication_url = None
                 
                 if row[8] is not '-':
-                    publication_re = re.search('pubmed:\d+', row[8])
+                    publication_re = re.search(r'pubmed:\d+', row[8])
                     if publication_re is not None:
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')

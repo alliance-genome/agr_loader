@@ -25,7 +25,7 @@ class ResourceDescriptorHelper(object):
         if not os.path.exists(self.savepath):
             logger.info("Making temp file storage: " + self.savepath)
             os.makedirs(self.savepath)
-        url = "https://github.com/alliance-genome/agr_schemas/blob/develop/" + self.filename
+        url = "https://github.com/alliance-genome/agr_schemas/blob/master/" + self.filename
         filepath = self.savepath + "/" + self.filename
         if not os.path.exists(filepath):
             response = urllib.request.urlopen(url)
@@ -37,7 +37,7 @@ class ResourceDescriptorHelper(object):
 
         with codecs.open(self.savepath + "/" + self.filename, 'r', 'utf-8') as stream:
             try:
-                data = yaml.load(stream)
+                data = yaml.load(stream, Loader=yaml.SafeLoader)
                 for stanza in data:
                     pages = []
                     stanza_map = {}

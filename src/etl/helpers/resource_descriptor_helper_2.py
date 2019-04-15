@@ -10,10 +10,10 @@ class ResourceDescriptorHelper2(object):
     def __init__(self):
 
         # TODO This should eventually be tied to the schemas submodule.       
-        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/develop/resourceDescriptors.yaml'
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
         resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
 
-        self.yaml_list = yaml.load(resource_descriptor_file)
+        self.yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
         self.resource_descriptor_dict = {}

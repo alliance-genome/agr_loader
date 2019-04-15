@@ -31,7 +31,7 @@ class Download(object):
         return data
 
     def get_downloaded_data_new(self):
-        logger.info("Downloading data from ..." + self.urlToRetrieve)
+        logger.info("Downloading data from ... " + self.urlToRetrieve)
         if not os.path.exists(self.savepath):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)

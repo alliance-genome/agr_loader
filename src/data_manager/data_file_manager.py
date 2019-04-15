@@ -7,7 +7,6 @@ from etl.helpers import ETLHelper
 from common import Singleton
 from .data_type_config import DataTypeConfig
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -17,14 +16,14 @@ class DataFileManager(metaclass=Singleton):
         # Load config yaml.
         logger.info('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
-        self.config_data = yaml.load(config_file)
+        self.config_data = yaml.load(config_file, Loader=yaml.SafeLoader)
         logger.debug("Config Data: %s" % self.config_data)
 
         # Load validation yaml.
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
         logger.info('Loading validation schema: %s' % validation_yaml_file_loc)
         validation_schema_file = open(validation_yaml_file_loc, 'r')
-        self.validation_schema = yaml.load(validation_schema_file)
+        self.validation_schema = yaml.load(validation_schema_file, Loader=yaml.SafeLoader)
 
         # Assign values for thread counts.
         self.FileTransactorThreads = self.config_data['FileTransactorThreads']
@@ -148,16 +147,15 @@ class DataFileManager(metaclass=Singleton):
 
             returned_dict = None
 
-            if dataType != 'Ontology' and dataType != 'Interactions' and dataType != 'GOAnnot':
+            # These following types are found in the local submission file
+            if dataType not in ['Ontology', 'Interactions', 'GOAnnot', 'ExpressionAtlas']:
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
 
             try:
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
-                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType
-                                     )
-
+                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType)
             except StopIteration:
                 logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.warn('Creating entry with \'None\' path and extracted path.')
@@ -167,6 +165,7 @@ class DataFileManager(metaclass=Singleton):
                     'path': None,
                     'tempExtractedFile': None
                 }
+
             return returned_dict
 
     def query_submission_system(self):
@@ -191,7 +190,6 @@ class DataFileManager(metaclass=Singleton):
                 for sub_entry in self.config_data[entry]:
                     logger.debug("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
-
                     path = submission_system_dict.get('s3path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
                     if tempExtractedFile is None or tempExtractedFile == '':

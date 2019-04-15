@@ -46,6 +46,9 @@ Ontology:
     - MA
     - ECO
     - UBERON
+ExpressionAtlas:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ORTHO:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]

@@ -72,6 +72,7 @@ class AggregateLoader(object):
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
+            'ExpressionAtlas': ExpressionAtlasETL,
             'Ontology': GenericOntologyETL,
             'ALLELE': AlleleETL,
             'GO': GOETL,
@@ -102,6 +103,7 @@ class AggregateLoader(object):
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
+            ['ExpressionAtlas'],
             ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
             ['ORTHO'],  # Locks Genes

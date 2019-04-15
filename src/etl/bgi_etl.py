@@ -130,9 +130,9 @@ class BGIETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        
+
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
             p.start()
@@ -417,7 +417,7 @@ class BGIETL(ETL):
                         "secondary_id": secondaryId
                     }
                     secondaryIds.append(geneSecondaryId)
-            
+
             # We should have the metadata ready to go after the first loop of the generator.
             self.metadata_is_loaded[loadKey] = True
 
