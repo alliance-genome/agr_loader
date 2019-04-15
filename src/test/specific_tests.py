@@ -16,6 +16,7 @@ def test_doterm_exists():
     query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0001816' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
+        assert record["count"] == 1
 
 def test_isobsolete_false():
     query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
