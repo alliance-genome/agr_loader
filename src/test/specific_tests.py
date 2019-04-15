@@ -16,8 +16,6 @@ def test_doterm_exists():
     query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0001816' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
-        assert record["count"] == 1
-
 
 def test_isobsolete_false():
     query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
@@ -64,7 +62,7 @@ def test_mods_have_gene_expression_atlas_link():
             "RETURN count(distinct(g.taxonId)) AS counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] = 7
+        assert record["counter"] == 7
 
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
