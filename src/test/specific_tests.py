@@ -153,6 +153,14 @@ def test_phenotype_for_all_species_exists():
         assert record["counter"] == 6
 
 
+#TODO: change to 5 when FB updates global id in variant submission
+def test_variant_for_expected_species_exists():
+    query = "MATCH (s:Species)--()--(p:Variant) RETURN count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 4
+
+
 def test_disease_for_all_species_exists():
     query = "MATCH (s:Species)--()-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm) " \
             "RETURN count(distinct s) as counter"

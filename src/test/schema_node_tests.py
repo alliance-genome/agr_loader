@@ -18,9 +18,12 @@ class TestClass(object):
     # a map specifying multiple argument sets for a test method
     params = {
 
-        'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE')],
+        'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE'),
+                                     dict(relationship='LOCATED_ON'),
+                                     dict(relationship='VARIATION')],
 
         'test_node_exists': [dict(node='Ontology'),
+                             dict(node='Variant'),
                              dict(node='SOTerm'),
                              dict(node='DOTerm'),
                              dict(node='GOTerm'),
@@ -127,10 +130,13 @@ class TestClass(object):
                             dict(node='ExpressionBioEntity', prop='primaryKey'),
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
-                            dict(node='DOTerm', prop='defLinks')
+                            dict(node='DOTerm', prop='defLinks'),
+                            dict(node='Variant', prop='primaryKey')
+
                             ],
 
         'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'),
+                               dict(node='Variant', prop='primaryKey'),
                                dict(node='Gene', prop='geneLiteratureUrl'),
                                dict(node='Gene', prop='modCrossRefCompleteUrl'),
                                dict(node='Gene', prop='taxonId'),
@@ -196,6 +202,7 @@ class TestClass(object):
         'test_prop_unique': [#dict(node='EvidenceCode', prop='primaryKey'),
                              dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
+                             dict(node='Variant', prop='primaryKey'),
                              #dict(node='GenomicLocationBin', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
