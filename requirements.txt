@@ -5,7 +5,7 @@ ijson
 pytest
 jsonschema
 pyyaml
-urllib3
+urllib3==1.24
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v2.1.1#egg=genedescriptions
 git+https://github.com/valearna/ontobio.git@logging_hotfix#egg=ontobio
