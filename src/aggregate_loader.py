@@ -4,7 +4,7 @@ from etl import *
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
-from common import ContextInfo # Must be the last timeport othersize program fails
+from common import ContextInfo  # Must be the last timeport othersize program fails
 
 
 parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
@@ -75,6 +75,7 @@ class AggregateLoader(object):
             'ExpressionAtlas': ExpressionAtlasETL,
             'Ontology': GenericOntologyETL,
             'ALLELE': AlleleETL,
+            'VARIATION': VariationETL,
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
@@ -100,6 +101,7 @@ class AggregateLoader(object):
             ['Ontology'],
             ['BGI'],
             ['ALLELE'],
+            ['VARIATION'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
