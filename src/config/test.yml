@@ -4,7 +4,6 @@ BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
 Ontology:
-  - GO
   - SO
 
 # Loader configuration values are below.

@@ -224,7 +224,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": "VARIATION",
                 "taxonIDPart": "7955",
                 "s3path": "1.0.0.8/VARIATION/7955/1.0.0.8_VARIATION_7955_1.json",
@@ -232,7 +232,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": "VARIATION",
                 "taxonIDPart": "7227",
                 "s3path": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_0.json",
@@ -240,7 +240,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": "VARIATION",
                 "taxonIDPart": "6239",
                 "s3path": "1.0.0.8/VARIATION/6239/1.0.0.8_VARIATION_6239_0.json",
@@ -248,7 +248,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": "VARIATION",
                 "taxonIDPart": "10116",
                 "s3path": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_5.json",
@@ -256,7 +256,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": "VARIATION",
                 "taxonIDPart": "10090",
                 "s3path": "1.0.0.8/VARIATION/10090/1.0.0.8_VARIATION_10090_0.json",
