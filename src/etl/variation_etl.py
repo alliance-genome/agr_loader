@@ -29,7 +29,6 @@ class VariationETL(ETL):
                      o.localId = row.localId,
                      o.globalId = row.globalId,
                      o.uuid = row.uuid,
-                     o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
@@ -47,7 +46,7 @@ class VariationETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Variant {primaryKey:row.alleleId})
+            MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
@@ -55,6 +54,13 @@ class VariationETL(ETL):
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand """
+
+    xrefs_template = """
+
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Variant {primaryKey:row.variantId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -94,7 +100,9 @@ class VariationETL(ETL):
             [VariationETL.genomic_locations_template, commit_size,
              "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
             [VariationETL.soterms_template, commit_size,
-             "variant_soterms_" + sub_type.get_data_provider() + ".csv"]
+             "variant_soterms_" + sub_type.get_data_provider() + ".csv"],
+            [VariationETL.xrefs_template, commit_size,
+             "variant_xrefs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -158,7 +166,7 @@ class VariationETL(ETL):
 
             crossRefPrimaryId = alleleRecord.get('sequenceOfReferenceAccessionNumber')
             localCrossRefId = crossRefPrimaryId.split(":")[1]
-            prefix = crossRef.get('id').split(":")[0]
+            prefix = crossRefPrimaryId.split(":")[0]
 
             crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix,
                                                                      globalId)
@@ -168,7 +176,7 @@ class VariationETL(ETL):
             xrefMap['dataId'] = globalId
             crossReferences.append(xrefMap)
 
-            logger.info(globalId)
+
             variant_dataset = {
                 "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
                 "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
@@ -184,6 +192,7 @@ class VariationETL(ETL):
                 "uuid": variantUUID,
                 "dataProvider": data_provider
             }
+            logger.info(variant_dataset)
 
             variant_genomic_location_dataset = {
                 "variantId": variantUUID,
@@ -210,7 +219,7 @@ class VariationETL(ETL):
             variants.append(variant_dataset)
 
             if counter == batch_size:
-                yield [variants, variant_genomic_locations,variant_so_terms,crossReferences]
+                yield [variants, variant_genomic_locations, variant_so_terms, crossReferences]
                 variants = []
                 variant_genomic_locations =[]
                 variant_so_terms =[]
