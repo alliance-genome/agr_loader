@@ -18,14 +18,12 @@ class VariationETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (a:Allele:Feature {primaryKey: row.alleleId})
-                MATCH (s:Species)--(a2:Allele:Feature) where a2.primaryKey = row.alleleId;
 
                 //Create the Allele node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.uuid})
                     ON CREATE SET 
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.genomicVariantSequence = row.genomicVariantSequence,
-                     o.taxonId = s.taxonId,
                      o.dateProduced = row.dateProduced,
                      o.release = row.release,
                      o.localId = row.localId,
@@ -34,8 +32,6 @@ class VariationETL(ETL):
                      o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
-
-                MERGE (o)-[:FROM_SPECIES]-(s)
 
                 MERGE (o)<-[:VARIATION]->(a) """
 
@@ -51,7 +47,7 @@ class VariationETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Allele:Feature {primaryKey:row.alleleId})
+            MATCH (o:Variant {primaryKey:row.alleleId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
@@ -78,10 +74,11 @@ class VariationETL(ETL):
 
         logger.info("Loading Variation Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
+        logger.info(filepath)
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Variation Data: %s" % sub_type.get_data_provider())
 
-        if data is not None:
+        if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
@@ -146,7 +143,7 @@ class VariationETL(ETL):
 
         for alleleRecord in variant_data['data']:
             counter = counter + 1
-            globalId = alleleRecord['alleleId']
+            globalId = alleleRecord.get('alleleId')
             localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""
             crossReferences = []
@@ -171,7 +168,7 @@ class VariationETL(ETL):
             xrefMap['dataId'] = globalId
             crossReferences.append(xrefMap)
 
-
+            logger.info(globalId)
             variant_dataset = {
                 "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
                 "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),

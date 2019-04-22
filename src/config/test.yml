@@ -1,8 +1,8 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-ALLELE: [FB, WB, ZFIN, RGD, MGI]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
+BGI: [ZFIN, MGI, WB, SGD, FB, Human, RGD]
+ALLELE: [ZFIN, MGI, WB, FB, RGD]
+VARIATION: [ZFIN, MGI, WB, SGD, FB, Human, RGD]
 Ontology:
   - SO
 
