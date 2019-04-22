@@ -156,7 +156,6 @@ class VariationETL(ETL):
             modGlobalCrossRefId = ""
             crossReferences = []
             variantUUID = str(uuid.uuid4())
-            crossRef = alleleRecord.get('sequenceOfReferenceAccessionNumber')
 
             if self.testObject.using_test_data() is True:
                 is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
