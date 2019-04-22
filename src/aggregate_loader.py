@@ -1,6 +1,7 @@
 import logging, coloredlogs, os, multiprocessing, time, argparse, time
 
 from etl import *
+from etl import VariationETL
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
