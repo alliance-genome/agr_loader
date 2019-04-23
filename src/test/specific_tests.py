@@ -153,12 +153,11 @@ def test_phenotype_for_all_species_exists():
         assert record["counter"] == 6
 
 
-#TODO: change to 5 when FB updates global id in variant submission, and we find test data for all mods
 def test_variant_for_expected_species_exists():
     query = "MATCH (s:Species)--()--(p:Variant) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 3
+        assert record["counter"] == 4
 
 
 def test_disease_for_all_species_exists():
