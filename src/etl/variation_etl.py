@@ -79,7 +79,6 @@ class VariationETL(ETL):
 
         logger.info("Loading Variation Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Variation Data: %s" % sub_type.get_data_provider())
 
@@ -143,7 +142,7 @@ class VariationETL(ETL):
                                                                        dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                logger.debug("data provider: " + dataProvider)
 
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
