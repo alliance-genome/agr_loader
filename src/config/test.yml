@@ -7,6 +7,7 @@ PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+VARIATION: [WB, ZFIN, RGD, MGI]
 Ontology:
   - GO
   - SO
@@ -53,9 +54,8 @@ Closure:
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 
-
 # Loader configuration values are below.
 # Please modify with caution!
 
-FileTransactorThreads: 7
-Neo4jTransactorThreads: 3
+FileTransactorThreads: 10
+Neo4jTransactorThreads: 7

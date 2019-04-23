@@ -85,6 +85,7 @@ class AlleleETL(ETL):
         
         logger.info("Loading Allele Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
+        logger.info(filepath)
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
 

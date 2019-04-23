@@ -108,6 +108,9 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-040426-1294', 'ZFIN:ZDB-GENE-040718-10',
             # genomic locations
             'ZFIN:ZDB-GENE-990415-8',
+            # variant
+            'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-000427-6', 'ZFIN:ZDB-GENE-980526-221',
+            'ZFIN:ZDB-ALT-070807-6', 'ZFIN:ZDB-ALT-070315-5', 'ZFIN:ZDB-ALT-000621-2'
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',

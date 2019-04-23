@@ -60,7 +60,8 @@ class TestClass(object):
                             dict(node1='BioEntityGeneExpressionJoin', node2='MMOTerm'),
                             dict(node1='ExpressionBioEntity', node2='GOTerm'),
                             dict(node1='ExpressionBioEntity', node2='Ontology'),
-                            dict(node1='ExpressionBioEntity', node2='ZFATerm')
+                            dict(node1='ExpressionBioEntity', node2='ZFATerm'),
+                            dict(node1='Variant', node2='Chromosome')
                             ]
 
     }

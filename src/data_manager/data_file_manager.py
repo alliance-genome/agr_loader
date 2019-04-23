@@ -148,7 +148,7 @@ class DataFileManager(metaclass=Singleton):
             returned_dict = None
 
             # These following types are found in the local submission file
-            if dataType not in ['Ontology', 'Interactions', 'GOAnnot', 'ExpressionAtlas']:
+            if dataType not in ['Ontology', 'Interactions', 'GOAnnot', 'ExpressionAtlas', 'VARIATION']:
                 subType = ETLHelper().get_taxon_from_MOD(subEntry)
             else:
                 subType = subEntry
@@ -183,15 +183,16 @@ class DataFileManager(metaclass=Singleton):
             'Neo4jTransactorThreads'
         ]
 
-        for entry in self.config_data.keys(): # Iterate through our config file.
+        for entry in self.config_data.keys():  # Iterate through our config file.
             logger.debug("Entry: %s" % entry)
-            if entry not in config_values_to_ignore: # Skip these entries.
-                self.transformed_submission_system_data[entry] = [] # Create our empty list.
+            if entry not in config_values_to_ignore:  # Skip these entries.
+                self.transformed_submission_system_data[entry] = []  # Create our empty list.
                 for sub_entry in self.config_data[entry]:
                     logger.debug("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
+                    logger.info(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':
                         tempExtractedFile = submission_system_dict.get('s3path')
 

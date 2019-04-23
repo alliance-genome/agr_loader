@@ -25,6 +25,9 @@ GAF:
 GeoXref:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+VARIATION:
+  type: list
+  allowed: [FB, WB, ZFIN, RGD, MGI]
 Ontology:
   type: list
   allowed: 
