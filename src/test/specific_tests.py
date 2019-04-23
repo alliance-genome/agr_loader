@@ -158,7 +158,7 @@ def test_variant_for_expected_species_exists():
     query = "MATCH (s:Species)--()--(p:Variant) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 3
 
 
 def test_disease_for_all_species_exists():
