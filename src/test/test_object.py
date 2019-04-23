@@ -39,6 +39,9 @@ class TestObject(object):
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
             # gene descriptions
             'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043', 'MGI:104807',
+            # variant
+            'MGI:109151', 'MGI:106679', 'MGI:103223', 'MGI:104554', 'MGI:104993', 'MGI:5316784', 'MGI:5566856',
+            'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
         }
 
         self.wormbaseIdSet = {
@@ -55,7 +58,10 @@ class TestObject(object):
             'WB:WBGene00004488', 'WB:WBGene00000898',
             # gene descriptions
             'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
-            'WB:WBVar00239315'
+            'WB:WBVar00239315',
+            # variant
+            'WB:WBGene00006752', 'WB:WBGene00021840', 'WB:WBGene00001117', 'WB:WBVar00241694', 'WB:WBVar02147569',
+            'WB:WBVar00089131'
         }
 
         self.sgdIdSet = {
