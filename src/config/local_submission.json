@@ -235,7 +235,7 @@
                 "schemaVersion": "1.0.0.8",
                 "dataType": "VARIATION",
                 "taxonIDPart": "FB",
-                "s3path": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_0.json",
+                "s3path": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_1.json",
                 "tempExtractedFile": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_0.json",
                 "uploadDate": 1522181475376
             },
