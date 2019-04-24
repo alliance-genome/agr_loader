@@ -157,8 +157,8 @@ class DataFileManager(metaclass=Singleton):
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
                                      if item['dataType'] == dataType and item['taxonIDPart'] == subType)
             except StopIteration:
-                logger.warn('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
-                logger.warn('Creating entry with \'None\' path and extracted path.')
+                logger.debug('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
+                logger.debug('Creating entry with \'None\' path and extracted path.')
                 returned_dict = {
                     'dataType': dataType,
                     'subType': subType,
@@ -192,7 +192,7 @@ class DataFileManager(metaclass=Singleton):
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
-                    logger.info(tempExtractedFile)
+                    logger.debug(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':
                         tempExtractedFile = submission_system_dict.get('s3path')
 

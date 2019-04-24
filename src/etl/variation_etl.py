@@ -19,9 +19,9 @@ class VariationETL(ETL):
 
                 MATCH (a:Allele:Feature {primaryKey: row.alleleId})
 
-                //Create the Allele node and set properties. primaryKey is required.
-                MERGE (o:Variant {primaryKey:row.uuid})
-                    ON CREATE SET 
+                //Create the variant node and set properties. primaryKey is required.
+                CREATE (o:Variant {primaryKey:row.uuid})
+                    SET 
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.genomicVariantSequence = row.genomicVariantSequence,
                      o.dateProduced = row.dateProduced,
@@ -32,14 +32,14 @@ class VariationETL(ETL):
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
-                MERGE (o)<-[:VARIATION]->(a) """
+                CREATE (o)-[:VARIATION]->(a) """
 
     soterms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Allele:Feature {primaryKey:row.alleleId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            MERGE (o)-[:VARIATION_TYPE]->(s)"""
+            CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
 
     genomic_locations_template = """
@@ -49,18 +49,17 @@ class VariationETL(ETL):
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+            SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand """
+                gchrm.assembly = row.assembly """
 
     xrefs_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Variant {primaryKey:row.variantId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Variant {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -80,7 +79,6 @@ class VariationETL(ETL):
 
         logger.info("Loading Variation Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Variation Data: %s" % sub_type.get_data_provider())
 
@@ -144,7 +142,7 @@ class VariationETL(ETL):
                                                                        dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                logger.debug("data provider: " + dataProvider)
 
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
@@ -173,7 +171,8 @@ class VariationETL(ETL):
                                               "sequence_of_reference_accession_number", globalId, crossRefCompleteUrl,
                                               crossRefPrimaryId + "variant_sequence_of_reference")
             xrefMap['dataId'] = globalId
-            crossReferences.append(xrefMap)
+            if crossRefPrimaryId is not None:
+                crossReferences.append(xrefMap)
 
 
             variant_dataset = {
@@ -191,7 +190,6 @@ class VariationETL(ETL):
                 "uuid": variantUUID,
                 "dataProvider": data_provider
             }
-            logger.info(variant_dataset)
 
             variant_genomic_location_dataset = {
                 "variantId": variantUUID,
@@ -207,12 +205,6 @@ class VariationETL(ETL):
                 "soTerm": alleleRecord.get('type')
             }
 
-            cross_reference_data_set = {
-                "variantId" : variantUUID,
-                "sequenceOfReferenceXref": xrefMap
-            }
-
-            crossReferences.append(cross_reference_data_set)
             variant_so_terms.append(variant_so_term)
             variant_genomic_locations.append(variant_genomic_location_dataset)
             variants.append(variant_dataset)

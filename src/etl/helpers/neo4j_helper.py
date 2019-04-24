@@ -123,6 +123,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Assay(primaryKey)")
         session.run("CREATE INDEX ON :Stage(primaryKey)")
         session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
+        session.run("CREATE INDEX ON :Variant(primaryKey)")
         
         session.run("CREATE INDEX ON :ZFATerm(primaryKey)")
         session.run("CREATE INDEX ON :ZFSTerm(primaryKey)")
