@@ -251,8 +251,8 @@
                 "schemaVersion": "1.0.0.8",
                 "dataType": "VARIATION",
                 "taxonIDPart": "RGD",
-                "s3path": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_5.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_5.json",
+                "s3path": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_7.json",
+                "tempExtractedFile": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_7.json",
                 "uploadDate": 1522181475376
             },
             {

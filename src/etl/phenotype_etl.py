@@ -40,12 +40,8 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEntityJoinUuid})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
             
-            MERGE (pa)-[dapug:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
-            
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pubEntityJoinUuid}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pa)
             
             
             """
@@ -75,12 +71,8 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEntityJoinUuid})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
             
-            MERGE (pa)-[dapug:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
-            
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
+            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.phenotypeUniqueKey}]->(pa) """
 
     def __init__(self, config):
         super().__init__()
