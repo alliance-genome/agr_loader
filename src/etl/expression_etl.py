@@ -424,66 +424,7 @@ class ExpressionETL(ETL):
 
                 assay = xpat.get('assay')
                 #logger.info("expression assay: " + assay)
-                ei_uuid = str(uuid.uuid4())
                 ebe_uuid = str(uuid.uuid4())
-
-                if 'crossReference' in xpat:
-                    crossRef = xpat.get('crossReference')
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'gene/expression/annotation/detail':
-                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap,
-                                                                               prefix, page)
-
-                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                          modGlobalCrossRefId, crossRefId + page)
-                                xref['ei_uuid'] = ei_uuid
-                                crossReferences.append(xref)
-
-                whenExpressedStage = xpat.get('whenExpressed')
-
-                if 'stageTermId' in whenExpressedStage:
-                    stageTermId = whenExpressedStage.get('stageTermId')
-                if 'stageName' in whenExpressedStage:
-                    stageName = whenExpressedStage.get('stageName')
-                if whenExpressedStage.get('stageUberonSlimTerm') is not None:
-                    stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
-                    stageUberonTermId = stageUberonTermObject.get("uberonTerm")
-                    if stageUberonTermId is not None and stageUberonTermId != "post embryonic, pre-adult":
-                        stageUberon = {
-                            "uberonStageId": stageUberonTermId,
-                            "ei_uuid": ei_uuid
-                        }
-                        stageUberonData.append(stageUberon)
-                    if stageUberonTermId == "post embryonic, pre-adult":
-                        stageUberonOther = {
-                            "ei_uuid": ei_uuid
-                        }
-                        uberonStageOtherData.append(stageUberonOther)
-
-                if stageTermId is None or stageName == 'N/A':
-                    stageTermId = ""
-                    stageName = ""
-                    stageUberonTermId = ""
-
-                if stageName is not None:
-
-                    stage = {
-                        "stageTermId": stageTermId,
-                        "stageName": stageName,
-                        "ei_uuid": ei_uuid
-                    }
-
-                    stageList.append(stage)
-
-                else:
-                    stageUberonTermId = ""
 
                 if 'whereExpressed' in xpat:
 
@@ -531,23 +472,132 @@ class ExpressionETL(ETL):
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
 
-                        AOExpression = {
-                            "geneId": geneId,
-                            "whenExpressedStage": whenExpressedStage,
-                            "pubMedId": pubMedId,
-                            "pubMedUrl": pubMedUrl,
-                            "pubModId": publicationModId,
-                            "pubModUrl": pubModUrl,
-                            "pubPrimaryKey": pubMedId + publicationModId,
-                            "uuid": str(uuid.uuid4()),
-                            "assay": assay,
-                            "anatomicalStructureTermId": anatomicalStructureTermId,
-                            "whereExpressedStatement": whereExpressedStatement,
-                            "ei_uuid": ei_uuid,
-                            "ebe_uuid": ebe_uuid
+                    whenExpressedStage = xpat.get('whenExpressed')
 
+                    if 'stageTermId' in whenExpressedStage:
+                        stageTermId = whenExpressedStage.get('stageTermId')
+                    if 'stageName' in whenExpressedStage:
+                        stageName = whenExpressedStage.get('stageName')
+
+                    # making unique BioEntityGeneExpressionJoinNodes is tedious.
+                    expressionUniqueKey = ""
+                    if anatomicalStructureTermId is not None:
+                        if anatomicalSubStructureTermId is not None:
+                            if cellularComponentTermId is not None:
+                                if cellularComponentQualifierTermId is not None:
+                                    if anatomicalStructureQualifierTermId is not None:
+                                        if anatomicalSubStructureQualifierTermId is not None:
+                                            expressionUniqueKey = anatomicalStructureTermId + \
+                                                anatomicalSubStructureTermId + \
+                                                cellularComponentTermId + \
+                                                stageName + \
+                                                assay + \
+                                                cellularComponentQualifierTermId + \
+                                                anatomicalStructureQualifierTermId + \
+                                                anatomicalSubStructureQualifierTermId
+                                        else:
+                                            expressionUniqueKey = anatomicalStructureTermId + \
+                                                                  anatomicalSubStructureTermId + \
+                                                                  cellularComponentTermId + \
+                                                                  stageName + \
+                                                                  assay + \
+                                                                  cellularComponentQualifierTermId + \
+                                                                  anatomicalStructureQualifierTermId
+                                    else:
+                                        expressionUniqueKey = anatomicalStructureTermId + \
+                                                              anatomicalSubStructureTermId + \
+                                                              cellularComponentTermId + \
+                                                              stageName + \
+                                                              assay + \
+                                                              cellularComponentQualifierTermId
+                                else:
+                                    expressionUniqueKey = anatomicalStructureTermId + \
+                                                          anatomicalSubStructureTermId + \
+                                                          cellularComponentTermId + \
+                                                          stageName + \
+                                                          assay
+                            else:
+                                expressionUniqueKey = anatomicalStructureTermId + \
+                                          anatomicalSubStructureTermId + \
+                                          stageName + \
+                                          assay
+                        else:
+                            expressionUniqueKey = anatomicalStructureTermId + \
+                                                  stageName + \
+                                                  assay
+
+                    if whenExpressedStage.get('stageUberonSlimTerm') is not None:
+                        stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
+                        stageUberonTermId = stageUberonTermObject.get("uberonTerm")
+                        if stageUberonTermId is not None and stageUberonTermId != "post embryonic, pre-adult":
+                            stageUberon = {
+                                "uberonStageId": stageUberonTermId,
+                                "ei_uuid": expressionUniqueKey
+                            }
+                            stageUberonData.append(stageUberon)
+                        if stageUberonTermId == "post embryonic, pre-adult":
+                            stageUberonOther = {
+                                "ei_uuid": expressionUniqueKey
+                            }
+                            uberonStageOtherData.append(stageUberonOther)
+
+                    if stageTermId is None or stageName == 'N/A':
+                        stageTermId = ""
+                        stageName = ""
+                        stageUberonTermId = ""
+
+                    if stageName is not None:
+
+                        stage = {
+                            "stageTermId": stageTermId,
+                            "stageName": stageName,
+                            "ei_uuid": expressionUniqueKey
                         }
-                        aoExpression.append(AOExpression)
+
+                        stageList.append(stage)
+
+                    else:
+                        stageUberonTermId = ""
+
+
+                    if 'crossReference' in xpat:
+                        crossRef = xpat.get('crossReference')
+                        crossRefId = crossRef.get('id')
+                        local_crossref_id = crossRefId.split(":")[1]
+                        prefix = crossRef.get('id').split(":")[0]
+                        pages = crossRef.get('pages')
+
+                        # some pages collection have 0 elements
+                        if pages is not None and len(pages) > 0:
+                            for page in pages:
+                                if page == 'gene/expression/annotation/detail':
+                                    modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                              self.xrefUrlMap,
+                                                                                              prefix, page)
+
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
+                                                                       crossRefId,
+                                                                       modGlobalCrossRefId, crossRefId + page)
+                                    xref['ei_uuid'] = expressionUniqueKey
+                                    crossReferences.append(xref)
+
+                    AOExpression = {
+                        "geneId": geneId,
+                        "whenExpressedStage": whenExpressedStage,
+                        "pubMedId": pubMedId,
+                        "pubMedUrl": pubMedUrl,
+                        "pubModId": publicationModId,
+                        "pubModUrl": pubModUrl,
+                        "pubPrimaryKey": pubMedId + publicationModId,
+                        "uuid": str(uuid.uuid4()),
+                        "assay": assay,
+                        "anatomicalStructureTermId": anatomicalStructureTermId,
+                        "whereExpressedStatement": whereExpressedStatement,
+                        "ei_uuid": expressionUniqueKey,
+                        "ebe_uuid": ebe_uuid
+
+                    }
+                    aoExpression.append(AOExpression)
 
                     if cellularComponentQualifierTermId is not None:
 
@@ -572,7 +622,7 @@ class ExpressionETL(ETL):
                             "assay": assay,
                             "whereExpressedStatement": whereExpressedStatement,
                             "cellularComponentTermId": cellularComponentTermId,
-                            "ei_uuid": ei_uuid,
+                            "ei_uuid": expressionUniqueKey,
                             "ebe_uuid": ebe_uuid
                         }
                         ccExpression.append(CCExpression)
@@ -622,7 +672,7 @@ class ExpressionETL(ETL):
                             "cellularComponentTermId": cellularComponentTermId,
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
-                            "ei_uuid": ei_uuid,
+                            "ei_uuid": expressionUniqueKey,
                             "ebe_uuid": ebe_uuid
                         }
 
