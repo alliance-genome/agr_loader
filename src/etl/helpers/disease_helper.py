@@ -58,7 +58,7 @@ class DiseaseHelper(object):
                         additionalGeneticComponents.append(
                             {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
                         )
-            annotationDataProviders ={}
+            annotationDataProviders = {}
 
             if 'dataProvider' in diseaseRecord:
                 for dp in diseaseRecord['dataProvider']:
@@ -91,26 +91,6 @@ class DiseaseHelper(object):
                 "pubModUrl": pubModUrl,
                 
                 "ecodes": ecodes,
-                
-                ## Not used in current load
-                #"diseaseObjectName": diseaseRecord.get('objectName'),
-                #"diseaseObjectType": diseaseObjectType,
-                #"taxonId": taxonId,
-                #"diseaseAssociationType": diseaseRecord['objectRelation'].get("associationType"),
-                #"with": diseaseRecord.get('with'),
-                #"release": release,
-                #"qualifier": qualifier,
-                #"doDisplayId": diseaseRecord.get('DOid'),
-                #"doUrl": "http://www.disease-ontology.org/?id=" + diseaseRecord.get('DOid'),
-                #"doPrefix": "DOID",
-                # doing the typing in neo, but this is for backwards compatibility in ES
-                
-                #"definition": diseaseRecord.get('definition'),
-                #"inferredGene": diseaseRecord.get('objectRelation').get('inferredGeneAssociation'),
-                #"experimentalConditions": conditions,
-                #"fishEnvId": fishEnvId,
-                #"additionalGeneticComponents": additionalGeneticComponents,
-                #"loadKey": loadKey,
-                #"allelicGeneId": allelicGeneId
+
             }
             return disease_allele

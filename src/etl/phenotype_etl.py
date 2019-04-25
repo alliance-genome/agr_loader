@@ -22,24 +22,33 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:Association {primaryKey:row.uuid})
-                ON CREATE SET pa :PhenotypeEntityJoin,
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                ON CREATE SET 
                     pa.joinType = 'phenotype',
                     pa.dataProviders = row.dataProviders
 
-            MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+            MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
             MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
-
+            
+            
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
-                    pubf.pubMedId = row.pubMedId,
-                    pubf.pubModUrl = row.pubModUrl,
-                    pubf.pubMedUrl = row.pubMedUrl
-
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf) """
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
+           
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEntityJoinUuid})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+            
+            MERGE (pa)-[dapug:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
+            
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pubEntityJoinUuid}]->(pubEJ)
+            
+            
+            """
             
     execute_gene_template = """
 
@@ -51,23 +60,27 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:Association {primaryKey:row.uuid})
-                ON CREATE SET pa :PhenotypeEntityJoin,
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                ON CREATE SET 
                     pa.joinType = 'phenotype',
-                    pa.dataProviders = row.dataProviders,
-                    pa.dataProvider = row.dataProvider
+                    pa.dataProviders = row.dataProviders
             
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.uuid}]->(p)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
-                    pubf.pubMedId = row.pubMedId,
-                    pubf.pubModUrl = row.pubModUrl,
-                    pubf.pubMedUrl = row.pubMedUrl
-
-            MERGE (pa)-[dapuf:EVIDENCE]->(pubf) """
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
+           
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEntityJoinUuid})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+            
+            MERGE (pa)-[dapug:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
+            
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
 
     def __init__(self, config):
         super().__init__()
@@ -121,8 +134,6 @@ class PhenoTypeETL(ETL):
 
         loadKey = dateProduced + dataProvider + "_phenotype"
 
-        #TODO: get SGD to fix their files.
-
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
                 crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
@@ -133,6 +144,7 @@ class PhenoTypeETL(ETL):
                 logger.debug("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
+            pubEntityJoinUuid = str(uuid.uuid4())
             counter = counter + 1
             pubMedId = None
             pubModId = None
@@ -177,8 +189,9 @@ class PhenoTypeETL(ETL):
             if pubModId is None and pubMedId is None:
                 logger.info (primaryId + "is missing pubMed and pubMod id")
 
-            phenotype_allele = {
-                "primaryId": primaryId.strip(),
+            phenotype = {
+                "primaryId":primaryId.strip(),
+                "phenotypeUniqueKey": primaryId.strip()+phenotypeStatement.strip(),
                 "phenotypeStatement": phenotypeStatement.strip(),
                 "dateAssigned": dateAssigned,
                 "pubMedId": pubMedId,
@@ -186,14 +199,14 @@ class PhenoTypeETL(ETL):
                 "pubModId": pubModId,
                 "pubModUrl": pubModUrl,
                 "pubPrimaryKey": pubMedId + pubModId,
-                "uuid": str(uuid.uuid4()),
                 "loadKey": loadKey,
                 "type": "gene",
                 "dataProviders": dataProviders,
-                "dateProduced": dateProduced
+                "dateProduced": dateProduced,
+                "pubEntityJoinUuid": pubEntityJoinUuid
              }
 
-            list_to_yield.append(phenotype_allele)
+            list_to_yield.append(phenotype)
 
             if counter == batch_size:
                 yield [list_to_yield, list_to_yield]

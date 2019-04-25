@@ -139,7 +139,8 @@ def test_do_terms_have_parents():
 
 
 def test_every_species_has_phenotype_has_pub():
-    query = "MATCH (s:Species)--()-[hp:HAS_PHENOTYPE]-(p:Phenotype)-[]-(pa:PhenotypeEntityJoin)-[]-(pub:Publication) " \
+    query = "MATCH (s:Species)--(:Gene|:Allele)-[hp:HAS_PHENOTYPE]-" \
+            "(p:Phenotype)-[:ASSOCIATION]-(pa:PhenotypeEntityJoin)-[:EVIDENCE]-(pub:Publication) " \
             "RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -147,21 +148,21 @@ def test_every_species_has_phenotype_has_pub():
 
 
 def test_phenotype_for_all_species_exists():
-    query = "MATCH (s:Species)--()--(p:Phenotype) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--(:Gene|:Allele)--(p:Phenotype) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6
 
 
 def test_variant_for_expected_species_exists():
-    query = "MATCH (s:Species)--()--(p:Variant) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--(:Gene|:Allele)--(p:Variant) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 4
 
 
 def test_disease_for_all_species_exists():
-    query = "MATCH (s:Species)--()-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm) " \
+    query = "MATCH (s:Species)--(:Gene|:Allele)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm) " \
             "RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -169,21 +170,21 @@ def test_disease_for_all_species_exists():
 
 
 def test_goannot_for_all_species_exists():
-    query = "MATCH (s:Species)--()-[hp:ANNOTATED_TO]-(got:GOTerm) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 def test_molint_for_all_species_exists():
-    query = "MATCH (s:Species)--()--(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 def test_expression_for_non_human_species_exists():
-    query = "MATCH (s:Species)--()-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity) RETURN count(distinct s) as counter"
+    query = "MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity) RETURN count(distinct s) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6
