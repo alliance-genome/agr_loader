@@ -85,12 +85,10 @@ class GeneDescriptionsETL(ETL):
 
     GetDiseaseViaOrthologyQuery = """
     
-        MATCH (disease:DOTerm:Ontology)-[da:IS_IMPLICATED_IN|:IS_MODEL_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(p:Publication)
-        WHERE o.strictFilter = 'True' AND gene1.taxonId ='NCBITaxon:9606' AND da.uuid = dej.primaryKey 
-        AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"] AND gene2.dataProvider = {parameter}
-        RETURN DISTINCT gene2.primaryKey AS geneId, gene2.symbol AS geneSymbol, disease.primaryKey AS DOId, 
-        p.primaryKey AS publicationId
+        MATCH (d:DOTerm:Ontology)-[r:BIOMARKER_VIA_ORTHOLOGY|IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
+        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
+        WHERE g.dataProvider = {parameter}
+        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId
         """
 
     def __init__(self, config):
@@ -126,13 +124,11 @@ class GeneDescriptionsETL(ETL):
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf"),
                 config=gd_config)
-            key_diseases = defaultdict(set)
             gd_data_manager.set_associations(
                 associations_type=DataType.DO, associations=self.get_disease_annotations_from_db(
-                    data_provider=data_provider, gd_data_manager=gd_data_manager, key_diseases=key_diseases),
-                config=gd_config)
+                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
             commit_size = self.data_type_config.get_neo4j_commit_size()
-            generators = self.get_generators(prvdr, gd_data_manager, gd_config, key_diseases, json_desc_writer)
+            generators = self.get_generators(prvdr, gd_data_manager, gd_config, json_desc_writer)
             query_list = [
                 [GeneDescriptionsETL.GeneDescriptionsQuery, commit_size, "genedescriptions_data_" + prvdr + ".csv"], ]
             query_and_file_list = self.process_query_params(query_list)
@@ -140,7 +136,7 @@ class GeneDescriptionsETL(ETL):
             Neo4jTransactor.execute_query_batch(query_and_file_list)
             self.save_descriptions_report_files(data_provider=prvdr, json_desc_writer=json_desc_writer)
 
-    def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
+    def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
         if data_provider == "Human":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
@@ -154,14 +150,11 @@ class GeneDescriptionsETL(ETL):
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
-                               orthologs_key_diseases=key_diseases[gene.id], human=data_provider == "Human")
+                               human=data_provider == "Human")
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
-            if len(key_diseases[gene.id]) > 5:
-                logger.debug("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
-                             gene_desc.do_orthology_description + "\t" + ",".join(key_diseases[gene.id]))
             if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
@@ -228,7 +221,7 @@ class GeneDescriptionsETL(ETL):
                     annot["geneSymbol"], annot["DOId"], ecode, data_provider))
 
     @staticmethod
-    def get_disease_annotations_from_db(data_provider, gd_data_manager, key_diseases):
+    def get_disease_annotations_from_db(data_provider, gd_data_manager):
         annotations = []
         gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetGeneDiseaseAnnotQuery,
                                                                 data_provider)
@@ -244,14 +237,12 @@ class GeneDescriptionsETL(ETL):
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
                              len(feature_annots) == 1]
         GeneDescriptionsETL.add_annotations(annotations, feature_annot_set, data_provider)
-        #disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
-        #    GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
-        #for orth_annot in disease_via_orth_records:
-        #    annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
-        #        gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
-        #        ecode="DVO", prvdr=data_provider))
-        #    if orth_annot["publicationId"] == "RGD:7240710":
-        #        key_diseases[orth_annot["geneId"]].add(orth_annot["DOId"])
+        disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
+            GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
+        for orth_annot in disease_via_orth_records:
+            annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
+                gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
+                ecode="DVO", prvdr=data_provider))
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.do_ontology)
 
