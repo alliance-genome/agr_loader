@@ -31,23 +31,23 @@ class ExpressionETL(ETL):
                 WHERE NOT 'UBERONTerm' in LABELS(otast)
                 AND NOT 'FBCVTerm' in LABELS(otast)
             
-            CREATE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     SET e.whereExpressedStatement = row.whereExpressedStatement
                     
-                CREATE (g)-[gex:EXPRESSED_IN]->(e)
-                    SET gex.uuid = row.ei_uuid
+                MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                    ON CREATE SET gex.uuid = row.ei_uuid
                 
-                CREATE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    SET gej.joinType = 'expression',
+                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                    ON CREATE SET gej.joinType = 'expression',
                      gej.dataProviders = row.dataProviders
                 
-                CREATE (g)-[ggej:ASSOCIATION]->(gej)
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
-                CREATE (e)-[egej:ASSOCIATION]->(gej)
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
                 
-                CREATE (gej)-[geja:ASSAY]->(assay)
+                MERGE (gej)-[geja:ASSAY]->(assay)
         
-                CREATE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
+                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     SET pubf.pubModId = row.pubModId,
@@ -423,8 +423,6 @@ class ExpressionETL(ETL):
                         pubMedId = ""
 
                 assay = xpat.get('assay')
-                #logger.info("expression assay: " + assay)
-                ebe_uuid = str(uuid.uuid4())
 
                 if 'whereExpressed' in xpat:
 
@@ -439,18 +437,46 @@ class ExpressionETL(ETL):
                         'anatomicalSubStructureQualifierTermId')
                     whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
 
+                    # TODO: making unique BioEntityGeneExpressionJoin nodes and ExpressionBioEntity nodes is tedious.
+                    # TODO: Lets get the DQMs to fix this.
+                    expressionUniqueKey = geneId + assay + stageName
+                    expressionEntityUniqueKey = ""
+
+                    if anatomicalStructureTermId is not None:
+                        expressionUniqueKey = expressionUniqueKey + anatomicalStructureTermId
+                        expressionEntityUniqueKey = anatomicalStructureTermId
+
+                        if anatomicalStructureQualifierTermId is not None:
+                            expressionUniqueKey = expressionUniqueKey + anatomicalStructureQualifierTermId
+                            expressionEntityUniqueKey = expressionEntityUniqueKey + anatomicalStructureQualifierTermId
+
+                    if cellularComponentTermId is not None:
+                        expressionUniqueKey = expressionUniqueKey + cellularComponentTermId
+                        expressionEntityUniqueKey = expressionEntityUniqueKey + cellularComponentTermId
+
+                        if cellularComponentQualifierTermId is not None:
+                            expressionUniqueKey = expressionUniqueKey + cellularComponentQualifierTermId
+                            expressionEntityUniqueKey = expressionEntityUniqueKey + cellularComponentQualifierTermId
+
+                    if anatomicalSubStructureTermId is not None:
+                        expressionUniqueKey = expressionUniqueKey + anatomicalSubStructureTermId
+
+                        if anatomicalSubStructureQualifierTermId is not None:
+                            expressionUniqueKey = expressionUniqueKey + anatomicalSubStructureQualifierTermId
+                            expressionEntityUniqueKey = expressionEntityUniqueKey + anatomicalSubStructureQualifierTermId
+
                     if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
                         for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {
-                                    "ebe_uuid": ebe_uuid,
+                                    "ebe_uuid": expressionEntityUniqueKey,
                                     "aoUberonId": structureUberonTermId
                                 }
                                 uberonAOData.append(structureUberonTerm)
                             elif structureUberonTermId is not None and structureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
-                                    "ebe_uuid": ebe_uuid
+                                    "ebe_uuid": expressionEntityUniqueKey
                                 }
                                 uberonAOOtherData.append(otherStructureUberonTerm)
 
@@ -459,13 +485,13 @@ class ExpressionETL(ETL):
                             subStructureUberonTermId = uberonSubStructureTermObject.get('uberonTerm')
                             if subStructureUberonTermId is not None and subStructureUberonTermId != 'Other':
                                 subStructureUberonTerm = {
-                                    "ebe_uuid": ebe_uuid,
+                                    "ebe_uuid": expressionEntityUniqueKey,
                                     "aoUberonId": subStructureUberonTermId
                                 }
                                 uberonAOData.append(subStructureUberonTerm)
                             elif subStructureUberonTermId is not None and subStructureUberonTermId == 'Other':
                                 otherStructureUberonTerm = {
-                                    "ebe_uuid": ebe_uuid
+                                    "ebe_uuid": expressionEntityUniqueKey
                                 }
                                 uberonAOOtherData.append(otherStructureUberonTerm)
 
@@ -479,52 +505,6 @@ class ExpressionETL(ETL):
                     if 'stageName' in whenExpressedStage:
                         stageName = whenExpressedStage.get('stageName')
 
-                    # making unique BioEntityGeneExpressionJoinNodes is tedious.
-                    expressionUniqueKey = ""
-                    if anatomicalStructureTermId is not None:
-                        if anatomicalSubStructureTermId is not None:
-                            if cellularComponentTermId is not None:
-                                if cellularComponentQualifierTermId is not None:
-                                    if anatomicalStructureQualifierTermId is not None:
-                                        if anatomicalSubStructureQualifierTermId is not None:
-                                            expressionUniqueKey = anatomicalStructureTermId + \
-                                                anatomicalSubStructureTermId + \
-                                                cellularComponentTermId + \
-                                                stageName + \
-                                                assay + \
-                                                cellularComponentQualifierTermId + \
-                                                anatomicalStructureQualifierTermId + \
-                                                anatomicalSubStructureQualifierTermId
-                                        else:
-                                            expressionUniqueKey = anatomicalStructureTermId + \
-                                                                  anatomicalSubStructureTermId + \
-                                                                  cellularComponentTermId + \
-                                                                  stageName + \
-                                                                  assay + \
-                                                                  cellularComponentQualifierTermId + \
-                                                                  anatomicalStructureQualifierTermId
-                                    else:
-                                        expressionUniqueKey = anatomicalStructureTermId + \
-                                                              anatomicalSubStructureTermId + \
-                                                              cellularComponentTermId + \
-                                                              stageName + \
-                                                              assay + \
-                                                              cellularComponentQualifierTermId
-                                else:
-                                    expressionUniqueKey = anatomicalStructureTermId + \
-                                                          anatomicalSubStructureTermId + \
-                                                          cellularComponentTermId + \
-                                                          stageName + \
-                                                          assay
-                            else:
-                                expressionUniqueKey = anatomicalStructureTermId + \
-                                          anatomicalSubStructureTermId + \
-                                          stageName + \
-                                          assay
-                        else:
-                            expressionUniqueKey = anatomicalStructureTermId + \
-                                                  stageName + \
-                                                  assay
 
                     if whenExpressedStage.get('stageUberonSlimTerm') is not None:
                         stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
@@ -594,7 +574,7 @@ class ExpressionETL(ETL):
                         "anatomicalStructureTermId": anatomicalStructureTermId,
                         "whereExpressedStatement": whereExpressedStatement,
                         "ei_uuid": expressionUniqueKey,
-                        "ebe_uuid": ebe_uuid
+                        "ebe_uuid": expressionEntityUniqueKey
 
                     }
                     aoExpression.append(AOExpression)
@@ -602,7 +582,7 @@ class ExpressionETL(ETL):
                     if cellularComponentQualifierTermId is not None:
 
                         CCQualifier = {
-                            "ebe_uuid": ebe_uuid,
+                            "ebe_uuid": expressionEntityUniqueKey,
                             "cellularComponentQualifierTermId": cellularComponentQualifierTermId
 
                         }
@@ -623,20 +603,21 @@ class ExpressionETL(ETL):
                             "whereExpressedStatement": whereExpressedStatement,
                             "cellularComponentTermId": cellularComponentTermId,
                             "ei_uuid": expressionUniqueKey,
-                            "ebe_uuid": ebe_uuid
+                            "ebe_uuid": expressionEntityUniqueKey
                         }
                         ccExpression.append(CCExpression)
 
+
                     if anatomicalStructureQualifierTermId is not None:
                         AOQualifier = {
-                            "ebe_uuid": ebe_uuid,
+                            "ebe_uuid": expressionEntityUniqueKey,
                             "anatomicalStructureQualifierTermId": anatomicalStructureQualifierTermId
                         }
                         aoQualifier.append(AOQualifier)
 
                     if anatomicalSubStructureTermId is not None:
                         AOSubstructure = {
-                            "ebe_uuid": ebe_uuid,
+                            "ebe_uuid": expressionEntityUniqueKey,
                             "anatomicalSubStructureTermId": anatomicalSubStructureTermId
 
                         }
@@ -644,7 +625,7 @@ class ExpressionETL(ETL):
 
                     if anatomicalSubStructureQualifierTermId is not None:
                         AOSSQualifier = {
-                            "ebe_uuid": ebe_uuid,
+                            "ebe_uuid": expressionEntityUniqueKey,
                             "anatomicalSubStructureQualifierTermId": anatomicalSubStructureQualifierTermId
 
                         }
@@ -673,7 +654,7 @@ class ExpressionETL(ETL):
                             "anatomicalStructureTermId": anatomicalStructureTermId,
                             "whereExpressedStatement": whereExpressedStatement,
                             "ei_uuid": expressionUniqueKey,
-                            "ebe_uuid": ebe_uuid
+                            "ebe_uuid": expressionEntityUniqueKey
                         }
 
                         aoccExpression.append(AOCCExpression)
