@@ -271,8 +271,9 @@ class GeneDescriptionsETL(ETL):
                                                  or os.environ["GENERATE_REPORTS"] == "true" or
                                                  os.environ["GENERATE_REPORTS"] == "pre-release"):
             gd_file_name = "HUMAN" if data_provider == "Human" else data_provider
-            release_version = ".".join(os.environ["RELEASE"].split(".")[0:2]) if "RELEASE" in os.environ else \
-                "no-version"
+            #release_version = ".".join(os.environ["RELEASE"].split(".")[0:2]) if "RELEASE" in os.environ else \
+            #    "no-version"
+            release_version = "2.2"
             json_desc_writer.overall_properties.species = gd_file_name
             json_desc_writer.overall_properties.release_version = release_version
             cur_date = datetime.date.today().strftime("%Y%m%d")

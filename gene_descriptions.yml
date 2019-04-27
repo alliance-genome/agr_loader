@@ -1,3 +1,7 @@
+generic:
+  modules_delimiter: "."
+  terms_delimiter: ";"
+
 go_sentences_options:
     exclude_terms:
         - "GO:0008150"
