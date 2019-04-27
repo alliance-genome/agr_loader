@@ -147,14 +147,16 @@ class GeneDescriptionsETL(ETL):
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
+            gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False,
+                                        config=gd_config)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
                                human=data_provider == "Human")
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
-                                                    excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
+                                                    excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc,
+                                                    config=gd_config)
             if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
