@@ -73,6 +73,17 @@ class DiseaseHelper(object):
 
             doId = diseaseRecord.get('DOid')
             diseaseUniqueKey = primaryId+doId+diseaseAssociationType
+
+            withs = []
+            if 'with' in diseaseRecord:
+                withRecord = diseaseRecord.get('with')
+                for rec in withRecord:
+                    withMap = {
+                        "diseaseUniqueKey": diseaseUniqueKey,
+                        "with": rec
+                    }
+                    withs.append(withMap)
+
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
                 "doId": doId,

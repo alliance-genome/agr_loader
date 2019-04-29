@@ -69,9 +69,9 @@ class TestObject(object):
             # phenotypic genes
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
-            'SGD:S000005481', 'SGD:S000005246',
+            'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
             # expression
-            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002',
+            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions
             'SGD:S000004695', 'SGD:S000004916', 'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284',
             'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074',
@@ -155,7 +155,10 @@ class TestObject(object):
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811', 'HGNC:6091',
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
+            # disease
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650',
         }
+
 
         self.modMap = {"RGD": self.rgdTestSet,
                   "MGI": self.mgiIdSet,

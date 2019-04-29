@@ -18,6 +18,7 @@ def test_doterm_exists():
     for record in result:
         assert record["count"] == 1
 
+
 def test_isobsolete_false():
     query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
     result = execute_transaction(query)

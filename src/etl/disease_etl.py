@@ -102,7 +102,8 @@ class DiseaseETL(ETL):
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
 
             """
-    execute_ecode_template ="""
+    execute_ecode_template = """
+    
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -110,6 +111,17 @@ class DiseaseETL(ETL):
             MERGE (ecode1g:EvidenceCode {primaryKey:row.ecode})
             MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(ecode1g)
                 
+    """
+
+    execute_withs_template = """
+    
+        USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+        
+            MATCH (diseaseWith:Gene {primaryKey:row.withD})
+            MERGE (dga)-[dgaw:WITH]-(diseaseWith)
+    
     """
 
     def __init__(self, config):
@@ -155,9 +167,14 @@ class DiseaseETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"]
+            [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_withs_template, commit_size, "disease_withs_data_" + \
+             sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -186,10 +203,13 @@ class DiseaseETL(ETL):
         #TODO: get SGD to fix their files.
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap,
+                                                                      dataProvider, dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider,
-                                                                             crossRefCompleteUrl, dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
+                                                                       dataProviderPage, dataProvider,
+                                                                       crossRefCompleteUrl,
+                                                                       dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
                 logger.info("data provider: " + dataProvider)
@@ -204,7 +224,8 @@ class DiseaseETL(ETL):
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType == "gene":
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
+                                                                  release, '', data_provider)
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
                         ecode_map = {"uuid": disease_record.get('uuid'),
@@ -212,24 +233,53 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     gene_list_to_yield.append(disease_record)
+
+                    diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
+                                       diseaseRecord['objectRelation'].get("associationType")
+
+                    withs = []
+                    if 'with' in diseaseRecord:
+                        withRecord = diseaseRecord.get('with')
+                        for rec in withRecord:
+                            withMap = {
+                                "diseaseUniqueKey": diseaseUniqueKey,
+                                "withD": rec
+                            }
+                            withs.append(withMap)
+
                  
             elif diseaseObjectType == "allele":
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced, release, '', data_provider)
+                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
+                                                                  release, '', data_provider)
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
                         ecode_map = {"uuid": disease_record.get('uuid'),
                                       "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
                     allele_list_to_yield.append(disease_record)
+
+                    diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
+                                       diseaseRecord['objectRelation'].get("associationType")
+
+                    withs = []
+                    if 'with' in diseaseRecord:
+                        withRecord = diseaseRecord.get('with')
+                        for rec in withRecord:
+                            withMap = {
+                                "diseaseUniqueKey": diseaseUniqueKey,
+                                "withD": rec
+                            }
+                            withs.append(withMap)
             else:
                 continue
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield]
+                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
                 evidence_code_list_to_yield = []
+                withs = []
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs]

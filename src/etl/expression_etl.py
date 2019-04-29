@@ -17,6 +17,27 @@ class ExpressionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid}) """ + ETLHelper.get_cypher_xref_text()
 
+
+    BioEntityExpression = """
+    
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    
+    MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+         ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+    
+    """
+
+    BioEntityGeneExpressionJoin = """
+    
+     USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    
+    MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+         ON CREATE SET gej.joinType = 'expression'
+    
+    """
+
     AOExpression = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -30,16 +51,12 @@ class ExpressionETL(ETL):
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
                 WHERE NOT 'UBERONTerm' in LABELS(otast)
                 AND NOT 'FBCVTerm' in LABELS(otast)
-            
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    SET e.whereExpressedStatement = row.whereExpressedStatement
+                
+            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                     
                 MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     ON CREATE SET gex.uuid = row.ei_uuid
-                
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
-                     gej.dataProviders = row.dataProviders
                 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
                     
@@ -55,7 +72,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     SGDCCExpression = """
 
@@ -69,16 +86,11 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = otcct.name
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
 
                 MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     ON CREATE SET gex.uuid = row.ei_uuid
-
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
-                     gej.dataProviders = row.dataProviders
-
                 MERGE (gej)-[geja:ASSAY]->(assay)
 
                 MERGE (g)-[ggej:ASSOCIATION]->(gej)
@@ -93,7 +105,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     CCExpression = """
 
@@ -107,15 +119,12 @@ class ExpressionETL(ETL):
             MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
             MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
 
-            MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
-                    
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})         
+               
                 MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     ON CREATE SET gex.uuid = row.ei_uuid
-                             
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
-                     gej.dataProviders = row.dataProviders
+
                 
                 MERGE (gej)-[geja:ASSAY]->(assay)
 
@@ -131,7 +140,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     AOCCExpression = """
         
@@ -147,19 +156,15 @@ class ExpressionETL(ETL):
             MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})                 
                 WHERE NOT 'UBERONTerm' in LABELS(otast)
                     AND NOT 'FBCVTerm' in LABELS(otast)
-
-            WITH g, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})   
+                
+            WITH g, e, gej, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
                 
    
-                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
-                
                 MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     ON CREATE SET gex.uuid = row.ei_uuid
-                             
-                MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej.joinType = 'expression',
-                     gej.dataProviders = row.dataProviders
+                            
                 
                 MERGE (gej)-[geja:ASSAY]->(assay)
 
@@ -178,7 +183,7 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
     EASSubstructure = """
         USING PERIODIC COMMIT %s
@@ -303,7 +308,11 @@ class ExpressionETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
 
-        query_list = [[ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]]
+        query_list = [
+                      [ExpressionETL.BioEntityExpression, commit_size, "expression_entities_" + sub_type.get_data_provider() + ".csv"],
+                      [ExpressionETL.BioEntityGeneExpressionJoin, commit_size, "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
+                      [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
+        ]
 
         if data_provider == 'SGD':
             query_list += [[ExpressionETL.SGDCCExpression, commit_size,  "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"]]
@@ -311,7 +320,7 @@ class ExpressionETL(ETL):
             query_list += [[ExpressionETL.CCExpression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
             
         query_list += [
-            [ExpressionETL.AOCCExpression, 700000, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.AOCCExpression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASQualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASSubstructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.EASSQualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
@@ -358,6 +367,8 @@ class ExpressionETL(ETL):
         logger.debug("made it to the expression generator")
         counter = 0
         crossReferences = []
+        bioEntities = []
+        bioJoinEntities = []
         aoExpression = []
         ccExpression = []
         aoQualifier = []
@@ -465,6 +476,15 @@ class ExpressionETL(ETL):
                             expressionUniqueKey = expressionUniqueKey + anatomicalSubStructureQualifierTermId
                             expressionEntityUniqueKey = expressionEntityUniqueKey + anatomicalSubStructureQualifierTermId
 
+                    expressionEntityUniqueKey = expressionEntityUniqueKey + whereExpressedStatement
+
+                    whenExpressedStage = xpat.get('whenExpressed')
+
+                    if 'stageTermId' in whenExpressedStage:
+                        stageTermId = whenExpressedStage.get('stageTermId')
+                    if 'stageName' in whenExpressedStage:
+                        stageName = whenExpressedStage.get('stageName')
+
                     if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
                         for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
@@ -498,12 +518,7 @@ class ExpressionETL(ETL):
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
 
-                    whenExpressedStage = xpat.get('whenExpressed')
 
-                    if 'stageTermId' in whenExpressedStage:
-                        stageTermId = whenExpressedStage.get('stageTermId')
-                    if 'stageName' in whenExpressedStage:
-                        stageName = whenExpressedStage.get('stageName')
 
 
                     if whenExpressedStage.get('stageUberonSlimTerm') is not None:
@@ -560,6 +575,18 @@ class ExpressionETL(ETL):
                                                                        modGlobalCrossRefId, crossRefId + page)
                                     xref['ei_uuid'] = expressionUniqueKey
                                     crossReferences.append(xref)
+
+                    BioEntity = {
+                        "ebe_uuid": expressionEntityUniqueKey,
+                        "whereExpressedStatement": whereExpressedStatement
+                    }
+                    bioEntities.append(BioEntity)
+
+                    BioEntityJoin = {
+                        "ei_uuid": expressionUniqueKey
+                    }
+
+                    bioJoinEntities.append(BioEntityJoin)
 
                     AOExpression = {
                         "geneId": geneId,
@@ -660,10 +687,12 @@ class ExpressionETL(ETL):
                         aoccExpression.append(AOCCExpression)
 
                 if counter == batch_size:
-                    yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
+                    yield [bioEntities, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
                            aoSSQualifier, ccQualifier,
                            stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                            uberonStageOtherData, crossReferences]
+                    bioEntities = []
+                    bioJoinEntities = []
                     aoExpression = []
                     ccExpression = []
                     aoQualifier = []
@@ -680,7 +709,7 @@ class ExpressionETL(ETL):
                     counter = 0
 
             if counter > 0:
-                yield [aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                yield [bioEntities, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                        stageList, stageUberonData, uberonAOData, uberonAOOtherData,
                        uberonStageOtherData, crossReferences]
 
