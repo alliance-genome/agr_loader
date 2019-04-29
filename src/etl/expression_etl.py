@@ -33,8 +33,41 @@ class ExpressionETL(ETL):
      USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
     
-    MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-         ON CREATE SET gej.joinType = 'expression'
+        MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+        MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+            ON CREATE SET gej.joinType = 'expression'
+    
+        MERGE (gej)-[geja:ASSAY]->(assay)
+    
+    """
+
+    BioEntityGeneAO_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (g:Gene {primaryKey:row.geneId})
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
+                WHERE NOT 'UBERONTerm' in LABELS(otast)
+                AND NOT 'FBCVTerm' in LABELS(otast)
+            
+            MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                    ON CREATE SET gex.uuid = row.ei_uuid
+            MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
+    
+    """
+
+    AddPubs_template = """
+    
+            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
+    
+            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubf.pubModId = row.pubModId,
+                     pubf.pubMedId = row.pubMedId,
+                     pubf.pubModUrl = row.pubModUrl,
+                     pubf.pubMedUrl = row.pubMedUrl
+
+            CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) 
     
     """
 
@@ -45,34 +78,14 @@ class ExpressionETL(ETL):
             // GET PRIMARY DATA OBJECTS
 
             // LOAD NODES
-            MATCH (g:Gene {primaryKey:row.geneId})
-
-            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId}) 
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                AND NOT 'FBCVTerm' in LABELS(otast)
-                
+            MATCH (g:Gene {primaryKey:row.geneId}) 
             MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                    
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
                 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
-                    
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
-                
-                MERGE (gej)-[geja:ASSAY]->(assay)
-        
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
-
-                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId,
-                     pubf.pubMedId = row.pubMedId,
-                     pubf.pubModUrl = row.pubModUrl,
-                     pubf.pubMedUrl = row.pubMedUrl
-
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+            MERGE (g)-[ggej:ASSOCIATION]->(gej)     
+            MERGE (e)-[egej:ASSOCIATION]->(gej)
+    
+     """
 
     SGDCCExpression = """
 
@@ -99,13 +112,7 @@ class ExpressionETL(ETL):
 
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
-                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
-                     pubf.pubMedId = row.pubMedId,
-                     pubf.pubModUrl = row.pubModUrl,
-                     pubf.pubMedUrl = row.pubMedUrl
-
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+        """
 
     CCExpression = """
 
@@ -134,13 +141,7 @@ class ExpressionETL(ETL):
                     
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
 
-                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
-                     pubf.pubMedId = row.pubMedId,
-                     pubf.pubModUrl = row.pubModUrl,
-                     pubf.pubMedUrl = row.pubMedUrl
-
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+         """
 
     AOCCExpression = """
         
@@ -176,14 +177,7 @@ class ExpressionETL(ETL):
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
-
-                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
-                     pubf.pubMedId = row.pubMedId,
-                     pubf.pubModUrl = row.pubModUrl,
-                     pubf.pubMedUrl = row.pubMedUrl
-
-                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+        """
 
     EASSubstructure = """
         USING PERIODIC COMMIT %s
@@ -307,9 +301,10 @@ class ExpressionETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-
         query_list = [
                       [ExpressionETL.BioEntityExpression, commit_size, "expression_entities_" + sub_type.get_data_provider() + ".csv"],
+                      [ExpressionETL.BioEntityGeneAO_template, commit_size,
+                            "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
                       [ExpressionETL.BioEntityGeneExpressionJoin, commit_size, "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
                       [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
         ]
@@ -330,7 +325,9 @@ class ExpressionETL(ETL):
             [ExpressionETL.uberonAO, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.uberonAOOther, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
             [ExpressionETL.uberonStageOther, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"]
+            [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            [ExpressionETL.AddPubs_template, commit_size,
+             "expression_addPubs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -369,6 +366,8 @@ class ExpressionETL(ETL):
         crossReferences = []
         bioEntities = []
         bioJoinEntities = []
+        bioEntityGeneAOs = []
+        pubs = []
         aoExpression = []
         ccExpression = []
         aoQualifier = []
@@ -518,9 +517,6 @@ class ExpressionETL(ETL):
                     if cellularComponentTermId is None:
                         cellularComponentTermId = ""
 
-
-
-
                     if whenExpressedStage.get('stageUberonSlimTerm') is not None:
                         stageUberonTermObject = whenExpressedStage.get('stageUberonSlimTerm')
                         stageUberonTermId = stageUberonTermObject.get("uberonTerm")
@@ -583,10 +579,31 @@ class ExpressionETL(ETL):
                     bioEntities.append(BioEntity)
 
                     BioEntityJoin = {
-                        "ei_uuid": expressionUniqueKey
+                        "ei_uuid": expressionUniqueKey,
+                        "assay": assay
                     }
 
                     bioJoinEntities.append(BioEntityJoin)
+
+
+                    BioEntityGeneAO = {
+                        "geneId": geneId,
+                        "ebe_uuid": expressionEntityUniqueKey,
+                        "anatomicalStructureTermId": anatomicalStructureTermId,
+                        "ei_uuid": expressionUniqueKey
+                    }
+                    bioEntityGeneAOs.append(BioEntityGeneAO)
+
+                    pub = {
+                        "ei_uuid": expressionUniqueKey,
+                        "pubPrimaryKey": pubMedId + publicationModId,
+                        "pubMedId": pubMedId,
+                        "pubMedUrl": pubMedUrl,
+                        "pubModId": publicationModId,
+                        "pubModUrl": pubModUrl
+                    }
+
+                    pubs.append(pub)
 
                     AOExpression = {
                         "geneId": geneId,

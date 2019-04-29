@@ -1,7 +1,7 @@
 schemaVersion: 1.0.0.7
 releaseVersion: 2.1.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
+BGI: [FB, ZFIN, MGI]
+EXPRESSION: [FB, ZFIN, MGI]
 Ontology:
   - GO
   - SO
