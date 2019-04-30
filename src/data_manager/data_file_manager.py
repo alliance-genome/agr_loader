@@ -141,6 +141,7 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, dataType, subEntry):
 
             subType = subEntry
+
             try:
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
                                      if item['dataType'].get('name') == dataType and item['dataSubType'].get('name') == subType)
@@ -160,7 +161,7 @@ class DataFileManager(metaclass=Singleton):
     def query_submission_system(self):
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        ontologies_to_transform = ('GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
+        ontologies_to_transform = ('GO', 'DO', 'MI')  # These have non-generic loaders.
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']['schema']

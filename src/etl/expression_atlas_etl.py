@@ -58,6 +58,7 @@ class ExpressionAtlasETL(ETL):
 
     # Returns only pages for genes that we have in the Alliance
     def _get_expression_atlas_gene_pages(self, sub_type, dataProvider, ensgToGenePrimaryIdMap):
+        logger.info(sub_type)
         filepath = sub_type.get_filepath()
         geneSymbolToPrimaryIdMap = self._get_mod_gene_symbol_to_primary_ids(dataProvider)
 

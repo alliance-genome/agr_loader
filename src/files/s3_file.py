@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 #TODO Consolidate these functions with download.py
 
+
 class S3File(object):
 
     def __init__(self, filename, savepath):
@@ -15,19 +16,19 @@ class S3File(object):
 
     def download(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
-            logger.info("Making temp file storage: %s" % (self.savepath))
+            logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
         url = "https://download.alliancegenome.org/" + self.filename
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.info("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
+            logger.debug("Downloading data from s3 (https://download.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
-            logger.info("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
+            logger.debug("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
         return self.savepath + "/" + self.filename
 
     def download_new(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
-            logger.info("Making temp file storage: %s" % (self.savepath))
+            logger.debug("Making temp file storage: %s" % (self.savepath))
 
             # Our little retry loop. Implemented due to speed-related writing errors.
             # TODO Replace / update with "tenacity" module.

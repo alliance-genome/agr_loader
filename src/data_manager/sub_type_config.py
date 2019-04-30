@@ -41,8 +41,8 @@ class SubTypeConfig(object):
                 if self.file_to_download.startswith('http'):
                     download_filename = os.path.basename(self.filepath)
                     logger.debug("Download Name: " + download_filename)
-                    download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
-                    self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
+                    download_object = Download(path, self.file_to_download, download_filename)
+                    self.already_downloaded = download_object.get_downloaded_data_new()
                 else:
                     logger.debug("Downloading JSON File: " + self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download, path).download_new()

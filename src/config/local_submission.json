@@ -152,7 +152,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType": {"id":"1234", "name":"WB"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml",
@@ -160,7 +160,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType":{"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType": {"id":"1234", "name":"ZFIN"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml",
@@ -168,7 +168,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType": {"id":"1234", "name":"FB"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml",
@@ -176,7 +176,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType": {"id":"1234", "name":"RGD"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml",
@@ -184,15 +184,15 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
-                "dataSubType": {"id":"1234", "name":"Human"},
+                "dataSubType": {"id":"1234", "name":"HUMAN"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_human.xml",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType":{"id":"1234", "name":"SGD"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml",
@@ -200,7 +200,7 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
+                "schemaVersion": "1.0.0.7",
                 "dataType": {"id":"1234", "name":"ExpressionAtlas"},
                 "dataSubType": {"id":"1234", "name":"MGI"},
                 "s3Path": "http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml",

@@ -9,7 +9,7 @@ class XMLFile(object):
         self.filename = filename
 
     def get_data(self):
-        logger.info("Parsing XML data from %s..." % self.filename)
+        logger.debug("Parsing XML data from %s..." % self.filename)
         tree = ElementTree.parse(self.filename)
         root = tree.getroot()
 

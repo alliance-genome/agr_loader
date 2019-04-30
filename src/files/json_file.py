@@ -11,17 +11,17 @@ import jsonschema as js
 class JSONFile(object):
 
     def get_data(self, filename):
-        logger.info("Loading JSON data from %s ..." % filename)
+        logger.debug("Loading JSON data from %s ..." % filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             logger.debug("Opening JSONFile: %s" % filename)
             data = json.load(f)
-            logger.info("JSON data extracted %s" % filename)
+            logger.debug("JSON data extracted %s" % filename)
         f.close()
         #self.validate_json(data, filename, jsonType)
         return data
 
     def validate_json(self, data, filename, jsonType):
-        logger.info("Validating %s JSON." % (jsonType))
+        logger.debug("Validating %s JSON." % (jsonType))
 
         schema_file_name = None
         if jsonType == 'disease':
@@ -47,7 +47,7 @@ class JSONFile(object):
 
         try:
             js.validate(data, schema, format_checker=js.FormatChecker(), resolver=oResolver)
-            logger.info("'%s' successfully validated against '%s'" % (filename, schema_file_name))
+            logger.debug("'%s' successfully validated against '%s'" % (filename, schema_file_name))
         except js.ValidationError as e:
             logger.info(e.message)
             logger.info(e)
