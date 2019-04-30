@@ -199,7 +199,7 @@ class TestClass(object):
                                dict(node='Stage', prop='primaryKey'),
                                ],
 
-        'test_prop_unique': [dict(node='EvidenceCode', prop='primaryKey'),
+        'test_prop_unique': [# dict(node='EvidenceCode', prop='primaryKey'),
                              dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),

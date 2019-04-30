@@ -59,6 +59,9 @@ class ExpressionETL(ETL):
 
     AddPubs_template = """
     
+     USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
             MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
     
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
@@ -303,8 +306,7 @@ class ExpressionETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
                       [ExpressionETL.BioEntityExpression, commit_size, "expression_entities_" + sub_type.get_data_provider() + ".csv"],
-                      [ExpressionETL.BioEntityGeneAO_template, commit_size,
-                            "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
+                      [ExpressionETL.BioEntityGeneAO_template, commit_size, "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
                       [ExpressionETL.BioEntityGeneExpressionJoin, commit_size, "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
                       [ExpressionETL.AOExpression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
         ]
@@ -704,10 +706,10 @@ class ExpressionETL(ETL):
                         aoccExpression.append(AOCCExpression)
 
                 if counter == batch_size:
-                    yield [bioEntities, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
+                    yield [bioEntities, bioEntityGeneAOs, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure,
                            aoSSQualifier, ccQualifier,
                            stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-                           uberonStageOtherData, crossReferences]
+                           uberonStageOtherData, crossReferences, pubs]
                     bioEntities = []
                     bioJoinEntities = []
                     aoExpression = []
@@ -723,12 +725,14 @@ class ExpressionETL(ETL):
                     uberonAOOtherData = []
                     uberonAOData = []
                     crossReferences = []
+                    bioEntityGeneAOs = []
+                    pubs = []
                     counter = 0
 
             if counter > 0:
-                yield [bioEntities, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
+                yield [bioEntities, bioEntityGeneAOs, bioJoinEntities, aoExpression, ccExpression, aoccExpression, aoQualifier, aoSubstructure, aoSSQualifier, ccQualifier,
                        stageList, stageUberonData, uberonAOData, uberonAOOtherData,
-                       uberonStageOtherData, crossReferences]
+                       uberonStageOtherData, crossReferences, pubs]
 
         # TODO: get dataProvider parsing working with ijson.
         # wt_expression_data = JSONFile().get_data(path + expressionName, 'expression')
