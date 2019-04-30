@@ -155,7 +155,7 @@ class PhenoTypeETL(ETL):
 
             if 'publicationId' in evidence:
                 if evidence.get('publicationId').startswith('PMID:'):
-                    pubMedId = evidence['publication'].get('publicationId')
+                    pubMedId = evidence['publicationId']
                     localPubMedId = pubMedId.split(":")[1]
                     pubMedPrefix = pubMedId.split(":")[0]
                     pubMedUrl = ETLHelper.get_no_page_complete_url(localPubMedId, self.xrefUrlMap, pubMedPrefix,

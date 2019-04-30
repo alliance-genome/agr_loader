@@ -62,7 +62,7 @@ class FileTransactor(object):
         filepath = sub_type.get_filepath()
         filepath_to_download = sub_type.get_file_to_download()
 
-        logger.info("%s: Acquiring file: %s from filepath: %s" % (self._get_name(), filepath, filepath_to_download))
+        logger.debug("%s: Acquiring file: %s from filepath: %s" % (self._get_name(), filepath, filepath_to_download))
 
         logger.debug("%s: Checking whether the file is currently downloading: %s" % (self._get_name(), filepath_to_download))
 
