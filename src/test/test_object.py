@@ -36,7 +36,7 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             # expression
-            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
+            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
             'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043', 'MGI:104807',
             # variant

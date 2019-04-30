@@ -108,7 +108,7 @@ class SubTypeConfig(object):
 
         if schema_file_name is None:
             logger.warn('No schema or method found. Skipping validation.')
-            return # Exit validation.
+            return  # Exit validation.
 
         with open(self.filepath, encoding='utf-8') as data_file:
             data = json.load(data_file)

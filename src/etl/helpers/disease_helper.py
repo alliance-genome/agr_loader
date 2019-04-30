@@ -36,15 +36,20 @@ class DiseaseHelper(object):
                 ecodes = []
 
                 evidence = diseaseRecord.get('evidence')
-                if 'publication' in evidence:
-                    if 'modPublicationId' in evidence['publication']:
-                        publicationModId = evidence['publication'].get('modPublicationId')
-                        localPubModId = publicationModId.split(":")[1]
-                        pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
-                    if 'pubMedId' in evidence['publication']:
-                        pubMedId = evidence['publication'].get('pubMedId')
+                if 'publicationId' in evidence:
+                    if evidence.get('publicationId').startswith('PMID:'):
+                        pubMedId = evidence['publication'].get('publicationId')
                         localPubMedId = pubMedId.split(":")[1]
                         pubMedUrl = ETLHelper.get_complete_pub_url(localPubMedId, pubMedId)
+                        if 'crossReference' in evidence:
+                            pubXref = evidence.get('crossReference')
+                            publicationModId = pubXref.get('id')
+                            localPubModId = publicationModId.split(":")[1]
+                            pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
+                    else:
+                        publicationModId = evidence['publicationId']
+                        localPubModId = publicationModId.split(":")[1]
+                        pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
 
             if 'objectRelation' in diseaseRecord:
                 diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
@@ -73,16 +78,6 @@ class DiseaseHelper(object):
 
             doId = diseaseRecord.get('DOid')
             diseaseUniqueKey = primaryId+doId+diseaseAssociationType
-
-            withs = []
-            if 'with' in diseaseRecord:
-                withRecord = diseaseRecord.get('with')
-                for rec in withRecord:
-                    withMap = {
-                        "diseaseUniqueKey": diseaseUniqueKey,
-                        "with": rec
-                    }
-                    withs.append(withMap)
 
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,

@@ -22,6 +22,26 @@ class ETLHelper(object):
 
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
+
+    @staticmethod
+    def get_expression_pub_annotation_xref(publicationModId):
+        if publicationModId is not None:
+            pubModLocalId = publicationModId.split(":")[1]
+            if "MGI:" in publicationModId:
+                pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
+            if "ZFIN:" in publicationModId:
+                pubModUrl = "http://zfin.org/" + publicationModId
+            if "SGD:" in publicationModId:
+                pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
+            if "WB:" in publicationModId:
+                pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
+            if "RGD:" in publicationModId:
+                pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
+            if "FB:" in publicationModId:
+                pubModUrl = "http://flybase.org/reports/" + pubModLocalId
+        return pubModUrl
+
+
     @staticmethod
     def get_xref_dict(localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl, primaryId):
         globalXrefId = prefix+":"+localId

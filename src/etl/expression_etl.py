@@ -406,33 +406,30 @@ class ExpressionETL(ETL):
 
                 evidence = xpat.get('evidence')
 
-                if 'modPublicationId' in evidence:
-                    publicationModId = evidence.get('modPublicationId')
-                    if publicationModId is not None:
-                        pubModLocalId = publicationModId.split(":")[1]
-                        if "MGI:" in publicationModId:
-                            pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
-                        if "ZFIN:" in publicationModId:
-                            pubModUrl = "http://zfin.org/" + publicationModId
-                        if "SGD:" in publicationModId:
-                            pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
-                        if "WB:" in publicationModId:
-                            pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
-                        if "RGD:" in publicationModId:
-                            pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
-                        if "FB:" in publicationModId:
-                            pubModUrl = "http://flybase.org/reports/" + pubModLocalId
+                if 'publicationId' in evidence:
+                    if evidence.get('publicationId').startswith('PMID:'):
+                        pubMedId = evidence['publication'].get('publicationId')
+                        localPubMedId = pubMedId.split(":")[1]
+                        pubMedPrefix = pubMedId.split(":")[0]
+                        pubMedUrl = ETLHelper.get_no_page_complete_url(localPubMedId, self.xrefUrlMap, pubMedPrefix,
+                                                                       geneId)
+                        if pubMedId is None:
+                            pubMedId = ""
+
+                        if 'crossReference' in evidence:
+                            pubXref = evidence.get('crossReference')
+                            publicationModId = pubXref.get('id')
+
+                            if publicationModId is not None:
+                                pubModUrl = ETLHelper.get_expression_pub_annotation_xref(publicationModId)
+
+                    else:
+                        publicationModId = evidence['publicationId']
+                        if publicationModId is not None:
+                            pubModUrl = ETLHelper.get_expression_pub_annotation_xref(publicationModId)
 
                     if publicationModId is None:
                         publicationModId = ""
-
-                if 'pubMedId' in evidence:
-                    pubMedId = evidence.get('pubMedId')
-                    localPubMedId = pubMedId.split(":")[1]
-                    pubMedPrefix = pubMedId.split(":")[0]
-                    pubMedUrl = ETLHelper.get_no_page_complete_url(localPubMedId, self.xrefUrlMap, pubMedPrefix, geneId)
-                    if pubMedId is None:
-                        pubMedId = ""
 
                 assay = xpat.get('assay')
 
@@ -448,6 +445,13 @@ class ExpressionETL(ETL):
                     anatomicalSubStructureQualifierTermId = whereExpressed.get(
                         'anatomicalSubStructureQualifierTermId')
                     whereExpressedStatement = whereExpressed.get('whereExpressedStatement')
+
+                    whenExpressedStage = xpat.get('whenExpressed')
+
+                    if 'stageTermId' in whenExpressedStage:
+                        stageTermId = whenExpressedStage.get('stageTermId')
+                    if 'stageName' in whenExpressedStage:
+                        stageName = whenExpressedStage.get('stageName')
 
                     # TODO: making unique BioEntityGeneExpressionJoin nodes and ExpressionBioEntity nodes is tedious.
                     # TODO: Lets get the DQMs to fix this.
@@ -478,13 +482,7 @@ class ExpressionETL(ETL):
                             expressionEntityUniqueKey = expressionEntityUniqueKey + anatomicalSubStructureQualifierTermId
 
                     expressionEntityUniqueKey = expressionEntityUniqueKey + whereExpressedStatement
-
-                    whenExpressedStage = xpat.get('whenExpressed')
-
-                    if 'stageTermId' in whenExpressedStage:
-                        stageTermId = whenExpressedStage.get('stageTermId')
-                    if 'stageName' in whenExpressedStage:
-                        stageName = whenExpressedStage.get('stageName')
+                    expressionUniqueKey = expressionUniqueKey + whereExpressedStatement
 
                     if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
                         for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):

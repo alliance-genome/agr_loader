@@ -170,23 +170,29 @@ class GenericOntologyETL(ETL):
                     isas.append(isas_dict_to_append)
 
             # part_of processing
-            o_part_of = line.get('part_of')
-            if o_part_of is not None:
-                if isinstance(o_part_of, (list, tuple)):
-                    for po in o_part_of:
-                        poWithoutName = po.split("!")[0].strip()
+            relations = line.get('relationship')
+            if relations is not None:
+                if isinstance(relations, (list, tuple)):
+                    for partof in relations:
+                        relationshipDescriptors = partof.split(' ')
+                        logger.debug(relationshipDescriptors)
+                        o_part_of = relationshipDescriptors[0]
+                        if o_part_of == 'part_of':
+                            logger.debug(relationshipDescriptors[1])
+                            partof_dict_to_append = {
+                                'oid': ident,
+                                'partof': relationshipDescriptors[1]
+                            }
+                            partofs.append(partof_dict_to_append)
+                else:
+                    relationshipDescriptors = relations.split(' ')
+                    o_part_of = relationshipDescriptors[1]
+                    if o_part_of == 'part_of':
                         partof_dict_to_append = {
-                            'oid' : ident,
-                            'partof' : poWithoutName
+                                'oid' : ident,
+                                'partof' : relationshipDescriptors[2]
                         }
                         partofs.append(partof_dict_to_append)
-                else:
-                    poWithoutName = po.split("!")[0].strip()
-                    partof_dict_to_append = {
-                        'oid' : ident,
-                        'partof' : poWithoutName
-                        }
-                    partofs.append(partof_dict_to_append)
 
             definition = line.get('def')
             if definition is None:

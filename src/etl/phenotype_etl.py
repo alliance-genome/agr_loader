@@ -142,6 +142,7 @@ class PhenoTypeETL(ETL):
             pubModId = None
             pubMedUrl = None
             pubModUrl = None
+            pubModLocalId = None
             primaryId = pheno.get('objectId')
             phenotypeStatement = pheno.get('phenotypeStatement')
 
@@ -152,23 +153,30 @@ class PhenoTypeETL(ETL):
 
             evidence = pheno.get('evidence')
 
-            if 'modPublicationId' in evidence:
-                pubModId = evidence.get('modPublicationId')
+            if 'publicationId' in evidence:
+                if evidence.get('publicationId').startswith('PMID:'):
+                    pubMedId = evidence['publication'].get('publicationId')
+                    localPubMedId = pubMedId.split(":")[1]
+                    pubMedPrefix = pubMedId.split(":")[0]
+                    pubMedUrl = ETLHelper.get_no_page_complete_url(localPubMedId, self.xrefUrlMap, pubMedPrefix,
+                                                                   primaryId)
+                    if pubMedId is None:
+                        pubMedId = ""
 
-            if 'pubMedId' in evidence:
-                pubMedId = evidence.get('pubMedId')
+                    if 'crossReference' in evidence:
+                        pubXref = evidence.get('crossReference')
+                        pubModId = pubXref.get('id')
+                        pubModLocalId = pubModId.split(":")[1]
+                        if pubModId is not None:
+                            pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
 
-            if pubMedId is not None:
-                pubMedPrefix = pubMedId.split(":")[0]
-                pubMedLocalId = pubMedId.split(":")[1]
-                pubMedUrl = ETLHelper.get_no_page_complete_url(pubMedLocalId, ETL.xrefUrlMap, pubMedPrefix, primaryId)
+                else:
+                    pubModId = evidence['publicationId']
+                    if pubModId is not None:
+                        pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
 
-                pubModId = pheno.get('pubModId')
-
-            if pubModId is not None:
-                pubModPrefix = pubModId.split(":")[0]
-                pubModLocalId = pubModId.split(":")[1]
-                pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
+                if pubModId is None:
+                    pubModId = ""
 
             if pubMedId is None:
                 pubMedId = ""

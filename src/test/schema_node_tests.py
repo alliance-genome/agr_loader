@@ -20,7 +20,9 @@ class TestClass(object):
 
         'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE'),
                                      dict(relationship='LOCATED_ON'),
-                                     dict(relationship='VARIATION')],
+                                     dict(relationship='VARIATION'),
+                                     dict(relationship='PART_OF'),
+                                     dict(relationship='WITH')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),

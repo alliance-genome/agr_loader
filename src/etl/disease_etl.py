@@ -107,9 +107,9 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+            MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
             MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
-            MERGE (ecode1g:EvidenceCode {primaryKey:row.ecode})
-            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(ecode1g)
+            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(o)
                 
     """
 
@@ -188,6 +188,7 @@ class DiseaseETL(ETL):
         gene_list_to_yield = []
         allele_list_to_yield = []
         evidence_code_list_to_yield = []
+        withs = []
         counter = 0
         dateProduced = disease_data['metaData']['dateProduced']
 
@@ -232,12 +233,9 @@ class DiseaseETL(ETL):
                                       "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    gene_list_to_yield.append(disease_record)
-
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    withs = []
                     if 'with' in diseaseRecord:
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
@@ -247,6 +245,7 @@ class DiseaseETL(ETL):
                             }
                             withs.append(withMap)
 
+                    gene_list_to_yield.append(disease_record)
                  
             elif diseaseObjectType == "allele":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
@@ -256,12 +255,11 @@ class DiseaseETL(ETL):
                         ecode_map = {"uuid": disease_record.get('uuid'),
                                       "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
-                    allele_list_to_yield.append(disease_record)
+
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    withs = []
                     if 'with' in diseaseRecord:
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
@@ -270,6 +268,8 @@ class DiseaseETL(ETL):
                                 "withD": rec
                             }
                             withs.append(withMap)
+
+                    allele_list_to_yield.append(disease_record)
             else:
                 continue
 
