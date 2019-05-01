@@ -4,7 +4,6 @@ logger = logging.getLogger(__name__)
 import os
 import urllib.request
 
-#TODO Consolidate these functions with s3_file.py
 
 class Download(object):
 
@@ -14,7 +13,7 @@ class Download(object):
         self.filenameToSave = filenameToSave
 
     def get_downloaded_data(self):
-        logger.info("Downloading data from ..." + self.urlToRetrieve)
+        logger.debug("Downloading data from ..." + self.urlToRetrieve)
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)

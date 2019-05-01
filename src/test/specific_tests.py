@@ -58,6 +58,7 @@ def test_zfin_gene_has_expression_link():
     for record in result:
         assert record["counter"] > 0
 
+
 def test_mods_have_gene_expression_atlas_link():
     query = "MATCH (g:Gene)-[]-(c:CrossReference) " \
             "WHERE c.crossRefType = 'gene/expression-atlas' " \
@@ -65,6 +66,7 @@ def test_mods_have_gene_expression_atlas_link():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
+
 
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \

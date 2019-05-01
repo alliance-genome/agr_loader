@@ -133,7 +133,7 @@ class AlleleETL(ETL):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
 
-        loadKey = dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_ALLELE"
 
         #TODO: get SGD to fix their files.
 
@@ -163,9 +163,16 @@ class AlleleETL(ETL):
                     counter = counter - 1
                     continue
 
+            # TODO: get ZFIN to fix their file
+
+            if dataProvider == 'ZFIN':
+                geneId = "ZFIN:" + alleleRecord.get('gene')
+            else:
+                geneId = alleleRecord.get('gene')
+
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
-                "geneId": alleleRecord.get('gene'),
+                "geneId": geneId,
                 "primaryId": alleleRecord.get('primaryId'),
                 "globalId": globalId,
                 "localId": localId,
@@ -177,8 +184,7 @@ class AlleleETL(ETL):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "dataProvider": data_provider,
-                "symbolText": alleleRecord.get('symbolText'),
-                "modGlobalCrossRefId": modGlobalCrossRefId
+                "symbolText": alleleRecord.get('symbolText')
 
             }
 
