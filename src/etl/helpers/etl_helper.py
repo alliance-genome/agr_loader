@@ -118,6 +118,8 @@ class ETLHelper(object):
             return "Saccharomyces cerevisiae"
         elif provider in "Human":
             return "Homo sapiens"
+        elif provider in "HUMAN":
+            return "Homo sapiens"
         else:
             return None
 

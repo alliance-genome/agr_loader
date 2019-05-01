@@ -171,8 +171,9 @@ class PhenoTypeETL(ETL):
                             pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
 
                 else:
-                    pubModId = evidence['publicationId']
+                    pubModId = evidence.get('publicationId')
                     if pubModId is not None:
+                        pubModLocalId = pubModId.split(":")[1]
                         pubModUrl = ETLHelper.get_complete_pub_url(pubModLocalId, pubModId)
 
                 if pubModId is None:

@@ -119,7 +119,7 @@ class GeneDescriptionsETL(ETL):
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider() for sub_type in self.data_type_config.get_sub_type_objects()]:
             logger.info("Generating gene descriptions for " + prvdr)
-            data_provider = prvdr if prvdr != "Human" else "RGD"
+            data_provider = prvdr if prvdr != "Human" and prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
             gd_data_manager.load_associations_from_file(
@@ -142,7 +142,7 @@ class GeneDescriptionsETL(ETL):
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
         gene_prefix = ""
-        if data_provider == "Human":
+        if data_provider == "Human" or data_provider == "HUMAN":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
         else:

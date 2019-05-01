@@ -24,7 +24,7 @@ GAF:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -51,10 +51,10 @@ Ontology:
     - UBERON
 ExpressionAtlas:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
@@ -90,7 +90,7 @@ Interactions:
   allowed: [MolecularInteraction]
 GeneDescriptions:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
 FileTransactorThreads:
   type: integer
   required: True

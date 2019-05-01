@@ -8,6 +8,110 @@
         "snapShotDate": 1523284823719,
         "dataFiles": [
             {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "1.0.0.7/GAF/10090/1.0.0.7_GAF_10090_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/10090/1.0.0.7_GAF_10090_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "1.0.0.7/GAF/10116/1.0.0.7_GAF_10116_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/10116/1.0.0.7_GAF_10116_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"SGD"},
+                "s3Path": "1.0.0.7/GAF/559292/1.0.0.7_GAF_559292_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/559292/1.0.0.7_GAF_559292_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "1.0.0.7/GAF/6239/1.0.0.7_GAF_6239_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/6239/1.0.0.7_GAF_6239_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "1.0.0.7/GAF/7227/1.0.0.7_GAF_7227_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/7227/1.0.0.7_GAF_7227_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "1.0.0.7/GAF/7955/1.0.0.7_GAF_7955_2.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/7955/1.0.0.7_GAF_7955_2.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "1.0.0.7/ORTHO/10090/1.0.0.7_ORTHO_10090_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/10090/1.0.0.7_ORTHO_10090_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "1.0.0.7/ORTHO/7955/1.0.0.7_ORTHO_7955_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/7955/1.0.0.7_ORTHO_7955_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "1.0.0.7/ORTHO/10116/1.0.0.7_ORTHO_10116_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/10116/1.0.0.7_ORTHO_10116_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"SGD"},
+                "s3Path": "1.0.0.7/ORTHO/559292/1.0.0.7_ORTHO_559292_1.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/559292/1.0.0.7_ORTHO_559292_1.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "1.0.0.7/ORTHO/6239/1.0.0.7_ORTHO_6239_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/6239/1.0.0.7_ORTHO_6239_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "1.0.0.7/ORTHO/7227/1.0.0.7_ORTHO_7227_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/7227/1.0.0.7_ORTHO_7227_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"Human"},
+                "s3Path": "1.0.0.7/ORTHO/9606/1.0.0.7_ORTHO_9606_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/9606/1.0.0.7_ORTHO_9606_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
                 "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"Ontology"},
                 "dataSubType": {"id":"1234", "name":"GO"},
