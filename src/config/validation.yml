@@ -90,7 +90,7 @@ Interactions:
   allowed: [MolecularInteraction]
 GeneDescriptions:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FileTransactorThreads:
   type: integer
   required: True

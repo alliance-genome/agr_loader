@@ -1,12 +1,12 @@
 schemaVersion: 1.0.0.8
 releaseVersion: 2.2.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 Ontology:
   - GO
   - SO
   - DO
-  - MI
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 
 # Loader configuration values are below.
 # Please modify with caution!

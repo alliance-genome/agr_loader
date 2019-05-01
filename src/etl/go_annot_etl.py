@@ -41,7 +41,7 @@ class GOAnnotETL(ETL):
         logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_file_to_download()
         filepath = 'tmp/' + filepath
-        logger.info("goannot path" + filepath)
+        logger.info("goannot path: " + filepath)
         file = open(filepath, "r")
 
 
