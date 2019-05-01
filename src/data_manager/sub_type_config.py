@@ -90,10 +90,10 @@ class SubTypeConfig(object):
         # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
         # The submission system needs to be in place (files are downloaded as .json) for this to work.
         if self.already_downloaded is True:
-            logger.info('Found temp validation file flag for %s. Skipping validation.' % self.filepath)
+            logger.debug('Found temp validation file flag for %s. Skipping validation.' % self.filepath)
             return
 
-        logger.info("Attempting to validate: %s" % (self.filepath))
+        logger.debug("Attempting to validate: %s" % (self.filepath))
 
         schema_lookup_dict = {
             'Disease': 'schemas/disease/diseaseMetaDataDefinition.json',
@@ -123,7 +123,7 @@ class SubTypeConfig(object):
 
         try:
             js.validate(data, expanded_schema_file)
-            logger.info("'%s' successfully validated against '%s'" % (self.filepath, schema_file_name))
+            logger.debug("'%s' successfully validated against '%s'" % (self.filepath, schema_file_name))
         except js.ValidationError as e:
             logger.critical(e.message)
             logger.critical(e)

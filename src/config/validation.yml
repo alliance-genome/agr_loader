@@ -24,7 +24,7 @@ GAF:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -51,10 +51,10 @@ Ontology:
     - UBERON
 ExpressionAtlas:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]

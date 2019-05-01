@@ -14,14 +14,14 @@ class DataFileManager(metaclass=Singleton):
     
     def __init__(self, config_file_loc):
         # Load config yaml.
-        logger.info('Loading config file: %s' % config_file_loc)
+        logger.debug('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file, Loader=yaml.SafeLoader)
         logger.debug("Config Data: %s" % self.config_data)
 
         # Load validation yaml.
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
-        logger.info('Loading validation schema: %s' % validation_yaml_file_loc)
+        logger.debug('Loading validation schema: %s' % validation_yaml_file_loc)
         validation_schema_file = open(validation_yaml_file_loc, 'r')
         self.validation_schema = yaml.load(validation_schema_file, Loader=yaml.SafeLoader)
 
@@ -39,20 +39,6 @@ class DataFileManager(metaclass=Singleton):
             release = os.environ['RELEASE']
         else:
             release = "0.0.0"
-
-        # API_KEY Must be defined in local environment (not committed to github!)
-        # if "API_KEY" in os.environ:
-        #     api_access_token = os.environ.get('API_KEY')
-        # else:
-        #     logger.error("ERROR: please define an API_KEY in your local environment. ")
-        #
-        # # create a snapshot on each run of the loader
-        # logger.info("making submission system snapshot")
-        # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
-        #                + system \
-        #                + '&releaseVersion=' \
-        #                + release
-        # snapshot = requests.post(snapshot_url, data={"api_access_token": api_access_token})
 
         # use the recently created snapshot
         api_url = 'https://fmsdev.alliancegenome.org/api/data/snapshot?system=' + '&releaseVersion=' + '2.2.0'
@@ -107,9 +93,9 @@ class DataFileManager(metaclass=Singleton):
 
     def download_and_validate(self):
 
-        logger.info('Beginning download and validation.')
+        logger.debug('Beginning download and validation.')
         for entry in self.master_data_dictionary.keys():
-            logger.info('Downloading %s data.' % entry)
+            logger.debug('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig):  # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
 
@@ -122,7 +108,7 @@ class DataFileManager(metaclass=Singleton):
         validation_results = validator.validate(self.config_data)
 
         if validation_results is True:
-            logger.info('Config file validation successful.')
+            logger.debug('Config file validation successful.')
         else:
             logger.critical('Config file validation unsuccessful!')
             for field, values in validator.errors.items():

@@ -4,8 +4,8 @@ from time import sleep
 
 from etl import ETL
 
-
 logger = logging.getLogger(__name__)
+
 
 class FileTransactor(object):
 
@@ -40,18 +40,18 @@ class FileTransactor(object):
         FileTransactor.queue.join()
         
     def shutdown(self):       
-        logger.info("Shutting down FileTransactor threads: %s" % len(self.thread_pool))
+        logger.debug("Shutting down FileTransactor threads: %s" % len(self.thread_pool))
         for thread in self.thread_pool:
             thread.terminate()
-        logger.info("Finished Shutting down FileTransactor threads")
+        logger.debug("Finished Shutting down FileTransactor threads")
 
     def run(self, filetracking_queue):
-        logger.info("%s: Starting FileTransactor Thread Runner." % self._get_name())
+        logger.debug("%s: Starting FileTransactor Thread Runner." % self._get_name())
         while True:
             try:
                 (sub_type, FileTransactor.count) = FileTransactor.queue.get()
             except EOFError as error:
-                logger.info("Queue Closed exiting: %s" % error)
+                logger.debug("Queue Closed exiting: %s" % error)
                 return
             logger.debug("%s: Pulled File Transaction Batch: %s QueueSize: %s " % (self._get_name(), FileTransactor.count, FileTransactor.queue.qsize()))  
             self.download_file(sub_type, filetracking_queue)
