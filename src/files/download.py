@@ -13,7 +13,7 @@ class Download(object):
         self.filenameToSave = filenameToSave
 
     def get_downloaded_data(self):
-        logger.debug("Downloading data from ..." + self.urlToRetrieve)
+        logger.info("Downloading data from ..." + self.urlToRetrieve)
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
@@ -30,7 +30,7 @@ class Download(object):
         return data
 
     def get_downloaded_data_new(self):
-        logger.debug("Downloading data from ... " + self.urlToRetrieve)
+        logger.info("Downloading data from ... " + self.urlToRetrieve)
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)

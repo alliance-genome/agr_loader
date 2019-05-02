@@ -46,9 +46,9 @@ class ResourceDescriptorService(object):
         # Occasionally, prefixes from incoming files do not line up with the Alliance YAML.
         # The following dictionary translates these entries into the appropriate prefixes.
         prefix_translation_dictionary = {
-            'WORMBASE' : 'WB',
-            'FLYBASE' : 'FB',
-            'RCSB PDB' : 'RCSB_PDB'
+            'WORMBASE': 'WB',
+            'FLYBASE': 'FB',
+            'RCSB PDB': 'RCSB_PDB'
         }
 
         if entry not in prefix_translation_dictionary:

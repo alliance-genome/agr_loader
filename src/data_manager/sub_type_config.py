@@ -37,7 +37,7 @@ class SubTypeConfig(object):
     
         if self.filepath is not None:
             if not os.path.isfile(self.filepath):
-                logger.debug("File to download: " + self.file_to_download)
+                logger.info("File to download: " + self.file_to_download)
                 if self.file_to_download.startswith('http'):
                     download_filename = os.path.basename(self.filepath)
                     logger.debug("Download Name: " + download_filename)

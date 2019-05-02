@@ -175,10 +175,8 @@ class GenericOntologyETL(ETL):
                 if isinstance(relations, (list, tuple)):
                     for partof in relations:
                         relationshipDescriptors = partof.split(' ')
-                        logger.debug(relationshipDescriptors)
                         o_part_of = relationshipDescriptors[0]
                         if o_part_of == 'part_of':
-                            logger.debug(relationshipDescriptors[1])
                             partof_dict_to_append = {
                                 'oid': ident,
                                 'partof': relationshipDescriptors[1]

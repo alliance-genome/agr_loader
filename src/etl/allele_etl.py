@@ -163,16 +163,9 @@ class AlleleETL(ETL):
                     counter = counter - 1
                     continue
 
-            # TODO: get ZFIN to fix their file
-
-            if dataProvider == 'ZFIN':
-                geneId = "ZFIN:" + alleleRecord.get('gene')
-            else:
-                geneId = alleleRecord.get('gene')
-
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
-                "geneId": geneId,
+                "geneId": alleleRecord.get('gene'),
                 "primaryId": alleleRecord.get('primaryId'),
                 "globalId": globalId,
                 "localId": localId,
