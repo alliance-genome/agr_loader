@@ -56,7 +56,7 @@ class GeneDescriptionsETL(ETL):
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
         WHERE g.dataProvider = {parameter}
-        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId, e.primaryKey AS ECode, 
             type(r) AS relType
         """
@@ -67,7 +67,7 @@ class GeneDescriptionsETL(ETL):
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE f.dataProvider = {parameter}
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
-        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, 
         e.primaryKey AS ECode, type(r) AS relType
         """
@@ -86,9 +86,9 @@ class GeneDescriptionsETL(ETL):
     GetDiseaseViaOrthologyQuery = """
     
         MATCH (disease:DOTerm:Ontology)-[da:IS_IMPLICATED_IN|:IS_MODEL_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec:EvidenceCode)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(p:Publication)
+        MATCH (ec:ECOTerm)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(p:Publication)
         WHERE o.strictFilter = 'True' AND gene1.taxonId ='NCBITaxon:9606' AND da.uuid = dej.primaryKey 
-        AND NOT ec.primaryKey IN ["IEA", "ISS", "ISO"] AND gene2.dataProvider = {parameter}
+        AND NOT ec.primaryKey IN ["ECO:0000501", "ECO:0000250", "ECO:0000266"] AND gene2.dataProvider = {parameter}
         RETURN DISTINCT gene2.primaryKey AS geneId, gene2.symbol AS geneSymbol, disease.primaryKey AS DOId, 
         p.primaryKey AS publicationId
         """

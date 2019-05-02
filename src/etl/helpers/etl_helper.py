@@ -275,20 +275,12 @@ class ETLHelper(object):
     @staticmethod
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
 
-        if page == 'gene/expression_images':
-            logger.info(localId)
-            logger.info(xrefUrlMap)
-            logger.info(page)
-
         completeUrl = ""
 
         for rdstanza in xrefUrlMap:
 
             for resourceKey, valueMap in rdstanza.items():
                 if resourceKey == prefix+page:
-                    logger.info(resourceKey)
-                    logger.info("prefix+page")
-                    logger.info(prefix+page)
 
                     individualStanzaMap = rdstanza[prefix+page]
 
@@ -298,6 +290,20 @@ class ETLHelper(object):
                     completeUrl = pageUrlPrefix + localId + pageUrlSuffix
 
         return completeUrl
+
+    @staticmethod
+    def get_expression_images_url(localId, crossRefId):
+        if 'MGI' in crossRefId:
+            return "http://www.informatics.jax.org/gxd/marker/MGI:"+localId+"?tab=imagestab"
+        elif 'ZFIN' in crossRefId:
+            return "https://zfin.org/action/marker/"+localId+"/expression"
+        elif 'WB' in crossRefId:
+            return "https://www.wormbase.org/db/get?name="+localId+";class=Gene;widget=expression"
+        elif 'FB' in crossRefId:
+            return "http://flybase.org/reports/"+localId+".html#expression"
+        else:
+            return ""
+
 
     @staticmethod
     def get_no_page_complete_url(localId, xrefUrlMap, prefix, primaryId):
