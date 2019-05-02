@@ -274,6 +274,12 @@ class ETLHelper(object):
 
     @staticmethod
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
+
+        if page == 'gene/expression_images':
+            logger.info(localId)
+            logger.info(xrefUrlMap)
+            logger.info(page)
+
         completeUrl = ""
 
         for rdstanza in xrefUrlMap:

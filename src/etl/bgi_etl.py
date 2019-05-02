@@ -268,6 +268,7 @@ class BGIETL(ETL):
                                 geneLiteratureUrl = ""
                                 displayName = ""
 
+
                                 crossRefCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
 
                                 if page == 'gene':
