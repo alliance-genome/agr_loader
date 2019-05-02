@@ -21,7 +21,7 @@ class GeneDiseaseOrthoETL(ETL):
                   (gene:Gene {primaryKey:row.primaryId}),
                   (fromGene:Gene {primaryKey:row.fromGeneId}),
                   (pub:Publication {primaryKey:"MGI:6194238"}),
-                  (ecode:EvidenceCode {primaryKey:"IEA"})
+                  (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
                 CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     SET dga.dataProvider = 'Alliance',

@@ -40,7 +40,6 @@ class TestClass(object):
                              dict(node='DiseaseEntityJoin'),
                              dict(node='Association'),
                              dict(node='Publication'),
-                             dict(node='EvidenceCode'),
                              dict(node='Allele'),
                              dict(node='Phenotype'),
                              dict(node='PhenotypeEntityJoin'),

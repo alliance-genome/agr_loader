@@ -286,6 +286,9 @@ class ETLHelper(object):
 
             for resourceKey, valueMap in rdstanza.items():
                 if resourceKey == prefix+page:
+                    logger.info(resourceKey)
+                    logger.info("prefix+page")
+                    logger.info(prefix+page)
 
                     individualStanzaMap = rdstanza[prefix+page]
 
