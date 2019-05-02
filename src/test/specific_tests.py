@@ -365,8 +365,8 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(ec:EvidenceCode) " \
-            "where ec.primaryKey = 'IEA'" \
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(ec:ECOTerm) " \
+            "where ec.primaryKey = 'ECO:0000501'" \
             "and deg.dataProvider = 'Alliance'" \
             "return count(gene) as counter"
     result = execute_transaction(query)
