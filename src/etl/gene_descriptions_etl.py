@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 class GeneDescriptionsETL(ETL):
 
     GeneDescriptionsQuery = """
-f
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         

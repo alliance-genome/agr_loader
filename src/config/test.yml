@@ -8,7 +8,7 @@ Ontology:
   - GO
   - SO
   - DO
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GeneDescriptions: [ZFIN]
 
 FileTransactorThreads: 7
 Neo4jTransactorThreads: 3
