@@ -101,20 +101,21 @@ def test_gene_has_automated_description():
         assert record["counter"] == 1
 
 
-def test_gene_has_all_three_automated_description_components():
-    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
-              "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
-              "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
-              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
-            "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
-              "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
-              "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
-              "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
-            "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
-              "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 0
+# TODO: uncomment when gene descriptions codebase has migrated to 1.0.0.8 schema
+# def test_gene_has_all_three_automated_description_components():
+#     query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
+#               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
+#               "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
+#               "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+#             "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
+#               "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
+#               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
+#               "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
+#             "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
+#               "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] == 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -124,7 +125,7 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
         assert record["counter"] > 0
 
 
-def test_ZDB_ALT_160129_6_has_at_least_one_disease():
+def test_zdb_alt_160129_6_has_at_least_one_disease():
     query = "MATCH (d:DOTerm)-[]-(a:Allele) where a.dataProvider = 'ZFIN' " \
             "and a.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(a) as counter"
     result = execute_transaction(query)

@@ -41,7 +41,7 @@ class DataFileManager(metaclass=Singleton):
             release = "0.0.0"
 
         # use the recently created snapshot
-        api_url = 'https://fmsdev.alliancegenome.org/api/data/snapshot?system=' + '&releaseVersion=' + '2.2.0'
+        api_url = 'https://fmsdev.alliancegenome.org/api/snapshot/release/' + '2.2.0'
         submission_data = http.request('GET', api_url)
 
         if submission_data.status != 200:

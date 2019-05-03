@@ -159,7 +159,7 @@ class GeneDescriptionsETL(ETL):
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
             if len(key_diseases[gene.id]) > 5:
-                logger.debug("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
+                logger.info("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
                              gene_desc.do_orthology_description + "\t" + ",".join(key_diseases[gene.id]))
             if gene_desc.description:
                 descriptions.append({
