@@ -220,7 +220,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
+            ecodes = ["EXP"] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
                 logger.debug(ecode)
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
