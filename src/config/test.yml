@@ -1,57 +1,13 @@
 schemaVersion: 1.0.0.8
 releaseVersion: 2.2.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ALLELE: [FB, WB, ZFIN, RGD, MGI]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
-PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
+BGI: [ZFIN]
+ALLELE: [ZFIN]
+DAF: [ZFIN]
+GAF: [ZFIN]
 Ontology:
   - GO
   - SO
   - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure:
-  - GO
-  - SO
-  - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 
 FileTransactorThreads: 7

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class GeneDescriptionsETL(ETL):
 
     GeneDescriptionsQuery = """
-
+f
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -223,6 +223,7 @@ class GeneDescriptionsETL(ETL):
         for annot in neo4j_annot_set:
             ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
+                logger.info(ecode)
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
                     annot["geneSymbol"], annot["DOId"], ecode, data_provider))
