@@ -59,6 +59,7 @@ services:
       - NET=production
       - ALLIANCE_RELEASE=2.2.0
       - FMS_HOST=fmsdev.alliancegenome.org
+      - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
       - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -86,6 +87,7 @@ services:
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -113,6 +115,7 @@ services:
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -140,6 +143,7 @@ services:
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - pytest

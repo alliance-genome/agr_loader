@@ -5,8 +5,6 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-#TODO Consolidate these functions with download.py
-
 
 class S3File(object):
 
@@ -14,13 +12,23 @@ class S3File(object):
         self.filename = filename
         self.savepath = savepath
 
+        if "DOWNLOAD_HOST" in os.environ:
+            self.download_host = os.environ['DOWNLOAD_HOST']
+        else:
+            self.download_host = "downloaddev.alliancegenome.org/"
+            logger.error("No DOWNLOAD_HOST ENV variable detected, using downloaddev.alliancegenome.org.")
+
+        self.download_url = "https://" + self.download_host + self.filename
+
     def download(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
             logger.info("Making temp file storage: %s" % (self.savepath))
             os.makedirs(os.path.dirname(self.savepath + "/" + self.filename))
-        url = "https://downloaddev.alliancegenome.org/" + self.filename
+
+        url = self.download_url
+        logger.info(url)
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.info("Downloading data from s3 (https://downloaddev.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
+            logger.info("Downloading data from s3 (https://%s/%s -> %s/%s) ..." % (self.download_host, self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
             logger.info("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
@@ -50,9 +58,10 @@ class S3File(object):
             if attempts == 3:
                 raise OSError('Critical error downloading file (attempted 3 times): %s + "/" + %s' % (self.savepath, self.filename))
 
-        url = "https://downloaddev.alliancegenome.org/" + self.filename
+        url = self.download_url
+        logger.info(url)
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.debug("Downloading data from s3 (https://downloaddev.alliancegenome.org/%s -> %s/%s) ..." % (self.filename, self.savepath, self.filename))
+            logger.debug("Downloading data from s3 (https://%s%s -> %s/%s) ..." % (self.download_host, self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
             return False
         else:
