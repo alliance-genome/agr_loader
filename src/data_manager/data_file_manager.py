@@ -35,13 +35,21 @@ class DataFileManager(metaclass=Singleton):
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
-        if "RELEASE" in os.environ:
-            release = os.environ['RELEASE']
+        if "ALLIANCE_RELEASE" in os.environ:
+            release = os.environ['ALLIANCE_RELEASE']
         else:
             release = "0.0.0"
+            logger.error("No ALLIANCE_RELEASE ENV variable detected.")
+
+        if "FMS_HOST" in os.environ:
+            server = os.environ['FMS_HOST']
+        else:
+            server = 'fmsdev.alliancegenome.org'
+            logger.info("No FMS_HOST ENV variable detected, using fmsdev.alliancegenome.org")
 
         # use the recently created snapshot
-        api_url = 'https://fmsdev.alliancegenome.org/api/snapshot/release/' + '2.2.0'
+        api_url = 'https://' + server + '/api/snapshot/release/' + release
+
         submission_data = http.request('GET', api_url)
 
         if submission_data.status != 200:
