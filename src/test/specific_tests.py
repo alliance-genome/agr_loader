@@ -101,21 +101,20 @@ def test_gene_has_automated_description():
         assert record["counter"] == 1
 
 
-# TODO: uncomment when gene descriptions codebase has migrated to 1.0.0.8 schema
-# def test_gene_has_all_three_automated_description_components():
-#     query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
-#               "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
-#               "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
-#               "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
-#             "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
-#               "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
-#               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
-#               "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
-#             "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
-#               "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] == 0
+def test_gene_has_all_three_automated_description_components():
+    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
+              "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
+              "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
+              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+            "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
+              "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
+              "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
+              "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
+            "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
+              "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -140,16 +139,6 @@ def test_do_terms_have_parents():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
-
-
-def test_every_species_has_phenotype_has_pub():
-    query = "MATCH (s:Species)--(r)-[hp:HAS_PHENOTYPE]-" \
-            "(p:Phenotype)-[:ASSOCIATION]-(pa:PhenotypeEntityJoin)-[:EVIDENCE]-(pub:Publication) " \
-            "where labels(r) = ['Gene'] or labels(r) = ['Feature', 'Allele']" \
-            "RETURN count(distinct s) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 6
 
 
 def test_phenotype_for_all_species_exists():
@@ -603,8 +592,17 @@ def test_expression_for_mgi_109583():
         assert record["counter"] == 2
 
 
-def test_zfin_gene_has_expression_images_xref():
-    query = "match (g:Gene)--(cr:CrossReference) where cr. return count(distinct ebge) as counter"
+def test_part_of_relations_exist():
+    query = "match (e:EMAPATerm)--(em:EMAPATerm) where e.name = 'nucleus pulposus' " \
+            "and em.name = 'intervertebral disc' return count(e) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 2
+        assert record["counter"] > 0
+
+
+def test_expression_images_cross_references_for_species_exists():
+    query = "match (s:Species)--(g:Gene)--(cr:CrossReference) where cr.page = 'gene/expression_images' " \
+            "return count(distinct s) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 4
