@@ -592,3 +592,19 @@ def test_mmo_term_has_display_alias():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_expression_for_mgi_109583():
+    query = "match (g:Gene)--(ebge:BioEntityGeneExpressionJoin)--(e:ExpressionBioEntity)--(o:Ontology) " \
+            "where o.name = 'spinal cord' and g.primaryKey = 'MGI:109583' " \
+            "return count(distinct ebge) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 2
+
+
+def test_zfin_gene_has_expression_images_xref():
+    query = "match (g:Gene)--(cr:CrossReference) where cr. return count(distinct ebge) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 2

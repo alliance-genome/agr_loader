@@ -159,7 +159,7 @@ class GeneDescriptionsETL(ETL):
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
                                                     excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
             if len(key_diseases[gene.id]) > 5:
-                logger.info("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
+                logger.debug("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
                              gene_desc.do_orthology_description + "\t" + ",".join(key_diseases[gene.id]))
             if gene_desc.description:
                 descriptions.append({
@@ -222,7 +222,7 @@ class GeneDescriptionsETL(ETL):
         for annot in neo4j_annot_set:
             ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
-                logger.info(ecode)
+                logger.debug(ecode)
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
                     annot["geneSymbol"], annot["DOId"], ecode, data_provider))
