@@ -12,7 +12,7 @@ class CSVFile(object):
         self.filename = filename
 
     def get_data(self):
-        logger.info("Loading csv data from %s ..." % (self.filename))
+        logger.debug("Loading csv data from %s ..." % (self.filename))
         with codecs.open(self.filename, 'r', 'utf-8') as f:
             reader = csv.reader(CommentFile(f), delimiter='\t')
             rows = []

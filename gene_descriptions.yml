@@ -429,42 +429,9 @@ do_exp_sentences_options:
         - "DOID:0050117"
         - "DOID:0080014"
     evidence_codes:
-        IMP:
-            group: EXPERIMENTAL
-            priority: 1
-        IDA:
-            group: EXPERIMENTAL
-            priority: 2
-        IAGP:
-            group: EXPERIMENTAL
-            priority: 3
-        IC:
-            group: EXPERIMENTAL
-            priority: 4
-        TAS:
-            group: EXPERIMENTAL
-            priority: 5
-        IGI:
-            group: EXPERIMENTAL
-            priority: 6
-        CEA:
-            group: EXPERIMENTAL
-            priority: 7
-        CEC:
-            group: EXPERIMENTAL
-            priority: 8
         EXP:
             group: EXPERIMENTAL
-            priority: 9
-        IPM:
-            group: EXPERIMENTAL
-            priority: 10
-        IED:
-            group: EXPERIMENTAL
-            priority: 11
-        IEP:
-            group: EXPERIMENTAL
-            priority: 12
+            priority: 1
     group_priority:
         EXPERIMENTAL: 1
     prepostfix_sentences_map:

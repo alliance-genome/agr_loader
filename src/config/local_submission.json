@@ -2,265 +2,321 @@
     "status": "success",
     "message": null,
     "snapShot": {
-        "releaseVersion": "2.1.0.0",
-        "schemaVersion": "1.0.0.7",
+        "releaseVersion": {"id":"1234", "name":"2.2.0"},
+        "schemaVersion": {"id":"1234", "name":"1.0.0.8"},
         "system": "production",
         "snapShotDate": 1523284823719,
         "dataFiles": [
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "GO",
-                "s3path": "http://current.geneontology.org/ontology/go.obo",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "1.0.0.7/GAF/10090/1.0.0.7_GAF_10090_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/10090/1.0.0.7_GAF_10090_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "1.0.0.7/GAF/10116/1.0.0.7_GAF_10116_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/10116/1.0.0.7_GAF_10116_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"SGD"},
+                "s3Path": "1.0.0.7/GAF/559292/1.0.0.7_GAF_559292_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/559292/1.0.0.7_GAF_559292_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "1.0.0.7/GAF/6239/1.0.0.7_GAF_6239_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/6239/1.0.0.7_GAF_6239_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "1.0.0.7/GAF/7227/1.0.0.7_GAF_7227_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/7227/1.0.0.7_GAF_7227_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "1.0.0.7/GAF/7955/1.0.0.7_GAF_7955_1.gaf",
+                "tempExtractedFile": "1.0.0.7/GAF/7955/1.0.0.7_GAF_7955_1.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "1.0.0.7/ORTHO/10090/1.0.0.7_ORTHO_10090_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/10090/1.0.0.7_ORTHO_10090_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "1.0.0.7/ORTHO/7955/1.0.0.7_ORTHO_7955_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/7955/1.0.0.7_ORTHO_7955_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "1.0.0.7/ORTHO/10116/1.0.0.7_ORTHO_10116_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/10116/1.0.0.7_ORTHO_10116_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"SGD"},
+                "s3Path": "1.0.0.7/ORTHO/559292/1.0.0.7_ORTHO_559292_1.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/559292/1.0.0.7_ORTHO_559292_1.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "1.0.0.7/ORTHO/6239/1.0.0.7_ORTHO_6239_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/6239/1.0.0.7_ORTHO_6239_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "1.0.0.7/ORTHO/7227/1.0.0.7_ORTHO_7227_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/7227/1.0.0.7_ORTHO_7227_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.7",
+                "dataType": {"id":"1234", "name":"ORTHO"},
+                "dataSubType": {"id":"1234", "name":"Human"},
+                "s3Path": "1.0.0.7/ORTHO/9606/1.0.0.7_ORTHO_9606_0.json",
+                "tempExtractedFile": "1.0.0.7/ORTHO/9606/1.0.0.7_ORTHO_9606_0.json",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"GO"},
+                "s3Path": "http://current.geneontology.org/ontology/go.obo",
                 "tempExtractedFile": "go.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "DO",
-                "s3path": "http://purl.obolibrary.org/obo/doid.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"DO"},
+                "s3Path": "http://purl.obolibrary.org/obo/doid.obo",
                 "tempExtractedFile": "doid.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "MI",
-                "s3path": null,
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"MI"},
+                "s3Path": null,
                 "tempExtractedFile": null,
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "SO",
-                "s3path": "SO/so_1.7.obo",
-                "tempExtractedFile": "SO/so_1.7.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType":{"id":"1234", "name":"SO"},
+                "s3Path": "http://purl.obolibrary.org/obo/so.obo",
+                "tempExtractedFile": "so.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "ZFA",
-                "s3path": "http://purl.obolibrary.org/obo/zfa.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"ZFA"},
+                "s3Path": "http://purl.obolibrary.org/obo/zfa.obo",
                 "tempExtractedFile": "zfa.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "ECO",
-                "s3path": "http://purl.obolibrary.org/obo/eco.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"ECO"},
+                "s3Path": "http://purl.obolibrary.org/obo/eco.obo",
                 "tempExtractedFile": "eco.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "ZFS",
-                "s3path": "http://purl.obolibrary.org/obo/zfs.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"ZFS"},
+                "s3Path": "http://purl.obolibrary.org/obo/zfs.obo",
                 "tempExtractedFile": "zfs.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "WBBT",
-                "s3path": "http://purl.obolibrary.org/obo/wbbt.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"WBBT"},
+                "s3Path": "http://purl.obolibrary.org/obo/wbbt.obo",
                 "tempExtractedFile": "wbbt.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "CL",
-                "s3path": "http://purl.obolibrary.org/obo/cl.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"CL"},
+                "s3Path": "http://purl.obolibrary.org/obo/cl.obo",
                 "tempExtractedFile": "cl.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "FBCV",
-                "s3path": "http://purl.obolibrary.org/obo/fbcv.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"FBCV"},
+                "s3Path": "http://purl.obolibrary.org/obo/fbcv.obo",
                 "tempExtractedFile": "fbcv.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "FBBT",
-                "s3path": "http://purl.obolibrary.org/obo/fbbt.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"FBBT"},
+                "s3Path": "http://purl.obolibrary.org/obo/fbbt.obo",
                 "tempExtractedFile": "fbbt.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "FBCV",
-                "s3path": "http://purl.obolibrary.org/obo/fbcv.obo",
-                "tempExtractedFile": "fbcv.obo",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "MMUSDV",
-                "s3path": "http://purl.obolibrary.org/obo/mmusdv.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"MMUSDV"},
+                "s3Path": "http://purl.obolibrary.org/obo/mmusdv.obo",
                 "tempExtractedFile": "mmusdv.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "BSPO",
-                "s3path": "http://purl.obolibrary.org/obo/bspo.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"BSPO"},
+                "s3Path": "http://purl.obolibrary.org/obo/bspo.obo",
                 "tempExtractedFile": "bspo.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "MMO",
-                "s3path": "http://purl.obolibrary.org/obo/mmo.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"MMO"},
+                "s3Path": "http://purl.obolibrary.org/obo/mmo.obo",
                 "tempExtractedFile": "mmo.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "WBLS",
-                "s3path": "http://purl.obolibrary.org/obo/wbls.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"WBLS"},
+                "s3Path": "http://purl.obolibrary.org/obo/wbls.obo",
                 "tempExtractedFile": "wbls.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "EMAPA",
-                "s3path": "http://purl.obolibrary.org/obo/emapa.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"EMAPA"},
+                "s3Path": "http://purl.obolibrary.org/obo/emapa.obo",
                 "tempExtractedFile": "emapa.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "MA",
-                "s3path": "http://www.informatics.jax.org/downloads/reports/adult_mouse_anatomy.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"MA"},
+                "s3Path": "http://www.informatics.jax.org/downloads/reports/adult_mouse_anatomy.obo",
                 "tempExtractedFile": "adult_mouse_anatomy.obo",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Ontology",
-                "taxonIDPart": "UBERON",
-                "s3path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Ontology"},
+                "dataSubType": {"id":"1234", "name":"UBERON"},
+                "s3Path": "http://ontologies.berkeleybop.org/uberon/basic.obo",
                 "tempExtractedFile": "basic.obo",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "WB",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Caenorhabditis_elegans/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_wb.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "ZFIN",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml",
+                "dataType":{"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Danio_rerio/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_zfin.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "FB",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Drosophila_melanogaster/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_fb.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "RGD",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Rattus_norvegicus/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_rgd.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "Human",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"HUMAN"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Homo_sapiens/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_human.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "SGD",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType":{"id":"1234", "name":"SGD"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Saccharomyces_cerevisiae/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_sgd.xml",
                 "uploadDate": 1522181475376
             },
             {
                 "schemaVersion": "1.0.0.7",
-                "dataType": "ExpressionAtlas",
-                "taxonIDPart": "MGI",
-                "s3path": "http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml",
+                "dataType": {"id":"1234", "name":"ExpressionAtlas"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "http://www.ebi.ac.uk/gxa/species/Mus_musculus/sitemap.xml",
                 "tempExtractedFile": "expression_atlas_sitemap_mgi.xml",
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.7",
-                "dataType": "Interactions",
-                "taxonIDPart": "MolecularInteraction",
-                "s3path": "INT/Alliance_molecular_interactions_2.1.tar.gz",
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"Interactions"},
+                "dataSubType": {"id":"1234", "name":"MolecularInteraction"},
+                "s3Path": "INT/Alliance_molecular_interactions_2.1.tar.gz",
                 "tempExtractedFile": "Alliance_molecular_interactions_2.1.txt",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.8",
-                "dataType": "VARIATION",
-                "taxonIDPart": "ZFIN",
-                "s3path": "1.0.0.8/VARIATION/7955/1.0.0.8_VARIATION_7955_1.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/7955/1.0.0.8_VARIATION_7955_1.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.8",
-                "dataType": "VARIATION",
-                "taxonIDPart": "FB",
-                "s3path": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_3.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/7227/1.0.0.8_VARIATION_7227_3.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.8",
-                "dataType": "VARIATION",
-                "taxonIDPart": "WB",
-                "s3path": "1.0.0.8/VARIATION/6239/1.0.0.8_VARIATION_6239_0.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/6239/1.0.0.8_VARIATION_6239_0.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.8",
-                "dataType": "VARIATION",
-                "taxonIDPart": "RGD",
-                "s3path": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_5.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/10116/1.0.0.8_VARIATION_10116_5.json",
-                "uploadDate": 1522181475376
-            },
-            {
-                "schemaVersion": "1.0.0.8",
-                "dataType": "VARIATION",
-                "taxonIDPart": "MGI",
-                "s3path": "1.0.0.8/VARIATION/10090/1.0.0.8_VARIATION_10090_0.json",
-                "tempExtractedFile": "1.0.0.8/VARIATION/10090/1.0.0.8_VARIATION_10090_0.json",
                 "uploadDate": 1522181475376
             }
 

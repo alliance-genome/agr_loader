@@ -89,7 +89,7 @@ class AlleleETL(ETL):
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
 
-        if data == None:
+        if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
@@ -133,7 +133,7 @@ class AlleleETL(ETL):
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
 
-        loadKey = dateProduced + dataProvider + "_BGI"
+        loadKey = dateProduced + dataProvider + "_ALLELE"
 
         #TODO: get SGD to fix their files.
 
@@ -177,8 +177,7 @@ class AlleleETL(ETL):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "dataProvider": data_provider,
-                "symbolText": alleleRecord.get('symbolText'),
-                "modGlobalCrossRefId": modGlobalCrossRefId
+                "symbolText": alleleRecord.get('symbolText')
 
             }
 

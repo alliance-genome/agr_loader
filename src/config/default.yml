@@ -1,12 +1,12 @@
-schemaVersion: 1.0.0.7
-releaseVersion: 2.1.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+schemaVersion: 1.0.0.8
+releaseVersion: 2.2.0
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
 Ontology:
   - GO
@@ -27,7 +27,7 @@ Ontology:
   - MA
   - ECO
   - UBERON
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
@@ -52,7 +52,7 @@ Closure:
   - ECO
   - UBERON
 Interactions: [MolecularInteraction]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 
 # Loader configuration values are below.
 # Please modify with caution!

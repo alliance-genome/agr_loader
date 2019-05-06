@@ -37,7 +37,7 @@ class VariationETL(ETL):
     soterms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Allele:Feature {primaryKey:row.alleleId})
+            MATCH (o:Variant {primaryKey:row.alleleId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
@@ -49,7 +49,7 @@ class VariationETL(ETL):
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
             SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly """

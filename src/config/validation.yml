@@ -2,17 +2,17 @@ schemaVersion:
   regex: ^(\d(\.\d){3})$
   required: True
 releaseVersion: 
-  regex: ^(\d(\.\d){3})$
+  regex: ^(\d(\.\d){2})$
   required: True
 BGI:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ALLELE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
 DAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 PHENOTYPE:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -21,10 +21,10 @@ EXPRESSION:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 GAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -51,10 +51,10 @@ Ontology:
     - UBERON
 ExpressionAtlas:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
@@ -90,7 +90,7 @@ Interactions:
   allowed: [MolecularInteraction]
 GeneDescriptions:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FileTransactorThreads:
   type: integer
   required: True

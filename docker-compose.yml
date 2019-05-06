@@ -57,7 +57,9 @@ services:
       - NEO4J_NQC_HOST=neo4j.nqc
       - NEO4J_NQC_PORT=7687
       - NET=production
-      - RELEASE=2.1.0.0
+      - ALLIANCE_RELEASE=2.2.0
+      - FMS_HOST=fmsdev.alliancegenome.org
+      - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
       - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -83,7 +85,9 @@ services:
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
      - NET=production
-     - RELEASE=2.1.0.0
+     - ALLIANCE_RELEASE=2.2.0
+     - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -109,7 +113,9 @@ services:
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
      - NET=production
-     - RELEASE=2.1.0.0
+     - ALLIANCE_RELEASE=2.2.0
+     - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -135,7 +141,9 @@ services:
      - NEO4J_NQC_HOST=neo4j.nqc
      - NEO4J_NQC_PORT=7687
      - NET=production
-     - RELEASE=2.1.0.0
+     - ALLIANCE_RELEASE=2.2.0
+     - FMS_HOST=fmsdev.alliancegenome.org
+     - DOWNLOAD_HOST=downloaddev.alliancegenome.org/
      - API_KEY=${API_KEY}
     entrypoint:
       - pytest

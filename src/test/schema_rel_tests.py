@@ -30,7 +30,6 @@ class TestClass(object):
                             #dict(node1='Gene', node2='GenomicLocationBin'),
                             dict(node1='Load', node2='Gene'),
                             dict(node1='Allele', node2='Species'),
-                            dict(node1='Allele', node2='SecondaryId'),
                             dict(node1='Allele', node2='Synonym'),
                             dict(node1='Gene', node2='Ontology:GOTerm'),
                             dict(node1='Gene', node2='Ontology:SOTerm'),
@@ -44,14 +43,16 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='Gene'),
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'),
                             dict(node1='PublicationEvidenceCodeJoin:Association', node2='Publication'),
-                            dict(node1='PublicationEvidenceCodeJoin:Association', node2='EvidenceCode'),
+                            dict(node1='PublicationEvidenceCodeJoin:Association', node2='ECOTerm'),
                             dict(node1='PublicationEvidenceCodeJoin:Association', node2='DiseaseEntityJoin:Association'),
                             dict(node1='InteractionGeneJoin:Association', node2='Gene'),
                             dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'),
                             dict(node1='InteractionGeneJoin:Association', node2='Publication'),
                             dict(node1='InteractionGeneJoin:Association', node2='Identifier:CrossReference'),
                             dict(node1='Allele', node2='CrossReference'),
-                            dict(node1='PhenotypeEntityJoin:Association', node2='Publication'),
+                            dict(node1='PhenotypeEntityJoin:Association', node2='Phenotype'),
+                            dict(node1='PhenotypeEntityJoin:Association', node2='Gene'),
+                            dict(node1='PhenotypeEntityJoin:Association', node2='Allele'),
                             dict(node1='Gene', node2='ExpressionBioEntity'),
                             dict(node1='Gene', node2='BioEntityGeneExpressionJoin'),
                             dict(node1='BioEntityGeneExpressionJoin', node2='Stage'),
@@ -61,7 +62,8 @@ class TestClass(object):
                             dict(node1='ExpressionBioEntity', node2='GOTerm'),
                             dict(node1='ExpressionBioEntity', node2='Ontology'),
                             dict(node1='ExpressionBioEntity', node2='ZFATerm'),
-                            dict(node1='Variant', node2='Chromosome')
+                            dict(node1='Variant', node2='Chromosome'),
+                            dict(node1='Ontology', node2='Ontology'),
                             ]
 
     }

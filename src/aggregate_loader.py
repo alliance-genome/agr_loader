@@ -69,7 +69,6 @@ class AggregateLoader(object):
         # The key (left) is derived from a value in the config YAML file.
         # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
-            'SO': SOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
@@ -95,9 +94,9 @@ class AggregateLoader(object):
         # This is the order in which data types are loaded.
         # After each list, the loader will "pause" and wait for that item to finish.
         # i.e. After Ontology, there will be a pause.
-        # After GO, DO, SO, MI, there will be a pause, etc.
+        # After GO, DO, MI, there will be a pause, etc.
         list_of_etl_groups = [
-            ['DO', 'SO', 'MI'],
+            ['DO', 'MI'],
             ['GO'],
             ['Ontology'],
             ['BGI'],

@@ -21,7 +21,7 @@ class GeneDiseaseOrthoETL(ETL):
                   (gene:Gene {primaryKey:row.primaryId}),
                   (fromGene:Gene {primaryKey:row.fromGeneId}),
                   (pub:Publication {primaryKey:"MGI:6194238"}),
-                  (ecode:EvidenceCode {primaryKey:"IEA"})
+                  (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
                 CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     SET dga.dataProvider = 'Alliance',
@@ -91,7 +91,7 @@ class GeneDiseaseOrthoETL(ETL):
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
-              MERGE (:EvidenceCode {primaryKey:"IEA"})
+              MERGE (:ECOTerm {primaryKey:"ECO:0000501"})
               
                     """
 
@@ -105,12 +105,12 @@ class GeneDiseaseOrthoETL(ETL):
 
         retrieve_gene_disease_ortho = """
            MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-            MATCH (ec:EvidenceCode)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
+            MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-
                 [:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
                 with collect(distinct ec.primaryKey) as evCodes, o, da, dej, ec, gene1, gene2, disease
                     WHERE o.strictFilter
                     AND da.uuid = dej.primaryKey
-                    AND (any(x IN evCodes where NOT x in ["IEA", "ISS", "ISO"]))
+                    AND (any(x IN evCodes where NOT x in ["ECO:0000501", "ECO:0000250", "ECO:0000266"]))
                 RETURN DISTINCT gene2.primaryKey AS geneID,
                     gene1.primaryKey AS fromGeneID,
                     type(da) AS relationType,

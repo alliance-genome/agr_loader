@@ -12,7 +12,7 @@ class TARFile(object):
         self.tarfilename = tarfilename
 
     def extract_all(self):
-        logger.info("Reading header from %s/%s ..." % (self.path, self.tarfilename))
+        logger.debug("Reading header from %s/%s ..." % (self.path, self.tarfilename))
 
         members_to_extract = []
         extract = False

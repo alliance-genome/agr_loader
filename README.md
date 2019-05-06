@@ -49,3 +49,10 @@ Resources.
 - There are 4 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml, travis.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.  
 - When adding a new data load, be sure to add to validation.yml as well so the system knows the expected data types and subtypes.
 - local_submission_system.json is a file consumed in addition to the submission system data (from the submission system API) that is used to customize non-submission system files like ontology files.
+
+## ENV Variables
+- DOWNLOAD_HOST - the s3 bucket from which files are pulled.
+- ALLIANCE_RELEASE - the release version that this code acts on.
+- FMS_HOST - the host from which this code pulls its available file paths from (submission system host).
+
+- If the site is built with docker-compose, these will be set automatically to the 'dev' versions of all these variables.

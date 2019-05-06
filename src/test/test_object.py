@@ -36,7 +36,7 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             # expression
-            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484',
+            'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
             'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', 'MGI:105043', 'MGI:104807',
             # variant
@@ -69,9 +69,9 @@ class TestObject(object):
             # phenotypic genes
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
-            'SGD:S000005481', 'SGD:S000005246',
+            'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
             # expression
-            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002',
+            'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions
             'SGD:S000004695', 'SGD:S000004916', 'SGD:S000004646', 'SGD:S000000253', 'SGD:S000000364', 'SGD:S000002284',
             'SGD:S000004603', 'SGD:S000004802', 'SGD:S000005707', 'SGD:S000001596', 'SGD:S000004777', 'SGD:S000006074',
@@ -102,7 +102,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-050517-20', 'ZFIN:ZDB-ALT-980203-1091', 'ZFIN:ZDB-ALT-121210-2',
             'ZFIN:ZDB-GENE-000816-1', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-ALT-160129-6', 'ZFIN:ZDB-GENE-980526-41',
             'ZFIN:ZDB-GENE-980526-166', 'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-GENE-020905-1',
-            'ZFIN:ZDB-GENE-060312-41',
+            'ZFIN:ZDB-GENE-060312-41', 'ZFIN:ZDB-ALT-160129-6',
             # expression
             'ZFIN:ZDB-GENE-070410-17', 'ZFIN:ZDB-GENE-990714-29', 'ZFIN:ZDB-GENE-001103-1', 'ZFIN:ZDB-GENE-050913-20',
             'ZFIN:ZDB-GENE-980526-474', 'ZFIN:ZDB-GENE-000627-1', 'ZFIN:ZDB-GENE-050913-20', 'ZFIN:ZDB-GENE-030912-6',
@@ -155,7 +155,10 @@ class TestObject(object):
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204', 'HGNC:12597', 'HGNC:811', 'HGNC:6091',
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
+            # disease
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650',
         }
+
 
         self.modMap = {"RGD": self.rgdTestSet,
                   "MGI": self.mgiIdSet,

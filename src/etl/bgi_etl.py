@@ -268,7 +268,11 @@ class BGIETL(ETL):
                                 geneLiteratureUrl = ""
                                 displayName = ""
 
-                                crossRefCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, page)
+                                crossRefCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap,
+                                                                                      prefix, page)
+
+                                if page == 'gene/expression_images':
+                                    crossRefCompleteUrl = ETLHelper.get_expression_images_url(localCrossRefId, crossRefId)
 
                                 if page == 'gene':
                                     modCrossReferenceCompleteUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)

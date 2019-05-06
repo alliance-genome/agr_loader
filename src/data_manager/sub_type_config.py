@@ -37,12 +37,12 @@ class SubTypeConfig(object):
     
         if self.filepath is not None:
             if not os.path.isfile(self.filepath):
-                logger.debug("File to download: " + self.file_to_download)
+                logger.info("File to download: " + self.file_to_download)
                 if self.file_to_download.startswith('http'):
                     download_filename = os.path.basename(self.filepath)
                     logger.debug("Download Name: " + download_filename)
-                    download_object = Download(path, self.file_to_download, download_filename) # savepath, urlToRetieve, filenameToSave
-                    self.already_downloaded = download_object.get_downloaded_data_new() # Have we already downloaded this file?
+                    download_object = Download(path, self.file_to_download, download_filename)
+                    self.already_downloaded = download_object.get_downloaded_data_new()
                 else:
                     logger.debug("Downloading JSON File: " + self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download, path).download_new()
@@ -90,10 +90,10 @@ class SubTypeConfig(object):
         # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
         # The submission system needs to be in place (files are downloaded as .json) for this to work.
         if self.already_downloaded is True:
-            logger.info('Found temp validation file flag for %s. Skipping validation.' % self.filepath)
+            logger.debug('Found temp validation file flag for %s. Skipping validation.' % self.filepath)
             return
 
-        logger.info("Attempting to validate: %s" % (self.filepath))
+        logger.debug("Attempting to validate: %s" % (self.filepath))
 
         schema_lookup_dict = {
             'Disease': 'schemas/disease/diseaseMetaDataDefinition.json',
@@ -108,7 +108,7 @@ class SubTypeConfig(object):
 
         if schema_file_name is None:
             logger.warn('No schema or method found. Skipping validation.')
-            return # Exit validation.
+            return  # Exit validation.
 
         with open(self.filepath, encoding='utf-8') as data_file:
             data = json.load(data_file)
@@ -123,7 +123,7 @@ class SubTypeConfig(object):
 
         try:
             js.validate(data, expanded_schema_file)
-            logger.info("'%s' successfully validated against '%s'" % (self.filepath, schema_file_name))
+            logger.debug("'%s' successfully validated against '%s'" % (self.filepath, schema_file_name))
         except js.ValidationError as e:
             logger.critical(e.message)
             logger.critical(e)

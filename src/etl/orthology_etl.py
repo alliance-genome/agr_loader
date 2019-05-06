@@ -179,7 +179,7 @@ class OrthologyETL(ETL):
             if mod_sub_type != sub_type:
                 list_of_mod_lists[mod_sub_type] = []
 
-        logger.debug("streaming json data from %s ..." % datafile)
+        logger.info("streaming json data from %s ..." % datafile)
         with codecs.open(datafile, 'r', 'utf-8') as f:
 
             for orthoRecord in ijson.items(f, 'data.item'):
