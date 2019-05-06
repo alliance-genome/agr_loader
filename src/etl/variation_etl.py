@@ -22,6 +22,7 @@ class VariationETL(ETL):
                 //Create the variant node and set properties. primaryKey is required.
                 CREATE (o:Variant {primaryKey:row.uuid})
                     SET 
+                     o.hgvs_nomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.genomicVariantSequence = row.genomicVariantSequence,
                      o.dateProduced = row.dateProduced,
@@ -110,6 +111,22 @@ class VariationETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+    def get_hgvs_nomenclature(self, alleleId, variantType, start_position, end_position, reference_sequence, variant_sequence):
+        if variantType == "	SO:1000002" or variantType == 'SO:1000008':  # point mutation/substitution
+            hgvs_nomenclature = 'g.'+str(start_position)+reference_sequence+">"+variant_sequence
+        elif variantType == "SO:0000667": # insertion
+            if variant_sequence is None:
+                hgvs_nomenclature = 'g.'+str(start_position)+'_'+str(end_position)+'ins'
+            else:
+                hgvs_nomenclature = 'g.'+str(start_position)+'_'+str(end_position)+'ins'+variant_sequence
+        elif variantType == "SO:0000159": # deletion
+            hgvs_nomenclature = 'g.'+str(start_position)+'_'+str(end_position)+'del'
+        elif variantType == "SO:0002007": # MNV
+            hgvs_nomenclature = 'g.'+str(start_position)+'_'+str(end_position)+'delins'+variant_sequence
+        else:
+            hgvs_nomenclature = ''
+        return hgvs_nomenclature
+
     def get_generators(self, variant_data, data_provider, batch_size):
 
         dataProviders = []
@@ -174,8 +191,15 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
+            hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('alleleId'),
+                                                           alleleRecord.get('type'),
+                                                           alleleRecord.get('start'),
+                                                           alleleRecord.get('end'),
+                                                           alleleRecord.get('genomicReferenceSequence'),
+                                                           alleleRecord.get('genomicVariantSequence'))
 
             variant_dataset = {
+                "hgvs_nomenclature": hgvs_nomenclature,
                 "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
                 "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
                 "alleleId": alleleRecord.get('alleleId'),

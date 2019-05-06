@@ -16,7 +16,7 @@ class S3File(object):
             self.download_host = os.environ['DOWNLOAD_HOST']
         else:
             self.download_host = "downloaddev.alliancegenome.org/"
-            logger.error("No DOWNLOAD_HOST ENV variable detected, using downloaddev.alliancegenome.org.")
+            logger.debug("No DOWNLOAD_HOST ENV variable detected, using downloaddev.alliancegenome.org.")
 
         self.download_url = "https://" + self.download_host + self.filename
 

@@ -45,7 +45,7 @@ class DataFileManager(metaclass=Singleton):
             server = os.environ['FMS_HOST']
         else:
             server = 'fmsdev.alliancegenome.org'
-            logger.info("No FMS_HOST ENV variable detected, using fmsdev.alliancegenome.org")
+            logger.debug("No FMS_HOST ENV variable detected, using fmsdev.alliancegenome.org")
 
         # use the recently created snapshot
         api_url = 'https://' + server + '/api/snapshot/release/' + release
