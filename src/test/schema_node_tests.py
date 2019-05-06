@@ -48,6 +48,7 @@ class TestClass(object):
                              dict(node='Load'),
                              dict(node='ExpressionBioEntity'),
                              dict(node='Stage'),
+                             dict(node='SequenceTargetingReagent'),
                              dict(node='BioEntityGeneExpressionJoin'),
                              dict(node='InteractionGeneJoin'),
                              #dict(node='GenomicLocationBin'),
@@ -92,6 +93,7 @@ class TestClass(object):
                             dict(node='MITerm', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
+                            dict(node='SequenceTargetingReagent', prop='primaryKey'),
                             dict(node='CrossReference', prop='localId'),
                             dict(node='CrossReference', prop='name'),
                             dict(node='CrossReference', prop='primaryKey'),
@@ -176,6 +178,7 @@ class TestClass(object):
                                dict(node='Species', prop='species'),
                                dict(node='Species', prop='primaryKey'),
                                dict(node='Entity', prop='primaryKey'),
+                               dict(node='SequenceTargetingReagent', prop='primaryKey'),
                                dict(node='Chromosome', prop='primaryKey'),
                                dict(node='DiseaseEntityJoin', prop='joinType'),
                                dict(node='DiseaseEntityJoin', prop='primaryKey'),
@@ -198,6 +201,7 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
+                               dict(node='Variant', prop='hgvs_nomenclature')
                                ],
 
         'test_prop_unique': [# dict(node='EvidenceCode', prop='primaryKey'),
@@ -222,7 +226,8 @@ class TestClass(object):
                              dict(node='Allele', prop='primaryKey'),
                              dict(node='Allele', prop='uuid'),
                              dict(node='MITerm', prop='primaryKey'),
-                             dict(node='Stage', prop='primaryKey'), 
+                             dict(node='Stage', prop='primaryKey'),
+                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),

@@ -21,3 +21,4 @@ from .closure_etl import ClosureETL
 from .molecular_interaction_etl import MolecularInteractionETL
 from .gene_descriptions_etl import GeneDescriptionsETL
 from .expression_ribbon_other_etl import ExpressionRibbonOtherETL
+from .sequence_targeting_reagent_etl import SequenceTargetingReagentETL

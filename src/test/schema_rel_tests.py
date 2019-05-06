@@ -64,6 +64,7 @@ class TestClass(object):
                             dict(node1='ExpressionBioEntity', node2='ZFATerm'),
                             dict(node1='Variant', node2='Chromosome'),
                             dict(node1='Ontology', node2='Ontology'),
+                            dict(node1='SequenceTargetingReagent', node2='Gene')
                             ]
 
     }

@@ -10,6 +10,9 @@ BGI:
 ALLELE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
+SQTR:
+  type: list
+  allowed: [ZFIN]
 DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
