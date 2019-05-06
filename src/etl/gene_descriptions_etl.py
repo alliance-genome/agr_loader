@@ -85,8 +85,10 @@ class GeneDescriptionsETL(ETL):
     GetDiseaseViaOrthologyQuery = """
     
         MATCH (d:DOTerm:Ontology)-[r:BIOMARKER_VIA_ORTHOLOGY|IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
-        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
+        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE g.dataProvider = {parameter}
+        MATCH (dga)-[:FROM_ORTHOLOGOUS_GENE]-(orthGene:Gene)
+        WHERE orthGene.taxonId = 'NCBITaxon:9606'
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId
         """
 
