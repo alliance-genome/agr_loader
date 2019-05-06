@@ -17,8 +17,10 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (s:Species {primaryKey: row.taxonId})
 
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:AffectedGenommicModel {primaryKey:row.primaryId})
+            //TODO: change the label type based on incoming affectedGenomicModelSpec - for now, these are all
+            //genotypes.
+            
+            MERGE (o:AffectedGenommicModel:Genotype {primaryKey:row.primaryId})
                 ON CREATE SET o.name = row.name,
                 o.nameText = row.nameText,
                  o.dateProduced = row.dateProduced,
@@ -37,7 +39,7 @@ class AffectedGenomicModelETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (f:AffectedGenomicModel {primaryKey:row.primaryId})
+                MATCH (f:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
                     SET second.name = row.secondary_id
@@ -48,13 +50,18 @@ class AffectedGenomicModelETL(ETL):
     agm_sqtrs_template = """
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            
+            MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
+            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            
+            MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
 
     agm_synonyms_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:AffectedGenomicModel {primaryKey:row.primaryId})
+                MATCH (a:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
@@ -65,6 +72,11 @@ class AffectedGenomicModelETL(ETL):
     agm_backgrounds_template = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            
+            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MATCH (b:AffectedGenomicModel:Genotype {primaryKey:row.backgroundId})
+            
+            MERGE (agm)-[:BACKGROUND]-(b)
 
     """
 
@@ -72,6 +84,11 @@ class AffectedGenomicModelETL(ETL):
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+            MATCH (feature:Feature:Allele {primaryKey:row.componentId})
+            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            
+            MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
+                SET agmf.zygosity = row.zygosityId
     
     """
 
@@ -118,7 +135,9 @@ class AffectedGenomicModelETL(ETL):
             [AffectedGenomicModelETL.agm_components_template, commit_size,
              "agm_components_" + sub_type.get_data_provider() + ".csv"],
             [AffectedGenomicModelETL.agm_sqtrs_template, commit_size,
-             "agm_sqtrs_" + sub_type.get_data_provider() + ".csv"]
+             "agm_sqtrs_" + sub_type.get_data_provider() + ".csv"],
+            [AffectedGenomicModelETL.agm_backgrounds_template, commit_size,
+             "agm_backgrounds_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -136,6 +155,7 @@ class AffectedGenomicModelETL(ETL):
         agm_secondaryIds = []
         modGlobalCrossRefUrl = ""
         components = []
+        backgrounds = []
         sqtrs = []
 
         counter = 0
@@ -225,7 +245,7 @@ class AffectedGenomicModelETL(ETL):
                 for component in agmRecord.get('genotypeComponents'):
                     component_dataset = {
                         "primaryId": agmRecord.get('genotypeID'),
-                        "component": component,
+                        "componentId": component,
                         "zygosityId": component.get('zygosity')
                     }
                     components.append(component_dataset)
@@ -238,13 +258,22 @@ class AffectedGenomicModelETL(ETL):
                     }
                     sqtrs.append(sqtr_dataset)
 
+            if agmRecord.get('BackgroundIDs') is not None:
+                for background in agmRecord.get('BackgroundIDs'):
+                    background_dataset = {
+                        "primaryId": agmRecord.get('genotypeID'),
+                        "sqtrId": background
+                    }
+                    sqtrs.append(background_dataset)
+
             if counter == batch_size:
-                yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs]
+                yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs, backgrounds]
                 agms = []
                 agm_secondaryIds = []
                 agm_synonyms = []
                 components =[]
+                backgrounds = []
                 counter = 0
 
         if counter > 0:
-            yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs]
+            yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs, backgrounds]
