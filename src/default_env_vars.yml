@@ -1,0 +1,11 @@
+USING_PICKLE: false
+DEBUG: false
+DOWNLOAD_HOST: "downloaddev.alliancegenome.org/"
+GENERATE_REPORTS: false
+ALLIANCE_RELEASE: "0.0.0"
+NEO4J_NQC_HOST: "localhost"
+NEO4J_NQC_PORT: 7687
+FMS_HOST: "fmsdev.alliancegenome.org"
+TEST_SET: false
+AWS_ACCESS_KEY: ""
+AWS_SECRET_KEY: ""

@@ -3,11 +3,9 @@ import multiprocessing
 import os
 import pickle
 import time
-
 from neo4j.v1 import GraphDatabase
-
 from etl import ETL
-
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +14,6 @@ class Neo4jTransactor(object):
 
     count = 0
     queue = None
-    
-    if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
-        using_pickle = True
-    else:
-        using_pickle = False
 
     def __init__(self):
         pass
@@ -57,19 +50,10 @@ class Neo4jTransactor(object):
         Neo4jTransactor.queue.join()
 
     def run(self):
-        
-        if "NEO4J_NQC_HOST" in os.environ:
-            host = os.environ['NEO4J_NQC_HOST']
-        else:
-            host = "localhost"
-            
-        if "NEO4J_NQC_PORT" in os.environ:
-            port = int(os.environ['NEO4J_NQC_PORT'])
-        else:
-            port = 7687
+        context_info = ContextInfo()
     
-        if Neo4jTransactor.using_pickle is False:
-            uri = "bolt://" + host + ":" + str(port)
+        if context_info.env["USING_PICKLE"] is False:
+            uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
             graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.info("%s: Starting Neo4jTransactor Thread Runner: " % self._get_name())
@@ -93,7 +77,7 @@ class Neo4jTransactor(object):
                 start = time.time()
                 try:
                     
-                    if Neo4jTransactor.using_pickle is True:
+                    if context_info.env["USING_PICKLE"] is True:
                         # Save VIA pickle rather then NEO
                         file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         file = open(file_name,'wb')
