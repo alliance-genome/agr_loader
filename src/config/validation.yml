@@ -13,6 +13,9 @@ ALLELE:
 SQTR:
   type: list
   allowed: [ZFIN]
+GENOTYPE:
+  type: list
+  allowed: [ZFIN, MGI]
 DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]

@@ -105,7 +105,10 @@ class SequenceTargetingReagentETL(ETL):
             [SequenceTargetingReagentETL.sequence_targeting_reagent_secondaryids_template, commit_size,
              "str_secondaryids_" + sub_type.get_data_provider() + ".csv"],
             [SequenceTargetingReagentETL.sequence_targeting_reagent_synonyms_template, commit_size,
-             "str_synonyms_" + sub_type.get_data_provider() + ".csv"]]
+             "str_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [SequenceTargetingReagentETL.sequence_targeting_reagent_target_genes_template, commit_size,
+             "str_target_genes_" + sub_type.get_data_provider() + ".csv"]
+        ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
