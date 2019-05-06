@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 class GeneDescriptionsETL(ETL):
 
     GeneDescriptionsQuery = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -56,7 +55,7 @@ class GeneDescriptionsETL(ETL):
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
         WHERE g.dataProvider = {parameter}
-        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId, e.primaryKey AS ECode, 
             type(r) AS relType
         """
@@ -67,7 +66,7 @@ class GeneDescriptionsETL(ETL):
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE f.dataProvider = {parameter}
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
-        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:EvidenceCode)
+        MATCH (dga)-[:EVIDENCE]->(pec:PublicationEvidenceCodeJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, f.primaryKey as alleleId, d.primaryKey as DOId, 
         e.primaryKey AS ECode, type(r) AS relType
         """
@@ -117,7 +116,7 @@ class GeneDescriptionsETL(ETL):
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider() for sub_type in self.data_type_config.get_sub_type_objects()]:
             logger.info("Generating gene descriptions for " + prvdr)
-            data_provider = prvdr if prvdr != "Human" else "RGD"
+            data_provider = prvdr if prvdr != "Human" and prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
             gd_data_manager.load_associations_from_file(
@@ -138,7 +137,7 @@ class GeneDescriptionsETL(ETL):
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
-        if data_provider == "Human":
+        if data_provider == "Human" or data_provider == "HUMAN":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
         else:
@@ -216,8 +215,9 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider):
         for annot in neo4j_annot_set:
-            ecodes = [ecode for ecode in annot["ECode"].split(", ")] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
+            ecodes = ["EXP"] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             for ecode in ecodes:
+                logger.debug(ecode)
                 final_annotation_set.append(GeneDescriptionsETL.create_disease_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
                     annot["geneSymbol"], annot["DOId"], ecode, data_provider))

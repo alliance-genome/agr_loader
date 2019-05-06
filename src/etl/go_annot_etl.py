@@ -41,7 +41,7 @@ class GOAnnotETL(ETL):
         logger.info("Loading GOAnnot Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_file_to_download()
         filepath = 'tmp/' + filepath
-        logger.info("goannot path" + filepath)
+        logger.info("goannot path: " + filepath)
         file = open(filepath, "r")
 
 
@@ -72,7 +72,11 @@ class GOAnnotETL(ETL):
         for line in reader:
             if line[0].startswith('!'):
                 continue
-            gene = prefix + line[1]
+            if 'HGNC' in line[1]:
+                gene = line[1]
+            else:
+                gene = prefix + line[1]
+
             go_id = line[4]
             go_annot_dict = {
                 'gene_id': gene,

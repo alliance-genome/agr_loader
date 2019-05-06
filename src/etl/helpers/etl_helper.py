@@ -22,6 +22,26 @@ class ETLHelper(object):
 
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
+
+    @staticmethod
+    def get_expression_pub_annotation_xref(publicationModId):
+        if publicationModId is not None:
+            pubModLocalId = publicationModId.split(":")[1]
+            if "MGI:" in publicationModId:
+                pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
+            if "ZFIN:" in publicationModId:
+                pubModUrl = "http://zfin.org/" + publicationModId
+            if "SGD:" in publicationModId:
+                pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
+            if "WB:" in publicationModId:
+                pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
+            if "RGD:" in publicationModId:
+                pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
+            if "FB:" in publicationModId:
+                pubModUrl = "http://flybase.org/reports/" + pubModLocalId
+        return pubModUrl
+
+
     @staticmethod
     def get_xref_dict(localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl, primaryId):
         globalXrefId = prefix+":"+localId
@@ -97,6 +117,8 @@ class ETLHelper(object):
         elif provider in "SGD":
             return "Saccharomyces cerevisiae"
         elif provider in "Human":
+            return "Homo sapiens"
+        elif provider in "HUMAN":
             return "Homo sapiens"
         else:
             return None
@@ -252,6 +274,7 @@ class ETLHelper(object):
 
     @staticmethod
     def get_page_complete_url(localId, xrefUrlMap, prefix, page):
+
         completeUrl = ""
 
         for rdstanza in xrefUrlMap:
@@ -267,6 +290,20 @@ class ETLHelper(object):
                     completeUrl = pageUrlPrefix + localId + pageUrlSuffix
 
         return completeUrl
+
+    @staticmethod
+    def get_expression_images_url(localId, crossRefId):
+        if 'MGI' in crossRefId:
+            return "http://www.informatics.jax.org/gxd/marker/MGI:"+localId+"?tab=imagestab"
+        elif 'ZFIN' in crossRefId:
+            return "https://zfin.org/action/marker/"+localId+"/expression"
+        elif 'WB' in crossRefId:
+            return "https://www.wormbase.org/db/get?name="+localId+";class=Gene;widget=expression"
+        elif 'FB' in crossRefId:
+            return "http://flybase.org/reports/"+localId+".html#expression"
+        else:
+            return ""
+
 
     @staticmethod
     def get_no_page_complete_url(localId, xrefUrlMap, prefix, primaryId):

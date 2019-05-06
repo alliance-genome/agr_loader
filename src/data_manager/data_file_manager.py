@@ -14,14 +14,14 @@ class DataFileManager(metaclass=Singleton):
     
     def __init__(self, config_file_loc):
         # Load config yaml.
-        logger.info('Loading config file: %s' % config_file_loc)
+        logger.debug('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file, Loader=yaml.SafeLoader)
         logger.debug("Config Data: %s" % self.config_data)
 
         # Load validation yaml.
         validation_yaml_file_loc = os.path.abspath('src/config/validation.yml')
-        logger.info('Loading validation schema: %s' % validation_yaml_file_loc)
+        logger.debug('Loading validation schema: %s' % validation_yaml_file_loc)
         validation_schema_file = open(validation_yaml_file_loc, 'r')
         self.validation_schema = yaml.load(validation_schema_file, Loader=yaml.SafeLoader)
 
@@ -35,33 +35,21 @@ class DataFileManager(metaclass=Singleton):
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
-        # make a snapshot
-        if "NET" in os.environ:
-            system = os.environ['NET']
+        if "ALLIANCE_RELEASE" in os.environ:
+            release = os.environ['ALLIANCE_RELEASE']
         else:
-            system = "production"
+            release = "0.0.0"
+            logger.error("No ALLIANCE_RELEASE ENV variable detected.")
 
-        if "RELEASE" in os.environ:
-            release = os.environ['RELEASE']
+        if "FMS_HOST" in os.environ:
+            server = os.environ['FMS_HOST']
         else:
-            release = "0.0.0.0"
-
-        # API_KEY Must be defined in local environment (not committed to github!)
-        # if "API_KEY" in os.environ:
-        #     api_access_token = os.environ.get('API_KEY')
-        # else:
-        #     logger.error("ERROR: please define an API_KEY in your local environment. ")
-        #
-        # # create a snapshot on each run of the loader
-        # logger.info("making submission system snapshot")
-        # snapshot_url = 'https://www.alliancegenome.org/api/data/takesnapshot?system=' \
-        #                + system \
-        #                + '&releaseVersion=' \
-        #                + release
-        # snapshot = requests.post(snapshot_url, data={"api_access_token": api_access_token})
+            server = 'fmsdev.alliancegenome.org'
+            logger.info("No FMS_HOST ENV variable detected, using fmsdev.alliancegenome.org")
 
         # use the recently created snapshot
-        api_url = 'https://www.alliancegenome.org/api/data/snapshot?system=' + system + '&releaseVersion=' + release
+        api_url = 'https://' + server + '/api/snapshot/release/' + release
+
         submission_data = http.request('GET', api_url)
 
         if submission_data.status != 200:
@@ -70,6 +58,7 @@ class DataFileManager(metaclass=Singleton):
             sys.exit(-1)
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
+        logger.debug(self.submission_system_data)
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(dataFile)
@@ -112,7 +101,7 @@ class DataFileManager(metaclass=Singleton):
 
     def download_and_validate(self):
 
-        logger.info('Beginning download and validation.')
+        logger.debug('Beginning download and validation.')
         for entry in self.master_data_dictionary.keys():
             logger.debug('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig):  # If we're dealing with an object.
@@ -127,11 +116,11 @@ class DataFileManager(metaclass=Singleton):
         validation_results = validator.validate(self.config_data)
 
         if validation_results is True:
-            logger.info('Config file validation successful.')
+            logger.debug('Config file validation successful.')
         else:
             logger.critical('Config file validation unsuccessful!')
             for field, values in validator.errors.items():
-                for value in values: # May have more than one error per field.
+                for value in values:  # May have more than one error per field.
                     message = field + ': ' + value
                     logger.critical(message)
             logger.critical('Exiting')
@@ -145,17 +134,12 @@ class DataFileManager(metaclass=Singleton):
 
     def _search_submission_data(self, dataType, subEntry):
 
-            returned_dict = None
-
-            # These following types are found in the local submission file
-            if dataType not in ['Ontology', 'Interactions', 'GOAnnot', 'ExpressionAtlas', 'VARIATION']:
-                subType = ETLHelper().get_taxon_from_MOD(subEntry)
-            else:
-                subType = subEntry
+            subType = subEntry
 
             try:
                 returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
-                                     if item['dataType'] == dataType and item['taxonIDPart'] == subType)
+                                     if item['dataType'].get('name') == dataType and item['dataSubType'].get('name') == subType)
+
             except StopIteration:
                 logger.debug('dataType: %s subType: %s not found in submission system data.' % (dataType, subType))
                 logger.debug('Creating entry with \'None\' path and extracted path.')
@@ -171,10 +155,10 @@ class DataFileManager(metaclass=Singleton):
     def query_submission_system(self):
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        ontologies_to_transform = ('GO', 'SO', 'DO', 'MI')  # These have non-generic loaders.
+        ontologies_to_transform = ('GO', 'DO', 'MI')  # These have non-generic loaders.
 
-        self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']
-        self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']
+        self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
+        self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']['schema']
 
         config_values_to_ignore = [
             'schemaVersion',  # Manually assigned above.
@@ -188,13 +172,12 @@ class DataFileManager(metaclass=Singleton):
             if entry not in config_values_to_ignore:  # Skip these entries.
                 self.transformed_submission_system_data[entry] = []  # Create our empty list.
                 for sub_entry in self.config_data[entry]:
-                    logger.debug("Sub Entry: %s" % sub_entry)
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
-                    path = submission_system_dict.get('s3path')
+                    path = submission_system_dict.get('s3Path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
                     logger.debug(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':
-                        tempExtractedFile = submission_system_dict.get('s3path')
+                        tempExtractedFile = submission_system_dict.get('s3Path')
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'Ontology':
