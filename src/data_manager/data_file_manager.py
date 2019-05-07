@@ -5,6 +5,7 @@ from cerberus import Validator
 from files import JSONFile
 from etl.helpers import ETLHelper
 from common import Singleton
+from common import ContextInfo
 from .data_type_config import DataTypeConfig
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,9 @@ logger = logging.getLogger(__name__)
 class DataFileManager(metaclass=Singleton):
     
     def __init__(self, config_file_loc):
+
+        context_info = ContextInfo()
+
         # Load config yaml.
         logger.debug('Loading config file: %s' % config_file_loc)
         config_file = open(config_file_loc, 'r')
@@ -35,20 +39,8 @@ class DataFileManager(metaclass=Singleton):
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
-        if "ALLIANCE_RELEASE" in os.environ:
-            release = os.environ['ALLIANCE_RELEASE']
-        else:
-            release = "0.0.0"
-            logger.error("No ALLIANCE_RELEASE ENV variable detected.")
-
-        if "FMS_HOST" in os.environ:
-            server = os.environ['FMS_HOST']
-        else:
-            server = 'fmsdev.alliancegenome.org'
-            logger.info("No FMS_HOST ENV variable detected, using fmsdev.alliancegenome.org")
-
         # use the recently created snapshot
-        api_url = 'https://' + server + '/api/snapshot/release/' + release
+        api_url = 'https://' + context_info.env["FMS_HOST"] + '/api/snapshot/release/' + context_info.env["ALLIANCE_RELEASE"]
 
         submission_data = http.request('GET', api_url)
 
