@@ -162,26 +162,29 @@ class SequenceTargetingReagentETL(ETL):
                     counter = counter - 1
                     continue
 
-            for sid in sqtrRecord.get('secondaryIds'):
-                sqtr_secondaryId_dataset = {
-                    "primaryId": sqtrRecord.get('primaryId'),
-                    "secondaryId": sid
-                }
-                sqtr_secondaryIds.append(sqtr_secondaryId_dataset)
+            if sqtrRecord.get('secondaryIds') is not None:
+                for sid in sqtrRecord.get('secondaryIds'):
+                    sqtr_secondaryId_dataset = {
+                        "primaryId": sqtrRecord.get('primaryId'),
+                        "secondaryId": sid
+                    }
+                    sqtr_secondaryIds.append(sqtr_secondaryId_dataset)
 
-            for syn in sqtrRecord.get('synonyms'):
-                syn_dataset = {
-                    "primaryId": sqtrRecord.get('primaryId'),
-                    "synonym": syn
-                }
-                sqtr_synonyms.append(syn_dataset)
+            if sqtrRecord.get('synonyms') is not None:
+                for syn in sqtrRecord.get('synonyms'):
+                    syn_dataset = {
+                        "primaryId": sqtrRecord.get('primaryId'),
+                        "synonym": syn
+                    }
+                    sqtr_synonyms.append(syn_dataset)
 
-            for tg in sqtrRecord.get('targetGeneIds'):
-                tg_dataset = {
-                    "primaryId": sqtrRecord.get('primaryId'),
-                    "geneId": tg
-                }
-                tgs.append(tg_dataset)
+            if sqtrRecord.get('targetGeneIds') is not None:
+                for tg in sqtrRecord.get('targetGeneIds'):
+                    tg_dataset = {
+                        "primaryId": sqtrRecord.get('primaryId'),
+                        "geneId": tg
+                    }
+                    tgs.append(tg_dataset)
 
             if 'crossReferences' in sqtrRecord:
 

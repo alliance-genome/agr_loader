@@ -20,7 +20,7 @@ class AffectedGenomicModelETL(ETL):
             //TODO: change the label type based on incoming affectedGenomicModelSpec - for now, these are all
             //genotypes.
             
-            MERGE (o:AffectedGenommicModel:Genotype {primaryKey:row.primaryId})
+            MERGE (o:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
                 ON CREATE SET o.name = row.name,
                 o.nameText = row.nameText,
                  o.dateProduced = row.dateProduced,
@@ -194,19 +194,21 @@ class AffectedGenomicModelETL(ETL):
                     counter = counter - 1
                     continue
 
-            for sid in agmRecord.get('secondaryIds'):
-                agm_secondaryId_dataset = {
-                    "primaryId": agmRecord.get('genotypeID'),
-                    "secondaryId": sid
-                }
-                agm_secondaryIds.append(agm_secondaryId_dataset)
+            if agmRecord.get('secondaryIds') is not None:
+                for sid in agmRecord.get('secondaryIds'):
+                    agm_secondaryId_dataset = {
+                        "primaryId": agmRecord.get('genotypeID'),
+                        "secondaryId": sid
+                    }
+                    agm_secondaryIds.append(agm_secondaryId_dataset)
 
-            for syn in agmRecord.get('synonyms'):
-                syn_dataset = {
-                    "primaryId": agmRecord.get('genotypeID'),
-                    "synonym": syn
-                }
-                agm_synonyms.append(syn_dataset)
+            if agmRecord.get('synonyms') is not None:
+                for syn in agmRecord.get('synonyms'):
+                    syn_dataset = {
+                        "primaryId": agmRecord.get('genotypeID'),
+                        "synonym": syn
+                    }
+                    agm_synonyms.append(syn_dataset)
 
 
             if 'crossReferences' in agmRecord:
