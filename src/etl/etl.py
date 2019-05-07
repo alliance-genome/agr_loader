@@ -2,8 +2,8 @@ import logging
 import os, sys
 from test import TestObject
 import time
-
 from etl.helpers import ResourceDescriptorHelper
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,8 @@ class ETL(object):
 
     def __init__(self):
 
-        if "TEST_SET" in os.environ and os.environ['TEST_SET'] == "True":
+        context_info = ContextInfo()
+        if context_info.env["TEST_SET"]:
             logger.warn("WARNING: Test data load enabled.")
             time.sleep(1)
             self.testObject = TestObject(True)

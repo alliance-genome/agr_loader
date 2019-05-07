@@ -135,7 +135,8 @@ class GeneDescriptionsETL(ETL):
             query_and_file_list = self.process_query_params(query_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
-            self.save_descriptions_report_files(data_provider=prvdr, json_desc_writer=json_desc_writer)
+            self.save_descriptions_report_files(data_provider=prvdr, json_desc_writer=json_desc_writer,
+                                                context_info=context_info)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
@@ -270,13 +271,10 @@ class GeneDescriptionsETL(ETL):
         return best_orthologs
 
     @staticmethod
-    def save_descriptions_report_files(data_provider, json_desc_writer):
-        if "GENERATE_REPORTS" in os.environ and (os.environ["GENERATE_REPORTS"] == "True"
-                                                 or os.environ["GENERATE_REPORTS"] == "true" or
-                                                 os.environ["GENERATE_REPORTS"] == "pre-release"):
+    def save_descriptions_report_files(data_provider, json_desc_writer, context_info):
+        if context_info.env["GENERATE_REPORTS"] is True or context_info.env["GENERATE_REPORTS"] == "pre-release":
             gd_file_name = "HUMAN" if data_provider == "Human" else data_provider
-            release_version = ".".join(os.environ["RELEASE"].split(".")[0:2]) if "RELEASE" in os.environ else \
-                "no-version"
+            release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
             json_desc_writer.overall_properties.species = gd_file_name
             json_desc_writer.overall_properties.release_version = release_version
             cur_date = datetime.date.today().strftime("%Y%m%d")
@@ -287,24 +285,22 @@ class GeneDescriptionsETL(ETL):
             json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True)
             json_desc_writer.write_plain_text(file_path=file_path + ".txt")
             json_desc_writer.write_tsv(file_path=file_path + ".tsv")
-            client = boto3.client('s3', aws_access_key_id=os.environ['AWS_ACCESS_KEY'],
-                                  aws_secret_access_key=os.environ['AWS_SECRET_KEY'])
-            pre_release = "/pre-release/" if os.environ["GENERATE_REPORTS"] == "pre-release" else "/release/"
-            if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true" or \
-                    os.environ["GENERATE_REPORTS"] == "pre-release":
-                client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".json",
-                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".txt",
-                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
-                                   pre_release + cur_date + "/" + file_name + ".tsv",
-                                   ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                if os.environ["GENERATE_REPORTS"] == "True" or os.environ["GENERATE_REPORTS"] == "true":
-                    client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                    client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                    client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                       ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
+                                  aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
+            pre_release = "/pre-release/" if context_info.env["GENERATE_REPORTS"] == "pre-release" else "/release/"
+            client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
+                               pre_release + cur_date + "/" + file_name + ".json",
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
+                               pre_release + cur_date + "/" + file_name + ".txt",
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
+                               pre_release + cur_date + "/" + file_name + ".tsv",
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            if context_info.env["GENERATE_REPORTS"] is True:
+                client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                   ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+                client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                   ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+                client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                                   ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
