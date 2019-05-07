@@ -22,7 +22,10 @@ class TestClass(object):
                                      dict(relationship='LOCATED_ON'),
                                      dict(relationship='VARIATION'),
                                      dict(relationship='PART_OF'),
-                                     dict(relationship='WITH')],
+                                     dict(relationship='WITH'),
+                                     dict(relationship='MODEL_COMPONENT'),
+                                     dict(relationship='BACKGROUND'),
+                                     dict(relationship='')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),
@@ -41,6 +44,7 @@ class TestClass(object):
                              dict(node='Association'),
                              dict(node='Publication'),
                              dict(node='Allele'),
+                             dict(node='AffectedGenomicModel'),
                              dict(node='Phenotype'),
                              dict(node='PhenotypeEntityJoin'),
                              dict(node='OrthologyGeneJoin'),
@@ -80,6 +84,8 @@ class TestClass(object):
                             #dict(node='GenomicLocationBin', prop='number'),
                             dict(node='GOTerm', prop='primaryKey'),
                             dict(node='Gene', prop='dataProvider'),
+                            dict(node='AffectedGenomicModel', prop='primaryKey'),
+                            dict(node='AffectedGenomicModel', prop='name'),
                             #dict(node='SOTerm', prop='name'),
                             dict(node='SOTerm', prop='primaryKey'),
                             dict(node='DOTerm', prop='doPrefix'),
@@ -138,7 +144,9 @@ class TestClass(object):
 
                             ],
 
-        'test_prop_not_null': [dict(node='Gene', prop='modGlobalCrossRefId'),
+        'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
+                               dict(node='AffectedGenomicModel', prop='name'),
+                               dict(node='Gene', prop='modGlobalCrossRefId'),
                                dict(node='Variant', prop='primaryKey'),
                                dict(node='Gene', prop='geneLiteratureUrl'),
                                dict(node='Gene', prop='modCrossRefCompleteUrl'),
@@ -228,6 +236,8 @@ class TestClass(object):
                              dict(node='MITerm', prop='primaryKey'),
                              dict(node='Stage', prop='primaryKey'),
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
+                             dict(node='AffectedGenomicModel', prop='primaryKey'),
+                             dict(node='AffectedGenomicModel', prop='name'),
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),
