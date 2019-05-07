@@ -1,7 +1,8 @@
 import logging
-import os, time
+import os
+import time
 import urllib.request
-import sys
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +13,8 @@ class S3File(object):
         self.filename = filename
         self.savepath = savepath
 
-        if "DOWNLOAD_HOST" in os.environ:
-            self.download_host = os.environ['DOWNLOAD_HOST']
-        else:
-            self.download_host = "downloaddev.alliancegenome.org/"
-            logger.debug("No DOWNLOAD_HOST ENV variable detected, using downloaddev.alliancegenome.org.")
-
-        self.download_url = "https://" + self.download_host + self.filename
+        self.context_info = ContextInfo()
+        self.download_url = "https://" + self.context_info.env["DOWNLOAD_HOST"] + self.filename
 
     def download(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
@@ -28,7 +24,7 @@ class S3File(object):
         url = self.download_url
         logger.info(url)
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.info("Downloading data from s3 (https://%s/%s -> %s/%s) ..." % (self.download_host, self.filename, self.savepath, self.filename))
+            logger.info("Downloading data from s3 (https://%s/%s -> %s/%s) ..." % (self.context_info.env["DOWNLOAD_HOST"], self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
         else:
             logger.info("File: %s/%s already exists, not downloading" % (self.savepath, self.filename))
@@ -61,7 +57,7 @@ class S3File(object):
         url = self.download_url
         logger.info(url)
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.debug("Downloading data from s3 (https://%s%s -> %s/%s) ..." % (self.download_host, self.filename, self.savepath, self.filename))
+            logger.debug("Downloading data from s3 (https://%s%s -> %s/%s) ..." % (self.context_info.env["DOWNLOAD_HOST"], self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
             return False
         else:

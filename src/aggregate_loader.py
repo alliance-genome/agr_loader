@@ -14,10 +14,13 @@ parser.add_argument('-c', '--config', help='Specify the filename of the YAML con
 parser.add_argument('-v', '--verbose', help='Enable DEBUG mode for logging.', action='store_true')
 args = parser.parse_args()
 
-if args.verbose or ("DEBUG" in os.environ and os.environ['DEBUG'] == "True"):
-    debug_level = logging.DEBUG
-else:
-    debug_level = logging.INFO
+# set context info
+context_info = ContextInfo()
+context_info.config_file_location = os.path.abspath('src/config/' + args.config)
+if args.verbose:
+    context_info.env["DEBUG"] = True
+
+debug_level = logging.DEBUG if context_info.env["DEBUG"] else logging.INFO
 
 coloredlogs.install(level=debug_level,
                     fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
@@ -42,10 +45,6 @@ class AggregateLoader(object):
             time.sleep(3)
 
         start_time = time.time()
-
-        context_info = ContextInfo()
-        context_info.config_file_location = os.path.abspath('src/config/' + args.config)
-        context_info.verbose = args.verbose
         data_manager = DataFileManager(context_info.config_file_location)
 
         ft = FileTransactor()
@@ -60,9 +59,7 @@ class AggregateLoader(object):
 
         nt.start_threads(data_manager.get_NT_thread_settings())
         
-        if "USING_PICKLE" in os.environ and os.environ['USING_PICKLE'] == "True":
-            pass
-        else:
+        if not context_info.env["USING_PICKLE"]:
             logger.info("Creating indices.")
             Neo4jHelper.create_indices()
 

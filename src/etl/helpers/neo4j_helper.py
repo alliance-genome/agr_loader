@@ -1,25 +1,17 @@
 import os, logging
 
 from neo4j import GraphDatabase
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
+context_info = ContextInfo()
 
 
 class Neo4jHelper(object):
 
     @staticmethod
     def run_single_parameter_query(query, parameter):
-        if "NEO4J_NQC_HOST" in os.environ:
-            host = os.environ['NEO4J_NQC_HOST']
-        else:
-            host = "localhost"
-            
-        if "NEO4J_NQC_PORT" in os.environ:
-            port = int(os.environ['NEO4J_NQC_PORT'])
-        else:
-            port = 7687
-    
-        uri = "bolt://" + host + ":" + str(port)
+        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.debug("Running run_single_parameter_query. Please wait...")
@@ -31,18 +23,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def run_single_query(query):
-        
-        if "NEO4J_NQC_HOST" in os.environ:
-            host = os.environ['NEO4J_NQC_HOST']
-        else:
-            host = "localhost"
-            
-        if "NEO4J_NQC_PORT" in os.environ:
-            port = int(os.environ['NEO4J_NQC_PORT'])
-        else:
-            port = 7687
-    
-        uri = "bolt://" + host + ":" + str(port)
+        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         with graph.session() as session:
@@ -62,17 +43,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def create_indices():
-        if "NEO4J_NQC_HOST" in os.environ:
-            host = os.environ['NEO4J_NQC_HOST']
-        else:
-            host = "localhost"
-            
-        if "NEO4J_NQC_PORT" in os.environ:
-            port = int(os.environ['NEO4J_NQC_PORT'])
-        else:
-            port = 7687
-    
-        uri = "bolt://" + host + ":" + str(port)
+        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         session = graph.session()
