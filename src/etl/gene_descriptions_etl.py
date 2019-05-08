@@ -272,7 +272,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def save_descriptions_report_files(data_provider, json_desc_writer, context_info):
-        if context_info.env["GENERATE_REPORTS"] is True or context_info.env["GENERATE_REPORTS"] == "pre-release":
+        if context_info.env["GENERATE_REPORTS"]:
             gd_file_name = "HUMAN" if data_provider == "Human" else data_provider
             release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
             json_desc_writer.overall_properties.species = gd_file_name
@@ -287,7 +287,8 @@ class GeneDescriptionsETL(ETL):
             json_desc_writer.write_tsv(file_path=file_path + ".tsv")
             client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
                                   aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
-            pre_release = "/pre-release/" if context_info.env["GENERATE_REPORTS"] == "pre-release" else "/release/"
+            pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
+                "/" + context_info.env["GENERATE_REPORTS"] + "/"
             client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
                                pre_release + cur_date + "/" + file_name + ".json",
                                ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
