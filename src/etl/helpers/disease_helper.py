@@ -36,8 +36,9 @@ class DiseaseHelper(object):
                 ecodes = []
 
                 evidence = diseaseRecord.get('evidence')
-                if 'publicationId' in evidence:
-                    if evidence.get('publicationId').startswith('PMID:'):
+                if 'publication' in evidence:
+                    publication = evidence.get('publication')
+                    if publication.get('publicationId').startswith('PMID:'):
                         pubMedId = evidence['publicationId']
                         localPubMedId = pubMedId.split(":")[1]
                         pubMedUrl = ETLHelper.get_complete_pub_url(localPubMedId, pubMedId)
@@ -47,7 +48,7 @@ class DiseaseHelper(object):
                             localPubModId = publicationModId.split(":")[1]
                             pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
                     else:
-                        publicationModId = evidence['publicationId']
+                        publicationModId = publication.get('publicationId')
                         localPubModId = publicationModId.split(":")[1]
                         pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
 

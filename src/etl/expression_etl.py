@@ -65,7 +65,7 @@ class ExpressionETL(ETL):
             MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
     
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId,
+                    ON CREATE SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
