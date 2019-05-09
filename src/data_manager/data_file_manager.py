@@ -39,9 +39,9 @@ class DataFileManager(metaclass=Singleton):
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
-
         # use the recently created snapshot
         api_url = 'https://' + context_info.env["FMS_HOST"] + '/api/snapshot/release/' + context_info.env["ALLIANCE_RELEASE"]
+        logger.info(api_url)
 
         submission_data = http.request('GET', api_url)
 

@@ -247,7 +247,7 @@ class AffectedGenomicModelETL(ETL):
                 for component in agmRecord.get('genotypeComponents'):
                     component_dataset = {
                         "primaryId": agmRecord.get('genotypeID'),
-                        "componentId": component,
+                        "componentId": component.get('alleleID'),
                         "zygosityId": component.get('zygosity')
                     }
                     components.append(component_dataset)
@@ -260,13 +260,13 @@ class AffectedGenomicModelETL(ETL):
                     }
                     sqtrs.append(sqtr_dataset)
 
-            if agmRecord.get('BackgroundIDs') is not None:
-                for background in agmRecord.get('BackgroundIDs'):
+            if agmRecord.get('backgroundIDs') is not None:
+                for background in agmRecord.get('backgroundIDs'):
                     background_dataset = {
                         "primaryId": agmRecord.get('genotypeID'),
-                        "sqtrId": background
+                        "backgroundId": background
                     }
-                    sqtrs.append(background_dataset)
+                    backgrounds.append(background_dataset)
 
             if counter == batch_size:
                 yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs, backgrounds]

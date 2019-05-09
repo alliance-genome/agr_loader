@@ -24,8 +24,7 @@ class TestClass(object):
                                      dict(relationship='PART_OF'),
                                      dict(relationship='WITH'),
                                      dict(relationship='MODEL_COMPONENT'),
-                                     dict(relationship='BACKGROUND'),
-                                     dict(relationship='')],
+                                     dict(relationship='BACKGROUND')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),
