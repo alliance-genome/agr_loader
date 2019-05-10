@@ -84,7 +84,6 @@ class TestClass(object):
                             dict(node='GOTerm', prop='primaryKey'),
                             dict(node='Gene', prop='dataProvider'),
                             dict(node='AffectedGenomicModel', prop='primaryKey'),
-                            dict(node='AffectedGenomicModel', prop='name'),
                             #dict(node='SOTerm', prop='name'),
                             dict(node='SOTerm', prop='primaryKey'),
                             dict(node='DOTerm', prop='doPrefix'),
