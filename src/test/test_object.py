@@ -115,8 +115,24 @@ class TestObject(object):
             # genomic locations
             'ZFIN:ZDB-GENE-990415-8',
             # variant
-            'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-000427-6', 'ZFIN:ZDB-GENE-980526-221',
-            'ZFIN:ZDB-ALT-070807-6', 'ZFIN:ZDB-ALT-070315-5', 'ZFIN:ZDB-ALT-000621-2'
+            'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-090421-1', 'ZFIN:ZDB-GENE-000427-6', 'ZFIN:ZDB-GENE-980526-221',
+            'ZFIN:ZDB-ALT-070807-6', 'ZFIN:ZDB-ALT-070315-5', 'ZFIN:ZDB-ALT-000621-2',
+            'ZFIN:ZDB-ALT-980203-1091', 'ZFIN:ZDB-ALT-050713-2',
+            'ZFIN:ZDB-ALT-040716-14',
+            # affected genomic model
+            'ZFIN:ZDB-FISH-150901-27842', 'ZFIN:ZDB-FISH-180220-12', 'ZFIN:ZDB-FISH-150901-28582',
+            'ZFIN:ZDB-FISH-171114-2', 'ZFIN:ZDB-FISH-150901-3478', 'ZFIN:ZDB-FISH-150901-29713',
+            'ZFIN:ZDB-FISH-150901-25842', 'ZFIN:ZDB-FISH-150901-9361', 'ZFIN:ZDB-FISH-150901-3961',
+            'ZFIN:ZDB-FISH-150901-13024', 'ZFIN:ZDB-FISH-150901-18822', 'ZFIN:ZDB-FISH-150901-10526',
+            # sqtr
+            'ZFIN:ZDB-GENE-031027-1', 'ZFIN:ZDB-GENE-091204-147',
+            'ZFIN:ZDB-MRPHLNO-081021-3', 'ZFIN:ZDB-MRPHLNO-050818-6', 'ZFIN:ZDB-MRPHLNO-060620-3',
+            'ZFIN:ZDB-MRPHLNO-060620-5', 'ZFIN:ZDB-MRPHLNO-070911-3', 'ZFIN:ZDB-CRISPR-181015-8',
+            'ZFIN:ZDB-CRISPR-161214-618', 'ZFIN:ZDB-CRISPR-161214-737',
+            # background
+            'ZFIN:ZDB-FISH-150901-29235', 'ZFIN:ZDB-FISH-150901-14423', 'ZFIN:ZDB-FISH-150901-26753',
+            'ZFIN:ZDB-FISH-150901-5094',
+
         }
         self.flybaseIdSet = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006', 'FB:FBgn0001319',
@@ -158,7 +174,6 @@ class TestObject(object):
             # disease
             'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650',
         }
-
 
         self.modMap = {"RGD": self.rgdTestSet,
                   "MGI": self.mgiIdSet,
