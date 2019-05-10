@@ -52,6 +52,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")
+        session.run("CREATE INDEX ON :AffectedGenomicModel(primaryKey)")
         session.run("CREATE INDEX ON :SOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Ontology(primaryKey)")
         session.run("CREATE INDEX ON :DOTerm(primaryKey)")
@@ -96,6 +97,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
         session.run("CREATE INDEX ON :Variant(primaryKey)")
         session.run("CREATE INDEX ON :SequenceTargetingReagent(primaryKey)")
+        session.run("CREATE INDEX ON :ECOTerm(primaryKey)")
         
         session.run("CREATE INDEX ON :ZFATerm(primaryKey)")
         session.run("CREATE INDEX ON :ZFSTerm(primaryKey)")
