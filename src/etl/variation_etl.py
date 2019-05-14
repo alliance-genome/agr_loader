@@ -114,16 +114,16 @@ class VariationETL(ETL):
     def get_hgvs_nomenclature(self, refseqId, variantType, start_position,
                               end_position, reference_sequence, variant_sequence):
         if variantType == "	SO:1000002" or variantType == 'SO:1000008':  # point mutation/substitution
-            hgvs_nomenclature = refseqId.split(":")[1]+'g.'+str(start_position)+reference_sequence+">"+variant_sequence
+            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+reference_sequence+">"+variant_sequence
         elif variantType == "SO:0000667": # insertion
             if variant_sequence is None:
-                hgvs_nomenclature = refseqId.split(":")[1]+'g.'+str(start_position)+'_'+str(end_position)+'ins'
+                hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'ins'
             else:
-                hgvs_nomenclature = refseqId.split(":")[1]+'g.'+str(start_position)+'_'+str(end_position)+'ins'+variant_sequence
+                hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'ins'+variant_sequence
         elif variantType == "SO:0000159": # deletion
-            hgvs_nomenclature = refseqId.split(":")[1]+'g.'+str(start_position)+'_'+str(end_position)+'del'
+            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'del'
         elif variantType == "SO:0002007": # MNV
-            hgvs_nomenclature = refseqId.split(":")[1]+'g.'+str(start_position)+'_'+str(end_position)+'delins'+variant_sequence
+            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'delins'+variant_sequence
         else:
             hgvs_nomenclature = ''
         return hgvs_nomenclature
