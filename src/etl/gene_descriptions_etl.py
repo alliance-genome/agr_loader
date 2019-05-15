@@ -116,9 +116,9 @@ class GeneDescriptionsETL(ETL):
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
         # generate descriptions for each MOD
-        for prvdr in [sub_type.get_data_provider() for sub_type in self.data_type_config.get_sub_type_objects()]:
+        for prvdr in [sub_type.get_data_provider().upper() for sub_type in self.data_type_config.get_sub_type_objects()]:
             logger.info("Generating gene descriptions for " + prvdr)
-            data_provider = prvdr if prvdr != "Human" and prvdr != "HUMAN" else "RGD"
+            data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
             gd_data_manager.load_associations_from_file(
@@ -140,7 +140,7 @@ class GeneDescriptionsETL(ETL):
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
-        if data_provider == "Human" or data_provider == "HUMAN":
+        if data_provider == "HUMAN":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
         else:
@@ -153,7 +153,7 @@ class GeneDescriptionsETL(ETL):
                                         config=gd_config)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
-                               human=data_provider == "Human")
+                               human=data_provider == "HUMAN")
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
@@ -273,14 +273,13 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def save_descriptions_report_files(data_provider, json_desc_writer, context_info):
         if context_info.env["GENERATE_REPORTS"]:
-            gd_file_name = "HUMAN" if data_provider == "Human" else data_provider
             release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
-            json_desc_writer.overall_properties.species = gd_file_name
+            json_desc_writer.overall_properties.species = data_provider
             json_desc_writer.overall_properties.release_version = release_version
             cur_date = datetime.date.today().strftime("%Y%m%d")
             json_desc_writer.overall_properties.date = cur_date
-            file_name = cur_date + "_" + gd_file_name
-            latest_file_name = gd_file_name + "_gene_desc_latest"
+            file_name = cur_date + "_" + data_provider
+            latest_file_name = data_provider + "_gene_desc_latest"
             file_path = "tmp/" + file_name
             json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True)
             json_desc_writer.write_plain_text(file_path=file_path + ".txt")
