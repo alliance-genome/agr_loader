@@ -484,8 +484,8 @@ class ExpressionETL(ETL):
                     expressionEntityUniqueKey = expressionEntityUniqueKey + whereExpressedStatement
                     expressionUniqueKey = expressionUniqueKey + whereExpressedStatement
 
-                    if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
-                        for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
+                    if whereExpressed.get('anatomicalStructureUberonSlimTermIds') is not None:
+                        for uberonStructureTermObject in whereExpressed.get('anatomicalStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {
