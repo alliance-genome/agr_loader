@@ -35,7 +35,6 @@ services:
       - TEST_SET=False
       - UNIT_TESTS=False
       - NEO4J_HOST=neo4j
-      - NEO4J_PORT=7687
       - NET=production
       - ALLIANCE_RELEASE=2.2.0
       - FMS_HOST=fmsdev.alliancegenome.org
@@ -63,7 +62,6 @@ services:
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
-     - NEO4J_PORT=7687
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
@@ -91,7 +89,6 @@ services:
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
-     - NEO4J_PORT=7687
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
@@ -119,7 +116,6 @@ services:
      - TEST_SET=True
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
-     - NEO4J_PORT=7687
      - NET=production
      - ALLIANCE_RELEASE=2.2.0
      - FMS_HOST=fmsdev.alliancegenome.org
