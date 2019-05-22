@@ -11,7 +11,7 @@ class Neo4jHelper(object):
 
     @staticmethod
     def run_single_parameter_query(query, parameter):
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.debug("Running run_single_parameter_query. Please wait...")
@@ -23,7 +23,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def run_single_query(query):
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         with graph.session() as session:
@@ -43,7 +43,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def create_indices():
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         session = graph.session()
