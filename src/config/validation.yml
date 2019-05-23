@@ -97,6 +97,9 @@ Interactions:
 GeneDescriptions:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+ECOMAP:
+  type: list
+  allowed: [ECOMAP]
 FileTransactorThreads:
   type: integer
   required: True
