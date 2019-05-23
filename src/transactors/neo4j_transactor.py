@@ -53,7 +53,7 @@ class Neo4jTransactor(object):
         context_info = ContextInfo()
     
         if context_info.env["USING_PICKLE"] is False:
-            uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+            uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
             graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.info("%s: Starting Neo4jTransactor Thread Runner: " % self._get_name())

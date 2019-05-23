@@ -65,7 +65,7 @@ class ExpressionETL(ETL):
             MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})  
     
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    SET pubf.pubModId = row.pubModId,
+                    ON CREATE SET pubf.pubModId = row.pubModId,
                      pubf.pubMedId = row.pubMedId,
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
@@ -484,8 +484,8 @@ class ExpressionETL(ETL):
                     expressionEntityUniqueKey = expressionEntityUniqueKey + whereExpressedStatement
                     expressionUniqueKey = expressionUniqueKey + whereExpressedStatement
 
-                    if whereExpressed.get('anatomcialStructureUberonSlimTermIds') is not None:
-                        for uberonStructureTermObject in whereExpressed.get('anatomcialStructureUberonSlimTermIds'):
+                    if whereExpressed.get('anatomicalStructureUberonSlimTermIds') is not None:
+                        for uberonStructureTermObject in whereExpressed.get('anatomicalStructureUberonSlimTermIds'):
                             structureUberonTermId = uberonStructureTermObject.get('uberonTerm')
                             if structureUberonTermId is not None and structureUberonTermId != 'Other':
                                 structureUberonTerm = {

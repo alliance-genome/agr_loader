@@ -4,10 +4,10 @@ build: pull
 buildenv: build
 
 startdb:
-	docker-compose up -d neo4j.nqc
+	docker-compose up -d neo4j
 
 stopdb:
-	docker-compose stop neo4j.nqc
+	docker-compose stop neo4j
 
 pull:
 	docker pull agrdocker/agr_neo4j_env:latest
@@ -35,17 +35,17 @@ bash:
 	docker-compose up agr_loader bash
 
 reload: 
-	docker-compose up -d neo4j.nqc
+	docker-compose up -d neo4j
 	docker-compose down -v
-	docker-compose up -d neo4j.nqc
+	docker-compose up -d neo4j
 	sleep 10
 	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader
 
 reload_test: 
-	docker-compose up -d neo4j.nqc
+	docker-compose up -d neo4j
 	docker-compose down -v
-	docker-compose up -d neo4j.nqc
+	docker-compose up -d neo4j
 	sleep 10
 	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader_test

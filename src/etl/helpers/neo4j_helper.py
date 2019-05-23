@@ -6,11 +6,12 @@ from common import ContextInfo
 logger = logging.getLogger(__name__)
 context_info = ContextInfo()
 
+
 class Neo4jHelper(object):
 
     @staticmethod
     def run_single_parameter_query(query, parameter):
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         logger.debug("Running run_single_parameter_query. Please wait...")
@@ -22,7 +23,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def run_single_query(query):
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         with graph.session() as session:
@@ -42,7 +43,7 @@ class Neo4jHelper(object):
     
     @staticmethod
     def create_indices():
-        uri = "bolt://" + context_info.env["NEO4J_NQC_HOST"] + ":" + str(context_info.env["NEO4J_NQC_PORT"])
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
         
         session = graph.session()
@@ -51,6 +52,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")
+        session.run("CREATE INDEX ON :AffectedGenomicModel(primaryKey)")
         session.run("CREATE INDEX ON :SOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Ontology(primaryKey)")
         session.run("CREATE INDEX ON :DOTerm(primaryKey)")
@@ -94,6 +96,8 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Stage(primaryKey)")
         session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
         session.run("CREATE INDEX ON :Variant(primaryKey)")
+        session.run("CREATE INDEX ON :SequenceTargetingReagent(primaryKey)")
+        session.run("CREATE INDEX ON :ECOTerm(primaryKey)")
         
         session.run("CREATE INDEX ON :ZFATerm(primaryKey)")
         session.run("CREATE INDEX ON :ZFSTerm(primaryKey)")
