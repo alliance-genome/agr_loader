@@ -609,7 +609,8 @@ def test_expression_images_cross_references_for_species_exists():
 
 
 def test_eco_term_has_display_synonym():
-    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.display_synonym = 'EXP'"
+    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.display_synonym = 'EXP'" \
+            "return count(e) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
