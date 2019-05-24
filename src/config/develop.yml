@@ -53,6 +53,7 @@ Closure:
   - MA
   - ECO
   - UBERON
+ECOMAP: [ECOMAP]
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 
