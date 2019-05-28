@@ -227,7 +227,7 @@ class VariationETL(ETL):
 
             variant_so_term = {
                 "variantId": variantUUID,
-                "soTerm": alleleRecord.get('type')
+                "soTermId": alleleRecord.get('type')
             }
 
             variant_so_terms.append(variant_so_term)
