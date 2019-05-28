@@ -15,7 +15,7 @@ class ECOMAPETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
-            SET e.display_synonym = row.threeLetterCode
+            SET e.displaySynonym = row.threeLetterCode
         
         """
 
