@@ -21,7 +21,7 @@ class DOETL(ETL):
              doterm.nameKey = row.name_key,
              doterm.definition = row.definition,
              doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
-             doterm.is_obsolete = row.is_obsolete,
+             doterm.isObsolete = row.is_obsolete,
              doterm.subset = row.subset,
              doterm.doDisplayId = row.oid,
              doterm.doUrl = row.oUrl,

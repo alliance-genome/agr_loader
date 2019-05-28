@@ -20,7 +20,7 @@ def test_doterm_exists():
 
 
 def test_isobsolete_false():
-    query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
+    query = "MATCH(n:DOTerm) where n.isObsolete = 'false' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
@@ -135,7 +135,7 @@ def test_zdb_alt_160129_6_has_at_least_one_disease():
 def test_do_terms_have_parents():
     query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() " \
             "and d.primaryKey =~ 'DO:.*'" \
-            "and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
+            "and d.isObsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
@@ -284,7 +284,7 @@ def test_stage_uberon_relationship_for_expression_exists():
 
 
 def test_mmoterm_has_display_synonym():
-    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.display_synonym = 'RNA in situ'" \
+    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.displaySynonym = 'RNA in situ'" \
             "RETURN count(n) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -577,7 +577,7 @@ def test_sgd_gene_has_gene_disease_ortho():
 
 def test_mmo_term_has_display_alias():
     query = "match (mmo:MMOTerm) where mmo.primaryKey " \
-            "= 'MMO:0000642' and mmo.display_synonym = 'protein expression' return count(mmo) as counter"
+            "= 'MMO:0000642' and mmo.displaySynonym = 'protein expression' return count(mmo) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
@@ -609,7 +609,7 @@ def test_expression_images_cross_references_for_species_exists():
 
 
 def test_eco_term_has_display_synonym():
-    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.display_synonym = 'EXP'" \
+    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.displaySynonym = 'EXP'" \
             "return count(e) as counter"
     result = execute_transaction(query)
     for record in result:

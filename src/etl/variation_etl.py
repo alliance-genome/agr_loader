@@ -192,6 +192,14 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
+            genomicReferenceSequence = alleleRecord.get('genomicReferenceSequence')
+            genomicVariantSequence = alleleRecord.get('genomicVariantSequence')
+
+            if genomicReferenceSequence == 'N/A':
+                genomicReferenceSequence = ""
+            if genomicVariantSequence == 'N/A':
+                genomicVariantSequence = ""
+
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
@@ -201,8 +209,8 @@ class VariationETL(ETL):
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
-                "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
-                "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
+                "genomicReferenceSequence": genomicReferenceSequence,
+                "genomicVariantSequence": genomicVariantSequence,
                 "alleleId": alleleRecord.get('alleleId'),
                 "globalId": globalId,
                 "localId": localId,
