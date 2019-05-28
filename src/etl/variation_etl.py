@@ -25,7 +25,6 @@ class VariationETL(ETL):
                      o.hgvs_nomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.genomicVariantSequence = row.genomicVariantSequence,
-                     o.paddedBase = row.paddedBase,
                      o.dateProduced = row.dateProduced,
                      o.release = row.release,
                      o.localId = row.localId,
@@ -39,7 +38,7 @@ class VariationETL(ETL):
     soterms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Variant {primaryKey:row.alleleId})
+            MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
@@ -205,7 +204,6 @@ class VariationETL(ETL):
                 "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
                 "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
                 "alleleId": alleleRecord.get('alleleId'),
-                "paddedBase": alleleRecord.get('paddedBase'),
                 "globalId": globalId,
                 "localId": localId,
                 "dataProviders": dataProviders,
@@ -228,7 +226,7 @@ class VariationETL(ETL):
             }
 
             variant_so_term = {
-                "alleleId": alleleRecord.get('alleleId'),
+                "variantId": variantUUID,
                 "soTerm": alleleRecord.get('type')
             }
 

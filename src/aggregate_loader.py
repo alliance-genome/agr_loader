@@ -3,6 +3,7 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 from etl import *
 from etl import VariationETL
 from etl import SequenceTargetingReagentETL
+from etl import ECOMAPETL
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -72,6 +73,7 @@ class AggregateLoader(object):
             'BGI': BGIETL,
             'ExpressionAtlas': ExpressionAtlasETL,
             'Ontology': GenericOntologyETL,
+            'ECOMAP': ECOMAPETL,
             'ALLELE': AlleleETL,
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
@@ -99,6 +101,7 @@ class AggregateLoader(object):
             ['DO', 'MI'],
             ['GO'],
             ['Ontology'],
+            ['ECOMAP'],
             ['BGI'],
             ['ALLELE'],
             ['VARIATION'],
