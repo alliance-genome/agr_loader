@@ -524,14 +524,6 @@ def test_all_species_have_order():
         assert record["counter"] < 1
 
 
-def test_ortho_is_best_score_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) where orth.isBestScore <> toBoolean(orth.isBestScore) " \
-            "return count(orth) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
-
-
 def test_ortho_is_strict_filter_is_boolean():
     query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
             "where orth.strictFilter <> toBoolean(orth.strictFilter) " \
@@ -544,15 +536,6 @@ def test_ortho_is_strict_filter_is_boolean():
 def test_ortho_moderate_filter_is_boolean():
     query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
             "where orth.moderateFilter <> toBoolean(orth.moderateFilter) " \
-            "return count(orth) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
-
-
-def test_ortho_is_best_rev_score_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
-            "where orth.isBestRevScore <> toBoolean(orth.isBestRevScore) " \
             "return count(orth) as counter"
     result = execute_transaction(query)
     for record in result:
