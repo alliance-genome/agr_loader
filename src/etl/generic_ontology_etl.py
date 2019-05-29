@@ -22,9 +22,9 @@ class GenericOntologyETL(ETL):
                 g.href = row.href,
                 g.name = row.name,
                 g.nameKey = row.name_key,
-                g.is_obsolete = row.is_obsolete,
+                g.isObsolete = row.is_obsolete,
                 g.href = row.href,
-                g.display_synonym = row.display_synonym,
+                g.displaySynonym = row.display_synonym,
                 g.subsets = apoc.convert.fromJsonList(row.subsets)
         MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """

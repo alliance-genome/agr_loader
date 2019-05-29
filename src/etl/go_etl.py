@@ -19,7 +19,7 @@ class GOETL(ETL):
              g.name = row.name ,
              g.subset = row.subset,
              g.nameKey = row.name_key,
-             g.is_obsolete = row.is_obsolete,
+             g.isObsolete = row.is_obsolete,
              g.href = row.href 
             MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
 
