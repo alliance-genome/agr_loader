@@ -84,12 +84,12 @@ class GeneDescriptionsETL(ETL):
 
     GetDiseaseViaOrthologyQuery = """
     
-        MATCH (disease:DOTerm:Ontology)-[da:IS_IMPLICATED_IN|:IS_MODEL_OF]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-        MATCH (ec:ECOTerm)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(p:Publication)
-        WHERE o.strictFilter = 'True' AND gene1.taxonId ='NCBITaxon:9606' AND da.uuid = dej.primaryKey 
-        AND NOT ec.primaryKey IN ["ECO:0000501", "ECO:0000250", "ECO:0000266"] AND gene2.dataProvider = {parameter}
-        RETURN DISTINCT gene2.primaryKey AS geneId, gene2.symbol AS geneSymbol, disease.primaryKey AS DOId, 
-        p.primaryKey AS publicationId
+        MATCH (d:DOTerm:Ontology)-[r:IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
+        (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
+        WHERE g.dataProvider = {parameter}
+        MATCH (dga)-[:FROM_ORTHOLOGOUS_GENE]-(orthGene:Gene)
+        WHERE orthGene.taxonId = 'NCBITaxon:9606'
+        RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS DOId
         """
 
     def __init__(self, config):
@@ -116,22 +116,20 @@ class GeneDescriptionsETL(ETL):
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
         # generate descriptions for each MOD
-        for prvdr in [sub_type.get_data_provider() for sub_type in self.data_type_config.get_sub_type_objects()]:
+        for prvdr in [sub_type.get_data_provider().upper() for sub_type in self.data_type_config.get_sub_type_objects()]:
             logger.info("Generating gene descriptions for " + prvdr)
-            data_provider = prvdr if prvdr != "Human" and prvdr != "HUMAN" else "RGD"
+            data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf"),
                 config=gd_config)
-            key_diseases = defaultdict(set)
             gd_data_manager.set_associations(
                 associations_type=DataType.DO, associations=self.get_disease_annotations_from_db(
-                    data_provider=data_provider, gd_data_manager=gd_data_manager, key_diseases=key_diseases),
-                config=gd_config)
+                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
             commit_size = self.data_type_config.get_neo4j_commit_size()
-            generators = self.get_generators(prvdr, gd_data_manager, gd_config, key_diseases, json_desc_writer)
+            generators = self.get_generators(prvdr, gd_data_manager, gd_config, json_desc_writer)
             query_list = [
                 [GeneDescriptionsETL.GeneDescriptionsQuery, commit_size, "genedescriptions_data_" + prvdr + ".csv"], ]
             query_and_file_list = self.process_query_params(query_list)
@@ -140,9 +138,9 @@ class GeneDescriptionsETL(ETL):
             self.save_descriptions_report_files(data_provider=prvdr, json_desc_writer=json_desc_writer,
                                                 context_info=context_info)
 
-    def get_generators(self, data_provider, gd_data_manager, gd_config, key_diseases, json_desc_writer):
+    def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
-        if data_provider == "Human" or data_provider == "HUMAN":
+        if data_provider == "HUMAN":
             return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
             gene_prefix = "RGD:"
         else:
@@ -151,17 +149,16 @@ class GeneDescriptionsETL(ETL):
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False)
+            gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False,
+                                        config=gd_config)
             set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
-                               orthologs_key_diseases=key_diseases[gene.id], human=data_provider == "Human")
+                               human=data_provider == "HUMAN")
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
-                                                    excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc)
-            if len(key_diseases[gene.id]) > 5:
-                logger.debug("Gene with more than 5 key diseases: " + gene.id + "\t" + gene.name + "\t" +
-                             gene_desc.do_orthology_description + "\t" + ",".join(key_diseases[gene.id]))
+                                                    excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc,
+                                                    config=gd_config)
             if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
@@ -229,7 +226,7 @@ class GeneDescriptionsETL(ETL):
                     annot["geneSymbol"], annot["DOId"], ecode, data_provider))
 
     @staticmethod
-    def get_disease_annotations_from_db(data_provider, gd_data_manager, key_diseases):
+    def get_disease_annotations_from_db(data_provider, gd_data_manager):
         annotations = []
         gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetGeneDiseaseAnnotQuery,
                                                                 data_provider)
@@ -245,14 +242,12 @@ class GeneDescriptionsETL(ETL):
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
                              len(feature_annots) == 1]
         GeneDescriptionsETL.add_annotations(annotations, feature_annot_set, data_provider)
-        #disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
-        #    GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
-        #for orth_annot in disease_via_orth_records:
-        #    annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
-        #        gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
-        #        ecode="DVO", prvdr=data_provider))
-        #    if orth_annot["publicationId"] == "RGD:7240710":
-        #        key_diseases[orth_annot["geneId"]].add(orth_annot["DOId"])
+        disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
+            GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
+        for orth_annot in disease_via_orth_records:
+            annotations.append(GeneDescriptionsETL.create_disease_annotation_record(
+                gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], do_term_id=orth_annot["DOId"],
+                ecode="DVO", prvdr=data_provider))
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.do_ontology)
 
@@ -277,22 +272,22 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def save_descriptions_report_files(data_provider, json_desc_writer, context_info):
-        if context_info.env["GENERATE_REPORTS"] is True or context_info.env["GENERATE_REPORTS"] == "pre-release":
-            gd_file_name = "HUMAN" if data_provider == "Human" else data_provider
+        if context_info.env["GENERATE_REPORTS"]:
             release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
-            json_desc_writer.overall_properties.species = gd_file_name
+            json_desc_writer.overall_properties.species = data_provider
             json_desc_writer.overall_properties.release_version = release_version
             cur_date = datetime.date.today().strftime("%Y%m%d")
             json_desc_writer.overall_properties.date = cur_date
-            file_name = cur_date + "_" + gd_file_name
-            latest_file_name = gd_file_name + "_gene_desc_latest"
+            file_name = cur_date + "_" + data_provider
+            latest_file_name = data_provider + "_gene_desc_latest"
             file_path = "tmp/" + file_name
             json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True)
             json_desc_writer.write_plain_text(file_path=file_path + ".txt")
             json_desc_writer.write_tsv(file_path=file_path + ".tsv")
             client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
                                   aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
-            pre_release = "/pre-release/" if context_info.env["GENERATE_REPORTS"] == "pre-release" else "/release/"
+            pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
+                "/" + context_info.env["GENERATE_REPORTS"] + "/"
             client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
                                pre_release + cur_date + "/" + file_name + ".json",
                                ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
