@@ -34,16 +34,16 @@ GeoXref:
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
-Ontology:
+ONTOLOGY:
   type: list
   allowed: 
     - GO 
-    - SO 
-    - DO 
+    - SO
+    - DOID
     - MI 
-    - ZFA 
-    - ZFS 
-    - WBBT 
+    - ZFA
+    - ZFS
+    - WBBT
     - CL
     - FBBT
     - FBCV
@@ -55,6 +55,7 @@ Ontology:
     - MA
     - ECO
     - UBERON
+    - ECOMAP
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -75,7 +76,7 @@ Closure:
   allowed: 
     - GO 
     - SO 
-    - DO 
+    - DOID
     - MI 
     - ZFA 
     - ZFS 
