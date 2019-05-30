@@ -130,7 +130,6 @@ class AggregateLoader(object):
             for etl_name in etl_group:
                 logger.debug("ETL Name: %s" % etl_name)
                 config = data_manager.get_config(etl_name)
-                logger.debug("Config: %s" % config)
                 if config is not None:
                     etl = etl_dispatch[etl_name](config)
                     p = multiprocessing.Process(target=etl.run_etl)
