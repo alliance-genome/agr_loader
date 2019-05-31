@@ -10,10 +10,10 @@ GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
 GENOTYPE: [ZFIN, MGI]
 SQTR: [ZFIN]
-Ontology:
+ONTOLOGY:
   - GO
   - SO
-  - DO
+  - DOID
   - MI
   - ZFA
   - ZFS
@@ -29,6 +29,7 @@ Ontology:
   - MA
   - ECO
   - UBERON
+  - ECOMAP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
@@ -37,7 +38,7 @@ GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
   - GO
   - SO
-  - DO
+  - DOID
   - MI
   - ZFA
   - ZFS
@@ -53,9 +54,9 @@ Closure:
   - MA
   - ECO
   - UBERON
-ECOMAP: [ECOMAP]
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+
 
 # Loader configuration values are below.
 # Please modify with caution!

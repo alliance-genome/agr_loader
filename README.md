@@ -53,6 +53,6 @@ Resources.
 ## ENV Variables
 - DOWNLOAD_HOST - the s3 bucket from which files are pulled.
 - ALLIANCE_RELEASE - the release version that this code acts on.
-- FMS_HOST - the host from which this code pulls its available file paths from (submission system host).
+- FMS_API_URL - the host from which this code pulls its available file paths from (submission system host).
 
 - If the site is built with docker-compose, these will be set automatically to the 'dev' versions of all these variables.
