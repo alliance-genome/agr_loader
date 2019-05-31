@@ -111,7 +111,7 @@ def test_gene_has_all_three_automated_description_components():
               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
               "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
             "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
-              "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
+              "or g.automatedGeneSynopsis =~ '.*mplicated in.*')) return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 0
