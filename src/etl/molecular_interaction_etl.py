@@ -12,7 +12,6 @@ class MolecularInteractionETL(ETL):
     query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
         MATCH (g1:Gene {primaryKey:row.interactor_A})
         MATCH (g2:Gene {primaryKey:row.interactor_B})
 
