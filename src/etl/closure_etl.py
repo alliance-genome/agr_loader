@@ -36,6 +36,9 @@ class ClosureETL(ETL):
 
     def _process_sub_type(self, sub_type):
         data_provider = sub_type.get_data_provider()
+        logger.info(data_provider)
+        if data_provider == 'DOID':
+            data_provider = 'DO'
         
         logger.debug("Starting isa_partof_ Closure for: %s" % data_provider)
         
@@ -52,6 +55,7 @@ class ClosureETL(ETL):
         logger.debug("Finished isa_partof Closure for: %s" % data_provider)
 
     def get_closure_terms(self, data_provider):
+
         query = self.retrieve_isa_partof_closure % (data_provider, data_provider)
         logger.debug("Query to Run: %s" % query)
         
