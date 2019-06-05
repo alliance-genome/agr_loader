@@ -163,8 +163,8 @@
                 "schemaVersion": "1.0.0.7",
                 "dataType": "Interactions",
                 "taxonIDPart": "MolecularInteraction",
-                "s3path": "INT/Alliance_molecular_interactions_2.1.tar.gz",
-                "tempExtractedFile": "Alliance_molecular_interactions_2.1.txt",
+                "s3path": "INT/Alliance_molecular_interactions_2.2.tar.gz",
+                "tempExtractedFile": "Alliance_molecular_interactions_2.2.txt",
                 "uploadDate": 1522181475376
             }
         ]
