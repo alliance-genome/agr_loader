@@ -123,8 +123,8 @@
                 "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"Interactions"},
                 "dataSubType": {"id":"1234", "name":"MolecularInteraction"},
-                "s3Path": "INT/Alliance_molecular_interactions_2.1.tar.gz",
-                "tempExtractedFile": "Alliance_molecular_interactions_2.1.txt",
+                "s3Path": "INT/Alliance_molecular_interactions_2.2.tar.gz",
+                "tempExtractedFile": "Alliance_molecular_interactions_2.2.txt",
                 "uploadDate": 1522181475376
             }
 
