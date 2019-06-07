@@ -120,7 +120,7 @@ class DiseaseETL(ETL):
             MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
         
             MATCH (diseaseWith:Gene {primaryKey:row.withD})
-            MERGE (dga)-[dgaw:WITH]-(diseaseWith)
+            MERGE (dga)-[dgaw:FROM_ORTHOLOGOUS_GENE]-(diseaseWith)
     
     """
 

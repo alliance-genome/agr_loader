@@ -22,7 +22,6 @@ class TestClass(object):
                                      dict(relationship='LOCATED_ON'),
                                      dict(relationship='VARIATION'),
                                      dict(relationship='PART_OF'),
-                                     dict(relationship='WITH'),
                                      dict(relationship='MODEL_COMPONENT'),
                                      dict(relationship='BACKGROUND')],
 
