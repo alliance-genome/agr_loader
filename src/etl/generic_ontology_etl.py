@@ -184,11 +184,11 @@ class GenericOntologyETL(ETL):
                             partofs.append(partof_dict_to_append)
                 else:
                     relationshipDescriptors = relations.split(' ')
-                    o_part_of = relationshipDescriptors[1]
+                    o_part_of = relationshipDescriptors[0]
                     if o_part_of == 'part_of':
                         partof_dict_to_append = {
                                 'oid' : ident,
-                                'partof' : relationshipDescriptors[2]
+                                'partof' : relationshipDescriptors[1]
                         }
                         partofs.append(partof_dict_to_append)
 
