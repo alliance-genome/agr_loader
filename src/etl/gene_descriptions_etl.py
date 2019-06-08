@@ -21,7 +21,7 @@ from data_manager import DataFileManager
 
 logger = logging.getLogger(__name__)
 
-EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT'}
+EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT'}
 
 
 class GeneDescriptionsETL(ETL):
@@ -260,7 +260,7 @@ class GeneDescriptionsETL(ETL):
         allele_do_annot = defaultdict(list)
         for feature_annot in feature_annot_set:
             if all([feature_annot["geneId"] != annot[0] for annot in allele_do_annot[(feature_annot["alleleId"],
-                                                                                      feature_annot["DOId"])]]):
+                                                                                      feature_annot["TermId"])]]):
                 allele_do_annot[(feature_annot["alleleId"], feature_annot["DOId"])].append(feature_annot)
         # keep only disease annotations through simple entities (e.g., alleles related to one gene only)
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
