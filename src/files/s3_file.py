@@ -14,7 +14,7 @@ class S3File(object):
         self.savepath = savepath
 
         self.context_info = ContextInfo()
-        self.download_url = "https://" + self.context_info.env["DOWNLOAD_HOST"] + self.filename
+        self.download_url = "https://" + self.context_info.env["DOWNLOAD_HOST"] + "/" + self.filename
 
     def download(self):
         if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filename)):
@@ -57,7 +57,7 @@ class S3File(object):
         url = self.download_url
         logger.info(url)
         if not os.path.exists(self.savepath + "/" + self.filename):
-            logger.debug("Downloading data from s3 (https://%s%s -> %s/%s) ..." % (self.context_info.env["DOWNLOAD_HOST"], self.filename, self.savepath, self.filename))
+            logger.debug("Downloading data from s3 (https://%s/%s -> %s/%s) ..." % (self.context_info.env["DOWNLOAD_HOST"], self.filename, self.savepath, self.filename))
             urllib.request.urlretrieve(url, self.savepath + "/" + self.filename)
             return False
         else:
