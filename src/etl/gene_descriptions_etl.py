@@ -84,7 +84,8 @@ class GeneDescriptionsETL(ETL):
 
     GetOntologyPairs = """
         MATCH (term1:{}Term:Ontology)-[r:IS_A|PART_OF]->(term2:{}Term:Ontology)
-        RETURN term1.primaryKey, term1.name, term1.type, term2.primaryKey, term2.name, term2.type, type(r) AS rel_type
+        RETURN term1.primaryKey, term1.name, term1.type, term1.isObsolete, term2.primaryKey, term2.name, term2.type, 
+        term2.isObsolete, type(r) AS rel_type
         """
 
     GetExpressionAnnotations = """
@@ -194,18 +195,25 @@ class GeneDescriptionsETL(ETL):
                     EXPRESSION_PRVD_SUBTYPE_MAP[provider], EXPRESSION_PRVD_SUBTYPE_MAP[provider]), None)
         for terms_pair in terms_pairs:
             GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
-                terms_pair["term1.primaryKey"], terms_pair["term1.name"], terms_pair["term1.type"], ontology)
+                terms_pair["term1.primaryKey"], terms_pair["term1.name"], terms_pair["term1.type"],
+                terms_pair["term1.isObsolete"], ontology)
             GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
-                terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"], ontology)
+                terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"],
+                terms_pair["term2.isObsolete"], ontology)
             ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
                                 relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
         return ontology
 
     @staticmethod
-    def add_neo_term_to_ontobio_ontology_if_not_exists(term_id, term_label, term_type, ontology):
+    def add_neo_term_to_ontobio_ontology_if_not_exists(term_id, term_label, term_type, is_obsolete, ontology):
         if not ontology.has_node(term_id) and term_label:
-            ontology.add_node(id=term_id, label=term_label, meta={"basicPropertyValues": [
-                {"pred": "OIO:hasOBONamespace", "val": term_type}]})
+            if is_obsolete == "true" or is_obsolete == "True":
+                meta = {"deprecated": True, "basicPropertyValues": [
+                    {"pred": "OIO:hasOBONamespace", "val": term_type}]}
+            else:
+                meta = {"basicPropertyValues": [
+                    {"pred": "OIO:hasOBONamespace", "val": term_type}]}
+            ontology.add_node(id=term_id, label=term_label, meta=meta)
 
     @staticmethod
     def create_annotation_record(gene_id, gene_symbol, term_id, aspect, ecode, prvdr):
