@@ -12,10 +12,10 @@ VARIATION: [FB, WB, ZFIN, RGD, MGI]
 FASTA: [FlyBaseAssemblyR6.27, WormBaseAssemblyWBcel235, ZFinAssemblyGRCz11, MGIAssemblyGRCm38, RGDAssemblyRnor60]
 GENOTYPE: [ZFIN, MGI]
 SQTR: [ZFIN]
-Ontology:
+ONTOLOGY:
   - GO
   - SO
-  - DO
+  - DOID
   - MI
   - ZFA
   - ZFS
@@ -31,6 +31,7 @@ Ontology:
   - MA
   - ECO
   - UBERON
+  - ECOMAP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
@@ -57,6 +58,9 @@ ExpressionRibbon: [ExpressionRibbon]
 #  - UBERON
 #Interactions: [MolecularInteraction]
 #GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-#
+
+# Loader configuration values are below.
+# Please modify with caution!
+>>>>>>> master
 FileTransactorThreads: 7
 Neo4jTransactorThreads: 3

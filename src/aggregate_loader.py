@@ -3,6 +3,7 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 from etl import *
 from etl import VariationETL
 from etl import SequenceTargetingReagentETL
+from etl import ECOMAPETL
 from etl.helpers import Neo4jHelper
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -68,10 +69,11 @@ class AggregateLoader(object):
         # The value (right) is hard-coded by a developer as the name of an ETL class.
         etl_dispatch = {
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
-            'DO': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
+            'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
             'ExpressionAtlas': ExpressionAtlasETL,
-            'Ontology': GenericOntologyETL,
+            'ONTOLOGY': GenericOntologyETL,
+            'ECOMAP': ECOMAPETL,
             'ALLELE': AlleleETL,
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
@@ -96,9 +98,10 @@ class AggregateLoader(object):
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, MI, there will be a pause, etc.
         list_of_etl_groups = [
-            ['DO', 'MI'],
+            ['DOID', 'MI'],
             ['GO'],
-            ['Ontology'],
+            ['ONTOLOGY'],
+            ['ECOMAP'],
             ['BGI'],
             ['ALLELE'],
             ['VARIATION'],
@@ -127,7 +130,6 @@ class AggregateLoader(object):
             for etl_name in etl_group:
                 logger.debug("ETL Name: %s" % etl_name)
                 config = data_manager.get_config(etl_name)
-                logger.debug("Config: %s" % config)
                 if config is not None:
                     etl = etl_dispatch[etl_name](config)
                     p = multiprocessing.Process(target=etl.run_etl)

@@ -40,7 +40,7 @@ class DataFileManager(metaclass=Singleton):
         http = urllib3.PoolManager()
 
         # use the recently created snapshot
-        api_url = 'https://' + context_info.env["FMS_HOST"] + '/api/snapshot/release/' + context_info.env["ALLIANCE_RELEASE"]
+        api_url = context_info.env["FMS_API_URL"] + '/api/snapshot/release/' + context_info.env["ALLIANCE_RELEASE"]
         logger.info(api_url)
 
         submission_data = http.request('GET', api_url)
@@ -148,7 +148,7 @@ class DataFileManager(metaclass=Singleton):
     def query_submission_system(self):
 
         # The list of tuples below is created to filter out submission system data against our config file.
-        ontologies_to_transform = ('GO', 'DO', 'MI')  # These have non-generic loaders.
+        ontologies_to_transform = ('GO', 'DOID', 'MI', 'ECOMAP')  # These have non-generic loaders.
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
         self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']['schema']
@@ -172,7 +172,7 @@ class DataFileManager(metaclass=Singleton):
                         tempExtractedFile = submission_system_dict.get('s3Path')
 
                     # Special case for storing ontologies with non-generic loaders.
-                    if sub_entry in ontologies_to_transform and entry == 'Ontology':
+                    if sub_entry in ontologies_to_transform and entry == 'ONTOLOGY':
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:

@@ -27,7 +27,6 @@ class VariationETL(ETL):
                      o.hgvs_nomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.genomicVariantSequence = row.genomicVariantSequence,
-                     o.paddedBase = row.paddedBase,
                      o.dateProduced = row.dateProduced,
                      o.release = row.release,
                      o.localId = row.localId,
@@ -41,7 +40,7 @@ class VariationETL(ETL):
     soterms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Variant {primaryKey:row.alleleId})
+            MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
@@ -206,6 +205,14 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
+            genomicReferenceSequence = alleleRecord.get('genomicReferenceSequence')
+            genomicVariantSequence = alleleRecord.get('genomicVariantSequence')
+
+            if genomicReferenceSequence == 'N/A':
+                genomicReferenceSequence = ""
+            if genomicVariantSequence == 'N/A':
+                genomicVariantSequence = ""
+
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
@@ -216,7 +223,7 @@ class VariationETL(ETL):
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
                 "genomicReferenceSequence": genomicReferenceSequence,
-                "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
+                "genomicVariantSequence": genomicVariantSequence,
                 "alleleId": alleleRecord.get('alleleId'),
                 "globalId": globalId,
                 "localId": localId,
@@ -240,8 +247,8 @@ class VariationETL(ETL):
             }
 
             variant_so_term = {
-                "alleleId": alleleRecord.get('alleleId'),
-                "soTerm": alleleRecord.get('type')
+                "variantId": variantUUID,
+                "soTermId": alleleRecord.get('type')
             }
 
             variant_so_terms.append(variant_so_term)

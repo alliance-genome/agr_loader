@@ -24,8 +24,8 @@ class OrthologyETL(ETL):
     
             CREATE (g1)-[orth:ORTHOLOGOUS]->(g2)
                 SET orth.primaryKey = row.uuid,
-                    orth.isBestScore = apoc.convert.toBoolean(row.isBestScore),
-                    orth.isBestRevScore = apoc.convert.toBoolean(row.isBestRevScore),
+                    orth.isBestScore = row.isBestScore,
+                    orth.isBestRevScore = row.isBestRevScore,
                     orth.confidence = row.confidence,
                     orth.strictFilter = apoc.convert.toBoolean(row.strictFilter),
                     orth.moderateFilter = apoc.convert.toBoolean(row.moderateFilter)

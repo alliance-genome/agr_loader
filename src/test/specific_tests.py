@@ -20,7 +20,7 @@ def test_doterm_exists():
 
 
 def test_isobsolete_false():
-    query = "MATCH(n:DOTerm) where n.is_obsolete = 'false' RETURN count(n) AS count"
+    query = "MATCH(n:DOTerm) where n.isObsolete = 'false' RETURN count(n) AS count"
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
@@ -111,7 +111,7 @@ def test_gene_has_all_three_automated_description_components():
               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
               "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
             "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
-              "or g.automatedGeneSynopsis =~ '.*implicated in.*')) return count(g) as counter"
+              "or g.automatedGeneSynopsis =~ '.*mplicated in.*')) return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 0
@@ -135,7 +135,7 @@ def test_zdb_alt_160129_6_has_at_least_one_disease():
 def test_do_terms_have_parents():
     query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() " \
             "and d.primaryKey =~ 'DO:.*'" \
-            "and d.is_obsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
+            "and d.isObsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
@@ -284,7 +284,7 @@ def test_stage_uberon_relationship_for_expression_exists():
 
 
 def test_mmoterm_has_display_synonym():
-    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.display_synonym = 'RNA in situ'" \
+    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.displaySynonym = 'RNA in situ'" \
             "RETURN count(n) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -524,14 +524,6 @@ def test_all_species_have_order():
         assert record["counter"] < 1
 
 
-def test_ortho_is_best_score_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) where orth.isBestScore <> toBoolean(orth.isBestScore) " \
-            "return count(orth) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
-
-
 def test_ortho_is_strict_filter_is_boolean():
     query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
             "where orth.strictFilter <> toBoolean(orth.strictFilter) " \
@@ -544,15 +536,6 @@ def test_ortho_is_strict_filter_is_boolean():
 def test_ortho_moderate_filter_is_boolean():
     query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
             "where orth.moderateFilter <> toBoolean(orth.moderateFilter) " \
-            "return count(orth) as counter"
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
-
-
-def test_ortho_is_best_rev_score_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
-            "where orth.isBestRevScore <> toBoolean(orth.isBestRevScore) " \
             "return count(orth) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -577,7 +560,7 @@ def test_sgd_gene_has_gene_disease_ortho():
 
 def test_mmo_term_has_display_alias():
     query = "match (mmo:MMOTerm) where mmo.primaryKey " \
-            "= 'MMO:0000642' and mmo.display_synonym = 'protein expression' return count(mmo) as counter"
+            "= 'MMO:0000642' and mmo.displaySynonym = 'protein expression' return count(mmo) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
@@ -606,3 +589,12 @@ def test_expression_images_cross_references_for_species_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 4
+
+
+def test_eco_term_has_display_synonym():
+    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.displaySynonym = 'EXP'" \
+            "return count(e) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+

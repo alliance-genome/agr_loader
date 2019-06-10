@@ -53,6 +53,6 @@ Resources.
 ## ENV Variables
 - DOWNLOAD_HOST - the s3 bucket from which files are pulled.
 - ALLIANCE_RELEASE - the release version that this code acts on.
-- FMS_HOST - the host from which this code pulls its available file paths from (submission system host).
+- FMS_API_URL - the host from which this code pulls its available file paths from (submission system host).  Note: the submission system host is reliant on the ferret file grabber.  That pipeline is responsible for ontologie files and GAF files being up to date.  And, the submission system requires a snapshot to be taken to fetch 'latest' files.  
 
 - If the site is built with docker-compose, these will be set automatically to the 'dev' versions of all these variables.
