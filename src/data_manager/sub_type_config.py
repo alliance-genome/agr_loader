@@ -22,7 +22,10 @@ class SubTypeConfig(object):
 
     def get_filepath(self):
         return self.filepath
-    
+
+    def get_sub_data_type(self):
+        return self.sub_data_type
+
     def get_file_to_download(self):
         return self.file_to_download
 
@@ -34,7 +37,7 @@ class SubTypeConfig(object):
         # Some of this algorithm is temporary.
         # e.g. Files from the submission system will arrive without the need for unzipping, etc.
         path = 'tmp'
-    
+
         if self.filepath is not None:
             if not os.path.isfile(self.filepath):
                 logger.debug("File to download: " + self.file_to_download)

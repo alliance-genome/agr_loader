@@ -3,9 +3,11 @@ import multiprocessing
 import uuid
 
 from etl import ETL
-from etl.helpers import ETLHelper
+from etl.helpers import ETLHelper, AssemblySequenceHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
+from data_manager import DataFileManager
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +109,6 @@ class VariationETL(ETL):
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
-
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
@@ -137,7 +138,6 @@ class VariationETL(ETL):
         variant_genomic_locations = []
         variant_so_terms = []
         crossReferences = []
-
         counter = 0
         dateProduced = variant_data['metaData']['dateProduced']
 
@@ -166,7 +166,20 @@ class VariationETL(ETL):
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
 
+        assemblies = {}
         for alleleRecord in variant_data['data']:
+            assembly = alleleRecord["assembly"]
+            if assembly not in assemblies and alleleRecord.get('chromosome') != "Unmapped_Scaffold_8_D1580_D1567":
+               context_info = ContextInfo()
+               data_manager = DataFileManager(context_info.config_file_location)
+               assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
+
+            SOTermId = alleleRecord.get('type')
+            genomicReferenceSequence = alleleRecord.get("genomicReferenceSequence")
+            if SOTermId != "SO:0000667": # not insertion
+                genomicReferenceSequence = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                                                                            alleleRecord.get('start'),
+                                                                            alleleRecord.get('end'))
             counter = counter + 1
             globalId = alleleRecord.get('alleleId')
             localId = globalId.split(":")[1]
@@ -197,15 +210,14 @@ class VariationETL(ETL):
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
                                                            alleleRecord.get('end'),
-                                                           alleleRecord.get('genomicReferenceSequence'),
+                                                           genomicReferenceSequence,
                                                            alleleRecord.get('genomicVariantSequence'))
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
-                "genomicReferenceSequence": alleleRecord.get('genomicReferenceSequence'),
+                "genomicReferenceSequence": genomicReferenceSequence,
                 "genomicVariantSequence": alleleRecord.get('genomicVariantSequence'),
                 "alleleId": alleleRecord.get('alleleId'),
-                "paddedBase": alleleRecord.get('paddedBase'),
                 "globalId": globalId,
                 "localId": localId,
                 "dataProviders": dataProviders,

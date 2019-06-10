@@ -8,6 +8,8 @@ DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
+#FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+FASTA: [FlyBaseAssemblyR6.27, WormBaseAssemblyWBcel235, ZFinAssemblyGRCz11, MGIAssemblyGRCm38, RGDAssemblyRnor60]
 GENOTYPE: [ZFIN, MGI]
 SQTR: [ZFIN]
 Ontology:
@@ -32,29 +34,29 @@ Ontology:
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure:
-  - GO
-  - SO
-  - DO
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-Interactions: [MolecularInteraction]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-
+#ExpressionRibbonOther: [ExpressionRibbonOther]
+#GeneDiseaseOrtho: [GeneDiseaseOrtho]
+#Closure:
+#  - GO
+#  - SO
+#  - DO
+#  - MI
+#  - ZFA
+#  - ZFS
+#  - WBBT
+#  - CL
+#  - FBBT
+#  - FBCV
+#  - MMUSDV
+#  - BSPO
+#  - MMO
+#  - WBLS
+#  - EMAPA
+#  - MA
+#  - ECO
+#  - UBERON
+#Interactions: [MolecularInteraction]
+#GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+#
 FileTransactorThreads: 7
 Neo4jTransactorThreads: 3

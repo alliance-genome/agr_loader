@@ -31,6 +31,10 @@ GAF:
 GeoXref:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+FASTA:
+  type: list
+  allowed: [FlyBaseAssemblyR6.27, WormBaseAssemblyWBcel235, ZFinAssemblyGRCz11, MGIAssemblyGRCm38, RGDAssemblyRnor60]
+  #  allowed: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
