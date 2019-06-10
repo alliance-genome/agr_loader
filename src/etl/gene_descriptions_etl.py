@@ -129,13 +129,14 @@ class GeneDescriptionsETL(ETL):
             gd_data_manager.set_associations(
                 associations_type=DataType.DO, associations=self.get_disease_annotations_from_db(
                     data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
-            gd_data_manager.set_ontology(ontology_type=DataType.EXPR,
-                                         ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.EXPR,
-                                                                                   provider=prvdr),
-                                         config=gd_config)
-            gd_data_manager.set_associations(
-                associations_type=DataType.EXPR, associations=self.get_expression_annotations_from_db(
-                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
+            if prvdr in EXPRESSION_PRVD_SUBTYPE_MAP:
+                gd_data_manager.set_ontology(ontology_type=DataType.EXPR,
+                                             ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.EXPR,
+                                                                                       provider=prvdr),
+                                             config=gd_config)
+                gd_data_manager.set_associations(
+                    associations_type=DataType.EXPR, associations=self.get_expression_annotations_from_db(
+                        data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
             commit_size = self.data_type_config.get_neo4j_commit_size()
             generators = self.get_generators(prvdr, gd_data_manager, gd_config, json_desc_writer)
             query_list = [
@@ -202,10 +203,9 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def add_neo_term_to_ontobio_ontology_if_not_exists(term_id, term_label, term_type, ontology):
-        if not ontology.has_node(term_id):
-            if not ontology.has_node(term_id):
-                ontology.add_node(id=term_id, label=term_label, meta={"basicPropertyValues": [
-                    {"pred": "OIO:hasOBONamespace", "val": term_type}]})
+        if not ontology.has_node(term_id) and term_label:
+            ontology.add_node(id=term_id, label=term_label, meta={"basicPropertyValues": [
+                {"pred": "OIO:hasOBONamespace", "val": term_type}]})
 
     @staticmethod
     def create_annotation_record(gene_id, gene_symbol, term_id, aspect, ecode, prvdr):
