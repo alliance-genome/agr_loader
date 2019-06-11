@@ -598,3 +598,4 @@ def test_eco_term_has_display_synonym():
     for record in result:
         assert record["counter"] == 1
 
+
