@@ -6,13 +6,7 @@ logger = logging.getLogger(__name__)
 
 class AssemblySequenceHelper(object):
     def __init__(self, assembly, data_manager):
-        sub_type_string = assembly.replace('.', '').replace('_', '')
-        assembly_to_subtype_map = {"R6.27": "FlyBaseAssemblyR6.27",
-                                   "WBcel235": "WormBaseAssemblyWBcel235",
-                                   "GRCz11": "ZFinAssemblyGRCz11",
-                                   "GRCm38": "MGIAssemblyGRCm38",
-                                   "Rnor_6.0": "RGDAssemblyRnor60"}
-        sub_type = assembly_to_subtype_map[assembly]
+        sub_type = assembly.replace('.', '').replace('_', '')
         fasta_config = data_manager.get_config('FASTA')
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
@@ -20,6 +14,10 @@ class AssemblySequenceHelper(object):
             else:
                 filepath = sub_type_config.get_filepath()
                 break
+        if filepath == None:
+            logger.error("Can't find Assembly filepath for %s" % assembly)
+            exit(3)
+
         self.assembly = assembly
         self.filepath = filepath
         fa = Fasta(filepath)
@@ -54,4 +52,4 @@ class AssemblySequenceHelper(object):
         if chromosome_str in self.fa:
             return self.fa[chromosome_str][start:end].seq
         else:
-            logger.info("Chr " + chromosome_str + " not in assembly " + self.assembly )
+            logger.error("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
