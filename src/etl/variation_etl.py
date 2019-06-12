@@ -266,7 +266,7 @@ class VariationETL(ETL):
                                                            alleleRecord.get('start'),
                                                            alleleRecord.get('end'),
                                                            genomicReferenceSequence,
-                                                           genomicVariantSequence))
+                                                           genomicVariantSequence)
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
