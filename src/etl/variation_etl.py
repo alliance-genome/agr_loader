@@ -261,14 +261,12 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
-
-
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
                                                            alleleRecord.get('end'),
                                                            genomicReferenceSequence,
-                                                           alleleRecord.get('genomicVariantSequence'))
+                                                           genomicVariantSequence))
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
