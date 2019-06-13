@@ -3,9 +3,11 @@ import multiprocessing
 import uuid
 
 from etl import ETL
-from etl.helpers import ETLHelper
+from etl.helpers import ETLHelper, AssemblySequenceHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
+from data_manager import DataFileManager
+from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +15,6 @@ logger = logging.getLogger(__name__)
 class VariationETL(ETL):
 
     variation_query_template = """
-
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -24,6 +25,8 @@ class VariationETL(ETL):
                     SET 
                      o.hgvs_nomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
+                     o.paddingLeft = row.paddingLeft,
+                     o.paddingRight = row.paddingRight,
                      o.genomicVariantSequence = row.genomicVariantSequence,
                      o.dateProduced = row.dateProduced,
                      o.release = row.release,
@@ -106,37 +109,54 @@ class VariationETL(ETL):
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
-
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_hgvs_nomenclature(self, refseqId, variantType, start_position,
                               end_position, reference_sequence, variant_sequence):
-        if variantType == "	SO:1000002" or variantType == 'SO:1000008':  # point mutation/substitution
-            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+reference_sequence+">"+variant_sequence
+        if start_position == None:
+            start_position_str = ""
+        else:
+            start_position_str = str(start_position)
+
+        if end_position == None:
+            end_position_str = ""
+        else:
+            end_position_str = str(end_position)
+
+        if variant_sequence is None:
+            variant_sequence_str = ""
+        else:
+           variant_sequence_str = variant_sequence
+
+        if reference_sequence is None:
+            reference_sequence_str = ""
+        else:
+           reference_sequence_str = reference_sequence
+
+
+        hgvs_nomenclature = refseqId.split(":")[1] + ':g.' + start_position_str
+
+        if variantType in ['SO:1000002', 'SO:1000008']:  # point mutation/substitution
+            hgvs_nomenclature += reference_sequence_str + ">" + variant_sequence_str
         elif variantType == "SO:0000667": # insertion
-            if variant_sequence is None:
-                hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'ins'
-            else:
-                hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'ins'+variant_sequence
+            hgvs_nomenclature += '_' + end_position_str + 'ins' + variant_sequence_str
         elif variantType == "SO:0000159": # deletion
-            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'del'
+            hgvs_nomenclature += '_' + end_position_str + 'del'
         elif variantType == "SO:0002007": # MNV
-            hgvs_nomenclature = refseqId.split(":")[1]+':g.'+str(start_position)+'_'+str(end_position)+'delins'+variant_sequence
+            hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
         else:
             hgvs_nomenclature = ''
         return hgvs_nomenclature
 
     def get_generators(self, variant_data, data_provider, batch_size):
-
         dataProviders = []
         release = ""
         variants = []
         variant_genomic_locations = []
         variant_so_terms = []
         crossReferences = []
-
         counter = 0
         dateProduced = variant_data['metaData']['dateProduced']
 
@@ -165,7 +185,56 @@ class VariationETL(ETL):
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
 
+        assemblies = {}
         for alleleRecord in variant_data['data']:
+            assembly = alleleRecord["assembly"]
+            if assembly not in assemblies:
+               context_info = ContextInfo()
+               data_manager = DataFileManager(context_info.config_file_location)
+               assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
+
+            SOTermId = alleleRecord.get('type')
+            genomicReferenceSequence = alleleRecord.get('genomicReferenceSequence')
+            genomicVariantSequence = alleleRecord.get('genomicVariantSequence')
+
+            if genomicReferenceSequence == 'N/A':
+                genomicReferenceSequence = ""
+            if genomicVariantSequence == 'N/A':
+                genomicVariantSequence = ""
+
+            paddingLeft = ""
+            paddingRight = ""
+            if alleleRecord.get('start') != "" and alleleRecord.get('end') != "":
+
+                # not insertion
+                if SOTermId != "SO:0000667" and alleleRecord.get('chromosome') != "Unmapped_Scaffold_8_D1580_D1567":
+                    genomicReferenceSequence = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                                                                                alleleRecord.get('start'),
+                                                                                alleleRecord.get('end'))
+
+                if alleleRecord.get('start') < alleleRecord.get('end'):
+                    start = alleleRecord.get('start')
+                    end = alleleRecord.get('end')
+                else:
+                    start = alleleRecord.get('end')
+                    end = alleleRecord.get('start')
+
+                paddingWidth = 500
+                if SOTermId != "SO:0000667": #not insertion
+                    start = start - 1
+                    end = end + 1
+
+                leftPaddingStart = start - paddingWidth
+                if leftPaddingStart < 1:
+                    leftPaddingStart = 1
+
+                paddingLeft = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                                                               leftPaddingStart,
+                                                               start)
+                rightPaddingEnd = end + paddingWidth
+                paddingRight = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                                                                end,
+                                                                rightPaddingEnd)
             counter = counter + 1
             globalId = alleleRecord.get('alleleId')
             localId = globalId.split(":")[1]
@@ -192,25 +261,19 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
-            genomicReferenceSequence = alleleRecord.get('genomicReferenceSequence')
-            genomicVariantSequence = alleleRecord.get('genomicVariantSequence')
-
-            if genomicReferenceSequence == 'N/A':
-                genomicReferenceSequence = ""
-            if genomicVariantSequence == 'N/A':
-                genomicVariantSequence = ""
-
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
                                                            alleleRecord.get('end'),
-                                                           alleleRecord.get('genomicReferenceSequence'),
-                                                           alleleRecord.get('genomicVariantSequence'))
+                                                           genomicReferenceSequence,
+                                                           genomicVariantSequence)
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
                 "genomicReferenceSequence": genomicReferenceSequence,
                 "genomicVariantSequence": genomicVariantSequence,
+                "paddingLeft": paddingLeft,
+                "paddingRight": paddingRight,
                 "alleleId": alleleRecord.get('alleleId'),
                 "globalId": globalId,
                 "localId": localId,

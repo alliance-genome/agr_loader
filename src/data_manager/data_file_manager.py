@@ -118,7 +118,7 @@ class DataFileManager(metaclass=Singleton):
                     logger.critical(message)
             logger.critical('Exiting')
             sys.exit(-1)
-        
+
         # Query the submission system for the required data.
         self.query_submission_system()
 
