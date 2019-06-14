@@ -53,4 +53,4 @@ class AssemblySequenceHelper(object):
         if chromosome_str in self.fa:
             return self.fa[chromosome_str][start:end].seq
         else:
-            logger.error("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
+            logger.warning("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
