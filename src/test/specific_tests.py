@@ -599,3 +599,35 @@ def test_eco_term_has_display_synonym():
         assert record["counter"] == 1
 
 
+def test_point_mutation_hgvs():
+    query = "match (a:Allele:Feature)--(v:Variant) where v.hgvs_nomenclature = 'NC_007124.7:g.50540171C>T' " \
+            "and a.primaryKey='ZFIN:ZDB-ALT-160601-8105' " \
+            "return count(v) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_deletion_hgvs():
+    query = "match (a:Allele:Feature)--(v:Variant) where v.hgvs_nomenclature = 'NC_007116.7:g.72118557_72118563del' " \
+            "and a.primaryKey='ZFIN:ZDB-ALT-170321-11' " \
+            "return count(v) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_insertion_hgvs():
+    query = "match (a:Allele:Feature)--(v:Variant) " \
+            "where v.hgvs_nomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT' " \
+            "and a.primaryKey='ZFIN:ZDB-ALT-180207-16' " \
+            "return count(v) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+
+
+
+

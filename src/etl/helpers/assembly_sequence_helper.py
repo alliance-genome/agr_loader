@@ -4,6 +4,7 @@ from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
+
 class AssemblySequenceHelper(object):
     def __init__(self, assembly, data_manager):
         sub_type = assembly.replace('.', '').replace('_', '')
@@ -14,14 +15,14 @@ class AssemblySequenceHelper(object):
             else:
                 filepath = sub_type_config.get_filepath()
                 break
-        if filepath == None:
-            logger.error("Can't find Assembly filepath for %s" % assembly)
+        if filepath is None:
+            logger.warning("Can't find Assembly filepath for %s" % assembly)
             exit(3)
 
         self.assembly = assembly
         self.filepath = filepath
         fa = Fasta(filepath)
-        while (len(fa.keys()) == 0):
+        while len(fa.keys()) == 0:
             time.sleep(6)
             os.remove(filepath + ".fai")
             fa = Fasta(filepath)
@@ -52,4 +53,4 @@ class AssemblySequenceHelper(object):
         if chromosome_str in self.fa:
             return self.fa[chromosome_str][start:end].seq
         else:
-            logger.error("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
+            logger.warning("Chromosome " + chromosome_str + " not in assembly " + self.assembly)

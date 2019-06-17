@@ -14,6 +14,7 @@ class Download(object):
 
     def get_downloaded_data(self):
         logger.info("Downloading data from ..." + self.urlToRetrieve)
+        logger.info("resourceDescriptor")
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)

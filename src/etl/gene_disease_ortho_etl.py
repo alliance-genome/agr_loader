@@ -23,7 +23,7 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
-                CREATE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10
 
@@ -42,10 +42,10 @@ class GeneDiseaseOrthoETL(ETL):
                 CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join'
                     
-                CREATE (gene)-[fdag:ASSOCIATION]->(dga)
-                CREATE (dga)-[dadg:ASSOCIATION]->(d)
-                CREATE (dga)-[dapug:EVIDENCE]->(pubEJ)
-                CREATE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
+                MERGE (gene)-[fdag:ASSOCIATION]->(dga)
+                MERGE (dga)-[dadg:ASSOCIATION]->(d)
+                MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
+                MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
                 
                 CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
                 CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
@@ -122,13 +122,12 @@ class GeneDiseaseOrthoETL(ETL):
         gene_disease_ortho_data = []
 
         for record in returnSet:
-
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
                     relationshipType=record["relationType"],
                     doId=record["doId"],
                     dateProduced=datetime.now(),
-                    uuid=str(uuid.uuid4()),
+                    uuid=record["geneID"]+record["relationType"]+record["doId"],
                     pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
