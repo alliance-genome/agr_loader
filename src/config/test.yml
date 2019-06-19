@@ -7,6 +7,7 @@ PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
 GENOTYPE: [ZFIN, MGI]
 SQTR: [ZFIN]
@@ -56,6 +57,10 @@ Closure:
   - UBERON
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+
+# Loader configuration values are below.
+# Please modify with caution!
+
 
 # Loader configuration values are below.
 # Please modify with caution!

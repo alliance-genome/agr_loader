@@ -280,6 +280,8 @@ class BGIETL(ETL):
                                 geneticEntityExternalUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/references':
+                                   # if crossRefId.startswith('ZFIN'):
+                                       # logger.info(crossRefId + " " + page)
                                     geneLiteratureUrl = ETLHelper.get_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix, prefix + page)
 
                                 if page == 'gene/spell':
