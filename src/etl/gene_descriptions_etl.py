@@ -21,7 +21,7 @@ from data_manager import DataFileManager
 
 logger = logging.getLogger(__name__)
 
-EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT'}
+EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
 
 class GeneDescriptionsETL(ETL):
@@ -146,7 +146,7 @@ class GeneDescriptionsETL(ETL):
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
             self.save_descriptions_report_files(data_provider=prvdr, json_desc_writer=json_desc_writer,
-                                                context_info=context_info)
+                                                context_info=context_info, gd_data_manager=gd_data_manager)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
         gene_prefix = ""
@@ -312,19 +312,20 @@ class GeneDescriptionsETL(ETL):
         return best_orthologs
 
     @staticmethod
-    def save_descriptions_report_files(data_provider, json_desc_writer, context_info):
+    def save_descriptions_report_files(data_provider, json_desc_writer, context_info, gd_data_manager):
+        release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
+        json_desc_writer.overall_properties.species = data_provider
+        json_desc_writer.overall_properties.release_version = release_version
+        cur_date = datetime.date.today().strftime("%Y%m%d")
+        json_desc_writer.overall_properties.date = cur_date
+        file_name = cur_date + "_" + data_provider
+        latest_file_name = data_provider + "_gene_desc_latest"
+        file_path = "tmp/" + file_name
+        json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True,
+                                    data_manager=gd_data_manager)
+        json_desc_writer.write_plain_text(file_path=file_path + ".txt")
+        json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         if context_info.env["GENERATE_REPORTS"]:
-            release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
-            json_desc_writer.overall_properties.species = data_provider
-            json_desc_writer.overall_properties.release_version = release_version
-            cur_date = datetime.date.today().strftime("%Y%m%d")
-            json_desc_writer.overall_properties.date = cur_date
-            file_name = cur_date + "_" + data_provider
-            latest_file_name = data_provider + "_gene_desc_latest"
-            file_path = "tmp/" + file_name
-            json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True)
-            json_desc_writer.write_plain_text(file_path=file_path + ".txt")
-            json_desc_writer.write_tsv(file_path=file_path + ".tsv")
             client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
                                   aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
             pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
