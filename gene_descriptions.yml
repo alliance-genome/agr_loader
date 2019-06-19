@@ -551,6 +551,8 @@ do_via_orth_sentences_options:
 
 expression_sentences_options:
   exclude_terms:
+    - "ZFA:0001093"
+    - "ZFA:0001094"
     - "WBbt:0005758" # hermaphrodite-specific
     - "WBbt:0007849" # hermaphrodite
     - "WBbt:0005738" # body region
@@ -588,7 +590,7 @@ expression_sentences_options:
   trimming_algorithm: ic
   max_num_terms: 5
   trim_min_distance_from_root:
-    A: 3
+    A: 4
   add_multiple_if_covers_more_children: false
   rename_cell: true
   slim_url: ''
