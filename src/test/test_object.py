@@ -35,6 +35,7 @@ class TestObject(object):
             'MGI:2670749', 'MGI:2656842',
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
+            'MGI:95832', 'MGI:2387629',
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
@@ -61,7 +62,9 @@ class TestObject(object):
             'WB:WBVar00239315',
             # variant
             'WB:WBGene00006752', 'WB:WBGene00021840', 'WB:WBGene00001117', 'WB:WBVar00241694', 'WB:WBVar02147569',
-            'WB:WBVar00089131'
+            'WB:WBVar00089131',
+            # disease
+            'WB:WBGene00011936',
         }
 
         self.sgdIdSet = {
@@ -115,10 +118,11 @@ class TestObject(object):
             # genomic locations
             'ZFIN:ZDB-GENE-990415-8',
             # variant
+            'ZFIN:ZDB-GENE-040702-4', 'ZFIN:ZDB-GENE-030131-9825', 'ZFIN:ZDB-GENE-030131-6129',
             'ZFIN:ZDB-GENE-000208-20', 'ZFIN:ZDB-GENE-090421-1', 'ZFIN:ZDB-GENE-000427-6', 'ZFIN:ZDB-GENE-980526-221',
             'ZFIN:ZDB-ALT-070807-6', 'ZFIN:ZDB-ALT-070315-5', 'ZFIN:ZDB-ALT-000621-2',
             'ZFIN:ZDB-ALT-980203-1091', 'ZFIN:ZDB-ALT-050713-2',
-            'ZFIN:ZDB-ALT-040716-14',
+            'ZFIN:ZDB-ALT-040716-14', 'ZFIN:ZDB-ALT-160601-8105', 'ZFIN:ZDB-ALT-170321-11', 'ZFIN:ZDB-ALT-180207-16',
             # affected genomic model
             'ZFIN:ZDB-FISH-150901-27842', 'ZFIN:ZDB-FISH-180220-12', 'ZFIN:ZDB-FISH-150901-28582',
             'ZFIN:ZDB-FISH-171114-2', 'ZFIN:ZDB-FISH-150901-3478', 'ZFIN:ZDB-FISH-150901-29713',
@@ -132,6 +136,8 @@ class TestObject(object):
             # background
             'ZFIN:ZDB-FISH-150901-29235', 'ZFIN:ZDB-FISH-150901-14423', 'ZFIN:ZDB-FISH-150901-26753',
             'ZFIN:ZDB-FISH-150901-5094',
+            # GO annotations
+            'ZFIN:ZDB-GENE-080424-7'
 
         }
         self.flybaseIdSet = {
@@ -146,7 +152,7 @@ class TestObject(object):
             # expression
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
-            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499',
+            'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499', 'FB:FBgn0025790',
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
         }
@@ -172,7 +178,7 @@ class TestObject(object):
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
-            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650',
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

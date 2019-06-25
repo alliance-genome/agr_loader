@@ -7,6 +7,7 @@ from common import ContextInfo
 
 logger = logging.getLogger(__name__)
 
+
 class ETL(object):
 
     xrefUrlMap = ResourceDescriptorHelper().get_data()
@@ -50,7 +51,6 @@ class ETL(object):
                     return
 
             time.sleep(5)
-
 
     def process_query_params(self, query_list_with_params):
         # generators = list of yielded lists from parser
