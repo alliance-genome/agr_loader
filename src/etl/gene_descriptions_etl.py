@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 import datetime
@@ -91,7 +92,7 @@ class GeneDescriptionsETL(ETL):
     GetExpressionAnnotations = """
         MATCH (g:Gene)-[EXPRESSED_IN]->(:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE|ANATOMICAL_SUB_STRUCTURE]->(t:Ontology)-[:IS_A|PART_OF]->(t2:Ontology)
         WHERE g.dataProvider = {parameter}
-        RETURN g.primaryKey AS geneId, g.geneSymbol AS geneSymbol, t.primaryKey AS TermId, 'EXP' AS relType, 'A' AS aspect
+        RETURN g.primaryKey AS geneId, g.symbol AS geneSymbol, t.primaryKey AS TermId, 'EXP' AS relType, 'A' AS aspect
         """
 
     def __init__(self, config):
@@ -119,6 +120,10 @@ class GeneDescriptionsETL(ETL):
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider().upper() for sub_type in self.data_type_config.get_sub_type_objects()]:
+            gd_config_mod_specific = copy.deepcopy(gd_config)
+            if prvdr == "WB":
+                gd_config_mod_specific.config["expression_sentences_options"][
+                    "remove_children_if_parent_is_present"] = True
             logger.info("Generating gene descriptions for " + prvdr)
             data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
@@ -126,20 +131,20 @@ class GeneDescriptionsETL(ETL):
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf"),
-                config=gd_config)
+                config=gd_config_mod_specific)
             gd_data_manager.set_associations(
                 associations_type=DataType.DO, associations=self.get_disease_annotations_from_db(
-                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
+                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config_mod_specific)
             if prvdr in EXPRESSION_PRVD_SUBTYPE_MAP:
                 gd_data_manager.set_ontology(ontology_type=DataType.EXPR,
                                              ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.EXPR,
                                                                                        provider=prvdr),
-                                             config=gd_config)
+                                             config=gd_config_mod_specific)
                 gd_data_manager.set_associations(
                     associations_type=DataType.EXPR, associations=self.get_expression_annotations_from_db(
-                        data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config)
+                        data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config_mod_specific)
             commit_size = self.data_type_config.get_neo4j_commit_size()
-            generators = self.get_generators(prvdr, gd_data_manager, gd_config, json_desc_writer)
+            generators = self.get_generators(prvdr, gd_data_manager, gd_config_mod_specific, json_desc_writer)
             query_list = [
                 [GeneDescriptionsETL.GeneDescriptionsQuery, commit_size, "genedescriptions_data_" + prvdr + ".csv"], ]
             query_and_file_list = self.process_query_params(query_list)
@@ -216,7 +221,7 @@ class GeneDescriptionsETL(ETL):
             ontology.add_node(id=term_id, label=term_label, meta=meta)
 
     @staticmethod
-    def create_annotation_record(gene_id, gene_symbol, term_id, aspect, ecode, prvdr):
+    def create_annotation_record(gene_id, gene_symbol, term_id, aspect, ecode, prvdr, qualifier):
         return {"source_line": "",
                 "subject": {
                     "id": gene_id,
@@ -230,7 +235,7 @@ class GeneDescriptionsETL(ETL):
                     "id": term_id,
                     "taxon": ""
                 },
-                "qualifiers": "",
+                "qualifiers": [qualifier],
                 "aspect": aspect,
                 "relation": {"id": None},
                 "negated": False,
@@ -244,18 +249,20 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider, data_type: DataType):
+        qualifier = ""
         for annot in neo4j_annot_set:
             if data_type == DataType.DO:
                 ecodes = ["EXP"] if annot["relType"] != "IS_MARKER_FOR" else ["BMK"]
             elif data_type == DataType.EXPR:
                 ecodes = ["EXP"]
+                qualifier = "Verified"
             else:
                 ecodes = [annot["ECode"]]
             for ecode in ecodes:
                 logger.debug(ecode)
                 final_annotation_set.append(GeneDescriptionsETL.create_annotation_record(
                     annot["geneId"] if not annot["geneId"].startswith("HGNC:") else "RGD:" + annot["geneId"],
-                    annot["geneSymbol"], annot["TermId"], annot["aspect"], ecode, data_provider))
+                    annot["geneSymbol"], annot["TermId"], annot["aspect"], ecode, data_provider, qualifier))
 
     @staticmethod
     def get_disease_annotations_from_db(data_provider, gd_data_manager):
