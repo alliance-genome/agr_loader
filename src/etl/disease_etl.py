@@ -24,8 +24,9 @@ class DiseaseETL(ETL):
             //This is an intentional MERGE, please leave as is
             
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                ON CREATE SET dfa.dataProvider = row.dataProvider
-                ON CREATE SET dfa.sortOrder = 1
+                ON CREATE SET dfa.dataProvider = row.dataProvider,
+                              dfa.dateAssigned = row.dateAssigned,
+                              dfa.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
@@ -70,6 +71,7 @@ class DiseaseETL(ETL):
 
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider
+                SET dga.dateAssigned = row.dateAssigned
                 SET dga.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |

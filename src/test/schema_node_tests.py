@@ -115,6 +115,7 @@ class TestClass(object):
                             dict(node='Chromosome', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='joinType'),
+                            dict(node='DiseaseEntityJoin', prop='dateAssigned'),
                             dict(node='DiseaseEntityJoin', prop='sortOrder'),
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                             dict(node='InteractionGeneJoin', prop='joinType'),

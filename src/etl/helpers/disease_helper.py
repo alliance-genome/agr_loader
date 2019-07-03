@@ -89,6 +89,7 @@ class DiseaseHelper(object):
                 "relationshipType": diseaseAssociationType,
                 "dateProduced": dateProduced,
                 "dataProvider": dataProviderSingle,
+                "dateAssigned": diseaseRecord["dateAssigned"],
                 
                 "pubPrimaryKey": pubMedId + publicationModId,
                 
