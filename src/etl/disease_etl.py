@@ -70,9 +70,9 @@ class DiseaseETL(ETL):
             MATCH (gene:Gene {primaryKey:row.primaryId})
 
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                SET dga.dataProvider = row.dataProvider
-                SET dga.dateAssigned = row.dateAssigned
-                SET dga.sortOrder = 1
+                SET dga.dataProvider = row.dataProvider,
+                    dga.dateAssigned = row.dateAssigned,
+                    dga.sortOrder = 1
 
             FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
                 MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
