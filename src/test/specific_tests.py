@@ -26,6 +26,14 @@ def test_isobsolete_false():
         assert record["count"] > 0
 
 
+def test_currated_disease_associations_have_date_assigned():
+    query = "MATCH (n:DiseaseEntityJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(n.dateAssigned)" \
+            "RETURN COUNT(n) as count"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["count"] == 0
+
+
 def test_species_disease_pub_gene_exists():
     query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
             "RETURN COUNT(p) AS count"
