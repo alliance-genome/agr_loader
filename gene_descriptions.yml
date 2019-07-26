@@ -551,18 +551,57 @@ do_via_orth_sentences_options:
 
 expression_sentences_options:
   exclude_terms:
-    - "ZFA:0001093"
-    - "ZFA:0001094"
+    - "ZFA:0001093" # unspecified
+    - "ZFA:0001094" # whole organism
+    - "ZFA:0000037" # anatomical structure
+    - "ZFA:0000292" # surface structure
+    - "ZFA:000149" # cavitated compound organ
+    - "EMAPA:25765" # mouse
+    - "EMAPA:35949" # organ
+    - "EMAPA:36040" # conceptus
+    - "EMAPA:16103" # organ system
+    - "EMAPA:37283" # appendage
+    - "EMAPA:16039" # embryo
+    - "EMAPA:36031" # body region
+    - "EMAPA:16245" # visceral organ system
+    - "EMAPA:16192" # sensory organ
+    - "EMAPA:35178" # body fluid or substance
+    - "EMAPA:35868" # tissue
+    - "EMAPA:16262" # oral region
+    - "EMAPA:18425" # gland
+    - "EMAPA:31858" # head
     - "WBbt:0005758" # hermaphrodite-specific
     - "WBbt:0007849" # hermaphrodite
     - "WBbt:0005738" # body region
+    - "FBbt:00004856" # organ system
+    - "FBbt:00007003" # portion of tissue
+    - "FBbt:00004208" # developing embryonic structure
+    - "FBbt:00000052" # embryo
+    - "FBbt:00003005" # adult tagma
+    - "FBbt:00007010" # multi-tissue structure
+    - "FBbt:00005834" # ventral imaginal tissue
+    - "FBbt:00000002" # tagma
+    - "FBbt:00007289" # tagmatic subdivision of integument
+    - "FBbt:00000137" # embryonic tagma
+    - "FBbt:00001727" # larva
+    - "FBbt:00005333" # late embryo
+    - "FBbt:00005426" # anlage
+    - "FBbt:00007330" # organ system subdivision
+    - "FBbt:00025998" # mesodermal derivative
+    - "FBbt:00025994" # endodermal derivative
+    - "FBbt:00007002" # cell
+    - "FBbt:00000001" # organism
+    - "FBbt:00100318" # somatic cell
+    - "FBbt:00004450" # late extended germ band embryo
+
+
   rename_terms:
     "^neuron$": "nervous system"
     "(.*)([a-z]+ )neuron$": "\\1\\2neurons"
     "^germ cell$": "germ cells"
-    "^hypodermis$": "the hypodermis"
     "(.*)hermaphrodite-specific$": "\\1hermaphrodite"
     "(.*)male-specific$": "\\1male"
+    "^ganglion$": "ganglia"
   evidence_codes:
     EXP:
       group: EXPERIMENTAL

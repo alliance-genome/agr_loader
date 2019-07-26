@@ -2,10 +2,11 @@ import copy
 import logging
 import os
 import datetime
+import re
+import boto3
 
 from collections import defaultdict
 
-import boto3
 from etl import ETL
 from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
@@ -207,6 +208,21 @@ class GeneDescriptionsETL(ETL):
                 terms_pair["term2.isObsolete"], ontology)
             ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
                                 relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
+        if data_type == DataType.EXPR and provider == "MGI":
+            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                "EMAPA_ARTIFICIAL_NODE:99999", "embryo", "anatomical_structure", False, ontology)
+            ontology.add_parent("EMAPA_ARTIFICIAL_NODE:99999", "EMAPA:0", relation="subClassOf")
+            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                "EMAPA_ARTIFICIAL_NODE:99998", "head", "anatomical_structure", False, ontology)
+            ontology.add_parent("EMAPA_ARTIFICIAL_NODE:99998", "EMAPA:0", relation="subClassOf")
+            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                "EMAPA_ARTIFICIAL_NODE:99997", "gland", "anatomical_structure", False, ontology)
+            ontology.add_parent("EMAPA_ARTIFICIAL_NODE:99997", "EMAPA:0", relation="subClassOf")
+        elif data_type == DataType.EXPR and provider == "FB":
+            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+                "FBbt_ARTIFICIAL_NODE:99999", "organism", "", False, ontology)
+            ontology.add_parent("FBbt_ARTIFICIAL_NODE:99999", "FBbt:10000000", relation="subClassOf")
+
         return ontology
 
     @staticmethod
@@ -248,7 +264,8 @@ class GeneDescriptionsETL(ETL):
                 }}
 
     @staticmethod
-    def add_annotations(final_annotation_set, neo4j_annot_set, data_provider, data_type: DataType):
+    def add_annotations(final_annotation_set, neo4j_annot_set, data_provider, data_type: DataType, ontology=None):
+        early_conceptus_re = re.compile(r'.*stage conceptus$')
         qualifier = ""
         for annot in neo4j_annot_set:
             if data_type == DataType.DO:
@@ -256,6 +273,24 @@ class GeneDescriptionsETL(ETL):
             elif data_type == DataType.EXPR:
                 ecodes = ["EXP"]
                 qualifier = "Verified"
+                # map direct annotations to 'embryo' in mouse or 'organism' in fly to a new 'artificial' node to keep
+                # them but avoid 'embryo' and 'organism' as common ancestors at the same time
+                if annot["TermId"] == "EMAPA:16039":
+                    annot = {key: value for key, value in annot.items()}
+                    annot["TermId"] = "EMAPA_ARTIFICIAL_NODE:99999"
+                elif annot["TermId"] == "EMAPA:31858":
+                    annot = {key: value for key, value in annot.items()}
+                    annot["TermId"] = "EMAPA_ARTIFICIAL_NODE:99998"
+                elif annot["TermId"] == "EMAPA:18425":
+                    annot = {key: value for key, value in annot.items()}
+                    annot["TermId"] = "EMAPA_ARTIFICIAL_NODE:99997"
+                elif annot["TermId"] == "FBbt:00000001":
+                    annot = {key: value for key, value in annot.items()}
+                    annot["TermId"] = "FBbt_ARTIFICIAL_NODE:99999"
+                # map all annotations to '* stage conceptus' to 'early conceptus'
+                if early_conceptus_re.match(ontology.label(annot["TermId"])):
+                    annot = {key: value for key, value in annot.items()}
+                    annot["TermId"] = "EMAPA:36473"
             else:
                 ecodes = [annot["ECode"]]
             for ecode in ecodes:
@@ -286,7 +321,7 @@ class GeneDescriptionsETL(ETL):
         for orth_annot in disease_via_orth_records:
             annotations.append(GeneDescriptionsETL.create_annotation_record(
                 gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], term_id=orth_annot["TermId"],
-                aspect="D", ecode="DVO", prvdr=data_provider))
+                aspect="D", ecode="DVO", prvdr=data_provider, qualifier=""))
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.do_ontology)
 
@@ -295,7 +330,8 @@ class GeneDescriptionsETL(ETL):
         annotations = []
         gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetExpressionAnnotations,
                                                                 data_provider)
-        GeneDescriptionsETL.add_annotations(annotations, gene_annot_set, data_provider, DataType.EXPR)
+        GeneDescriptionsETL.add_annotations(annotations, gene_annot_set, data_provider, DataType.EXPR,
+                                            gd_data_manager.expression_ontology)
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.expression_ontology)
 
