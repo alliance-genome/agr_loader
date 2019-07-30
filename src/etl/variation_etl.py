@@ -187,6 +187,12 @@ class VariationETL(ETL):
 
         assemblies = {}
         for alleleRecord in variant_data['data']:
+            chromosome = alleleRecord["chromosome"]
+            if chromosome.startswith("chr"):
+                chromosome_str = chromosome[3:]
+            else:
+                chromosome_str = chromosome
+
             assembly = alleleRecord["assembly"]
             if assembly not in assemblies:
                context_info = ContextInfo()
@@ -207,8 +213,8 @@ class VariationETL(ETL):
             if alleleRecord.get('start') != "" and alleleRecord.get('end') != "":
 
                 # not insertion
-                if SOTermId != "SO:0000667" and alleleRecord.get('chromosome') != "Unmapped_Scaffold_8_D1580_D1567":
-                    genomicReferenceSequence = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                if SOTermId != "SO:0000667" and chromosome_str != "Unmapped_Scaffold_8_D1580_D1567":
+                    genomicReferenceSequence = assemblies[assembly].getSequence(chromosome_str,
                                                                                 alleleRecord.get('start'),
                                                                                 alleleRecord.get('end'))
 
@@ -228,11 +234,11 @@ class VariationETL(ETL):
                 if leftPaddingStart < 1:
                     leftPaddingStart = 1
 
-                paddingLeft = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                paddingLeft = assemblies[assembly].getSequence(chromosome_str,
                                                                leftPaddingStart,
                                                                start)
                 rightPaddingEnd = end + paddingWidth
-                paddingRight = assemblies[assembly].getSequence(alleleRecord.get('chromosome'),
+                paddingRight = assemblies[assembly].getSequence(chromosome_str,
                                                                 end,
                                                                 rightPaddingEnd)
             counter = counter + 1
@@ -290,7 +296,7 @@ class VariationETL(ETL):
             variant_genomic_location_dataset = {
                 "variantId": variantUUID,
                 "assembly": alleleRecord.get('assembly'),
-                "chromosome": alleleRecord.get('chromosome'),
+                "chromosome": chromosome_str,
                 "start": alleleRecord.get('start'),
                 "end": alleleRecord.get('end')
 
@@ -313,4 +319,4 @@ class VariationETL(ETL):
                 crossReferences = []
 
         if counter > 0:
-            yield [variants,variant_genomic_locations,variant_so_terms, crossReferences]
+            yield [variants, variant_genomic_locations, variant_so_terms, crossReferences]
