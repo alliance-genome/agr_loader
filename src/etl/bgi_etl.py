@@ -366,6 +366,9 @@ class BGIETL(ETL):
             if 'genomeLocations' in geneRecord:
                 for genomeLocation in geneRecord['genomeLocations']:
                     chromosome = genomeLocation['chromosome']
+                    if chromosome.startswith("chr"):
+                        chromosome = chromosome[3:]
+
                     assembly = genomeLocation['assembly']
                     if chromosome not in chromosomes:
                         chromosomes[chromosome] = {"primaryKey": chromosome}
