@@ -21,8 +21,8 @@ class VariationETL(ETL):
                 MATCH (a:Allele:Feature {primaryKey: row.alleleId})
 
                 //Create the variant node and set properties. primaryKey is required.
-                CREATE (o:Variant {primaryKey:row.uuid})
-                    SET 
+                MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
+                    ON CREATE SET 
                      o.hgvs_nomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
@@ -36,14 +36,14 @@ class VariationETL(ETL):
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
-                CREATE (o)-[:VARIATION]->(a) """
+                MERGE (o)-[:VARIATION]->(a) """
 
     soterms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            CREATE (o)-[:VARIATION_TYPE]->(s)"""
+            MERGE (o)-[:VARIATION_TYPE]->(s)"""
 
 
     genomic_locations_template = """
@@ -115,12 +115,12 @@ class VariationETL(ETL):
 
     def get_hgvs_nomenclature(self, refseqId, variantType, start_position,
                               end_position, reference_sequence, variant_sequence):
-        if start_position == None:
+        if start_position is None:
             start_position_str = ""
         else:
             start_position_str = str(start_position)
 
-        if end_position == None:
+        if end_position is None:
             end_position_str = ""
         else:
             end_position_str = str(end_position)
@@ -294,7 +294,7 @@ class VariationETL(ETL):
             }
 
             variant_genomic_location_dataset = {
-                "variantId": variantUUID,
+                "variantId": hgvs_nomenclature,
                 "assembly": alleleRecord.get('assembly'),
                 "chromosome": chromosome_str,
                 "start": alleleRecord.get('start'),
@@ -303,7 +303,7 @@ class VariationETL(ETL):
             }
 
             variant_so_term = {
-                "variantId": variantUUID,
+                "variantId": hgvs_nomenclature,
                 "soTermId": alleleRecord.get('type')
             }
 

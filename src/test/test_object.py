@@ -155,6 +155,8 @@ class TestObject(object):
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499', 'FB:FBgn0025790',
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
+            # variants
+            'FB:FBgn0011224', 'FB:FBal0226899', 'FB:FBal0179527',
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
