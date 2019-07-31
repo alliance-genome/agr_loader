@@ -46,11 +46,7 @@ class AssemblySequenceHelper(object):
            end = second
 
         start = start - 1
-        if chromosome.startswith("chr"):
-            chromosome_str = chromosome[3:]
+        if chromosome in self.fa:
+            return self.fa[chromosome][start:end].seq
         else:
-            chromosome_str = chromosome
-        if chromosome_str in self.fa:
-            return self.fa[chromosome_str][start:end].seq
-        else:
-            logger.warning("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
+            logger.warning("Chromosome " + chromosome + " not in assembly " + self.assembly)
