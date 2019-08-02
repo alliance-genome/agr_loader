@@ -19,7 +19,6 @@ services:
       - NEO4J_dbms_memory_heap_maxSize=6000m
       - NEO4J_dbms_memory_heap_initialSize=2000m
       - NEO4J_dbms_memory_pagecache_size=8000m
-      - NEO4J_dbms_import_csv_buffer__size=41048576
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
