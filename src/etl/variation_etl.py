@@ -30,9 +30,6 @@ class VariationETL(ETL):
                      o.genomicVariantSequence = row.genomicVariantSequence,
                      o.dateProduced = row.dateProduced,
                      o.release = row.release,
-                     o.localId = row.localId,
-                     o.globalId = row.globalId,
-                     o.uuid = row.uuid,
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
@@ -243,10 +240,8 @@ class VariationETL(ETL):
                                                                 rightPaddingEnd)
             counter = counter + 1
             globalId = alleleRecord.get('alleleId')
-            localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""
             crossReferences = []
-            variantUUID = str(uuid.uuid4())
 
             if self.testObject.using_test_data() is True:
                 is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
@@ -267,6 +262,13 @@ class VariationETL(ETL):
             if crossRefPrimaryId is not None:
                 crossReferences.append(xrefMap)
 
+            if genomicReferenceSequence is not None:
+                if len(genomicReferenceSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
+                    logger.info(alleleRecord.get('alleleId') + "genomicReferenceSequence")
+            if genomicVariantSequence is not None:
+                if len(genomicVariantSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
+                    logger.info(alleleRecord.get('alleleId') + "genomicVariantSequence")
+
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
                                                            alleleRecord.get('start'),
@@ -274,42 +276,40 @@ class VariationETL(ETL):
                                                            genomicReferenceSequence,
                                                            genomicVariantSequence)
 
-            variant_dataset = {
+            # TODO: fix typo in MGI Submission for this variant so that it doesn't list a 40K bp point mutation.
+            if alleleRecord.get('alleleId') != 'MGI:6113870':
+                variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
                 "genomicReferenceSequence": genomicReferenceSequence,
                 "genomicVariantSequence": genomicVariantSequence,
                 "paddingLeft": paddingLeft,
                 "paddingRight": paddingRight,
                 "alleleId": alleleRecord.get('alleleId'),
-                "globalId": globalId,
-                "localId": localId,
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
                 "release": release,
                 "modGlobalCrossRefId": modGlobalCrossRefId,
-                # TODO: eventaully uuid won't be the unique identifier, the HGVS nomenclature will be the unique identifier (hopefully)
-                "uuid": variantUUID,
                 "dataProvider": data_provider
-            }
+                }
 
-            variant_genomic_location_dataset = {
-                "variantId": hgvs_nomenclature,
-                "assembly": alleleRecord.get('assembly'),
-                "chromosome": chromosome_str,
-                "start": alleleRecord.get('start'),
-                "end": alleleRecord.get('end')
+                variant_genomic_location_dataset = {
+                    "variantId": hgvs_nomenclature,
+                    "assembly": alleleRecord.get('assembly'),
+                    "chromosome": chromosome_str,
+                    "start": alleleRecord.get('start'),
+                    "end": alleleRecord.get('end')
 
-            }
+                }
 
-            variant_so_term = {
-                "variantId": hgvs_nomenclature,
-                "soTermId": alleleRecord.get('type')
-            }
+                variant_so_term = {
+                    "variantId": hgvs_nomenclature,
+                    "soTermId": alleleRecord.get('type')
+                }
 
-            variant_so_terms.append(variant_so_term)
-            variant_genomic_locations.append(variant_genomic_location_dataset)
-            variants.append(variant_dataset)
+                variant_so_terms.append(variant_so_term)
+                variant_genomic_locations.append(variant_genomic_location_dataset)
+                variants.append(variant_dataset)
 
             if counter == batch_size:
                 yield [variants, variant_genomic_locations, variant_so_terms, crossReferences]
