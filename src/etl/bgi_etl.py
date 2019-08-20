@@ -383,7 +383,7 @@ class BGIETL(ETL):
                     else:
                         end = None
 
-                    if 'strand' in geneRecord['genomeLocations']:
+                    if 'strand' in genomeLocation:
                         strand = genomeLocation['strand']
                     else:
                         strand = None
