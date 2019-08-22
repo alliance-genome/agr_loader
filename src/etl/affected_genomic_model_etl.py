@@ -185,7 +185,7 @@ class AffectedGenomicModelETL(ETL):
 
         for agmRecord in agm_data['data']:
             counter = counter + 1
-            globalId = agmRecord['genotypeID']
+            globalId = agmRecord['primaryID']
             localId = globalId.split(":")[1]
 
             if self.testObject.using_test_data() is True:
@@ -197,7 +197,7 @@ class AffectedGenomicModelETL(ETL):
             if agmRecord.get('secondaryIds') is not None:
                 for sid in agmRecord.get('secondaryIds'):
                     agm_secondaryId_dataset = {
-                        "primaryId": agmRecord.get('genotypeID'),
+                        "primaryId": agmRecord.get('primaryID'),
                         "secondaryId": sid
                     }
                     agm_secondaryIds.append(agm_secondaryId_dataset)
@@ -205,34 +205,33 @@ class AffectedGenomicModelETL(ETL):
             if agmRecord.get('synonyms') is not None:
                 for syn in agmRecord.get('synonyms'):
                     syn_dataset = {
-                        "primaryId": agmRecord.get('genotypeID'),
+                        "primaryId": agmRecord.get('primaryID'),
                         "synonym": syn
                     }
                     agm_synonyms.append(syn_dataset)
 
 
-            if 'crossReferences' in agmRecord:
+            if 'crossReference' in agmRecord:
+                crossRef = agmRecord.get('crossReference')
+                crossRefId = crossRef.get('id')
+                local_crossref_id = crossRefId.split(":")[1]
+                prefix = crossRef.get('id').split(":")[0]
+                pages = crossRef.get('pages')
 
-                for crossRef in agmRecord['modCrossReference']:
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'sequence_targeting_reagent':
-                                modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
+                # some pages collection have 0 elements
+                if pages is not None and len(pages) > 0:
+                    for page in pages:
+                        if page == 'sequence_targeting_reagent':
+                            modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
+
+            # TODO: nameText
             agm_dataset = {
-                "primaryId": agmRecord.get('genotypeID'),
+                "primaryId": agmRecord.get('primaryID'),
                 "name": agmRecord.get('name'),
-                "nameText":agmRecord.get('nameText'),
                 "globalId": globalId,
                 "localId": localId,
-                "soTerm": agmRecord.get('soTermId'),
                 "taxonId": agmRecord.get('taxonId'),
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
@@ -242,11 +241,11 @@ class AffectedGenomicModelETL(ETL):
             }
             agms.append(agm_dataset)
 
-            if agmRecord.get('genotypeComponents') is not None:
+            if agmRecord.get('affectedGenomicModelComponents') is not None:
 
-                for component in agmRecord.get('genotypeComponents'):
+                for component in agmRecord.get('affectedGenomicModelComponents'):
                     component_dataset = {
-                        "primaryId": agmRecord.get('genotypeID'),
+                        "primaryId": agmRecord.get('primaryID'),
                         "componentId": component.get('alleleID'),
                         "zygosityId": component.get('zygosity')
                     }
@@ -255,15 +254,15 @@ class AffectedGenomicModelETL(ETL):
             if agmRecord.get('sequenceTargetingReagentIDs') is not None:
                 for sqtr in agmRecord.get('sequenceTargetingReagentIDs'):
                     sqtr_dataset = {
-                        "primaryId": agmRecord.get('genotypeID'),
+                        "primaryId": agmRecord.get('primaryID'),
                         "sqtrId": sqtr
                     }
                     sqtrs.append(sqtr_dataset)
 
-            if agmRecord.get('backgroundIDs') is not None:
-                for background in agmRecord.get('backgroundIDs'):
+            if agmRecord.get('parentalPopulationIDs') is not None:
+                for background in agmRecord.get('parentalPopulationIDs'):
                     background_dataset = {
-                        "primaryId": agmRecord.get('genotypeID'),
+                        "primaryId": agmRecord.get('primaryID'),
                         "backgroundId": background
                     }
                     backgrounds.append(background_dataset)
