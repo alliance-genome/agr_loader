@@ -178,7 +178,6 @@ class DataFileManager(metaclass=Singleton):
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:
-                        logger.debug(sub_entry + path + tempExtractedFile)
                         self.transformed_submission_system_data[entry].append([sub_entry, path, tempExtractedFile])
             else:
                 logger.debug("Ignoring entry: %s" % entry)

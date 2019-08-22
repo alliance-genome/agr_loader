@@ -2,8 +2,8 @@
     "status": "success",
     "message": null,
     "snapShot": {
-        "releaseVersion": {"id":"1234", "name":"2.2.0"},
-        "schemaVersion": {"id":"1234", "name":"1.0.0.8"},
+        "releaseVersion": {"id":"1234", "name":"2.3.0"},
+        "schemaVersion": {"id":"1234", "name":"1.0.0.9"},
         "system": "production",
         "snapShotDate": 1523284823719,
         "dataFiles": [
