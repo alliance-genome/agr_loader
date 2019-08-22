@@ -279,7 +279,104 @@
                 "s3Path": "1.0.0.8/INTERACTION/MOLECULAR/1.0.0.8_INTERACTION_MOLECULAR_0.tar.gz",
                 "tempExtractedFile": "Alliance_molecular_interactions_2.2.txt",
                 "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"ONTOLOGY"},
+                "dataSubType": {"id":"1234", "name":"ECOMAP"},
+                "s3Path": "1.0.0.8/ONTOLOGY/ECOMAP/1.0.0.8_ONTOLOGY_ECOMAP_2.obo",
+                "tempExtractedFile": "ecomap_data_ECOMAP.csv",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"RGD"},
+                "s3Path": "1.0.0.8/GAF/RGD/1.0.0.8_GAF_RGD_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_RGD_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"FB"},
+                "s3Path": "1.0.0.8/GAF/FB/1.0.0.8_GAF_FB_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_FB_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"MGI"},
+                "s3Path": "1.0.0.8/GAF/MGI/1.0.0.8_GAF_MGI_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_MGI_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"ZFIN"},
+                "s3Path": "1.0.0.8/GAF/ZFIN/1.0.0.8_GAF_ZFIN_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_ZFIN_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"SGD"},
+                "s3Path": "1.0.0.8/GAF/SGD/1.0.0.8_GAF_SGD_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_SGD_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"GAF"},
+                "dataSubType": {"id":"1234", "name":"WB"},
+                "s3Path": "1.0.0.8/GAF/WB/1.0.0.8_GAF_WB_4.gaf",
+                "tempExtractedFile": "1.0.0.8_GAF_WB_4.gaf",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"FASTA"},
+                "dataSubType": {"id":"1234", "name":"Rnor60"},
+                "s3Path": "1.0.0.8/FASTA/Rnor60/1.0.0.8_FASTA_Rnor60_1.fa",
+                "tempExtractedFile": "1.0.0.8_FASTA_Rnor60_1.fa",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"FASTA"},
+                "dataSubType": {"id":"1234", "name":"GRCm38"},
+                "s3Path": "1.0.0.8/FASTA/GRCm38/1.0.0.8_FASTA_GRCm38_1.fa",
+                "tempExtractedFile": "1.0.0.8_FASTA_GRCm38_1.fa",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"FASTA"},
+                "dataSubType": {"id":"1234", "name":"WBcel235"},
+                "s3Path": "1.0.0.8/FASTA/WBcel235/1.0.0.8_FASTA_WBcel235_1.fa",
+                "tempExtractedFile": "1.0.0.8_FASTA_WBcel235_1.fa",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"FASTA"},
+                "dataSubType": {"id":"1234", "name":"GRCz11"},
+                "s3Path": "1.0.0.8/FASTA/GRCz11/1.0.0.8_FASTA_GRCz11_1.fa",
+                "tempExtractedFile": "1.0.0.8_FASTA_GRCz11_1.fa",
+                "uploadDate": 1522181475376
+            },
+            {
+                "schemaVersion": "1.0.0.8",
+                "dataType": {"id":"1234", "name":"FASTA"},
+                "dataSubType": {"id":"1234", "name":"R627"},
+                "s3Path": "1.0.0.8/FASTA/R627/1.0.0.8_FASTA_R627_1.fa",
+                "tempExtractedFile": "1.0.0.8_FASTA_R627_1.fa",
+                "uploadDate": 1522181475376
             }
+
         ]
     }
 }
