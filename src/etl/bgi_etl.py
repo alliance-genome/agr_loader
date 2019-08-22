@@ -230,20 +230,20 @@ class BGIETL(ETL):
 
         for geneRecord in gene_data['data']:
             counter = counter + 1
-
-            primary_id = geneRecord['primaryId']
-            global_id = geneRecord['primaryId']
+            basicGeneticEntity = geneRecord['basicGeneticEntity']
+            primary_id = basicGeneticEntity.get('primaryId')
+            global_id = basicGeneticEntity.get('primaryId')
 
             local_id = global_id.split(":")[1]
             geneLiteratureUrl = ""
             geneticEntityExternalUrl = ""
             modCrossReferenceCompleteUrl = ""
-            taxonId = geneRecord.get("taxonId")
+            taxonId = basicGeneticEntity.get("taxonId")
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(taxonId)
 
 
-            if geneRecord['taxonId'] == "NCBITaxon:9606" or geneRecord['taxonId'] == "NCBITaxon:10090":
-                local_id = geneRecord['primaryId']
+            if basicGeneticEntity.get('taxonId') == "NCBITaxon:9606" or basicGeneticEntity.get('taxonId') == "NCBITaxon:10090":
+                local_id = basicGeneticEntity.get('primaryId')
 
             if self.testObject.using_test_data() is True:
                 is_it_test_entry = self.testObject.check_for_test_id_entry(primary_id)
@@ -252,7 +252,7 @@ class BGIETL(ETL):
                     continue
 
             if 'crossReferences' in geneRecord:
-                for crossRef in geneRecord['crossReferences']:
+                for crossRef in basicGeneticEntity.get('crossReferences'):
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')
                         localCrossRefId = crossRefId.split(":")[1]
@@ -344,7 +344,7 @@ class BGIETL(ETL):
                 "description": geneRecord.get('description'),
                 "geneSynopsis": geneRecord.get('geneSynopsis'),
                 "geneSynopsisUrl": geneRecord.get('geneSynopsisUrl'),
-                "taxonId": geneRecord['taxonId'],
+                "taxonId": basicGeneticEntity.get('taxonId'),
                 "species": ETLHelper.species_lookup_by_taxonid(taxonId),
                 "speciesPhylogeneticOrder": ETLHelper.get_species_order(taxonId),
                 "geneLiteratureUrl": geneLiteratureUrl,
@@ -363,30 +363,32 @@ class BGIETL(ETL):
             }
             gene_dataset.append(gene)
 
-            if 'genomeLocations' in geneRecord:
-                for genomeLocation in geneRecord['genomeLocations']:
-                    chromosome = genomeLocation['chromosome']
-                    if chromosome.startswith("chr"):
-                        chromosome = chromosome[3:]
+            if 'genomeLocations' in basicGeneticEntity:
+                for genomeLocation in basicGeneticEntity.get('genomeLocations'):
+                    chromosome = genomeLocation.get('chromosome')
+                    if chromosome is not None:
+                        if chromosome.startswith("chr"):
+                            chromosome = chromosome[3:]
 
-                    assembly = genomeLocation['assembly']
-                    if chromosome not in chromosomes:
-                        chromosomes[chromosome] = {"primaryKey": chromosome}
+                        if chromosome not in chromosomes:
+                            chromosomes[chromosome] = {"primaryKey": chromosome}
 
-                    if 'startPosition' in genomeLocation:
-                        start = genomeLocation['startPosition']
-                    else:
-                        start = None
+                        if 'startPosition' in genomeLocation:
+                            start = genomeLocation['startPosition']
+                        else:
+                            start = None
 
-                    if 'endPosition' in genomeLocation:
-                        end = genomeLocation['endPosition']
-                    else:
-                        end = None
+                        if 'endPosition' in genomeLocation:
+                            end = genomeLocation['endPosition']
+                        else:
+                            end = None
 
-                    if 'strand' in geneRecord['genomeLocations']:
-                        strand = genomeLocation['strand']
-                    else:
-                        strand = None
+                        if 'strand' in basicGeneticEntity['genomeLocations']:
+                            strand = genomeLocation['strand']
+                        else:
+                            strand = None
+
+                    assembly = genomeLocation.get('assembly')
 
 #                    if primary_id and start and end and assembly and chromosome:
 #                        binSize = 2000
@@ -411,16 +413,16 @@ class BGIETL(ETL):
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
                                  start, "end": end, "strand": strand, "assembly": assembly})
 
-            if geneRecord.get('synonyms') is not None:
-                for synonym in geneRecord.get('synonyms'):
+            if basicGeneticEntity.get('synonyms') is not None:
+                for synonym in basicGeneticEntity.get('synonyms'):
                     geneSynonym = {
                         "primary_id": primary_id,
                         "synonym": synonym.strip()
                     }
                     synonyms.append(geneSynonym)
 
-            if geneRecord.get('secondaryIds') is not None:
-                for secondaryId in geneRecord.get('secondaryIds'):
+            if basicGeneticEntity.get('secondaryIds') is not None:
+                for secondaryId in basicGeneticEntity.get('secondaryIds'):
                     geneSecondaryId = {
                         "primary_id": primary_id,
                         "secondary_id": secondaryId

@@ -162,14 +162,14 @@ class DataFileManager(metaclass=Singleton):
         ]
 
         for entry in self.config_data.keys():  # Iterate through our config file.
-            logger.info("Entry: %s" % entry)
+            logger.debug("Entry: %s" % entry)
             if entry not in config_values_to_ignore:  # Skip these entries.
                 self.transformed_submission_system_data[entry] = []  # Create our empty list.
                 for sub_entry in self.config_data[entry]:
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3Path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
-                    logger.info(tempExtractedFile)
+                    logger.debug(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':
                         tempExtractedFile = submission_system_dict.get('s3Path')
 
@@ -178,7 +178,7 @@ class DataFileManager(metaclass=Singleton):
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:
-                        logger.info(sub_entry + path + tempExtractedFile)
+                        logger.debug(sub_entry + path + tempExtractedFile)
                         self.transformed_submission_system_data[entry].append([sub_entry, path, tempExtractedFile])
             else:
                 logger.debug("Ignoring entry: %s" % entry)
