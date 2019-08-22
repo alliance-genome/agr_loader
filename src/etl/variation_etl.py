@@ -23,7 +23,7 @@ class VariationETL(ETL):
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
-                     o.hgvs_nomenclature = row.hgvs_nomenclature,
+                     o.hgvsNomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
                      o.paddingRight = row.paddingRight,
@@ -142,6 +142,8 @@ class VariationETL(ETL):
         elif variantType == "SO:0000159": # deletion
             hgvs_nomenclature += '_' + end_position_str + 'del'
         elif variantType == "SO:0002007": # MNV
+            hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
+        elif variantType == "SO:1000032": # DELIN
             hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
         else:
             hgvs_nomenclature = ''
