@@ -252,6 +252,7 @@ class VariationETL(ETL):
                     continue
 
             crossRefPrimaryId = alleleRecord.get('sequenceOfReferenceAccessionNumber')
+            logger.info(crossRefPrimaryId)
             localCrossRefId = crossRefPrimaryId.split(":")[1]
             prefix = crossRefPrimaryId.split(":")[0]
 
