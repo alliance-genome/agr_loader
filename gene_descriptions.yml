@@ -568,8 +568,6 @@ expression_sentences_options:
     - "EMAPA:35178" # body fluid or substance
     - "EMAPA:35868" # tissue
     - "EMAPA:16262" # oral region
-    - "EMAPA:18425" # gland
-    - "EMAPA:31858" # head
     - "WBbt:0005758" # hermaphrodite-specific
     - "WBbt:0007849" # hermaphrodite
     - "WBbt:0005738" # body region
@@ -590,7 +588,6 @@ expression_sentences_options:
     - "FBbt:00025998" # mesodermal derivative
     - "FBbt:00025994" # endodermal derivative
     - "FBbt:00007002" # cell
-    - "FBbt:00000001" # organism
     - "FBbt:00100318" # somatic cell
     - "FBbt:00004450" # late extended germ band embryo
 
@@ -598,10 +595,11 @@ expression_sentences_options:
   rename_terms:
     "^neuron$": "nervous system"
     "(.*)([a-z]+ )neuron$": "\\1\\2neurons"
-    "^germ cell$": "germ cells"
     "(.*)hermaphrodite-specific$": "\\1hermaphrodite"
     "(.*)male-specific$": "\\1male"
     "^ganglion$": "ganglia"
+    "^neuroblast$": "neuroblasts"
+
   evidence_codes:
     EXP:
       group: EXPERIMENTAL
