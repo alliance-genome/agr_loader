@@ -24,3 +24,4 @@ from .expression_ribbon_other_etl import ExpressionRibbonOtherETL
 from .sequence_targeting_reagent_etl import SequenceTargetingReagentETL
 from .affected_genomic_model_etl import AffectedGenomicModelETL
 from .ECOMAP_etl import ECOMAPETL
+from .vep_etl import VEPETL

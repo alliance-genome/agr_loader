@@ -1,13 +1,9 @@
-import logging
-import multiprocessing
-import uuid
+import logging, multiprocessing, csv
 
 from etl import ETL
-from etl.helpers import ETLHelper
-from files import JSONFile
-from transactors import CSVTransactor, Neo4jTransactor
-from data_manager import DataFileManager
-from common import ContextInfo
+from files import TXTFile
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +14,8 @@ class VEPETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Variant {primaryKey: row.hgvs_nomenclature})
-                SET a.consequence = row.consequence
+                MATCH (a:Variant {primaryKey: row.hgvsNomenclature})
+                SET a.geneLevelConsequence = row.geneLevelConsequence
 
                 """
 
@@ -39,21 +35,9 @@ class VEPETL(ETL):
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-
         logger.info("Loading VEP Data: %s" % sub_type.get_data_provider())
-        filepath = sub_type.get_filepath()
-        data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Variation Data: %s" % sub_type.get_data_provider())
-
-        if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
-            return
-
-        # This order is the same as the lists yielded from the get_generators function.
-        # A list of tuples.
-
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
+        filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
@@ -61,25 +45,24 @@ class VEPETL(ETL):
         ]
 
         # Obtain the generator
-        generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+        generators = self.get_generators(filepath)
+
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, vep_data, data_provider, batch_size):
+    def get_generators(self, filepath):
 
-        if alleleRecord.get('alleleId') != 'MGI:6113870':
-            variant_dataset = {
-                "hgvs_nomenclature": hgvs_nomenclature,
-                "genomicReferenceSequence": genomicReferenceSequence,
-                "genomicVariantSequence": genomicVariantSequence,
-                "paddingLeft": paddingLeft,
-                "paddingRight": paddingRight,
-                "alleleId": alleleRecord.get('alleleId'),
-                "dataProviders": dataProviders,
-                "dateProduced": dateProduced,
-                "loadKey": loadKey,
-                "release": release,
-                "modGlobalCrossRefId": modGlobalCrossRefId,
-                "dataProvider": data_provider
-            }
+        data = TXTFile(filepath).get_data()
+        vep_maps = []
+
+        for line in data:
+            columns = line.split()
+            if columns[0].startswith('#'):
+                continue
+            else:
+                vep_result = {"hgvsNomenclature":columns[0],
+                       "geneLevelConsequence": columns[6]}
+                vep_maps.append(vep_result)
+
+        yield [vep_maps]
