@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 class AssemblySequenceHelper(object):
     def __init__(self, assembly, data_manager):
         sub_type = assembly.replace('.', '').replace('_', '')
-        logger.info(sub_type)
-        logger.info(assembly)
+        if sub_type.startswith('R6'):
+            sub_type = 'R627'
         fasta_config = data_manager.get_config('FASTA')
         logger.info(fasta_config)
         for sub_type_config in fasta_config.get_sub_type_objects():
