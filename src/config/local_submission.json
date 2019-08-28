@@ -229,7 +229,7 @@
                 "dataType": {"id":"1234", "name":"ONTOLOGY"},
                 "dataSubType": {"id":"1234", "name":"ECOMAP"},
                 "s3Path": "1.0.0.8/ONTOLOGY/ECOMAP/1.0.0.8_ONTOLOGY_ECOMAP_2.obo",
-                "tempExtractedFile": "ecomap_data_ECOMAP.csv",
+                "tempExtractedFile": "1.0.0.8/ONTOLOGY/ECOMAP/1.0.0.8_ONTOLOGY_ECOMAP_2.obo",
                 "uploadDate": 1522181475376
             },
             {

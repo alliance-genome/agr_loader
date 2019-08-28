@@ -251,7 +251,7 @@ class BGIETL(ETL):
                     counter = counter - 1
                     continue
 
-            if 'crossReferences' in geneRecord:
+            if 'crossReferences' in basicGeneticEntity:
                 for crossRef in basicGeneticEntity.get('crossReferences'):
                     if ':' in crossRef.get('id'):
                         crossRefId = crossRef.get('id')

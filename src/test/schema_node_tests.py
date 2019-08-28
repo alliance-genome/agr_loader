@@ -207,7 +207,7 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
-                               dict(node='Variant', prop='hgvs_nomenclature')
+                               dict(node='Variant', prop='hgvsNomenclature')
                                ],
 
         'test_prop_unique': [# dict(node='EvidenceCode', prop='primaryKey'),
@@ -235,7 +235,7 @@ class TestClass(object):
                              dict(node='Stage', prop='primaryKey'),
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
-                             dict(node='Variant', prop='hgvs_nomenclature'),
+                             dict(node='Variant', prop='hgvsNomenclature'),
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),
