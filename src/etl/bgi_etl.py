@@ -389,6 +389,11 @@ class BGIETL(ETL):
                             strand = None
 
                     assembly = genomeLocation.get('assembly')
+                    
+                    if 'strand' in genomeLocation:
+                        strand = genomeLocation['strand']
+                    else:
+                        strand = None
 
 #                    if primary_id and start and end and assembly and chromosome:
 #                        binSize = 2000
