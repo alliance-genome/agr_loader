@@ -252,7 +252,6 @@ class VariationETL(ETL):
                     continue
 
             crossRefPrimaryId = alleleRecord.get('sequenceOfReferenceAccessionNumber')
-            logger.info(crossRefPrimaryId)
             localCrossRefId = crossRefPrimaryId.split(":")[1]
             prefix = crossRefPrimaryId.split(":")[0]
 
@@ -267,10 +266,10 @@ class VariationETL(ETL):
 
             if genomicReferenceSequence is not None:
                 if len(genomicReferenceSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.info(alleleRecord.get('alleleId') + "genomicReferenceSequence")
+                    logger.debug(alleleRecord.get('alleleId') + "genomicReferenceSequence")
             if genomicVariantSequence is not None:
                 if len(genomicVariantSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.info(alleleRecord.get('alleleId') + "genomicVariantSequence")
+                    logger.debug(alleleRecord.get('alleleId') + "genomicVariantSequence")
 
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
