@@ -86,7 +86,7 @@ class DataFileManager(metaclass=Singleton):
             if isinstance(self.transformed_submission_system_data[config_entry], str):
                 continue
 
-            logger.info('Processing DataType: %s' % config_entry)
+            logger.debug('Processing DataType: %s' % config_entry)
 
             # Create our data type object and add it to our master dictionary filed under the config_entry.
             # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
@@ -170,7 +170,7 @@ class DataFileManager(metaclass=Singleton):
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3Path')
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
-                    logger.info(tempExtractedFile)
+                    logger.debug(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':
                         tempExtractedFile = submission_system_dict.get('s3Path')
 
