@@ -319,8 +319,6 @@ class DiseaseETL(ETL):
                                         "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                            logger.info(pge_map)
-
                     if 'with' in diseaseRecord:
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
@@ -350,7 +348,6 @@ class DiseaseETL(ETL):
                                         "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                            logger.info(pge_map)
 
                     if 'with' in diseaseRecord:
                         withRecord = diseaseRecord.get('with')
@@ -379,7 +376,6 @@ class DiseaseETL(ETL):
                             pge_map = {"dgeId": diseaseUniqueKey,
                                     "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
-                            logger.info(pge_map)
 
                     if 'with' in diseaseRecord:
                         withRecord = diseaseRecord.get('with')
