@@ -389,7 +389,7 @@ class BGIETL(ETL):
                             strand = None
 
                     assembly = genomeLocation.get('assembly')
-                    
+
                     if 'strand' in genomeLocation:
                         strand = genomeLocation['strand']
                     else:

@@ -80,6 +80,13 @@ class DiseaseHelper(object):
             doId = diseaseRecord.get('DOid')
             diseaseUniqueKey = primaryId+doId+diseaseAssociationType
 
+            if 'primaryGeneticEntityIDs' in diseaseRecord:
+                pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
+
+            else:
+                pgeIds = []
+
+
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
                 "doId": doId,
@@ -97,6 +104,7 @@ class DiseaseHelper(object):
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
                 "pubModUrl": pubModUrl,
+                "pgeIds": pgeIds,
                 
                 "ecodes": ecodes,
 

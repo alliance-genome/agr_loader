@@ -58,8 +58,7 @@ Closure:
   - UBERON
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [ZFIN]
-
+VEP: [FB, WB, ZFIN, RGD, MGI]
 
 FileTransactorThreads: 7
 Neo4jTransactorThreads: 3

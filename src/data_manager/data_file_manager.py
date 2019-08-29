@@ -183,4 +183,4 @@ class DataFileManager(metaclass=Singleton):
             else:
                 logger.debug("Ignoring entry: %s" % entry)
                         
-        logger.info("Loaded Types: %s" % self.transformed_submission_system_data)
+        logger.debug("Loaded Types: %s" % self.transformed_submission_system_data)

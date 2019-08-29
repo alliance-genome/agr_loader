@@ -139,7 +139,7 @@ class TestClass(object):
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                             dict(node='DOTerm', prop='defLinks'),
                             dict(node='Variant', prop='primaryKey'),
-                            dict(node='Variant', prop='consequence')
+                            dict(node='Variant', prop='geneLevelConsequence')
 
                             ],
 
