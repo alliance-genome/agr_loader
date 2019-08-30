@@ -184,13 +184,35 @@ class DiseaseETL(ETL):
     
     """
 
-    execute_pges_template = """
+    execute_pges_gene_template = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n {primaryKey:row.pgeId})
+            MATCH (n:Gene {primaryKey:row.pgeId})
             MATCH (d:DiseaseEntityJoin {primaryKey:row.dgeId})
             
+            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+
+    """
+
+    execute_pges_allele_template = """
+
+        USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (n:Allele {primaryKey:row.pgeId})
+            MATCH (d:DiseaseEntityJoin {primaryKey:row.dgeId})
+
+            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+
+    """
+
+    execute_pges_agm_template = """
+
+        USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
+            MATCH (d:DiseaseEntityJoin {primaryKey:row.dgeId})
+
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
     """
@@ -248,7 +270,11 @@ class DiseaseETL(ETL):
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_agms_template, commit_size, "disease_agms_data_" + \
              sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_pges_template, commit_size, "disease_pges_data_" + \
+            [DiseaseETL.execute_pges_gene_template, commit_size, "disease_pges_gene_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_pges_allele_template, commit_size, "disease_pges_allele_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_pges_agm_template, commit_size, "disease_pges_agms_data_" + \
              sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -388,7 +414,7 @@ class DiseaseETL(ETL):
                     agm_list_to_yield.append(disease_record)
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield]
+                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
                 evidence_code_list_to_yield = []
@@ -397,4 +423,4 @@ class DiseaseETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
