@@ -414,7 +414,8 @@ class DiseaseETL(ETL):
                     agm_list_to_yield.append(disease_record)
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs,
+                       agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
                 allele_list_to_yield = []
                 gene_list_to_yield = []
                 evidence_code_list_to_yield = []
@@ -423,4 +424,5 @@ class DiseaseETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs, agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs,
+                   agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
