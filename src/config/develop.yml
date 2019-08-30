@@ -2,6 +2,8 @@ schemaVersion: 1.0.0.9
 releaseVersion: 2.3.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
+EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
+PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -57,6 +59,7 @@ Closure:
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [ZFIN]
+
 
 # Loader configuration values are below.
 # Please modify with caution!
