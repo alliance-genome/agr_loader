@@ -278,6 +278,9 @@ class VariationETL(ETL):
                                                            genomicReferenceSequence,
                                                            genomicVariantSequence)
 
+            if (genomicReferenceSequence is not None and len(genomicReferenceSequence) > 30000) or (genomicVariantSequence is not None and len(genomicVariantSequence)) > 30000:
+                logger.debug(alleleRecord.get('alleleId') + " has too long of a sequence potentionally")
+
             # TODO: fix typo in MGI Submission for this variant so that it doesn't list a 40K bp point mutation.
             if alleleRecord.get('alleleId') != 'MGI:6113870':
                 variant_dataset = {
