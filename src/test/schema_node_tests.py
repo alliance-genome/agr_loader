@@ -125,7 +125,6 @@ class TestClass(object):
                             #dict(node='Publication', prop='pubMedId'),
                             #dict(node='Publication', prop='pubModId'),
                             dict(node='Publication', prop='primaryKey'),
-                            dict(node='EvidenceCode', prop='primaryKey'),
                             dict(node='Allele', prop='primaryKey'),
                             dict(node='Allele', prop='symbol'),
                             dict(node='Allele', prop='uuid'),
@@ -196,7 +195,6 @@ class TestClass(object):
                                dict(node='Association', prop='primaryKey'),
                                #dict(node='Publication', prop='pubMedId'),
                                dict(node='Publication', prop='primaryKey'),
-                               dict(node='EvidenceCode', prop='primaryKey'),
                                dict(node='Allele', prop='primaryKey'),
                                dict(node='Allele', prop='symbol'),
                                dict(node='Allele', prop='dataProvider'),
@@ -207,10 +205,10 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
-                               dict(node='Variant', prop='hgvs_nomenclature')
+                               dict(node='Variant', prop='hgvsNomenclature')
                                ],
 
-        'test_prop_unique': [# dict(node='EvidenceCode', prop='primaryKey'),
+        'test_prop_unique': [
                              dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),
@@ -235,7 +233,7 @@ class TestClass(object):
                              dict(node='Stage', prop='primaryKey'),
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
-                             dict(node='Variant', prop='hgvs_nomenclature'),
+                             dict(node='Variant', prop='hgvsNomenclature'),
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),

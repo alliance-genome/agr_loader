@@ -2,6 +2,7 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 
 from etl import *
 from etl import VariationETL
+from etl import VEPETL
 from etl import SequenceTargetingReagentETL
 from etl import ECOMAPETL
 from etl.helpers import Neo4jHelper
@@ -52,13 +53,19 @@ class AggregateLoader(object):
 
         ft.start_threads(data_manager.get_FT_thread_settings())
         data_manager.download_and_validate()
+        logger.info("finished downloading now doing thread")
         ft.check_for_thread_errors()
+        logger.info("finished threads waiting for queues")
         ft.wait_for_queues()
+
+        logger.info("finished queues waiting for shutdown")
         ft.shutdown()
         
         nt = Neo4jTransactor()
 
         nt.start_threads(data_manager.get_NT_thread_settings())
+
+        logger.info("finished starting neo threads ")
         
         if not context_info.env["USING_PICKLE"]:
             logger.info("Creating indices.")
@@ -71,13 +78,13 @@ class AggregateLoader(object):
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
-            'ExpressionAtlas': ExpressionAtlasETL,
+            'GENEEEXPRESSIONATLASSITEMAP': ExpressionAtlasETL,
             'ONTOLOGY': GenericOntologyETL,
             'ECOMAP': ECOMAPETL,
             'ALLELE': AlleleETL,
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
-            'GENOTYPE': AffectedGenomicModelETL,
+            'AGM': AffectedGenomicModelETL,
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
@@ -90,7 +97,8 @@ class AggregateLoader(object):
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
             'Interactions': MolecularInteractionETL,
-            'GeneDescriptions': GeneDescriptionsETL
+            'GeneDescriptions': GeneDescriptionsETL,
+            'VEP': VEPETL
         }
 
         # This is the order in which data types are loaded.
@@ -106,11 +114,11 @@ class AggregateLoader(object):
             ['ALLELE'],
             ['VARIATION'],
             ['SQTR'],
-            ['GENOTYPE'],
+            ['AGM'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
-            ['ExpressionAtlas'],
+            ['GENEEEXPRESSIONATLASSITEMAP'],
             ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
             ['ORTHO'],  # Locks Genes
@@ -119,7 +127,8 @@ class AggregateLoader(object):
             ['GeneDiseaseOrtho'],
             ['Interactions'],
             ['Closure'],
-            ['GeneDescriptions']
+            ['GeneDescriptions'],
+            ['VEP']
         ]
         etl_time_tracker_list = []
 

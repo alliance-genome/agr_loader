@@ -51,10 +51,11 @@ class DataFileManager(metaclass=Singleton):
             sys.exit(-1)
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
-        logger.debug(self.submission_system_data)
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(dataFile)
+
+        logger.debug(self.submission_system_data)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}
@@ -99,6 +100,7 @@ class DataFileManager(metaclass=Singleton):
             logger.debug('Downloading %s data.' % entry)
             if isinstance(self.master_data_dictionary[entry], DataTypeConfig):  # If we're dealing with an object.
                 self.master_data_dictionary[entry].get_data()
+                logger.debug('done with %s data.' % entry)
 
     def process_config(self):
         # This checks for the validity of the YAML file.

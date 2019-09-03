@@ -1,5 +1,5 @@
-schemaVersion: 1.0.0.8
-releaseVersion: 2.2.0
+schemaVersion: 1.0.0.9
+releaseVersion: 2.3.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -8,8 +8,9 @@ DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GENOTYPE: [ZFIN, MGI]
+AGM: [ZFIN, MGI, RGD]
 SQTR: [ZFIN]
 ONTOLOGY:
   - GO
@@ -57,9 +58,12 @@ Closure:
   - UBERON
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VEP: [ZFIN]
+
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
+

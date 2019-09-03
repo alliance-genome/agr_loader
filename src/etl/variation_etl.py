@@ -23,7 +23,7 @@ class VariationETL(ETL):
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
-                     o.hgvs_nomenclature = row.hgvs_nomenclature,
+                     o.hgvsNomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
                      o.paddingRight = row.paddingRight,
@@ -142,6 +142,8 @@ class VariationETL(ETL):
         elif variantType == "SO:0000159": # deletion
             hgvs_nomenclature += '_' + end_position_str + 'del'
         elif variantType == "SO:0002007": # MNV
+            hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
+        elif variantType == "SO:1000032": # DELIN
             hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
         else:
             hgvs_nomenclature = ''
@@ -264,10 +266,10 @@ class VariationETL(ETL):
 
             if genomicReferenceSequence is not None:
                 if len(genomicReferenceSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.info(alleleRecord.get('alleleId') + "genomicReferenceSequence")
+                    logger.debug(alleleRecord.get('alleleId') + "genomicReferenceSequence")
             if genomicVariantSequence is not None:
                 if len(genomicVariantSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.info(alleleRecord.get('alleleId') + "genomicVariantSequence")
+                    logger.debug(alleleRecord.get('alleleId') + "genomicVariantSequence")
 
             hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
                                                            alleleRecord.get('type'),
@@ -275,6 +277,10 @@ class VariationETL(ETL):
                                                            alleleRecord.get('end'),
                                                            genomicReferenceSequence,
                                                            genomicVariantSequence)
+
+            if (genomicReferenceSequence is not None and len(genomicReferenceSequence) > 30000)\
+                    or (genomicVariantSequence is not None and len(genomicVariantSequence)) > 30000:
+                logger.debug(alleleRecord.get('alleleId') + " has too long of a sequence potentionally")
 
             # TODO: fix typo in MGI Submission for this variant so that it doesn't list a 40K bp point mutation.
             if alleleRecord.get('alleleId') != 'MGI:6113870':
