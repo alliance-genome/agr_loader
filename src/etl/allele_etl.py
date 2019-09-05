@@ -34,7 +34,7 @@ class AlleleETL(ETL):
                  o.symbolText = row.symbolText,
                  o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
                  o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider
+                 o.dataProvider = row.dataProvider,
                  o.symbolWithSpecies = row.symbolWithSpecies,
                  o.symbolTextWithSpecies = row.symbolTextWithSpecies
 
@@ -168,7 +168,7 @@ class AlleleETL(ETL):
                     continue
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
-            symbolText = TextProcessingHelper.cleanHTML(alleleRecord.get('symbol'))
+            symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
 
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),

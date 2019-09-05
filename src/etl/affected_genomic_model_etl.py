@@ -32,7 +32,7 @@ class AffectedGenomicModelETL(ETL):
                  o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
                  o.dataProviders = row.dataProviders,
                  o.dataProvider = row.dataProvider,
-                 o.nameText = row.nameText.
+                 o.nameText = row.nameText,
                  o.nameTextWithSpecies = row.nameTextWithSpecies,
                  o.nameWithSpecies = row.nameWithSpecies
 
@@ -230,7 +230,7 @@ class AffectedGenomicModelETL(ETL):
                                                                                        self.xrefUrlMap, prefix, page)
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('name'))
-            nameText = TextProcessingHelper.cleanHTML(agmRecord.get('name'))
+            nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
 
             # TODO: nameText
             agm_dataset = {
