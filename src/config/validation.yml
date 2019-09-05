@@ -39,7 +39,7 @@ GENEEEXPRESSIONATLASSITEMAP:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP:
   type: list
-  allowed: [FB, WB, ZFIN, RGD, MGI]
+  allowed: [ZFIN]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
