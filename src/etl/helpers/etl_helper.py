@@ -22,6 +22,25 @@ class ETLHelper(object):
 
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
+    @staticmethod
+    def get_cypher_xref_text_annotation_level():
+        return """
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    SET id.name = row.id,
+                     id.globalCrossRefId = row.globalCrossRefId,
+                     id.localId = row.localId,
+                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                     id.prefix = row.prefix,
+                     id.crossRefType = row.crossRefType,
+                     id.uuid = row.uuid,
+                     id.page = row.page,
+                     id.primaryKey = row.primaryKey,
+                     id.displayName = row.displayName,
+                     id.curatedDB = row.curatedDB,
+                     id.loadedDB = row.loadedDB
+
+                MERGE (o)-[gcr:ANNOTATION_SOURCE_CROSS_REFERENCE]->(id) """
+
 
     @staticmethod
     def get_expression_pub_annotation_xref(publicationModId):

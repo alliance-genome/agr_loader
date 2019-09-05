@@ -1,64 +1,10 @@
 schemaVersion: 1.0.0.9
 releaseVersion: 2.3.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ALLELE: [FB, WB, ZFIN, RGD, MGI]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
-PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
-AGM: [ZFIN, MGI, RGD]
-SQTR: [ZFIN]
-GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+BGI: [HUMAN]
+DAF: [HUMAN]
 ONTOLOGY:
-  - GO
   - SO
   - DOID
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-  - ECOMAP
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure:
-  - GO
-  - SO
-  - DOID
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-Interactions: [MolecularInteraction]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [ZFIN]
 
 FileTransactorThreads: 7
 Neo4jTransactorThreads: 3

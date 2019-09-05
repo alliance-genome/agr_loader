@@ -1,7 +1,7 @@
 import uuid
 import logging
 
-from etl.helpers import ETLHelper
+from . import ETLHelper
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ class DiseaseHelper(object):
                 pubMedUrl = None
                 diseaseAssociationType = None
                 ecodes = []
+                annotationDataProvider = {}
+                annotationDP = []
 
                 evidence = diseaseRecord.get('evidence')
                 if 'publication' in evidence:
@@ -64,16 +66,19 @@ class DiseaseHelper(object):
                         additionalGeneticComponents.append(
                             {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
                         )
-            annotationDataProviders = {}
 
             if 'dataProvider' in diseaseRecord:
                 for dp in diseaseRecord['dataProvider']:
+
                     annotationType = dp.get('type')
-                    dpCrossRefId = dp['crossReference'].get('id')
-                    dpPages = dp['crossReference'].get('pages')
-                    annotationDataProviders[uuid] = {"annoationType": annotationType,
-                                                     "dpCrossRefId": dpCrossRefId,
-                                                     "dpPages": dpPages}
+                    xref = dp.get('crossReference')
+                    crossRefId = xref.get('id')
+                    pages = xref.get('pages')
+
+                    annotationDataProvider = {"annoationType": annotationType,
+                                                     "crossRefId": crossRefId,
+                                                     "dpPages": pages}
+                    annotationDP.append(annotationDataProvider)
             if 'evidenceCodes' in diseaseRecord['evidence']:
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
@@ -105,7 +110,7 @@ class DiseaseHelper(object):
                 "pubMedUrl": pubMedUrl,
                 "pubModUrl": pubModUrl,
                 "pgeIds": pgeIds,
-                
+                "annotationDP": annotationDP,
                 "ecodes": ecodes,
 
             }
