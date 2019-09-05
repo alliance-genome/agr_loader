@@ -43,7 +43,6 @@ class PhenoTypeETL(ETL):
             
             MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pa)
             
-            
             """
             
     execute_gene_template = """
