@@ -3,6 +3,7 @@ import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -30,7 +31,10 @@ class AffectedGenomicModelETL(ETL):
                  o.uuid = row.uuid,
                  o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
                  o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider
+                 o.dataProvider = row.dataProvider,
+                 o.nameText = row.nameText.
+                 o.nameTextWithSpecies = row.nameTextWithSpecies,
+                 o.nameWithSpecies = row.nameWithSpecies
 
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
@@ -225,6 +229,8 @@ class AffectedGenomicModelETL(ETL):
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
+            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('name'))
+            nameText = TextProcessingHelper.cleanHTML(agmRecord.get('name'))
 
             # TODO: nameText
             agm_dataset = {
@@ -237,7 +243,10 @@ class AffectedGenomicModelETL(ETL):
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
-                "dataProvider": data_provider
+                "dataProvider": data_provider,
+                "nameText": nameText,
+                "nameWithSpecies": agmRecord.get('name') + " ("+ shortSpeciesAbbreviation + ")",
+                "nameTextWithSpecies": nameText + " ("+ shortSpeciesAbbreviation + ")",
             }
             agms.append(agm_dataset)
 
