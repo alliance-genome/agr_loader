@@ -651,7 +651,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
             " return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 2
+        assert record["counter"] > 1
 
 
 

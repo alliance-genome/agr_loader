@@ -76,7 +76,7 @@ class DiseaseHelper(object):
                     crossRefId = xref.get('id')
                     pages = xref.get('pages')
 
-                    annotationDataProvider = {"annoationType": annotationType,
+                    annotationDataProvider = {"annotationType": annotationType,
                                                      "crossRefId": crossRefId,
                                                      "dpPages": pages}
                     annotationDP.append(annotationDataProvider)

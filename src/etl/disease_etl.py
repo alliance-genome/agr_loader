@@ -418,6 +418,7 @@ class DiseaseETL(ETL):
                             crossRefId = adp.get('crossRefId')
                             pages = adp.get('dpPages')
                             annotationType = adp.get('annotationType')
+
                             local_crossref_id = ""
                             prefix = crossRefId
                             if annotationType is None:
@@ -429,10 +430,12 @@ class DiseaseETL(ETL):
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                    modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
-                                    if annotationType == 'loaded':
-                                        xref['loadedDB'] = crossRefId
+                                    if 'loaded' in annotationType:
+                                        xref['loadedDB'] = 'true'
+                                        xref['curatedDB'] = 'false'
                                     else:
-                                        xref['curatedDB'] = crossRefId
+                                        xref['curatedDB'] = 'true'
+                                        xref['loadedDB'] = 'false'
 
                                     xrefs.append(xref)
                 gene_list_to_yield.append(disease_record)
