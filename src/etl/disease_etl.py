@@ -420,6 +420,8 @@ class DiseaseETL(ETL):
                             annotationType = adp.get('annotationType')
                             local_crossref_id = ""
                             prefix = crossRefId
+                            if annotationType is None:
+                                annotationType = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
@@ -427,7 +429,7 @@ class DiseaseETL(ETL):
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                    modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
-                                    if annotationType == 'Loaded':
+                                    if annotationType == 'loaded':
                                         xref['loadedDB'] = crossRefId
                                     else:
                                         xref['curatedDB'] = crossRefId
@@ -468,6 +470,8 @@ class DiseaseETL(ETL):
                             crossRefId = adp.get('crossRefId')
                             pages = adp.get('dpPages')
                             annotationType = adp.get('annotationType')
+                            if annotationType is None:
+                                annotationType = 'curated'
                             local_crossref_id = ""
                             prefix = crossRefId
                             if pages is not None and len(pages) > 0:
@@ -519,6 +523,8 @@ class DiseaseETL(ETL):
                             annotationType = adp.get('annotationType')
                             local_crossref_id = ""
                             prefix = crossRefId
+                            if annotationType is None:
+                                annotationType = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,

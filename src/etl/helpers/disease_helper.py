@@ -13,6 +13,7 @@ class DiseaseHelper(object):
         qualifier = None
         publicationModId = None
         pubMedId = None
+        annotationDP = []
 
         primaryId = diseaseRecord.get('objectId')
 
