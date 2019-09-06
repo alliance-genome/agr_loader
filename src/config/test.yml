@@ -58,7 +58,7 @@ Closure:
   - UBERON
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [ZFIN]
+VEP: [ZFIN, RGD, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!

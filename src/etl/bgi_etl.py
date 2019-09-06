@@ -30,18 +30,18 @@ class BGIETL(ETL):
             MATCH (o:Gene {primaryKey:row.primaryId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)            
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
             MERGE (a:Assembly {primaryKey:row.assembly})
             
             MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand
+                gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosome
                 
             MERGE (o)-[of:LOCATED_ON]-(gchrm)
-            MERGE (gchrm)-[of:LOCATED_ON]-(chrm)
+            MERGE (gchrm)-[ofc:LOCATED_ON]-(chrm)
             
         """
 
@@ -425,7 +425,7 @@ class BGIETL(ETL):
 #                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
 
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
-                                 start, "end": end, "strand": strand, "assembly": assembly})
+                                 start, "end": end, "strand": strand, "assembly": assembly, "uuid": str(uuid.uuid4())})
 
             if basicGeneticEntity.get('synonyms') is not None:
                 for synonym in basicGeneticEntity.get('synonyms'):

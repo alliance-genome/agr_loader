@@ -53,15 +53,15 @@ class VariationETL(ETL):
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
             MERGE (a:Assembly {primaryKey:row.assembly})
             
-            MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
+            MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand
+                gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosome
                 
-            MERGE (o)-[of:LOCATED_ON]-(gchrm)
-            MERGE (gchrm)-[of:LOCATED_ON]-(chrm)
+            MERGE (o)-[of:LOCATED_ON]-(gchrmn)
+            MERGE (gchrmn)-[ofc:LOCATED_ON]-(chrm)
     """
 
     xrefs_template = """
@@ -313,7 +313,8 @@ class VariationETL(ETL):
                     "assembly": alleleRecord.get('assembly'),
                     "chromosome": chromosome_str,
                     "start": alleleRecord.get('start'),
-                    "end": alleleRecord.get('end')
+                    "end": alleleRecord.get('end'),
+                    "uuid": str(uuid.uuid4())
 
                 }
 
