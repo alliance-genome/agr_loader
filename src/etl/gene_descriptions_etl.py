@@ -119,6 +119,8 @@ class GeneDescriptionsETL(ETL):
         do_onto_path = "file://" + os.path.join(os.getcwd(), do_onto_config.get_single_filepath())
         gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
                                                 ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
+        #gd_data_manager.set_ontology(ontology_type=DataType.DO,
+        #                             ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.DO), config=gd_config)
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider().upper() for sub_type in self.data_type_config.get_sub_type_objects()]:
             gd_config_mod_specific = copy.deepcopy(gd_config)

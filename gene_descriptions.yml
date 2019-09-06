@@ -561,15 +561,12 @@ expression_sentences_options:
     - "EMAPA:36040" # conceptus
     - "EMAPA:16103" # organ system
     - "EMAPA:37283" # appendage
-    - "EMAPA:16039" # embryo
     - "EMAPA:36031" # body region
     - "EMAPA:16245" # visceral organ system
     - "EMAPA:16192" # sensory organ
     - "EMAPA:35178" # body fluid or substance
     - "EMAPA:35868" # tissue
     - "EMAPA:16262" # oral region
-    - "EMAPA:18425" # gland
-    - "EMAPA:31858" # head
     - "WBbt:0005758" # hermaphrodite-specific
     - "WBbt:0007849" # hermaphrodite
     - "WBbt:0005738" # body region
@@ -596,12 +593,13 @@ expression_sentences_options:
 
 
   rename_terms:
-    "^neuron$": "nervous system"
+    "^neuron$": "neurons"
     "(.*)([a-z]+ )neuron$": "\\1\\2neurons"
     "^germ cell$": "germ cells"
     "(.*)hermaphrodite-specific$": "\\1hermaphrodite"
     "(.*)male-specific$": "\\1male"
     "^ganglion$": "ganglia"
+    "^neuroblast$": "neuroblasts"
   evidence_codes:
     EXP:
       group: EXPERIMENTAL
