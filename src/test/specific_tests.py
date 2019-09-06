@@ -645,6 +645,15 @@ def test_insertion_hgvs():
         assert record["counter"] == 1
 
 
+def test_hgnc_gene_has_curated_and_loaded_db_xref():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)" \
+            " where g.primaryKey = 'HGNC:7' " \
+            " return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 2
+
+
 
 
 

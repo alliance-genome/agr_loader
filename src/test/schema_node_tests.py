@@ -112,8 +112,6 @@ class TestClass(object):
                             dict(node='CrossReference', prop='globalCrossRefId'),
                             dict(node='CrossReference', prop='uuid'),
                             dict(node='CrossReference', prop='page'),
-                            dict(node='CrossReference', prop='curatedDB'),
-                            dict(node='CrossReference', prop='loadedDB'),
                             dict(node='Species', prop='name'),
                             dict(node='Species', prop='species'),
                             dict(node='Species', prop='primaryKey'),

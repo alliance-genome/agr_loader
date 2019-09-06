@@ -425,7 +425,7 @@ class DiseaseETL(ETL):
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                           self.xrefUrlMap, prefix, page)
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page)
+                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
                                     if annotationType == 'Loaded':
                                         xref['loadedDB'] = crossRefId
@@ -475,9 +475,10 @@ class DiseaseETL(ETL):
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                           self.xrefUrlMap, prefix, page)
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page)
+                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
                                     if annotationType == 'Loaded':
+                                        logger.info(annotationType)
                                         xref['loadedDB'] = crossRefId
                                     else:
                                         xref['curatedDB'] = crossRefId
@@ -523,7 +524,7 @@ class DiseaseETL(ETL):
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                           self.xrefUrlMap, prefix, page)
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page)
+                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
                                     if annotationType == 'Loaded':
                                         xref['loadedDB'] = crossRefId
