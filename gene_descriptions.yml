@@ -587,7 +587,6 @@ expression_sentences_options:
     - "FBbt:00025998" # mesodermal derivative
     - "FBbt:00025994" # endodermal derivative
     - "FBbt:00007002" # cell
-    - "FBbt:00000001" # organism
     - "FBbt:00100318" # somatic cell
     - "FBbt:00004450" # late extended germ band embryo
 
@@ -595,11 +594,11 @@ expression_sentences_options:
   rename_terms:
     "^neuron$": "neurons"
     "(.*)([a-z]+ )neuron$": "\\1\\2neurons"
-    "^germ cell$": "germ cells"
     "(.*)hermaphrodite-specific$": "\\1hermaphrodite"
     "(.*)male-specific$": "\\1male"
     "^ganglion$": "ganglia"
     "^neuroblast$": "neuroblasts"
+
   evidence_codes:
     EXP:
       group: EXPERIMENTAL
