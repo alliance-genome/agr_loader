@@ -8,12 +8,17 @@ logger = logging.getLogger(__name__)
 class AssemblySequenceHelper(object):
     def __init__(self, assembly, data_manager):
         sub_type = assembly.replace('.', '').replace('_', '')
+        if sub_type.startswith('R6'):
+            sub_type = 'R627'
         fasta_config = data_manager.get_config('FASTA')
+        logger.info(fasta_config)
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
+                logger.info(sub_type_config.get_sub_data_type())
                 continue
             else:
                 filepath = sub_type_config.get_filepath()
+                logger.info(filepath)
                 break
         if filepath is None:
             logger.warning("Can't find Assembly filepath for %s" % assembly)
@@ -46,11 +51,7 @@ class AssemblySequenceHelper(object):
            end = second
 
         start = start - 1
-        if chromosome.startswith("chr"):
-            chromosome_str = chromosome[3:]
+        if chromosome in self.fa:
+            return self.fa[chromosome][start:end].seq
         else:
-            chromosome_str = chromosome
-        if chromosome_str in self.fa:
-            return self.fa[chromosome_str][start:end].seq
-        else:
-            logger.warning("Chromosome " + chromosome_str + " not in assembly " + self.assembly)
+            logger.warning("Chromosome " + chromosome + " not in assembly " + self.assembly)

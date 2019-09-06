@@ -13,9 +13,9 @@ ALLELE:
 SQTR:
   type: list
   allowed: [ZFIN]
-GENOTYPE:
+AGM:
   type: list
-  allowed: [ZFIN, MGI]
+  allowed: [ZFIN, MGI, RGD]
 DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -34,6 +34,12 @@ GeoXref:
 FASTA:
   type: list
   allowed: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+GENEEEXPRESSIONATLASSITEMAP:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VEP:
+  type: list
+  allowed: [FB, WB, ZFIN, RGD, MGI]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
