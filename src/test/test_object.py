@@ -141,7 +141,9 @@ class TestObject(object):
             'ZFIN:ZDB-FISH-150901-29235', 'ZFIN:ZDB-FISH-150901-14423', 'ZFIN:ZDB-FISH-150901-26753',
             'ZFIN:ZDB-FISH-150901-5094',
             # GO annotations
-            'ZFIN:ZDB-GENE-080424-7'
+            'ZFIN:ZDB-GENE-080424-7',
+            # Phenotype
+            'ZFIN:ZDB-FISH-150901-24820', 'ZFIN:ZDB-ALT-980203-469', 'ZFIN:ZDB-GENE-990415-198',
 
         }
         self.flybaseIdSet = {
