@@ -65,7 +65,8 @@ class TestClass(object):
                              dict(node='EMAPATerm'),
                              dict(node='MMUSDVTerm'),
                              dict(node='BSPOTerm'),
-                             dict(node='WBLSTerm')
+                             dict(node='WBLSTerm'),
+                             dict(node='Assembly')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -145,8 +146,8 @@ class TestClass(object):
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                             dict(node='DOTerm', prop='defLinks'),
-                            dict(node='Variant', prop='primaryKey')
-
+                            dict(node='Variant', prop='primaryKey'),
+                            dict(node='Assembly', prop='primaryKey')
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
@@ -215,7 +216,8 @@ class TestClass(object):
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
-                               dict(node='Variant', prop='hgvsNomenclature')
+                               dict(node='Variant', prop='hgvsNomenclature'),
+                               dict(node='Assembly', prop='primaryKey')
                                ],
 
         'test_prop_unique': [
