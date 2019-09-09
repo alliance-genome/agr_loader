@@ -58,6 +58,8 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :DOTerm(primaryKey)")
         session.run("CREATE INDEX ON :DOTerm(oid)")
         session.run("CREATE INDEX ON :GOTerm(oid)")
+        session.run("CREATE INDEX ON :GenomeLocation(primaryKey)")
+        session.run("CREATE INDEX ON :Assembly(primaryKey)")
         session.run("CREATE INDEX ON :Publication(primaryKey)")
         session.run("CREATE INDEX ON :Transgene(primaryKey)")
         session.run("CREATE INDEX ON :DiseaseEntityJoin(primaryKey)")
