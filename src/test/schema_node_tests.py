@@ -66,7 +66,8 @@ class TestClass(object):
                              dict(node='MMUSDVTerm'),
                              dict(node='BSPOTerm'),
                              dict(node='WBLSTerm'),
-                             dict(node='Assembly')
+                             dict(node='Assembly'),
+                             dict(node='GenomicLocation')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -147,7 +148,9 @@ class TestClass(object):
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                             dict(node='DOTerm', prop='defLinks'),
                             dict(node='Variant', prop='primaryKey'),
-                            dict(node='Assembly', prop='primaryKey')
+                            dict(node='Assembly', prop='primaryKey'),
+                            dict(node='GenomicLocation', prop='chromosome'),
+                            dict(node='GenomicLocation', prop='assembly')
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
@@ -217,7 +220,10 @@ class TestClass(object):
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
                                dict(node='Variant', prop='hgvsNomenclature'),
-                               dict(node='Assembly', prop='primaryKey')
+                               dict(node='Assembly', prop='primaryKey'),
+                               dict(node='Assembly', prop='primaryKey'),
+                               dict(node='GenomicLocation', prop='chromosome'),
+                               dict(node='GenomicLocation', prop='assembly')
                                ],
 
         'test_prop_unique': [

@@ -501,7 +501,7 @@ def test_gene_has_symbol_with_species():
 
 
 def test_genome_start_is_long():
-    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.start <> toInt(gf.start) return count(gf) " \
+    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.start <> toInt(ch.start) return count(gf) " \
             "as counter"
     result = execute_transaction(query)
     for record in result:
@@ -509,7 +509,7 @@ def test_genome_start_is_long():
 
 
 def test_genome_end_is_long():
-    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.end <> toInt(gf.end) " \
+    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.end <> toInt(ch.end) " \
             "return count(gf) as counter"
     result = execute_transaction(query)
     for record in result:

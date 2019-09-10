@@ -38,10 +38,11 @@ class BGIETL(ETL):
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosome
+                gchrm.chromosome = row.chromosome,
+                gchrm.assembly = row.assembly
                 
-            MERGE (o)-[of:LOCATED_ON]-(gchrm)
-            MERGE (gchrm)-[ofc:LOCATED_ON]-(chrm)
+            MERGE (o)-[of:ASSOCIATION]-(gchrm)
+            MERGE (gchrm)-[ofc:ASSOCIATION]-(chrm)
             
         """
 

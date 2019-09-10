@@ -55,13 +55,13 @@ class VariationETL(ETL):
             
             MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosome
+                gchrmn.end = apoc.number.parseInt(row.end),
+                gchrmn.assembly = row.assembly,
+                gchrmn.strand = row.strand,
+                gchrmn.chromosome = row.chromosome
                 
-            MERGE (o)-[of:LOCATED_ON]-(gchrmn)
-            MERGE (gchrmn)-[ofc:LOCATED_ON]-(chrm)
+            MERGE (o)-[of:ASSOCIATION]-(gchrmn)
+            MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
     """
 
     xrefs_template = """
