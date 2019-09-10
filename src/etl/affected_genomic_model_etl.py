@@ -229,7 +229,7 @@ class AffectedGenomicModelETL(ETL):
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
-            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('name'))
+            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
             nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
 
             # TODO: nameText
