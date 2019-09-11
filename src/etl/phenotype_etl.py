@@ -43,7 +43,6 @@ class PhenoTypeETL(ETL):
             
             MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pa)
             
-            
             """
             
     execute_gene_template = """
@@ -72,6 +71,34 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
             
+            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.phenotypeUniqueKey}]->(pa) """
+
+    execute_agm_template = """
+
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (g:AffectedGenomicModel {primaryKey:row.primaryId})
+
+            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
+
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                ON CREATE SET 
+                    pa.joinType = 'phenotype',
+                    pa.dataProviders = row.dataProviders
+
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+
+            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                ON CREATE SET pubf.pubModId = row.pubModId,
+                 pubf.pubMedId = row.pubMedId,
+                 pubf.pubModUrl = row.pubModUrl,
+                 pubf.pubMedUrl = row.pubMedUrl
+
+
             MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.phenotypeUniqueKey}]->(pa) """
 
     def __init__(self, config):
@@ -107,6 +134,7 @@ class PhenoTypeETL(ETL):
         query_list = [
             [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
         ]
             
         query_and_file_list = self.process_query_params(query_list)
@@ -210,9 +238,9 @@ class PhenoTypeETL(ETL):
             list_to_yield.append(phenotype)
 
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield]
                 list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [list_to_yield, list_to_yield]
+            yield [list_to_yield, list_to_yield, list_to_yield]

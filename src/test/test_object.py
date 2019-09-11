@@ -141,7 +141,9 @@ class TestObject(object):
             'ZFIN:ZDB-FISH-150901-29235', 'ZFIN:ZDB-FISH-150901-14423', 'ZFIN:ZDB-FISH-150901-26753',
             'ZFIN:ZDB-FISH-150901-5094',
             # GO annotations
-            'ZFIN:ZDB-GENE-080424-7'
+            'ZFIN:ZDB-GENE-080424-7',
+            # Phenotype
+            'ZFIN:ZDB-FISH-150901-24820', 'ZFIN:ZDB-ALT-980203-469', 'ZFIN:ZDB-GENE-990415-198',
 
         }
         self.flybaseIdSet = {
@@ -184,7 +186,7 @@ class TestObject(object):
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
-            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893',
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

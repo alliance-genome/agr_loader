@@ -8,10 +8,10 @@ DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
 AGM: [ZFIN, MGI, RGD]
 SQTR: [ZFIN]
-GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ONTOLOGY:
   - GO
   - SO
@@ -58,7 +58,10 @@ Closure:
   - UBERON
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [ZFIN]
+VEP: [FB, WB, ZFIN, RGD, MGI]
 
-FileTransactorThreads: 7
-Neo4jTransactorThreads: 3
+# Loader configuration values are below.
+# Please modify with caution!
+
+FileTransactorThreads: 10
+Neo4jTransactorThreads: 7

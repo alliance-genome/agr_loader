@@ -51,9 +51,18 @@ class VariationETL(ETL):
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly """
+            MERGE (a:Assembly {primaryKey:row.assembly})
+            
+            MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
+            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrmn.end = apoc.number.parseInt(row.end),
+                gchrmn.assembly = row.assembly,
+                gchrmn.strand = row.strand,
+                gchrmn.chromosome = row.chromosome
+                
+            MERGE (o)-[of:ASSOCIATION]-(gchrmn)
+            MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
+    """
 
     xrefs_template = """
 
@@ -304,7 +313,8 @@ class VariationETL(ETL):
                     "assembly": alleleRecord.get('assembly'),
                     "chromosome": chromosome_str,
                     "start": alleleRecord.get('start'),
-                    "end": alleleRecord.get('end')
+                    "end": alleleRecord.get('end'),
+                    "uuid": str(uuid.uuid4())
 
                 }
 
