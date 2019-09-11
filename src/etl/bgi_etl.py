@@ -30,18 +30,28 @@ class BGIETL(ETL):
             MATCH (o:Gene {primaryKey:row.primaryId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
+            MERGE (a:Assembly {primaryKey:row.assembly})
+            
+            MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand """
+                gchrm.strand = row.strand,
+                gchrm.chromosome = row.chromosome,
+                gchrm.assembly = row.assembly
+                
+            MERGE (o)-[of:ASSOCIATION]-(gchrm)
+            MERGE (gchrm)-[ofc:ASSOCIATION]-(chrm)
+            
+        """
 
     genomic_locations_bins_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.genePrimaryId})
-            MERGE (chrm:Chromosome {primaryKey:row.chromosome})
+            MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
             MERGE (bin:GenomicLocationBin {primaryKey:row.binPrimaryKey})
             ON CREATE SET bin.number = toInt(row.number),
@@ -416,7 +426,7 @@ class BGIETL(ETL):
 #                                    "taxonId": taxonId, "assembly": assembly, "number": binNumber})
 
                     genomicLocations.append({"primaryId": primary_id, "chromosome": chromosome, "start":
-                                 start, "end": end, "strand": strand, "assembly": assembly})
+                                 start, "end": end, "strand": strand, "assembly": assembly, "uuid": str(uuid.uuid4())})
 
             if basicGeneticEntity.get('synonyms') is not None:
                 for synonym in basicGeneticEntity.get('synonyms'):

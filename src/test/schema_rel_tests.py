@@ -73,6 +73,9 @@ class TestClass(object):
                             dict(node1='AffectedGenomicModel', node2='SequenceTargetingReagent'),
                             dict(node1='AffectedGenomicModel', node2='AffectedGenomicModel'),
                             dict(node1='AffectedGenomicModel', node2='Feature'),
+                            dict(node1='AffectedGenomicModel', node2='DiseaseEntityJoin'),
+                            dict(node1='AffectedGenomicModel', node2='PhenotypeEntityJoin'),
+                            dict(node1='DiseaseEntityJoin', node2='CrossReference')
                             ]
 
     }

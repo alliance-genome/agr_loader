@@ -1,9 +1,11 @@
 import logging
 import multiprocessing
 import uuid
+import re
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -32,7 +34,9 @@ class AlleleETL(ETL):
                  o.symbolText = row.symbolText,
                  o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
                  o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider
+                 o.dataProvider = row.dataProvider,
+                 o.symbolWithSpecies = row.symbolWithSpecies,
+                 o.symbolTextWithSpecies = row.symbolTextWithSpecies
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
@@ -163,6 +167,9 @@ class AlleleETL(ETL):
                     counter = counter - 1
                     continue
 
+            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
+            symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
+
             allele_dataset = {
                 "symbol": alleleRecord.get('symbol'),
                 "geneId": alleleRecord.get('gene'),
@@ -177,7 +184,9 @@ class AlleleETL(ETL):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "dataProvider": data_provider,
-                "symbolText": alleleRecord.get('symbolText')
+                "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
+                "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
+                "symbolText": symbolText
 
             }
 
