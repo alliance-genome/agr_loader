@@ -14,6 +14,7 @@ class DiseaseHelper(object):
         publicationModId = None
         pubMedId = None
         annotationDP = []
+        pgeKey = ''
 
         primaryId = diseaseRecord.get('objectId')
 
@@ -88,10 +89,8 @@ class DiseaseHelper(object):
 
             if 'primaryGeneticEntityIDs' in diseaseRecord:
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
-
             else:
                 pgeIds = []
-
 
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
@@ -111,6 +110,7 @@ class DiseaseHelper(object):
                 "pubMedUrl": pubMedUrl,
                 "pubModUrl": pubModUrl,
                 "pgeIds": pgeIds,
+                "pgeKey": pgeKey,
                 "annotationDP": annotationDP,
                 "ecodes": ecodes,
 

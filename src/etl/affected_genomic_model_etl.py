@@ -221,6 +221,8 @@ class AffectedGenomicModelETL(ETL):
                 local_crossref_id = crossRefId.split(":")[1]
                 prefix = crossRef.get('id').split(":")[0]
                 pages = crossRef.get('pages')
+                logger.info(crossRefId)
+                logger.info(local_crossref_id)
 
                 # some pages collection have 0 elements
                 if pages is not None and len(pages) > 0:
@@ -228,6 +230,7 @@ class AffectedGenomicModelETL(ETL):
                         if page == 'fish' or page == 'genotype' or page == 'strain':
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
+                            logger.info(modGlobalCrossRefUrl)
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
             nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))

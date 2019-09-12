@@ -297,6 +297,7 @@ class DiseaseETL(ETL):
 
     # TODO: get this method working instead of repeating code below -- have to make generator work within a generator.
     def get_disease_details(self, disease_record, diseaseRecord):
+
         if disease_record is not None:
             for ecode in disease_record.get('ecodes'):
                 ecode_map = {"uuid": disease_record.get('uuid'),
