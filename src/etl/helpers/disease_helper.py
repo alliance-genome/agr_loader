@@ -89,8 +89,13 @@ class DiseaseHelper(object):
 
             if 'primaryGeneticEntityIDs' in diseaseRecord:
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
+                for pge in pgeIds:
+                    pgeKey = pgeKey+pge
+
             else:
                 pgeIds = []
+
+            pecjPrimaryKey = publicationModId + pubMedId + pgeKey
 
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
@@ -103,7 +108,7 @@ class DiseaseHelper(object):
                 "dataProvider": dataProviderSingle,
                 "dateAssigned": diseaseRecord["dateAssigned"],
                 
-                "pubPrimaryKey": pubMedId + publicationModId,
+                "pubPrimaryKey": pecjPrimaryKey,
                 
                 "pubModId": publicationModId,
                 "pubMedId": pubMedId,

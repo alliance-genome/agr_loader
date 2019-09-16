@@ -11,5 +11,4 @@ class TextProcessingHelper(object):
         cleantext = re.sub(cleanr, '>', raw_html)
         cleanr = re.compile('<.*?>')
         cleantext = re.sub(cleanr, '<', cleantext)
-        logger.info(cleantext)
         return cleantext
