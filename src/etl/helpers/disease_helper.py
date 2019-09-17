@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class DiseaseHelper(object):
 
     @staticmethod
-    def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
+    def get_disease_record(diseaseRecord, dataProviders, dateProduced, dataProviderSingle):
         qualifier = None
         publicationModId = None
         pubMedId = None
@@ -19,7 +19,6 @@ class DiseaseHelper(object):
         primaryId = diseaseRecord.get('objectId')
 
         loadKey = dateProduced + "_Disease"
-        annotationUuid = str(uuid.uuid4())
 
         for dataProvider in dataProviders:
             loadKey = dataProvider + loadKey
@@ -36,7 +35,6 @@ class DiseaseHelper(object):
                 pubMedUrl = None
                 diseaseAssociationType = None
                 ecodes = []
-                annotationDataProvider = {}
                 annotationDP = []
 
                 evidence = diseaseRecord.get('evidence')
@@ -91,6 +89,7 @@ class DiseaseHelper(object):
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
                 for pge in pgeIds:
                     pgeKey = pgeKey+pge
+                    logger.info(pge)
 
             else:
                 pgeIds = []
@@ -101,14 +100,14 @@ class DiseaseHelper(object):
                 "diseaseUniqueKey": diseaseUniqueKey,
                 "doId": doId,
                 "primaryId": primaryId,
-                "uuid": annotationUuid,
+                "pecjPrimaryKey": pecjPrimaryKey,
                 "dataProviders": dataProviders,
                 "relationshipType": diseaseAssociationType,
                 "dateProduced": dateProduced,
                 "dataProvider": dataProviderSingle,
                 "dateAssigned": diseaseRecord["dateAssigned"],
                 
-                "pubPrimaryKey": pecjPrimaryKey,
+                "pubPrimaryKey": publicationModId+pubMedId,
                 
                 "pubModId": publicationModId,
                 "pubMedId": pubMedId,

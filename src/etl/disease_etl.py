@@ -197,7 +197,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Gene {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjId})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
             
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -208,7 +208,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Allele {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjId})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -219,7 +219,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjId})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -399,7 +399,8 @@ class DiseaseETL(ETL):
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pubPrimaryKey')
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
                             pge_map = {"dgeId": pecjPrimaryKey,
@@ -455,7 +456,7 @@ class DiseaseETL(ETL):
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pubPrimaryKey')
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
@@ -489,7 +490,6 @@ class DiseaseETL(ETL):
                                                                    modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
                                     if annotationType == 'Loaded':
-                                        logger.info(annotationType)
                                         xref['loadedDB'] = crossRefId
                                     else:
                                         xref['curatedDB'] = crossRefId
@@ -508,7 +508,7 @@ class DiseaseETL(ETL):
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pubPrimaryKey')
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
                             pge_map = {"dgeId": pecjPrimaryKey,
