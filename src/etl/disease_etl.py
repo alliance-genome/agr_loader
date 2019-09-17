@@ -388,7 +388,7 @@ class DiseaseETL(ETL):
 
             if diseaseObjectType == "gene":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                  release, '', data_provider)
+                                                                   data_provider)
 
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
@@ -445,7 +445,7 @@ class DiseaseETL(ETL):
                  
             elif diseaseObjectType == "allele":
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                  release, '', data_provider)
+                                                                   data_provider)
 
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
@@ -498,7 +498,7 @@ class DiseaseETL(ETL):
                 allele_list_to_yield.append(disease_record)
             else:
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                  release, '', data_provider)
+                                                                   data_provider)
                 if disease_record is not None:
                     for ecode in disease_record.get('ecodes'):
                         ecode_map = {"uuid": disease_record.get('uuid'),

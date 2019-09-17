@@ -153,10 +153,8 @@ class DataFileManager(metaclass=Singleton):
         ontologies_to_transform = ('GO', 'DOID', 'MI', 'ECOMAP')  # These have non-generic loaders.
 
         self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
-        self.transformed_submission_system_data['schemaVersion'] = self.submission_system_data['snapShot']['schemaVersion']['schema']
 
         config_values_to_ignore = [
-            'schemaVersion',  # Manually assigned above.
             'releaseVersion',  # Manually assigned above.
             'FileTransactorThreads',
             'Neo4jTransactorThreads'
