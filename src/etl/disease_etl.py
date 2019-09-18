@@ -177,7 +177,7 @@ class DiseaseETL(ETL):
 
             MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
             MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
-            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(o)
+            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
                 
     """
 
@@ -453,6 +453,7 @@ class DiseaseETL(ETL):
 
                     pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
 
+
                     for ecode in disease_record.get('ecodes'):
                         ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                      "ecode": ecode}
@@ -467,8 +468,6 @@ class DiseaseETL(ETL):
                         for pge in disease_record.get('pgeIds'):
                             pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
-                            if pge == 'ZFIN:ZDB-FISH-190411-12':
-                                logger.info(pge_map)
                             pge_list_to_yield.append(pge_map)
 
                     if 'with' in diseaseRecord:
