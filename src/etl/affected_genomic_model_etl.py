@@ -17,11 +17,8 @@ class AffectedGenomicModelETL(ETL):
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (s:Species {primaryKey: row.taxonId})
-
-            //TODO: change the label type based on incoming affectedGenomicModelSpec - for now, these are all
-            //genotypes.
             
-            MERGE (o:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
                 ON CREATE SET o.name = row.name,
                 o.nameText = row.nameText,
                  o.dateProduced = row.dateProduced,
@@ -44,7 +41,7 @@ class AffectedGenomicModelETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (f:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+                MATCH (f:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
                     SET second.name = row.secondary_id
@@ -57,7 +54,7 @@ class AffectedGenomicModelETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
             MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
@@ -66,7 +63,7 @@ class AffectedGenomicModelETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+                MATCH (a:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
@@ -78,8 +75,8 @@ class AffectedGenomicModelETL(ETL):
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
-            MATCH (b:AffectedGenomicModel:Genotype {primaryKey:row.backgroundId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
+            MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
             
             MERGE (agm)-[:BACKGROUND]-(b)
 
@@ -90,7 +87,7 @@ class AffectedGenomicModelETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (feature:Feature:Allele {primaryKey:row.componentId})
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
                 SET agmf.zygosity = row.zygosityId
