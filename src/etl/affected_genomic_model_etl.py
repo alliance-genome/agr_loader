@@ -34,7 +34,8 @@ class AffectedGenomicModelETL(ETL):
                  o.dataProvider = row.dataProvider,
                  o.nameText = row.nameText,
                  o.nameTextWithSpecies = row.nameTextWithSpecies,
-                 o.nameWithSpecies = row.nameWithSpecies
+                 o.nameWithSpecies = row.nameWithSpecies,
+                 o.subType = row.subType
 
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
@@ -242,6 +243,7 @@ class AffectedGenomicModelETL(ETL):
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
+                "subType": agmRecord.get('subType'),
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
                 "dataProvider": data_provider,
                 "nameText": nameText,
