@@ -69,12 +69,12 @@ class DiseaseETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.uuid}]->(pubEJ)
+            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
 
@@ -120,12 +120,12 @@ class DiseaseETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
             
-            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.uuid}]->(pubEJ)
+            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
     execute_gene_template = """
@@ -163,11 +163,11 @@ class DiseaseETL(ETL):
                     pubg.pubModUrl = row.pubModUrl,
                     pubg.pubMedUrl = row.pubMedUrl
             
-            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.uuid})
+            MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
-            MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.uuid}]->(pubEJ)
+            MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
             """
     execute_ecode_template = """
@@ -176,7 +176,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
-            MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
+            MATCH (pubjk:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
             MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.uuid}]->(o)
                 
     """
@@ -197,7 +197,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Gene {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
             
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -208,7 +208,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Allele {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -219,7 +219,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.uuid})
+            MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
@@ -391,19 +391,21 @@ class DiseaseETL(ETL):
                                                                    data_provider)
 
                 if disease_record is not None:
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+
+
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"uuid": disease_record.get('uuid'),
+                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"dgeId": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
@@ -448,20 +450,25 @@ class DiseaseETL(ETL):
                                                                    data_provider)
 
                 if disease_record is not None:
+
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"uuid": disease_record.get('uuid'),
+                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"dgeId": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
+                            if pge == 'ZFIN:ZDB-FISH-190411-12':
+                                logger.info(pge_map)
                             pge_list_to_yield.append(pge_map)
 
                     if 'with' in diseaseRecord:
@@ -500,18 +507,20 @@ class DiseaseETL(ETL):
                 disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
                                                                    data_provider)
                 if disease_record is not None:
+
+                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"uuid": disease_record.get('uuid'),
+                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                        diseaseRecord['objectRelation'].get("associationType")
 
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"dgeId": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 

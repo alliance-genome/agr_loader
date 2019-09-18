@@ -89,12 +89,12 @@ class DiseaseHelper(object):
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
                 for pge in pgeIds:
                     pgeKey = pgeKey+pge
-                    logger.info(pge)
 
             else:
                 pgeIds = []
 
             pecjPrimaryKey = publicationModId + pubMedId + pgeKey
+
 
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
