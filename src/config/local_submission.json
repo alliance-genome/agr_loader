@@ -3,12 +3,10 @@
     "message": null,
     "snapShot": {
         "releaseVersion": {"id":"1234", "name":"2.3.0"},
-        "schemaVersion": {"id":"1234", "name":"1.0.0.9"},
         "system": "production",
         "snapShotDate": 1523284823719,
         "dataFiles": [
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"MGI"},
                 "s3Path": "1.0.0.8/ORTHO/MGI/1.0.0.8_ORTHO_MGI_6.json",
@@ -16,15 +14,13 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"ZFIN"},
                 "s3Path": "1.0.0.8/ORTHO/ZFIN/1.0.0.8_ORTHO_ZFIN_6.json",
                 "tempExtractedFile": "1.0.0.8/ORTHO/ZFIN/1.0.0.8_ORTHO_ZFIN_6.json",
                 "uploadDate": 1522181475376
             },
-            {
-                "schemaVersion": "1.0.0.8",
+            {,
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"RGD"},
                 "s3Path": "1.0.0.8/ORTHO/RGD/1.0.0.8_ORTHO_RGD_6.json",
@@ -32,7 +28,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"SGD"},
                 "s3Path": "1.0.0.8/ORTHO/SGD/1.0.0.8_ORTHO_SGD_6.json",
@@ -40,7 +35,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"WB"},
                 "s3Path": "1.0.0.8/ORTHO/WB/1.0.0.8_ORTHO_WB_6.json",
@@ -48,7 +42,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"FB"},
                 "s3Path": "1.0.0.8/ORTHO/FB/1.0.0.8_ORTHO_FB_6.json",
@@ -56,7 +49,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"ORTHO"},
                 "dataSubType": {"id":"1234", "name":"Human"},
                 "s3Path": "1.0.0.8/ORTHO/HUMAN/1.0.0.8_ORTHO_HUMAN_6.json",
@@ -64,7 +56,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"Interactions"},
                 "dataSubType": {"id":"1234", "name":"MolecularInteraction"},
                 "s3Path": "1.0.0.8/INTERACTION/MOLECULAR/1.0.0.8_INTERACTION_MOLECULAR_0.tar.gz",
@@ -72,7 +63,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"Rnor60"},
                 "s3Path": "1.0.0.8/FASTA/Rnor60/1.0.0.8_FASTA_Rnor60_1.null",
@@ -80,7 +70,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"GRCm38"},
                 "s3Path": "1.0.0.8/FASTA/GRCm38/1.0.0.8_FASTA_GRCm38_1.null",
@@ -88,7 +77,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"WBcel235"},
                 "s3Path": "1.0.0.8/FASTA/WBcel235/1.0.0.8_FASTA_WBcel235_1.null",
@@ -96,7 +84,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"GRCz11"},
                 "s3Path": "1.0.0.8/FASTA/GRCz11/1.0.0.8_FASTA_GRCz11_1.null",
@@ -104,7 +91,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "schemaVersion": "1.0.0.8",
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"R627"},
                 "s3Path": "1.0.0.8/FASTA/R627/1.0.0.8_FASTA_R627_1.null",
