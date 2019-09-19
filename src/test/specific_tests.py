@@ -654,6 +654,17 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
         assert record["counter"] > 1
 
 
+def test_pej_has_agm():
+    query = "match (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationEvidenceCodeJoin) " \
+            "where agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'" \
+            " return count(agm) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+
+
 
 
 

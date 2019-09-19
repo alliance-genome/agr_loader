@@ -7,6 +7,8 @@ class TextProcessingHelper(object):
 
     @staticmethod
     def cleanhtml(raw_html):
+        cleanr = re.compile('</.*?>')
+        cleantext = re.sub(cleanr, '>', raw_html)
         cleanr = re.compile('<.*?>')
-        cleantext = re.sub(cleanr, '', raw_html)
+        cleantext = re.sub(cleanr, '<', cleantext)
         return cleantext

@@ -44,7 +44,8 @@ class TestClass(object):
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'),
                             dict(node1='PublicationEvidenceCodeJoin:Association', node2='Publication'),
                             dict(node1='PublicationEvidenceCodeJoin:Association', node2='ECOTerm'),
-                            dict(node1='PublicationEvidenceCodeJoin:Association', node2='DiseaseEntityJoin:Association'),
+                            dict(node1='PublicationEvidenceCodeJoin:Association',
+                                 node2='DiseaseEntityJoin:Association'),
                             dict(node1='InteractionGeneJoin:Association', node2='Gene'),
                             dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'),
                             dict(node1='InteractionGeneJoin:Association', node2='Publication'),
@@ -75,6 +76,7 @@ class TestClass(object):
                             dict(node1='AffectedGenomicModel', node2='Feature'),
                             dict(node1='AffectedGenomicModel', node2='DiseaseEntityJoin'),
                             dict(node1='AffectedGenomicModel', node2='PhenotypeEntityJoin'),
+                            dict(node1='AffectedGenomicModel', node2='PublicationEvidenceCodeJoin:Association'),
                             dict(node1='DiseaseEntityJoin', node2='CrossReference')
                             ]
 

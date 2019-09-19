@@ -1,7 +1,7 @@
 neotime==1.7.2
 py2neo
 neo4j-driver
-ijson
+ijson==2.4
 pytest
 jsonschema
 pyyaml

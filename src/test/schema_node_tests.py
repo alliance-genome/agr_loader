@@ -24,7 +24,8 @@ class TestClass(object):
                                      dict(relationship='PART_OF'),
                                      dict(relationship='MODEL_COMPONENT'),
                                      dict(relationship='BACKGROUND'),
-                                     dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE')],
+                                     dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE'),
+                                     dict(relationship='PRIMARY_GENETIC_ENTITY')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),
