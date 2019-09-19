@@ -36,6 +36,7 @@ class DiseaseHelper(object):
                 diseaseAssociationType = None
                 ecodes = []
                 annotationDP = []
+                annotationUuid = str(uuid.uuid4())
 
                 evidence = diseaseRecord.get('evidence')
                 if 'publication' in evidence:
@@ -93,14 +94,11 @@ class DiseaseHelper(object):
             else:
                 pgeIds = []
 
-            pecjPrimaryKey = publicationModId + pubMedId + pgeKey
-
-
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
                 "doId": doId,
                 "primaryId": primaryId,
-                "pecjPrimaryKey": pecjPrimaryKey,
+                "pecjPrimaryKey": annotationUuid,
                 "dataProviders": dataProviders,
                 "relationshipType": diseaseAssociationType,
                 "dateProduced": dateProduced,

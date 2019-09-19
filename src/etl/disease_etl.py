@@ -166,7 +166,7 @@ class DiseaseETL(ETL):
             MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
             """
