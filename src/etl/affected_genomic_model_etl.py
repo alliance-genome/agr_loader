@@ -32,7 +32,7 @@ class AffectedGenomicModelETL(ETL):
                  o.nameText = row.nameText,
                  o.nameTextWithSpecies = row.nameTextWithSpecies,
                  o.nameWithSpecies = row.nameWithSpecies,
-                 o.subType = row.subType
+                 o.subtype = row.subtype
 
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
@@ -229,6 +229,9 @@ class AffectedGenomicModelETL(ETL):
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
             nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
+            subtype = agmRecord.get('subtype')
+            if subtype is None:
+                subtype = 'affected_genomic_model'
 
             # TODO: nameText
             agm_dataset = {
@@ -240,7 +243,7 @@ class AffectedGenomicModelETL(ETL):
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
-                "subType": agmRecord.get('subtype'),
+                "subtype": subtype,
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
                 "dataProvider": data_provider,
                 "nameText": nameText,

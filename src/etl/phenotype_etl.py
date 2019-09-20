@@ -188,6 +188,7 @@ class PhenoTypeETL(ETL):
         dataProvider = dataProviderCrossRef.get('id')
         dataProviderPages = dataProviderCrossRef.get('pages')
         dataProviderCrossRefSet = []
+        pgeKey = ''
 
         loadKey = dateProduced + dataProvider + "_phenotype"
 
