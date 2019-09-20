@@ -240,7 +240,7 @@ class AffectedGenomicModelETL(ETL):
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
-                "subType": agmRecord.get('subType'),
+                "subType": agmRecord.get('subtype'),
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
                 "dataProvider": data_provider,
                 "nameText": nameText,
