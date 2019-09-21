@@ -40,8 +40,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
+           MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pa)
+            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
             
             """
             
@@ -70,8 +74,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
+                       MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.phenotypeUniqueKey}]->(pa) """
+            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
 
     execute_agm_template = """
 
@@ -98,8 +106,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
 
+           MERGE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (pubf)-[pubfpubEJ:EVIDENCE {uuid:row.phenotypeUniqueKey}]->(pa) """
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            
+            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
 
     execute_pges_gene_template = """
 
@@ -281,7 +293,8 @@ class PhenoTypeETL(ETL):
                 "type": "gene",
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
-                "pubEntityJoinUuid": pubEntityJoinUuid
+                "pubEntityJoinUuid": pubEntityJoinUuid,
+                "pecjPrimaryKey": pubEntityJoinUuid
              }
 
             list_to_yield.append(phenotype)
