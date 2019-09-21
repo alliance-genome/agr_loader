@@ -14,6 +14,7 @@ class VEPETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+                MATCH (g:Gene {symbol: row.symbol})
                 MATCH (a:Variant {primaryKey: row.hgvsNomenclature})
                 SET a.geneLevelConsequence = row.geneLevelConsequence
 
