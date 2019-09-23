@@ -617,9 +617,9 @@ def test_point_mutation_hgvs():
 
 
 def test_variant_consequence():
-    query = "match (a:Allele:Feature)--(v:Variant) where v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T' " \
+    query = "match (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence) where v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T' " \
             "and a.primaryKey='ZFIN:ZDB-ALT-160601-8105' " \
-            "and v.geneLevelConsequence = 'splice_donor_variant'" \
+            "and vc.geneLevelConsequence = 'splice_donor_variant'" \
             "return count(v) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -636,7 +636,7 @@ def test_deletion_hgvs():
 
 
 def test_insertion_hgvs():
-    query = "match (a:Allele:Feature)--(v:Variant) " \
+    query = "match (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence) " \
             "where v.hgvsNomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT' " \
             "and a.primaryKey='ZFIN:ZDB-ALT-180207-16' " \
             "return count(v) as counter"

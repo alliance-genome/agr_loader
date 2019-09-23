@@ -1,7 +1,9 @@
-import logging, multiprocessing, csv
-
+import logging
+import multiprocessing
+import uuid
 from etl import ETL
 from files import TXTFile
+
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
@@ -14,10 +16,17 @@ class VEPETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {symbol: row.symbol})
+                MATCH (g:Gene {modLocalId:row.geneId})
                 MATCH (a:Variant {primaryKey: row.hgvsNomenclature})
-                SET a.geneLevelConsequence = row.geneLevelConsequence
-
+                
+                MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                    gc.geneId = g.primaryKey,
+                    gc.variantId = a.hgvsNomenclature
+                
+                MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]-(gc)
+                MERGE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]-(gc)
+                
                 """
 
 
@@ -62,8 +71,12 @@ class VEPETL(ETL):
             if columns[0].startswith('#'):
                 continue
             else:
+                notes = columns[7]
+                notes.split(";")
                 vep_result = {"hgvsNomenclature":columns[0],
-                       "geneLevelConsequence": columns[6]}
+                       "geneLevelConsequence": columns[6],
+                       "primaryKey": str(uuid.uuid4()),
+                              "geneId": columns[3]}
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
