@@ -1,7 +1,7 @@
 import uuid
 import logging
 
-from etl.helpers import ETLHelper
+from . import ETLHelper
 
 logger = logging.getLogger(__name__)
 
@@ -9,15 +9,16 @@ logger = logging.getLogger(__name__)
 class DiseaseHelper(object):
 
     @staticmethod
-    def get_disease_record(diseaseRecord, dataProviders, dateProduced, release, allelicGeneId, dataProviderSingle):
+    def get_disease_record(diseaseRecord, dataProviders, dateProduced, dataProviderSingle):
         qualifier = None
         publicationModId = None
         pubMedId = None
+        annotationDP = []
+        pgeKey = ''
 
         primaryId = diseaseRecord.get('objectId')
 
         loadKey = dateProduced + "_Disease"
-        annotationUuid = str(uuid.uuid4())
 
         for dataProvider in dataProviders:
             loadKey = dataProvider + loadKey
@@ -34,6 +35,8 @@ class DiseaseHelper(object):
                 pubMedUrl = None
                 diseaseAssociationType = None
                 ecodes = []
+                annotationDP = []
+                annotationUuid = str(uuid.uuid4())
 
                 evidence = diseaseRecord.get('evidence')
                 if 'publication' in evidence:
@@ -64,16 +67,19 @@ class DiseaseHelper(object):
                         additionalGeneticComponents.append(
                             {"id": componentId, "componentUrl": componentUrl, "componentSymbol": componentSymbol}
                         )
-            annotationDataProviders = {}
 
             if 'dataProvider' in diseaseRecord:
                 for dp in diseaseRecord['dataProvider']:
+
                     annotationType = dp.get('type')
-                    dpCrossRefId = dp['crossReference'].get('id')
-                    dpPages = dp['crossReference'].get('pages')
-                    annotationDataProviders[uuid] = {"annoationType": annotationType,
-                                                     "dpCrossRefId": dpCrossRefId,
-                                                     "dpPages": dpPages}
+                    xref = dp.get('crossReference')
+                    crossRefId = xref.get('id')
+                    pages = xref.get('pages')
+
+                    annotationDataProvider = {"annotationType": annotationType,
+                                                     "crossRefId": crossRefId,
+                                                     "dpPages": pages}
+                    annotationDP.append(annotationDataProvider)
             if 'evidenceCodes' in diseaseRecord['evidence']:
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
@@ -82,30 +88,32 @@ class DiseaseHelper(object):
 
             if 'primaryGeneticEntityIDs' in diseaseRecord:
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')
+                for pge in pgeIds:
+                    pgeKey = pgeKey+pge
 
             else:
                 pgeIds = []
-
 
             disease_allele = {
                 "diseaseUniqueKey": diseaseUniqueKey,
                 "doId": doId,
                 "primaryId": primaryId,
-                "uuid": annotationUuid,
+                "pecjPrimaryKey": annotationUuid,
                 "dataProviders": dataProviders,
                 "relationshipType": diseaseAssociationType,
                 "dateProduced": dateProduced,
                 "dataProvider": dataProviderSingle,
                 "dateAssigned": diseaseRecord["dateAssigned"],
                 
-                "pubPrimaryKey": pubMedId + publicationModId,
+                "pubPrimaryKey": publicationModId+pubMedId,
                 
                 "pubModId": publicationModId,
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
                 "pubModUrl": pubModUrl,
                 "pgeIds": pgeIds,
-                
+                "pgeKey": pgeKey,
+                "annotationDP": annotationDP,
                 "ecodes": ecodes,
 
             }

@@ -23,7 +23,9 @@ class TestClass(object):
                                      dict(relationship='VARIATION'),
                                      dict(relationship='PART_OF'),
                                      dict(relationship='MODEL_COMPONENT'),
-                                     dict(relationship='BACKGROUND')],
+                                     dict(relationship='BACKGROUND'),
+                                     dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE'),
+                                     dict(relationship='PRIMARY_GENETIC_ENTITY')],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),
@@ -64,7 +66,9 @@ class TestClass(object):
                              dict(node='EMAPATerm'),
                              dict(node='MMUSDVTerm'),
                              dict(node='BSPOTerm'),
-                             dict(node='WBLSTerm')
+                             dict(node='WBLSTerm'),
+                             dict(node='Assembly'),
+                             dict(node='GenomicLocation')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -77,6 +81,7 @@ class TestClass(object):
                             dict(node='Gene', prop='primaryKey'),
                             dict(node='Gene', prop='modGlobalId'),
                             dict(node='Gene', prop='uuid'),
+                            dict(node='Gene', prop='symbolWithSpecies'),
                             #dict(node='GenomicLocationBin', prop='primaryKey'),
                             #dict(node='GenomicLocationBin', prop='assembly'),
                             #dict(node='GenomicLocationBin', prop='number'),
@@ -84,6 +89,9 @@ class TestClass(object):
                             dict(node='Gene', prop='dataProvider'),
                             dict(node='AffectedGenomicModel', prop='primaryKey'),
                             dict(node='AffectedGenomicModel', prop='name'),
+                            dict(node='AffectedGenomicModel', prop='nameText'),
+                            dict(node='AffectedGenomicModel', prop='nameTextWithSpecies'),
+                            dict(node='AffectedGenomicModel', prop='nameWithSpecies'),
                             #dict(node='SOTerm', prop='name'),
                             dict(node='SOTerm', prop='primaryKey'),
                             dict(node='DOTerm', prop='doPrefix'),
@@ -105,7 +113,7 @@ class TestClass(object):
                             dict(node='CrossReference', prop='crossRefType'),
                             dict(node='CrossReference', prop='displayName'),
                             dict(node='CrossReference', prop='globalCrossRefId'),
-                            dict(node='CrossReference', prop='uuid'),\
+                            dict(node='CrossReference', prop='uuid'),
                             dict(node='CrossReference', prop='page'),
                             dict(node='Species', prop='name'),
                             dict(node='Species', prop='species'),
@@ -129,6 +137,9 @@ class TestClass(object):
                             dict(node='Allele', prop='symbol'),
                             dict(node='Allele', prop='uuid'),
                             dict(node='Allele', prop='dataProvider'),
+                            dict(node='Allele', prop='symbolText'),
+                            dict(node='Allele', prop='symbolTextWithSpecies'),
+                            dict(node='Allele', prop='symbolWithSpecies'),
                             dict(node='GOTerm', prop='definition'),
                             dict(node='DOTerm', prop='definition'),
                             dict(node='GOTerm', prop='type'),
@@ -137,8 +148,10 @@ class TestClass(object):
                             dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                             dict(node='DOTerm', prop='defLinks'),
-                            dict(node='Variant', prop='primaryKey')
-
+                            dict(node='Variant', prop='primaryKey'),
+                            dict(node='Assembly', prop='primaryKey'),
+                            dict(node='GenomicLocation', prop='chromosome'),
+                            dict(node='GenomicLocation', prop='assembly')
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
@@ -200,12 +213,18 @@ class TestClass(object):
                                dict(node='Allele', prop='dataProvider'),
                                dict(node='Allele', prop='globalId'),
                                dict(node='Allele', prop='uuid'),
+                               dict(node='Allele', prop='symbolText'),
+                               dict(node='Allele', prop='symbolWithSpecies'),
                                dict(node='MITerm', prop='primaryKey'),
                                dict(node='ExpressionBioEntity', prop='primaryKey'),
                                dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
                                dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                                dict(node='Stage', prop='primaryKey'),
-                               dict(node='Variant', prop='hgvsNomenclature')
+                               dict(node='Variant', prop='hgvsNomenclature'),
+                               dict(node='Assembly', prop='primaryKey'),
+                               dict(node='Assembly', prop='primaryKey'),
+                               dict(node='GenomicLocation', prop='chromosome'),
+                               dict(node='GenomicLocation', prop='assembly')
                                ],
 
         'test_prop_unique': [

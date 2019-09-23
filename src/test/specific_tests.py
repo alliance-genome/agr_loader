@@ -501,7 +501,7 @@ def test_gene_has_symbol_with_species():
 
 
 def test_genome_start_is_long():
-    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.start <> toInt(gf.start) return count(gf) " \
+    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.start <> toInt(ch.start) return count(gf) " \
             "as counter"
     result = execute_transaction(query)
     for record in result:
@@ -509,7 +509,7 @@ def test_genome_start_is_long():
 
 
 def test_genome_end_is_long():
-    query = "match (gene:Gene)-[gf:LOCATED_ON]-(ch:Chromosome) where gf.end <> toInt(gf.end) " \
+    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.end <> toInt(ch.end) " \
             "return count(gf) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -643,6 +643,28 @@ def test_insertion_hgvs():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
+
+
+def test_hgnc_gene_has_curated_and_loaded_db_xref():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)" \
+            " where g.primaryKey = 'HGNC:7' " \
+            " return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+
+
+def test_pej_has_agm():
+    query = "match (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationEvidenceCodeJoin) " \
+            "where agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'" \
+            " return count(agm) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+
+
 
 
 

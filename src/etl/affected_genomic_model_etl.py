@@ -3,6 +3,7 @@ import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -16,11 +17,8 @@ class AffectedGenomicModelETL(ETL):
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (s:Species {primaryKey: row.taxonId})
-
-            //TODO: change the label type based on incoming affectedGenomicModelSpec - for now, these are all
-            //genotypes.
             
-            MERGE (o:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
                 ON CREATE SET o.name = row.name,
                 o.nameText = row.nameText,
                  o.dateProduced = row.dateProduced,
@@ -30,7 +28,11 @@ class AffectedGenomicModelETL(ETL):
                  o.uuid = row.uuid,
                  o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
                  o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider
+                 o.dataProvider = row.dataProvider,
+                 o.nameText = row.nameText,
+                 o.nameTextWithSpecies = row.nameTextWithSpecies,
+                 o.nameWithSpecies = row.nameWithSpecies,
+                 o.subType = row.subType
 
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
@@ -39,7 +41,7 @@ class AffectedGenomicModelETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (f:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+                MATCH (f:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
                     SET second.name = row.secondary_id
@@ -52,7 +54,7 @@ class AffectedGenomicModelETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
             MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
@@ -61,7 +63,7 @@ class AffectedGenomicModelETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+                MATCH (a:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
@@ -73,8 +75,8 @@ class AffectedGenomicModelETL(ETL):
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
-            MATCH (b:AffectedGenomicModel:Genotype {primaryKey:row.backgroundId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
+            MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
             
             MERGE (agm)-[:BACKGROUND]-(b)
 
@@ -85,7 +87,7 @@ class AffectedGenomicModelETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (feature:Feature:Allele {primaryKey:row.componentId})
-            MATCH (agm:AffectedGenomicModel:Genotype {primaryKey:row.primaryId})
+            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
                 SET agmf.zygosity = row.zygosityId
@@ -221,10 +223,12 @@ class AffectedGenomicModelETL(ETL):
                 # some pages collection have 0 elements
                 if pages is not None and len(pages) > 0:
                     for page in pages:
-                        if page == 'sequence_targeting_reagent':
+                        if page == 'fish' or page == 'genotype' or page == 'strain':
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
+            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
+            nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
 
             # TODO: nameText
             agm_dataset = {
@@ -236,8 +240,12 @@ class AffectedGenomicModelETL(ETL):
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
+                "subType": agmRecord.get('subType'),
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
-                "dataProvider": data_provider
+                "dataProvider": data_provider,
+                "nameText": nameText,
+                "nameWithSpecies": agmRecord.get('name') + " ("+ shortSpeciesAbbreviation + ")",
+                "nameTextWithSpecies": nameText + " ("+ shortSpeciesAbbreviation + ")",
             }
             agms.append(agm_dataset)
 
