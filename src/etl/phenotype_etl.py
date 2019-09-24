@@ -45,7 +45,7 @@ class PhenoTypeETL(ETL):
 
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ)
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
             
@@ -79,7 +79,7 @@ class PhenoTypeETL(ETL):
 
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
     execute_agm_template = """
 
@@ -111,7 +111,7 @@ class PhenoTypeETL(ETL):
 
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            MERGE (pa)-[pubfpubEE:EVIDENCE {uuid:row.pubEntityJoinUuid}]->(pubEJ) """
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
     execute_pges_gene_template = """
 
@@ -128,7 +128,7 @@ class PhenoTypeETL(ETL):
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:Allele {primaryKey:row.pgeId})
+            MATCH (n:Allele:Feature {primaryKey:row.pgeId})
             MATCH (d:PublicationEvidenceCodeJoin {primaryKey:row.pecjPrimaryKey})
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)

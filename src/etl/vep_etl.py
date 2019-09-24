@@ -22,7 +22,8 @@ class VEPETL(ETL):
                 MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
                 ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
                     gc.geneId = g.primaryKey,
-                    gc.variantId = a.hgvsNomenclature
+                    gc.variantId = a.hgvsNomenclature,
+                    gc.impact = row.impact
                 
                 MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]-(gc)
                 MERGE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]-(gc)
@@ -65,17 +66,24 @@ class VEPETL(ETL):
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
-
+        impact = ''
         for line in data:
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
             else:
                 notes = columns[7]
-                notes.split(";")
+                kvpairs = notes.split(";")
+                for pair in kvpairs:
+                    key = pair.split("=")[0]
+                    value = pair.split("=")[1]
+                    if key == 'IMPACT':
+                        impact = value
+
                 vep_result = {"hgvsNomenclature":columns[0],
-                       "geneLevelConsequence": columns[6],
-                       "primaryKey": str(uuid.uuid4()),
+                              "geneLevelConsequence": columns[6],
+                              "primaryKey": str(uuid.uuid4()),
+                              "impact":impact,
                               "geneId": columns[3]}
                 vep_maps.append(vep_result)
 
