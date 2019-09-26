@@ -272,8 +272,6 @@ class DiseaseETL(ETL):
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + \
              sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_withs_template, commit_size, "disease_withs_data_" + \
-             sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_agms_template, commit_size, "disease_agms_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_pges_gene_template, commit_size, "disease_pges_gene_data_" + \
@@ -281,6 +279,8 @@ class DiseaseETL(ETL):
             [DiseaseETL.execute_pges_allele_template, commit_size, "disease_pges_allele_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_pges_agm_template, commit_size, "disease_pges_agms_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_withs_template, commit_size, "disease_withs_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + \
              sub_type.get_data_provider() + ".csv"],
@@ -557,9 +557,9 @@ class DiseaseETL(ETL):
                 agm_list_to_yield.append(disease_record)
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs,
+                yield [allele_list_to_yield, gene_list_to_yield,
                        agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
-                       xrefs]
+                       withs, evidence_code_list_to_yield, xrefs]
                 agm_list_to_yield = []
                 allele_list_to_yield = []
                 gene_list_to_yield = []
@@ -570,6 +570,7 @@ class DiseaseETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield, evidence_code_list_to_yield, withs,
-                   agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+            yield [allele_list_to_yield, gene_list_to_yield,
+                   agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
+                       withs, evidence_code_list_to_yield, xrefs]
 
