@@ -60,10 +60,10 @@ Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]
 
-
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
+
 
