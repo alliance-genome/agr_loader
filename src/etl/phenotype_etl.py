@@ -166,7 +166,7 @@ class PhenoTypeETL(ETL):
             return
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = 10000
+        batch_size = self.data_type_config.get_neo4j_commit_size()
         
         generators = self.get_generators(data, batch_size)
 
