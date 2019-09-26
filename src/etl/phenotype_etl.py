@@ -39,12 +39,13 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-           CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-             SET pubEJ.joinType = 'pub_evidence_code_join'
+                       MERGE (pubf)-[pe:EVIDENCE]-(pa)
+          // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+            // SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+           // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
             
@@ -73,12 +74,13 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-            CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-                 SET pubEJ.joinType = 'pub_evidence_code_join'
+                       MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+               //  SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+           // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
     execute_agm_template = """
 
@@ -104,13 +106,15 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
+                 
+            MERGE (pubf)-[pe:EVIDENCE]-(pa)
 
-           CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-                SET pubEJ.joinType = 'pub_evidence_code_join'
+          // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+              //  SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+          //  CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+          //  CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
 
     execute_pges_allele_template = """
@@ -169,8 +173,8 @@ class PhenoTypeETL(ETL):
         query_list = [
             [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] #,
+            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
+            #[PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] #,
             #[PhenoTypeETL.execute_pges_allele_template, commit_size, "phenotype_agm_allele_data_" + sub_type.get_data_provider() + ".csv"]
         ]
             
