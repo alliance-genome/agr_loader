@@ -1,5 +1,5 @@
 import logging
-import sys
+import sys, os
 
 from transactors import FileTransactor
 
@@ -28,7 +28,7 @@ class DataTypeConfig(object):
         for downloadable_item in self.submission_system_data:
             logger.debug("downloadable_item")
             if downloadable_item[2] is not None:
-                full_path_to_send = path + '/' + downloadable_item[2]
+                full_path_to_send = os.path.join(path, downloadable_item[2])
             else:
                 full_path_to_send = None  # If we don't have a path.
 

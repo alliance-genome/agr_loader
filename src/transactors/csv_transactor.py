@@ -1,6 +1,6 @@
 from contextlib import ExitStack
 import csv
-import logging
+import logging, os
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class CSVTransactor(object):
 
         with ExitStack() as stack:
             # Open all necessary CSV files at once.
-            open_files = [stack.enter_context(open('tmp/' + file_name, 'w', encoding='utf-8'))
+            open_files = [stack.enter_context(open(os.path.join('tmp', file_name), 'w', encoding='utf-8'))
                           for [query, file_name] in generator_file_list]
             
             csv_file_writer = [None] * len(open_files)  # Create a list with 'None' placeholder entries.
