@@ -272,8 +272,6 @@ class DiseaseETL(ETL):
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + \
              sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + \
-             sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_withs_template, commit_size, "disease_withs_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_agms_template, commit_size, "disease_agms_data_" + \
@@ -283,6 +281,8 @@ class DiseaseETL(ETL):
             [DiseaseETL.execute_pges_allele_template, commit_size, "disease_pges_allele_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_pges_agm_template, commit_size, "disease_pges_agms_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_annotation_xrefs_template, commit_size, "disease_annotation_xrefs_data_" + \
              sub_type.get_data_provider() + ".csv"]
