@@ -18,7 +18,7 @@ class Download(object):
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
-        if not os.path.exists(self.savepath + "/" + self.filenameToSave):
+        if not os.path.exists(os.path.join(self.savepath, self.filenameToSave)):
             file = urllib.request.urlopen(self.urlToRetrieve)
             data = file.read()
             # retry the retrieval
@@ -35,24 +35,24 @@ class Download(object):
         if not os.path.exists(self.savepath):
             logger.debug("Making temp file storage: %s" % (self.savepath))
             os.makedirs(self.savepath)
-        if not os.path.exists(self.savepath + "/" + self.filenameToSave):
-            urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
+        if not os.path.exists(os.path.join(self.savepath, self.filenameToSave)):
+            urllib.request.urlretrieve(self.urlToRetrieve, os.path.join(self.savepath, self.filenameToSave))
             return False
         else:
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
             return True
 
     def download_file(self):
-        if not os.path.exists(os.path.dirname(self.savepath + "/" + self.filenameToSave)):
-            logger.info("Making temp file storage: %s" % (self.savepath+ "/" + self.filenameToSave))
-            os.makedirs(os.path.dirname(self.savepath + "/" + self.filenameToSave))
-        if not os.path.exists(self.savepath + "/" + self.filenameToSave):
+        if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filenameToSave))):
+            logger.info("Making temp file storage: %s" % (os.path.join(self.savepath, self.filenameToSave)))
+            os.makedirs(os.path.dirname(os.path.join(self.savepath, self.filenameToSave)))
+        if not os.path.exists(os.path.join(self.savepath, self.filenameToSave)):
             logger.info("Downloading data file %s from: %s" % (self.filenameToSave, self.urlToRetrieve))
-            urllib.request.urlretrieve(self.urlToRetrieve, self.savepath + "/" + self.filenameToSave)
+            urllib.request.urlretrieve(self.urlToRetrieve, os.path.join(self.savepath, self.filenameToSave))
 
         else:
             logger.info("File: %s/%s already exists not downloading" % (self.savepath, self.filenameToSave))
-        return self.savepath + "/" + self.filenameToSave
+        return os.path.join(self.savepath, self.filenameToSave)
 
     def list_files(self):
         pass
