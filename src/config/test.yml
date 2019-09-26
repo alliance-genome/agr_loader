@@ -1,14 +1,13 @@
 schemaVersion: 1.0.0.9
 releaseVersion: 2.3.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ALLELE: [FB, WB, ZFIN, RGD, MGI]
+BGI: [ZFIN, RGD, MGI, HUMAN]
+ALLELE: [ZFIN, RGD, MGI]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
+VARIATION: [ZFIN, RGD, MGI]
 ONTOLOGY:
-  - GO
   - SO
   - DOID
-  
+
 VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.

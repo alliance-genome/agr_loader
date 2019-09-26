@@ -72,12 +72,11 @@ class VEPETL(ETL):
             if columns[0].startswith('#'):
                 continue
             else:
-                notes = columns[7]
+                notes = columns[13]
                 kvpairs = notes.split(";")
                 if kvpairs is not None:
                     for pair in kvpairs:
                         key = pair.split("=")[0]
-                        logger.info(pair)
                         value = pair.split("=")[1]
                         if key == 'IMPACT':
                             impact = value
