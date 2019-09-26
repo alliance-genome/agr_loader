@@ -22,7 +22,7 @@ class TARFile(object):
         # TODO Replace / update with "tenacity" module.
         while attempts < 3:
             try: 
-                tfile = tarfile.open(self.path + "/" + self.tarfilename, 'r')
+                tfile = tarfile.open(os.path.join(self.path, self.tarfilename), 'r')
                 break
             except tarfile.ReadError as e:
                 logger.warn('ReadError encountered when opening tar file.')
@@ -38,7 +38,7 @@ class TARFile(object):
             if 'gff' in lower_name:
                 logger.info('Skipping GFF file extraction for %s' % (member.name))
                 continue
-            if not os.path.exists(self.path + "/" + member.name):
+            if not os.path.exists(os.path.join(self.path, member.name)):
                 logger.info("Extracting (%s->%s/%s)" % (member.name, self.path, member.name))
                 members_to_extract.append(member)
                 extract = True
