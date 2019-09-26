@@ -74,11 +74,13 @@ class VEPETL(ETL):
             else:
                 notes = columns[7]
                 kvpairs = notes.split(";")
-                for pair in kvpairs:
-                    key = pair.split("=")[0]
-                    value = pair.split("=")[1]
-                    if key == 'IMPACT':
-                        impact = value
+                if kvpairs is not None:
+                    for pair in kvpairs:
+                        key = pair.split("=")[0]
+                        logger.info(pair)
+                        value = pair.split("=")[1]
+                        if key == 'IMPACT':
+                            impact = value
 
                 vep_result = {"hgvsNomenclature":columns[0],
                               "geneLevelConsequence": columns[6],
