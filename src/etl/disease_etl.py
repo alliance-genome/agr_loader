@@ -550,8 +550,11 @@ class DiseaseETL(ETL):
                                     xref['dataId'] = diseaseUniqueKey
                                     if annotationType == 'Loaded':
                                         xref['loadedDB'] = crossRefId
-                                    else:
+                                    elif annotationType == 'Curated':
                                         xref['curatedDB'] = crossRefId
+                                    else:
+                                        xref['loadedDB'] = ''
+                                        xref['curatedDB'] = ''
 
                                     xrefs.append(xref)
                 agm_list_to_yield.append(disease_record)
