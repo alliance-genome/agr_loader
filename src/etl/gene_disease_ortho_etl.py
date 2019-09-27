@@ -104,16 +104,18 @@ class GeneDiseaseOrthoETL(ETL):
         logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho = """
-           MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-            MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)-[:FROM_SPECIES]->(species:Species)
-                with collect(distinct ec.primaryKey) as evCodes, o, da, dej, ec, gene1, gene2, disease
-                    WHERE o.strictFilter
+            MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+            MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)
+                    WHERE o.strictFilter = true
                     AND da.uuid = dej.primaryKey
-                    AND (any(x IN evCodes where NOT x in ["ECO:0000501", "ECO:0000250", "ECO:0000266"]))
+                    AND not (ec.primaryKey = "ECO:0000501")
+                    AND not (ec.primaryKey = "ECO:0000250")
+                    AND not (ec.primaryKey = "ECO:0000266")
                 RETURN DISTINCT gene2.primaryKey AS geneID,
                     gene1.primaryKey AS fromGeneID,
                     type(da) AS relationType,
-                    disease.primaryKey AS doId
+                    disease.primaryKey AS doId,
+                    ec.primaryKey as ec
         """
 
         returnSet = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
