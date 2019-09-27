@@ -495,10 +495,13 @@ class DiseaseETL(ETL):
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                    modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
-                                    if annotationType == 'Loaded':
-                                        xref['loadedDB'] = crossRefId
+                                    if 'loaded' in annotationType:
+                                        xref['loadedDB'] = 'true'
+                                        xref['curatedDB'] = 'false'
                                     else:
-                                        xref['curatedDB'] = crossRefId
+                                        xref['curatedDB'] = 'true'
+                                        xref['loadedDB'] = 'false'
+
 
                                     xrefs.append(xref)
                 allele_list_to_yield.append(disease_record)
@@ -548,13 +551,12 @@ class DiseaseETL(ETL):
                                     xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                    modGlobalCrossRefId, crossRefId + page + annotationType)
                                     xref['dataId'] = diseaseUniqueKey
-                                    if annotationType == 'Loaded':
-                                        xref['loadedDB'] = crossRefId
-                                    elif annotationType == 'Curated':
-                                        xref['curatedDB'] = crossRefId
+                                    if 'loaded' in annotationType:
+                                        xref['loadedDB'] = 'true'
+                                        xref['curatedDB'] = 'false'
                                     else:
-                                        xref['loadedDB'] = ''
-                                        xref['curatedDB'] = ''
+                                        xref['curatedDB'] = 'true'
+                                        xref['loadedDB'] = 'false'
 
                                     xrefs.append(xref)
                 agm_list_to_yield.append(disease_record)
