@@ -223,7 +223,7 @@ class AffectedGenomicModelETL(ETL):
                 # some pages collection have 0 elements
                 if pages is not None and len(pages) > 0:
                     for page in pages:
-                        if page == 'fish' or page == 'genotype' or page == 'strain':
+                        if page == 'Fish' or page == 'genotype' or page == 'strain':
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
