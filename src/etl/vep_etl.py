@@ -67,6 +67,8 @@ class VEPETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
+        geneId = ''
+
         for line in data:
             columns = line.split()
             if columns[0].startswith('#'):
@@ -80,12 +82,16 @@ class VEPETL(ETL):
                         value = pair.split("=")[1]
                         if key == 'IMPACT':
                             impact = value
+                if columns[3].startswith('Gene:'):
+                    geneId = columns[3].lstrip('Gene:')
+                else:
+                    geneId = columns[3]
 
                 vep_result = {"hgvsNomenclature":columns[0],
                               "geneLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
                               "impact":impact,
-                              "geneId": columns[3]}
+                              "geneId": geneId}
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
