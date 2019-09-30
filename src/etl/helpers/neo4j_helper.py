@@ -49,6 +49,7 @@ class Neo4jHelper(object):
         session = graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")
+        session.run("CREATE INDEX ON :Gene(modLocalId)")
         session.run("CREATE INDEX ON :Gene(symbol)")
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
