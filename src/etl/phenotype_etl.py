@@ -74,7 +74,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-                       MERGE (pubf)-[pe:EVIDENCE]-(pa)
+            MERGE (pubf)-[pe:EVIDENCE]-(pa)
            // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
                //  SET pubEJ.joinType = 'pub_evidence_code_join'
 
@@ -124,7 +124,7 @@ class PhenoTypeETL(ETL):
             MATCH (n:Allele:Feature {primaryKey:row.pgeId})
             MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
 
-            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
     """
 
@@ -135,7 +135,7 @@ class PhenoTypeETL(ETL):
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
             MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
 
-            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
 
     """
 

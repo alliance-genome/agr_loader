@@ -17,16 +17,16 @@ class VEPETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (g:Gene {modLocalId:row.geneId})
-                MATCH (a:Variant {primaryKey: row.hgvsNomenclature})
+                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
                 
-                MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
-                ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                CREATE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                SET gc.geneLevelConsequence = row.geneLevelConsequence,
                     gc.geneId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
                     gc.impact = row.impact
                 
-                MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]-(gc)
-                MERGE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]-(gc)
+                CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                CREATE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]->(gc)
                 
                 """
 
