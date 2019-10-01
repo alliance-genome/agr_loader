@@ -32,7 +32,7 @@ class AffectedGenomicModelETL(ETL):
                  o.nameText = row.nameText,
                  o.nameTextWithSpecies = row.nameTextWithSpecies,
                  o.nameWithSpecies = row.nameWithSpecies,
-                 o.subType = row.subType
+                 o.subtype = row.subtype
 
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
@@ -223,12 +223,15 @@ class AffectedGenomicModelETL(ETL):
                 # some pages collection have 0 elements
                 if pages is not None and len(pages) > 0:
                     for page in pages:
-                        if page == 'fish' or page == 'genotype' or page == 'strain':
+                        if page == 'Fish' or page == 'genotype' or page == 'strain':
                             modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                        self.xrefUrlMap, prefix, page)
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
             nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
+            subtype = agmRecord.get('subtype')
+            if subtype is None:
+                subtype = 'affected_genomic_model'
 
             # TODO: nameText
             agm_dataset = {
@@ -240,7 +243,7 @@ class AffectedGenomicModelETL(ETL):
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
                 "loadKey": loadKey,
-                "subType": agmRecord.get('subType'),
+                "subtype": subtype,
                 "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
                 "dataProvider": data_provider,
                 "nameText": nameText,

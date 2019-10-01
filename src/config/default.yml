@@ -63,5 +63,6 @@ VEP: [FB, WB, ZFIN, RGD, MGI]
 # Loader configuration values are below.
 # Please modify with caution!
 
-FileTransactorThreads: 10
-Neo4jTransactorThreads: 7
+FileTransactorThreads: 7
+Neo4jTransactorThreads: 3
+
