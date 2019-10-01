@@ -642,7 +642,7 @@ def test_insertion_hgvs():
             "return count(v) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] > 0
 
 
 def test_hgnc_gene_has_curated_and_loaded_db_xref():
