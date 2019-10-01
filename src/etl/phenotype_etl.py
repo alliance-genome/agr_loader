@@ -39,13 +39,13 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-             SET pubEJ.joinType = 'pub_evidence_code_join'
+                       MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           //CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+             //SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+           // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
             
@@ -74,13 +74,13 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-           // MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-                 SET pubEJ.joinType = 'pub_evidence_code_join'
+            MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+           //      SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+          //  CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
     execute_agm_template = """
 
@@ -107,14 +107,14 @@ class PhenoTypeETL(ETL):
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
                  
-            //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+            MERGE (pubf)-[pe:EVIDENCE]-(pa)
 
-          CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-              SET pubEJ.joinType = 'pub_evidence_code_join'
+         // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+          //    SET pubEJ.joinType = 'pub_evidence_code_join'
 
-          CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+         // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-          CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+         // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
 
     execute_pges_allele_template = """
@@ -173,9 +173,9 @@ class PhenoTypeETL(ETL):
         query_list = [
             [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] ,
-            [PhenoTypeETL.execute_pges_allele_template, commit_size, "phenotype_agm_allele_data_" + sub_type.get_data_provider() + ".csv"]
+            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]#,
+            #[PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] ,
+            #[PhenoTypeETL.execute_pges_allele_template, commit_size, "phenotype_agm_allele_data_" + sub_type.get_data_provider() + ".csv"]
         ]
             
         query_and_file_list = self.process_query_params(query_list)
@@ -291,11 +291,11 @@ class PhenoTypeETL(ETL):
             list_to_yield.append(phenotype)
 
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield, list_to_yield,
-                       pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield]#,
+                       #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
                 list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [list_to_yield, list_to_yield, list_to_yield,
-                   pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+            yield [list_to_yield, list_to_yield, list_to_yield]#,
+                   #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
