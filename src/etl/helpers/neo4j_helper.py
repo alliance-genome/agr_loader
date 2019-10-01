@@ -49,6 +49,8 @@ class Neo4jHelper(object):
         session = graph.session()
 
         session.run("CREATE INDEX ON :Gene(primaryKey)")
+        session.run("CREATE INDEX ON :Gene(modLocalId)")
+        session.run("CREATE INDEX ON :Gene(symbol)")
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")
@@ -93,6 +95,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Stage(primaryKey)")
         session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
         session.run("CREATE INDEX ON :Variant(primaryKey)")
+        session.run("CREATE INDEX ON :Variant(hgvsNomenclature)")
         session.run("CREATE INDEX ON :SequenceTargetingReagent(primaryKey)")
         session.run("CREATE INDEX ON :ECOTerm(primaryKey)")
         

@@ -1,7 +1,9 @@
-import logging, multiprocessing, csv
-
+import logging
+import multiprocessing
+import uuid
 from etl import ETL
 from files import TXTFile
+
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
@@ -14,9 +16,18 @@ class VEPETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Variant {primaryKey: row.hgvsNomenclature})
-                SET a.geneLevelConsequence = row.geneLevelConsequence
-
+                MATCH (g:Gene {modLocalId:row.geneId})
+                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                
+                CREATE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                    gc.geneId = g.primaryKey,
+                    gc.variantId = a.hgvsNomenclature,
+                    gc.impact = row.impact
+                
+                CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                CREATE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]->(gc)
+                
                 """
 
 
@@ -55,14 +66,32 @@ class VEPETL(ETL):
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
+        impact = ''
+        geneId = ''
 
         for line in data:
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
             else:
+                notes = columns[13]
+                kvpairs = notes.split(";")
+                if kvpairs is not None:
+                    for pair in kvpairs:
+                        key = pair.split("=")[0]
+                        value = pair.split("=")[1]
+                        if key == 'IMPACT':
+                            impact = value
+                if columns[3].startswith('Gene:'):
+                    geneId = columns[3].lstrip('Gene:')
+                else:
+                    geneId = columns[3]
+
                 vep_result = {"hgvsNomenclature":columns[0],
-                       "geneLevelConsequence": columns[6]}
+                              "geneLevelConsequence": columns[6],
+                              "primaryKey": str(uuid.uuid4()),
+                              "impact":impact,
+                              "geneId": geneId}
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
