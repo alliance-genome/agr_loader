@@ -4,6 +4,7 @@ import os
 import datetime
 import re
 import boto3
+import requests
 
 from collections import defaultdict
 
@@ -371,6 +372,20 @@ class GeneDescriptionsETL(ETL):
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         if context_info.env["GENERATE_REPORTS"]:
+            # Upload to FMS
+            file_to_upload = {f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-JSON_{data_provider}": open(file_path + ".json", 'rb'),
+                              f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TXT_{data_provider}": open(file_path + ".txt", 'rb'),
+                              f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TSV_{data_provider}": open(file_path + ".tsv", 'rb')}
+            headers = {
+                'Authorization': 'Bearer {}'.format(context_info.env['API_KEY'])
+            }
+
+            logger.debug('Uploading gene description files to FMS ' + context_info.env['FMS_API_URL'])
+            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit/', files=file_to_upload,
+                                     headers=headers)
+            logger.info(response.text)
+
+            # Upload to S3 bucket directly - to be removed in the future
             client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
                                   aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
             pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
