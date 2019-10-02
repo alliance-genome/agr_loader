@@ -40,8 +40,8 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        MERGE (pubf)-[pe:EVIDENCE]-(pa)
-          // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-            // SET pubEJ.joinType = 'pub_evidence_code_join'
+           //CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+             //SET pubEJ.joinType = 'pub_evidence_code_join'
 
            // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
@@ -76,9 +76,9 @@ class PhenoTypeETL(ETL):
            
             MERGE (pubf)-[pe:EVIDENCE]-(pa)
            // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-               //  SET pubEJ.joinType = 'pub_evidence_code_join'
+           //      SET pubEJ.joinType = 'pub_evidence_code_join'
 
-           // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+          //  CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
            // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
@@ -109,12 +109,12 @@ class PhenoTypeETL(ETL):
                  
             MERGE (pubf)-[pe:EVIDENCE]-(pa)
 
-          // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-              //  SET pubEJ.joinType = 'pub_evidence_code_join'
+         // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+          //    SET pubEJ.joinType = 'pub_evidence_code_join'
 
-          //  CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+         // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-          //  CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+         // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
 
 
     execute_pges_allele_template = """
@@ -124,7 +124,7 @@ class PhenoTypeETL(ETL):
             MATCH (n:Allele:Feature {primaryKey:row.pgeId})
             MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
 
-            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
     """
 
@@ -135,7 +135,7 @@ class PhenoTypeETL(ETL):
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
             MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
 
-            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
     """
 
@@ -173,8 +173,8 @@ class PhenoTypeETL(ETL):
         query_list = [
             [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
-            #[PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] #,
+            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]#,
+            #[PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] ,
             #[PhenoTypeETL.execute_pges_allele_template, commit_size, "phenotype_agm_allele_data_" + sub_type.get_data_provider() + ".csv"]
         ]
             
@@ -207,7 +207,7 @@ class PhenoTypeETL(ETL):
                 logger.debug("data provider: " + dataProvider)
 
         for pheno in phenotype_data['data']:
-            pubEntityJoinUuid = str(uuid.uuid4())
+            pecjPrimaryKey = str(uuid.uuid4())
             counter = counter + 1
             pubMedId = None
             pubModId = None
@@ -264,7 +264,7 @@ class PhenoTypeETL(ETL):
                 pgeIds = pheno.get('primaryGeneticEntityIDs')
                 for pge in pgeIds:
                     pgeKey = pgeKey + pge
-                    pge_map = {"pecjPrimaryKey": pubEntityJoinUuid,
+                    pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                "pgeId": pge}
                     pge_list_to_yield.append(pge_map)
 
@@ -285,15 +285,17 @@ class PhenoTypeETL(ETL):
                 "type": "gene",
                 "dataProviders": dataProviders,
                 "dateProduced": dateProduced,
-                "pecjPrimaryKey": pubEntityJoinUuid
+                "pecjPrimaryKey": pecjPrimaryKey
              }
 
             list_to_yield.append(phenotype)
 
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield, list_to_yield] #, pge_list_to_yield]#, pge_list_to_yield, pge_list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield]#,
+                       #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
                 list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [list_to_yield, list_to_yield, list_to_yield]# , pge_list_to_yield]#, pge_list_to_yield, pge_list_to_yield]
+            yield [list_to_yield, list_to_yield, list_to_yield]#,
+                   #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
