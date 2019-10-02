@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import pickle
 import time
-from neo4j.v1 import GraphDatabase
+from neo4j import GraphDatabase
 from etl import ETL
 from common import ContextInfo
 
