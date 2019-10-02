@@ -69,7 +69,8 @@ class TestClass(object):
                              dict(node='WBLSTerm'),
                              dict(node='Assembly'),
                              dict(node='GenomicLocation'),
-                             dict(node='PhenotypePublicationJoin')
+                             dict(node='PhenotypePublicationJoin'),
+                             dict(node='GeneLevelConsequence')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
