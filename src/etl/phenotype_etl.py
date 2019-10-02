@@ -1,10 +1,12 @@
-import logging, uuid
+import logging
+import uuid
 import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
 logger = logging.getLogger(__name__)
 
@@ -33,19 +35,19 @@ class PhenoTypeETL(ETL):
             MERGE (pa)-[pad:ASSOCIATION]->(p)
             MERGE (ag)-[agpa:ASSOCIATION]->(pa)
             
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-                       MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           //CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-             //SET pubEJ.joinType = 'pub_evidence_code_join'
+                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+             SET pubEJ.joinType = 'pub_evidence_code_join'
 
-           // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
             
@@ -67,20 +69,22 @@ class PhenoTypeETL(ETL):
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
-
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                
+             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
            
-            MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-           //      SET pubEJ.joinType = 'pub_evidence_code_join'
+                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+             SET pubEJ.joinType = 'pub_evidence_code_join'
 
-          //  CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-           // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+
+            """
 
     execute_agm_template = """
 
@@ -100,29 +104,29 @@ class PhenoTypeETL(ETL):
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
-
+            
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-                 
-            MERGE (pubf)-[pe:EVIDENCE]-(pa)
+           
+                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+            CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+              SET pubEJ.joinType = 'pub_evidence_code_join'
 
-         // CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
-          //    SET pubEJ.joinType = 'pub_evidence_code_join'
-
-         // CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
-         // CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ) """
+            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
+    """
 
     execute_pges_allele_template = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Allele:Feature {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (d:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
@@ -133,12 +137,11 @@ class PhenoTypeETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationEvidenceCodeJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (d:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
     """
-
 
     def __init__(self, config):
         super().__init__()
@@ -167,26 +170,49 @@ class PhenoTypeETL(ETL):
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_neo4j_commit_size()
-        
-        generators = self.get_generators(data, batch_size)
 
-        query_list = [
-            [PhenoTypeETL.execute_gene_template, commit_size, "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_allele_template, commit_size, "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [PhenoTypeETL.execute_agm_template, commit_size, "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]#,
-            #[PhenoTypeETL.execute_pges_agm_template, commit_size, "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"] ,
-            #[PhenoTypeETL.execute_pges_allele_template, commit_size, "phenotype_agm_allele_data_" + sub_type.get_data_provider() + ".csv"]
-        ]
+        data_provider = sub_type.get_data_provider()
+
+        generators = self.get_generators(data, batch_size, data_provider)
+
+
+        if data_provider == 'MGI' or data_provider == 'ZFIN' or data_provider == 'RGD':
+            query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_template, commit_size,
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_agm_template, commit_size,
+                 "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_pges_agm_template, commit_size,
+                 "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+        elif data_provider == 'FB' or data_provider == 'WB':
+            query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_template, commit_size,
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_pges_allele_template, commit_size,
+                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+        else:
+            query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+
             
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, phenotype_data, batch_size):
+    def get_generators(self, phenotype_data, batch_size, data_provider):
         list_to_yield = []
         pge_list_to_yield = []
         dateProduced = phenotype_data['metaData']['dateProduced']
         dataProviders = []
+        pubs_to_yield = []
         dataProviderObject = phenotype_data['metaData']['dataProvider']
         counter = 0
         dataProviderCrossRef = dataProviderObject.get('crossReference')
@@ -199,9 +225,18 @@ class PhenoTypeETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap, dataProvider, dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider,
+                                                                      ETL.xrefUrlMap,
+                                                                      dataProvider,
+                                                                      dataProviderPage)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage, dataProviderPage, dataProvider, crossRefCompleteUrl, dataProvider + dataProviderPage))
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider,
+                                                                       dataProvider,
+                                                                       dataProviderPage,
+                                                                       dataProviderPage,
+                                                                       dataProvider,
+                                                                       crossRefCompleteUrl,
+                                                                       dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
                 logger.debug("data provider: " + dataProvider)
@@ -276,26 +311,40 @@ class PhenoTypeETL(ETL):
                 "phenotypeUniqueKey": primaryId.strip()+phenotypeStatement.strip(),
                 "phenotypeStatement": phenotypeStatement.strip(),
                 "dateAssigned": dateAssigned,
+                "loadKey": loadKey,
+                "type": "gene",
+                "dataProviders": dataProviders,
+                "dateProduced": dateProduced,
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
                 "pubModId": pubModId,
                 "pubModUrl": pubModUrl,
                 "pubPrimaryKey": pubMedId + pubModId,
-                "loadKey": loadKey,
-                "type": "gene",
-                "dataProviders": dataProviders,
-                "dateProduced": dateProduced,
                 "pecjPrimaryKey": pecjPrimaryKey
              }
 
             list_to_yield.append(phenotype)
 
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield, list_to_yield]#,
-                       #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
-                list_to_yield = []
-                counter = 0
+                if data_provider == 'SGD':
+                    yield [list_to_yield]
+                    list_to_yield = []
+                    counter = 0
+                elif data_provider =='FB' or data_provider == 'WB':
+                    yield [list_to_yield, list_to_yield, pge_list_to_yield]
+                    list_to_yield = []
+                    pge_list_to_yield = []
+                    counter = 0
+                else:
+                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+                    list_to_yield = []
+                    pge_list_to_yield = []
+                    counter = 0
 
         if counter > 0:
-            yield [list_to_yield, list_to_yield, list_to_yield]#,
-                   #pge_list_to_yield, pge_list_to_yield, pge_list_to_yield]
+            if data_provider == 'SGD':
+                yield [list_to_yield]
+            elif data_provider == 'FB' or data_provider =='WB':
+                yield [list_to_yield, list_to_yield, pge_list_to_yield]
+            else:
+                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
