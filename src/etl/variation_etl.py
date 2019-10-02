@@ -54,7 +54,7 @@ class VariationETL(ETL):
             MERGE (a:Assembly {primaryKey:row.assembly})
             
             MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
-            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+              SET gchrmn.start = apoc.number.parseInt(row.start),
                 gchrmn.end = apoc.number.parseInt(row.end),
                 gchrmn.assembly = row.assembly,
                 gchrmn.strand = row.strand,
@@ -293,6 +293,7 @@ class VariationETL(ETL):
 
             # TODO: fix typo in MGI Submission for this variant so that it doesn't list a 40K bp point mutation.
             if alleleRecord.get('alleleId') != 'MGI:6113870':
+
                 variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
                 "genomicReferenceSequence": genomicReferenceSequence,
