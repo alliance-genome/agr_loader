@@ -68,7 +68,9 @@ class TestClass(object):
                              dict(node='BSPOTerm'),
                              dict(node='WBLSTerm'),
                              dict(node='Assembly'),
-                             dict(node='GenomicLocation')
+                             dict(node='GenomicLocation'),
+                             dict(node='PhenotypePublicationJoin'),
+                             dict(node='GeneLevelConsequence')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -224,7 +226,8 @@ class TestClass(object):
                                dict(node='Assembly', prop='primaryKey'),
                                dict(node='Assembly', prop='primaryKey'),
                                dict(node='GenomicLocation', prop='chromosome'),
-                               dict(node='GenomicLocation', prop='assembly')
+                               dict(node='GenomicLocation', prop='assembly'),
+                               dict(node='PhenotypePublicationJoin', prop='primaryKey')
                                ],
 
         'test_prop_unique': [

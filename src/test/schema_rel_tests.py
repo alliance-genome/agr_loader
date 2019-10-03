@@ -77,7 +77,11 @@ class TestClass(object):
                             dict(node1='AffectedGenomicModel', node2='DiseaseEntityJoin'),
                             dict(node1='AffectedGenomicModel', node2='PhenotypeEntityJoin'),
                             dict(node1='AffectedGenomicModel', node2='PublicationEvidenceCodeJoin:Association'),
-                            dict(node1='DiseaseEntityJoin', node2='CrossReference')
+                            dict(node1='DiseaseEntityJoin', node2='CrossReference'),
+                            dict(node1='PhenotypePublicationJoin', node2='AffectedGenomicModel'),
+                            dict(node1='PhenotypePublicationJoin', node2='Allele'),
+                            dict(node1='GeneLevelConsequence', node2='Gene'),
+                            dict(node1='GeneLevelConsequence', node2='Variant')
                             ]
 
     }
