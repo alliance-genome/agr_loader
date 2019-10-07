@@ -170,11 +170,12 @@ class PhenoTypeETL(ETL):
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_neo4j_commit_size()
-
+        query_allele_list = []
+        query_agm_list =[]
+        basic_query_list = []
         data_provider = sub_type.get_data_provider()
 
         generators = self.get_generators(data, batch_size, data_provider)
-
 
         if data_provider == 'MGI' or data_provider == 'ZFIN' or data_provider == 'RGD':
             query_list = [
@@ -187,6 +188,19 @@ class PhenoTypeETL(ETL):
                 [PhenoTypeETL.execute_pges_agm_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
+            query_agm_list = [
+                [PhenoTypeETL.execute_pges_agm_template, commit_size,
+                 "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+            basic_query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_template, commit_size,
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_agm_template, commit_size,
+                 "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+
         elif data_provider == 'FB' or data_provider == 'WB':
             query_list = [
                 [PhenoTypeETL.execute_gene_template, commit_size,
@@ -196,8 +210,22 @@ class PhenoTypeETL(ETL):
                 [PhenoTypeETL.execute_pges_allele_template, commit_size,
                  "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
+            query_allele_list = [
+                [PhenoTypeETL.execute_pges_allele_template, commit_size,
+                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+            basic_query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_template, commit_size,
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
         else:
             query_list = [
+                [PhenoTypeETL.execute_gene_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+            basic_query_list = [
                 [PhenoTypeETL.execute_gene_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
             ]
@@ -205,7 +233,18 @@ class PhenoTypeETL(ETL):
             
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+
+        basic_query_and_file_list = self.process_query_params(basic_query_list)
+        Neo4jTransactor.execute_query_batch(basic_query_and_file_list)
+
+        Neo4jTransactor.wait_for_queues(self)
+
+        query_agm_and_file_list = self.process_query_params(query_agm_list)
+        Neo4jTransactor.execute_query_batch(query_agm_and_file_list)
+
+        query_allele_and_file_list = self.process_query_params(query_allele_list)
+        Neo4jTransactor.execute_query_batch(query_allele_and_file_list)
+
 
     def get_generators(self, phenotype_data, batch_size, data_provider):
         list_to_yield = []
