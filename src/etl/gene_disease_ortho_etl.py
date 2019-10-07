@@ -39,7 +39,7 @@ class GeneDiseaseOrthoETL(ETL):
                         fafg.dateProduced = row.dateProduced,
                         dga.joinType = 'implicated_via_orthology')
 
-                CREATE (pubEJ:PublicationEvidenceCodeJoin:Association {primaryKey:row.pubEvidenceUuid})
+                CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join'
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -105,7 +105,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         retrieve_gene_disease_ortho = """
             MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
-            MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationEvidenceCodeJoin)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)
+            MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationJoin:Association)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)
                     WHERE o.strictFilter = true
                     AND da.uuid = dej.primaryKey
                     AND not (ec.primaryKey = "ECO:0000501")

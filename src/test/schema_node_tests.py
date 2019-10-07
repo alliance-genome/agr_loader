@@ -69,7 +69,7 @@ class TestClass(object):
                              dict(node='WBLSTerm'),
                              dict(node='Assembly'),
                              dict(node='GenomicLocation'),
-                             dict(node='PhenotypePublicationJoin'),
+                             dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence')
                              ],
 
@@ -227,7 +227,7 @@ class TestClass(object):
                                dict(node='Assembly', prop='primaryKey'),
                                dict(node='GenomicLocation', prop='chromosome'),
                                dict(node='GenomicLocation', prop='assembly'),
-                               dict(node='PhenotypePublicationJoin', prop='primaryKey')
+                               dict(node='PublicationJoin', prop='primaryKey')
                                ],
 
         'test_prop_unique': [

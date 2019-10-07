@@ -42,7 +42,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -77,7 +77,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -112,7 +112,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            CREATE (pubEJ:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
               SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -126,7 +126,7 @@ class PhenoTypeETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Allele:Feature {primaryKey:row.pgeId})
-            MATCH (d:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
@@ -137,7 +137,7 @@ class PhenoTypeETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PhenotypePublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
