@@ -94,7 +94,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :PhenotypeEntityJoin(primaryKey)")
         session.run("CREATE INDEX ON :ExpressionBioEntity(primaryKey)")
         session.run("CREATE INDEX ON :Stage(primaryKey)")
-        session.run("CREATE INDEX ON :PublicationEvidenceCodeJoin(primaryKey)")
+        session.run("CREATE INDEX ON :PublicationJoin(primaryKey)")
         session.run("CREATE INDEX ON :PhenotypePublicationJoin(primaryKey)")
         session.run("CREATE INDEX ON :Variant(primaryKey)")
         session.run("CREATE INDEX ON :Variant(hgvsNomenclature)")

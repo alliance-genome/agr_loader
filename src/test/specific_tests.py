@@ -35,7 +35,7 @@ def test_currated_disease_associations_have_date_assigned():
 
 
 def test_species_disease_pub_gene_exists():
-    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication) " \
             "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
@@ -43,7 +43,7 @@ def test_species_disease_pub_gene_exists():
 
 
 def test_species_disease_pub_allele_exists():
-    query = "MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(p:Publication) " \
+    query = "MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication) " \
             "RETURN COUNT(p) AS count"
     result = execute_transaction(query)
     for record in result:
@@ -363,7 +363,7 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(ec:ECOTerm) " \
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(ec:ECOTerm) " \
             "where ec.primaryKey = 'ECO:0000501'" \
             "and deg.dataProvider = 'Alliance'" \
             "return count(gene) as counter"
@@ -373,7 +373,7 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_publication():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication) " \
             "where" \
             " deg.dataProvider = 'Alliance'" \
             "return count(gene) as counter"
@@ -383,7 +383,7 @@ def test_gene_to_disease_annotation_via_ortho_has_publication():
 
 
 def test_gene_to_disease_annotation_has_publication():
-        query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationEvidenceCodeJoin)--(pub:Publication) " \
+        query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication) " \
                 "return count(gene) as counter"
         result = execute_transaction(query)
         for record in result:
@@ -655,7 +655,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
 
 
 def test_pej_has_agm():
-    query = "match (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationEvidenceCodeJoin) " \
+    query = "match (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationJoin) " \
             "where agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'" \
             " return count(agm) as counter"
     result = execute_transaction(query)
