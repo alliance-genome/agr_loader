@@ -27,7 +27,7 @@ class PhenoTypeETL(ETL):
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
-                    pa.dataProviders = row.dataProviders
+                    pa.dataProvider = row.dataProvider
 
             MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
@@ -64,7 +64,7 @@ class PhenoTypeETL(ETL):
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
-                    pa.dataProviders = row.dataProviders
+                    pa.dataProvider = row.dataProvider
             
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
@@ -99,7 +99,7 @@ class PhenoTypeETL(ETL):
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
-                    pa.dataProviders = row.dataProviders
+                    pa.dataProvider = row.dataProvider
 
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
@@ -353,6 +353,7 @@ class PhenoTypeETL(ETL):
                 "loadKey": loadKey,
                 "type": "gene",
                 "dataProviders": dataProviders,
+                "dataProvider": dataProvider,
                 "dateProduced": dateProduced,
                 "pubMedId": pubMedId,
                 "pubMedUrl": pubMedUrl,
