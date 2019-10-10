@@ -153,7 +153,8 @@ class TestClass(object):
                             dict(node='Variant', prop='primaryKey'),
                             dict(node='Assembly', prop='primaryKey'),
                             dict(node='GenomicLocation', prop='chromosome'),
-                            dict(node='GenomicLocation', prop='assembly')
+                            dict(node='GenomicLocation', prop='assembly'),
+                            dict(node='GeneLevelConsequence', prop='geneLevelConsequence')
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
