@@ -37,8 +37,8 @@ services:
       - NEO4J_HOST=neo4j
       - NET=production
       - ALLIANCE_RELEASE=2.3.0
-      - FMS_API_URL=https://fmsdev.alliancegenome.org
-      - DOWNLOAD_HOST=downloaddev.alliancegenome.org
+      - FMS_API_URL=https://fms.alliancegenome.org
+      - DOWNLOAD_HOST=download.alliancegenome.org
       - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -64,8 +64,8 @@ services:
      - NEO4J_HOST=neo4j
      - NET=production
      - ALLIANCE_RELEASE=2.3.0
-     - FMS_API_URL=https://fmsdev.alliancegenome.org
-     - DOWNLOAD_HOST=downloaddev.alliancegenome.org
+     - FMS_API_URL=https://fms.alliancegenome.org
+     - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -91,8 +91,8 @@ services:
      - NEO4J_HOST=neo4j
      - NET=production
      - ALLIANCE_RELEASE=2.3.0
-     - FMS_API_URL=https://fmsdev.alliancegenome.org
-     - DOWNLOAD_HOST=downloaddev.alliancegenome.org
+     - FMS_API_URL=https://fms.alliancegenome.org
+     - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -118,8 +118,8 @@ services:
      - NEO4J_HOST=neo4j
      - NET=production
      - ALLIANCE_RELEASE=2.3.0
-     - FMS_API_URL=https://fmsdev.alliancegenome.org
-     - DOWNLOAD_HOST=downloaddev.alliancegenome.org
+     - FMS_API_URL=https://fms.alliancegenome.org
+     - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
     entrypoint:
       - pytest
