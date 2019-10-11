@@ -26,7 +26,7 @@ class VEPETL(ETL):
                     gc.impact = row.impact
                 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
-                CREATE (a)-[ga:ASSOCATION {primaryKey:row.primaryKey}]->(gc)
+                CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 
                 """
 
