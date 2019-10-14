@@ -60,6 +60,31 @@ class MIETL(ETL):
         return mi_term_url_dict.get(identifier)
 
     @staticmethod
+    def adjust_database_names(name):
+        mi_database_name_dict = {
+            'flybase': 'FlyBase',
+            'wormbase': 'WormBase',
+            'biogrid': 'BioGRID',
+            'imex': 'IMEx',
+            'intact': 'IntAct',
+            'mint': 'MINT',
+            'dip': 'DIP',
+            'iid': 'IID',
+            'uniprot knowledge base': 'UniProtKB',
+            'ntnu': 'NTNU',
+            'molecular connections': 'Molecular Connections',
+            'hpidb': 'HPIDB',
+            'innatedb': 'InnateDB',
+            'matrixdb': 'MatrixDB',
+            'mbinfo': 'MBInfo',
+            'bhf-ucl': 'BHF-UCL',
+            'mpidb': 'MPIDB'
+        }
+
+        # Return the original if there is no entry in the dict.
+        return mi_database_name_dict.get(name, name)
+
+    @staticmethod
     def add_definition(term):
         try:
             return term['annotation']['definition'][0]
@@ -95,11 +120,16 @@ class MIETL(ETL):
 
             for term in mi_term_ontology_full['_embedded']['terms']:
                 if term['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
+
+                    adjusted_label = self.adjust_database_names(term['label'])
+                    if adjusted_label != term['label']:
+                        logger.info('Updated MI database name: {} -> {}'.format(term['label'], adjusted_label))
+
                     dict_to_append = {
-                            'identifier' : term['obo_id'],
-                            'label' : term['label'],
-                            'definition' : self.add_definition(term),
-                            'url' : self.add_miterm_url(term['obo_id'])
+                            'identifier': term['obo_id'],
+                            'label': adjusted_label,
+                            'definition': self.add_definition(term),
+                            'url': self.add_miterm_url(term['obo_id'])
                             }
                     processed_mi_list.append(dict_to_append)
 
