@@ -181,6 +181,9 @@ class TestObject(object):
             'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
             # gene descriptions
             'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787', 'RGD:621409',
+            # variant consequences
+            'RGD:1310046', 'RGD:69305', 'RGD:1589755', 'RGD:1307511', 'RGD:3889', 'RGD:13437613', 'RGD:1600311',
+            'RGD:5143979',
         }
 
         self.humanTestSet = {
