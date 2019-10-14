@@ -84,6 +84,8 @@ class VEPETL(ETL):
                             impact = value
                 if columns[3].startswith('Gene:'):
                     geneId = columns[3].lstrip('Gene:')
+                elif columns[3].startswith('RGD:'):
+                    geneId = columns[3].lstrip('RGD:')
                 else:
                     geneId = columns[3]
 
