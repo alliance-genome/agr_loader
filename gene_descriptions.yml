@@ -555,7 +555,7 @@ expression_sentences_options:
     - "ZFA:0001094" # whole organism
     - "ZFA:0000037" # anatomical structure
     - "ZFA:0000292" # surface structure
-    - "ZFA:000149" # cavitated compound organ
+    - "ZFA:0001490" # cavitated compound organ
     - "EMAPA:25765" # mouse
     - "EMAPA:35949" # organ
     - "EMAPA:36040" # conceptus
