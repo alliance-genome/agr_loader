@@ -167,7 +167,9 @@ class TestObject(object):
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
             # variants
-            'FB:FBgn0011224', 'FB:FBal0226899', 'FB:FBal0179527',
+            'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899', 'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202',
+            'FB:FBal0104420',
+
         }
         self.rgdTestSet = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995', 'RGD:1309165',
@@ -181,6 +183,9 @@ class TestObject(object):
             'RGD:2219', 'RGD:728326', 'RGD:2454', 'RGD:728295', 'RGD:2129', 'RGD:621293',
             # gene descriptions
             'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787', 'RGD:621409',
+            # variant consequences
+            'RGD:1310046', 'RGD:69305', 'RGD:1589755', 'RGD:1307511', 'RGD:3889', 'RGD:13437613', 'RGD:1600311',
+            'RGD:5143979', 'FB:FBal0104420'
         }
 
         self.humanTestSet = {
