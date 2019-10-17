@@ -92,7 +92,6 @@ class MIETL(ETL):
 
     def get_generators(self):
 
-        #mi_term_ontology = None
         mi_term_ontology_full = None
 
         # TODO Make size configurable?
