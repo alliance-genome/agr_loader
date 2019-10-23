@@ -387,7 +387,7 @@ class DiseaseETL(ETL):
             diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
 
             if diseaseObjectType == "gene":
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
+                disease_record = DiseaseHelper.get_diseas                       e_record(diseaseRecord, dataProviders, dateProduced,
                                                                    data_provider)
 
                 if disease_record is not None:
