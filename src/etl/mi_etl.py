@@ -49,10 +49,9 @@ class MIETL(ETL):
             'MI:0917' : 'http://matrixdb.univ-lyon1.fr/',
             'MI:0974' : 'http://www.innatedb.ca/',
             'MI:1222' : 'http://www.mechanobio.info/',
-            'MI:1262' : 'http://iid.ophid.utoronto.ca/iid/',
+            'MI:1262' : 'http://ophid.utoronto.ca/',
             'MI:1263' : 'http://www.molecularconnections.com',
             'MI:1264' : 'http://www.ntnu.no/home',
-            'MI:1332' : 'http://www.ucl.ac.uk/functional-gene-annotation/psicquic/Tabs/bhf-ucl-dataset',
             'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html',
             'MI:0463' : 'https://thebiogrid.org/'
         }
