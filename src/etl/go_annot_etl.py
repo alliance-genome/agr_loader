@@ -1,4 +1,5 @@
 import logging, gzip, csv, multiprocessing
+import sys
 
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -69,25 +70,30 @@ class GOAnnotETL(ETL):
         go_annot_list = []
         counter = 0
         reader = csv.reader(file, delimiter='\t')
-        for line in reader:
-            if line[0].startswith('!'):
-                continue
-            if 'HGNC' in line[1]:
-                gene = line[1]
-            else:
-                gene = prefix + line[1]
+        line_counter = 1
+        try:
+            for line in reader:
+                line_counter += 1
+                if line[0].startswith('!'):
+                    continue
+                if 'HGNC' in line[1]:
+                    gene = line[1]
+                else:
+                    gene = prefix + line[1]
 
-            go_id = line[4]
-            go_annot_dict = {
-                'gene_id': gene,
-                'go_id': go_id
-            }
-            counter = counter + 1
-            go_annot_list.append(go_annot_dict)
-            if counter == batch_size:
-                counter = 0
-                yield [go_annot_list]
-                go_annot_list = []
+                go_id = line[4]
+                go_annot_dict = {
+                    'gene_id': gene,
+                    'go_id': go_id
+                }
+                counter = counter + 1
+                go_annot_list.append(go_annot_dict)
+                if counter == batch_size:
+                    counter = 0
+                    yield [go_annot_list]
+                    go_annot_list = []
+        except:
+            logger.error("GAF file is failing " + file.name + " at line " + str(line_counter))
 
         if counter > 0:
             yield [go_annot_list]
