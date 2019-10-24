@@ -571,6 +571,7 @@ expression_sentences_options:
     - "EMAPA:16039" # embryo
     - "EMAPA:31858" # head
     - "EMAPA:18425" # gland
+    - "EMAPA:36867" # craniocervical region
     - "FBbt:00000001" # organism
     - "WBbt:0005758" # hermaphrodite-specific
     - "WBbt:0007849" # hermaphrodite
