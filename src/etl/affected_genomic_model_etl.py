@@ -229,8 +229,13 @@ class AffectedGenomicModelETL(ETL):
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
             nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
+
+            # TODO: make subtype required in submission file.
+
             subtype = agmRecord.get('subtype')
-            if subtype is None:
+            if subtype is None and dataProvider == 'WB':
+                subtype = 'strain'
+            else:
                 subtype = 'affected_genomic_model'
 
             # TODO: nameText
