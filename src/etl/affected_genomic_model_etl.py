@@ -235,7 +235,7 @@ class AffectedGenomicModelETL(ETL):
             subtype = agmRecord.get('subtype')
             if subtype is None and dataProvider == 'WB':
                 subtype = 'strain'
-            else:
+            if subtype is None:
                 subtype = 'affected_genomic_model'
 
             # TODO: nameText
