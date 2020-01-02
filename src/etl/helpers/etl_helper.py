@@ -315,7 +315,7 @@ class ETLHelper(object):
         if 'MGI' in crossRefId:
             return "http://www.informatics.jax.org/gxd/marker/MGI:"+localId+"?tab=imagestab"
         elif 'ZFIN' in crossRefId:
-            return "https://zfin.org/action/marker/"+localId+"/expression"
+            return "https://zfin.org/"+localId+"/wt-expression/images"
         elif 'WB' in crossRefId:
             return "https://www.wormbase.org/db/get?name="+localId+";class=Gene;widget=expression"
         elif 'FB' in crossRefId:
