@@ -13,7 +13,7 @@ from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
-from ontobio import AssociationSetFactory, OntologyFactory
+from ontobio import AssociationSetFactory, OntologyFactory, Ontology
 from transactors import CSVTransactor, Neo4jTransactor
 from genedescriptions.data_manager import DataManager
 from genedescriptions.commons import DataType, Gene
@@ -190,7 +190,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def get_ontology(data_type: DataType, provider=None):
-        ontology = OntologyFactory().create()
+        ontology = Ontology()
         terms_pairs = []
         if data_type == DataType.GO:
             terms_pairs = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetOntologyPairs.format(
