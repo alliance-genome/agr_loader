@@ -100,6 +100,7 @@ class GeneDescriptionsETL(ETL):
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
+        self.cur_date = datetime.date.today().strftime("%Y%m%d")
 
     def _load_and_process_data(self):
         # create gene descriptions data manager and load common data
@@ -358,13 +359,57 @@ class GeneDescriptionsETL(ETL):
         return best_orthologs
 
     @staticmethod
-    def save_descriptions_report_files(data_provider, json_desc_writer, context_info, gd_data_manager):
+    def upload_files_to_s3(context_info, file_path, file_name, cur_date, release_version, latest_file_name):
+        client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
+                              aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
+        pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
+            "/" + context_info.env["GENERATE_REPORTS"] + "/"
+        client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
+                           pre_release + cur_date + "/" + file_name + ".json",
+                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+        client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
+                           pre_release + cur_date + "/" + file_name + ".txt",
+                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+        client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
+                           pre_release + cur_date + "/" + file_name + ".tsv",
+                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+        if context_info.env["GENERATE_REPORTS"] is True:
+            client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                               ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                               ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
+                               ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+
+    @staticmethod
+    def upload_files_to_fms(file_path, context_info, data_provider):
+        with open(file_path + ".json", 'rb') as f_json, open(file_path + ".txt", 'rb') as f_txt, open(
+                file_path + ".tsv", 'rb') as f_tsv:
+            if context_info.env["GENERATE_REPORTS"] is True:
+                file_to_upload = {
+                    f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-JSON_{data_provider}": f_json,
+                    f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TXT_{data_provider}": f_txt,
+                    f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TSV_{data_provider}": f_tsv}
+            else:
+                file_to_upload = {
+                    f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TEST-JSON_{data_provider}": f_json}
+
+            headers = {
+                'Authorization': 'Bearer {}'.format(context_info.env['API_KEY'])
+            }
+
+            logger.debug(file_to_upload)
+            logger.debug(headers)
+            logger.debug('Uploading gene description files to FMS ' + context_info.env['FMS_API_URL'])
+            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit/', files=file_to_upload, headers=headers)
+            logger.info(response.text)
+
+    def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
         release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
         json_desc_writer.overall_properties.species = data_provider
         json_desc_writer.overall_properties.release_version = release_version
-        cur_date = datetime.date.today().strftime("%Y%m%d")
-        json_desc_writer.overall_properties.date = cur_date
-        file_name = cur_date + "_" + data_provider
+        json_desc_writer.overall_properties.date = self.cur_date
+        file_name = self.cur_date + "_" + data_provider
         latest_file_name = data_provider + "_gene_desc_latest"
         file_path = "tmp/" + file_name
         json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True,
@@ -372,37 +417,6 @@ class GeneDescriptionsETL(ETL):
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         if context_info.env["GENERATE_REPORTS"]:
-            # Upload to FMS
-            # file_to_upload = {f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-JSON_{data_provider}": open(file_path + ".json", 'rb'),
-            #                   f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TXT_{data_provider}": open(file_path + ".txt", 'rb'),
-            #                   f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-TSV_{data_provider}": open(file_path + ".tsv", 'rb')}
-            # headers = {
-            #     'Authorization': 'Bearer {}'.format(context_info.env['API_KEY'])
-            # }
-            #
-            # logger.debug('Uploading gene description files to FMS ' + context_info.env['FMS_API_URL'])
-            # response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit/', files=file_to_upload,
-            #                          headers=headers)
-            # logger.info(response.text)
-
-            # Upload to S3 bucket directly - to be removed in the future
-            client = boto3.client('s3', aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
-                                  aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
-            pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
-                "/" + context_info.env["GENERATE_REPORTS"] + "/"
-            client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + release_version +
-                               pre_release + cur_date + "/" + file_name + ".json",
-                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-            client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
-                               pre_release + cur_date + "/" + file_name + ".txt",
-                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-            client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
-                               pre_release + cur_date + "/" + file_name + ".tsv",
-                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-            if context_info.env["GENERATE_REPORTS"] is True:
-                client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                   ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                   ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-                client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                                   ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            GeneDescriptionsETL.upload_files_to_fms(file_path, context_info, data_provider)
+            # GeneDescriptionsETL.upload_files_to_s3(context_info, file_path, file_name, self.cur_date, release_version,
+            #                                        latest_file_name)
