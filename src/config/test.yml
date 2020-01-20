@@ -1,5 +1,5 @@
 schemaVersion: 1.0.0.9
-releaseVersion: 2.3.0
+releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -65,4 +65,3 @@ VEP: [FB, WB, ZFIN, RGD, MGI]
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-

@@ -7,6 +7,7 @@ import xmltodict
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
 from transactors import CSVTransactor, Neo4jTransactor
+from itertools import islice
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ class ExpressionAtlasETL(ETL):
         returnSet = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_template, dataProvider)
         return {record["g.symbol"].lower(): record["g.primaryKey"] for record in returnSet}
 
+
     # Returns only pages for genes that we have in the Alliance
     def _get_expression_atlas_gene_pages(self, sub_type, dataProvider, ensgToGenePrimaryIdMap):
         filepath = sub_type.get_filepath()
@@ -69,6 +71,7 @@ class ExpressionAtlasETL(ETL):
                     for element in value:
                         url = element['loc']
                         expressionAtlasGene = url.split("/")[-1]
+                        expressionAtlasGene = expressionAtlasGene.lower()
                         if expressionAtlasGene in ensgToGenePrimaryIdMap:
                             expressionAtlasGenePages[ensgToGenePrimaryIdMap[expressionAtlasGene].lower()] = url
                         elif expressionAtlasGene in geneSymbolToPrimaryIdMap:
@@ -80,6 +83,7 @@ class ExpressionAtlasETL(ETL):
         return expressionAtlasGenePages
 
     def _process_sub_type(self, sub_type, ensgToGenePrimaryIdMap):
+
         dataProvider = sub_type.get_data_provider()
         expressionAtlasGenePages = self._get_expression_atlas_gene_pages(sub_type, dataProvider, ensgToGenePrimaryIdMap)
 
