@@ -2,6 +2,7 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 
 from etl import *
 from etl import VariationETL
+from etl import ConstructETL
 from etl import VEPETL
 from etl import SequenceTargetingReagentETL
 from etl import ECOMAPETL
@@ -78,6 +79,7 @@ class AggregateLoader(object):
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
+            'CONSTRUCT': ConstructETL,
             'GENEEEXPRESSIONATLASSITEMAP': ExpressionAtlasETL,
             'ONTOLOGY': GenericOntologyETL,
             'ECOMAP': ECOMAPETL,
@@ -111,6 +113,7 @@ class AggregateLoader(object):
             ['ONTOLOGY'],
             ['ECOMAP'],
             ['BGI'],
+            ['CONSTRUCT'],
             ['ALLELE'],
             ['VARIATION'],
             ['SQTR'],

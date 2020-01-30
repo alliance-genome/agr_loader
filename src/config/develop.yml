@@ -1,6 +1,7 @@
 schemaVersion: 1.0.0.9
 releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+CONSTRUCT: [FB, SGD, WB, ZFIN, RGD]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -32,6 +33,13 @@ ONTOLOGY:
   - ECO
   - UBERON
   - ECOMAP
+  - PATO
+  - APO
+  - DPO
+  - FYPO
+  - WBPhenotype
+  - MP
+  - HP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
@@ -56,6 +64,13 @@ Closure:
   - MA
   - ECO
   - UBERON
+  - PATO
+  - APO
+  - DPO
+  - FYPO
+  - WBPhenotype
+  - MP
+  - HP
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]
