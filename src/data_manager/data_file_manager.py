@@ -51,6 +51,7 @@ class DataFileManager(metaclass=Singleton):
             sys.exit(-1)
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
+        logger.debug(self.submission_system_data)
 
         for dataFile in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(dataFile)

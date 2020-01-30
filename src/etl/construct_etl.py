@@ -16,7 +16,7 @@ from etl.helpers import TextProcessingHelper
 logger = logging.getLogger(__name__)
 
 
-class ConstructETL(object):
+class ConstructETL(ETL):
 
     xrefUrlMap = ResourceDescriptorHelper().get_data()
 
@@ -80,17 +80,17 @@ class ConstructETL(object):
             MATCH (g:Gene {primaryKey:row.componentID})
             
             FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:TARGETS]->(o)
-                 gto.joinType = 'targets'
+                MERGE (g)-[gto:TARGETS]->(o)
+                 SET gto.joinType = 'targets'
             )
             FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:IS_REGULATED_BY]->(o)
-                 gto.joinType = 'is_regulated_by'
+                MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
+                 SET gto.joinType = 'is_regulated_by'
             )
             
             FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:EXPRESSES]->(o)
-                 gto.joinType = 'expresses'
+                MERGE (g)<-[gto:EXPRESSES]-(o)
+                 SET gto.joinType = 'expresses'
             )
             
   
@@ -104,17 +104,17 @@ class ConstructETL(object):
             MATCH (o:Construct {primaryKey:row.constructID}) 
             
             FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:TARGETS]->(o)
-                 gto.joinType = 'targets'
+                MERGE (g:Gene)<-[gto:TARGETS]-(o)
+                 SET gto.joinType = 'targets'
             )
             FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:IS_REGULATED_BY]->(o)
-                 gto.joinType = 'is_regulated_by'
+                MERGE (g:Gene)<-[gto:IS_REGULATED_BY]-(o)
+                 SET gto.joinType = 'is_regulated_by'
             )
             
             FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:EXPRESSES]->(o)
-                 gto.joinType = 'expresses'
+                MERGE (g:Gene)<-[gto:EXPRESSES]-(o)
+                 SET gto.joinType = 'expresses'
             )
 
             """
@@ -122,9 +122,6 @@ class ConstructETL(object):
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
-
-    def run_etl(self):
-        self._load_and_process_data()
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -140,8 +137,6 @@ class ConstructETL(object):
 
         logger.info("Loading Construct Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
-        logger.info(filepath)
         data = JSONFile().get_data(filepath)
         logger.info("Finished Loading Construct Data: %s" % sub_type.get_data_provider())
 

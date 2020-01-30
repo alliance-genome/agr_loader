@@ -140,7 +140,7 @@ class AggregateLoader(object):
             logger.info("Starting ETL group: %s" % etl_group)
             thread_pool = []
             for etl_name in etl_group:
-                logger.debug("ETL Name: %s" % etl_name)
+                logger.info("ETL Name: %s" % etl_name)
                 config = data_manager.get_config(etl_name)
                 if config is not None:
                     etl = etl_dispatch[etl_name](config)

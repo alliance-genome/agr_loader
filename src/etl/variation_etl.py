@@ -73,6 +73,15 @@ class VariationETL(ETL):
 
             MATCH (o:Variant {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
+    xrefs_template = """
+
+          USING PERIODIC COMMIT %s
+          LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+          
+
+             """
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config

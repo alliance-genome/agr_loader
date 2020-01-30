@@ -1,7 +1,7 @@
 schemaVersion: 1.0.0.9
 releaseVersion: 3.0.0
 BGI: [ZFIN, RGD, WB]
-CONSTRUCT: [WB, ZFIN, RGD]
+CONSTRUCT: [ZFIN]
 ALLELE: [WB, ZFIN, RGD]
 ONTOLOGY:
   - SO

@@ -11,8 +11,12 @@ import jsonschema as js
 class JSONFile(object):
 
     def get_data(self, filename):
+
+        logger.info("file name is:")
+        logger.info(filename)
         logger.debug("Loading JSON data from %s ..." % filename)
         if 'PHENOTYPE' in filename:
+            logger.info(filename)
             self.remove_bom_inplace(filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             logger.debug("Opening JSONFile: %s" % filename)
