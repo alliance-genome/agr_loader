@@ -1,4 +1,4 @@
-schemaVersion: 1.0.0.9
+schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 CONSTRUCT: [FB, SGD, WB, ZFIN, RGD]
