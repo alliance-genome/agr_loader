@@ -11,24 +11,25 @@ logger = logging.getLogger(__name__)
 
 
 class TranscriptETL(ETL):
+
     tscript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Gene {localId:row.parentId})
-                MATCH (so:SOTerm {name:row.featureTypeName})
-                
-                MERGE (t:Transcript {primaryKey:row.curie})
-                SET t.gff3ID = row.ID
-                
-                MERGE (t)-[tso:TRANSCRIPT_TYPE]-(so)
+                MATCH (g:Gene {modLocalId: row.parentId})
+                MATCH (so:SOTerm {name: row.featureType})
 
+                CREATE (t:Transcript {primaryKey:row.curie})
+                    SET t.gff3ID = row.gff3ID
+                
+                CREATE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
+                CREATE (g)<-[gt:TRANSCRIPT]-(t)
                 """
 
     chromosomes_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MERGE (chrm:Chromosome {primaryKey: row.chromosomeName}) """
+            MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
 
 
     genomic_locations_template = """
@@ -36,12 +37,12 @@ class TranscriptETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Transcript {primaryKey:row.curie})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosomeName})
+            MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
 
             MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
-            MERGE (a:Assembly {primaryKey:row.assembly})
+            //MERGE (a:Assembly {primaryKey:row.assembly})
 
-            MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
+            MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
@@ -106,7 +107,7 @@ class TranscriptETL(ETL):
                 continue
             else:
                 featureTypeName = columns[2]
-                if featureTypeName == 'mRNA' or featureTypeName == '' :
+                if featureTypeName == 'mRNA' :
                     notes = columns[8]
                     kvpairs = notes.split(";")
                     transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})

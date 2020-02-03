@@ -30,7 +30,8 @@ class TestClass(object):
                                      dict(relationship='EXPRESSES'),
                                      dict(relationship='IS_REGULATED_BY'),
                                      dict(relationship='COMPUTED_GENE'),
-                                     dict(relationship='CONTAINS')],
+                                     dict(relationship='CONTAINS')
+                                     ],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),
@@ -45,7 +46,6 @@ class TestClass(object):
                              dict(node='Species'),
                              dict(node='Entity'),
                              dict(node='Chromosome'),
-                             dict(node='Construct'),
                              dict(node='DiseaseEntityJoin'),
                              dict(node='Association'),
                              dict(node='Publication'),
@@ -76,9 +76,7 @@ class TestClass(object):
                              dict(node='Assembly'),
                              dict(node='GenomicLocation'),
                              dict(node='PublicationJoin'),
-                             dict(node='GeneLevelConsequence'),
-                             dict(node='Construct'),
-                             dict(node='Transcript')
+                             dict(node='GeneLevelConsequence')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -125,8 +123,6 @@ class TestClass(object):
                             dict(node='CrossReference', prop='globalCrossRefId'),
                             dict(node='CrossReference', prop='uuid'),
                             dict(node='CrossReference', prop='page'),
-                            dict(node='Construct', prop='primaryKey'),
-                            dict(mode='Transcript', prop='primaryKey'),
                             dict(node='Species', prop='name'),
                             dict(node='Species', prop='species'),
                             dict(node='Species', prop='primaryKey'),
@@ -205,8 +201,6 @@ class TestClass(object):
                                dict(node='CrossReference', prop='displayName'),
                                dict(node='CrossReference', prop='globalCrossRefId'),
                                dict(node='CrossReference', prop='uuid'),
-                               dict(node='Construct', prop='primaryKey'),
-                               dict(node='Transcript', prop='primaryKey'),
                                dict(node='Species', prop='name'),
                                dict(node='Species', prop='species'),
                                dict(node='Species', prop='primaryKey'),
