@@ -36,13 +36,13 @@ class TranscriptETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Transcript {primaryKey:row.curie})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
+            MATCH (o:Transcript {primaryKey: row.curie})
+            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
 
             MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
-            MERGE (a:Assembly {primaryKey:row.assembly})
+            //MERGE (a:Assembly {primaryKey: row.assembly})
 
-            MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
+            MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
@@ -101,7 +101,10 @@ class TranscriptETL(ETL):
             columns = line.split()
             if columns[0].startswith('#!'):
                 headerText = columns[0].split(" ")
+                logger.info(headerText)
                 if headerText[0] == 'assembly':
+                    logger.info(headerText[0])
+                    logger.info(headerText[1])
                     transcriptMap.update({'assembly':headerText[1]})
             elif columns[0].startswith('#'):
                 continue
