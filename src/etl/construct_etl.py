@@ -40,7 +40,7 @@ class ConstructETL(ETL):
 
               MERGE (o)-[:FROM_SPECIES]-(s)
 
-              MERGE (o)<-[:contains]->(c) """
+            """
 
     construct_secondaryids_template = """
 
@@ -69,7 +69,7 @@ class ConstructETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Construct {primaryKey:row.data_id}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Construct {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     construct_gene_component_template = """
 
@@ -159,9 +159,9 @@ class ConstructETL(ETL):
             [ConstructETL.construct_synonyms_template, commit_size,
              "Construct_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [ConstructETL.construct_xrefs_template, commit_size, "Construct_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_gene_component_template, commit_size, "Construct_components_" + sub_type.get_data_provider() + ".csv"],
+            [ConstructETL.construct_gene_component_template, commit_size, "Construct_components_gene" + sub_type.get_data_provider() + ".csv"],
             [ConstructETL.construct_no_gene_component_template, commit_size,
-             "Construct_components_" + sub_type.get_data_provider() + ".csv"]
+             "Construct_components_no_gene" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
