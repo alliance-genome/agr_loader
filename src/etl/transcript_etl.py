@@ -15,7 +15,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Gene {primaryKey:row.parent})
+                MATCH (a:Gene {localId:row.parentId})
                 MATCH (so:SOTerm {name:row.featureTypeName})
                 
                 MERGE (t:Transcript {primaryKey:row.curie})
@@ -70,6 +70,7 @@ class TranscriptETL(ETL):
     def _process_sub_type(self, sub_type):
         logger.info("Loading Transcript Data: %s" % sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
@@ -80,47 +81,45 @@ class TranscriptETL(ETL):
         ]
 
         # Obtain the generator
-        generators = self.get_generators(filepath)
+        generators = self.get_generators(filepath, batch_size)
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, filepath):
+    def get_generators(self, filepath, batch_size):
 
         data = TXTFile(filepath).get_data()
         tscript_maps = []
-        impact = ''
-        geneId = ''
+
+        counter = 0
 
         for line in data:
+            counter = counter + 1
             transcriptMap = {}
             columns = line.split()
-            if columns[0].startsWith('#!'):
+            if columns[0].startswith('#!'):
                 headerText = columns[0].split(" ")
                 if headerText[0] == 'assmebly':
                     transcriptMap.update({'assembly':headerText[1]})
             elif columns[0].startswith('#'):
                 continue
             else:
-                featureTypeName = columns[3]
-                logger.info("featureTypeName: "+featureTypeName)
+                featureTypeName = columns[2]
                 if featureTypeName == 'mRNA' or featureTypeName == '' :
-                    notes = columns[9]
+                    notes = columns[8]
                     kvpairs = notes.split(";")
                     transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                    transcriptMap.update({'chromosomeNumber':columns[1]})
+                    transcriptMap.update({'chromosomeNumber':columns[0]})
                     transcriptMap.update({'featureType':featureTypeName})
                     if kvpairs is not None:
                         for pair in kvpairs:
                             key = pair.split("=")[0]
                             value = pair.split("=")[1]
                             if key == 'ID':
-                                ID = value
-                                transcriptMap.update({'gff3ID' : ID})
+                                transcriptMap.update({'gff3ID' : value})
                             if key == 'Parent':
-                                parent = value
-                                transcriptMap.update({'parent' : parent})
+                                transcriptMap.update({'parentId' : value})
                             if key == 'Alias':
                                 aliases = value.split(',')
                                 transcriptMap.update({'aliases' : aliases})
@@ -130,9 +129,12 @@ class TranscriptETL(ETL):
                             if key == 'curie':
                                 transcriptMap.update({'curie' : value})
 
-                    transcriptMap.update({'start':columns[4]})
-                    transcriptMap.update({'end':columns[5]})
-
+                    transcriptMap.update({'start':columns[3]})
+                    transcriptMap.update({'end':columns[4]})
                     tscript_maps.append(transcriptMap)
+            if counter == batch_size:
+                yield [tscript_maps,tscript_maps,tscript_maps]
+                counter = 0
 
-            yield [tscript_maps]
+        if counter > 0:
+            yield [tscript_maps,tscript_maps,tscript_maps]

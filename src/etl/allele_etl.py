@@ -39,7 +39,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
-            MERGE (o)<-[:contains]->(c) """
+            MERGE (o)-[:CONTAINS]-(c) """
 
     allele_construct_gene_query_template = """
 
@@ -47,7 +47,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey: row.geneId})
-            MATCH (c:Construct {primaryKey: row.constructID})
+            MATCH (c:Construct {primaryKey: row.constructId})
             MATCH (s:Species {primaryKey: row.taxonId})
 
             //Create the Allele node and set properties. primaryKey is required.
@@ -68,7 +68,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:FROM_SPECIES]-(s)
             MERGE (o)-[:IS_ALLELE_OF]-(g)
-            MERGE (o)<-[:contains]->(c) """
+            MERGE (o)-[:CONTAINS]-(c) """
 
 
     allele_gene_no_construct_query_template = """
@@ -97,7 +97,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
-            MERGE (o)<-[:IS_ALLELE_OF]->(g) """
+            MERGE (o)-[:IS_ALLELE_OF]->(g) """
 
     allele_secondaryids_template = """
 
@@ -253,7 +253,7 @@ class AlleleETL(ETL):
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
                     "alleleDescription": alleleRecord.get('description'),
-                    "construct": alleleRecord.get('construct')
+                    "constructId": alleleRecord.get('construct')
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
             elif construct is not None and gene is None:
@@ -274,7 +274,7 @@ class AlleleETL(ETL):
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
                     "alleleDescription": alleleRecord.get('description'),
-                    "construct": alleleRecord.get('construct')
+                    "constructId": alleleRecord.get('construct')
                 }
 
                 alleles_no_gene.append(allele_construct_no_gene_dataset)

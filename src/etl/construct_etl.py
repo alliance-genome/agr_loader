@@ -101,23 +101,32 @@ class ConstructETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Construct {primaryKey:row.constructID}) 
+            MATCH (o:Construct {primaryKey:row.constructID})
+            MATCH (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
             
             FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:TARGETS]-(o)
+                MERGE (g)<-[gto:TARGETS]-(o)
                  SET gto.joinType = 'targets'
             )
             FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:IS_REGULATED_BY]-(o)
+                MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
                  SET gto.joinType = 'is_regulated_by'
             )
             
             FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-                MERGE (g:Gene)<-[gto:EXPRESSES]-(o)
+                MERGE (g)<-[gto:EXPRESSES]-(o)
                  SET gto.joinType = 'expresses'
             )
 
             """
+    non_bgi_component_template = """
+    
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+            MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})
+    
+    """
 
     def __init__(self, config):
         super().__init__()
@@ -159,6 +168,8 @@ class ConstructETL(ETL):
             [ConstructETL.construct_synonyms_template, commit_size,
              "Construct_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [ConstructETL.construct_xrefs_template, commit_size, "Construct_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [ConstructETL.non_bgi_component_template, commit_size,
+             "Construct_non_bgi_component_" + sub_type.get_data_provider() + ".csv"],
             [ConstructETL.construct_gene_component_template, commit_size, "Construct_components_gene" + sub_type.get_data_provider() + ".csv"],
             [ConstructETL.construct_no_gene_component_template, commit_size,
              "Construct_components_no_gene" + sub_type.get_data_provider() + ".csv"]
@@ -180,6 +191,8 @@ class ConstructETL(ETL):
         construct_secondaryIds = []
         crossReferenceList = []
         componentDetails = []
+        componentNoGeneDetails = []
+        nonBgiComponents = []
 
         counter = 0
         dateProduced = construct_data['metaData']['dateProduced']
@@ -225,6 +238,7 @@ class ConstructETL(ETL):
 
             nameText = TextProcessingHelper.cleanhtml(constructRecord.get('name'))
 
+
             construct_dataset = {
                 "symbol": constructRecord.get('name'),
                 "primaryId": constructRecord.get('primaryId'),
@@ -264,13 +278,23 @@ class ConstructETL(ETL):
                     componentSymbol = component.get('componentSymbol')
                     componentID = component.get('componentID')
 
-                    componentDetail = {
-                        "componentRelation": componentRelation,
-                        "componentSymbol": componentSymbol,
-                        "componentID": componentID,
-                        "constructID": constructRecord.get('primaryId')
-                    }
-                    componentDetails.append(componentDetail)
+                    if componentID is not None:
+                        componentDetail = {
+                            "componentRelation": componentRelation,
+                            "componentSymbol": componentSymbol,
+                            "componentID": componentID,
+                            "constructID": constructRecord.get('primaryId')
+                        }
+                        componentDetails.append(componentDetail)
+                    else:
+                        componentDetail = {
+                            "componentRelation": componentRelation,
+                            "componentSymbol": componentSymbol,
+                            "constructID": constructRecord.get('primaryId')
+                        }
+                        nonBgiComponent = {"componentSymbol": componentSymbol}
+                        nonBgiComponents.append(nonBgiComponent)
+                        componentNoGeneDetails.append(componentDetail)
 
             if 'synonyms' in constructRecord:
                 for syn in constructRecord.get('synonyms'):
@@ -289,7 +313,7 @@ class ConstructETL(ETL):
                     construct_secondaryIds.append(construct_secondaryId)
 
             if counter == batch_size:
-                yield [constructs, construct_secondaryIds, construct_synonyms, crossReferenceList]
+                yield [constructs, construct_secondaryIds, construct_synonyms, crossReferenceList, nonBgiComponents, componentDetails, componentNoGeneDetails]
                 constructs = []
                 construct_secondaryIds = []
                 construct_synonyms = []
@@ -297,4 +321,4 @@ class ConstructETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [constructs, construct_secondaryIds, construct_synonyms, crossReferenceList]
+            yield [constructs, construct_secondaryIds, construct_synonyms, crossReferenceList, nonBgiComponents, componentDetails, componentNoGeneDetails]

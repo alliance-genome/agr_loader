@@ -127,7 +127,7 @@ GeneDescriptions:
 ECOMAP:
   type: list
   allowed: [ECOMAP]
-TRANSCRIPT:
+GFF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FileTransactorThreads:
