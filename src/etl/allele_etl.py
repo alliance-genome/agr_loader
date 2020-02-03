@@ -231,7 +231,10 @@ class AlleleETL(ETL):
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
             symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
 
-            if alleleRecord.get('construct') and alleleRecord.get('gene'):
+            gene = alleleRecord.get('gene')
+            construct = alleleRecord.get('construct')
+
+            if gene is not None and construct is not None:
                 allele_construct_gene_dataset = {
                     "symbol": alleleRecord.get('symbol'),
                     "geneId": alleleRecord.get('gene'),
@@ -253,7 +256,7 @@ class AlleleETL(ETL):
                     "construct": alleleRecord.get('construct')
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
-
+            elif construct is not None and gene is None:
                 allele_construct_no_gene_dataset = {
                     "symbol": alleleRecord.get('symbol'),
                     "primaryId": alleleRecord.get('primaryId'),
@@ -276,7 +279,7 @@ class AlleleETL(ETL):
 
                 alleles_no_gene.append(allele_construct_no_gene_dataset)
 
-
+            elif gene is not None and construct is None:
                 allele_gene_no_construct_dataset = {
                     "symbol": alleleRecord.get('symbol'),
                     "geneId": alleleRecord.get('gene'),
@@ -298,6 +301,9 @@ class AlleleETL(ETL):
                 }
 
                 alleles_no_construct.append(allele_gene_no_construct_dataset)
+            else:
+                logger.debug("ERROR: missing construct and gene")
+
 
             if 'crossReferences' in alleleRecord:
 
