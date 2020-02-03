@@ -4,6 +4,7 @@ from etl import *
 from etl import VariationETL
 from etl import ConstructETL
 from etl import VEPETL
+from etl import TranscriptETL
 from etl import SequenceTargetingReagentETL
 from etl import ECOMAPETL
 from etl.helpers import Neo4jHelper
@@ -87,6 +88,7 @@ class AggregateLoader(object):
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
             'AGM': AffectedGenomicModelETL,
+            'TRANSCRIPTS': TranscriptETL,
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
@@ -118,6 +120,7 @@ class AggregateLoader(object):
             ['VARIATION'],
             ['SQTR'],
             ['AGM'],
+            ['TRANSCRIPTS'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],

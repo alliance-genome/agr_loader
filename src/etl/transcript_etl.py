@@ -18,7 +18,7 @@ class TranscriptETL(ETL):
                 MATCH (a:Gene {primaryKey:row.parent})
                 MATCH (so:SOTerm {name:row.featureTypeName})
                 
-                CREATE (t:Transcript {primaryKey:row.curie})
+                MERGE (t:Transcript {primaryKey:row.curie})
                 SET t.gff3ID = row.ID
                 
                 MERGE (t)-[tso:TRANSCRIPT_TYPE]-(so)
@@ -105,33 +105,34 @@ class TranscriptETL(ETL):
             else:
                 featureTypeName = columns[3]
                 logger.info("featureTypeName: "+featureTypeName)
-                notes = columns[9]
-                kvpairs = notes.split(";")
-                transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                transcriptMap.update({'chromosomeNumber':columns[1]})
-                transcriptMap.update({'featureType':featureTypeName})
-                if kvpairs is not None:
-                    for pair in kvpairs:
-                        key = pair.split("=")[0]
-                        value = pair.split("=")[1]
-                        if key == 'ID':
-                            ID = value
-                            transcriptMap.update({'gff3ID' : ID})
-                        if key == 'Parent':
-                            parent = value
-                            transcriptMap.update({'parent' : parent})
-                        if key == 'Alias':
-                            aliases = value.split(',')
-                            transcriptMap.update({'aliases' : aliases})
-                        if key == 'SecondaryIds':
-                            secIds = value.split(',')
-                            transcriptMap.update({'secIds' : secIds})
-                        if key == 'curie':
-                            transcriptMap.update({'curie' : value})
+                if featureTypeName == 'mRNA' or featureTypeName == '' :
+                    notes = columns[9]
+                    kvpairs = notes.split(";")
+                    transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
+                    transcriptMap.update({'chromosomeNumber':columns[1]})
+                    transcriptMap.update({'featureType':featureTypeName})
+                    if kvpairs is not None:
+                        for pair in kvpairs:
+                            key = pair.split("=")[0]
+                            value = pair.split("=")[1]
+                            if key == 'ID':
+                                ID = value
+                                transcriptMap.update({'gff3ID' : ID})
+                            if key == 'Parent':
+                                parent = value
+                                transcriptMap.update({'parent' : parent})
+                            if key == 'Alias':
+                                aliases = value.split(',')
+                                transcriptMap.update({'aliases' : aliases})
+                            if key == 'SecondaryIds':
+                                secIds = value.split(',')
+                                transcriptMap.update({'secIds' : secIds})
+                            if key == 'curie':
+                                transcriptMap.update({'curie' : value})
 
-                transcriptMap.update({'start':columns[4]})
-                transcriptMap.update({'end':columns[5]})
+                    transcriptMap.update({'start':columns[4]})
+                    transcriptMap.update({'end':columns[5]})
 
-                tscript_maps.append(transcriptMap)
+                    tscript_maps.append(transcriptMap)
 
-        yield [tscript_maps]
+            yield [tscript_maps]
