@@ -40,7 +40,7 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
 
             MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
-            //MERGE (a:Assembly {primaryKey:row.assembly})
+            MERGE (a:Assembly {primaryKey:row.assembly})
 
             MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
@@ -101,7 +101,7 @@ class TranscriptETL(ETL):
             columns = line.split()
             if columns[0].startswith('#!'):
                 headerText = columns[0].split(" ")
-                if headerText[0] == 'assmebly':
+                if headerText[0] == 'assembly':
                     transcriptMap.update({'assembly':headerText[1]})
             elif columns[0].startswith('#'):
                 continue
