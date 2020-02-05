@@ -70,7 +70,7 @@ class TranscriptETL(ETL):
 
     def _process_sub_type(self, sub_type):
         logger.info("Loading Transcript Data: %s" % sub_type.get_data_provider())
-        commit_size = 1000
+        commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         filepath = sub_type.get_filepath()
 

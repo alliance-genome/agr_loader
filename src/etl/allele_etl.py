@@ -223,7 +223,7 @@ class AlleleETL(ETL):
             counter = counter + 1
             globalId = alleleRecord['primaryId']
             # fixing parsing error on this end while MGI fixes on their end.
-            if globalId == 'MGI:88070':
+            if globalId == 'MGI:3826848':
                 description = alleleRecord.get('description')[:-2]
             else:
                 description = alleleRecord.get('description')
