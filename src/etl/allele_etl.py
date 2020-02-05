@@ -222,6 +222,12 @@ class AlleleETL(ETL):
         for alleleRecord in allele_data['data']:
             counter = counter + 1
             globalId = alleleRecord['primaryId']
+            # fixing parsing error on this end while MGI fixes on their end.
+            if globalId == 'MGI:88070':
+                description = alleleRecord.get('description')[:-2]
+            else:
+                description = alleleRecord.get('description')
+
             localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""
 
@@ -255,7 +261,7 @@ class AlleleETL(ETL):
                     "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
-                    "alleleDescription": alleleRecord.get('description'),
+                    "alleleDescription": description,
                     "constructId": alleleRecord.get('construct')
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
@@ -276,7 +282,7 @@ class AlleleETL(ETL):
                     "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
-                    "alleleDescription": alleleRecord.get('description'),
+                    "alleleDescription": description,
                     "constructId": alleleRecord.get('construct')
                 }
 
@@ -300,7 +306,7 @@ class AlleleETL(ETL):
                     "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
-                    "alleleDescription": alleleRecord.get('description')
+                    "alleleDescription": description
                 }
 
                 alleles_no_construct.append(allele_gene_no_construct_dataset)
