@@ -15,8 +15,8 @@ GFF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
-  - GO
   - SO
+  - GO
   - DOID
   - MI
   - ZFA
