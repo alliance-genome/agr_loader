@@ -35,7 +35,8 @@ class AlleleETL(ETL):
                  o.dataProviders = row.dataProviders,
                  o.dataProvider = row.dataProvider,
                  o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies
+                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                 o.description = row.alleleDescription
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
@@ -64,7 +65,8 @@ class AlleleETL(ETL):
                  o.dataProviders = row.dataProviders,
                  o.dataProvider = row.dataProvider,
                  o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies
+                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                 o.description = row.alleleDescription
 
             MERGE (o)-[:FROM_SPECIES]-(s)
             MERGE (o)-[:IS_ALLELE_OF]-(g)
@@ -93,7 +95,8 @@ class AlleleETL(ETL):
                  o.dataProviders = row.dataProviders,
                  o.dataProvider = row.dataProvider,
                  o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies
+                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                 o.description = row.alleleDescription
 
             MERGE (o)-[:FROM_SPECIES]-(s)
 
