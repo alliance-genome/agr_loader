@@ -76,22 +76,23 @@ class ConstructETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Construct {primaryKey:row.constructID}) 
-            MATCH (g:Gene {primaryKey:row.componentID})
+            MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
+            CALL apoc.create.relationship(g, row.componentRelation, o) yield rel
+            REMOVE rel.noOp
             
-            FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-                MERGE (g)-[gto:TARGETS]->(o)
-                 SET gto.joinType = 'targets'
-            )
-            FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
-                 SET gto.joinType = 'is_regulated_by'
-            )
+           // FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
+           //     MERGE (g)-[gto:TARGETS]->(o)
+           //      SET gto.joinType = 'targets'
+           // )
+           // FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
+           //     MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
+           //      SET gto.joinType = 'is_regulated_by'
+           // )
             
-            FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:EXPRESSES]-(o)
-                 SET gto.joinType = 'expresses'
-            )
+           // FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
+           //     MERGE (g)<-[gto:EXPRESSES]-(o)
+           //      SET gto.joinType = 'expresses'
+           // )
             
   
             """
@@ -101,22 +102,23 @@ class ConstructETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Construct {primaryKey:row.constructID})
-            MATCH (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
+            MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
+            CALL apoc.create.relationship(g, row.componentRelation, o) yield rel
+            REMOVE rel.noOp
             
-            FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:TARGETS]-(o)
-                 SET gto.joinType = 'targets'
-            )
-            FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
-                 SET gto.joinType = 'is_regulated_by'
-            )
+           // FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
+           //     MERGE (g)-[gto:TARGETS]->(o)
+           //      SET gto.joinType = 'targets'
+           // )
+           // FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
+           //     MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
+           //      SET gto.joinType = 'is_regulated_by'
+           // )
             
-            FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-                MERGE (g)<-[gto:EXPRESSES]-(o)
-                 SET gto.joinType = 'expresses'
-            )
+           // FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
+           //     MERGE (g)<-[gto:EXPRESSES]-(o)
+           //      SET gto.joinType = 'expresses'
+           // )
 
             """
     non_bgi_component_template = """

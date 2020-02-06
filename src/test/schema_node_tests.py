@@ -26,11 +26,10 @@ class TestClass(object):
                                      dict(relationship='BACKGROUND'),
                                      dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE'),
                                      dict(relationship='PRIMARY_GENETIC_ENTITY'),
-                                     dict(relationship='REGULATES'),
-                                     dict(relationship='EXPRESSES'),
-                                     dict(relationship='IS_REGULATED_BY'),
+                                   #  dict(relationship='EXPRESSES'),
+                                   #  dict(relationship='IS_REGULATED_BY'),
                                      dict(relationship='COMPUTED_GENE'),
-                                     dict(relationship='CONTAINS')
+                                 #    dict(relationship='CONTAINS')
                                      ],
 
         'test_node_exists': [dict(node='Ontology'),
