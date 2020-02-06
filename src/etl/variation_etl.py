@@ -19,7 +19,8 @@ class VariationETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (a:Allele:Feature {primaryKey: row.alleleId})
-
+                MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
+                
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
@@ -33,7 +34,8 @@ class VariationETL(ETL):
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
-                MERGE (o)-[:VARIATION]->(a) """
+                MERGE (o)-[:VARIATION]->(a) 
+                MERGE (g)-[:COMPUTED_GENE]->(o) """
 
     soterms_template = """
         USING PERIODIC COMMIT %s
@@ -70,6 +72,7 @@ class VariationETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Variant {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+
 
     def __init__(self, config):
         super().__init__()

@@ -45,6 +45,8 @@ class TestObject(object):
             # variant
             'MGI:109151', 'MGI:106679', 'MGI:103223', 'MGI:104554', 'MGI:104993', 'MGI:5316784', 'MGI:5566856',
             'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
+            # allele
+            'MGI:88070', 'MGI:88070',
         }
 
         self.wormbaseIdSet = {
@@ -99,6 +101,13 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-030616-47',
             'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
             'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9', 'ZFIN:ZDB-GENE-070117-2142', 'ZFIN:ZDB-ALT-161003-10628',
+            'ZFIN:ZDB-GENE-980526-388', 'ZFIN:ZDB-MRPHLNO-110614-1', 'ZFIN:ZDB-ALT-980203-1091',
+            # construct
+            'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-ALT-120806-9701', 'ZFIN:ZDB-TGCONSTRCT-070117-175',
+            'ZFIN:ZDB-GENE-050321-1', 'ZFIN:ZDB-ALT-171010-9', 'ZFIN:ZDB-ALT-181002-149', 'ZFIN:ZDB-ETCONSTRCT-080904-1',
+            'ZFIN:ZDB-GENE-990714-11', 'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
+            # transcript
+            'ZFIN:ZDB-GENE-040724-143', 'ENSEMBL:ENSDART00000152692',
             # allele for synonym
             'ZFIN:ZDB-ALT-980413-591',
             # disease specific test objects

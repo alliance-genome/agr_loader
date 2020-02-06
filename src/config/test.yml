@@ -1,6 +1,7 @@
-schemaVersion: 1.0.0.9
+schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+CONSTRUCT: [ZFIN, WB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -10,11 +11,12 @@ GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
+GFF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
-  - GO
   - SO
+  - GO
   - DOID
   - MI
   - ZFA
@@ -32,6 +34,13 @@ ONTOLOGY:
   - ECO
   - UBERON
   - ECOMAP
+  - PATO
+  - APO
+  - DPO
+  - FYPO
+  - WBPhenotype
+  - MP
+  - HP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
 ExpressionRibbon: [ExpressionRibbon]
@@ -65,3 +74,29 @@ VEP: [FB, WB, ZFIN, RGD, MGI]
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

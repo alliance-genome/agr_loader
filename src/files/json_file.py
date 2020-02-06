@@ -13,6 +13,7 @@ class JSONFile(object):
     def get_data(self, filename):
         logger.debug("Loading JSON data from %s ..." % filename)
         if 'PHENOTYPE' in filename:
+            logger.info(filename)
             self.remove_bom_inplace(filename)
         with codecs.open(filename, 'r', 'utf-8') as f:
             logger.debug("Opening JSONFile: %s" % filename)
@@ -38,6 +39,8 @@ class JSONFile(object):
             schema_file_name = 'schemas/phenotype/phenotypeMetaDataDefinition.json'
         elif jsonType == 'expression':
             schema_file_name = 'schemas/expression/wildtypeExpressionMetaDataDefinition.json'
+        elif jsonType == 'constructs':
+            schema_file_name = 'schemas/construct/constructMetaDataDefinition.json'
 
         with open(schema_file_name) as schema_file:
             schema = json.load(schema_file)

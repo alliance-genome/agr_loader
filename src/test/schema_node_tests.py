@@ -25,7 +25,12 @@ class TestClass(object):
                                      dict(relationship='MODEL_COMPONENT'),
                                      dict(relationship='BACKGROUND'),
                                      dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE'),
-                                     dict(relationship='PRIMARY_GENETIC_ENTITY')],
+                                     dict(relationship='PRIMARY_GENETIC_ENTITY'),
+                                   #  dict(relationship='EXPRESSES'),
+                                   #  dict(relationship='IS_REGULATED_BY'),
+                                     dict(relationship='COMPUTED_GENE'),
+                                 #    dict(relationship='CONTAINS')
+                                     ],
 
         'test_node_exists': [dict(node='Ontology'),
                              dict(node='Variant'),

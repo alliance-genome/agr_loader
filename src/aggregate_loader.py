@@ -2,7 +2,9 @@ import logging, coloredlogs, os, multiprocessing, time, argparse, time
 
 from etl import *
 from etl import VariationETL
+from etl import ConstructETL
 from etl import VEPETL
+from etl import TranscriptETL
 from etl import SequenceTargetingReagentETL
 from etl import ECOMAPETL
 from etl.helpers import Neo4jHelper
@@ -78,6 +80,7 @@ class AggregateLoader(object):
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
+            #'CONSTRUCT': ConstructETL,
             'GENEEEXPRESSIONATLASSITEMAP': ExpressionAtlasETL,
             'ONTOLOGY': GenericOntologyETL,
             'ECOMAP': ECOMAPETL,
@@ -85,6 +88,7 @@ class AggregateLoader(object):
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
             'AGM': AffectedGenomicModelETL,
+            #'GFF': TranscriptETL,
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
@@ -111,10 +115,12 @@ class AggregateLoader(object):
             ['ONTOLOGY'],
             ['ECOMAP'],
             ['BGI'],
+            #['CONSTRUCT'],
             ['ALLELE'],
             ['VARIATION'],
             ['SQTR'],
             ['AGM'],
+            #['GFF'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
@@ -137,7 +143,7 @@ class AggregateLoader(object):
             logger.info("Starting ETL group: %s" % etl_group)
             thread_pool = []
             for etl_name in etl_group:
-                logger.debug("ETL Name: %s" % etl_name)
+                logger.info("ETL Name: %s" % etl_name)
                 config = data_manager.get_config(etl_name)
                 if config is not None:
                     etl = etl_dispatch[etl_name](config)

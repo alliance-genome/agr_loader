@@ -7,6 +7,9 @@ releaseVersion:
 BGI:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+CONSTRUCT:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD]
 ALLELE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -65,6 +68,13 @@ ONTOLOGY:
     - ECO
     - UBERON
     - ECOMAP
+    - PATO
+    - APO
+    - DPO
+    - FYPO
+    - WBPhenotype
+    - MP
+    - HP
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -110,6 +120,9 @@ GeneDescriptions:
 ECOMAP:
   type: list
   allowed: [ECOMAP]
+GFF:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FileTransactorThreads:
   type: integer
   required: True

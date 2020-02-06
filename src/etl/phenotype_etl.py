@@ -172,7 +172,6 @@ class PhenoTypeETL(ETL):
         batch_size = self.data_type_config.get_neo4j_commit_size()
         query_allele_list = []
         query_agm_list =[]
-        basic_query_list = []
         data_provider = sub_type.get_data_provider()
 
         generators = self.get_generators(data, batch_size, data_provider)
