@@ -65,13 +65,6 @@ Closure:
   - MA
   - ECO
   - UBERON
-  - PATO
-  - APO
-  - DPO
-  - FYPO
-  - WBPhenotype
-  - MP
-  - HP
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]

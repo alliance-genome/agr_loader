@@ -111,13 +111,6 @@ Closure:
     - MA
     - ECO
     - UBERON
-    - PATO
-    - APO
-    - DPO
-    - FYPO
-    - WBPhenotype
-    - MP
-    - HP
 Interactions:
   type: list
   allowed: [MolecularInteraction]
