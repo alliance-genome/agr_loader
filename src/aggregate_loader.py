@@ -80,7 +80,7 @@ class AggregateLoader(object):
             'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
             'BGI': BGIETL,
-            'CONSTRUCT': ConstructETL,
+            #'CONSTRUCT': ConstructETL,
             'GENEEEXPRESSIONATLASSITEMAP': ExpressionAtlasETL,
             'ONTOLOGY': GenericOntologyETL,
             'ECOMAP': ECOMAPETL,
@@ -115,7 +115,7 @@ class AggregateLoader(object):
             ['ONTOLOGY'],
             ['ECOMAP'],
             ['BGI'],
-            ['CONSTRUCT'],
+            #['CONSTRUCT'],
             ['ALLELE'],
             ['VARIATION'],
             ['SQTR'],
