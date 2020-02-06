@@ -1,22 +1,21 @@
 schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+CONSTRUCT: [ZFIN, WB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
+DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GFF: [FB, WB, ZFIN, RGD, MGI]
+AGM: [ZFIN, MGI, RGD, WB]
+SQTR: [ZFIN]
 ONTOLOGY:
   - SO
-GFF: [ZFIN, WB, FB, MGI, RGD]
+  - DO
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
-
-
-
-
 
 
 

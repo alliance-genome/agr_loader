@@ -104,6 +104,7 @@ class TranscriptETL(ETL):
                 elif columns[0].startswith('#'):
                     continue
                 else:
+
                     featureTypeName = columns[2]
                     if featureTypeName == 'mRNA' :
                         notes = columns[8]
@@ -118,6 +119,12 @@ class TranscriptETL(ETL):
                                 if key == 'ID':
                                     transcriptMap.update({'gff3ID' : value})
                                 if key == 'Parent':
+                                    parentID = value
+                                    if self.testObject.using_test_data() is True:
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parentID)
+                                        if is_it_test_entry is False:
+                                            counter = counter - 1
+                                            continue
                                     transcriptMap.update({'parentId' : value})
                                 #if key == 'Alias':
                                 #    aliases = value.split(',')

@@ -34,29 +34,9 @@ class DiseaseETL(ETL):
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1
-
-            FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_MODEL_OF {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_model_of'
-            )
-
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
-            
-            // This is just defensive, unlikely that an AGM can participate in the marker_of relation.
-            
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_MARKER_OF {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
+                              
+            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            REMOVE rel.noOp
 
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -94,20 +74,9 @@ class DiseaseETL(ETL):
                               dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_marker_of'
-            )
-
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
-
+            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            REMOVE rel.noOp
+            
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
             MERGE (g)-[gadf:ASSOCIATION]->(dfa)
@@ -140,17 +109,8 @@ class DiseaseETL(ETL):
                     dga.dateAssigned = row.dateAssigned,
                     dga.sortOrder = 1
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
-                    ON CREATE SET fafg.dataProvider = row.dataProvider,
-                                  fafg.dateProduced = row.dateProduced,
-                                  dga.joinType = 'is_marker_of')
-
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                    ON CREATE SET fafg.dataProvider = row.dataProvider,
-                                  fafg.dateProduced = row.dateProduced,
-                                  dga.joinType = 'is_implicated_in')
+            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            REMOVE rel.noOp
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
