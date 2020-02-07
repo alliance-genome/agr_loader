@@ -49,7 +49,7 @@ VARIATION:
 ONTOLOGY:
   type: list
   allowed: 
-    - GO 
+    - GO
     - SO
     - DOID
     - MI 
@@ -111,6 +111,13 @@ Closure:
     - MA
     - ECO
     - UBERON
+    - PATO
+    - APO
+    - DPO
+    - FYPO
+    - WBPhenotype
+    - MP
+    - HP
 Interactions:
   type: list
   allowed: [MolecularInteraction]
