@@ -26,11 +26,14 @@ class TestClass(object):
                                      dict(relationship='BACKGROUND'),
                                      dict(relationship='ANNOTATION_SOURCE_CROSS_REFERENCE'),
                                      dict(relationship='PRIMARY_GENETIC_ENTITY'),
-                                     dict(relationship='expresses'),
-                                     dict(relationship='is_regulated_by'),
+                                     dict(relationship='EXPRESSES'),
+                                     dict(relationship='IS_REGULATED_BY'),
                                      dict(relationship='COMPUTED_GENE'),
                                      dict(relationship='CONTAINS'),
-                                     dict(relationship='TRANSCRIPT')
+                                     dict(relationship='TRANSCRIPT'),
+                                     dict(relationship='IS_MODEL_OF'),
+                                     dict(relationship='IS_IMPLICATED_IN'),
+                                     dict(relationship='IS_MARKER_FOR')
                                      ],
 
         'test_node_exists': [dict(node='Ontology'),

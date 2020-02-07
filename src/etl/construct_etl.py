@@ -248,13 +248,13 @@ class ConstructETL(ETL):
 
             if 'constructComponents' in constructRecord:
                 for component in constructRecord.get('constructComponents'):
-                    componentRelation = component.get('componentRelation')
+                    componentRelation = component.get('componentRelation').upper()
                     componentSymbol = component.get('componentSymbol')
                     componentID = component.get('componentID')
 
                     if componentID is not None:
                         componentDetail = {
-                            "componentRelation": componentRelation,
+                            "componentRelation": componentRelation.upper(),
                             "componentSymbol": componentSymbol,
                             "componentID": componentID,
                             "constructID": constructRecord.get('primaryId')
@@ -262,7 +262,7 @@ class ConstructETL(ETL):
                         componentDetails.append(componentDetail)
                     else:
                         componentDetail = {
-                            "componentRelation": componentRelation,
+                            "componentRelation": componentRelation.upper(),
                             "componentSymbol": componentSymbol,
                             "constructID": constructRecord.get('primaryId')
                         }

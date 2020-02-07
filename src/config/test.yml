@@ -3,78 +3,10 @@ releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 CONSTRUCT: [ZFIN, WB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
-PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
-GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, WB, ZFIN, RGD, MGI]
-AGM: [ZFIN, MGI, RGD, WB]
-SQTR: [ZFIN]
 ONTOLOGY:
   - SO
-  - GO
   - DOID
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-  - ECOMAP
-  - PATO
-  - APO
-  - DPO
-  - FYPO
-  - WBPhenotype
-  - MP
-  - HP
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
-ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure:
-  - GO
-  - SO
-  - DOID
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-  - PATO
-  - APO
-  - DPO
-  - FYPO
-  - WBPhenotype
-  - MP
-  - HP
-Interactions: [MolecularInteraction]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!

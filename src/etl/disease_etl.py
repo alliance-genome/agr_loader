@@ -27,7 +27,10 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-
+            
+            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            REMOVE rel.noOp
+            
             //This is an intentional MERGE, please leave as is
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
@@ -35,8 +38,7 @@ class DiseaseETL(ETL):
                               dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1
                               
-            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            REMOVE rel.noOp
+
 
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -66,7 +68,10 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
-
+ 
+            CALL apoc.create.relationship(d, row.relationshipType, {}, g) yield rel
+            REMOVE rel.noOp
+            
             //This is an intentional MERGE, please leave as is
             
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
@@ -74,8 +79,7 @@ class DiseaseETL(ETL):
                               dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            REMOVE rel.noOp
+
             
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -103,14 +107,16 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (gene:Gene {primaryKey:row.primaryId})
-
+            
+            CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+            REMOVE rel.noOp
+            
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider,
                     dga.dateAssigned = row.dateAssigned,
                     dga.sortOrder = 1
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            REMOVE rel.noOp
+
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
@@ -265,7 +271,7 @@ class DiseaseETL(ETL):
                 self.evidence_code_list_to_yield.append(ecode_map)
 
             diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                               diseaseRecord['objectRelation'].get("associationType")
+                               diseaseRecord['objectRelation'].get("associationType").upper()
 
             if disease_record.get('pgeIds') is not None:
                 for pge in disease_record.get('pgeIds'):
@@ -360,7 +366,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
 
                     if disease_record.get('pgeIds') is not None:
@@ -420,7 +426,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
 
 
@@ -478,7 +484,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):

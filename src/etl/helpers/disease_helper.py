@@ -56,7 +56,7 @@ class DiseaseHelper(object):
                         pubModUrl = ETLHelper.get_complete_pub_url(localPubModId, publicationModId)
 
             if 'objectRelation' in diseaseRecord:
-                diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType")
+                diseaseAssociationType = diseaseRecord['objectRelation'].get("associationType").upper()
 
                 additionalGeneticComponents = []
                 if 'additionalGeneticComponents' in diseaseRecord['objectRelation']:
@@ -100,7 +100,7 @@ class DiseaseHelper(object):
                 "primaryId": primaryId,
                 "pecjPrimaryKey": annotationUuid,
                 "dataProviders": dataProviders,
-                "relationshipType": diseaseAssociationType,
+                "relationshipType": diseaseAssociationType.upper(),
                 "dateProduced": dateProduced,
                 "dataProvider": dataProviderSingle,
                 "dateAssigned": diseaseRecord["dateAssigned"],
