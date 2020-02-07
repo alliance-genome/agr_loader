@@ -99,6 +99,7 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
+                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA']
 
                 columns = line.split()
                 if columns[0].startswith('#!'):
@@ -109,7 +110,7 @@ class TranscriptETL(ETL):
                 else:
 
                     featureTypeName = columns[2]
-                    if featureTypeName == 'mRNA' :
+                    if featureTypeName in possibleTscriptTypes :
                         notes = columns[8]
                         kvpairs = notes.split(";")
                         if kvpairs is not None:
