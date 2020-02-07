@@ -43,14 +43,14 @@ class TranscriptETL(ETL):
           //  MERGE (a:Assembly {primaryKey: row.assembly})
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-      //        SET gchrm.start = apoc.number.parseInt(row.start),
-     //           gchrm.end = apoc.number.parseInt(row.end),
-      //          gchrm.assembly = row.assembly,
-      //          gchrm.strand = row.strand,
-      //          gchrm.chromosome = row.chromosome
+              SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
+                gchrm.assembly = row.assembly,
+                gchrm.strand = row.strand,
+                gchrm.chromosome = row.chromosome
 
-      //      CREATE (o)-[of:ASSOCIATION]->(gchrm)
-       //     CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (o)-[of:ASSOCIATION]->(gchrm)
+            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
 
         """
 
@@ -76,9 +76,9 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"]
-           # [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-           # [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
+            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -152,9 +152,9 @@ class TranscriptETL(ETL):
                             tscriptMaps.append(transcriptMap)
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps]
+                    yield [tscriptMaps, tscriptMaps, tscriptMaps]
                     tscriptMaps = []
 
 
             if counter > 0:
-                yield [tscriptMaps]
+                yield [tscriptMaps, tscriptMaps, tscriptMaps]
