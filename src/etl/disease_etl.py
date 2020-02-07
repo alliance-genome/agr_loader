@@ -69,7 +69,7 @@ class DiseaseETL(ETL):
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
  
-            CALL apoc.create.relationship(d, row.relationshipType, {}, g) yield rel
+            CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
             REMOVE rel.noOp
             
             //This is an intentional MERGE, please leave as is
