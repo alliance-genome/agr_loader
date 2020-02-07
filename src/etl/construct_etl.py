@@ -292,6 +292,9 @@ class ConstructETL(ETL):
                 construct_secondaryIds = []
                 construct_synonyms = []
                 crossReferenceList = []
+                nonBgiComponents = []
+                componentDetails = []
+                componentNoGeneDetails = []
                 counter = 0
 
         if counter > 0:

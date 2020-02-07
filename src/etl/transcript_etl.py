@@ -17,13 +17,13 @@ class TranscriptETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (g:Gene {modLocalId: row.parentId})
-               // MATCH (so:SOTerm {name: row.featureType})
+                MATCH (so:SOTerm {name: row.featureType})
 
                 CREATE (t:Transcript {primaryKey:row.curie})
                     SET t.gff3ID = row.gff3ID
                 
-               // CREATE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               // CREATE (g)<-[gt:TRANSCRIPT]-(t)
+               CREATE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
+               CREATE (g)<-[gt:TRANSCRIPT]-(t)
                 """
 
     chromosomes_template = """
@@ -96,6 +96,9 @@ class TranscriptETL(ETL):
             for line in f:
                 counter = counter + 1
                 transcriptMap = {}
+                curie = ''
+                parent = ''
+                gff3ID = ''
 
                 columns = line.split()
                 if columns[0].startswith('#!'):
@@ -109,23 +112,21 @@ class TranscriptETL(ETL):
                     if featureTypeName == 'mRNA' :
                         notes = columns[8]
                         kvpairs = notes.split(";")
-                        transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                        transcriptMap.update({'chromosomeNumber':columns[0]})
-                        transcriptMap.update({'featureType':featureTypeName})
                         if kvpairs is not None:
                             for pair in kvpairs:
                                 key = pair.split("=")[0]
                                 value = pair.split("=")[1]
                                 if key == 'ID':
-                                    transcriptMap.update({'gff3ID' : value})
+                                    gff3ID = value
+
                                 if key == 'Parent':
-                                    parentID = value
+                                    parent = value
                                     if self.testObject.using_test_data() is True:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parentID)
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(value)
                                         if is_it_test_entry is False:
                                             counter = counter - 1
                                             continue
-                                    transcriptMap.update({'parentId' : value})
+                                    transcriptMap.update({'parentId' : parent})
                                 #if key == 'Alias':
                                 #    aliases = value.split(',')
                                 #    transcriptMap.update({'aliases' : aliases})
@@ -133,14 +134,27 @@ class TranscriptETL(ETL):
                                 #    secIds = value.split(',')
                                 #    transcriptMap.update({'secIds' : secIds})
                                 if key == 'curie':
-                                    transcriptMap.update({'curie' : value})
+                                    curie = value
 
-                        transcriptMap.update({'start':columns[3]})
-                        transcriptMap.update({'end':columns[4]})
-                        tscriptMaps.append(transcriptMap)
+                            if self.testObject.using_test_data() is True:
+                                is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+                                if is_it_test_entry is False:
+                                    counter = counter - 1
+                                    continue
+                            transcriptMap.update({'curie' : curie})
+                            transcriptMap.update({'parentId': parent})
+                            transcriptMap.update({'gff3ID': gff3ID})
+                            transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            transcriptMap.update({'chromosomeNumber': columns[0]})
+                            transcriptMap.update({'featureType': featureTypeName})
+                            transcriptMap.update({'start':columns[3]})
+                            transcriptMap.update({'end':columns[4]})
+                            tscriptMaps.append(transcriptMap)
                 if counter == batch_size:
-                    yield [tscriptMaps]
                     counter = 0
+                    yield [tscriptMaps]
+                    tscriptMaps = []
+
 
             if counter > 0:
                 yield [tscriptMaps]

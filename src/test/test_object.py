@@ -108,6 +108,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-990714-11', 'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
             # transcript
             'ZFIN:ZDB-GENE-040724-143', 'ENSEMBL:ENSDART00000152692',
+            'ZDB-GENE-040724-143', 'ENSDART00000152692',
             # allele for synonym
             'ZFIN:ZDB-ALT-980413-591',
             # disease specific test objects
