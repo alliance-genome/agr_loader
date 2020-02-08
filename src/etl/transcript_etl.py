@@ -40,14 +40,14 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
 
             CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
-          //  MERGE (a:Assembly {primaryKey: row.assembly})
+            MERGE (a:Assembly {primaryKey: row.assembly})
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosome
+                gchrm.chromosome = row.chromosomeNumber
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)

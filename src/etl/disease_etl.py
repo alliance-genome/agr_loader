@@ -37,6 +37,7 @@ class DiseaseETL(ETL):
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1
+                              dfa.joinType = row.relationshipType
                               
 
 
@@ -115,6 +116,7 @@ class DiseaseETL(ETL):
                 SET dga.dataProvider = row.dataProvider,
                     dga.dateAssigned = row.dateAssigned,
                     dga.sortOrder = 1
+                    dga.joinType = row.relationshipType
 
 
 
