@@ -2,7 +2,6 @@ import logging
 import multiprocessing
 import uuid
 from etl import ETL
-from files import TXTFile
 
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
