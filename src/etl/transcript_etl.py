@@ -38,9 +38,10 @@ class TranscriptETL(ETL):
 
             MATCH (o:Transcript {primaryKey: row.curie})
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+            
             MERGE (a:Assembly {primaryKey: row.assembly})
+            
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
@@ -51,6 +52,7 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (a)-[ao:ASSOCIATION]->(o)
 
         """
 
@@ -93,18 +95,20 @@ class TranscriptETL(ETL):
         with open(filepath) as f:
             tscriptMaps = []
             counter = 0
+            assembly = ''
             for line in f:
                 counter = counter + 1
                 transcriptMap = {}
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA']
+                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
 
                 columns = line.split()
                 if columns[0].startswith('#!'):
                     if columns[0] == '#!assembly':
-                        transcriptMap.update({'assembly':columns[1]})
+                        assembly = columns[1]
+                        transcriptMap.update({'assembly':assembly})
                 elif columns[0].startswith('#'):
                     continue
                 else:
@@ -150,7 +154,13 @@ class TranscriptETL(ETL):
                             transcriptMap.update({'featureType': featureTypeName})
                             transcriptMap.update({'start':columns[3]})
                             transcriptMap.update({'end':columns[4]})
+                            transcriptMap.update({'assembly': assembly})
+                            if assembly is None:
+                                assembly = 'assembly_unlabeled_in_gff3_header'
+                                transcriptMap.update({'assembly':assembly})
+
                             tscriptMaps.append(transcriptMap)
+
                 if counter == batch_size:
                     counter = 0
                     yield [tscriptMaps, tscriptMaps, tscriptMaps]
