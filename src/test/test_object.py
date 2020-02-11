@@ -48,7 +48,10 @@ class TestObject(object):
             # allele
             'MGI:88070', 'MGI:88070',
             # transcript
-            'MGI:3774845', 'MGI_C57BL6J_3774845',
+            # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
+            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+            'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
+            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2',
         }
 
         self.wormbaseIdSet = {
@@ -71,6 +74,8 @@ class TestObject(object):
             'WB:WBVar00089131',
             # disease
             'WB:WBGene00011936',
+            # construct
+            'WB:WBGene00017738', 'WB:WBCnstr00027061',
         }
 
         self.sgdIdSet = {

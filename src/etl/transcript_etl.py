@@ -138,7 +138,6 @@ class TranscriptETL(ETL):
                                     gene_id = value
                                 if key == 'Parent':
                                     parent = value
-                                    transcriptMap.update({'parentId' : parent})
                                 #if key == 'Alias':
                                 #    aliases = value.split(',')
                                 #    transcriptMap.update({'aliases' : aliases})
@@ -148,15 +147,18 @@ class TranscriptETL(ETL):
                                 if key == 'curie':
                                     curie = value
 
+                            # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
+                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+
                             if self.testObject.using_test_data() is True:
                                 is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
                                 if is_it_test_entry is False:
                                     is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
-                                if is_it_test_entry is False:
-                                    is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
-                                if is_it_test_entry is False:
-                                    counter = counter - 1
-                                    continue
+                                    if is_it_test_entry is False:
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                                        if is_it_test_entry is False:
+                                            counter = counter - 1
+                                        continue
                             transcriptMap.update({'curie' : curie})
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
