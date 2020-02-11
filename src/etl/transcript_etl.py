@@ -15,7 +15,7 @@ class TranscriptETL(ETL):
     USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
-            MATCH (g:Gene {primaryKey: row.curie})
+            MATCH (g:Gene {primaryKey:row.curie})
             set g.gff3ID = row.gff3ID
     
     """
@@ -27,11 +27,11 @@ class TranscriptETL(ETL):
                 MATCH (g:Gene {gff3ID: row.parentId})
                 MATCH (so:SOTerm {name: row.featureType})
 
-                CREATE (t:Transcript {primaryKey:row.curie})
-                    SET t.gff3ID = row.gff3ID
+                MERGE (t:Transcript {primaryKey:row.curie})
+                    ON CREATE SET t.gff3ID = row.gff3ID
                 
-               CREATE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               CREATE (g)<-[gt:TRANSCRIPT]-(t)
+               MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
+               MERGE (g)<-[gt:TRANSCRIPT]-(t)
                 """
 
     chromosomes_template = """
@@ -112,7 +112,7 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTscriptTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
                 columns = line.split()
@@ -125,7 +125,7 @@ class TranscriptETL(ETL):
                 else:
 
                     featureTypeName = columns[2]
-                    if featureTypeName in possibleTscriptTypes :
+                    if featureTypeName in possibleTscriptTypes or featureTypeName == 'gene':
                         notes = columns[8]
                         kvpairs = notes.split(";")
                         if kvpairs is not None:
@@ -147,18 +147,29 @@ class TranscriptETL(ETL):
                                 if key == 'curie':
                                     curie = value
 
+                            # gene: curie = RGD:1309770 ID=RGD:1309770
+                            # transcript: Parent=RGD:1309770
+
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
                             if self.testObject.using_test_data() is True:
+
                                 is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
+
                                 if is_it_test_entry is False:
                                     is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+
                                     if is_it_test_entry is False:
                                         is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+
                                         if is_it_test_entry is False:
                                             counter = counter - 1
                                         continue
+
+                                if is_it_test_entry:
+                                    logger.info(curie)
+                                    logger.info(featureTypeName)
                             transcriptMap.update({'curie' : curie})
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
@@ -171,8 +182,9 @@ class TranscriptETL(ETL):
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
-
+                            logger.info(transcriptMap)
                             tscriptMaps.append(transcriptMap)
+
 
                 if counter == batch_size:
                     counter = 0
