@@ -29,6 +29,7 @@ class DiseaseETL(ETL):
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            SET rel.uuid = row.diseaseUniqueKey 
             REMOVE rel.noOp
             
             //This is an intentional MERGE, please leave as is
@@ -36,7 +37,7 @@ class DiseaseETL(ETL):
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
-                              dfa.sortOrder = 1
+                              dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType
                               
 
@@ -71,6 +72,7 @@ class DiseaseETL(ETL):
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
  
             CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
+                        SET rel.uuid = row.diseaseUniqueKey 
             REMOVE rel.noOp
             
             //This is an intentional MERGE, please leave as is
@@ -78,7 +80,8 @@ class DiseaseETL(ETL):
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
-                              dfa.sortOrder = 1
+                              dfa.sortOrder = 1,
+                              dfa.joinType = row.relationshipType
 
 
             
@@ -110,12 +113,13 @@ class DiseaseETL(ETL):
             MATCH (gene:Gene {primaryKey:row.primaryId})
             
             CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                        SET rel.uuid = row.diseaseUniqueKey 
             REMOVE rel.noOp
             
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider,
                     dga.dateAssigned = row.dateAssigned,
-                    dga.sortOrder = 1
+                    dga.sortOrder = 1,
                     dga.joinType = row.relationshipType
 
 

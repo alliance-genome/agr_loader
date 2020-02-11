@@ -11,11 +11,20 @@ logger = logging.getLogger(__name__)
 
 class TranscriptETL(ETL):
 
+    tscript_alternate_id_query_template = """
+    USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            
+            MATCH (g:Gene {primaryKey: row.curie})
+            set g.gff3ID = row.gff3ID
+    
+    """
+
     tscript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {modLocalId: row.parentId})
+                MATCH (g:Gene {gff3ID: row.parentId})
                 MATCH (so:SOTerm {name: row.featureType})
 
                 CREATE (t:Transcript {primaryKey:row.curie})
@@ -77,6 +86,8 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
+            [TranscriptETL.tscript_alternate_id_query_template, commit_size,
+             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
@@ -162,9 +173,9 @@ class TranscriptETL(ETL):
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps]
+                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps ]
                     tscriptMaps = []
 
 
             if counter > 0:
-                yield [tscriptMaps, tscriptMaps, tscriptMaps]
+                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
