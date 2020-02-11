@@ -47,6 +47,8 @@ class TestObject(object):
             'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
             # allele
             'MGI:88070', 'MGI:88070',
+            # transcript
+            'MGI:3774845', 'MGI_C57BL6J_3774845',
         }
 
         self.wormbaseIdSet = {
@@ -108,7 +110,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-990714-11', 'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
             # transcript
             'ZFIN:ZDB-GENE-040724-143', 'ENSEMBL:ENSDART00000152692',
-            'ZDB-GENE-040724-143', 'ENSDART00000152692',
+            'ZDB-GENE-040724-143', 'ENSDART00000152692', 'ENSEMBL:ENSDART00000003317', 'ZDB-GENE-040426-1746',
             # allele for synonym
             'ZFIN:ZDB-ALT-980413-591',
             # disease specific test objects

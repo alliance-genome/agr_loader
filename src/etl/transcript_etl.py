@@ -113,6 +113,7 @@ class TranscriptETL(ETL):
                 parent = ''
                 gff3ID = ''
                 possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                gene_id = ''
 
                 columns = line.split()
                 if columns[0].startswith('#!'):
@@ -133,14 +134,10 @@ class TranscriptETL(ETL):
                                 value = pair.split("=")[1]
                                 if key == 'ID':
                                     gff3ID = value
-
+                                if key == 'gene_id':
+                                    gene_id = value
                                 if key == 'Parent':
                                     parent = value
-                                    if self.testObject.using_test_data() is True:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(value)
-                                        if is_it_test_entry is False:
-                                            counter = counter - 1
-                                            continue
                                     transcriptMap.update({'parentId' : parent})
                                 #if key == 'Alias':
                                 #    aliases = value.split(',')
@@ -152,7 +149,11 @@ class TranscriptETL(ETL):
                                     curie = value
 
                             if self.testObject.using_test_data() is True:
-                                is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+                                is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
+                                if is_it_test_entry is False:
+                                    is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+                                if is_it_test_entry is False:
+                                    is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
                                 if is_it_test_entry is False:
                                     counter = counter - 1
                                     continue
@@ -173,7 +174,7 @@ class TranscriptETL(ETL):
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps ]
+                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
                     tscriptMaps = []
 
 
