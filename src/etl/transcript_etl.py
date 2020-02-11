@@ -112,7 +112,7 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possibleTscriptTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
                 columns = line.split()
