@@ -69,7 +69,7 @@ class DOETL(ETL):
 
             MATCH (d:DOTerm {primaryKey:row.primary_id})
 
-            MERGE(sec:SecondaryId:Identifier {primaryKey:row.alt_id})
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
     
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
