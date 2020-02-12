@@ -1,7 +1,7 @@
 schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-CONSTRUCT: [ZFIN, WB]
+CONSTRUCT: [ZFIN, WB, FB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -11,7 +11,7 @@ GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GFF: [FB, WB, ZFIN, MGI]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
@@ -65,6 +65,13 @@ Closure:
   - MA
   - ECO
   - UBERON
+  - PATO
+  - APO
+  - DPO
+  - FYPO
+  - WBPhenotype
+  - MP
+  - HP
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]

@@ -47,6 +47,11 @@ class TestObject(object):
             'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
             # allele
             'MGI:88070', 'MGI:88070',
+            # transcript -- keys here are not curies because GFF doesn't follow our strict rules for identifiers.
+            # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
+            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+            'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
+            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2',
         }
 
         self.wormbaseIdSet = {
@@ -69,6 +74,8 @@ class TestObject(object):
             'WB:WBVar00089131',
             # disease
             'WB:WBGene00011936',
+            # construct
+            'WB:WBGene00017738', 'WB:WBCnstr00027061',
         }
 
         self.sgdIdSet = {
@@ -106,8 +113,11 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-ALT-120806-9701', 'ZFIN:ZDB-TGCONSTRCT-070117-175',
             'ZFIN:ZDB-GENE-050321-1', 'ZFIN:ZDB-ALT-171010-9', 'ZFIN:ZDB-ALT-181002-149', 'ZFIN:ZDB-ETCONSTRCT-080904-1',
             'ZFIN:ZDB-GENE-990714-11', 'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
-            # transcript
+            # transcript -- keys here are not curies because GFF doesn't follow our strict rules for identifiers.
             'ZFIN:ZDB-GENE-040724-143', 'ENSEMBL:ENSDART00000152692',
+            'ZDB-GENE-040724-143', 'ENSDART00000152692', 'ENSEMBL:ENSDART00000003317', 'ZDB-GENE-040426-1746',
+            'ZDB-GENE-040426-2185', 'ZDB-GENE-040426-2185',
+            'ENSEMBL:ENSDART00000138978'
             # allele for synonym
             'ZFIN:ZDB-ALT-980413-591',
             # disease specific test objects
@@ -158,6 +168,7 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-080424-7',
             # Phenotype
             'ZFIN:ZDB-FISH-150901-24820', 'ZFIN:ZDB-ALT-980203-469', 'ZFIN:ZDB-GENE-990415-198',
+
 
         }
         self.flybaseIdSet = {

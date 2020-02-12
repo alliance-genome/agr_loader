@@ -27,36 +27,20 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-
+            
+            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
+            SET rel.uuid = row.diseaseUniqueKey 
+            REMOVE rel.noOp
+            
             //This is an intentional MERGE, please leave as is
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
-                              dfa.sortOrder = 1
+                              dfa.sortOrder = 1,
+                              dfa.joinType = row.relationshipType
+                              
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_model_of' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_MODEL_OF {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_model_of'
-            )
-
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
-            
-            // This is just defensive, unlikely that an AGM can participate in the marker_of relation.
-            
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_of' THEN [1] ELSE [] END |
-                MERGE (agm)<-[faf:IS_MARKER_OF {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
 
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -86,28 +70,21 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
-
+ 
+            CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
+                        SET rel.uuid = row.diseaseUniqueKey 
+            REMOVE rel.noOp
+            
             //This is an intentional MERGE, please leave as is
             
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.dateAssigned = row.dateAssigned,
-                              dfa.sortOrder = 1
+                              dfa.sortOrder = 1,
+                              dfa.joinType = row.relationshipType
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_marker_of'
-            )
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (allele)<-[faf:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                SET faf.dateProduced = row.dateProduced,
-                 faf.dataProvider = row.dataProvider,
-                 dfa.joinType = 'is_implicated_in'
-            )
-
+            
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
             MERGE (g)-[gadf:ASSOCIATION]->(dfa)
@@ -134,23 +111,18 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (gene:Gene {primaryKey:row.primaryId})
-
+            
+            CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                        SET rel.uuid = row.diseaseUniqueKey 
+            REMOVE rel.noOp
+            
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider,
                     dga.dateAssigned = row.dateAssigned,
-                    dga.sortOrder = 1
+                    dga.sortOrder = 1,
+                    dga.joinType = row.relationshipType
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_marker_for' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_MARKER_FOR {uuid:row.diseaseUniqueKey}]->(d)
-                    ON CREATE SET fafg.dataProvider = row.dataProvider,
-                                  fafg.dateProduced = row.dateProduced,
-                                  dga.joinType = 'is_marker_of')
 
-            FOREACH (rel IN CASE when row.relationshipType = 'is_implicated_in' THEN [1] ELSE [] END |
-                MERGE (gene)<-[fafg:IS_IMPLICATED_IN {uuid:row.diseaseUniqueKey}]->(d)
-                    ON CREATE SET fafg.dataProvider = row.dataProvider,
-                                  fafg.dateProduced = row.dateProduced,
-                                  dga.joinType = 'is_implicated_in')
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
@@ -305,7 +277,7 @@ class DiseaseETL(ETL):
                 self.evidence_code_list_to_yield.append(ecode_map)
 
             diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                               diseaseRecord['objectRelation'].get("associationType")
+                               diseaseRecord['objectRelation'].get("associationType").upper()
 
             if disease_record.get('pgeIds') is not None:
                 for pge in disease_record.get('pgeIds'):
@@ -400,7 +372,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
 
                     if disease_record.get('pgeIds') is not None:
@@ -460,7 +432,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
 
 
@@ -518,7 +490,7 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType")
+                                       diseaseRecord['objectRelation'].get("associationType").upper()
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):

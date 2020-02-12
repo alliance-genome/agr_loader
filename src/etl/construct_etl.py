@@ -77,23 +77,8 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
-            CALL apoc.create.relationship(g, row.componentRelation, o) yield rel
+            CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
             REMOVE rel.noOp
-            
-           // FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-           //     MERGE (g)-[gto:TARGETS]->(o)
-           //      SET gto.joinType = 'targets'
-           // )
-           // FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-           //     MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
-           //      SET gto.joinType = 'is_regulated_by'
-           // )
-            
-           // FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-           //     MERGE (g)<-[gto:EXPRESSES]-(o)
-           //      SET gto.joinType = 'expresses'
-           // )
-            
   
             """
 
@@ -103,22 +88,9 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
-            CALL apoc.create.relationship(g, row.componentRelation, o) yield rel
+            CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
             REMOVE rel.noOp
             
-           // FOREACH (rel IN CASE when row.componentRelation = 'targets' THEN [1] ELSE [] END |
-           //     MERGE (g)-[gto:TARGETS]->(o)
-           //      SET gto.joinType = 'targets'
-           // )
-           // FOREACH (rel IN CASE when row.componentRelation = 'is_regulated_by' THEN [1] ELSE [] END |
-           //     MERGE (g)<-[gto:IS_REGULATED_BY]-(o)
-           //      SET gto.joinType = 'is_regulated_by'
-           // )
-            
-           // FOREACH (rel IN CASE when row.componentRelation = 'expresses' THEN [1] ELSE [] END |
-           //     MERGE (g)<-[gto:EXPRESSES]-(o)
-           //      SET gto.joinType = 'expresses'
-           // )
 
             """
     non_bgi_component_template = """
@@ -276,13 +248,13 @@ class ConstructETL(ETL):
 
             if 'constructComponents' in constructRecord:
                 for component in constructRecord.get('constructComponents'):
-                    componentRelation = component.get('componentRelation')
+                    componentRelation = component.get('componentRelation').upper()
                     componentSymbol = component.get('componentSymbol')
                     componentID = component.get('componentID')
 
                     if componentID is not None:
                         componentDetail = {
-                            "componentRelation": componentRelation,
+                            "componentRelation": componentRelation.upper(),
                             "componentSymbol": componentSymbol,
                             "componentID": componentID,
                             "constructID": constructRecord.get('primaryId')
@@ -290,7 +262,7 @@ class ConstructETL(ETL):
                         componentDetails.append(componentDetail)
                     else:
                         componentDetail = {
-                            "componentRelation": componentRelation,
+                            "componentRelation": componentRelation.upper(),
                             "componentSymbol": componentSymbol,
                             "constructID": constructRecord.get('primaryId')
                         }
@@ -320,6 +292,9 @@ class ConstructETL(ETL):
                 construct_secondaryIds = []
                 construct_synonyms = []
                 crossReferenceList = []
+                nonBgiComponents = []
+                componentDetails = []
+                componentNoGeneDetails = []
                 counter = 0
 
         if counter > 0:

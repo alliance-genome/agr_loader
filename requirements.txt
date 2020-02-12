@@ -21,3 +21,4 @@ xmltodict
 Bio==0.1.0
 biopython
 pyfaidx
+pytest-parallel

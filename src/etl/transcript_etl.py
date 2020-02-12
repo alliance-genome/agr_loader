@@ -2,7 +2,6 @@ import logging
 import multiprocessing
 import uuid
 from etl import ETL
-from files import TXTFile
 
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -12,18 +11,27 @@ logger = logging.getLogger(__name__)
 
 class TranscriptETL(ETL):
 
+    tscript_alternate_id_query_template = """
+    USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            
+            MATCH (g:Gene {primaryKey:row.curie})
+            set g.gff3ID = row.gff3ID
+    
+    """
+
     tscript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {modLocalId: row.parentId})
-               // MATCH (so:SOTerm {name: row.featureType})
+                MATCH (g:Gene {gff3ID: row.parentId})
+                MATCH (so:SOTerm {name: row.featureType})
 
-                CREATE (t:Transcript {primaryKey:row.curie})
-                    SET t.gff3ID = row.gff3ID
+                MERGE (t:Transcript {primaryKey:row.curie})
+                    ON CREATE SET t.gff3ID = row.gff3ID
                 
-               // CREATE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               // CREATE (g)<-[gt:TRANSCRIPT]-(t)
+               MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
+               MERGE (g)<-[gt:TRANSCRIPT]-(t)
                 """
 
     chromosomes_template = """
@@ -38,19 +46,21 @@ class TranscriptETL(ETL):
 
             MATCH (o:Transcript {primaryKey: row.curie})
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-
+            
+            MERGE (a:Assembly {primaryKey: row.assembly})
+            
             CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
-          //  MERGE (a:Assembly {primaryKey: row.assembly})
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-      //        SET gchrm.start = apoc.number.parseInt(row.start),
-     //           gchrm.end = apoc.number.parseInt(row.end),
-      //          gchrm.assembly = row.assembly,
-      //          gchrm.strand = row.strand,
-      //          gchrm.chromosome = row.chromosome
+              SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
+                gchrm.assembly = row.assembly,
+                gchrm.strand = row.strand,
+                gchrm.chromosome = row.chromosomeNumber
 
-      //      CREATE (o)-[of:ASSOCIATION]->(gchrm)
-       //     CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (o)-[of:ASSOCIATION]->(gchrm)
+            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (a)-[ao:ASSOCIATION]->(o)
 
         """
 
@@ -76,9 +86,11 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"]
-           # [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-           # [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
+            [TranscriptETL.tscript_alternate_id_query_template, commit_size,
+             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -93,32 +105,39 @@ class TranscriptETL(ETL):
         with open(filepath) as f:
             tscriptMaps = []
             counter = 0
+            assembly = ''
             for line in f:
                 counter = counter + 1
                 transcriptMap = {}
+                curie = ''
+                parent = ''
+                gff3ID = ''
+                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                gene_id = ''
 
                 columns = line.split()
                 if columns[0].startswith('#!'):
                     if columns[0] == '#!assembly':
-                        transcriptMap.update({'assembly':columns[1]})
+                        assembly = columns[1]
+                        transcriptMap.update({'assembly':assembly})
                 elif columns[0].startswith('#'):
                     continue
                 else:
+
                     featureTypeName = columns[2]
-                    if featureTypeName == 'mRNA' :
+                    if featureTypeName in possibleTscriptTypes or featureTypeName == 'gene':
                         notes = columns[8]
                         kvpairs = notes.split(";")
-                        transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                        transcriptMap.update({'chromosomeNumber':columns[0]})
-                        transcriptMap.update({'featureType':featureTypeName})
                         if kvpairs is not None:
                             for pair in kvpairs:
                                 key = pair.split("=")[0]
                                 value = pair.split("=")[1]
                                 if key == 'ID':
-                                    transcriptMap.update({'gff3ID' : value})
+                                    gff3ID = value
+                                if key == 'gene_id':
+                                    gene_id = value
                                 if key == 'Parent':
-                                    transcriptMap.update({'parentId' : value})
+                                    parent = value
                                 #if key == 'Alias':
                                 #    aliases = value.split(',')
                                 #    transcriptMap.update({'aliases' : aliases})
@@ -126,14 +145,52 @@ class TranscriptETL(ETL):
                                 #    secIds = value.split(',')
                                 #    transcriptMap.update({'secIds' : secIds})
                                 if key == 'curie':
-                                    transcriptMap.update({'curie' : value})
+                                    curie = value
 
-                        transcriptMap.update({'start':columns[3]})
-                        transcriptMap.update({'end':columns[4]})
-                        tscriptMaps.append(transcriptMap)
+                            # gene: curie = RGD:1309770 ID=RGD:1309770
+                            # transcript: Parent=RGD:1309770
+
+                            # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
+                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+
+                            if self.testObject.using_test_data() is True:
+
+                                is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
+
+                                if is_it_test_entry is False:
+                                    is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+
+                                    if is_it_test_entry is False:
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+
+                                        if is_it_test_entry is False:
+                                            counter = counter - 1
+                                        continue
+
+                                if is_it_test_entry:
+                                    logger.info(curie)
+                                    logger.info(featureTypeName)
+                            transcriptMap.update({'curie' : curie})
+                            transcriptMap.update({'parentId': parent})
+                            transcriptMap.update({'gff3ID': gff3ID})
+                            transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            transcriptMap.update({'chromosomeNumber': columns[0]})
+                            transcriptMap.update({'featureType': featureTypeName})
+                            transcriptMap.update({'start':columns[3]})
+                            transcriptMap.update({'end':columns[4]})
+                            transcriptMap.update({'assembly': assembly})
+                            if assembly is None:
+                                assembly = 'assembly_unlabeled_in_gff3_header'
+                                transcriptMap.update({'assembly':assembly})
+                            logger.info(transcriptMap)
+                            tscriptMaps.append(transcriptMap)
+
+
                 if counter == batch_size:
-                    yield [tscriptMaps]
                     counter = 0
+                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
+                    tscriptMaps = []
+
 
             if counter > 0:
-                yield [tscriptMaps]
+                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]

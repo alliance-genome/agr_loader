@@ -62,8 +62,17 @@ class DOETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
-            
-            
+
+    doterm_altids_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (d:DOTerm {primaryKey:row.primary_id})
+
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+    
+            MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -82,6 +91,8 @@ class DOETL(ETL):
             [DOETL.doterm_isas_template, commit_size, "do_isas_data.csv"],
             [DOETL.doterm_synonyms_template, commit_size, "do_synonyms_data.csv"],
             [DOETL.xrefs_template, commit_size, "do_xrefs_data.csv"],
+            [DOETL.doterm_altids_template, commit_size, "do_altids_data.csv"],
+
         ]
         
         query_and_file_list = self.process_query_params(query_list)
@@ -96,6 +107,7 @@ class DOETL(ETL):
         do_term_list = []
         do_isas_list = []
         do_synonyms_list = []
+        do_altids_list = []
         xrefs = []
         counter = 0
         
@@ -120,6 +132,7 @@ class DOETL(ETL):
             ident = k
             prefix = ident.split(":")[0]
 
+
             if "meta" in node:
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
@@ -129,6 +142,17 @@ class DOETL(ETL):
                             "synonym": synonym
                         }
                         do_synonyms_list.append(doSynonym)
+
+                if "basicPropertyValues" in node["meta"]:
+                    altids = [s["val"] for s in node["meta"]["basicPropertyValues"]]
+                    for alt_id in altids:
+                        if "DOID:" in alt_id:
+                            secondaryId = {
+                                "primary_id": k,
+                                "secondary_id": alt_id
+                            }
+                            do_altids_list.append(secondaryId)
+
                 if "xrefs" in node["meta"]:
 
                     o_xrefs = node["meta"].get('xrefs')
@@ -258,14 +282,15 @@ class DOETL(ETL):
             
 
             if counter == batch_size:
-                yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
+                yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_altids_list]
                 do_term_list = []
                 do_isas_list = []
                 do_synonyms_list = []
+                do_altids_list = []
                 xrefs = []
                 counter = 0
 
         if counter > 0:
-            yield [do_term_list, do_isas_list, do_synonyms_list, xrefs]
+            yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_altids_list]
             
             
