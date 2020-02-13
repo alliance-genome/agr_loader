@@ -74,6 +74,7 @@ Closure:
   - HP
 Interactions: [MolecularInteraction]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VEPGENE: [FB, WB, ZFIN, RGD, MGI]
 VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.

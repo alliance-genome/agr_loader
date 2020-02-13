@@ -40,6 +40,9 @@ FASTA:
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VEPGENE:
+  type: list
+  allowed: [FB, WB, ZFIN, RGD, MGI]
 VEP:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]

@@ -30,6 +30,7 @@ class TranscriptETL(ETL):
 
                 MERGE (t:Transcript {primaryKey:row.curie})
                     ON CREATE SET t.gff3ID = row.gff3ID
+                        t.dataProvider = row.dataProvider
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
                MERGE (g)<-[gt:TRANSCRIPT]-(t)
@@ -116,15 +117,17 @@ class TranscriptETL(ETL):
                 possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
-                columns = re.split(r'\t', line)
-                if columns[0].startswith('#!'):
-                    if columns[0] == '#!assembly':
-                        assembly = columns[1]
-                        transcriptMap.update({'assembly':assembly})
-                elif columns[0].startswith('#'):
+                if line.startswith('#!'):
+                    headerColumns = line.split()
+                    if line.startswith('#!assembly'):
+                        transcriptMap.update({'assembly':headerColumns[1]})
+
+                    elif line.startswith('#!dataProvider'):
+                        transcriptMap.update({'dataProvider':headerColumns[1]})
+                elif line.startswith('#'):
                     continue
                 else:
-
+                    columns = re.split(r'\t', line)
                     featureTypeName = columns[2]
                     if featureTypeName in possibleTypes or featureTypeName == 'gene':
                         column8 = columns[8]
@@ -134,45 +137,41 @@ class TranscriptETL(ETL):
                         if kvpairs is not None:
 
                             for pair in kvpairs:
-                                key = pair.split("=")[0]
-                                value = pair.split("=")[1]
-                                if key == 'ID':
-                                    gff3ID = value
-                                if key == 'gene_id':
-                                    gene_id = value
-                                if key == 'Parent':
-                                    parent = value
-                                #if key == 'Alias':
-                                #    aliases = value.split(',')
-                                #    transcriptMap.update({'aliases' : aliases})
-                                #if key == 'SecondaryIds':
-                                #    secIds = value.split(',')
-                                #    transcriptMap.update({'secIds' : secIds})
-                                if key == 'curie':
-                                    curie = value
-                            # gene: curie = RGD:1309770 ID=RGD:1309770
-                            # transcript: Parent=RGD:1309770
-                            if gff3ID == 'MGI_C57BL6J_3588256':
-                                logger.info(notes)
-                                logger.info(kvpairs)
-                                logger.info(line)
-                                logger.info(column8)
+                                if "=" in pair:
+                                    key = pair.split("=")[0]
+                                    value = pair.split("=")[1]
+                                    if key == 'ID':
+                                        gff3ID = value
+                                    if key == 'gene_id':
+                                        gene_id = value
+                                    if key == 'Parent':
+                                        parent = value
+                                    #if key == 'Alias':
+                                       #aliases = value.split(',')
+                                #       transcriptMap.update({'aliases' : aliases})
+                                #       if key == 'SecondaryIds':
+                                #           secIds = value.split(',')
+                                #           transcriptMap.update({'secIds' : secIds})
+                                    if key == 'curie':
+                                        curie = value
+                                # gene: curie = RGD:1309770 ID=RGD:1309770
+
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
-                            if self.testObject.using_test_data() is True:
+                                if self.testObject.using_test_data() is True:
 
-                                is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
-
-                                if is_it_test_entry is False:
-                                    is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+                                    is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
 
                                         if is_it_test_entry is False:
-                                            counter = counter - 1
-                                        continue
+                                            is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+
+                                            if is_it_test_entry is False:
+                                                counter = counter - 1
+                                            continue
 
                             transcriptMap.update({'curie' : curie})
 
