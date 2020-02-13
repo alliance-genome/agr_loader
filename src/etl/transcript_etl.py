@@ -29,7 +29,7 @@ class TranscriptETL(ETL):
                 MATCH (so:SOTerm {name: row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
-                    ON CREATE SET t.gff3ID = row.gff3ID
+                    ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
