@@ -170,7 +170,6 @@ class TranscriptETL(ETL):
                                             counter = counter - 1
                                         continue
 
-                                if is_it_test_entry:
                             transcriptMap.update({'curie' : curie})
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
