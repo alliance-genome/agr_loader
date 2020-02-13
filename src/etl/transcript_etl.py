@@ -116,7 +116,7 @@ class TranscriptETL(ETL):
                 possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
-                columns = re.split(r'\t+', line)
+                columns = re.split(r'\t', line)
                 if columns[0].startswith('#!'):
                     if columns[0] == '#!assembly':
                         assembly = columns[1]
@@ -175,7 +175,7 @@ class TranscriptETL(ETL):
                                         continue
 
                             transcriptMap.update({'curie' : curie})
-                    
+
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
                             transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
