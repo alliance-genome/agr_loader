@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import uuid
 from etl import ETL
+import re
 
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -127,7 +128,9 @@ class TranscriptETL(ETL):
                     featureTypeName = columns[2]
                     if featureTypeName in possibleTscriptTypes or featureTypeName == 'gene':
                         notes = columns[8]
-                        kvpairs = notes.split(";")
+                        notes.replace(' ','_')
+                        kvpairs = re.split(';', notes)
+                        #kvpairs = notes.split(";")
                         if kvpairs is not None:
                             for pair in kvpairs:
                                 key = pair.split("=")[0]
@@ -168,8 +171,6 @@ class TranscriptETL(ETL):
                                         continue
 
                                 if is_it_test_entry:
-                                    logger.info(curie)
-                                    logger.info(featureTypeName)
                             transcriptMap.update({'curie' : curie})
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
@@ -182,7 +183,6 @@ class TranscriptETL(ETL):
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
-                            logger.info(transcriptMap)
                             tscriptMaps.append(transcriptMap)
 
 
