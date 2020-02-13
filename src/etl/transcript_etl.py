@@ -107,6 +107,7 @@ class TranscriptETL(ETL):
         with open(filepath) as f:
             tscriptMaps = []
             counter = 0
+            dataProvider = ''
             assembly = ''
             for line in f:
                 counter = counter + 1
@@ -120,10 +121,15 @@ class TranscriptETL(ETL):
                 if line.startswith('#!'):
                     headerColumns = line.split()
                     if line.startswith('#!assembly'):
-                        transcriptMap.update({'assembly':headerColumns[1]})
+                        assembly = headerColumns[1]
 
-                    elif line.startswith('#!dataProvider'):
-                        transcriptMap.update({'dataProvider':headerColumns[1]})
+                    elif line.startswith('#!data-source '):
+                        dataProvider = headerColumns[1]
+                        if dataProvider == 'FlyBase':
+                            dataProvider = 'FB'
+                        if dataProvider == 'WormBase':
+                            dataProvider = 'WB'
+                        logger.info("datasource " + headerColumns[1])
                 elif line.startswith('#'):
                     continue
                 else:
@@ -183,6 +189,7 @@ class TranscriptETL(ETL):
                             transcriptMap.update({'start':columns[3]})
                             transcriptMap.update({'end':columns[4]})
                             transcriptMap.update({'assembly': assembly})
+                            transcriptMap.update({'dataProvider': dataProvider})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
