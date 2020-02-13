@@ -113,10 +113,10 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
-                columns = line.split()
+                columns = re.split(r'\t+', line)
                 if columns[0].startswith('#!'):
                     if columns[0] == '#!assembly':
                         assembly = columns[1]
@@ -126,12 +126,13 @@ class TranscriptETL(ETL):
                 else:
 
                     featureTypeName = columns[2]
-                    if featureTypeName in possibleTscriptTypes or featureTypeName == 'gene':
-                        notes = columns[8]
-                        notes.replace(' ','_')
+                    if featureTypeName in possibleTypes or featureTypeName == 'gene':
+                        column8 = columns[8]
+                        notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
                         #kvpairs = notes.split(";")
                         if kvpairs is not None:
+
                             for pair in kvpairs:
                                 key = pair.split("=")[0]
                                 value = pair.split("=")[1]
@@ -149,10 +150,13 @@ class TranscriptETL(ETL):
                                 #    transcriptMap.update({'secIds' : secIds})
                                 if key == 'curie':
                                     curie = value
-
                             # gene: curie = RGD:1309770 ID=RGD:1309770
                             # transcript: Parent=RGD:1309770
-
+                            if gff3ID == 'MGI_C57BL6J_3588256':
+                                logger.info(notes)
+                                logger.info(kvpairs)
+                                logger.info(line)
+                                logger.info(column8)
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
@@ -171,6 +175,7 @@ class TranscriptETL(ETL):
                                         continue
 
                             transcriptMap.update({'curie' : curie})
+                    
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
                             transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})

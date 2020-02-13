@@ -1,9 +1,6 @@
 schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
-BGI: [MGI]
 GFF: [MGI]
-ONTOLOGY:
-  - SO
 
 # Loader configuration values are below.
 # Please modify with caution!
