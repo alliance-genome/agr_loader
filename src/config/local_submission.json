@@ -56,13 +56,6 @@
                 "uploadDate": 1522181475376
             },
             {
-                "dataType": {"id":"1234", "name":"Interactions"},
-                "dataSubType": {"id":"1234", "name":"MolecularInteraction"},
-                "s3Path": "2.3.0/INTERACTION/COMBINED/INTERACTION_COMBINED_2.tar.gz",
-                "tempExtractedFile": "output/alliance_molecular_interactions.txt",
-                "uploadDate": 1522181475376
-            },
-            {
                 "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"Rnor60"},
                 "s3Path": "1.0.0.8/FASTA/Rnor60/1.0.0.8_FASTA_Rnor60_1.null",

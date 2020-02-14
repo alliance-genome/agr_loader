@@ -86,7 +86,9 @@ class MolecularInteractionETL(ETL):
 
     def _load_and_process_data(self):
 
-        filepath = self.data_type_config.get_single_filepath()
+        # filepath = self.data_type_config.get_single_filepath()
+        # Temporary fix for 3.0 release.
+        filepath = 'tmp/alliance_molecular_interactions.tsv'
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -331,6 +333,9 @@ class MolecularInteractionETL(ETL):
             except IndexError:
                 return None
 
+            if individual_entry.startswith('uniprotkb:'):
+                individual_entry = individual_entry.split('-')[0]
+
             prefixed_identifier = None
 
             if entry_stripped.startswith('WB'): # TODO implement regex for WB / FB gene identifiers.
@@ -379,6 +384,8 @@ class MolecularInteractionETL(ETL):
         total_interactions_loaded_count = 0
 
         # database_linkout_set = set()
+
+        logger.info('Attempting to open {}'.format(filepath))
 
         with open(filepath, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
