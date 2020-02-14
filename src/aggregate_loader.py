@@ -100,7 +100,7 @@ class AggregateLoader(object):
             'GAF': GOAnnotETL,
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
-            'Interactions': MolecularInteractionETL,
+            'INTERACTION-MOL': MolecularInteractionETL,
             'GeneDescriptions': GeneDescriptionsETL,
             'VEP': VEPETL
         }
@@ -131,7 +131,7 @@ class AggregateLoader(object):
             ['GAF'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
-            ['Interactions'],
+            ['INTERACTION-MOL'],
             ['Closure'],
             ['GeneDescriptions'],
             ['VEP']

@@ -118,9 +118,9 @@ Closure:
     - WBPhenotype
     - MP
     - HP
-Interactions:
+INTERACTION-MOL:
   type: list
-  allowed: [MolecularInteraction]
+  allowed: [COMBINED]
 GeneDescriptions:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]

@@ -72,7 +72,7 @@ Closure:
   - WBPhenotype
   - MP
   - HP
-Interactions: [MolecularInteraction]
+INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]
 
