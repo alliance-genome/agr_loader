@@ -11,7 +11,7 @@ class AssemblySequenceHelper(object):
         if sub_type.startswith('R6'):
             sub_type = 'R627'
         fasta_config = data_manager.get_config('FASTA')
-        logger.info(fasta_config)
+
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
                 logger.info(sub_type_config.get_sub_data_type())

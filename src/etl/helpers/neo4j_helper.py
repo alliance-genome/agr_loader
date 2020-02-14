@@ -55,6 +55,8 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :Construct(primaryKey)")
         session.run("CREATE INDEX ON :Transcript(primaryKey)")
+        session.run("CREATE INDEX ON :TranscriptLevelConsequence(primaryKey)")
+        session.run("CREATE INDEX ON :GeneLevelConsequence(primaryKey)")
         session.run("CREATE INDEX ON :Transcript(gff3ID)")
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")

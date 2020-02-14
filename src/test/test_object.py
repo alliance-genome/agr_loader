@@ -189,6 +189,9 @@ class TestObject(object):
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899', 'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202',
             'FB:FBal0104420',
+            # vep transcripts
+            'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590', 'FB:FBgn0031209', 'FBgn0031209',
+            'FBtr0113008', 'FB:FBtr0113008', 'FB:FBal0217157', 'FBal0217157', 'FB:FBal0161914', 'FBal0161914',
 
         }
         self.rgdTestSet = {

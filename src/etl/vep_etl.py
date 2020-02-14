@@ -11,23 +11,23 @@ logger = logging.getLogger(__name__)
 
 
 class VEPETL(ETL):
-    vep_transcript_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    vep_gene_query_template = """
+               USING PERIODIC COMMIT %s
+               LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.transcriptId})
-                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                   MATCH (g:Gene {modLocalId:row.geneId})
+                   MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
 
-                CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
-                SET gc.transcriptLevelConsequence = row.transcriptLevelConsequence,
-                    gc.transcriptId = g.primaryKey,
-                    gc.variantId = a.hgvsNomenclature,
-                    gc.impact = row.impact
+                   CREATE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                   SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                       gc.geneId = g.primaryKey,
+                       gc.variantId = a.hgvsNomenclature,
+                       gc.impact = row.impact
 
-                CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
-                CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                   CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                   CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
 
-                """
+                   """
 
     def __init__(self, config):
         super().__init__()
@@ -50,7 +50,7 @@ class VEPETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [VEPETL.vep_transcript_query_template, commit_size, "vep_tscript_data_" + sub_type.get_data_provider() + ".csv"]
+            [VEPETL.vep_gene_query_template, commit_size, "vep_gene_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -65,8 +65,6 @@ class VEPETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
-        geneId = ''
-        transcriptId = ''
 
         for line in data:
             columns = line.split()
@@ -83,8 +81,6 @@ class VEPETL(ETL):
                             impact = value
                 if columns[3].startswith('Gene:'):
                     geneId = columns[3].lstrip('Gene:')
-                elif columns[3].startswith('Transcript'):
-                    transcriptId = columns[3].lstrip('Transcript')
                 elif columns[3].startswith('RGD:'):
                     geneId = columns[3].lstrip('RGD:')
                 else:
@@ -94,7 +90,7 @@ class VEPETL(ETL):
                               "geneLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
                               "impact": impact,
-                              "transcriptId":transcriptId}
+                              "geneId":geneId}
                 vep_maps.append(vep_result)
 
         yield [vep_maps]

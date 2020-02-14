@@ -78,13 +78,6 @@
             },
             {
                 "dataType": {"id":"1234", "name":"FASTA"},
-                "dataSubType": {"id":"1234", "name":"WBcel235"},
-                "s3Path": "1.0.0.8/FASTA/WBcel235/1.0.0.8_FASTA_WBcel235_1.null",
-                "tempExtractedFile": "1.0.0.8/FASTA/WBcel235/1.0.0.8_FASTA_WBcel235_1.null",
-                "uploadDate": 1522181475376
-            },
-            {
-                "dataType": {"id":"1234", "name":"FASTA"},
                 "dataSubType": {"id":"1234", "name":"GRCz11"},
                 "s3Path": "1.0.0.8/FASTA/GRCz11/1.0.0.8_FASTA_GRCz11_1.null",
                 "tempExtractedFile": "1.0.0.8/FASTA/GRCz11/1.0.0.8_FASTA_GRCz11_1.null",

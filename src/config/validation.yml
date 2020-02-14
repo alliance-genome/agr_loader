@@ -46,6 +46,9 @@ VEPGENE:
 VEP:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
+VEPTRANSCRIPT:
+  type: list
+  allowed: [FB, WB, ZFIN, RGD, MGI]
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
