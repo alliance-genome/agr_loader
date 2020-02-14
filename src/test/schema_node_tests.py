@@ -164,7 +164,8 @@ class TestClass(object):
                             dict(node='Assembly', prop='primaryKey'),
                             dict(node='GenomicLocation', prop='chromosome'),
                             dict(node='GenomicLocation', prop='assembly'),
-                            dict(node='GeneLevelConsequence', prop='geneLevelConsequence')
+                            dict(node='GeneLevelConsequence', prop='geneLevelConsequence'),
+                            dict(node='TranscriptLevelConsequence', prop='geneLevelConsequence'),
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
