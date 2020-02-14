@@ -52,6 +52,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :Gene(modLocalId)")
         session.run("CREATE INDEX ON :Gene(symbol)")
         session.run("CREATE INDEX ON :Gene(gff3ID)")
+        session.run("CREATE INDEX ON :Gene(gff3ID)")
         session.run("CREATE INDEX ON :Gene(taxonId)")
         session.run("CREATE INDEX ON :Construct(primaryKey)")
         session.run("CREATE INDEX ON :Transcript(primaryKey)")
