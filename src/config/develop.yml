@@ -72,8 +72,8 @@ Closure:
   - WBPhenotype
   - MP
   - HP
-Interactions: [MolecularInteraction]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+INTERACTION-MOL: [COMBINED]
+gitGeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.

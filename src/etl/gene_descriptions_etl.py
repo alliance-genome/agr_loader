@@ -401,7 +401,7 @@ class GeneDescriptionsETL(ETL):
             logger.debug(file_to_upload)
             logger.debug(headers)
             logger.debug('Uploading gene description files to FMS ' + context_info.env['FMS_API_URL'])
-            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit/', files=file_to_upload, headers=headers)
+            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit', files=file_to_upload, headers=headers)
             logger.info(response.text)
 
     def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
