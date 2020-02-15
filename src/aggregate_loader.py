@@ -88,7 +88,7 @@ class AggregateLoader(object):
             'VARIATION': VariationETL,
             'SQTR': SequenceTargetingReagentETL,
             'AGM': AffectedGenomicModelETL,
-            #'GFF': TranscriptETL,
+            'GFF': TranscriptETL,
             'GO': GOETL,
             'EXPRESSION': ExpressionETL,
             'ExpressionRibbon': ExpressionRibbonETL,
@@ -102,7 +102,8 @@ class AggregateLoader(object):
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
             'INTERACTION-MOL': MolecularInteractionETL,
             'GeneDescriptions': GeneDescriptionsETL,
-            'VEP': VEPETL
+            'VEP': VEPETL,
+            'VEPTRANSCRIPT': VEPTRANSCRIPTETL
         }
 
         # This is the order in which data types are loaded.
@@ -120,7 +121,7 @@ class AggregateLoader(object):
             ['VARIATION'],
             ['SQTR'],
             ['AGM'],
-            #['GFF'],
+            ['GFF'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
@@ -134,7 +135,8 @@ class AggregateLoader(object):
             ['INTERACTION-MOL'],
             ['Closure'],
             ['GeneDescriptions'],
-            ['VEP']
+            ['VEP'],
+            ['VEPTRANSCRIPT']
         ]
         etl_time_tracker_list = []
 

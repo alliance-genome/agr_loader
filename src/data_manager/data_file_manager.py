@@ -168,6 +168,8 @@ class DataFileManager(metaclass=Singleton):
                 for sub_entry in self.config_data[entry]:
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3Path')
+                    logger.debug(sub_entry)
+                    logger.debug(path)
                     tempExtractedFile = submission_system_dict.get('tempExtractedFile')
                     logger.debug(tempExtractedFile)
                     if tempExtractedFile is None or tempExtractedFile == '':

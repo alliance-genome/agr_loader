@@ -670,6 +670,20 @@ def test_pej_has_agm():
         assert record["counter"] > 0
 
 
+def test_allele_has_description():
+    query = "match (a:Allele)--(cr:CrossReference) where cr.crossRefType = 'allele/references' " \
+            "return count(a) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_allele_has_description():
+    query = "match (a:Allele) where a.description is not null " \
+            "return count(a) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 

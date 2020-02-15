@@ -189,6 +189,10 @@ class TestObject(object):
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899', 'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202',
             'FB:FBal0104420',
+            # vep transcripts
+            'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590', 'FB:FBgn0031209', 'FBgn0031209',
+            'FBtr0113008', 'FB:FBtr0113008', 'FB:FBal0217157', 'FBal0217157', 'FB:FBal0161914', 'FBal0161914',
+            'FBgn0031721', 'FB:FBgn0031721', 'FBgn0004620', 'FB:FBgn0004620',
 
         }
         self.rgdTestSet = {
@@ -205,7 +209,8 @@ class TestObject(object):
             'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787', 'RGD:621409',
             # variant consequences
             'RGD:1310046', 'RGD:69305', 'RGD:1589755', 'RGD:1307511', 'RGD:3889', 'RGD:13437613', 'RGD:1600311',
-            'RGD:5143979', 'FB:FBal0104420'
+            'RGD:5143979', 'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982', 'FB:FBal0192199', 'FB:FBal0318459',
+            'FB:FBal0355408', 'FB:FBal0355731', 'FB:FBal0355732',
         }
 
         self.humanTestSet = {

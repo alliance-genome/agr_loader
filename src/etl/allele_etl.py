@@ -325,7 +325,7 @@ class AlleleETL(ETL):
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page == 'allele':
+                            if page == 'allele' or page == 'allele/references':
                                 modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId

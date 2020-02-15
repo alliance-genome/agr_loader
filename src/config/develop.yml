@@ -72,9 +72,12 @@ Closure:
   - WBPhenotype
   - MP
   - HP
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 INTERACTION-MOL: [COMBINED]
-gitGeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEP: [FB, WB, ZFIN, RGD, MGI]
+VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!

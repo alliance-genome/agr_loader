@@ -30,7 +30,7 @@ class TestClass(object):
                                      dict(relationship='IS_REGULATED_BY'),
                                      dict(relationship='COMPUTED_GENE'),
                                      dict(relationship='CONTAINS'),
-                                     #dict(relationship='TRANSCRIPT'),
+                                     dict(relationship='TRANSCRIPT'),
                                      dict(relationship='IS_MODEL_OF'),
                                      dict(relationship='IS_IMPLICATED_IN'),
                                      dict(relationship='IS_MARKER_FOR')
@@ -80,7 +80,7 @@ class TestClass(object):
                              dict(node='GenomicLocation'),
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
-                             #dict(node='Transcript')
+                             dict(node='Transcript')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -164,7 +164,8 @@ class TestClass(object):
                             dict(node='Assembly', prop='primaryKey'),
                             dict(node='GenomicLocation', prop='chromosome'),
                             dict(node='GenomicLocation', prop='assembly'),
-                            dict(node='GeneLevelConsequence', prop='geneLevelConsequence')
+                            dict(node='GeneLevelConsequence', prop='geneLevelConsequence'),
+                            dict(node='TranscriptLevelConsequence', prop='transcriptLevelConsequence'),
                             ],
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),

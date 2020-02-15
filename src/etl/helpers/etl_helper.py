@@ -36,8 +36,8 @@ class ETLHelper(object):
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName,
-                     id.curatedDB = row.curatedDB,
-                     id.loadedDB = row.loadedDB
+                     id.curatedDB = apoc.convert.toBoolean(row.curatedDB),
+                     id.loadedDB = apoc.convert.toBoolean(row.loadedDB)
 
                 MERGE (o)-[gcr:ANNOTATION_SOURCE_CROSS_REFERENCE]->(id) """
 

@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import uuid
 from etl import ETL
+import re
 
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -28,7 +29,8 @@ class TranscriptETL(ETL):
                 MATCH (so:SOTerm {name: row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
-                    ON CREATE SET t.gff3ID = row.gff3ID
+                    ON CREATE SET t.gff3ID = row.gff3ID,
+                        t.dataProvider = row.dataProvider
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
                MERGE (g)<-[gt:TRANSCRIPT]-(t)
@@ -105,6 +107,7 @@ class TranscriptETL(ETL):
         with open(filepath) as f:
             tscriptMaps = []
             counter = 0
+            dataProvider = ''
             assembly = ''
             for line in f:
                 counter = counter + 1
@@ -112,65 +115,72 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
-                columns = line.split()
-                if columns[0].startswith('#!'):
-                    if columns[0] == '#!assembly':
-                        assembly = columns[1]
-                        transcriptMap.update({'assembly':assembly})
-                elif columns[0].startswith('#'):
+                if line.startswith('#!'):
+                    headerColumns = line.split()
+                    if line.startswith('#!assembly'):
+                        assembly = headerColumns[1]
+
+                    elif line.startswith('#!data-source '):
+                        dataProvider = headerColumns[1]
+                        if dataProvider == 'FlyBase':
+                            dataProvider = 'FB'
+                        if dataProvider == 'WormBase':
+                            dataProvider = 'WB'
+                        logger.info("datasource " + headerColumns[1])
+                elif line.startswith('#'):
                     continue
                 else:
-
+                    columns = re.split(r'\t', line)
                     featureTypeName = columns[2]
-                    if featureTypeName in possibleTscriptTypes or featureTypeName == 'gene':
-                        notes = columns[8]
-                        kvpairs = notes.split(";")
+                    if featureTypeName in possibleTypes or featureTypeName == 'gene':
+                        column8 = columns[8]
+                        notes = "_".join(column8.split())
+                        kvpairs = re.split(';', notes)
+                        #kvpairs = notes.split(";")
                         if kvpairs is not None:
-                            for pair in kvpairs:
-                                key = pair.split("=")[0]
-                                value = pair.split("=")[1]
-                                if key == 'ID':
-                                    gff3ID = value
-                                if key == 'gene_id':
-                                    gene_id = value
-                                if key == 'Parent':
-                                    parent = value
-                                #if key == 'Alias':
-                                #    aliases = value.split(',')
-                                #    transcriptMap.update({'aliases' : aliases})
-                                #if key == 'SecondaryIds':
-                                #    secIds = value.split(',')
-                                #    transcriptMap.update({'secIds' : secIds})
-                                if key == 'curie':
-                                    curie = value
 
-                            # gene: curie = RGD:1309770 ID=RGD:1309770
-                            # transcript: Parent=RGD:1309770
+                            for pair in kvpairs:
+                                if "=" in pair:
+                                    key = pair.split("=")[0]
+                                    value = pair.split("=")[1]
+                                    if key == 'ID':
+                                        gff3ID = value
+                                    if key == 'gene_id':
+                                        gene_id = value
+                                    if key == 'Parent':
+                                        parent = value
+                                    #if key == 'Alias':
+                                       #aliases = value.split(',')
+                                #       transcriptMap.update({'aliases' : aliases})
+                                #       if key == 'SecondaryIds':
+                                #           secIds = value.split(',')
+                                #           transcriptMap.update({'secIds' : secIds})
+                                    if key == 'curie':
+                                        curie = value
+                                # gene: curie = RGD:1309770 ID=RGD:1309770
 
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
-                            if self.testObject.using_test_data() is True:
+                                if self.testObject.using_test_data() is True:
 
-                                is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
-
-                                if is_it_test_entry is False:
-                                    is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
+                                    is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
 
                                         if is_it_test_entry is False:
-                                            counter = counter - 1
-                                        continue
+                                            is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
 
-                                if is_it_test_entry:
-                                    logger.info(curie)
-                                    logger.info(featureTypeName)
+                                            if is_it_test_entry is False:
+                                                counter = counter - 1
+                                            continue
+
                             transcriptMap.update({'curie' : curie})
+
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
                             transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
@@ -179,10 +189,10 @@ class TranscriptETL(ETL):
                             transcriptMap.update({'start':columns[3]})
                             transcriptMap.update({'end':columns[4]})
                             transcriptMap.update({'assembly': assembly})
+                            transcriptMap.update({'dataProvider': dataProvider})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
-                            logger.info(transcriptMap)
                             tscriptMaps.append(transcriptMap)
 
 
