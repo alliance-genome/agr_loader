@@ -144,7 +144,7 @@ class BGIETL(ETL):
         thread_pool = []
 
         query_tracking_list = multiprocessing.Manager().list()
-        for sub_type in self.data_type_config.get_sub_type_objects
+        for sub_type in self.data_type_config.get_sub_type_objects():
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, query_tracking_list))
             p.start()
             thread_pool.append(p)
