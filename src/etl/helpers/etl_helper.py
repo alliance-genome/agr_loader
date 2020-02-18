@@ -284,7 +284,7 @@ class ETLHelper(object):
             'RGD': '10116',
             'SGD': '559292',
             'FB': '7227',
-            'Human': '9606'
+            'HUMAN': '9606'
         }
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
