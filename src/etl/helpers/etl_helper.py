@@ -269,7 +269,7 @@ class ETLHelper(object):
             '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
-            '9606': 'Human'
+            '9606': 'HUMAN'
         }
 
         return taxon_mod_dict[taxon_id]
