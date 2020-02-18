@@ -42,7 +42,7 @@ ONTOLOGY:
   - MP
   - HP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]

@@ -86,7 +86,7 @@ ExpressionAtlas:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, Human]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
