@@ -269,7 +269,7 @@ class ETLHelper(object):
             '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
-            '9606': 'Human'
+            '9606': 'HUMAN'
         }
 
         return taxon_mod_dict[taxon_id]
@@ -284,7 +284,7 @@ class ETLHelper(object):
             'RGD': '10116',
             'SGD': '559292',
             'FB': '7227',
-            'Human': '9606'
+            'HUMAN': '9606'
         }
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
