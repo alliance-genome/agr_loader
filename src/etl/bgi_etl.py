@@ -143,14 +143,21 @@ class BGIETL(ETL):
 
         thread_pool = []
 
+        query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type, query_tracking_list))
             p.start()
             thread_pool.append(p)
 
         ETL.wait_for_threads(thread_pool)
+
+        queries = []
+        for item in query_tracking_list:
+            queries.append(item)
+            
+        Neo4jTransactor.execute_query_batch(queries)
     
-    def _process_sub_type(self, sub_type):
+    def _process_sub_type(self, sub_type, query_tracking_list):
         
         logger.info("Loading BGI Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
@@ -184,7 +191,9 @@ class BGIETL(ETL):
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+
+        for item in query_and_file_list:
+            query_tracking_list.append(item)
 
         logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
