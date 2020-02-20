@@ -95,15 +95,19 @@ class MolecularInteractionETL(ETL):
 
         generators = self.get_generators(filepath, batch_size)
 
-        query_list = [
+        all_query_list = [
                      [MolecularInteractionETL.query_template, commit_size, "mol_int_data.csv"],
                      [MolecularInteractionETL.query_xref, commit_size, "mol_int_xref.csv"],
                      [MolecularInteractionETL.query_mod_xref, commit_size, "mol_int_MOD_xref.csv"]
                      ]
+        just_mol_int_list = [
+            [MolecularInteractionETL.query_template, commit_size, "mol_int_data.csv"]
+        ]
 
-        query_and_file_list = self.process_query_params(query_list)
-        CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        query_list = self.process_query_params(all_query_list)
+        CSVTransactor.save_file_static(generators, query_list)
+        just_mol_ints = self.process_query_params(just_mol_int_list)
+        Neo4jTransactor.execute_query_batch(just_mol_ints)
 
     def populate_genes(self):
 
