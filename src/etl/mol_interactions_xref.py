@@ -21,8 +21,8 @@ class MolInteractionsXrefETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:row.dataId})
-            MATCH (c:CrossReference {globalCrossRefId:row.globalCrossRefId})
+            MATCH (o:InteractionGeneJoin:Association {primaryKey:row.reference_uuid})
+            MATCH (c:CrossReference {primaryKey:row.primaryKey})
             
             MERGE (o)-[oc:CROSS_REFERENCE]-(c)
             

@@ -19,7 +19,6 @@ class ETLHelper(object):
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName
-
                 """
 
     @staticmethod
