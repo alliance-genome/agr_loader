@@ -123,7 +123,6 @@ class DiseaseETL(ETL):
                     dga.joinType = row.relationshipType
 
 
-
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
             MERGE (dga)-[dadg:ASSOCIATION]->(d)
 

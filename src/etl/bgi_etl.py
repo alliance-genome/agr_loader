@@ -109,9 +109,28 @@ class BGIETL(ETL):
               ON CREATE SET spec.species = row.species, 
                             spec.name = row.species,
                             spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
+ """
 
-            MERGE (o)-[:FROM_SPECIES]->(spec)
-            MERGE (o)-[:LOADED_FROM]->(l) """
+    basic_gene_load_relations_query_template = """
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+        MATCH (l:Load {primaryKey:row.loadKey})
+        MATCH (g:Gene {primaryKey: row.primaryId})
+        MERGE (o)-[:LOADED_FROM]->(l) 
+    
+    """
+
+    basic_gene_species_relations_query_template = """
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+        MATCH (spec:Species {primaryKey: row.taxonId})
+        MATCH (g:Gene {primaryKey: row.primaryId})
+
+        MERGE (o)-[:FROM_SPECIES]->(spec)
+
+    """
 
     xrefs_template = """
 
@@ -191,6 +210,8 @@ class BGIETL(ETL):
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.basic_gene_load_relations_query_template, commit_size, "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.basic_gene_species_relations_query_template, commit_size, "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.soterms_template, commit_size, "gene_soterms_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.chromosomes_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
@@ -475,7 +496,7 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size: # only sending unique chromosomes, hense empty list here.
                 counter = 0
-                yield [gene_metadata, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
+                yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
@@ -486,4 +507,4 @@ class BGIETL(ETL):
                 xrefRelations = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
+            yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]

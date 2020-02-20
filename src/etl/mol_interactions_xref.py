@@ -14,7 +14,7 @@ class MolInteractionsXrefETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         // This needs to be a MERGE below.
-        MATCH (o:InteractionGeneJoin:Association {primaryKey:row.reference_uuid}) """ + ETLHelper.get_cypher_xref_text_interactions()
+        MATCH (o:InteractionGeneJoin:Association {primaryKey:row.reference_uuid}) """ + ETLHelper.get_cypher_xref_text()
 
     xrefs_relationships_template = """
     
