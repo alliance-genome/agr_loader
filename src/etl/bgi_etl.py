@@ -120,6 +120,19 @@ class BGIETL(ETL):
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
+    xrefs_relationships_template = """
+    
+        USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Gene {primaryKey:row.dataId})
+            MATCH (c:CrossReference {globalCrossRefId:row.globalCrossRefId})
+            
+            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
+            
+    """ + ETLHelper.merge_crossref_relationships()
+
+
     gene_metadata_template = """
 
         USING PERIODIC COMMIT %s
@@ -183,6 +196,7 @@ class BGIETL(ETL):
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.xrefs_relationships_template, commit_size, "gene_crossReferences_relationships_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -204,6 +218,7 @@ class BGIETL(ETL):
         synonyms = []
         secondaryIds = []
         crossReferences = []
+        xrefRelations = []
         genomicLocations = []
         genomicLocationBins = []
         gene_dataset = []
@@ -320,6 +335,7 @@ class BGIETL(ETL):
                                 xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
+                                xrefRelations.append(xrefMap)
 
                         else:
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
@@ -459,7 +475,7 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size: # only sending unique chromosomes, hense empty list here.
                 counter = 0
-                yield [gene_metadata, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, synonyms]
+                yield [gene_metadata, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
@@ -467,6 +483,7 @@ class BGIETL(ETL):
                 genomicLocations = []
                 crossReferences = []
                 geneToSoTerms = []
+                xrefRelations = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, synonyms]
+            yield [gene_metadata, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]

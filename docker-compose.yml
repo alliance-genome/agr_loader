@@ -3,7 +3,7 @@ version: "3.2"
 services:
   neo4j:
     container_name: neo4j
-    image: agrdocker/agr_neo4j_env:latest
+    image: agrdocker/agr_neo4j_env:neo_test
     volumes:
       - type: volume
         source: agr_data_share
@@ -17,7 +17,6 @@ services:
       - esnet
     environment:
       - NEO4J_dbms_memory_heap_maxSize=8000m
-      - NEO4J_dbms_memory_heap_initialSize=2000m
       - NEO4J_dbms_memory_pagecache_size=8000m
 
   agr_loader:

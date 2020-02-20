@@ -64,7 +64,7 @@ class MolecularInteractionETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         // This needs to be a MERGE below.
-        MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid """ + ETLHelper.get_cypher_xref_text()        
+        MATCH (o:InteractionGeneJoin:Association) WHERE o.primaryKey = row.reference_uuid """ + ETLHelper.get_cypher_xref_text()
 
     query_mod_xref = """
 
