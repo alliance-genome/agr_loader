@@ -29,7 +29,7 @@ class DiseaseETL(ETL):
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            SET rel.uuid = row.diseaseUniqueKey 
+            SET rel.uuid = row.diseaseUniqueKey
             REMOVE rel.noOp
             
             //This is an intentional MERGE, please leave as is
@@ -39,8 +39,6 @@ class DiseaseETL(ETL):
                               dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType
                               
-
-
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
 

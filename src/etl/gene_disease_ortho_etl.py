@@ -27,20 +27,16 @@ class GeneDiseaseOrthoETL(ETL):
                     SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10
 
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
+                 CALL apoc.create.relationship(d, row.relationType, {}, gene) yield rel
                     SET fafg.dataProvider = "Alliance",
                         fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'biomarker_via_orthology')
-
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_IMPLICATED_IN' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'implicated_via_orthology')
+                        dga.joinType = row.relationTypeLower
+                    REMOVE rel.noOp
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
-                    SET pubEJ.joinType = 'pub_evidence_code_join'
+                    SET pubEJ.joinType = 'pub_evidence_code_join',
+                         pubEJ.dateProduced = row.dateProduced
+                        
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
                 MERGE (dga)-[dadg:ASSOCIATION]->(d)
@@ -121,14 +117,19 @@ class GeneDiseaseOrthoETL(ETL):
         returnSet = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
 
         gene_disease_ortho_data = []
-
+        relationType = ""
         for record in returnSet:
+            if record['relationType'] == 'IS_IMPLICATED_IN':
+                relationType = 'IMPLICATED_VIA_ORTHOLOGY'
+            elif record['relationType'] == 'IS_MARKER_FOR':
+                relationType = 'BIOMARKER_VIA_ORTHOLOGY'
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
-                    relationshipType=record["relationType"],
+                    relationshipType=relationType,
+                    relationTypeLower=relationType.lower(),
                     doId=record["doId"],
                     dateProduced=datetime.now(),
-                    uuid=record["geneID"]+record["relationType"]+record["doId"],
+                    uuid=record["geneID"]+record["fromGeneID"]+relationType+record["doId"],
                     pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
