@@ -356,7 +356,6 @@ class BGIETL(ETL):
                                 xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, page, page, displayName, crossRefCompleteUrl, globalXrefId+page)
                                 xrefMap['dataId'] = primary_id
                                 crossReferences.append(xrefMap)
-                                xrefRelations.append(xrefMap)
 
                         else:
                             if prefix == 'PANTHER':  # TODO handle in the resourceDescriptor.yaml
@@ -496,7 +495,7 @@ class BGIETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size: # only sending unique chromosomes, hense empty list here.
                 counter = 0
-                yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
+                yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, [], secondaryIds, genomicLocations, crossReferences, crossReferences, synonyms]
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
@@ -507,4 +506,4 @@ class BGIETL(ETL):
                 xrefRelations = []
 
         if counter > 0:
-            yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, xrefRelations, synonyms]
+            yield [gene_metadata, gene_dataset, gene_dataset, gene_dataset, geneToSoTerms, chromosomes.values(), secondaryIds, genomicLocations, crossReferences, crossReferences, synonyms]

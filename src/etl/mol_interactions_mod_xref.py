@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from .helpers import ResourceDescriptorHelper2, ETLHelper
+from .helpers import ETLHelper
 from etl import ETL
 from transactors import Neo4jTransactor
 
