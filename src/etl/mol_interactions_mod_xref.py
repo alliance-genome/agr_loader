@@ -13,7 +13,7 @@ class MolInteractionsModXrefETL(ETL):
     USING PERIODIC COMMIT %s
     LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+        MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
 
     xrefs_relationships_template = """
 
@@ -21,7 +21,7 @@ class MolInteractionsModXrefETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId})
-            MATCH (c:CrossReference {globalCrossRefId:row.globalCrossRefId})
+            MATCH (c:CrossReference:Identifier {primaryKey:row.primaryKey})
 
             MERGE (o)-[oc:CROSS_REFERENCE]-(c)
 

@@ -116,8 +116,8 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
         MATCH (l:Load {primaryKey:row.loadKey})
-        MATCH (g:Gene {primaryKey: row.primaryId})
-        MERGE (o)-[:LOADED_FROM]->(l) 
+        MATCH (g:Gene {primaryKey:row.primaryId})
+        MERGE (g)-[:LOADED_FROM]->(l) 
     
     """
 
@@ -128,7 +128,7 @@ class BGIETL(ETL):
         MATCH (spec:Species {primaryKey: row.taxonId})
         MATCH (g:Gene {primaryKey: row.primaryId})
 
-        MERGE (o)-[:FROM_SPECIES]->(spec)
+        MERGE (g)-[:FROM_SPECIES]->(spec)
 
     """
 
@@ -137,7 +137,7 @@ class BGIETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
 
     xrefs_relationships_template = """
     
@@ -145,7 +145,7 @@ class BGIETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId})
-            MATCH (c:CrossReference {globalCrossRefId:row.globalCrossRefId})
+            MATCH (c:CrossReference {primaryKey:row.primaryKey})
             
             MERGE (o)-[oc:CROSS_REFERENCE]-(c)
             

@@ -19,8 +19,26 @@ class ETLHelper(object):
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName
+                
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
                 """
 
+
+    @staticmethod
+    def get_cypher_xref_tuned_text():
+        return """
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.id,
+                     id.globalCrossRefId = row.globalCrossRefId,
+                     id.localId = row.localId,
+                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                     id.prefix = row.prefix,
+                     id.crossRefType = row.crossRefType,
+                     id.uuid = row.uuid,
+                     id.page = row.page,
+                     id.primaryKey = row.primaryKey,
+                     id.displayName = row.displayName
+                     """
     @staticmethod
     def merge_crossref_relationships():
         return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
