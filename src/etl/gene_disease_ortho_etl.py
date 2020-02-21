@@ -23,15 +23,15 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
-                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    SET dga.dataProvider = 'Alliance',
-                                  dga.sortOrder = 10
-
-                 CALL apoc.create.relationship(d, row.relationType, {}, gene) yield rel
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = row.relationTypeLower
+                 CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                    SET rel.dataProvider = "Alliance",
+                        rel.dateProduced = row.dateProduced
                     REMOVE rel.noOp
+
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
+                    ON CREATE SET dga.dataProvider = 'Alliance',
+                                  dga.sortOrder = 10,
+                        dga.joinType = row.relationshipTypeLower
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join',
