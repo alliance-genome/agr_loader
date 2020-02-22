@@ -84,6 +84,7 @@ class TestObject(object):
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
             'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
+            'SGD:S000004802', 'SGD:S000005844',
             # expression
             'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions

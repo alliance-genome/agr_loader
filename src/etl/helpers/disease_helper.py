@@ -84,7 +84,14 @@ class DiseaseHelper(object):
                 ecodes = diseaseRecord['evidence'].get('evidenceCodes')
 
             doId = diseaseRecord.get('DOid')
-            diseaseUniqueKey = primaryId+doId+diseaseAssociationType
+
+            diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
+                               diseaseRecord['objectRelation'].get("associationType").upper()
+
+            if 'with' in diseaseRecord:
+                withRecord = diseaseRecord.get('with')
+                for rec in withRecord:
+                    diseaseUniqueKey = diseaseUniqueKey + rec
 
             if 'primaryGeneticEntityIDs' in diseaseRecord:
                 pgeIds = diseaseRecord.get('primaryGeneticEntityIDs')

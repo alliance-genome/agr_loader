@@ -31,7 +31,7 @@ class GeneDiseaseOrthoETL(ETL):
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
                     ON CREATE SET dga.dataProvider = 'Alliance',
                                   dga.sortOrder = 10,
-                        dga.joinType = row.relationshipTypeLower
+                                  dga.joinType = row.relationTypeLower
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join',

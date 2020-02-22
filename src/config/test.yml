@@ -1,12 +1,8 @@
 schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ONTOLOGY:
-  - SO
-  - DOID
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
+
+VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
+VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!
