@@ -10,8 +10,9 @@ from transactors import Neo4jTransactor
 class MolInteractionsXrefETL(ETL):
 
     query_xref = """
+        PROFILE
         USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row WITH row LIMIT 0
 
         // This needs to be a MERGE below.
         MATCH (o:InteractionGeneJoin:Association {primaryKey:row.reference_uuid}) """ + ETLHelper.get_cypher_xref_tuned_text()
