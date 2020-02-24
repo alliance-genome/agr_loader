@@ -101,8 +101,6 @@ class AggregateLoader(object):
             'GeoXref': GeoXrefETL,
             'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
             'INTERACTION-MOL': MolecularInteractionETL,
-            'INTERACTION-XREF': MolInteractionsXrefETL,
-            'INTERACTION-MOD-XREF': MolInteractionsModXrefETL,
             'GeneDescriptions': GeneDescriptionsETL,
             'VEP': VEPETL,
             'VEPTRANSCRIPT': VEPTRANSCRIPTETL
@@ -135,8 +133,6 @@ class AggregateLoader(object):
             ['GeoXref'],  # Locks Genes
             ['GeneDiseaseOrtho'],
             ['INTERACTION-MOL'],
-            ['INTERACTION-XREF'],
-            ['INTERACTION-MOD-XREF'],
             ['Closure'],
             ['GeneDescriptions'],
             ['VEP'],
