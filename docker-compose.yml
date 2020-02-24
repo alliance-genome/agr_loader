@@ -3,7 +3,7 @@ version: "3.2"
 services:
   neo4j:
     container_name: neo4j
-    image: agrdocker/agr_neo4j_env:neo_test
+    image: agrdocker/agr_neo4j_env:latest
     volumes:
       - type: volume
         source: agr_data_share
