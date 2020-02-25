@@ -332,9 +332,6 @@ class DiseaseETL(ETL):
                                 "diseaseUniqueKey": diseaseUniqueKey,
                                 "withD": rec
                             }
-                            if diseaseRecord.get('objectId')=='SGD:S000005844':
-                                logger.info (rec)
-                                logger.info(withMap)
                             withs.append(withMap)
 
 
