@@ -25,7 +25,8 @@ class GeneDiseaseOrthoETL(ETL):
 
                  CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
                     SET rel.dataProvider = "Alliance",
-                        rel.dateProduced = row.dateProduced
+                        rel.dateProduced = row.dateProduced,
+                        rel.dateAssigned = row.dateAssigned
                     REMOVE rel.noOp
 
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
@@ -35,7 +36,8 @@ class GeneDiseaseOrthoETL(ETL):
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join',
-                         pubEJ.dateProduced = row.dateProduced
+                         pubEJ.dateProduced = row.dateProduced,
+                        rel.dateAssigned = row.dateAssigned
                         
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -131,6 +133,7 @@ class GeneDiseaseOrthoETL(ETL):
                     dateProduced=datetime.now(),
                     uuid=record["geneID"]+record["fromGeneID"]+relationType+record["doId"],
                     pubEvidenceUuid=str(uuid.uuid4()))
+            logger.info(uuid)
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

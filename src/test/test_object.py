@@ -37,7 +37,7 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             'MGI:95832', 'MGI:2387629', 'MGI:2446564', 'MGI:2446568', 'MGI:1860955', 'MGI:1860970', 'MGI:2384499',
-            'MGI:2388016', 'MGI:2151016',
+            'MGI:2388016', 'MGI:2151016', 'MGI:1328362',
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
@@ -65,7 +65,7 @@ class TestObject(object):
             'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
-            'WB:WBGene00004488', 'WB:WBGene00000898',
+            'WB:WBGene00004488', 'WB:WBGene00000898', 'WB:WBGene00001865',
             # gene descriptions
             'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
             'WB:WBVar00239315',
@@ -84,7 +84,7 @@ class TestObject(object):
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
             'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
-            'SGD:S000004802', 'SGD:S000005844',
+            'SGD:S000004802', 'SGD:S000005844', 'SGD:S000004802', 'SGD:S000004802',
             # expression
             'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions
@@ -185,6 +185,7 @@ class TestObject(object):
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499', 'FB:FBgn0025790',
+            'FB:FBgn0002906',
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
             # variants
@@ -222,7 +223,8 @@ class TestObject(object):
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
-            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7',
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884',
+            'HGNC:1058', 'HGNC:3569', 'HGBC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526', 'HGNC:10996', 'HGNC:16496', 'HGNC:10998',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,
