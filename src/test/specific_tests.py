@@ -686,6 +686,16 @@ def test_allele_has_description():
         assert record["counter"] > 0
 
 
+def test_SGD_gene_has_dej_with_many_orthologous_genes():
+    query = "match (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene) " \
+            "where dej.primaryKey = 'SGD:S000005844DOID:14501IS_IMPLICATED_INHGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998' "\
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 6
+
+
+
 
 
 

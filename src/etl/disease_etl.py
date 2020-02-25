@@ -332,10 +332,11 @@ class DiseaseETL(ETL):
                                 "diseaseUniqueKey": diseaseUniqueKey,
                                 "withD": rec
                             }
+                            if diseaseRecord.get('objectId')=='SGD:S000005844':
+                                logger.info (rec)
+                                logger.info(withMap)
                             withs.append(withMap)
 
-                        logger.info("recid added to unique key")
-                        logger.info(diseaseUniqueKey)
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
