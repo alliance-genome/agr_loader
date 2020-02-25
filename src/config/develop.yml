@@ -11,7 +11,7 @@ GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, WB, ZFIN, MGI]
+GFF: [FB, WB, ZFIN, MGI, RGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
@@ -72,20 +72,16 @@ Closure:
   - WBPhenotype
   - MP
   - HP
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEP: [FB, WB, ZFIN, RGD, MGI]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
+VEP: [FB, WB, ZFIN, RGD, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
 
 
 

@@ -127,6 +127,12 @@ Closure:
 INTERACTION-MOL:
   type: list
   allowed: [COMBINED]
+INTERACTION-XREF:
+  type: list
+  allowed: [COMBINED]
+INTERACTION-MOD-XREF:
+  type: list
+  allowed: [COMBINED]
 GeneDescriptions:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]

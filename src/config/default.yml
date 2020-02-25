@@ -82,4 +82,3 @@ VEP: [FB, WB, ZFIN, RGD, MGI]
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-

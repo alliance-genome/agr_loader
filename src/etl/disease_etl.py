@@ -29,19 +29,16 @@ class DiseaseETL(ETL):
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             
             CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            SET rel.uuid = row.diseaseUniqueKey 
+            SET rel.uuid = row.diseaseUniqueKey
             REMOVE rel.noOp
             
             //This is an intentional MERGE, please leave as is
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
-                              dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType
                               
-
-
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
 
@@ -54,7 +51,8 @@ class DiseaseETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
 
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                pubEJ.dateAssigned = row.dateAssigned
 
             MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -79,7 +77,6 @@ class DiseaseETL(ETL):
             
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
-                              dfa.dateAssigned = row.dateAssigned,
                               dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType
 
@@ -98,7 +95,8 @@ class DiseaseETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                pubEJ.dateAssigned = row.dateAssigned
             
             MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
@@ -118,10 +116,8 @@ class DiseaseETL(ETL):
             
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider,
-                    dga.dateAssigned = row.dateAssigned,
                     dga.sortOrder = 1,
                     dga.joinType = row.relationshipType
-
 
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -136,7 +132,8 @@ class DiseaseETL(ETL):
                     pubg.pubMedUrl = row.pubMedUrl
             
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-            ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+            ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                pubEJ.dateAssigned = row.dateAssigned
 
             MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -276,7 +273,9 @@ class DiseaseETL(ETL):
                              "ecode": ecode}
                 self.evidence_code_list_to_yield.append(ecode_map)
 
-            diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
+
+            if diseaseRecord.get('with'):
+                diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
                                diseaseRecord['objectRelation'].get("associationType").upper()
 
             if disease_record.get('pgeIds') is not None:
@@ -372,23 +371,23 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
+                                           diseaseRecord['objectRelation'].get("associationType").upper()
 
+                    if 'with' in diseaseRecord:
+                        withRecord = diseaseRecord.get('with')
+                        for rec in withRecord:
+                            diseaseUniqueKey = diseaseUniqueKey+rec
+                            withMap = {
+                                "diseaseUniqueKey": diseaseUniqueKey,
+                                "withD": rec
+                            }
+                            withs.append(withMap)
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
                             pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
-
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
-                                "withD": rec
-                            }
-                            withs.append(withMap)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:
@@ -432,9 +431,17 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
+                                           diseaseRecord['objectRelation'].get("associationType").upper()
 
-
+                    if 'with' in diseaseRecord:
+                        withRecord = diseaseRecord.get('with')
+                        for rec in withRecord:
+                            diseaseUniqueKey = diseaseUniqueKey+rec
+                            withMap = {
+                                "diseaseUniqueKey": diseaseUniqueKey,
+                                "withD": rec
+                            }
+                            withs.append(withMap)
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
@@ -442,14 +449,6 @@ class DiseaseETL(ETL):
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
-                                "withD": rec
-                            }
-                            withs.append(withMap)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:
@@ -490,22 +489,23 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
                     diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
+                                           diseaseRecord['objectRelation'].get("associationType").upper()
+
+                    if 'with' in diseaseRecord:
+                        withRecord = diseaseRecord.get('with')
+                        for rec in withRecord:
+                            diseaseUniqueKey = diseaseUniqueKey+rec
+                            withMap = {
+                                "diseaseUniqueKey": diseaseUniqueKey,
+                                "withD": rec
+                            }
+                            withs.append(withMap)
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
                             pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
-
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
-                                "withD": rec
-                            }
-                            withs.append(withMap)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:

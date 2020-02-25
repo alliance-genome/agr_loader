@@ -37,7 +37,7 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             'MGI:95832', 'MGI:2387629', 'MGI:2446564', 'MGI:2446568', 'MGI:1860955', 'MGI:1860970', 'MGI:2384499',
-            'MGI:2388016'
+            'MGI:2388016', 'MGI:2151016',
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
@@ -84,6 +84,7 @@ class TestObject(object):
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
             'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
+            'SGD:S000004802', 'SGD:S000005844',
             # expression
             'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions

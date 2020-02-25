@@ -27,7 +27,7 @@ def test_isobsolete_false():
 
 
 def test_currated_disease_associations_have_date_assigned():
-    query = "MATCH (n:DiseaseEntityJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(n.dateAssigned)" \
+    query = "MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(p.dateAssigned)" \
             "RETURN COUNT(n) as count"
     result = execute_transaction(query)
     for record in result:
