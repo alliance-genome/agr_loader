@@ -692,7 +692,7 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
             "return count(g) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 6
+        assert record["counter"] == 7
 
 
 
