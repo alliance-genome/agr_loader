@@ -264,56 +264,6 @@ class DiseaseETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    # TODO: get this method working instead of repeating code below -- have to make generator work within a generator.
-    def get_disease_details(self, disease_record, diseaseRecord):
-
-        if disease_record is not None:
-            for ecode in disease_record.get('ecodes'):
-                ecode_map = {"uuid": disease_record.get('uuid'),
-                             "ecode": ecode}
-                self.evidence_code_list_to_yield.append(ecode_map)
-
-
-            if diseaseRecord.get('with'):
-                diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                               diseaseRecord['objectRelation'].get("associationType").upper()
-
-            if disease_record.get('pgeIds') is not None:
-                for pge in disease_record.get('pgeIds'):
-                    pge_map = {"dgeId": diseaseUniqueKey,
-                               "pgeId": pge}
-                    self.pge_list_to_yield.append(pge_map)
-
-            if 'with' in diseaseRecord:
-                withRecord = diseaseRecord.get('with')
-                for rec in withRecord:
-                    withMap = {
-                        "diseaseUniqueKey": diseaseUniqueKey,
-                        "withD": rec
-                    }
-                    self.withs.append(withMap)
-
-            if 'annotationDP' in disease_record:
-                for adp in disease_record['annotationDP']:
-                    crossRefId = adp.get('crossRefId')
-                    pages = adp.get('dpPages')
-                    annotationType = adp.get('annotationType')
-                    local_crossref_id = ""
-                    prefix = crossRefId
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                  self.xrefUrlMap, prefix, page)
-                            xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                           modGlobalCrossRefId, crossRefId + page)
-                            xref['dataId'] = diseaseUniqueKey
-                            if annotationType == 'Loaded':
-                                xref['loadedDB'] = crossRefId
-                            else:
-                                xref['curatedDB'] = crossRefId
-
-                            self.xrefs.append(xref)
-
     def get_generators(self, disease_data, batch_size, data_provider):
         gene_list_to_yield = []
         allele_list_to_yield = []
@@ -377,11 +327,13 @@ class DiseaseETL(ETL):
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
                             diseaseUniqueKey = diseaseUniqueKey+rec
+                        for rec in withRecord:
                             withMap = {
                                 "diseaseUniqueKey": diseaseUniqueKey,
                                 "withD": rec
                             }
                             withs.append(withMap)
+
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
@@ -437,6 +389,7 @@ class DiseaseETL(ETL):
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
                             diseaseUniqueKey = diseaseUniqueKey+rec
+                        for rec in withRecord:
                             withMap = {
                                 "diseaseUniqueKey": diseaseUniqueKey,
                                 "withD": rec
@@ -495,6 +448,7 @@ class DiseaseETL(ETL):
                         withRecord = diseaseRecord.get('with')
                         for rec in withRecord:
                             diseaseUniqueKey = diseaseUniqueKey+rec
+                        for rec in withRecord:
                             withMap = {
                                 "diseaseUniqueKey": diseaseUniqueKey,
                                 "withD": rec
@@ -532,6 +486,7 @@ class DiseaseETL(ETL):
 
                                     xrefs.append(xref)
                 agm_list_to_yield.append(disease_record)
+
 
             if counter == batch_size:
                 yield [allele_list_to_yield, gene_list_to_yield,

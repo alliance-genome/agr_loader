@@ -25,7 +25,8 @@ class GeneDiseaseOrthoETL(ETL):
 
                  CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
                     SET rel.dataProvider = "Alliance",
-                        rel.dateProduced = row.dateProduced
+                        rel.dateProduced = row.dateProduced,
+                        rel.dateAssigned = row.dateAssigned
                     REMOVE rel.noOp
 
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
@@ -35,7 +36,8 @@ class GeneDiseaseOrthoETL(ETL):
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
                     SET pubEJ.joinType = 'pub_evidence_code_join',
-                         pubEJ.dateProduced = row.dateProduced
+                         pubEJ.dateProduced = row.dateProduced,
+                        pubEJ.dateAssigned = row.dateAssigned
                         
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -87,7 +89,7 @@ class GeneDiseaseOrthoETL(ETL):
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
-              MERGE (:ECOTerm {primaryKey:"ECO:0000501"})
+              MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
               
                     """
 
@@ -118,6 +120,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         gene_disease_ortho_data = []
         relationType = ""
+        date = datetime.now()
         for record in returnSet:
             if record['relationType'] == 'IS_IMPLICATED_IN':
                 relationType = 'IMPLICATED_VIA_ORTHOLOGY'
@@ -128,7 +131,8 @@ class GeneDiseaseOrthoETL(ETL):
                     relationshipType=relationType,
                     relationTypeLower=relationType.lower(),
                     doId=record["doId"],
-                    dateProduced=datetime.now(),
+                    dateProduced=date,
+                    dateAssigned=date,
                     uuid=record["geneID"]+record["fromGeneID"]+relationType+record["doId"],
                     pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
