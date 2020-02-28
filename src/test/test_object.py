@@ -51,7 +51,7 @@ class TestObject(object):
             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
             'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
-            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2',
+            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2', 'MGI:3618599', 'MGI:3693208', 'MGI:109196',
         }
 
         self.wormbaseIdSet = {
