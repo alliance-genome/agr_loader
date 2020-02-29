@@ -695,6 +695,13 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
         assert record["counter"] == 7
 
 
+def test_spaw_should_have_disease_genes():
+    query = "match (dej:DiseaseEntityJoin)--(g:Gene) " \
+            "where g.primaryKey = 'ZFIN:ZDB-GENE-030219-1' "\
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 

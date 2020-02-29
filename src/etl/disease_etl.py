@@ -59,6 +59,17 @@ class DiseaseETL(ETL):
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
+    execute_allele_gene_dej_relationship_template ="""
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            // GET PRIMARY DATA OBJECTS
+        MATCH (dej:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+        MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+        MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
+        
+        MERGE (g)-[gadf:ASSOCIATION]->(dej)
+    
+    """
 
     execute_allele_template = """
         USING PERIODIC COMMIT %s
@@ -67,7 +78,7 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
-            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
+           // MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
  
             CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
                         SET rel.uuid = row.diseaseUniqueKey 
@@ -84,7 +95,7 @@ class DiseaseETL(ETL):
             
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
-            MERGE (g)-[gadf:ASSOCIATION]->(dfa)
+           // MERGE (g)-[gadf:ASSOCIATION]->(dfa)
 
             // PUBLICATIONS FOR FEATURE
             
@@ -238,6 +249,8 @@ class DiseaseETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + \
+             sub_type.get_data_provider() + ".csv"],
+            [DiseaseETL.execute_allele_gene_dej_relationship_template, commit_size, "disease_allele_gene_relation_data_" + \
              sub_type.get_data_provider() + ".csv"],
             [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + \
              sub_type.get_data_provider() + ".csv"],
@@ -489,7 +502,7 @@ class DiseaseETL(ETL):
 
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield,
+                yield [allele_list_to_yield, allele_list_to_yield, gene_list_to_yield,
                        agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
                        withs, evidence_code_list_to_yield, xrefs]
                 agm_list_to_yield = []
@@ -502,7 +515,7 @@ class DiseaseETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield,
+            yield [allele_list_to_yield, allele_list_to_yield, gene_list_to_yield,
                    agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
                        withs, evidence_code_list_to_yield, xrefs]
 
