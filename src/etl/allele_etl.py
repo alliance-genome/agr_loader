@@ -102,6 +102,33 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:IS_ALLELE_OF]->(g) """
 
+    allele_no_gene_no_construct_query_template = """
+
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (s:Species {primaryKey: row.taxonId})
+
+            //Create the Allele node and set properties. primaryKey is required.
+            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+                ON CREATE SET o.symbol = row.symbol,
+                 o.taxonId = row.taxonId,
+                 o.dateProduced = row.dateProduced,
+                 o.release = row.release,
+                 o.localId = row.localId,
+                 o.globalId = row.globalId,
+                 o.uuid = row.uuid,
+                 o.symbolText = row.symbolText,
+                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                 o.dataProviders = row.dataProviders,
+                 o.dataProvider = row.dataProvider,
+                 o.symbolWithSpecies = row.symbolWithSpecies,
+                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                 o.description = row.alleleDescription
+
+            MERGE (o)-[:FROM_SPECIES]-(s)
+    """
+
     allele_secondaryids_template = """
 
         USING PERIODIC COMMIT %s
@@ -168,6 +195,7 @@ class AlleleETL(ETL):
             [AlleleETL.allele_gene_no_construct_query_template, commit_size, "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_construct_gene_query_template, commit_size, "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_construct_no_gene_query_template, commit_size, "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_no_gene_no_construct_query_template, commit_size, "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_secondaryids_template, commit_size, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_synonyms_template, commit_size, "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
@@ -184,6 +212,7 @@ class AlleleETL(ETL):
 
         dataProviders = []
         release = ""
+        alleles_no_constrcut_no_gene = []
         alleles_construct_gene = []
         alleles_no_construct = []
         alleles_no_gene =[]
@@ -265,6 +294,7 @@ class AlleleETL(ETL):
                     "constructId": alleleRecord.get('construct')
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
+
             elif construct is not None and gene is None:
                 allele_construct_no_gene_dataset = {
                     "symbol": alleleRecord.get('symbol'),
@@ -310,6 +340,29 @@ class AlleleETL(ETL):
                 }
 
                 alleles_no_construct.append(allele_gene_no_construct_dataset)
+
+            elif gene is None and construct is None:
+                allele_no_gene_no_construct_dataset = {
+                    "symbol": alleleRecord.get('symbol'),
+                    "primaryId": alleleRecord.get('primaryId'),
+                    "globalId": globalId,
+                    "localId": localId,
+                    "taxonId": alleleRecord.get('taxonId'),
+                    "dataProviders": dataProviders,
+                    "dateProduced": dateProduced,
+                    "loadKey": loadKey,
+                    "release": release,
+                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "uuid": str(uuid.uuid4()),
+                    "dataProvider": data_provider,
+                    "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
+                    "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
+                    "symbolText": symbolText,
+                    "alleleDescription": description
+                }
+
+                alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)
+
             else:
                 logger.debug("ERROR: missing construct and gene")
 
@@ -325,7 +378,7 @@ class AlleleETL(ETL):
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page == 'allele' or page == 'allele/references':
+                            if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct':
                                 modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
                                 xref['dataId'] = globalId
@@ -348,10 +401,11 @@ class AlleleETL(ETL):
                     allele_secondaryIds.append(allele_secondaryId)
 
             if counter == batch_size:
-                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
                 alleles_no_construct = []
                 alleles_construct_gene = []
                 alleles_no_gene = []
+                alleles_no_constrcut_no_gene = []
 
                 allele_secondaryIds = []
                 allele_synonyms = []
@@ -359,4 +413,4 @@ class AlleleETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
