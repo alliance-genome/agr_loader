@@ -65,7 +65,8 @@ class TestObject(object):
             'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
-            'WB:WBGene00004488', 'WB:WBGene00000898', 'WB:WBGene00001865',
+            'WB:WBGene00004488', 'WB:WBGene00000898', 'WB:WBGene00001865', 'WB:WBTransgene00001048',
+            'WB:WBCnstr00001039', 'WB:WBStrain00004845',
             # gene descriptions
             'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
             'WB:WBVar00239315',
@@ -73,7 +74,9 @@ class TestObject(object):
             'WB:WBGene00006752', 'WB:WBGene00021840', 'WB:WBGene00001117', 'WB:WBVar00241694', 'WB:WBVar02147569',
             'WB:WBVar00089131',
             # disease
-            'WB:WBGene00011936', 'WB:WBTransgene00004656', 'WB:WBTransgene00004658',
+            'WB:WBGene00011936', 'WB:WBTransgene00004656', 'WB:WBTransgene00004658', 'WB:WBTransgene00004656',
+            'WB:WBTransgene00004658', 'WB:WBTransgene00019002', 'WB:WBStrain00004846', 'WB:WBStrain00007215',
+            'WB:WBVar00275424', 'WB:WBGene00000149',
             # construct
             'WB:WBGene00017738', 'WB:WBCnstr00027061', 'WB:WBCnstr00004638', 'WB:WBGene00002992',
         }
@@ -170,6 +173,9 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-080424-7',
             # Phenotype
             'ZFIN:ZDB-FISH-150901-24820', 'ZFIN:ZDB-ALT-980203-469', 'ZFIN:ZDB-GENE-990415-198',
+            # disease
+            'ZFIN:ZDB-GENE-130530-760', 'ZFIN:ZDB-GENE-040426-2816', 'ZFIN:ZDB-FISH-150901-1536',
+            'ZFIN:ZDB-FISH-180904-5', 'ZFIN:ZDB-FISH-180904-6','ZFIN:ZDB-MRPHLNO-180831-2', 'ZFIN:ZDB-MRPHLNO-180831-1'
 
 
         }
