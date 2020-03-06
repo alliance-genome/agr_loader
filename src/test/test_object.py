@@ -73,9 +73,9 @@ class TestObject(object):
             'WB:WBGene00006752', 'WB:WBGene00021840', 'WB:WBGene00001117', 'WB:WBVar00241694', 'WB:WBVar02147569',
             'WB:WBVar00089131',
             # disease
-            'WB:WBGene00011936',
+            'WB:WBGene00011936', 'WB:WBTransgene00004656', 'WB:WBTransgene00004658',
             # construct
-            'WB:WBGene00017738', 'WB:WBCnstr00027061',
+            'WB:WBGene00017738', 'WB:WBCnstr00027061', 'WB:WBCnstr00004638', 'WB:WBGene00002992',
         }
 
         self.sgdIdSet = {
