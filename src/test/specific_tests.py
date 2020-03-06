@@ -704,7 +704,23 @@ def test_spaw_should_have_disease_genes():
         assert record["counter"] > 0
 
 
+def test_wb_transgene_has_phenotype():
+    query = "match (a:Allele)--(pej:PhenotypeEntityJoin) " \
+            "where a.primaryKey = 'WB:WBTransgene00001048' "\
+            "return count(a) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
+
+def test_wb_gene_has_inferred_from_allele():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(pej:PublicationJoin)--(a:Allele) " \
+            "where g.primaryKey = 'WB:WBGene00000149' " \
+            "and a.primaryKey = 'WB:WBVar00275424'" \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 
