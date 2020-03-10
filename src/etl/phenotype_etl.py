@@ -390,12 +390,12 @@ class PhenoTypeETL(ETL):
                     list_to_yield = []
                     counter = 0
                 elif data_provider =='FB' or data_provider == 'WB':
-                    yield [list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
                 else:
-                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield,list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
@@ -406,4 +406,4 @@ class PhenoTypeETL(ETL):
             elif data_provider == 'FB' or data_provider =='WB':
                 yield [list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
             else:
-                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
