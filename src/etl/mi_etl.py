@@ -1,6 +1,7 @@
-import logging
 import urllib, json
-
+import logging
+from etl.helpers import ETLHelper, OBOHelper
+from files import TXTFile
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -27,7 +28,8 @@ class MIETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        generators = self.get_generators()
+        filepath = self.data_type_config.get_single_filepath()
+        generators = self.get_generators(filepath)
 
         query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
 
@@ -90,45 +92,49 @@ class MIETL(ETL):
         except KeyError:
             return None
 
-    def get_generators(self):
+    def get_generators(self, filepath):
 
-        mi_term_ontology_full = None
+        o_data = TXTFile(filepath).get_data()
+        parsed_line = OBOHelper.parseOBO(o_data)
 
-        # TODO Make size configurable?
-        logger.info('Downloading MI ontology terms via: https://www.ebi.ac.uk/ol/api/ontologies/mi/terms?size=500')
-
-        response = urllib.request.urlopen("https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?size=500")
-
-        mi_term_ontology = json.loads(response.read().decode())
-
-        logger.info('Determining total number of terms and pages to request...')
-        total_terms = mi_term_ontology['page']['totalElements']
-        total_pages = mi_term_ontology['page']['totalPages']
-
-        logger.info('Requesting %s terms over %s pages.' % (total_terms, total_pages))
-
+        counter = 0
         processed_mi_list = []
-        for i in range(total_pages):
-            request_url = 'https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?page=%s&size=500' % (i)
-            logger.info('Retrieving terms from page %s of %s.' % (i+1, total_pages))
 
-            response = urllib.request.urlopen(request_url)
+        for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
-            mi_term_ontology_full = json.loads(response.read().decode())
+            definition = ""
+            defText = None
+            ident = line['id'].strip()
 
-            for term in mi_term_ontology_full['_embedded']['terms']:
-                if term['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
+            definition = line.get('def')
+            if definition is None:
+                definition = ""
+            else:
+                if "\\\"" in definition:  # Looking to remove instances of \" in the definition string.
+                    definition = definition.replace('\\\"', '\"')  # Replace them with just a single "
+                else:
+                    definition = defText
+            if definition is None:
+                definition = ""
 
-                    adjusted_label = self.adjust_database_names(term['label'])
-                    if adjusted_label != term['label']:
-                        logger.info('Updated MI database name: {} -> {}'.format(term['label'], adjusted_label))
+            is_obsolete = line.get('is_obsolete')
+            if is_obsolete is None:
+                is_obsolete = "false"
 
-                    dict_to_append = {
-                            'identifier': term['obo_id'],
-                            'label': adjusted_label,
-                            'definition': self.add_definition(term),
-                            'url': self.add_miterm_url(term['obo_id'])
-                            }
-                    processed_mi_list.append(dict_to_append)
+            if ident is None or ident == '':
+                logger.warn("Missing oid.")
+
+            else:
+                dict_to_append = {
+                    'name': self.adjust_database_names(line.get('name')),
+                    'name_key': self.adjust_database_names(line.get('name')),
+                    'oid': ident,
+                    'identifier': ident,
+                    'definition': definition,
+                    'is_obsolete': is_obsolete,
+                    'label': self.adjust_database_names(line.get('name')),
+                    'url': self.add_miterm_url(ident)
+                }
+                processed_mi_list.append(dict_to_append)
 
         yield [processed_mi_list]
