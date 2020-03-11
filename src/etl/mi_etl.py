@@ -104,7 +104,6 @@ class MIETL(ETL):
             ident = line['id'].strip()
 
             definition = line.get('def')
-            defText = definition
 
             if definition is None:
                 definition = ""

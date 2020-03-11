@@ -16,8 +16,12 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=6000m
-      - NEO4J_dbms_memory_pagecache_size=6000m
+      - NEO4J_dbms_memory_heap_maxSize=24000m
+      - NEO4J_dbms_memory_pagecache_size=24000m
+      - NEO4J_dbms.memory.heap.initial_sizee=24000m
+      - dbms.memory.heap_maxSize=24000m
+      - dbms.memory.pagecache_size=24000m
+      - dbms.memory.heap.initial_sizee=24000m
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest

@@ -404,6 +404,6 @@ class PhenoTypeETL(ETL):
             if data_provider == 'SGD':
                 yield [list_to_yield]
             elif data_provider == 'FB' or data_provider =='WB':
-                yield [list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
             else:
                 yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
