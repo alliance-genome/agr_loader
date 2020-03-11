@@ -50,10 +50,11 @@ class PhenoTypeETL(ETL):
             """
 
     execute_allele_gene_pej_relationship_template = """
+    
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
-        MATCH (pej:PublicationJoin {primaryKey:row.phenotypeUniqueKey})
+        MATCH (pej:PublicationJoin {primaryKey:row.pecjPrimaryKey})
         MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
         MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
@@ -389,12 +390,12 @@ class PhenoTypeETL(ETL):
                     list_to_yield = []
                     counter = 0
                 elif data_provider =='FB' or data_provider == 'WB':
-                    yield [list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
                 else:
-                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield,list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
@@ -405,4 +406,4 @@ class PhenoTypeETL(ETL):
             elif data_provider == 'FB' or data_provider =='WB':
                 yield [list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
             else:
-                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]

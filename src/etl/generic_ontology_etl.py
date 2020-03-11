@@ -198,8 +198,6 @@ class GenericOntologyETL(ETL):
             else:
                 if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
                     definition = definition.replace('\\\"', '\"') # Replace them with just a single "
-                else:
-                    definition = defText
             if definition is None:
                 definition = ""
 
