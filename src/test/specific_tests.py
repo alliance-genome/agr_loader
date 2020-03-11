@@ -748,3 +748,13 @@ def test_mi_term_has_name_flybase():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_mi_term_has_corrected_url():
+    query = "match (o:MITerm) " \
+            "where o.primaryKey = 'MI:0465'" \
+            "and o.url = 'http://dip.doe-mbi.ucla.edu/'" \
+            "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
