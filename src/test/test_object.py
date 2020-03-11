@@ -66,7 +66,7 @@ class TestObject(object):
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
             'WB:WBGene00004488', 'WB:WBGene00000898', 'WB:WBGene00001865', 'WB:WBTransgene00001048',
-            'WB:WBCnstr00001039', 'WB:WBStrain00004845',
+            'WB:WBCnstr00001039', 'WB:WBStrain00004845', 'WB:WBGene00000898', 'WB:WBGene00013817', 'WB:WBGene00004077',
             # gene descriptions
             'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
             'WB:WBVar00239315',
@@ -233,6 +233,7 @@ class TestObject(object):
             # disease
             'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884',
             'HGNC:1058', 'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526', 'HGNC:10996', 'HGNC:16496', 'HGNC:10998',
+            'HGNC:11950',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

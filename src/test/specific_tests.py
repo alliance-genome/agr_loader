@@ -722,8 +722,29 @@ def test_wb_gene_has_inferred_from_allele():
     for record in result:
         assert record["counter"] > 0
 
+# currently WB file is not submitting these, will reactivate when we get a corrected file.
+# def test_wb_genes_have_phenotype():
+#     query = "match (g:Gene)--(pej:PhenotypeEntityJoin)--(pej:PublicationJoin)--(a:Allele) " \
+#             "where g.primaryKey in ['WB:WBGene00000898','WB:WBGene00013817','WB:WBGene00004077']" \
+#             "return count(g) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 2
 
 
+def test_human_gene_has_disease():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin) " \
+            "where g.primaryKey = 'HGNC:11950'" \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
-
+def test_mi_term_has_name_flybase():
+    query = "match (o:MITerm) " \
+            "where o.label = 'FlyBase'" \
+            "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

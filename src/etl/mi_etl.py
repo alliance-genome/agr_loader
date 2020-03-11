@@ -97,23 +97,20 @@ class MIETL(ETL):
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parseOBO(o_data)
 
-        counter = 0
         processed_mi_list = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
-            definition = ""
-            defText = None
             ident = line['id'].strip()
 
             definition = line.get('def')
+            defText = definition
+
             if definition is None:
                 definition = ""
             else:
                 if "\\\"" in definition:  # Looking to remove instances of \" in the definition string.
                     definition = definition.replace('\\\"', '\"')  # Replace them with just a single "
-                else:
-                    definition = defText
             if definition is None:
                 definition = ""
 
