@@ -1,3 +1,7 @@
+'''Disease ETL'''
+
+##TODO need to fix the difference between disaeseRecord and disease_record in original code
+
 import logging
 import multiprocessing
 
@@ -8,10 +12,11 @@ from etl.helpers import Neo4jHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
-logger = logging.getLogger(__name__)
 
 class DiseaseETL(ETL):
+    '''Disease ETL'''
 
+    logger = logging.getLogger(__name__)
 
     execute_annotation_xrefs_template = """
 
@@ -60,7 +65,6 @@ class DiseaseETL(ETL):
 
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
-
 
     execute_allele_template = """
         USING PERIODIC COMMIT %s
@@ -140,8 +144,8 @@ class DiseaseETL(ETL):
 
             MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-
             """
+
     execute_ecode_template = """
     
         USING PERIODIC COMMIT %s
@@ -150,7 +154,6 @@ class DiseaseETL(ETL):
             MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
             MATCH (pubjk:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
             MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
-                
     """
 
     execute_withs_template = """
@@ -205,9 +208,9 @@ class DiseaseETL(ETL):
         thread_pool = []
         
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
@@ -215,24 +218,24 @@ class DiseaseETL(ETL):
 
     def delete_empty_nodes(self):
 
-        logger.debug("delete empty nodes")
+        self.logger.debug("delete empty nodes")
 
-        deleteEmptyDONodes = """
+        delete_empty_do_nodes = """
                 MATCH (dd:DOTerm) WHERE keys(dd)[0] = 'primaryKey' and size(keys(dd)) = 1
                 DETACH DELETE (dd)
         """
 
-        Neo4jHelper.run_single_query(deleteEmptyDONodes)
+        Neo4jHelper.run_single_query(delete_empty_do_nodes)
 
     def _process_sub_type(self, sub_type):
         
-        logger.info("Loading Disease Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Disease Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Disease Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Disease Data: %s", sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -276,138 +279,163 @@ class DiseaseETL(ETL):
                              "ecode": ecode}
                 self.evidence_code_list_to_yield.append(ecode_map)
 
-            diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                               diseaseRecord['objectRelation'].get("associationType").upper()
+            disease_unique_key = disease_record.get('objectId') + \
+                                 disease_record.get('DOid') + \
+                                 disease_record['objectRelation'].get("associationType").upper()
 
             if disease_record.get('pgeIds') is not None:
                 for pge in disease_record.get('pgeIds'):
-                    pge_map = {"dgeId": diseaseUniqueKey,
+                    pge_map = {"dgeId": disease_unique_key,
                                "pgeId": pge}
+         
                     self.pge_list_to_yield.append(pge_map)
 
             if 'with' in diseaseRecord:
-                withRecord = diseaseRecord.get('with')
-                for rec in withRecord:
-                    withMap = {
-                        "diseaseUniqueKey": diseaseUniqueKey,
+                with_record = disease_record.get('with')
+                for rec in with_record:
+                    with_map = {
+                        "diseaseUniqueKey": disease_unique_key,
                         "withD": rec
                     }
-                    self.withs.append(withMap)
+                    self.withs.append(with_map)
 
             if 'annotationDP' in disease_record:
                 for adp in disease_record['annotationDP']:
-                    crossRefId = adp.get('crossRefId')
+                    cross_ref_id = adp.get('crossRefId')
                     pages = adp.get('dpPages')
-                    annotationType = adp.get('annotationType')
+                    annotation_type = adp.get('annotationType')
                     local_crossref_id = ""
-                    prefix = crossRefId
+                    prefix = cross_ref_id
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                  self.xrefUrlMap, prefix, page)
-                            xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                           modGlobalCrossRefId, crossRefId + page)
-                            xref['dataId'] = diseaseUniqueKey
-                            if annotationType == 'Loaded':
-                                xref['loadedDB'] = crossRefId
+                                                                                  self.xrefUrlMap,
+                                                                                  prefix,
+                                                                                  page)
+                            xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                           prefix,
+                                                           page,
+                                                           page,
+                                                           cross_ref_id,
+                                                           mod_global_cross_ref_id,
+                                                           cross_ref_id + page)
+                            xref['dataId'] = disease_unique_key
+                            if annotation_type == 'Loaded':
+                                xref['loadedDB'] = cross_ref_id
                             else:
-                                xref['curatedDB'] = crossRefId
+                                xref['curatedDB'] = cross_ref_id
 
                             self.xrefs.append(xref)
 
     def get_generators(self, disease_data, batch_size, data_provider):
+        '''Creating generators'''
+
         gene_list_to_yield = []
         allele_list_to_yield = []
         evidence_code_list_to_yield = []
         agm_list_to_yield = []
-        withs =[]
+        withs = []
         pge_list_to_yield = []
         xrefs = []
         counter = 0
-        dateProduced = disease_data['metaData']['dateProduced']
+        date_produced = disease_data['metaData']['dateProduced']
 
-        dataProviders = []
+        data_providers = []
 
-        dataProviderObject = disease_data['metaData']['dataProvider']
+        data_provider_object = disease_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
         #TODO: get SGD to fix their files.
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, ETL.xrefUrlMap,
-                                                                      dataProvider, dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         ETL.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                       dataProviderPage, dataProvider,
-                                                                       crossRefCompleteUrl,
-                                                                       dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
+                                                                           data_provider,
+                                                                           data_provider_page,
+                                                                           data_provider_page,
+                                                                           data_provider,
+                                                                           cross_ref_complete_url,
+                                                                           data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
 
         if 'release' in disease_data['metaData']:
             release = disease_data['metaData']['release']
         else:
             release = ''
 
-        for diseaseRecord in disease_data['data']:
+        for disease_record in disease_data['data']:
             counter = counter + 1
-            diseaseObjectType = diseaseRecord['objectRelation'].get("objectType")
+            disease_object_type = disease_record['objectRelation'].get("objectType")
 
-            if diseaseObjectType == "gene":
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                   data_provider)
+            if disease_object_type == "gene":
+                disease_record = DiseaseHelper.get_disease_record(disease_record,
+                                                                  data_providers,
+                                                                  date_produced,
+                                                                  data_provider)
 
                 if disease_record is not None:
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+                    pecj_primary_key = disease_record.get('pecjPrimaryKey')
 
 
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                        ecode_map = {"pecjPrimaryKey": pecj_primary_key,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
+                    disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
+                                         disease_record['objectRelation'].get("associationType").upper()
 
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecj_primary_key,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
+                    if 'with' in disease_record:
+                        with_record = disease_record.get('with')
+                        for rec in with_record:
+                            with_map = {
+                                "diseaseUniqueKey": disease_unique_key,
                                 "withD": rec
                             }
-                            withs.append(withMap)
+                            withs.append(with_map)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:
-                            crossRefId = adp.get('crossRefId')
+                            cross_ref_id = adp.get('crossRefId')
                             pages = adp.get('dpPages')
-                            annotationType = adp.get('annotationType')
+                            annotation_type = adp.get('annotationType')
 
                             local_crossref_id = ""
-                            prefix = crossRefId
-                            if annotationType is None:
-                                annotationType = 'curated'
+                            prefix = cross_ref_id
+                            if annotation_type is None:
+                                annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                          self.xrefUrlMap, prefix, page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
-                                    xref['dataId'] = diseaseUniqueKey
-                                    if 'loaded' in annotationType:
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                              self.xrefUrlMap,
+                                                                                              prefix,
+                                                                                              page)
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                                   prefix,
+                                                                   page,
+                                                                   page,
+                                                                   cross_ref_id,
+                                                                   mod_global_cross_ref_id,
+                                                                   cross_ref_id + page + annotation_type)
+                                    xref['dataId'] = disease_unique_key
+                                    if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'
                                         xref['curatedDB'] = 'false'
                                     else:
@@ -417,57 +445,65 @@ class DiseaseETL(ETL):
                                     xrefs.append(xref)
                 gene_list_to_yield.append(disease_record)
                  
-            elif diseaseObjectType == "allele":
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                   data_provider)
+            elif disease_object_type == "allele":
+                disease_record = DiseaseHelper.get_disease_record(disease_record,
+                                                                  data_providers,
+                                                                  date_produced,
+                                                                  data_provider)
 
                 if disease_record is not None:
 
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+                    pecj_primary_key = disease_record.get('pecjPrimaryKey')
 
 
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                        ecode_map = {"pecjPrimaryKey": pecj_primary_key,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
-
-
+                    disease_unique_key = disease_record.get('objectId') + \
+                                         disease_record.get('DOid') + \
+                                         disease_record['objectRelation'].get("associationType").upper()
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecj_primary_key,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
+                    if 'with' in disease_record:
+                        with_record = disease_record.get('with')
+                        for rec in with_record:
+                            with_map = {
+                                "diseaseUniqueKey": disease_unique_key,
                                 "withD": rec
                             }
-                            withs.append(withMap)
+                            withs.append(with_map)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:
-                            crossRefId = adp.get('crossRefId')
+                            cross_ref_id = adp.get('crossRefId')
                             pages = adp.get('dpPages')
-                            annotationType = adp.get('annotationType')
-                            if annotationType is None:
-                                annotationType = 'curated'
+                            annotation_type = adp.get('annotationType')
+                            if annotation_type is None:
+                                annotation_type = 'curated'
                             local_crossref_id = ""
-                            prefix = crossRefId
+                            prefix = cross_ref_id
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                          self.xrefUrlMap, prefix, page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
-                                    xref['dataId'] = diseaseUniqueKey
-                                    if 'loaded' in annotationType:
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                              self.xref_url_map,
+                                                                                              prefix,
+                                                                                              page)
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                                   prefix,
+                                                                   page,
+                                                                   page,
+                                                                   cross_ref_id,
+                                                                   mod_global_cross_ref_id,
+                                                                   cross_ref_id + page + annotation_type)
+                                    xref['dataId'] = disease_unique_key
+                                    if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'
                                         xref['curatedDB'] = 'false'
                                     else:
@@ -478,52 +514,62 @@ class DiseaseETL(ETL):
                                     xrefs.append(xref)
                 allele_list_to_yield.append(disease_record)
             else:
-                disease_record = DiseaseHelper.get_disease_record(diseaseRecord, dataProviders, dateProduced,
-                                                                   data_provider)
+                disease_record = DiseaseHelper.get_disease_record(disease_record,
+                                                                  data_providers,
+                                                                  date_produced,
+                                                                  data_provider)
                 if disease_record is not None:
 
-                    pecjPrimaryKey = disease_record.get('pecjPrimaryKey')
+                    pecj_primary_key = disease_record.get('pecjPrimaryKey')
 
                     for ecode in disease_record.get('ecodes'):
-                        ecode_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                        ecode_map = {"pecjPrimaryKey": pecj_primary_key,
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    diseaseUniqueKey = diseaseRecord.get('objectId') + diseaseRecord.get('DOid') + \
-                                       diseaseRecord['objectRelation'].get("associationType").upper()
+                    disease_unique_key = disease_record.get('objectId') + \
+                                         disease_record.get('DOid') + \
+                                         disease_record['objectRelation'].get("associationType").upper()
 
                     if disease_record.get('pgeIds') is not None:
                         for pge in disease_record.get('pgeIds'):
-                            pge_map = {"pecjPrimaryKey": pecjPrimaryKey,
+                            pge_map = {"pecjPrimaryKey": pecj_primary_key,
                                        "pgeId": pge}
                             pge_list_to_yield.append(pge_map)
 
-                    if 'with' in diseaseRecord:
-                        withRecord = diseaseRecord.get('with')
-                        for rec in withRecord:
-                            withMap = {
-                                "diseaseUniqueKey": diseaseUniqueKey,
+                    if 'with' in disease_record:
+                        with_record = disease_record.get('with')
+                        for rec in with_record:
+                            with_map = {
+                                "diseaseUniqueKey": disease_unique_key,
                                 "withD": rec
                             }
-                            withs.append(withMap)
+                            withs.append(with_map)
 
                     if 'annotationDP' in disease_record:
                         for adp in disease_record['annotationDP']:
-                            crossRefId = adp.get('crossRefId')
+                            cross_ref_id = adp.get('crossRefId')
                             pages = adp.get('dpPages')
-                            annotationType = adp.get('annotationType')
+                            annotation_type = adp.get('annotationType')
                             local_crossref_id = ""
-                            prefix = crossRefId
-                            if annotationType is None:
-                                annotationType = 'curated'
+                            prefix = cross_ref_id
+                            if annotation_type is None:
+                                annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                          self.xrefUrlMap, prefix, page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                                   modGlobalCrossRefId, crossRefId + page + annotationType)
-                                    xref['dataId'] = diseaseUniqueKey
-                                    if 'loaded' in annotationType:
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                              self.xref_url_map,
+                                                                                              prefix,
+                                                                                              page)
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                                   prefix,
+                                                                   page,
+                                                                   page,
+                                                                   cross_ref_id,
+                                                                   mod_global_cross_ref_id,
+                                                                   cross_ref_id + page + annotation_type)
+                                    xref['dataId'] = disease_unique_key
+                                    if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'
                                         xref['curatedDB'] = 'false'
                                     else:
@@ -534,9 +580,16 @@ class DiseaseETL(ETL):
                 agm_list_to_yield.append(disease_record)
 
             if counter == batch_size:
-                yield [allele_list_to_yield, gene_list_to_yield,
-                       agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
-                       withs, evidence_code_list_to_yield, xrefs]
+                yield [allele_list_to_yield,
+                       gene_list_to_yield,
+                       agm_list_to_yield,
+                       pge_list_to_yield,
+                       pge_list_to_yield,
+                       pge_list_to_yield,
+                       withs,
+                       evidence_code_list_to_yield,
+                       xrefs]
+
                 agm_list_to_yield = []
                 allele_list_to_yield = []
                 gene_list_to_yield = []
@@ -547,7 +600,13 @@ class DiseaseETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [allele_list_to_yield, gene_list_to_yield,
-                   agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
-                       withs, evidence_code_list_to_yield, xrefs]
+            yield [allele_list_to_yield,
+                   gene_list_to_yield,
+                   agm_list_to_yield,
+                   pge_list_to_yield,
+                   pge_list_to_yield,
+                   pge_list_to_yield,
+                   withs,
+                   evidence_code_list_to_yield,
+                   xrefs]
 

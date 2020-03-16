@@ -1,3 +1,5 @@
+'''Allele ETL'''
+
 import logging
 import multiprocessing
 import uuid
@@ -8,10 +10,11 @@ from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class AlleleETL(ETL):
+    '''Allele ETL'''
+
+    logger = logging.getLogger(__name__)
 
     allele_construct_no_gene_query_template = """
 
@@ -112,7 +115,7 @@ class AlleleETL(ETL):
             MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
-    
+
     allele_synonyms_template = """
 
         USING PERIODIC COMMIT %s
@@ -137,24 +140,25 @@ class AlleleETL(ETL):
 
     def _load_and_process_data(self):
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-  
+
     def _process_sub_type(self, sub_type):
-        
-        logger.info("Loading Allele Data: %s" % sub_type.get_data_provider())
+        '''processing subtype'''
+
+        self.logger.info("Loading Allele Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
+        self.logger.info(filepath)
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Allele Data: %s", sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         # This order is the same as the lists yielded from the get_generators function.    
@@ -181,182 +185,209 @@ class AlleleETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, allele_data, data_provider, batch_size):
+        '''Create Generators'''
 
-        dataProviders = []
+        data_providers = []
         release = ""
         alleles_construct_gene = []
         alleles_no_construct = []
-        alleles_no_gene =[]
+        alleles_no_gene = []
         allele_synonyms = []
-        allele_secondaryIds = []
-        crossReferenceList = []
+        allele_secondary_ids = []
+        cross_reference_list = []
 
         counter = 0
-        dateProduced = allele_data['metaData']['dateProduced']
+        date_produced = allele_data['metaData']['dateProduced']
 
-        dataProviderObject = allele_data['metaData']['dataProvider']
+        data_provider_object = allele_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_ALLELE"
+        load_key = date_produced + data_provider + "_ALLELE"
 
         #TODO: get SGD to fix their files.
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider, dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                             dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                                             dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
+                                                                           data_provider,
+                                                                           data_provider_page,
+                                                                           data_provider_page,
+                                                                           data_provider,
+                                                                           cross_ref_complete_url,
+                                                                           data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
 
-        for alleleRecord in allele_data['data']:
+        for allele_record in allele_data['data']:
             counter = counter + 1
-            globalId = alleleRecord['primaryId']
+            global_id = allele_record['primaryId']
             # fixing parsing error on this end while MGI fixes on their end.
-            if globalId == 'MGI:3826848':
-                description = alleleRecord.get('description')[:-2]
+            if global_id == 'MGI:3826848':
+                description = allele_record.get('description')[:-2]
             else:
-                description = alleleRecord.get('description')
+                description = allele_record.get('description')
 
-            localId = globalId.split(":")[1]
-            modGlobalCrossRefId = ""
+            local_id = global_id.split(":")[1]
+            mod_global_cross_ref_id = ""
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
 
-            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
-            symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
+            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(allele_record.get('taxonId'))
+            symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
 
-            gene = alleleRecord.get('gene')
-            construct = alleleRecord.get('construct')
+            gene = allele_record.get('gene')
+            construct = allele_record.get('construct')
 
             if gene is not None and construct is not None:
                 allele_construct_gene_dataset = {
-                    "symbol": alleleRecord.get('symbol'),
-                    "geneId": alleleRecord.get('gene'),
-                    "primaryId": alleleRecord.get('primaryId'),
-                    "globalId": globalId,
-                    "localId": localId,
-                    "taxonId": alleleRecord.get('taxonId'),
-                    "dataProviders": dataProviders,
-                    "dateProduced": dateProduced,
-                    "loadKey": loadKey,
+                    "symbol": allele_record.get('symbol'),
+                    "geneId": allele_record.get('gene'),
+                    "primaryId": allele_record.get('primaryId'),
+                    "globalId": global_id,
+                    "localId": local_id,
+                    "taxonId": allele_record.get('taxonId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
+                    "loadKey": load_key,
                     "release": release,
-                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolText": symbolText,
+                    "symbolWithSpecies": allele_record.get('symbol') + " ("+ short_species_abbreviation + ")",
+                    "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
+                    "symbolText": symbol_text,
                     "alleleDescription": description,
-                    "constructId": alleleRecord.get('construct')
+                    "constructId": allele_record.get('construct')
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
             elif construct is not None and gene is None:
                 allele_construct_no_gene_dataset = {
-                    "symbol": alleleRecord.get('symbol'),
-                    "primaryId": alleleRecord.get('primaryId'),
-                    "globalId": globalId,
-                    "localId": localId,
-                    "taxonId": alleleRecord.get('taxonId'),
-                    "dataProviders": dataProviders,
-                    "dateProduced": dateProduced,
-                    "loadKey": loadKey,
+                    "symbol": allele_record.get('symbol'),
+                    "primaryId": allele_record.get('primaryId'),
+                    "globalId": global_id,
+                    "localId": local_id,
+                    "taxonId": allele_record.get('taxonId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
+                    "loadKey": load_key,
                     "release": release,
-                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolText": symbolText,
+                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                    "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
+                    "symbolText": symbol_text,
                     "alleleDescription": description,
-                    "constructId": alleleRecord.get('construct')
+                    "constructId": allele_record.get('construct')
                 }
 
                 alleles_no_gene.append(allele_construct_no_gene_dataset)
 
             elif gene is not None and construct is None:
                 allele_gene_no_construct_dataset = {
-                    "symbol": alleleRecord.get('symbol'),
-                    "geneId": alleleRecord.get('gene'),
-                    "primaryId": alleleRecord.get('primaryId'),
-                    "globalId": globalId,
-                    "localId": localId,
-                    "taxonId": alleleRecord.get('taxonId'),
-                    "dataProviders": dataProviders,
-                    "dateProduced": dateProduced,
-                    "loadKey": loadKey,
+                    "symbol": allele_record.get('symbol'),
+                    "geneId": allele_record.get('gene'),
+                    "primaryId": allele_record.get('primaryId'),
+                    "globalId": global_id,
+                    "localId": local_id,
+                    "taxonId": allele_record.get('taxonId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
+                    "loadKey": load_key,
                     "release": release,
-                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolText": symbolText,
+                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                    "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
+                    "symbolText": symbol_text,
                     "alleleDescription": description
                 }
 
                 alleles_no_construct.append(allele_gene_no_construct_dataset)
             else:
-                logger.debug("ERROR: missing construct and gene")
+                self.logger.debug("ERROR: missing construct and gene")
 
 
-            if 'crossReferences' in alleleRecord:
+            if 'crossReferences' in allele_record:
 
-                for crossRef in alleleRecord['crossReferences']:
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
+                for cross_ref in allele_record['crossReferences']:
+                    cross_ref_id = cross_ref.get('id')
+                    local_crossref_id = cross_ref_id.split(":")[1]
+                    prefix = cross_ref.get('id').split(":")[0]
+                    pages = cross_ref.get('pages')
 
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page == 'allele' or page == 'allele/references':
-                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
-                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
-                                xref['dataId'] = globalId
-                                crossReferenceList.append(xref)
+                            if page in ['allele', 'allele/references']:
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                          self.xrefUrlMap,
+                                                                                          prefix,
+                                                                                          page)
+                                xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                               prefix,
+                                                               page,
+                                                               page,
+                                                               cross_ref_id,
+                                                               mod_global_cross_ref_id,
+                                                               cross_ref_id + page)
+                                xref['dataId'] = global_id
+                                cross_reference_list.append(xref)
 
-            if 'synonyms' in alleleRecord:
-                for syn in alleleRecord.get('synonyms'):
+            if 'synonyms' in allele_record:
+                for syn in allele_record.get('synonyms'):
                     allele_synonym = {
-                        "data_id": alleleRecord.get('primaryId'),
+                        "data_id": allele_record.get('primaryId'),
                         "synonym": syn.strip()
                     }
                     allele_synonyms.append(allele_synonym)
 
-            if 'secondaryIds' in alleleRecord:
-                for secondaryId in alleleRecord.get('secondaryIds'):
-                    allele_secondaryId = {
-                        "data_id": alleleRecord.get('primaryId'),
-                        "secondary_id": secondaryId
+            if 'secondaryIds' in allele_record:
+                for secondary_id in allele_record.get('secondaryIds'):
+                    allele_secondary_id = {
+                        "data_id": allele_record.get('primaryId'),
+                        "secondary_id": secondary_id
                     }
-                    allele_secondaryIds.append(allele_secondaryId)
+                    allele_secondary_ids.append(allele_secondary_id)
 
             if counter == batch_size:
-                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+                yield [alleles_no_construct,
+                       alleles_construct_gene,
+                       alleles_no_gene,
+                       allele_secondary_ids,
+                       allele_synonyms,
+                       cross_reference_list]
                 alleles_no_construct = []
                 alleles_construct_gene = []
                 alleles_no_gene = []
 
-                allele_secondaryIds = []
+                allele_secondary_ids = []
                 allele_synonyms = []
-                crossReferenceList = []
+                cross_reference_list = []
                 counter = 0
 
         if counter > 0:
-            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+            yield [alleles_no_construct,
+                   alleles_construct_gene,
+                   alleles_no_gene,
+                   allele_secondary_ids,
+                   allele_synonyms,
+                   cross_reference_list]

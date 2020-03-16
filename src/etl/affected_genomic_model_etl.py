@@ -1,4 +1,6 @@
-import logging, uuid
+''''Affected Genomic Model ETL'''
+
+import logging
 import multiprocessing
 
 from etl import ETL
@@ -7,10 +9,11 @@ from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class AffectedGenomicModelETL(ETL):
+    '''ETL for adding Affected Genomic Model'''
+
+    logger = logging.getLogger(__name__)
 
     agm_query_template = """
         
@@ -102,22 +105,24 @@ class AffectedGenomicModelETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
 
-        logger.info("Loading Sequence Targeting Reagent Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Sequence Targeting Reagent Data: %s",
+                         sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
+        self.logger.info(filepath)
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Sequence Targeting Reagent Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Sequence Targeting Reagent Data: %s",
+                         sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         # This order is the same as the lists yielded from the get_generators function.
@@ -151,146 +156,153 @@ class AffectedGenomicModelETL(ETL):
 
 
     def get_generators(self, agm_data, data_provider, batch_size):
-        dataProviders = []
+        data_providers = []
         agms = []
         agm_synonyms = []
-        agm_secondaryIds = []
-        modGlobalCrossRefUrl = ""
+        agm_secondary_ids = []
+        mod_global_cross_ref_url = ""
         components = []
         backgrounds = []
         sqtrs = []
 
         counter = 0
-        dateProduced = agm_data['metaData']['dateProduced']
+        date_produced = agm_data['metaData']['dateProduced']
 
-        dataProviderObject = agm_data['metaData']['dataProvider']
+        data_provider_object = agm_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_agm"
+        load_key = date_produced + data_provider + "_agm"
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
-                                                                      dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                       dataProviderPage, dataProvider,
-                                                                       crossRefCompleteUrl,
-                                                                       dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
+                                                                           data_provider,
+                                                                           data_provider_page,
+                                                                           data_provider_page,
+                                                                           data_provider,
+                                                                           cross_ref_complete_url,
+                                                                           data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
 
-        for agmRecord in agm_data['data']:
+        for agm_record in agm_data['data']:
             counter = counter + 1
-            globalId = agmRecord['primaryID']
-            localId = globalId.split(":")[1]
+            global_id = agm_record['primaryID']
+            local_id = global_id.split(":")[1]
 
             if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
+                is_it_test_entry = self.testObject.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
 
-            if agmRecord.get('secondaryIds') is not None:
-                for sid in agmRecord.get('secondaryIds'):
-                    agm_secondaryId_dataset = {
-                        "primaryId": agmRecord.get('primaryID'),
+            if agm_record.get('secondaryIds') is not None:
+                for sid in agm_record.get('secondaryIds'):
+                    agm_secondary_id_dataset = {
+                        "primaryId": agm_record.get('primaryID'),
                         "secondaryId": sid
                     }
-                    agm_secondaryIds.append(agm_secondaryId_dataset)
+                    agm_secondary_ids.append(agm_secondary_id_dataset)
 
-            if agmRecord.get('synonyms') is not None:
-                for syn in agmRecord.get('synonyms'):
+            if agm_record.get('synonyms') is not None:
+                for syn in agm_record.get('synonyms'):
                     syn_dataset = {
-                        "primaryId": agmRecord.get('primaryID'),
+                        "primaryId": agm_record.get('primaryID'),
                         "synonym": syn
                     }
                     agm_synonyms.append(syn_dataset)
 
 
-            if 'crossReference' in agmRecord:
-                crossRef = agmRecord.get('crossReference')
-                crossRefId = crossRef.get('id')
-                local_crossref_id = crossRefId.split(":")[1]
-                prefix = crossRef.get('id').split(":")[0]
-                pages = crossRef.get('pages')
+            if 'crossReference' in agm_record:
+                cross_ref = agm_record.get('crossReference')
+                cross_ref_id = cross_ref.get('id')
+                local_crossref_id = cross_ref_id.split(":")[1]
+                prefix = cross_ref.get('id').split(":")[0]
+                pages = cross_ref.get('pages')
 
                 # some pages collection have 0 elements
                 if pages is not None and len(pages) > 0:
                     for page in pages:
-                        if page == 'Fish' or page == 'genotype' or page == 'strain':
-                            modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                       self.xrefUrlMap, prefix, page)
+                        if page in ['Fish', 'genotype', 'strain']:
+                            mod_global_cross_ref_url = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                       self.xref_url_map,
+                                                                                       prefix,
+                                                                                       page)
 
-            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(agmRecord.get('taxonId'))
-            nameText = TextProcessingHelper.cleanhtml(agmRecord.get('name'))
+            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(agm_record.get('taxonId'))
+            name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))
 
             # TODO: make subtype required in submission file.
 
-            subtype = agmRecord.get('subtype')
-            if subtype is None and dataProvider == 'WB':
+            subtype = agm_record.get('subtype')
+            if subtype is None and data_provider == 'WB':
                 subtype = 'strain'
             if subtype is None:
                 subtype = 'affected_genomic_model'
 
-            # TODO: nameText
+            # TODO: name_text
             agm_dataset = {
-                "primaryId": agmRecord.get('primaryID'),
-                "name": agmRecord.get('name'),
-                "globalId": globalId,
-                "localId": localId,
-                "taxonId": agmRecord.get('taxonId'),
-                "dataProviders": dataProviders,
-                "dateProduced": dateProduced,
-                "loadKey": loadKey,
+                "primaryId": agm_record.get('primaryID'),
+                "name": agm_record.get('name'),
+                "globalId": global_id,
+                "localId": local_id,
+                "taxonId": agm_record.get('taxonId'),
+                "dataProviders": data_providers,
+                "dateProduced": date_produced,
+                "loadKey": load_key,
                 "subtype": subtype,
-                "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
+                "modGlobalCrossRefUrl": mod_global_cross_ref_url,
                 "dataProvider": data_provider,
-                "nameText": nameText,
-                "nameWithSpecies": agmRecord.get('name') + " ("+ shortSpeciesAbbreviation + ")",
-                "nameTextWithSpecies": nameText + " ("+ shortSpeciesAbbreviation + ")",
+                "nameText": name_text,
+                "nameWithSpecies": agm_record.get('name') + " (" + short_species_abbreviation + ")",
+                "nameTextWithSpecies": name_text + " (" + short_species_abbreviation + ")",
             }
             agms.append(agm_dataset)
 
-            if agmRecord.get('affectedGenomicModelComponents') is not None:
+            if agm_record.get('affectedGenomicModelComponents') is not None:
 
-                for component in agmRecord.get('affectedGenomicModelComponents'):
+                for component in agm_record.get('affectedGenomicModelComponents'):
                     component_dataset = {
-                        "primaryId": agmRecord.get('primaryID'),
+                        "primaryId": agm_record.get('primaryID'),
                         "componentId": component.get('alleleID'),
                         "zygosityId": component.get('zygosity')
                     }
                     components.append(component_dataset)
 
-            if agmRecord.get('sequenceTargetingReagentIDs') is not None:
-                for sqtr in agmRecord.get('sequenceTargetingReagentIDs'):
+            if agm_record.get('sequenceTargetingReagentIDs') is not None:
+                for sqtr in agm_record.get('sequenceTargetingReagentIDs'):
                     sqtr_dataset = {
-                        "primaryId": agmRecord.get('primaryID'),
+                        "primaryId": agm_record.get('primaryID'),
                         "sqtrId": sqtr
                     }
                     sqtrs.append(sqtr_dataset)
 
-            if agmRecord.get('parentalPopulationIDs') is not None:
-                for background in agmRecord.get('parentalPopulationIDs'):
+            if agm_record.get('parentalPopulationIDs') is not None:
+                for background in agm_record.get('parentalPopulationIDs'):
                     background_dataset = {
-                        "primaryId": agmRecord.get('primaryID'),
+                        "primaryId": agm_record.get('primaryID'),
                         "backgroundId": background
                     }
                     backgrounds.append(background_dataset)
 
             if counter == batch_size:
-                yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs, backgrounds]
+                yield [agms, agm_secondary_ids, agm_synonyms, components, sqtrs, backgrounds]
                 agms = []
-                agm_secondaryIds = []
+                agm_secondary_ids = []
                 agm_synonyms = []
-                components =[]
+                components = []
                 backgrounds = []
                 counter = 0
 
         if counter > 0:
-            yield [agms, agm_secondaryIds, agm_synonyms, components, sqtrs, backgrounds]
+            yield [agms, agm_secondary_ids, agm_synonyms, components, sqtrs, backgrounds]
