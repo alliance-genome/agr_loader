@@ -1,12 +1,13 @@
+'''GO ETL'''
+
 import logging
-logger = logging.getLogger(__name__)
-
 from ontobio import OntologyFactory
-
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 
 class GOETL(ETL):
+    '''GO ETL'''
+    logger = logging.getLogger(__name__)
 
     query_template = """
         USING PERIODIC COMMIT %s
@@ -72,20 +73,20 @@ class GOETL(ETL):
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2) """
-            
-            
+
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
 
+
     def _load_and_process_data(self):
-        
+
         filepath = self.data_type_config.get_single_filepath()
-        
+
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
-        
+
         generators = self.get_generators(filepath, batch_size)
 
         query_list = [
@@ -97,16 +98,18 @@ class GOETL(ETL):
             [GOETL.goterm_negatively_regulates_template, commit_size, "go_negatively_regulates_data.csv"],
             [GOETL.goterm_positively_regulates_template, commit_size, "go_positively_regulates_data.csv"],
         ]
-        
+
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+
     def get_generators(self, filepath, batch_size):
-        
+        '''Create Generators'''
+
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
-        
+
         go_term_list = []
         go_isas_list = []
         go_partofs_list = []
@@ -115,18 +118,20 @@ class GOETL(ETL):
         go_negatively_regulates_list = []
         go_positively_regulates_list = []
         counter = 0
-        
-        for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
+
+        # Convert parsed obo term into a schema-friendly AGR dictionary.
+        for key in parsed_line.items():
             counter = counter + 1
-            node = ont.graph.node[k]
+            node = ont.graph.node[key]
             if len(node) == 0:
                 continue
             if node.get('type') == 'PROPERTY':
                 continue
 
-            ### Switching id to curie form and saving URI in "uri" - might wildly break things later on???
+            ### Switching id to curie form and saving URI in "uri"
+            ### might wildly break things later on???
             node["uri"] = node["id"]
-            node["id"] = k
+            node["id"] = key
 
             subset = []
             definition = ""
@@ -134,20 +139,20 @@ class GOETL(ETL):
 
             if "meta" in node:
                 meta = node.get('meta')
-                basicPropertyValues = meta.get('basicPropertyValues')
-                for propertyValueMap in basicPropertyValues:
-                    pred = propertyValueMap['pred']
-                    val = propertyValueMap['val']
+                basic_property_values = meta.get('basicPropertyValues')
+                for property_value_map in basic_property_values:
+                    pred = property_value_map['pred']
+                    val = property_value_map['val']
                     if pred == 'OIO:hasOBONamespace':
                         term_type = val
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                     for synonym in syns:
-                        goSynonym = {
-                            "primary_id": k,
+                        go_synonym = {
+                            "primary_id": key,
                             "synonym": synonym
                         }
-                        go_synonyms_list.append(goSynonym)
+                        go_synonyms_list.append(go_synonym)
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
@@ -155,68 +160,69 @@ class GOETL(ETL):
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
                 if "subsets" in node["meta"]:
-                    newSubset = node['meta'].get('subsets')
-                    if isinstance(newSubset, (list, tuple)):
-                        subset = newSubset
+                    new_subset = node['meta'].get('subsets')
+                    if isinstance(new_subset, (list, tuple)):
+                        subset = new_subset
                     else:
-                        if newSubset is not None:
-                            subset.append(newSubset)
+                        if new_subset is not None:
+                            subset.append(new_subset)
                 if len(subset) > 1:
                     converted_subsets = []
-                    for s in subset:
-                        if "#" in s:
-                            s = s.split("#")[-1]
-                        converted_subsets.append(s)
+                    for subset_str in subset:
+                        if "#" in subset_str:
+                            subset_str = subset_str.split("#")[-1]
+                        converted_subsets.append(subset_str)
                     subset = converted_subsets
 
-            all_parents = ont.parents(k)
-            all_parents.append(k)
-            all_parents_subont = ont.subontology(all_parents) # Improves performance when traversing relations
+            all_parents = ont.parents(key)
+            all_parents.append(key)
 
-            isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
-            for item in isasWithoutNames:
+            # Improves performance when traversing relations
+            all_parents_subont = ont.subontology(all_parents)
+            isas_without_names = all_parents_subont.parents(key, relations=['subClassOf'])
+            for item in isas_without_names:
                 dictionary = {
-                    "primary_id": k,
+                    "primary_id": key,
                     "primary_id2": item
                 }
                 go_isas_list.append(dictionary)
-                
-            partofsWithoutNames = all_parents_subont.parents(k, relations=['BFO:0000050'])
-            for item in partofsWithoutNames:
+
+            partofs_without_names = all_parents_subont.parents(key, relations=['BFO:0000050'])
+            for item in partofs_without_names:
                 dictionary = {
-                    "primary_id": k,
+                    "primary_id": key,
                     "primary_id2": item
                 }
                 go_partofs_list.append(dictionary)
-                
-            regulates = all_parents_subont.parents(k, relations=['RO:0002211'])
-            
+
+            regulates = all_parents_subont.parents(key, relations=['RO:0002211'])
+
             for item in regulates:
                 dictionary = {
-                    "primary_id": k,
+                    "primary_id": key,
                     "primary_id2": item
                 }
                 go_regulates_list.append(dictionary)
-                
-            negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
+
+            negatively_regulates = all_parents_subont.parents(key, relations=['RO:0002212'])
             for item in negatively_regulates:
                 dictionary = {
-                    "primary_id": k,
+                    "primary_id": key,
                     "primary_id2": item
                 }
                 go_negatively_regulates_list.append(dictionary)
-            
-            positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
+
+            positively_regulates = all_parents_subont.parents(key, relations=['RO:0002213'])
             for item in positively_regulates:
                 dictionary = {
-                    "primary_id": k,
+                    "primary_id": key,
                     "primary_id2": item
                 }
                 go_positively_regulates_list.append(dictionary)
 
 
             dict_to_append = {
-                'oid': k,
+                'oid': key,
                 'definition': definition,
                 'type': term_type,
                 'name': node.get('label'),
@@ -225,11 +231,17 @@ class GOETL(ETL):
                 'is_obsolete': is_obsolete,
                 'href': 'http://amigo.geneontology.org/amigo/term/' + node['id'],
             }
-            
+
             go_term_list.append(dict_to_append)
-            
+
             if counter == batch_size:
-                yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list]
+                yield [go_term_list,
+                       go_isas_list,
+                       go_partofs_list,
+                       go_synonyms_list,
+                       go_regulates_list,
+                       go_negatively_regulates_list,
+                       go_positively_regulates_list]
                 go_term_list = []
                 go_isas_list = []
                 go_partofs_list = []
@@ -240,6 +252,10 @@ class GOETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list]  
-
-        
+            yield [go_term_list,
+                   go_isas_list,
+                   go_partofs_list,
+                   go_synonyms_list,
+                   go_regulates_list,
+                   go_negatively_regulates_list,
+                   go_positively_regulates_list]

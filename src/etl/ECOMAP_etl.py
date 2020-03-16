@@ -1,14 +1,19 @@
-import logging, multiprocessing, csv
+'''ECOMAP ETL'''
+
+import logging
+import multiprocessing
 
 from etl import ETL
 from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class ECOMAPETL(ETL):
+    '''ECOMAP ETL'''
+
+    logger = logging.getLogger(__name__)
+
     eco_query = """
 
         USING PERIODIC COMMIT %s
@@ -27,14 +32,14 @@ class ECOMAPETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-        logger.info("Loading ECOMAP Ontology Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading ECOMAP Ontology Data: %s", sub_type.get_data_provider())
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -53,9 +58,10 @@ class ECOMAPETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-        logger.info("Finished Loading ECOMAP Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading ECOMAP Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, filepath, batch_size):
+        '''Create Generator'''
 
         data = TXTFile(filepath).get_data()
         eco_maps = []
@@ -64,11 +70,9 @@ class ECOMAPETL(ETL):
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
-            else:
-                eco = {"ecoId":columns[1],
-                       "threeLetterCode": columns[0]}
-                eco_maps.append(eco)
 
+            eco = {"ecoId":columns[1],
+                   "threeLetterCode": columns[0]}
+            eco_maps.append(eco)
 
         yield [eco_maps]
-

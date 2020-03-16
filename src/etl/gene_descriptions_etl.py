@@ -1,3 +1,5 @@
+'''Gene Descriptions ETL'''
+
 import copy
 import logging
 import os

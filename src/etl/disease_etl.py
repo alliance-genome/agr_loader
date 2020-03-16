@@ -271,61 +271,66 @@ class DiseaseETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     # TODO: get this method working instead of repeating code below -- have to make generator work within a generator.
-    def get_disease_details(self, disease_record, diseaseRecord):
+    def get_disease_details(self, disease_record, disease_record):
 
-        if disease_record is not None:
-            for ecode in disease_record.get('ecodes'):
-                ecode_map = {"uuid": disease_record.get('uuid'),
-                             "ecode": ecode}
-                self.evidence_code_list_to_yield.append(ecode_map)
+        evidence_code_list_to_yield = []
+        page_list_to_yeild = []
 
-            disease_unique_key = disease_record.get('objectId') + \
-                                 disease_record.get('DOid') + \
-                                 disease_record['objectRelation'].get("associationType").upper()
+        if disease_record is None:
+            return
 
-            if disease_record.get('pgeIds') is not None:
-                for pge in disease_record.get('pgeIds'):
-                    pge_map = {"dgeId": disease_unique_key,
-                               "pgeId": pge}
-         
-                    self.pge_list_to_yield.append(pge_map)
+        for ecode in disease_record.get('ecodes'):
+            ecode_map = {"uuid": disease_record.get('uuid'),
+                         "ecode": ecode}
+            self.evidence_code_list_to_yield.append(ecode_map)
 
-            if 'with' in diseaseRecord:
-                with_record = disease_record.get('with')
-                for rec in with_record:
-                    with_map = {
-                        "diseaseUniqueKey": disease_unique_key,
-                        "withD": rec
-                    }
-                    self.withs.append(with_map)
+        disease_unique_key = disease_record.get('objectId') + \
+                             disease_record.get('DOid') + \
+                             disease_record['objectRelation'].get("associationType").upper()
 
-            if 'annotationDP' in disease_record:
-                for adp in disease_record['annotationDP']:
-                    cross_ref_id = adp.get('crossRefId')
-                    pages = adp.get('dpPages')
-                    annotation_type = adp.get('annotationType')
-                    local_crossref_id = ""
-                    prefix = cross_ref_id
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                  self.xrefUrlMap,
-                                                                                  prefix,
-                                                                                  page)
-                            xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                           prefix,
-                                                           page,
-                                                           page,
-                                                           cross_ref_id,
-                                                           mod_global_cross_ref_id,
-                                                           cross_ref_id + page)
-                            xref['dataId'] = disease_unique_key
-                            if annotation_type == 'Loaded':
-                                xref['loadedDB'] = cross_ref_id
-                            else:
-                                xref['curatedDB'] = cross_ref_id
+        if disease_record.get('pgeIds') is not None:
+            for pge in disease_record.get('pgeIds'):
+                pge_map = {"dgeId": disease_unique_key,
+                           "pgeId": pge}
+     
+                self.pge_list_to_yield.append(pge_map)
 
-                            self.xrefs.append(xref)
+        if 'with' in diseaseRecord:
+            with_record = disease_record.get('with')
+            for rec in with_record:
+                with_map = {
+                    "diseaseUniqueKey": disease_unique_key,
+                    "withD": rec
+                }
+                self.withs.append(with_map)
+
+        if 'annotationDP' in disease_record:
+            for adp in disease_record['annotationDP']:
+                cross_ref_id = adp.get('crossRefId')
+                pages = adp.get('dpPages')
+                annotation_type = adp.get('annotationType')
+                local_crossref_id = ""
+                prefix = cross_ref_id
+                if pages is not None and len(pages) > 0:
+                    for page in pages:
+                        modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                              self.xrefUrlMap,
+                                                                              prefix,
+                                                                              page)
+                        xref = ETLHelper.get_xref_dict(local_crossref_id,
+                                                       prefix,
+                                                       page,
+                                                       page,
+                                                       cross_ref_id,
+                                                       mod_global_cross_ref_id,
+                                                       cross_ref_id + page)
+                        xref['dataId'] = disease_unique_key
+                        if annotation_type == 'Loaded':
+                            xref['loadedDB'] = cross_ref_id
+                        else:
+                            xref['curatedDB'] = cross_ref_id
+
+                        self.xrefs.append(xref)
 
     def get_generators(self, disease_data, batch_size, data_provider):
         '''Creating generators'''

@@ -1,27 +1,22 @@
+'''Construct ETL'''
+
 import logging
 import multiprocessing
 import uuid
-from test import TestObject
-import time
 from etl.helpers import ResourceDescriptorHelper
-from common import ContextInfo
 from etl import ETL
-from etl.helpers import ETLHelper
+from etl.helpers import ETLHelper, TextProcessingHelper
 from files import JSONFile
-from transactors import CSVTransactor
-from transactors import Neo4jTransactor
-
-from etl.helpers import TextProcessingHelper
-
-logger = logging.getLogger(__name__)
+from transactors import CSVTransactor, Neo4jTransactor
 
 
 class ConstructETL(ETL):
+    '''Construct ETL'''
 
+    logger = logging.getLogger(__name__)
     xrefUrlMap = ResourceDescriptorHelper().get_data()
 
     construct_query_template = """
-
           USING PERIODIC COMMIT %s
           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -43,7 +38,6 @@ class ConstructETL(ETL):
             """
 
     construct_secondaryids_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -54,7 +48,6 @@ class ConstructETL(ETL):
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
 
     construct_synonyms_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -65,42 +58,32 @@ class ConstructETL(ETL):
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     construct_xrefs_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     construct_gene_component_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
             CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
-            REMOVE rel.noOp
-  
-            """
+            REMOVE rel.noOp"""
 
     construct_no_gene_component_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
             CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
-            REMOVE rel.noOp
-            
+            REMOVE rel.noOp"""
 
-            """
     non_bgi_component_template = """
-    
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})
-    
-    """
+            MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})"""
 
     def __init__(self, config):
         super().__init__()
@@ -110,21 +93,21 @@ class ConstructETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
 
-        logger.info("Loading Construct Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Construct Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Construct Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         # This order is the same as the lists yielded from the get_generators function.
@@ -157,37 +140,40 @@ class ConstructETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, construct_data, data_provider, batch_size):
+        '''Create Generators'''
 
-        dataProviders = []
+        dataproviders = []
         release = ""
         constructs = []
         construct_synonyms = []
-        construct_secondaryIds = []
-        crossReferenceList = []
-        componentDetails = []
-        componentNoGeneDetails = []
-        nonBgiComponents = []
+        construct_secondary_ids = []
+        cross_reference_list = []
+        component_details = []
+        component_no_gene_details = []
+        non_bgi_components = []
 
         counter = 0
-        dateProduced = construct_data['metaData']['dateProduced']
+        date_produced = construct_data['metaData']['dateProduced']
 
-        dataProviderObject = construct_data['metaData']['dataProvider']
+        data_provider_object = construct_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_construct"
+        load_key = date_produced + data_provider + "_construct"
 
         # TODO: get SGD to fix their files.
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
-                                                                      dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
+                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
                                                                        dataProviderPage, dataProvider,
                                                                        crossRefCompleteUrl,
                                                                        dataProvider + dataProviderPage))

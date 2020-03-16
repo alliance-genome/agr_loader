@@ -1,15 +1,16 @@
+'''Expression Ribbon ETL'''
+
 import logging
-logger = logging.getLogger(__name__)
+
 from etl import ETL
-from .helpers import Neo4jHelper
 from transactors import CSVTransactor, Neo4jTransactor
-import multiprocessing
+from .helpers import Neo4jHelper
+
 
 class ExpressionRibbonETL(ETL):
+    '''Expression Ribbon ETL'''
 
-    def __init__(self, config):
-        super().__init__()
-        self.data_type_config = config
+    logger = logging.getLogger(__name__)
 
     insert_gocc_self_ribbon_terms = """
                 USING PERIODIC COMMIT %s
@@ -29,8 +30,6 @@ class ExpressionRibbonETL(ETL):
                    MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
                    """
 
-
-
     expression_gocc_ribbon_retrieve = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
                 where slimTerm.subset =~ '.*goslim_agr.*'
@@ -44,12 +43,16 @@ class ExpressionRibbonETL(ETL):
         """
 
 
+    def __init__(self, config):
+        super().__init__()
+        self.data_type_config = config
+
 
     def _load_and_process_data(self):
 
-        logger.info("Starting Expression Ribbon Data")
+        self.logger.info("Starting Expression Ribbon Data")
         query_list = [
-            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "30000", "expression_gocc_ribbon_terms.csv"] ,
+            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "30000", "expression_gocc_ribbon_terms.csv"],
             [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "30000", "expression_gocc_self_ribbon_terms" + ".csv"]
         ]
 
@@ -59,28 +62,26 @@ class ExpressionRibbonETL(ETL):
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        
-        logger.info("Finished Expression Ribbon Data")
+
+        self.logger.info("Finished Expression Ribbon Data")
+
 
     def get_ribbon_terms(self):
+        '''get ribbon terms'''
 
-        logger.debug("made it to the gocc ribbon retrieve")
+        self.logger.debug("made it to the gocc ribbon retrieve")
 
-
-        returnSetRT = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve)
-
+        return_set_rt = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve)
         gocc_ribbon_data = []
-
-        for record in returnSetRT:
+        for record in return_set_rt:
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["slimTerm.primaryKey"])
             gocc_ribbon_data.append(row)
 
         gocc_self_ribbon_data = []
 
-        returnSetSRT = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes)
-
-        for record in returnSetSRT:
+        return_set_srt = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes)
+        for record in return_set_srt:
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["got.primaryKey"])
 
