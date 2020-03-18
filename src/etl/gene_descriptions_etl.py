@@ -5,33 +5,36 @@ import logging
 import os
 import datetime
 import re
+from collections import defaultdict
+
 import boto3
 import requests
-
-from collections import defaultdict
 
 from etl import ETL
 from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
-from ontobio import AssociationSetFactory, OntologyFactory, Ontology
-from transactors import CSVTransactor, Neo4jTransactor
 from genedescriptions.data_manager import DataManager
 from genedescriptions.commons import DataType, Gene
 from genedescriptions.precanned_modules import set_gene_ontology_module, set_disease_module, \
     set_alliance_human_orthology_module, set_expression_module
+from ontobio import AssociationSetFactory, OntologyFactory, Ontology
+from transactors import CSVTransactor, Neo4jTransactor
 from common import ContextInfo
 from data_manager import DataFileManager
 
-logger = logging.getLogger(__name__)
+
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
 
 class GeneDescriptionsETL(ETL):
+    '''Gene Descriptions ETL'''
 
-    GeneDescriptionsQuery = """
+    logger = logging.getLogger(__name__)
+
+    gene_descriptions_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -39,17 +42,17 @@ class GeneDescriptionsETL(ETL):
         SET o.automatedGeneSynopsis = row.geneDescription
         """
 
-    GetAllGenesQuery = """
+    get_all_genes_query = """
         MATCH (g:Gene) where g.dataProvider = {parameter} AND NOT g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol
         """
 
-    GetAllGenesHumanQuery = """
+    get_all_genes_human_query = """
         MATCH (g:Gene) where g.dataProvider = {parameter} AND g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol
         """
 
-    GetGeneDiseaseAnnotQuery = """
+    get_gene_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
         WHERE g.dataProvider = {parameter}
@@ -58,7 +61,7 @@ class GeneDescriptionsETL(ETL):
             type(r) AS relType, 'D' AS aspect
         """
 
-    GetFeatureDiseaseAnnotQuery = """
+    get_feature_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(f)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE f.dataProvider = {parameter}
@@ -68,7 +71,7 @@ class GeneDescriptionsETL(ETL):
         e.primaryKey AS ECode, type(r) AS relType, 'D' AS aspect
         """
 
-    GetFilteredHumanOrthologsQuery = """
+    get_filtered_human_orthologs_query = """
         MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->
         (g2:Gene)
         WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND 
@@ -78,7 +81,7 @@ class GeneDescriptionsETL(ETL):
         oa.name AS algorithm
         """
 
-    GetDiseaseViaOrthologyQuery = """
+    get_disease_via_orthology_query = """
         MATCH (d:DOTerm:Ontology)-[r:IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
         WHERE g.dataProvider = {parameter}
@@ -87,13 +90,13 @@ class GeneDescriptionsETL(ETL):
         RETURN DISTINCT g.primaryKey AS geneId, g.symbol AS geneSymbol, d.primaryKey AS TermId
         """
 
-    GetOntologyPairs = """
+    get_ontology_pairs_query = """
         MATCH (term1:{}Term:Ontology)-[r:IS_A|PART_OF]->(term2:{}Term:Ontology)
         RETURN term1.primaryKey, term1.name, term1.type, term1.isObsolete, term2.primaryKey, term2.name, term2.type, 
         term2.isObsolete, type(r) AS rel_type
         """
 
-    GetExpressionAnnotations = """
+    get_expression_annotations_query = """
         MATCH (g:Gene)-[EXPRESSED_IN]->(:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE|ANATOMICAL_SUB_STRUCTURE]->(t:Ontology)-[:IS_A|PART_OF]->(t2:Ontology)
         WHERE g.dataProvider = {parameter}
         RETURN g.primaryKey AS geneId, g.symbol AS geneSymbol, t.primaryKey AS TermId, 'EXP' AS relType, 'A' AS aspect
@@ -119,19 +122,21 @@ class GeneDescriptionsETL(ETL):
         #gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO, ontology_url=go_onto_path, config=gd_config,
         #                                        ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go.obo"))
         gd_data_manager.set_ontology(ontology_type=DataType.GO,
-                                     ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.GO), config=gd_config)
+                                     ontology=self.get_ontology(data_type=DataType.GO),
+                                     config=gd_config)
         #do_onto_path = "file://" + os.path.join(os.getcwd(), do_onto_config.get_single_filepath())
         #gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO, ontology_url=do_onto_path, config=gd_config,
         #                                        ontology_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "do.obo"))
         gd_data_manager.set_ontology(ontology_type=DataType.DO,
-                                     ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.DO), config=gd_config)
+                                     ontology=self.get_ontology(data_type=DataType.DO),
+                                     config=gd_config)
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider().upper() for sub_type in self.data_type_config.get_sub_type_objects()]:
             gd_config_mod_specific = copy.deepcopy(gd_config)
             if prvdr == "WB":
                 gd_config_mod_specific.config["expression_sentences_options"][
                     "remove_children_if_parent_is_present"] = True
-            logger.info("Generating gene descriptions for " + prvdr)
+            self.logger.info("Generating gene descriptions for " + prvdr)
             data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
             go_annot_path = "file://" + os.path.join(os.getcwd(), "tmp", go_annot_sub_dict[prvdr].file_to_download)
@@ -139,21 +144,26 @@ class GeneDescriptionsETL(ETL):
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=os.path.join(os.getcwd(), "tmp", "gd_cache", "go_annot_" + prvdr + ".gaf"),
                 config=gd_config_mod_specific)
-            gd_data_manager.set_associations(
-                associations_type=DataType.DO, associations=self.get_disease_annotations_from_db(
-                    data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config_mod_specific)
+            gd_data_manager.set_associations(associations_type=DataType.DO,
+                                             associations=self.get_disease_annotations_from_db(data_provider=data_provider,
+                                                                                               gd_data_manager=gd_data_manager,
+                                                                                               logger=self.logger),
+                                             config=gd_config_mod_specific)
             if prvdr in EXPRESSION_PRVD_SUBTYPE_MAP:
                 gd_data_manager.set_ontology(ontology_type=DataType.EXPR,
-                                             ontology=GeneDescriptionsETL.get_ontology(data_type=DataType.EXPR,
-                                                                                       provider=prvdr),
+                                             ontology=self.get_ontology(data_type=DataType.EXPR,
+                                                                        provider=prvdr),
                                              config=gd_config_mod_specific)
                 gd_data_manager.set_associations(
-                    associations_type=DataType.EXPR, associations=self.get_expression_annotations_from_db(
-                        data_provider=data_provider, gd_data_manager=gd_data_manager), config=gd_config_mod_specific)
+                    associations_type=DataType.EXPR,
+                    associations=self.get_expression_annotations_from_db(data_provider=data_provider,
+                                                                         gd_data_manager=gd_data_manager,
+                                                                         logger=self.logger),
+                    config=gd_config_mod_specific)
             commit_size = self.data_type_config.get_neo4j_commit_size()
             generators = self.get_generators(prvdr, gd_data_manager, gd_config_mod_specific, json_desc_writer)
             query_list = [
-                [GeneDescriptionsETL.GeneDescriptionsQuery, commit_size, "genedescriptions_data_" + prvdr + ".csv"], ]
+                [GeneDescriptionsETL.gene_descriptions_query, commit_size, "genedescriptions_data_" + prvdr + ".csv"], ]
             query_and_file_list = self.process_query_params(query_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
@@ -161,26 +171,39 @@ class GeneDescriptionsETL(ETL):
                                                 context_info=context_info, gd_data_manager=gd_data_manager)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
+        '''Create generators'''
+
         gene_prefix = ""
         if data_provider == "HUMAN":
-            return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesHumanQuery, "RGD")
+            return_set = Neo4jHelper.run_single_parameter_query(self.get_all_genes_human_query, "RGD")
             gene_prefix = "RGD:"
         else:
-            return_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetAllGenesQuery, data_provider)
+            return_set = Neo4jHelper.run_single_parameter_query(self.get_all_genes_query, data_provider)
         descriptions = []
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
         for record in return_set:
-            gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name, add_gene_name=False,
+            gene = Gene(id=gene_prefix + record["g.primaryKey"],
+                        name=record["g.symbol"],
+                        dead=False,
+                        pseudo=False)
+            gene_desc = GeneDescription(gene_id=record["g.primaryKey"],
+                                        gene_name=gene.name,
+                                        add_gene_name=False,
                                         config=gd_config)
-            set_gene_ontology_module(dm=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
-            set_disease_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene,
+            set_gene_ontology_module(dm=gd_data_manager,
+                                     conf_parser=gd_config,
+                                     gene_desc=gene_desc, gene=gene)
+            set_disease_module(df=gd_data_manager,
+                               conf_parser=gd_config,
+                               gene_desc=gene_desc,
+                               gene=gene,
                                human=data_provider == "HUMAN")
             set_expression_module(df=gd_data_manager, conf_parser=gd_config, gene_desc=gene_desc, gene=gene)
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
-                                                    excluded_orthologs=best_orthologs[gene.id][1], gene_desc=gene_desc,
+                                                    excluded_orthologs=best_orthologs[gene.id][1],
+                                                    gene_desc=gene_desc,
                                                     config=gd_config)
 
             if gene_desc.description:
@@ -196,29 +219,29 @@ class GeneDescriptionsETL(ETL):
         ontology = Ontology()
         terms_pairs = []
         if data_type == DataType.GO:
-            terms_pairs = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetOntologyPairs.format(
+            terms_pairs = Neo4jHelper.run_single_parameter_query(self.get_ontology_pairs_query.format(
                 "GO", "GO"), None)
         elif data_type == DataType.DO:
-            terms_pairs = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetOntologyPairs.format(
+            terms_pairs = Neo4jHelper.run_single_parameter_query(self.get_ontology_pairs_query.format(
                 "DO", "DO"), None)
         elif data_type == DataType.EXPR:
             if provider in EXPRESSION_PRVD_SUBTYPE_MAP:
-                terms_pairs = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetOntologyPairs.format(
+                terms_pairs = Neo4jHelper.run_single_parameter_query(self.get_ontology_pairs_query.format(
                     EXPRESSION_PRVD_SUBTYPE_MAP[provider], EXPRESSION_PRVD_SUBTYPE_MAP[provider]), None)
         for terms_pair in terms_pairs:
-            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+            self.add_neo_term_to_ontobio_ontology_if_not_exists(
                 terms_pair["term1.primaryKey"], terms_pair["term1.name"], terms_pair["term1.type"],
                 terms_pair["term1.isObsolete"], ontology)
-            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+            self.add_neo_term_to_ontobio_ontology_if_not_exists(
                 terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"],
                 terms_pair["term2.isObsolete"], ontology)
             ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
                                 relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
         if data_type == DataType.EXPR and provider == "MGI":
-            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+            self.add_neo_term_to_ontobio_ontology_if_not_exists(
                 "EMAPA_ARTIFICIAL_NODE:99999", "embryo", "anatomical_structure", False, ontology)
             ontology.add_parent("EMAPA_ARTIFICIAL_NODE:99999", "EMAPA:0", relation="subClassOf")
-            GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
+            self.dd_neo_term_to_ontobio_ontology_if_not_exists(
                 "EMAPA_ARTIFICIAL_NODE:99998", "head", "anatomical_structure", False, ontology)
             ontology.add_parent("EMAPA_ARTIFICIAL_NODE:99998", "EMAPA:0", relation="subClassOf")
             GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
@@ -270,7 +293,7 @@ class GeneDescriptionsETL(ETL):
                 }}
 
     @staticmethod
-    def add_annotations(final_annotation_set, neo4j_annot_set, data_provider, data_type: DataType, ontology=None):
+    def add_annotations(final_annotation_set, neo4j_annot_set, data_provider, data_type: DataType, logger, ontology=None):
         early_conceptus_re = re.compile(r'.*stage conceptus$')
         qualifier = ""
         for annot in neo4j_annot_set:
@@ -306,12 +329,17 @@ class GeneDescriptionsETL(ETL):
                     annot["geneSymbol"], annot["TermId"], annot["aspect"], ecode, data_provider, qualifier))
 
     @staticmethod
-    def get_disease_annotations_from_db(data_provider, gd_data_manager):
+    def get_disease_annotations_from_db(data_provider, gd_data_manager, logger):
         annotations = []
-        gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetGeneDiseaseAnnotQuery,
+        gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.get_gene_disease_annot_query,
                                                                 data_provider)
-        GeneDescriptionsETL.add_annotations(annotations, gene_annot_set, data_provider, DataType.DO)
-        feature_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetFeatureDiseaseAnnotQuery,
+        GeneDescriptionsETL.add_annotations(annotations,
+                                            gene_annot_set,
+                                            data_provider,
+                                            DataType.DO,
+                                            logger)
+
+        feature_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.get_feature_disease_annot_query,
                                                                    data_provider)
         allele_do_annot = defaultdict(list)
         for feature_annot in feature_annot_set:
@@ -321,29 +349,41 @@ class GeneDescriptionsETL(ETL):
         # keep only disease annotations through simple entities (e.g., alleles related to one gene only)
         feature_annot_set = [feature_annots[0] for feature_annots in allele_do_annot.values() if
                              len(feature_annots) == 1]
-        GeneDescriptionsETL.add_annotations(annotations, feature_annot_set, data_provider, DataType.DO)
+        GeneDescriptionsETL.add_annotations(annotations,
+                                            feature_annot_set,
+                                            data_provider,
+                                            DataType.DO,
+                                            logger)
         disease_via_orth_records = Neo4jHelper.run_single_parameter_query(
-            GeneDescriptionsETL.GetDiseaseViaOrthologyQuery, data_provider)
+            GeneDescriptionsETL.get_disease_via_orthology_query, data_provider)
         for orth_annot in disease_via_orth_records:
-            annotations.append(GeneDescriptionsETL.create_annotation_record(
-                gene_id=orth_annot["geneId"], gene_symbol=orth_annot["geneSymbol"], term_id=orth_annot["TermId"],
-                aspect="D", ecode="DVO", prvdr=data_provider, qualifier=""))
+            annotations.append(GeneDescriptionsETL.create_annotation_record(gene_id=orth_annot["geneId"],
+                                                                            gene_symbol=orth_annot["geneSymbol"],
+                                                                            term_id=orth_annot["TermId"],
+                                                                            aspect="D",
+                                                                            ecode="DVO",
+                                                                            prvdr=data_provider,
+                                                                            qualifier=""))
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.do_ontology)
 
     @staticmethod
-    def get_expression_annotations_from_db(data_provider, gd_data_manager):
+    def get_expression_annotations_from_db(data_provider, gd_data_manager, logger):
         annotations = []
-        gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetExpressionAnnotations,
+        gene_annot_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.get_expression_annotations_query,
                                                                 data_provider)
-        GeneDescriptionsETL.add_annotations(annotations, gene_annot_set, data_provider, DataType.EXPR,
+        GeneDescriptionsETL.add_annotations(annotations,
+                                            gene_annot_set,
+                                            data_provider,
+                                            DataType.EXPR,
+                                            logger,
                                             gd_data_manager.expression_ontology)
         return AssociationSetFactory().create_from_assocs(assocs=list(annotations),
                                                           ontology=gd_data_manager.expression_ontology)
 
     @staticmethod
     def get_best_orthologs_from_db(data_provider):
-        orthologs_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.GetFilteredHumanOrthologsQuery,
+        orthologs_set = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.get_filtered_human_orthologs_query,
                                                                data_provider)
         genes_orthologs_algos = defaultdict(lambda: defaultdict(int))
         best_orthologs = {}
@@ -372,21 +412,30 @@ class GeneDescriptionsETL(ETL):
         client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + release_version +
                            pre_release + cur_date + "/" + file_name + ".txt",
                            ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-        client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + release_version +
-                           pre_release + cur_date + "/" + file_name + ".tsv",
+        client.upload_file(file_path + ".tsv", "agr-db-reports",
+                           os.path.join(["gene-descriptions",
+                                        release_version + pre_release + cur_date,
+                                        file_name + ".tsv"]),
                            ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
         if context_info.env["GENERATE_REPORTS"] is True:
-            client.upload_file(file_path + ".json", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                               ".json", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-            client.upload_file(file_path + ".txt", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                               ".txt", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-            client.upload_file(file_path + ".tsv", "agr-db-reports", "gene-descriptions/" + latest_file_name +
-                               ".tsv", ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".json",
+                               "agr-db-reports",
+                               os.path.join(["gene-descriptions", latest_file_name + ".json"]),
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".txt",
+                               "agr-db-reports",
+                               os.path.join(["gene-descriptions", latest_file_name + ".txt"]),
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
+            client.upload_file(file_path + ".tsv",
+                               "agr-db-reports",
+                               os.path.join(["gene-descriptions", latest_file_name + ".tsv"]),
+                               ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
 
     @staticmethod
-    def upload_files_to_fms(file_path, context_info, data_provider):
-        with open(file_path + ".json", 'rb') as f_json, open(file_path + ".txt", 'rb') as f_txt, open(
-                file_path + ".tsv", 'rb') as f_tsv:
+    def upload_files_to_fms(file_path, context_info, data_provider, logger):
+        with open(file_path + ".json", 'rb') as f_json, \
+             open(file_path + ".txt", 'rb') as f_txt, \
+             open(file_path + ".tsv", 'rb') as f_tsv:
             if context_info.env["GENERATE_REPORTS"] is True:
                 file_to_upload = {
                     f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-JSON_{data_provider}": f_json,
@@ -402,8 +451,11 @@ class GeneDescriptionsETL(ETL):
 
             logger.debug(file_to_upload)
             logger.debug(headers)
-            logger.debug('Uploading gene description files to FMS ' + context_info.env['FMS_API_URL'])
-            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit', files=file_to_upload, headers=headers)
+            logger.debug('Uploading gene description files to FMS %s',
+                             context_info.env['FMS_API_URL'])
+            response = requests.post(context_info.env['FMS_API_URL'] + '/api/data/submit',
+                                     files=file_to_upload,
+                                     headers=headers)
             logger.info(response.text)
 
     def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
@@ -413,12 +465,14 @@ class GeneDescriptionsETL(ETL):
         json_desc_writer.overall_properties.date = self.cur_date
         file_name = self.cur_date + "_" + data_provider
         latest_file_name = data_provider + "_gene_desc_latest"
-        file_path = "tmp/" + file_name
-        json_desc_writer.write_json(file_path=file_path + ".json", pretty=True, include_single_gene_stats=True,
+        file_path = os.path.join("tmp", file_name)
+        json_desc_writer.write_json(file_path=file_path + ".json",
+                                    pretty=True,
+                                    include_single_gene_stats=True,
                                     data_manager=gd_data_manager)
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         if context_info.env["GENERATE_REPORTS"]:
-            GeneDescriptionsETL.upload_files_to_fms(file_path, context_info, data_provider)
+            self.upload_files_to_fms(file_path, context_info, data_provider, self.logger)
             # GeneDescriptionsETL.upload_files_to_s3(context_info, file_path, file_name, self.cur_date, release_version,
             #                                        latest_file_name)

@@ -15,76 +15,143 @@ class GeneDescGenerator(object):
         self.go_ontology = go_ontology
         self.do_ontology = do_ontology
         self.go_sent_gen_common_props = {
-            "evidence_groups_priority_list": self.conf_parser.get_go_evidence_groups_priority_list(),
-            "prepostfix_sentences_map": self.conf_parser.get_go_prepostfix_sentences_map(),
-            "prepostfix_special_cases_sent_map": self.conf_parser.get_go_prepostfix_special_cases_sent_map(),
-            "evidence_codes_groups_map": self.conf_parser.get_go_evidence_codes_groups_map()}
+            "evidence_groups_priority_list":
+            self.conf_parser.get_go_evidence_groups_priority_list(),
+
+            "prepostfix_sentences_map":
+            self.conf_parser.get_go_prepostfix_sentences_map(),
+
+            "prepostfix_special_cases_sent_map":
+            self.conf_parser.get_go_prepostfix_special_cases_sent_map(),
+
+            "evidence_codes_groups_map":
+            self.conf_parser.get_go_evidence_codes_groups_map()}
+
         self.go_sent_common_props = {
             "remove_parent_terms": True,
+
             "merge_num_terms_threshold": 3,
-            "merge_min_distance_from_root": self.conf_parser.get_go_trim_min_distance_from_root(),
-            "truncate_others_generic_word": self.conf_parser.get_go_truncate_others_aggregation_word(),
-            "truncate_others_aspect_words": self.conf_parser.get_go_truncate_others_terms(),
+
+            "merge_min_distance_from_root":
+            self.conf_parser.get_go_trim_min_distance_from_root(),
+
+            "truncate_others_generic_word":
+            self.conf_parser.get_go_truncate_others_aggregation_word(),
+
+            "truncate_others_aspect_words":
+            self.conf_parser.get_go_truncate_others_terms(),
+
             "add_multiple_if_covers_more_children": False}
+
         self.do_sent_gen_common_prop = {
-            "evidence_groups_priority_list": self.conf_parser.get_do_evidence_groups_priority_list(),
-            "prepostfix_sentences_map": self.conf_parser.get_do_prepostfix_sentences_map(),
+            "evidence_groups_priority_list":
+            self.conf_parser.get_do_evidence_groups_priority_list(),
+
+            "prepostfix_sentences_map":
+            self.conf_parser.get_do_prepostfix_sentences_map(),
+
             "prepostfix_special_cases_sent_map": None,
-            "evidence_codes_groups_map": self.conf_parser.get_do_evidence_codes_groups_map()}
+
+            "evidence_codes_groups_map":
+            self.conf_parser.get_do_evidence_codes_groups_map()}
+
         self.do_sent_common_props = {
             "remove_parent_terms": False,
-            "merge_num_terms_threshold": self.conf_parser.get_do_trim_min_num_terms(),
-            "merge_max_num_terms": self.conf_parser.get_do_max_num_terms(),
-            "merge_min_distance_from_root": self.conf_parser.get_do_trim_min_distance_from_root(),
-            "truncate_others_generic_word": self.conf_parser.get_do_truncate_others_aggregation_word(),
-            "truncate_others_aspect_words": self.conf_parser.get_do_truncate_others_terms(),
+
+            "merge_num_terms_threshold":
+            self.conf_parser.get_do_trim_min_num_terms(),
+
+            "merge_max_num_terms":
+            self.conf_parser.get_do_max_num_terms(),
+
+            "merge_min_distance_from_root":
+            self.conf_parser.get_do_trim_min_distance_from_root(),
+
+            "truncate_others_generic_word":
+            self.conf_parser.get_do_truncate_others_aggregation_word(),
+
+            "truncate_others_aspect_words":
+            self.conf_parser.get_do_truncate_others_terms(),
+
             "add_multiple_if_covers_more_children": True,
+
             "remove_successive_overlapped_terms": False,
-            "blacklisted_ancestors": self.conf_parser.get_do_terms_exclusion_list()}
+
+            "blacklisted_ancestors":
+            self.conf_parser.get_do_terms_exclusion_list()}
+
         self.do_via_orth_sent_gen_common_prop = {
-            "evidence_groups_priority_list": self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
-            "prepostfix_sentences_map": self.conf_parser.get_do_via_orth_prepostfix_sentences_map(),
+            "evidence_groups_priority_list":
+            self.conf_parser.get_do_via_orth_evidence_groups_priority_list(),
+
+            "prepostfix_sentences_map":
+            self.conf_parser.get_do_via_orth_prepostfix_sentences_map(),
+
             "prepostfix_special_cases_sent_map": None,
-            "evidence_codes_groups_map": self.conf_parser.get_do_via_orth_evidence_codes_groups_map()}
+
+            "evidence_codes_groups_map":
+            self.conf_parser.get_do_via_orth_evidence_codes_groups_map()}
+
         self.do_via_orth_sent_common_props = {
             "remove_parent_terms": False,
-            "merge_num_terms_threshold": self.conf_parser.get_do_via_orth_trim_min_num_terms(),
-            "merge_max_num_terms": self.conf_parser.get_do_via_orth_max_num_terms(),
-            "merge_min_distance_from_root": self.conf_parser.get_do_via_orth_trim_min_distance_from_root(),
-            "truncate_others_generic_word": self.conf_parser.get_do_via_orth_truncate_others_aggregation_word(),
-            "truncate_others_aspect_words": self.conf_parser.get_do_via_orth_truncate_others_terms(),
+
+            "merge_num_terms_threshold":
+            self.conf_parser.get_do_via_orth_trim_min_num_terms(),
+
+            "merge_max_num_terms":
+            self.conf_parser.get_do_via_orth_max_num_terms(),
+
+            "merge_min_distance_from_root":
+            self.conf_parser.get_do_via_orth_trim_min_distance_from_root(),
+
+            "truncate_others_generic_word":
+            self.conf_parser.get_do_via_orth_truncate_others_aggregation_word(),
+
+            "truncate_others_aspect_words":
+            self.conf_parser.get_do_via_orth_truncate_others_terms(),
+
             "add_multiple_if_covers_more_children": True,
+
             "remove_successive_overlapped_terms": False,
-            "blacklisted_ancestors": self.conf_parser.get_do_terms_exclusion_list()}
+
+            "blacklisted_ancestors":
+            self.conf_parser.get_do_terms_exclusion_list()}
 
     def create_orthology_sentence(self):
-        pass
+        '''Create Orhthology Sentence'''
+
 
     def set_initial_go_stats(self, gene_desc: GeneDesc, go_annotations, go_sent_generator, go_sent_generator_exp):
+        '''Set Initial GO Stats'''
+
         gene_desc.stats.total_number_go_annotations = len(go_annotations)
         gene_desc.stats.set_initial_go_ids_f = list(set().union(
-            [elem for key, sets in go_sent_generator.terms_groups[('F', '')].items() for elem in sets if
+            [elem for key, sets in go_sent_generator.terms_groups[('F', '')].items()\
+             for elem in sets if
              ('F', key, '') in
              self.conf_parser.get_go_prepostfix_sentences_map()],
-            [elem for key, sets in go_sent_generator.terms_groups[('F', 'contributes_to')].items() for elem in
+            [elem for key, sets in go_sent_generator.terms_groups[('F', 'contributes_to')].items()
+             for elem in
              sets if
              ('F', key, 'contributes_to') in self.conf_parser.get_go_prepostfix_sentences_map()]))
         gene_desc.stats.set_initial_experimental_go_ids_f = list(set().union(
-            [elem for key, sets in go_sent_generator_exp.terms_groups[('F', '')].items() for elem in sets if
+            [elem for key, sets in go_sent_generator_exp.terms_groups[('F', '')].items()
+             for elem in sets if
              ('F', key, '')
              in self.conf_parser.get_go_prepostfix_sentences_map()],
             [elem for key, sets in go_sent_generator_exp.terms_groups[
                 ('F', 'contributes_to')].items() for elem in sets if ('F', key, 'contributes_to') in
              self.conf_parser.get_go_prepostfix_sentences_map()]))
-        gene_desc.stats.set_initial_go_ids_p = [elem for key, sets in
-                                                go_sent_generator.terms_groups[('P', '')].items() for
-                                                elem in sets if ('P', key, '') in
-                                                self.conf_parser.get_go_prepostfix_sentences_map()]
-        gene_desc.stats.set_initial_experimental_go_ids_p = [elem for key, sets in
-                                                             go_sent_generator_exp.terms_groups[('P', '')].items()
-                                                             for
-                                                             elem in sets if ('P', key, '') in
-                                                             self.conf_parser.get_go_prepostfix_sentences_map()]
+        gene_desc.stats.set_initial_go_ids_p = [\
+                elem for key, sets in
+                go_sent_generator.terms_groups[('P', '')].items()
+                for elem in sets if ('P', key, '') in
+                self.conf_parser.get_go_prepostfix_sentences_map()]
+        gene_desc.stats.set_initial_experimental_go_ids_p = [\
+                elem for key, sets in
+                go_sent_generator_exp.terms_groups[('P', '')].items()
+                for elem in sets if ('P', key, '') in
+                self.conf_parser.get_go_prepostfix_sentences_map()]
         gene_desc.stats.set_initial_go_ids_c = list(set().union(
             [elem for key, sets in go_sent_generator.terms_groups[('C', '')].items() for elem in sets if
              ('C', key, '') in

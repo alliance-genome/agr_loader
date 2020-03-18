@@ -1,4 +1,7 @@
-import logging, multiprocessing
+'''Generic Ontology ETL'''
+
+import logging
+import multiprocessing
 
 from etl import ETL
 from etl.helpers import ETLHelper, OBOHelper
@@ -6,10 +9,11 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class GenericOntologyETL(ETL):
+    '''Generic Ontology ETL'''
+
+    logger = logging.getLogger(__name__)
 
     generic_ontology_term_template = """
         USING PERIODIC COMMIT %s
@@ -63,20 +67,20 @@ class GenericOntologyETL(ETL):
 
     def _load_and_process_data(self):
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-  
+
     def _process_sub_type(self, sub_type):
-        logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Generic Ontology Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
 
 
-        # This order is the same as the lists yielded from the get_generators function.    
+        # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -100,12 +104,13 @@ class GenericOntologyETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-        logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Generic Ontology Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, filepath, batch_size):
+        '''Get Genrators'''
 
         o_data = TXTFile(filepath).get_data()
-        parsed_line = OBOHelper.parseOBO(o_data)
+        parsed_line = OBOHelper.parse_obo(o_data)
 
         counter = 0
         terms = []
@@ -118,7 +123,7 @@ class GenericOntologyETL(ETL):
 
             counter += 1
             o_syns = line.get('synonym')
-            defText = None
+            def_text = None
             definition = ""
             is_obsolete = "false"
             syn = ""
@@ -139,34 +144,29 @@ class GenericOntologyETL(ETL):
                             display_synonym = synsplit
                 else:
                     synsplit = o_syns.split("\"")[1].strip()
-                    syns_dict_to_append = {
-                            'oid' : ident,
-                            'syn' : synsplit
-                        }
+                    syns_dict_to_append = {'oid' : ident,
+                                           'syn' : synsplit}
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
                         display_synonym = synsplit
             # subset
-            newSubset = line.get('subset')
-            subsets.append(newSubset)
+            new_subset = line.get('subset')
+            subsets.append(new_subset)
 
             # is_a processing
             o_is_as = line.get('is_a')
             if o_is_as is not None:
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
-                        isaWithoutName = isa.split("!")[0].strip()
-                        isas_dict_to_append ={
+                        isa_without_name = isa.split(' ')[0].strip()
+                        isas_dict_to_append = {
                             'oid' : ident,
-                            'isa' : isaWithoutName
-                        }
+                            'isa' : isa_without_name}
                         isas.append(isas_dict_to_append)
                 else:
-                    isaWithoutName = o_is_as.split("!")[0].strip()
-                    isas_dict_to_append ={
-                            'oid' : ident,
-                            'isa' : isaWithoutName
-                        }
+                    isa_without_name = o_is_as.split(' ')[0].strip()
+                    isas_dict_to_append = {'oid' : ident,
+                                           'isa' : isa_without_name}
                     isas.append(isas_dict_to_append)
 
             # part_of processing
@@ -174,21 +174,21 @@ class GenericOntologyETL(ETL):
             if relations is not None:
                 if isinstance(relations, (list, tuple)):
                     for partof in relations:
-                        relationshipDescriptors = partof.split(' ')
-                        o_part_of = relationshipDescriptors[0]
+                        relationship_descriptors = partof.split(' ')
+                        o_part_of = relationship_descriptors[0]
                         if o_part_of == 'part_of':
                             partof_dict_to_append = {
                                 'oid': ident,
-                                'partof': relationshipDescriptors[1]
+                                'partof': relationship_descriptors[1]
                             }
                             partofs.append(partof_dict_to_append)
                 else:
-                    relationshipDescriptors = relations.split(' ')
-                    o_part_of = relationshipDescriptors[0]
+                    relationship_descriptors = relations.split(' ')
+                    o_part_of = relationship_descriptors[0]
                     if o_part_of == 'part_of':
                         partof_dict_to_append = {
                                 'oid' : ident,
-                                'partof' : relationshipDescriptors[1]
+                                'partof' : relationship_descriptors[1]
                         }
                         partofs.append(partof_dict_to_append)
 
@@ -198,8 +198,6 @@ class GenericOntologyETL(ETL):
             else:
                 if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
                     definition = definition.replace('\\\"', '\"') # Replace them with just a single "
-                else:
-                    definition = defText
             if definition is None:
                 definition = ""
 
@@ -208,7 +206,7 @@ class GenericOntologyETL(ETL):
                 is_obsolete = "false"
 
             if ident is None or ident == '':
-                logger.warn("Missing oid.")
+                self.logger.warning("Missing oid.")
             else:
                 term_dict_to_append = {
                     'name': line.get('name'),
@@ -217,7 +215,7 @@ class GenericOntologyETL(ETL):
                     'definition': definition,
                     'is_obsolete': is_obsolete,
                     'oPrefix': prefix,
-                    'defText': defText,
+                    'defText': def_text,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
                     'display_synonym': display_synonym

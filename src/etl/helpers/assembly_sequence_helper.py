@@ -1,11 +1,18 @@
-import logging, os, time
+'''Assembly Sequence Helper'''
+
+import logging
+import os
+import sys
+import time
+
 from pyfaidx import Fasta
-from common import ContextInfo
-
-logger = logging.getLogger(__name__)
 
 
-class AssemblySequenceHelper(object):
+class AssemblySequenceHelper():
+    '''Assembly Sequence Helper'''
+
+    logger = logging.getLogger(__name__)
+
     def __init__(self, assembly, data_manager):
         sub_type = assembly.replace('.', '').replace('_', '')
         if sub_type.startswith('R6'):
@@ -14,44 +21,52 @@ class AssemblySequenceHelper(object):
 
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
-                logger.info(sub_type_config.get_sub_data_type())
+                self.logger.info(sub_type_config.get_sub_data_type())
                 continue
-            else:
-                filepath = sub_type_config.get_filepath()
-                logger.info(filepath)
-                break
+            filepath = sub_type_config.get_filepath()
+            self.logger.info(filepath)
+            break
+
         if filepath is None:
-            logger.warning("Can't find Assembly filepath for %s" % assembly)
-            exit(3)
+            self.logger.warning("Can't find Assembly filepath for %s", assembly)
+            sys.exit(3)
 
         self.assembly = assembly
         self.filepath = filepath
-        fa = Fasta(filepath)
-        while len(fa.keys()) == 0:
+        fasta_data = Fasta(filepath)
+        while len(fasta_data.keys()) == 0:
             time.sleep(6)
             os.remove(filepath + ".fai")
-            fa = Fasta(filepath)
-        self.fa = fa
+            fasta_data = Fasta(filepath)
+        self.fasta_data = fasta_data
 
-    def getAssembly(self):
+    def get_assembly(self):
+        '''Assembly'''
+
         return self.assembly
 
-    def getFilepath(self):
+    def get_filepath(self):
+        '''Filepath'''
+
         return self.filepath
 
-    def getChromosomes(self):
-        return self.fa.keys()
+    def get_chromosomes(self):
+        '''Chromosomes'''
 
-    def getSequence(self, chromosome, first, second):
+        return self.fasta_data.keys()
+
+    def get_sequence(self, chromosome, first, second):
+        '''Sequence'''
+
         if first > second:
-           start = second
-           end = first
+            start = second
+            end = first
         else:
-           start = first
-           end = second
+            start = first
+            end = second
 
         start = start - 1
-        if chromosome in self.fa:
-            return self.fa[chromosome][start:end].seq
-        else:
-            logger.warning("Chromosome " + chromosome + " not in assembly " + self.assembly)
+        if chromosome in self.fasta_data:
+            return self.fasta_data[chromosome][start:end].seq
+
+        self.logger.warning("Chromosome %s not in assembly %s", chromosome, self.assembly)

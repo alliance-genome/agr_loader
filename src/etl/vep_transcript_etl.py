@@ -1,3 +1,5 @@
+'''VEP Transcript ETL'''
+
 import logging
 import multiprocessing
 import uuid
@@ -7,11 +9,12 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
+class VEPTtranscriptETL(ETL):
+    '''VEP Transcript ETL'''
 
+    logger = logging.getLogger(__name__)
 
-class VEPTRANSCRIPTETL(ETL):
-    vep_transcript_query_template = """
+    vep_transcript_query = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -37,20 +40,21 @@ class VEPTRANSCRIPTETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-        logger.info("Loading VEP Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading VEP Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [VEPTRANSCRIPTETL.vep_transcript_query_template, commit_size, "vep_transcript_data_" + sub_type.get_data_provider() + ".csv"]
+            [self.vep_transcript_query, commit_size,
+             "vep_transcript_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -61,6 +65,7 @@ class VEPTRANSCRIPTETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath):
+        '''Get Generators'''
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
@@ -70,31 +75,30 @@ class VEPTRANSCRIPTETL(ETL):
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
-            else:
-                notes = columns[13]
-                kvpairs = notes.split(";")
-                if kvpairs is not None:
-                    for pair in kvpairs:
-                        key = pair.split("=")[0]
-                        value = pair.split("=")[1]
-                        if key == 'IMPACT':
-                            impact = value
-                if columns[3].startswith('Gene:'):
-                    geneId = columns[3].lstrip('Gene:')
-                elif columns[3].startswith('RGD:'):
-                    geneId = columns[3].lstrip('RGD:')
-                else:
-                    geneId = columns[3]
 
-                vep_result = {"hgvsNomenclature": columns[0],
-                              "transcriptLevelConsequence": columns[6],
-                              "primaryKey": str(uuid.uuid4()),
-                              "impact": impact,
-                              "gene": geneId,
-                              "transcriptId": columns[4]}
-                if columns[4] == 'FBtr0079106':
-                    logger.info(vep_result)
-                vep_maps.append(vep_result)
+            notes = columns[13]
+            kvpairs = notes.split(";")
+            if kvpairs is not None:
+                for pair in kvpairs:
+                    key = pair.split("=")[0]
+                    value = pair.split("=")[1]
+                    if key == 'IMPACT':
+                        impact = value
+            if columns[3].startswith('Gene:'):
+                gene_id = columns[3].lstrip('Gene:')
+            elif columns[3].startswith('RGD:'):
+                gene_id = columns[3].lstrip('RGD:')
+            else:
+                gene_id = columns[3]
+
+            vep_result = {"hgvsNomenclature": columns[0],
+                          "transcriptLevelConsequence": columns[6],
+                          "primaryKey": str(uuid.uuid4()),
+                          "impact": impact,
+                          "gene": gene_id,
+                          "transcriptId": columns[4]}
+            if columns[4] == 'FBtr0079106':
+                self.logger.info(vep_result)
+            vep_maps.append(vep_result)
 
         yield [vep_maps]
-

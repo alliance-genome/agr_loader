@@ -104,10 +104,12 @@ class DataFileManager(metaclass=Singleton):
 
             self.logger.debug('Processing DataType: %s', config_entry)
 
-            # Create our data type object and add it to our master dictionary filed under the config_entry.
+            # Create our data type object and add it to our master dictionary filed
+            # under the config_entry.
             # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
-            self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry,
-                                                                       self.transformed_submission_system_data[config_entry])
+            self.master_data_dictionary[config_entry] = DataTypeConfig( \
+                    config_entry,
+                    self.transformed_submission_system_data[config_entry])
 
     def download_and_validate(self):
         '''download an vlidatae config file'''
@@ -148,11 +150,14 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, data_type, sub_type):
 
         try:
-            returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
+            returned_dict = next(item for item in self.submission_system_data['snapShot'] \
+                                                                             ['dataFiles']
                                  if item['dataType'].get('name') == data_type
                                  and item['dataSubType'].get('name') == sub_type)
         except StopIteration:
-            self.logger.debug('dataType: %s subType: %s not found in submission system data.', data_type, sub_type)
+            self.logger.debug('dataType: %s subType: %s not found in submission system data.',
+                              data_type,
+                              sub_type)
             self.logger.debug('Creating entry with \'None\' path and extracted path.')
             returned_dict = {
                 'dataType': data_type,
@@ -165,10 +170,12 @@ class DataFileManager(metaclass=Singleton):
     def query_submission_system(self):
         '''get file information from Submission System (FMS)'''
 
-        # The list of tuples below is created to filter out submission system data against our config file.
+        # The list of tuples below is created to filter out submission
+        # system data against our config file.
         ontologies_to_transform = ('GO', 'DOID', 'MI', 'ECOMAP')  # These have non-generic loaders.
 
-        self.transformed_submission_system_data['releaseVersion'] = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
+        self.transformed_submission_system_data['releaseVersion'] \
+                = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
 
         config_values_to_ignore = [
             'releaseVersion',  # Manually assigned above.
@@ -191,10 +198,13 @@ class DataFileManager(metaclass=Singleton):
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'ONTOLOGY':
+                        self.logger.info(sub_entry)
                         self.transformed_submission_system_data[sub_entry] = []
-                        self.transformed_submission_system_data[sub_entry].append([sub_entry, path, temp_extracted_file])
+                        self.transformed_submission_system_data[sub_entry]\
+                                .append([sub_entry, path, temp_extracted_file])
                     else:
-                        self.transformed_submission_system_data[entry].append([sub_entry, path, temp_extracted_file])
+                        self.transformed_submission_system_data[entry]\
+                                .append([sub_entry, path, temp_extracted_file])
             else:
                 self.logger.debug("Ignoring entry: %s", entry)
 

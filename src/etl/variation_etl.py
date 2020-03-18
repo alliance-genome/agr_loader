@@ -1,3 +1,5 @@
+'''Variation ETL'''
+
 import logging
 import multiprocessing
 import uuid
@@ -9,12 +11,15 @@ from transactors import CSVTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from common import ContextInfo
 
-logger = logging.getLogger(__name__)
+
 
 
 class VariationETL(ETL):
+    '''Variation ETL'''
 
-    variation_query_template = """
+    logger = logging.getLogger(__name__)
+
+    variation_query = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -37,7 +42,7 @@ class VariationETL(ETL):
                 MERGE (o)-[:VARIATION]->(a) 
                 MERGE (g)-[:COMPUTED_GENE]->(o) """
 
-    soterms_template = """
+    soterms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
@@ -45,7 +50,7 @@ class VariationETL(ETL):
             MERGE (o)-[:VARIATION_TYPE]->(s)"""
 
 
-    genomic_locations_template = """
+    genomic_locations_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -66,12 +71,13 @@ class VariationETL(ETL):
             MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
     """
 
-    xrefs_template = """
+    xrefs_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Variant {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Variant {primaryKey:row.dataId})
+    """ + ETLHelper.get_cypher_xref_text()
 
 
     def __init__(self, config):
@@ -82,21 +88,21 @@ class VariationETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
 
-        logger.info("Loading Variation Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Variation Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Variation Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Variation Data: %s", sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         # This order is the same as the lists yielded from the get_generators function.
@@ -107,12 +113,13 @@ class VariationETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [VariationETL.variation_query_template, commit_size, "variation_data_" + sub_type.get_data_provider() + ".csv"],
-            [VariationETL.genomic_locations_template, commit_size,
+            [self.variation_query, commit_size,
+             "variation_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.genomic_locations_query, commit_size,
              "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
-            [VariationETL.soterms_template, commit_size,
+            [self.soterms_query, commit_size,
              "variant_soterms_" + sub_type.get_data_provider() + ".csv"],
-            [VariationETL.xrefs_template, commit_size,
+            [self.xrefs_query, commit_size,
              "variant_xrefs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -124,6 +131,8 @@ class VariationETL(ETL):
 
     def get_hgvs_nomenclature(self, refseqId, variantType, start_position,
                               end_position, reference_sequence, variant_sequence):
+        '''Get HGVS nomenclature'''
+
         if start_position is None:
             start_position_str = ""
         else:
@@ -137,12 +146,12 @@ class VariationETL(ETL):
         if variant_sequence is None:
             variant_sequence_str = ""
         else:
-           variant_sequence_str = variant_sequence
+            variant_sequence_str = variant_sequence
 
         if reference_sequence is None:
             reference_sequence_str = ""
         else:
-           reference_sequence_str = reference_sequence
+            reference_sequence_str = reference_sequence
 
 
         hgvs_nomenclature = refseqId.split(":")[1] + ':g.' + start_position_str
@@ -162,169 +171,195 @@ class VariationETL(ETL):
         return hgvs_nomenclature
 
     def get_generators(self, variant_data, data_provider, batch_size):
-        dataProviders = []
+        '''Get Generators'''
+
+        data_providers = []
         release = ""
         variants = []
         variant_genomic_locations = []
         variant_so_terms = []
-        crossReferences = []
+        cross_references = []
         counter = 0
-        dateProduced = variant_data['metaData']['dateProduced']
+        date_produced = variant_data['metaData']['dateProduced']
 
-        dataProviderObject = variant_data['metaData']['dataProvider']
+        data_provider_object = variant_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_VARIATION"
+        load_key = date_produced + data_provider + "_VARIATION"
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
-                                                                      dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                       dataProviderPage, dataProvider,
-                                                                       crossRefCompleteUrl,
-                                                                       dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict( \
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.debug("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                self.logger.debug("data provider: %s", data_provider)
 
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
 
         assemblies = {}
-        for alleleRecord in variant_data['data']:
-            chromosome = alleleRecord["chromosome"]
+        for allele_record in variant_data['data']:
+            chromosome = allele_record["chromosome"]
             if chromosome.startswith("chr"):
                 chromosome_str = chromosome[3:]
             else:
                 chromosome_str = chromosome
 
-            assembly = alleleRecord["assembly"]
+            assembly = allele_record["assembly"]
             if assembly not in assemblies:
-               context_info = ContextInfo()
-               data_manager = DataFileManager(context_info.config_file_location)
-               assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
+                context_info = ContextInfo()
+                data_manager = DataFileManager(context_info.config_file_location)
+                assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
 
-            SOTermId = alleleRecord.get('type')
-            genomicReferenceSequence = alleleRecord.get('genomicReferenceSequence')
-            genomicVariantSequence = alleleRecord.get('genomicVariantSequence')
+            so_term_id = allele_record.get('type')
+            genomic_reference_sequence = allele_record.get('genomicReferenceSequence')
+            genomic_variant_sequence = allele_record.get('genomicVariantSequence')
 
-            if genomicReferenceSequence == 'N/A':
-                genomicReferenceSequence = ""
-            if genomicVariantSequence == 'N/A':
-                genomicVariantSequence = ""
+            if genomic_reference_sequence == 'N/A':
+                genomic_reference_sequence = ""
+            if genomic_variant_sequence == 'N/A':
+                genomic_variant_sequence = ""
 
-            paddingLeft = ""
-            paddingRight = ""
-            if alleleRecord.get('start') != "" and alleleRecord.get('end') != "":
+            padding_left = ""
+            padding_right = ""
+            if allele_record.get('start') != "" and allele_record.get('end') != "":
 
                 # not insertion
-                if SOTermId != "SO:0000667" and chromosome_str != "Unmapped_Scaffold_8_D1580_D1567":
-                    genomicReferenceSequence = assemblies[assembly].getSequence(chromosome_str,
-                                                                                alleleRecord.get('start'),
-                                                                                alleleRecord.get('end'))
+                if so_term_id != "SO:0000667" and \
+                   chromosome_str != "Unmapped_Scaffold_8_D1580_D1567":
+                    genomic_reference_sequence = assemblies[assembly].getSequence( \
+                            chromosome_str,
+                            allele_record.get('start'),
+                            allele_record.get('end'))
 
-                if alleleRecord.get('start') < alleleRecord.get('end'):
-                    start = alleleRecord.get('start')
-                    end = alleleRecord.get('end')
+                if allele_record.get('start') < allele_record.get('end'):
+                    start = allele_record.get('start')
+                    end = allele_record.get('end')
                 else:
-                    start = alleleRecord.get('end')
-                    end = alleleRecord.get('start')
+                    start = allele_record.get('end')
+                    end = allele_record.get('start')
 
-                paddingWidth = 500
-                if SOTermId != "SO:0000667": #not insertion
+                padding_width = 500
+                if so_term_id != "SO:0000667": #not insertion
                     start = start - 1
                     end = end + 1
 
-                leftPaddingStart = start - paddingWidth
-                if leftPaddingStart < 1:
-                    leftPaddingStart = 1
+                left_padding_start = start - padding_width
+                if left_padding_start < 1:
+                    left_padding_start = 1
 
-                paddingLeft = assemblies[assembly].getSequence(chromosome_str,
-                                                               leftPaddingStart,
-                                                               start)
-                rightPaddingEnd = end + paddingWidth
-                paddingRight = assemblies[assembly].getSequence(chromosome_str,
-                                                                end,
-                                                                rightPaddingEnd)
+                padding_left = assemblies[assembly].getSequence(chromosome_str,
+                                                                left_padding_start,
+                                                                start)
+                right_padding_end = end + padding_width
+                padding_right = assemblies[assembly].getSequence(chromosome_str,
+                                                                 end,
+                                                                 right_padding_end)
             counter = counter + 1
-            globalId = alleleRecord.get('alleleId')
-            modGlobalCrossRefId = ""
-            crossReferences = []
+            global_id = allele_record.get('alleleId')
+            mod_global_cross_ref_id = ""
+            cross_references = []
 
             if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
+                is_it_test_entry = self.testObject.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
 
-            crossRefPrimaryId = alleleRecord.get('sequenceOfReferenceAccessionNumber')
-            localCrossRefId = crossRefPrimaryId.split(":")[1]
-            prefix = crossRefPrimaryId.split(":")[0]
+            cross_ref_primary_id = allele_record.get('sequenceOfReferenceAccessionNumber')
+            local_cross_ref_id = cross_ref_primary_id.split(":")[1]
+            prefix = cross_ref_primary_id.split(":")[0]
 
-            crossRefCompleteUrl = ETLHelper.get_no_page_complete_url(localCrossRefId, ETL.xrefUrlMap, prefix,
-                                                                     globalId)
-            xrefMap = ETLHelper.get_xref_dict(localCrossRefId, prefix, "variant_sequence_of_reference",
-                                              "sequence_of_reference_accession_number", globalId, crossRefCompleteUrl,
-                                              crossRefPrimaryId + "variant_sequence_of_reference")
-            xrefMap['dataId'] = globalId
-            if crossRefPrimaryId is not None:
-                crossReferences.append(xrefMap)
+            cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
+                                                                        ETL.xref_url_map,
+                                                                        prefix,
+                                                                        global_id)
+            xref_map = ETLHelper.get_xref_dict( \
+                             local_cross_ref_id, \
+                             prefix,
+                             "variant_sequence_of_reference",
+                             "sequence_of_reference_accession_number",
+                             global_id,
+                             cross_ref_complete_url,
+                             cross_ref_primary_id + "variant_sequence_of_reference")
 
-            if genomicReferenceSequence is not None:
-                if len(genomicReferenceSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.debug(alleleRecord.get('alleleId') + "genomicReferenceSequence")
-            if genomicVariantSequence is not None:
-                if len(genomicVariantSequence) > 1000 and (alleleRecord.get('type') == 'SO:1000002' or alleleRecord.get('type') == 'SO:1000008'):
-                    logger.debug(alleleRecord.get('alleleId') + "genomicVariantSequence")
+            xref_map['dataId'] = global_id
+            if cross_ref_primary_id is not None:
+                cross_references.append(xref_map)
 
-            hgvs_nomenclature = self.get_hgvs_nomenclature(alleleRecord.get('sequenceOfReferenceAccessionNumber'),
-                                                           alleleRecord.get('type'),
-                                                           alleleRecord.get('start'),
-                                                           alleleRecord.get('end'),
-                                                           genomicReferenceSequence,
-                                                           genomicVariantSequence)
+            if genomic_reference_sequence is not None:
+                if len(genomic_reference_sequence) > 1000 \
+                     and (allele_record.get('type') == 'SO:1000002' \
+                   or allele_record.get('type') == 'SO:1000008'):
+                    self.logger.debug("%s genomicReferenceSequence", allele_record.get('alleleId'))
 
-            if (genomicReferenceSequence is not None and len(genomicReferenceSequence) > 30000)\
-                    or (genomicVariantSequence is not None and len(genomicVariantSequence)) > 30000:
-                logger.debug(alleleRecord.get('alleleId') + " has too long of a sequence potentionally")
+            if genomic_variant_sequence is not None:
+                if len(genomic_variant_sequence) > 1000 \
+                   and (allele_record.get('type') in ['SO:1000002', 'SO:1000008']):
+                    self.logger.debug("%s genomicVariantSequence", allele_record.get('alleleId'))
+
+            hgvs_nomenclature = self.get_hgvs_nomenclature( \
+                    allele_record.get('sequenceOfReferenceAccessionNumber'),
+                    allele_record.get('type'),
+                    allele_record.get('start'),
+                    allele_record.get('end'),
+                    genomic_reference_sequence,
+                    genomic_variant_sequence)
+
+            if (genomic_reference_sequence is not None \
+                 and len(genomic_reference_sequence) > 30000) \
+               or (genomic_variant_sequence is not None \
+                   and len(genomic_variant_sequence)) > 30000:
+                self.logger.debug("%s has too long of a sequence potentionally",
+                                  allele_record.get('alleleId'))
 
             # TODO: fix typo in MGI Submission for this variant so that it doesn't list a 40K bp point mutation.
-            if alleleRecord.get('alleleId') != 'MGI:6113870':
+            if allele_record.get('alleleId') != 'MGI:6113870':
 
                 variant_dataset = {
-                "hgvs_nomenclature": hgvs_nomenclature,
-                "genomicReferenceSequence": genomicReferenceSequence,
-                "genomicVariantSequence": genomicVariantSequence,
-                "paddingLeft": paddingLeft,
-                "paddingRight": paddingRight,
-                "alleleId": alleleRecord.get('alleleId'),
-                "dataProviders": dataProviders,
-                "dateProduced": dateProduced,
-                "loadKey": loadKey,
-                "release": release,
-                "modGlobalCrossRefId": modGlobalCrossRefId,
-                "dataProvider": data_provider
+                    "hgvs_nomenclature": hgvs_nomenclature,
+                    "genomicReferenceSequence": genomic_reference_sequence,
+                    "genomicVariantSequence": genomic_variant_sequence,
+                    "paddingLeft": padding_left,
+                    "paddingRight": padding_right,
+                    "alleleId": allele_record.get('alleleId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
+                    "loadKey": load_key,
+                    "release": release,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
+                    "dataProvider": data_provider
                 }
 
                 variant_genomic_location_dataset = {
                     "variantId": hgvs_nomenclature,
-                    "assembly": alleleRecord.get('assembly'),
+                    "assembly": allele_record.get('assembly'),
                     "chromosome": chromosome_str,
-                    "start": alleleRecord.get('start'),
-                    "end": alleleRecord.get('end'),
+                    "start": allele_record.get('start'),
+                    "end": allele_record.get('end'),
                     "uuid": str(uuid.uuid4())
 
                 }
 
                 variant_so_term = {
                     "variantId": hgvs_nomenclature,
-                    "soTermId": alleleRecord.get('type')
+                    "soTermId": allele_record.get('type')
                 }
 
                 variant_so_terms.append(variant_so_term)
@@ -332,11 +367,11 @@ class VariationETL(ETL):
                 variants.append(variant_dataset)
 
             if counter == batch_size:
-                yield [variants, variant_genomic_locations, variant_so_terms, crossReferences]
+                yield [variants, variant_genomic_locations, variant_so_terms, cross_references]
                 variants = []
-                variant_genomic_locations =[]
-                variant_so_terms =[]
-                crossReferences = []
+                variant_genomic_locations = []
+                variant_so_terms = []
+                cross_references = []
 
         if counter > 0:
-            yield [variants, variant_genomic_locations, variant_so_terms, crossReferences]
+            yield [variants, variant_genomic_locations, variant_so_terms, cross_references]

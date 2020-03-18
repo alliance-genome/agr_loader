@@ -113,16 +113,48 @@ class BGIETL(ETL):
               ON CREATE SET spec.species = row.species, 
                             spec.name = row.species,
                             spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
+    """
 
-            MERGE (o)-[:FROM_SPECIES]->(spec)
-            MERGE (o)-[:LOADED_FROM]->(l) """
+    basic_gene_load_relations_query_template = """
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+        MATCH (l:Load {primaryKey:row.loadKey})
+        MATCH (g:Gene {primaryKey:row.primaryId})
+        MERGE (g)-[:LOADED_FROM]->(l) 
+    
+    """
+
+    basic_gene_species_relations_query_template = """
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+        MATCH (spec:Species {primaryKey: row.taxonId})
+        MATCH (g:Gene {primaryKey: row.primaryId})
+
+        MERGE (g)-[:FROM_SPECIES]->(spec)
+
+    """
 
     xrefs_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
+
+    xrefs_relationships_template = """
+    
+        USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Gene {primaryKey:row.dataId})
+            MATCH (c:CrossReference {primaryKey:row.primaryKey})
+            
+            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
+            
+    """ + ETLHelper.merge_crossref_relationships()
+
 
     gene_metadata_template = """
 
@@ -147,14 +179,23 @@ class BGIETL(ETL):
 
         thread_pool = []
 
+        query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process = multiprocessing.Process(target=self._process_sub_type,
+                                              args=(sub_type, query_tracking_list))
             process.start()
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
-    def _process_sub_type(self, sub_type):
+        queries = []
+        for item in query_tracking_list:
+            queries.append(item)
+            
+        Neo4jTransactor.execute_query_batch(queries)
+    
+    def _process_sub_type(self, sub_type, query_tracking_list):
+        
         self.logger.info("Loading BGI Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         if filepath is None:
@@ -174,11 +215,14 @@ class BGIETL(ETL):
         query_list = [
             [BGIETL.gene_metadata_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.basic_gene_load_relations_query_template, commit_size, "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.basic_gene_species_relations_query_template, commit_size, "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.soterms_template, commit_size, "gene_soterms_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.chromosomes_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_secondaryIds_template, commit_size, "gene_secondarids_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.genomic_locations_template, commit_size, "gene_genomicLocations_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.xrefs_template, commit_size, "gene_crossReferences_" + sub_type.get_data_provider() + ".csv"],
+            [BGIETL.xrefs_relationships_template, commit_size, "gene_crossReferences_relationships_" + sub_type.get_data_provider() + ".csv"],
             [BGIETL.gene_synonyms_template, 600000, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -187,7 +231,9 @@ class BGIETL(ETL):
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-        Neo4jTransactor.execute_query_batch(query_and_file_list)
+
+        for item in query_and_file_list:
+            query_tracking_list.append(item)
 
         self.logger.info("Finished Loading BGI Data: %s" % sub_type.get_data_provider())
 
@@ -198,8 +244,9 @@ class BGIETL(ETL):
         synonyms = []
         secondary_ids = []
         cross_references = []
+        xref_relations = []
         genomic_locations = []
-        genomic_location_bins = []
+        genomic_locationBins = []
         gene_dataset = []
         gene_metadata = []
         gene_to_so_terms = []
@@ -492,13 +539,15 @@ class BGIETL(ETL):
                 counter = 0
                 yield [gene_metadata,
                        gene_dataset,
+                       gene_dataset,
+                       gene_dataset,
                        gene_to_so_terms,
                        [],
                        secondary_ids,
                        genomic_locations,
                        cross_references,
+                       cross_references,
                        synonyms]
-
                 gene_metadata = []
                 gene_dataset = []
                 synonyms = []
@@ -506,13 +555,17 @@ class BGIETL(ETL):
                 genomic_locations = []
                 cross_references = []
                 gene_to_so_terms = []
+                xref_relations = []
 
         if counter > 0:
             yield [gene_metadata,
+                   gene_dataset,
+                   gene_dataset,
                    gene_dataset,
                    gene_to_so_terms,
                    chromosomes.values(),
                    secondary_ids,
                    genomic_locations,
+                   cross_references,
                    cross_references,
                    synonyms]

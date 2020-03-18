@@ -1,14 +1,17 @@
+'''Molecular Interaction ETL'''
+
 import logging
-import urllib, json
 
 from etl import ETL
+from etl.helpers import OBOHelper
+from files import TXTFile
 from transactors import CSVTransactor, Neo4jTransactor
-
-logger = logging.getLogger(__name__)
-
 
 
 class MIETL(ETL):
+    '''MI ETL'''
+
+    logger = logging.getLogger(__name__)
 
     query_template = """
         USING PERIODIC COMMIT %s
@@ -27,16 +30,20 @@ class MIETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        generators = self.get_generators()
+        filepath = self.data_type_config.get_single_filepath()
+        generators = self.get_generators(filepath)
 
         query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        
+
+
     @staticmethod
     def add_miterm_url(identifier):
+        '''Add MI Term URL'''
+
         mi_term_url_dict = {
             'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
             'MI:0469' : 'http://www.ebi.ac.uk/intact',
@@ -60,6 +67,8 @@ class MIETL(ETL):
 
     @staticmethod
     def adjust_database_names(name):
+        '''Adjust database names'''
+
         mi_database_name_dict = {
             'flybase': 'FlyBase',
             'wormbase': 'WormBase',
@@ -85,50 +94,55 @@ class MIETL(ETL):
 
     @staticmethod
     def add_definition(term):
+        '''Add definition'''
+
         try:
             return term['annotation']['definition'][0]
         except KeyError:
             return None
 
-    def get_generators(self):
+    def get_generators(self, filepath):
+        '''Create Genrators'''
 
-        mi_term_ontology_full = None
-
-        # TODO Make size configurable?
-        logger.info('Downloading MI ontology terms via: https://www.ebi.ac.uk/ol/api/ontologies/mi/terms?size=500')
-
-        response = urllib.request.urlopen("https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?size=500")
-
-        mi_term_ontology = json.loads(response.read().decode())
-
-        logger.info('Determining total number of terms and pages to request...')
-        total_terms = mi_term_ontology['page']['totalElements']
-        total_pages = mi_term_ontology['page']['totalPages']
-
-        logger.info('Requesting %s terms over %s pages.' % (total_terms, total_pages))
+        o_data = TXTFile(filepath).get_data()
+        parsed_line = OBOHelper.parse_obo(o_data)
 
         processed_mi_list = []
-        for i in range(total_pages):
-            request_url = 'https://www.ebi.ac.uk/ols/api/ontologies/mi/terms?page=%s&size=500' % (i)
-            logger.info('Retrieving terms from page %s of %s.' % (i+1, total_pages))
 
-            response = urllib.request.urlopen(request_url)
+        for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
-            mi_term_ontology_full = json.loads(response.read().decode())
+            ident = line['id'].strip()
 
-            for term in mi_term_ontology_full['_embedded']['terms']:
-                if term['obo_id'] is not None: # Avoid weird "None" entry from MI ontology.
+            definition = line.get('def')
 
-                    adjusted_label = self.adjust_database_names(term['label'])
-                    if adjusted_label != term['label']:
-                        logger.info('Updated MI database name: {} -> {}'.format(term['label'], adjusted_label))
+            if definition is None:
+                definition = ""
+            else:
+                # Looking to remove instances of \" in the definition string.
+                if "\\\"" in definition:
+                    # Replace them with just a single "
+                    definition = definition.replace('\\\"', '\"')
+                if definition is None:
+                    definition = ""
 
-                    dict_to_append = {
-                            'identifier': term['obo_id'],
-                            'label': adjusted_label,
-                            'definition': self.add_definition(term),
-                            'url': self.add_miterm_url(term['obo_id'])
-                            }
-                    processed_mi_list.append(dict_to_append)
+            is_obsolete = line.get('is_obsolete')
+            if is_obsolete is None:
+                is_obsolete = "false"
+
+            if ident is None or ident == '':
+                self.logger.warning("Missing oid.")
+
+            else:
+                dict_to_append = {
+                    'name': self.adjust_database_names(line.get('name')),
+                    'name_key': self.adjust_database_names(line.get('name')),
+                    'oid': ident,
+                    'identifier': ident,
+                    'definition': definition,
+                    'is_obsolete': is_obsolete,
+                    'label': self.adjust_database_names(line.get('name')),
+                    'url': self.add_miterm_url(ident)
+                }
+                processed_mi_list.append(dict_to_append)
 
         yield [processed_mi_list]

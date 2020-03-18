@@ -13,7 +13,7 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
                 AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
                 ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
                 GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTRANSCRIPTETL, Neo4jHelper
+                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper
 
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -91,7 +91,7 @@ class AggregateLoader():
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
         'VEP': VEPETL,
-        'VEPTRANSCRIPT': VEPTRANSCRIPTETL
+        'VEPTRANSCRIPT': VEPTranscriptETL
     }
 
     # This is the order in which data types are loaded.

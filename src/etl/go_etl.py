@@ -5,8 +5,10 @@ from ontobio import OntologyFactory
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 
+
 class GOETL(ETL):
     '''GO ETL'''
+
     logger = logging.getLogger(__name__)
 
     query_template = """
@@ -31,7 +33,7 @@ class GOETL(ETL):
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:IS_A]->(g2) """
-            
+
     goterm_partofs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -39,7 +41,7 @@ class GOETL(ETL):
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:PART_OF]->(g2) """
-            
+
     goterm_synonyms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row

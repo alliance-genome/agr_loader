@@ -1,19 +1,21 @@
+'''Gene Disease Orthology ETL'''
+
 import logging
-logger = logging.getLogger(__name__)
-from etl import ETL
-from .helpers import Neo4jHelper
-from transactors import CSVTransactor, Neo4jTransactor
 import multiprocessing
-import uuid, logging
+import uuid
+
 from datetime import datetime
+from etl import ETL
+from transactors import CSVTransactor, Neo4jTransactor
+from .helpers import Neo4jHelper
+
 
 class GeneDiseaseOrthoETL(ETL):
+    '''Gene Disease Orthology ETL'''
 
-    def __init__(self, config):
-        super().__init__()
-        self.data_type_config = config
+    logger = logging.getLogger(__name__)
 
-    insert_gene_disease_ortho = """
+    insert_gene_disease_ortho_query = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                 
@@ -23,24 +25,22 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
+                 CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                    SET rel.dataProvider = "Alliance",
+                        rel.dateProduced = row.dateProduced,
+                        rel.dateAssigned = row.dateAssigned
+                    REMOVE rel.noOp
+
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    SET dga.dataProvider = 'Alliance',
-                                  dga.sortOrder = 10
-
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'biomarker_via_orthology')
-
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_IMPLICATED_IN' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'implicated_via_orthology')
+                    ON CREATE SET dga.dataProvider = 'Alliance',
+                                  dga.sortOrder = 10,
+                                  dga.joinType = row.relationTypeLower
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
-                    SET pubEJ.joinType = 'pub_evidence_code_join'
+                    SET pubEJ.joinType = 'pub_evidence_code_join',
+                         pubEJ.dateProduced = row.dateProduced,
+                        pubEJ.dateAssigned = row.dateAssigned
+                        
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
                 MERGE (dga)-[dadg:ASSOCIATION]->(d)
@@ -51,57 +51,62 @@ class GeneDiseaseOrthoETL(ETL):
                 CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
     """
 
+    def __init__(self, config):
+        super().__init__()
+        self.data_type_config = config
+
 
     def _load_and_process_data(self):
         self.create_pub()
 
         thread_pool = []
 
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+        process = multiprocessing.Process(target=self._process, args=(self))
+        process.start()
+        thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
-    def _process_sub_type(self, subtype):
+    def _process(self):
 
-        logger.info("Starting Gene Disease Ortho Data")
+        self.logger.info("Starting Gene Disease Ortho Data")
         query_list = [
-            [self.insert_gene_disease_ortho, "10000",
-             "gene_disease_by_orthology.csv"]
+            [self.insert_gene_disease_ortho_query, "10000", "gene_disease_by_orthology.csv"]
         ]
 
-        logger.info("gene disease ortho pub created")
+        self.logger.info("gene disease ortho pub created")
 
         generators = self.retrieve_gene_disease_ortho()
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        
-        logger.info("Finished Gene Disease Ortho Data")
+
+        self.logger.info("Finished Gene Disease Ortho Data")
 
     def create_pub(self):
+        '''create publication'''
 
-        logger.info("made it to the create pub for gene disease ortho")
+        self.logger.info("made it to the create pub for gene disease ortho")
 
-        addPub = """              
+        add_pub_query = """
         
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
-              MERGE (:ECOTerm {primaryKey:"ECO:0000501"})
+              MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
               
                     """
 
-        logger.info("pub creation started")
-        Neo4jHelper().run_single_query(addPub)
+        self.logger.info("pub creation started")
+        Neo4jHelper().run_single_query(add_pub_query)
 
-        logger.info("pub creation finished")
+        self.logger.info("pub creation finished")
 
     def retrieve_gene_disease_ortho(self):
-        logger.info("reached gene disease ortho retrieval")
+        '''Retrieve Gene Disease Orthology'''
+
+        self.logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho = """
             MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
@@ -118,18 +123,25 @@ class GeneDiseaseOrthoETL(ETL):
                     ec.primaryKey as ec
         """
 
-        returnSet = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
+        return_set = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
 
         gene_disease_ortho_data = []
-
-        for record in returnSet:
-            row = dict(primaryId=record["geneID"],
-                    fromGeneId=record["fromGeneID"],
-                    relationshipType=record["relationType"],
-                    doId=record["doId"],
-                    dateProduced=datetime.now(),
-                    uuid=record["geneID"]+record["relationType"]+record["doId"],
-                    pubEvidenceUuid=str(uuid.uuid4()))
+        relation_type = ""
+        date = datetime.now()
+        for record in return_set:
+            if record['relationType'] == 'IS_IMPLICATED_IN':
+                relation_type = 'IMPLICATED_VIA_ORTHOLOGY'
+            elif record['relationType'] == 'IS_MARKER_FOR':
+                relation_type = 'BIOMARKER_VIA_ORTHOLOGY'
+            row = dict(primary_id=record["geneID"],
+                       from_gene_id=record["fromGeneID"],
+                       relationship_type=relation_type,
+                       relation_type_lower=relation_type.lower(),
+                       do_id=record["doId"],
+                       date_produced=date,
+                       date_assigned=date,
+                       uuid=record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
+                       pub_evidence_uuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

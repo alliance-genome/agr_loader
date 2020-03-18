@@ -78,8 +78,9 @@ class SubTypeConfig(object):
                         os.path.isfile(self.filepath)
                     except (FileNotFoundError, IOError):
                         self.logger.critical('No local copy of the specified file found!')
-                        self.logger.critical('Missing copy of %s for sub type: %s from data type: %s',
+                        self.logger.critical('Missing copy of %s for sub type: %s %s: %s',
                                              self.filepath,
+                                             "from data_type",
                                              self.sub_data_type,
                                              self.data_type)
                         self.logger.critical('Please check download functions or data source.')
@@ -115,8 +116,11 @@ class SubTypeConfig(object):
             pass
         # End of temporary validation method.
 
-        # The code below can run "as is" for validation skipping using the Download / S3 methods to check for existing files.
-        # The submission system needs to be in place (files are downloaded as .json) for this to work.
+        # The code below can run "as is" for validation skipping using the Download
+        # / S3 methods to check for existing files.
+        # The submission system needs to be in place (files are downloaded as .json)
+        # for this to work.
+
         if self.already_downloaded is True:
             self.logger.debug('Found temp validation file flag for %s. Skipping validation.',
                               self.filepath)
@@ -155,11 +159,11 @@ class SubTypeConfig(object):
             self.logger.debug("'%s' successfully validated against '%s'",
                               self.filepath,
                               schema_file_name)
-        except jsonschema.ValidationError as e:
-            self.logger.critical(e.message)
-            self.logger.critical(e)
+        except jsonschema.ValidationError as error:
+            self.logger.critical(error.message)
+            self.logger.critical(error)
             raise SystemExit("FATAL ERROR in JSON validation.")
-        except jsonschema.SchemaError as e:
-            self.logger.critical(e.message)
-            self.logger.critical(e)
+        except jsonschema.SchemaError as error:
+            self.logger.critical(error.message)
+            self.logger.critical(error)
             raise SystemExit("FATAL ERROR in JSON validation.")

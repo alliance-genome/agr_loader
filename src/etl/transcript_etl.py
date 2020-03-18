@@ -1,18 +1,23 @@
+'''Transcript ETL'''
+
+import re
 import logging
 import multiprocessing
 import uuid
-from etl import ETL
-import re
 
+from etl import ETL
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class TranscriptETL(ETL):
+    '''Transcript ETL'''
 
-    tscript_alternate_id_query_template = """
+
+    logger = logging.getLogger(__name__)
+
+
+    transcript_alternate_id_query = """
     USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -21,7 +26,7 @@ class TranscriptETL(ETL):
     
     """
 
-    tscript_query_template = """
+    transcript_query = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -36,13 +41,13 @@ class TranscriptETL(ETL):
                MERGE (g)<-[gt:TRANSCRIPT]-(t)
                 """
 
-    chromosomes_template = """
+    chromosomes_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
 
 
-    genomic_locations_template = """
+    genomic_locations_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -74,25 +79,28 @@ class TranscriptETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-        logger.info("Loading Transcript Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Transcript Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [TranscriptETL.tscript_alternate_id_query_template, commit_size,
+            [self.transcript_alternate_id_query, commit_size,
              "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
+            [self.transcript_query, commit_size,
+             "transcript_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.chromosomes_query, commit_size,
+             "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
+            [self.genomic_locations_query, commit_size,
+             "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -103,39 +111,41 @@ class TranscriptETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
+        '''Get Generators'''
 
-        with open(filepath) as f:
-            tscriptMaps = []
+        with open(filepath) as file_handle:
+            transcript_maps = []
             counter = 0
-            dataProvider = ''
+            data_provider = ''
             assembly = ''
-            for line in f:
+            for line in file_handle:
                 counter = counter + 1
-                transcriptMap = {}
+                transcript_map = {}
                 curie = ''
                 parent = ''
-                gff3ID = ''
-                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                gff3_id = ''
+                possible_types = ['gene', 'mRNA', 'miRNA', 'ncRNA', 'rRNA',
+                                  'snRNA', 'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA']
                 gene_id = ''
 
                 if line.startswith('#!'):
-                    headerColumns = line.split()
+                    header_columns = line.split()
                     if line.startswith('#!assembly'):
-                        assembly = headerColumns[1]
+                        assembly = header_columns[1]
 
                     elif line.startswith('#!data-source '):
-                        dataProvider = headerColumns[1]
-                        if dataProvider == 'FlyBase':
-                            dataProvider = 'FB'
-                        if dataProvider == 'WormBase':
-                            dataProvider = 'WB'
-                        logger.info("datasource " + headerColumns[1])
+                        data_provider = header_columns[1]
+                        if data_provider == 'FlyBase':
+                            data_provider = 'FB'
+                        if data_provider == 'WormBase':
+                            data_provider = 'WB'
+                        self.logger.info("datasource %s", header_columns[1])
                 elif line.startswith('#'):
                     continue
                 else:
                     columns = re.split(r'\t', line)
-                    featureTypeName = columns[2]
-                    if featureTypeName in possibleTypes or featureTypeName == 'gene':
+                    feature_type_name = columns[2]
+                    if feature_type_name in possible_types or feature_type_name == 'gene':
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
@@ -147,7 +157,7 @@ class TranscriptETL(ETL):
                                     key = pair.split("=")[0]
                                     value = pair.split("=")[1]
                                     if key == 'ID':
-                                        gff3ID = value
+                                        gff3_id = value
                                     if key == 'gene_id':
                                         gene_id = value
                                     if key == 'Parent':
@@ -163,44 +173,44 @@ class TranscriptETL(ETL):
                                 # gene: curie = RGD:1309770 ID=RGD:1309770
 
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
-                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1
+                            # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
                                 if self.testObject.using_test_data() is True:
-
-                                    is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
-
+                                    is_it_test_entry = self.testObject \
+                                                           .check_for_test_id_entry(curie)
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
-
+                                        is_it_test_entry = self.testObject \
+                                                               .check_for_test_id_entry(parent)
                                         if is_it_test_entry is False:
-                                            is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
-
+                                            is_it_test_entry = self.testObject \
+                                                                   .check_for_test_id_entry(gene_id)
                                             if is_it_test_entry is False:
                                                 counter = counter - 1
                                             continue
 
-                            transcriptMap.update({'curie' : curie})
+                            transcript_map.update({'curie' : curie})
 
-                            transcriptMap.update({'parentId': parent})
-                            transcriptMap.update({'gff3ID': gff3ID})
-                            transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                            transcriptMap.update({'chromosomeNumber': columns[0]})
-                            transcriptMap.update({'featureType': featureTypeName})
-                            transcriptMap.update({'start':columns[3]})
-                            transcriptMap.update({'end':columns[4]})
-                            transcriptMap.update({'assembly': assembly})
-                            transcriptMap.update({'dataProvider': dataProvider})
+                            transcript_map.update({'parentId': parent})
+                            transcript_map.update({'gff3ID': gff3_id})
+                            transcript_map.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            transcript_map.update({'chromosomeNumber': columns[0]})
+                            transcript_map.update({'featureType': feature_type_name})
+                            transcript_map.update({'start':columns[3]})
+                            transcript_map.update({'end':columns[4]})
+                            transcript_map.update({'assembly': assembly})
+                            transcript_map.update({'dataProvider': data_provider})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
-                                transcriptMap.update({'assembly':assembly})
-                            tscriptMaps.append(transcriptMap)
+                                transcript_map.update({'assembly':assembly})
+                            transcript_maps.append(transcript_map)
 
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
-                    tscriptMaps = []
+                    yield [transcript_maps, transcript_maps, transcript_maps, transcript_maps]
+                    transcript_maps = []
 
 
             if counter > 0:
-                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
+                yield [transcript_maps, transcript_maps, transcript_maps, transcript_maps]

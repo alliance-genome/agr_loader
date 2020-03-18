@@ -1,4 +1,6 @@
-import logging, uuid
+'''Sequence Targetting Reagent ETL'''
+
+import logging
 import multiprocessing
 
 from etl import ETL
@@ -6,12 +8,13 @@ from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class SequenceTargetingReagentETL(ETL):
+    '''Sequence Targeting Reagent ETL'''
 
-    sequence_targeting_reagent_query_template = """
+    logger = logging.getLogger(__name__)
+
+    sequence_targeting_reagent_query_query = """
     
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -31,9 +34,9 @@ class SequenceTargetingReagentETL(ETL):
                  o.dataProvider = row.dataProvider
 
             MERGE (o)-[:FROM_SPECIES]-(s)
-
     """
-    sequence_targeting_reagent_secondaryids_template = """
+
+    sequence_targeting_reagent_secondaryids_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -42,9 +45,9 @@ class SequenceTargetingReagentETL(ETL):
             MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
-    
     """
-    sequence_targeting_reagent_synonyms_template = """
+
+    sequence_targeting_reagent_synonyms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -53,9 +56,9 @@ class SequenceTargetingReagentETL(ETL):
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
-    
     """
-    sequence_targeting_reagent_target_genes_template = """
+
+    sequence_targeting_reagent_target_genes_query = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -63,8 +66,8 @@ class SequenceTargetingReagentETL(ETL):
             MATCH (g:Gene {primaryKey:row.geneId})
             
             MERGE (a)-[:TARGETS]-(g)
-    
     """
+
 
     def __init__(self, config):
         super().__init__()
@@ -74,22 +77,24 @@ class SequenceTargetingReagentETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
 
-        logger.info("Loading Sequence Targeting Reagent Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Sequence Targeting Reagent Data: %s",
+                         sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        logger.info(filepath)
+        self.logger.info(filepath)
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Sequence Targeting Reagent Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Sequence Targeting Reagent Data: %s",
+                         sub_type.get_data_provider())
 
         if data is None:
-            logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
+            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
         # This order is the same as the lists yielded from the get_generators function.
@@ -100,13 +105,13 @@ class SequenceTargetingReagentETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [SequenceTargetingReagentETL.sequence_targeting_reagent_query_template,
+            [self.sequence_targeting_reagent_query_query,
              commit_size, "str_data_" + sub_type.get_data_provider() + ".csv"],
-            [SequenceTargetingReagentETL.sequence_targeting_reagent_secondaryids_template, commit_size,
+            [self.sequence_targeting_reagent_secondaryids_query, commit_size,
              "str_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-            [SequenceTargetingReagentETL.sequence_targeting_reagent_synonyms_template, commit_size,
+            [self.sequence_targeting_reagent_synonyms_query, commit_size,
              "str_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [SequenceTargetingReagentETL.sequence_targeting_reagent_target_genes_template, commit_size,
+            [self.sequence_targeting_reagent_target_genes_query, commit_size,
              "str_target_genes_" + sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -118,101 +123,113 @@ class SequenceTargetingReagentETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, sqtr_data, data_provider, batch_size):
-        dataProviders = []
+        '''Get Generators'''
+
+        data_providers = []
         sqtrs = []
         sqtr_synonyms = []
-        sqtr_secondaryIds = []
-        modGlobalCrossRefUrl = ""
+        sqtr_secondary_ids = []
+        mod_global_cross_ref_url = ""
         tgs = []
 
         counter = 0
-        dateProduced = sqtr_data['metaData']['dateProduced']
+        date_produced = sqtr_data['metaData']['dateProduced']
 
-        dataProviderObject = sqtr_data['metaData']['dataProvider']
+        data_provider_object = sqtr_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_SqTR"
+        load_key = date_produced + data_provider + "_SqTR"
 
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
-                                                                      dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                                                                         self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                       dataProviderPage, dataProvider,
-                                                                       crossRefCompleteUrl,
-                                                                       dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict( \
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
 
-        for sqtrRecord in sqtr_data['data']:
+        for sqtr_record in sqtr_data['data']:
             counter = counter + 1
-            globalId = sqtrRecord['primaryId']
-            localId = globalId.split(":")[1]
+            global_id = sqtr_record['primaryId']
+            local_id = global_id.split(":")[1]
 
             if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
+                is_it_test_entry = self.testObject.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
 
-            if sqtrRecord.get('secondaryIds') is not None:
-                for sid in sqtrRecord.get('secondaryIds'):
-                    sqtr_secondaryId_dataset = {
-                        "primaryId": sqtrRecord.get('primaryId'),
+            if sqtr_record.get('secondaryIds') is not None:
+                for sid in sqtr_record.get('secondaryIds'):
+                    sqtr_secondary_id_dataset = {
+                        "primaryId": sqtr_record.get('primaryId'),
                         "secondaryId": sid
                     }
-                    sqtr_secondaryIds.append(sqtr_secondaryId_dataset)
+                    sqtr_secondary_ids.append(sqtr_secondary_id_dataset)
 
-            if sqtrRecord.get('synonyms') is not None:
-                for syn in sqtrRecord.get('synonyms'):
+            if sqtr_record.get('synonyms') is not None:
+                for syn in sqtr_record.get('synonyms'):
                     syn_dataset = {
-                        "primaryId": sqtrRecord.get('primaryId'),
+                        "primaryId": sqtr_record.get('primaryId'),
                         "synonym": syn
                     }
                     sqtr_synonyms.append(syn_dataset)
 
-            if sqtrRecord.get('targetGeneIds') is not None:
-                for tg in sqtrRecord.get('targetGeneIds'):
+            if sqtr_record.get('targetGeneIds') is not None:
+                for target_gene_id in sqtr_record.get('targetGeneIds'):
                     tg_dataset = {
-                        "primaryId": sqtrRecord.get('primaryId'),
-                        "geneId": tg
+                        "primaryId": sqtr_record.get('primaryId'),
+                        "geneId": target_gene_id
                     }
                     tgs.append(tg_dataset)
 
-            if 'crossReferences' in sqtrRecord:
+            if 'crossReferences' in sqtr_record:
 
-                for crossRef in sqtrRecord['modCrossReference']:
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
+                for cross_ref in sqtr_record['modCrossReference']:
+                    cross_ref_id = cross_ref.get('id')
+                    local_crossref_id = cross_ref_id.split(":")[1]
+                    prefix = cross_ref.get('id').split(":")[0]
+                    pages = cross_ref.get('pages')
 
                     # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'sequence_targeting_reagent':
-                                modGlobalCrossRefUrl = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                      self.xrefUrlMap, prefix, page)
+                    if pages is None or len(pages) == 0:
+                        continue
+                    if 'sequence_targeting_reagent' in pages:
+                        page = 'sequence_targeting_reagent'
+                        mod_global_cross_ref_url = ETLHelper.get_page_complete_url( \
+                                local_crossref_id,
+                                self.xref_url_map,
+                                prefix,
+                                page)
 
 
             sqtr_dataset = {
-                "primaryId": sqtrRecord.get('primaryId'),
-                "name": sqtrRecord.get('name'),
-                "globalId": globalId,
-                "localId": localId,
-                "soTerm": sqtrRecord.get('soTermId'),
-                "taxonId": sqtrRecord.get('taxonId'),
-                "dataProviders": dataProviders,
-                "dateProduced": dateProduced,
-                "loadKey": loadKey,
-                "modGlobalCrossRefUrl": modGlobalCrossRefUrl,
+                "primaryId": sqtr_record.get('primaryId'),
+                "name": sqtr_record.get('name'),
+                "globalId": global_id,
+                "localId": local_id,
+                "soTerm": sqtr_record.get('soTermId'),
+                "taxonId": sqtr_record.get('taxonId'),
+                "dataProviders": data_providers,
+                "dateProduced": date_produced,
+                "loadKey": load_key,
+                "modGlobalCrossRefUrl": mod_global_cross_ref_url,
                 "dataProvider": data_provider
             }
             sqtrs.append(sqtr_dataset)
@@ -220,12 +237,12 @@ class SequenceTargetingReagentETL(ETL):
 
 
             if counter == batch_size:
-                yield [sqtrs, sqtr_secondaryIds, sqtr_synonyms, tgs]
+                yield [sqtrs, sqtr_secondary_ids, sqtr_synonyms, tgs]
                 sqtrs = []
-                sqtr_secondaryIds = []
+                sqtr_secondary_ids = []
                 sqtr_synonyms = []
                 tgs = []
                 counter = 0
 
         if counter > 0:
-            yield [sqtrs, sqtr_secondaryIds, sqtr_synonyms, tgs]
+            yield [sqtrs, sqtr_secondary_ids, sqtr_synonyms, tgs]

@@ -15,27 +15,28 @@ class ExpressionAtlasETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    get_all_gene_primary_to_ensmbl_ids_template = """
+    get_all_gene_primary_to_ensmbl_ids_query = """
         MATCH (g:Gene)-[:CROSS_REFERENCE]-(c:CrossReference)
         WHERE c.prefix = 'ENSEMBL'
         RETURN g.primaryKey, c.localId"""
 
-    get_mod_gene_symbol_to_primary_ids_template = """
+    get_mod_gene_symbol_to_primary_ids_query = """
         MATCH (g:Gene)
         WHERE g.dataProvider = {parameter}
         RETURN g.primaryKey, g.symbol"""
 
-    get_genes_with_expression_atlas_links_template = """
+    get_genes_with_expression_atlas_links_query = """
         MATCH (g:Gene)
         WHERE LOWER(g.primaryKey) IN {parameter}
         RETURN g.primaryKey, g.modLocalId"""
 
-    add_expression_atlas_crossreferences_template = """
+    add_expression_atlas_crossreferences_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MATCH (o:Gene)
-        WHERE o.primaryKey = row.genePrimaryKey """  + ETLHelper.get_cypher_xref_text()
+        WHERE o.primaryKey = row.genePrimaryKey
+        """  + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -53,17 +54,23 @@ class ExpressionAtlasETL(ETL):
 
         ETL.wait_for_threads(thread_pool)
 
-    def _get_primary_gene_ids_to_ensembl_ids(self):
-        return_set = Neo4jHelper.run_single_query(ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_template)
+    @staticmethod
+    def _get_primary_gene_ids_to_ensembl_ids():
+        return_set = Neo4jHelper.run_single_query(\
+                         ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_query)
         return {record["c.localId"].lower(): record["g.primaryKey"] for record in return_set}
 
-    def _get_mod_gene_symbol_to_primary_ids(self, data_provider):
-        return_set = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_template, data_provider)
+    @staticmethod
+    def _get_mod_gene_symbol_to_primary_ids(data_provider):
+        return_set = Neo4jHelper.run_single_parameter_query(\
+                         ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_query,
+                         data_provider)
         return {record["g.symbol"].lower(): record["g.primaryKey"] for record in return_set}
 
 
     # Returns only pages for genes that we have in the Alliance
-    def _get_expression_atlas_gene_pages(self, sub_type, data_provider, ensg_to_gene_primary_id_map):
+    def _get_expression_atlas_gene_pages(self, sub_type,
+                                         data_provider, ensg_to_gene_primary_id_map):
         filepath = sub_type.get_filepath()
         gene_symbol_to_primary_id_map = self._get_mod_gene_symbol_to_primary_ids(data_provider)
 
@@ -77,9 +84,13 @@ class ExpressionAtlasETL(ETL):
                         expression_atlas_gene = url.split("/")[-1]
                         expression_atlas_gene = expression_atlas_gene.lower()
                         if expression_atlas_gene in ensg_to_gene_primary_id_map:
-                            expression_atlas_gene_pages[ensg_to_gene_primary_id_map[expression_atlas_gene].lower()] = url
+                            expression_atlas_gene_pages[\
+                                      ensg_to_gene_primary_id_map[expression_atlas_gene].lower()
+                                      ] = url
                         elif expression_atlas_gene in gene_symbol_to_primary_id_map:
-                            expression_atlas_gene_pages[gene_symbol_to_primary_id_map[expression_atlas_gene].lower()] = url
+                            expression_atlas_gene_pages[\
+                                      gene_symbol_to_primary_id_map[expression_atlas_gene].lower()
+                                      ] = url
                         else:
                             alliance_gene = data_provider + ":" + expression_atlas_gene
                             expression_atlas_gene_pages[alliance_gene.lower()] = url
@@ -89,7 +100,8 @@ class ExpressionAtlasETL(ETL):
     def _process_sub_type(self, sub_type, ensg_to_gene_primary_id_map):
 
         data_provider = sub_type.get_data_provider()
-        expression_atlas_gene_pages = self._get_expression_atlas_gene_pages(sub_type, data_provider, ensg_to_gene_primary_id_map)
+        expression_atlas_gene_pages = self._get_expression_atlas_gene_pages(\
+                sub_type, data_provider, ensg_to_gene_primary_id_map)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -97,7 +109,8 @@ class ExpressionAtlasETL(ETL):
         generators = self.get_generators(expression_atlas_gene_pages, data_provider, batch_size)
 
         query_list = [
-            [ExpressionAtlasETL.add_expression_atlas_crossreferences_template, commit_size, "expression_atlas_" + data_provider  + "_data.csv"],
+            [self.add_expression_atlas_crossreferences_query, commit_size,
+             "expression_atlas_" + data_provider  + "_data.csv"],
         ]
 
         query_and_file_list = self.process_query_params(query_list)
@@ -105,20 +118,22 @@ class ExpressionAtlasETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, expression_atlas_gene_pages, data_provider, batch_size):
-        return_set = Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_genes_with_expression_atlas_links_template,
-                                                            list(expression_atlas_gene_pages.keys()))
+        return_set = Neo4jHelper.run_single_parameter_query(\
+                ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,
+                list(expression_atlas_gene_pages.keys()))
 
         counter = 0
         cross_reference_list = []
         for record in return_set:
             counter += 1
-            cross_reference = ETLHelper.get_xref_dict(record["g.primaryKey"].split(":")[1],
-                                                      "ExpressionAtlas_gene",
-                                                      "gene/expression-atlas",
-                                                      "gene/expressionAtlas",
-                                                      record["g.modLocalId"],
-                                                      expression_atlas_gene_pages[record["g.primaryKey"].lower()],
-                                                      data_provider + ":" + record["g.modLocalId"] + "gene/expression-atlas")
+            cross_reference = ETLHelper.get_xref_dict(\
+                    record["g.primaryKey"].split(":")[1],
+                    "ExpressionAtlas_gene",
+                    "gene/expression-atlas",
+                    "gene/expressionAtlas",
+                    record["g.modLocalId"],
+                    expression_atlas_gene_pages[record["g.primaryKey"].lower()],
+                    data_provider + ":" + record["g.modLocalId"] + "gene/expression-atlas")
             cross_reference["genePrimaryKey"] = record["g.primaryKey"]
             cross_reference_list.append(cross_reference)
             if counter > batch_size:

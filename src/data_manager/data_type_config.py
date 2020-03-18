@@ -5,13 +5,10 @@ import sys
 import os
 
 from transactors import FileTransactor
-
 from .sub_type_config import SubTypeConfig
 
 
-
-
-class DataTypeConfig(object):
+class DataTypeConfig():
 
     logger = logging.getLogger(__name__)
 

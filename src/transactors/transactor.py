@@ -1,10 +1,10 @@
-import logging
-from threading import Thread
+'''Transactor'''
 
-logger = logging.getLogger(__name__)
+from threading import Thread
 
 
 class Transactor(Thread):
+    '''Transactor'''
 
     def __init__(self):
         Thread.__init__(self)

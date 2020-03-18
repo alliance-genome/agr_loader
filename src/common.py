@@ -6,16 +6,19 @@ import yaml
 
 
 class Singleton(type):
+    '''Singleton'''
+
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
         if (cls, args, frozenset(kwargs.items())) not in cls._instances:
-            cls._instances[(cls, args, frozenset(kwargs.items()))] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[(cls, args, frozenset(kwargs.items()))] \
+                    = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[(cls, args, frozenset(kwargs.items()))]
 
 
 class NoDefaultValueError(Exception):
-    pass
+    '''No Defualt Value Error'''
 
 
 class ContextInfo(metaclass=Singleton):
@@ -55,8 +58,3 @@ class ContextInfo(metaclass=Singleton):
             return_value = False
 
         return return_value
-
-
-
-
-

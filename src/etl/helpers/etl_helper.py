@@ -1,14 +1,64 @@
+'''ETL Helper'''
+
 import uuid
 import logging
-logger = logging.getLogger(__name__)
 
 
-class ETLHelper(object):
-    
+class ETLHelper():
+    '''ETL Helper'''
+
+    logger = logging.getLogger(__name__)
+
     @staticmethod
     def get_cypher_xref_text():
+        '''Get Cypher XREF Text'''
+
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.id,
+                     id.globalCrossRefId = row.globalCrossRefId,
+                     id.localId = row.localId,
+                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                     id.prefix = row.prefix,
+                     id.crossRefType = row.crossRefType,
+                     id.uuid = row.uuid,
+                     id.page = row.page,
+                     id.primaryKey = row.primaryKey,
+                     id.displayName = row.displayName
+                
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
+                """
+
+
+    @staticmethod
+    def get_cypher_xref_tuned_text():
+        '''Get Cypher XREF Tuned Text'''
+
+        return """
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.id,
+                     id.globalCrossRefId = row.globalCrossRefId,
+                     id.localId = row.localId,
+                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                     id.prefix = row.prefix,
+                     id.crossRefType = row.crossRefType,
+                     id.uuid = row.uuid,
+                     id.page = row.page,
+                     id.primaryKey = row.primaryKey,
+                     id.displayName = row.displayName
+                     """
+    @staticmethod
+    def merge_crossref_relationships():
+        '''Merge Crossref Relationships'''
+
+        return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
+
+    @staticmethod
+    def get_cypher_xref_text_interactions():
+        '''Get Cypger XREF Text Interactions'''
+
+        return """
+                MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey, crossRefType:row.crossRefType})
                     ON CREATE SET id.name = row.id,
                      id.globalCrossRefId = row.globalCrossRefId,
                      id.localId = row.localId,
@@ -24,6 +74,8 @@ class ETLHelper(object):
 
     @staticmethod
     def get_cypher_xref_text_annotation_level():
+        '''Get Cypher XREF Text Annotation Level'''
+
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     SET id.name = row.id,
@@ -43,181 +95,203 @@ class ETLHelper(object):
 
 
     @staticmethod
-    def get_expression_pub_annotation_xref(publicationModId):
-        if publicationModId is not None:
-            pubModLocalId = publicationModId.split(":")[1]
-            if "MGI:" in publicationModId:
-                pubModUrl = "http://www.informatics.jax.org/reference/" + publicationModId
-            if "ZFIN:" in publicationModId:
-                pubModUrl = "http://zfin.org/" + publicationModId
-            if "SGD:" in publicationModId:
-                pubModUrl = "https://www.yeastgenome.org/reference/" + pubModLocalId
-            if "WB:" in publicationModId:
-                pubModUrl = "https://www.wormbase.org/db/get?name=" + pubModLocalId + ";class=Paper"
-            if "RGD:" in publicationModId:
-                pubModUrl = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pubModLocalId
-            if "FB:" in publicationModId:
-                pubModUrl = "http://flybase.org/reports/" + pubModLocalId
-        return pubModUrl
+    def get_expression_pub_annotation_xref(publication_mod_id):
+        '''Get Expression Pub Annotation XREF'''
+
+        if publication_mod_id is not None:
+            pub_mod_local_id = publication_mod_id.split(":")[1]
+            if "MGI:" in publication_mod_id:
+                pub_mod_url = "http://www.informatics.jax.org/reference/" + publication_mod_id
+            elif "ZFIN:" in publication_mod_id:
+                pub_mod_url = "http://zfin.org/" + publication_mod_id
+            elif "SGD:" in publication_mod_id:
+                pub_mod_url = "https://www.yeastgenome.org/reference/" + pub_mod_local_id
+            elif "WB:" in publication_mod_id:
+                pub_mod_url = "https://www.wormbase.org/db/get?name=" + pub_mod_local_id + ";class=Paper"
+            elif "RGD:" in publication_mod_id:
+                pub_mod_url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
+            elif "FB:" in publication_mod_id:
+                pub_mod_url = "http://flybase.org/reports/" + pub_mod_local_id
+
+        return pub_mod_url
 
 
     @staticmethod
-    def get_xref_dict(localId, prefix, crossRefType, page, displayName, crossRefCompleteUrl, primaryId):
-        globalXrefId = prefix+":"+localId
-        crossReference = {
-            "id": globalXrefId,
-            "globalCrossRefId": globalXrefId,
-            "localId": localId,
-            "crossRefCompleteUrl": crossRefCompleteUrl,
+    def get_xref_dict(local_id, prefix, cross_ref_type, page, \
+                      display_name, cross_ref_complete_url, primary_id):
+        '''Get XREF Dict'''
+
+        global_xref_id = prefix + ":" + local_id
+        cross_reference = {
+            "id": global_xref_id,
+            "globalCrossRefId": global_xref_id,
+            "localId": local_id,
+            "crossRefCompleteUrl": cross_ref_complete_url,
             "prefix": prefix,
-            "crossRefType": crossRefType,
+            "crossRefType": cross_ref_type,
             "uuid":  str(uuid.uuid4()),
             "page": page,
-            "primaryKey": primaryId,
-            "displayName": displayName
+            "primaryKey": primary_id,
+            "displayName": display_name
         }
-        return crossReference
+        return cross_reference
 
     @staticmethod
     def get_species_order(taxon_id):
+        '''Get Species Order'''
+
+        order = None
         if taxon_id in "NCBITaxon:7955":
-            return 40
+            order = 40
         elif taxon_id in "NCBITaxon:6239":
-            return 60
+            order = 60
         elif taxon_id in "NCBITaxon:10090":
-            return 30
+            order = 30
         elif taxon_id in "NCBITaxon:10116":
-            return 20
+            order = 20
         elif taxon_id in "NCBITaxon:4932":
-            return 70
+            order = 70
         elif taxon_id in "NCBITaxon:559292":
-            return 70
+            order = 70
         elif taxon_id in "NCBITaxon:7227":
-            return 50
+            order = 50
         elif taxon_id in "NCBITaxon:9606":
-            return 10
-        else:
-            return None
+            order = 10
+
+        return order
 
 
     @staticmethod
     def species_lookup_by_taxonid(taxon_id):
+        '''Species Lookup by Taxon ID'''
+
+        species_name = None
         if taxon_id in "NCBITaxon:7955":
-            return "Danio rerio"
+            species_name = "Danio rerio"
         elif taxon_id in "NCBITaxon:6239":
-            return "Caenorhabditis elegans"
+            species_name = "Caenorhabditis elegans"
         elif taxon_id in "NCBITaxon:10090":
-            return "Mus musculus"
+            species_name = "Mus musculus"
         elif taxon_id in "NCBITaxon:10116":
-            return "Rattus norvegicus"
+            species_name = "Rattus norvegicus"
         elif taxon_id in "NCBITaxon:559292":
-            return "Saccharomyces cerevisiae"
+            species_name = "Saccharomyces cerevisiae"
         elif taxon_id in "taxon:559292":
-            return "Saccharomyces cerevisiae"
+            species_name = "Saccharomyces cerevisiae"
         elif taxon_id in "NCBITaxon:7227":
-            return "Drosophila melanogaster"
+            species_name = "Drosophila melanogaster"
         elif taxon_id in "NCBITaxon:9606":
-            return "Homo sapiens"
-        else:
-            return None
+            species_name = "Homo sapiens"
+
+        return species_name
 
     @staticmethod
     def species_lookup_by_data_provider(provider):
-        if provider in "ZFIN":
-            return "Danio rerio"
-        elif provider in "MGI":
-            return "Mus musculus"
-        elif provider in "FB":
-            return "Drosophila melanogaster"
-        elif provider in "RGD":
-            return "Rattus norvegicus"
-        elif provider in "WB":
-            return "Caenorhabditis elegans"
-        elif provider in "SGD":
-            return "Saccharomyces cerevisiae"
-        elif provider in "Human":
-            return "Homo sapiens"
-        elif provider in "HUMAN":
-            return "Homo sapiens"
-        else:
-            return None
+        '''Species Lookup by Data Provider'''
+
+        species_name = None
+        if provider == "ZFIN":
+            species_name = "Danio rerio"
+        elif provider == "MGI":
+            species_name = "Mus musculus"
+        elif provider == "FB":
+            species_name = "Drosophila melanogaster"
+        elif provider == "RGD":
+            species_name = "Rattus norvegicus"
+        elif provider == "WB":
+            species_name = "Caenorhabditis elegans"
+        elif provider == "SGD":
+            species_name = "Saccharomyces cerevisiae"
+        elif provider == "Human":
+            species_name = "Homo sapiens"
+        elif provider == "HUMAN":
+            species_name = "Homo sapiens"
+
+        return species_name
 
     @staticmethod
     def data_provider_lookup(species):
+        '''Data Provider Lookup'''
+
+        mod = 'Alliance'
         if species == 'Danio rerio':
-            return 'ZFIN'
+            mod = 'ZFIN'
         elif species == 'Mus musculus':
-            return 'MGI'
+            mod = 'MGI'
         elif species == 'Drosophila melanogaster':
-            return 'FB'
+            mod = 'FB'
         elif species == 'Homo sapiens':
-            return 'RGD'
+            mod = 'RGD'
         elif species == 'Rattus norvegicus':
-            return 'RGD'
+            mod = 'RGD'
         elif species == 'Caenorhabditis elegans':
-            return 'WB'
+            mod = 'WB'
         elif species == 'Saccharomyces cerevisiae':
-            return 'SGD'
-        else:
-            return 'Alliance'
+            mod = 'SGD'
+
+        return mod
         
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     @staticmethod
-    def get_complete_url_ont (local_id, global_id):
+    def get_complete_url_ont(local_id, global_id):
+        '''Get Complete URL'''
 
         complete_url = None
-
-        if 'OMIM' in global_id:
-            complete_url = 'https://www.omim.org/entry/' + local_id
         if 'OMIM:PS' in global_id:
             complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
-        if 'ORDO' in global_id:
+        elif 'OMIM' in global_id:
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        elif 'ORDO' in global_id:
             complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
-        if 'MESH' in global_id:
+        elif 'MESH' in global_id:
             complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
-        if 'EFO' in global_id:
+        elif 'EFO' in global_id:
             complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
-        if 'KEGG' in global_id:
-            complete_url ='http://www.genome.jp/dbget-bin/www_bget?map' +local_id
-        if 'NCI' in global_id:
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=' + local_id
+        elif 'KEGG' in global_id:
+            complete_url = 'http://www.genome.jp/dbget-bin/www_bget?map' + local_id
+        elif 'NCI' in global_id:
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp'\
+                            + '?dictionary=NCI_Thesaurus&code=' + local_id
 
         return complete_url
-    
+
     @staticmethod
     def get_complete_pub_url(local_id, global_id):
-        complete_url = None
+        '''Get Complete Pub URL'''
 
-        if 'MGI' in global_id:
+        complete_url = None
+        if global_id.startswith('MGI:'):
             complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        if 'RGD' in global_id:
+        elif global_id.startswith('RGD:'):
             complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        if 'SGD' in global_id:
+        elif global_id.startswith('SGD:'):
             complete_url = 'http://www.yeastgenome.org/reference/' + local_id
-        if 'FB' in global_id:
+        elif global_id.startswith('FB:'):
             complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        if 'ZFIN' in global_id:
+        elif global_id.startswith('ZFIN:'):
             complete_url = 'http://zfin.org/' + local_id
-        if 'WB:' in global_id:
+        elif global_id.startswith('WB:'):
             complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
-        if 'PMID:' in global_id:
+        elif global_id.startswith('PMID:'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
 
         return complete_url
-    
+
     @staticmethod
     def process_identifiers(identifier):
+        '''Process Identifier'''
+
         if identifier.startswith("DRSC:"):
             # strip off DSRC prefix
-            id = identifier.split(":", 1)[1]
-            return id
-        else:
-            return identifier
+            identifier = identifier.split(":", 1)[1]
+        return identifier
 
 
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
-        speciesDict = {
+        '''Add AGR prefix by Species Taxon'''
+
+        species_dict = {
             7955: 'ZFIN:',
             6239: 'WB:',
             10090: '',  # No MGI prefix
@@ -228,39 +302,44 @@ class ETLHelper(object):
             9606: ''  # No HGNC prefix
         }
 
-        new_identifier = speciesDict[taxon_id] + identifier
+        new_identifier = species_dict[taxon_id] + identifier
 
         return new_identifier
 
     @staticmethod
     def get_short_species_abbreviation(taxon_id):
+        '''Get short Species Abbreviation'''
+
+        short_species_abbreviation = 'Alliance'
         if taxon_id == 'NCBITaxon:7955':
-            return 'Dre'
-        if taxon_id == 'NCBITaxon:7227':
-            return 'Dme'
-        if taxon_id == 'NCBITaxon:10090':
-            return 'Mmu'
-        if taxon_id == 'NCBITaxon:6239':
-            return 'Cel'
-        if taxon_id == 'NCBITaxon:10116':
-            return 'Rno'
-        if taxon_id == 'NCBITaxon:559292':
-            return 'Sce'
-        if taxon_id == 'NCBITaxon:9606':
-            return 'Hsa'
-        else:
-            return 'Alliance'
-    
+            short_species_abbreviation = 'Dre'
+        elif taxon_id == 'NCBITaxon:7227':
+            short_species_abbreviation = 'Dme'
+        elif taxon_id == 'NCBITaxon:10090':
+            short_species_abbreviation = 'Mmu'
+        elif taxon_id == 'NCBITaxon:6239':
+            short_species_abbreviation = 'Cel'
+        elif taxon_id == 'NCBITaxon:10116':
+            short_species_abbreviation = 'Rno'
+        elif taxon_id == 'NCBITaxon:559292':
+            short_species_abbreviation = 'Sce'
+        elif taxon_id == 'NCBITaxon:9606':
+            short_species_abbreviation = 'Hsa'
+
+        return short_species_abbreviation
+
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):
-        if dataprovider == "MGI" or dataprovider == "Human":
+        '''GO Annotation Prefix Lookup'''
+
+        if dataprovider in ["MGI", "Human"]:
             return ""
-        else:
-            return dataprovider + ":"
-    
+        return dataprovider + ":"
+
     @staticmethod
-    def get_MOD_from_taxon(taxon_id):
-    
+    def get_mod_from_taxon(taxon_id):
+        '''Get MOD from Taxon'''
+
         taxon_mod_dict = {
             '7955': 'ZFIN',
             '6239': 'WB',
@@ -269,14 +348,15 @@ class ETLHelper(object):
             '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
-            '9606': 'Human'
+            '9606': 'HUMAN'
         }
 
         return taxon_mod_dict[taxon_id]
-        
+
     @staticmethod
-    def get_taxon_from_MOD(MOD):
-    
+    def get_taxon_from_mod(mod):
+        '''Get Taxon From MOD'''
+
         taxon_mod_dict = {
             'ZFIN': '7955',
             'WB': '6239',
@@ -284,80 +364,86 @@ class ETLHelper(object):
             'RGD': '10116',
             'SGD': '559292',
             'FB': '7227',
-            'Human': '9606'
+            'HUMAN': '9606'
         }
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
-        return taxon_mod_dict.get(MOD, MOD)
+        return taxon_mod_dict.get(mod, mod)
 
 
     @staticmethod
-    def get_page_complete_url(localId, xrefUrlMap, prefix, page):
+    def get_page_complete_url(local_id, xref_url_map, prefix, page):
+        '''Get Patge Complet URL'''
 
-        completeUrl = ""
+        complete_url = ""
+        for rdstanza in xref_url_map:
 
-        for rdstanza in xrefUrlMap:
+            for resource_key in rdstanza.items():
+                if resource_key == prefix + page:
+                    individual_stanza_map = rdstanza[prefix + page]
 
-            for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == prefix+page:
+                    page_url_prefix = individual_stanza_map["page_url_prefix"]
+                    page_url_suffix = individual_stanza_map["page_url_suffix"]
 
-                    individualStanzaMap = rdstanza[prefix+page]
+                    complete_url = page_url_prefix + local_id + page_url_suffix
 
-                    pageUrlPrefix = individualStanzaMap["page_url_prefix"]
-                    pageUrlSuffix = individualStanzaMap["page_url_suffix"]
-
-                    completeUrl = pageUrlPrefix + localId + pageUrlSuffix
-
-        return completeUrl
-
-    @staticmethod
-    def get_expression_images_url(localId, crossRefId):
-        if 'MGI' in crossRefId:
-            return "http://www.informatics.jax.org/gxd/marker/MGI:"+localId+"?tab=imagestab"
-        elif 'ZFIN' in crossRefId:
-            return "https://zfin.org/"+localId+"/wt-expression/images"
-        elif 'WB' in crossRefId:
-            return "https://www.wormbase.org/db/get?name="+localId+";class=Gene;widget=expression"
-        elif 'FB' in crossRefId:
-            return "http://flybase.org/reports/"+localId+".html#expression"
-        else:
-            return ""
+        return complete_url
 
 
     @staticmethod
-    def get_no_page_complete_url(localId, xrefUrlMap, prefix, primaryId):
+    def get_expression_images_url(local_id, cross_ref_id):
+        '''Get expression Images URL'''
 
-        completeUrl = ""
-        globalId = prefix + localId
-        for rdstanza in xrefUrlMap:
-            for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == prefix:
-                    individualStanzaMap = rdstanza[prefix]
+        url = ""
+        if 'MGI' in cross_ref_id:
+            url = "http://www.informatics.jax.org/gxd/marker/MGI:" + local_id \
+                                                                   + "?tab=imagestab"
+        elif 'ZFIN' in cross_ref_id:
+            url = "https://zfin.org/" + local_id + "/wt-expression/images"
+        elif 'WB' in cross_ref_id:
+            url = "https://www.wormbase.org/db/get?name=" + local_id \
+                                                          + ";class=Gene;widget=expression"
+        elif 'FB' in cross_ref_id:
+            url = "http://flybase.org/reports/" + local_id + ".html#expression"
 
-                    defaultUrlPrefix = individualStanzaMap["default_url_prefix"]
-                    defaultUrlSuffix = individualStanzaMap["default_url_suffix"]
-
-                    completeUrl = defaultUrlPrefix + localId + defaultUrlSuffix
-
-                    if globalId.startswith('DRSC'):
-                        completeUrl = None
-                    elif globalId.startswith('PANTHER'):
-                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book=' + localId + '&species=agr'
-                        split_primary = primaryId.split(':')[1]
-                        if primaryId.startswith('MGI'):
-                            completeUrl = panther_url + '&seq=MGI=MGI=' + split_primary
-                        elif primaryId.startswith('RGD'):
-                            completeUrl = panther_url + '&seq=RGD=' + split_primary
-                        elif primaryId.startswith('SGD'):
-                            completeUrl = panther_url + '&seq=SGD=' + split_primary
-                        elif primaryId.startswith('FB'):
-                            completeUrl = panther_url + '&seq=FlyBase=' + split_primary
-                        elif primaryId.startswith('WB'):
-                            completeUrl = panther_url + '&seq=WormBase=' + split_primary
-                        elif primaryId.startswith('ZFIN'):
-                            completeUrl = panther_url + '&seq=ZFIN=' + split_primary
-                        elif primaryId.startswith('HGNC'):
-                            completeUrl = panther_url + '&seq=HGNC=' + split_primary
+        return url
 
 
-        return completeUrl
+    @staticmethod
+    def get_no_page_complete_url(local_id, xref_url_map, prefix, primary_id):
+        '''Get No Page Complete URL'''
+
+        complete_url = ""
+        global_id = prefix + local_id
+        for rdstanza in xref_url_map:
+            for resource_key in rdstanza.items():
+                if resource_key == prefix:
+                    individual_stanza_map = rdstanza[prefix]
+
+                    default_url_prefix = individual_stanza_map["default_url_prefix"]
+                    default_url_suffix = individual_stanza_map["default_url_suffix"]
+
+                    complete_url = default_url_prefix + local_id + default_url_suffix
+
+                    if global_id.startswith('DRSC'):
+                        complete_url = None
+                    elif global_id.startswith('PANTHER'):
+                        panther_url = 'http://pantherdb.org/treeViewer/treeViewer.jsp?book='\
+                                          + local_id + '&species=agr'
+                        split_primary = primary_id.split(':')[1]
+                        if primary_id.startswith('MGI'):
+                            complete_url = panther_url + '&seq=MGI=MGI=' + split_primary
+                        elif primary_id.startswith('RGD'):
+                            complete_url = panther_url + '&seq=RGD=' + split_primary
+                        elif primary_id.startswith('SGD'):
+                            complete_url = panther_url + '&seq=SGD=' + split_primary
+                        elif primary_id.startswith('FB'):
+                            complete_url = panther_url + '&seq=FlyBase=' + split_primary
+                        elif primary_id.startswith('WB'):
+                            complete_url = panther_url + '&seq=WormBase=' + split_primary
+                        elif primary_id.startswith('ZFIN'):
+                            complete_url = panther_url + '&seq=ZFIN=' + split_primary
+                        elif primary_id.startswith('HGNC'):
+                            complete_url = panther_url + '&seq=HGNC=' + split_primary
+
+        return complete_url
