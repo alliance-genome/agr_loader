@@ -1,8 +1,6 @@
 '''Resources Descriptor Helper'''
 
-import codecs
 import logging
-import shutil
 import uuid
 import yaml
 from files import Download

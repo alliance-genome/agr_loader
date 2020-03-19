@@ -19,7 +19,7 @@ from genedescriptions.data_manager import DataManager
 from genedescriptions.commons import DataType, Gene
 from genedescriptions.precanned_modules import set_gene_ontology_module, set_disease_module, \
     set_alliance_human_orthology_module, set_expression_module
-from ontobio import AssociationSetFactory, OntologyFactory, Ontology
+from ontobio import AssociationSetFactory, Ontology
 from transactors import CSVTransactor, Neo4jTransactor
 from common import ContextInfo
 from data_manager import DataFileManager

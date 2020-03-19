@@ -114,7 +114,7 @@ class DOETL(ETL):
         counter = 0
 
         # Convert parsed obo term into a schema-friendly AGR dictionary.
-        for key in parsed_line.items():
+        for key, line in parsed_line.items():
             counter = counter + 1
             node = ont.graph.node[key]
             if len(node) == 0:

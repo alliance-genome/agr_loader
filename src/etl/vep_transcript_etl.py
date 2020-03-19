@@ -9,7 +9,7 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-class VEPTtranscriptETL(ETL):
+class VEPTranscriptETL(ETL):
     '''VEP Transcript ETL'''
 
     logger = logging.getLogger(__name__)

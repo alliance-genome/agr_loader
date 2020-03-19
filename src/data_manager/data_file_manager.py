@@ -47,7 +47,7 @@ class DataFileManager(metaclass=Singleton):
 
         # use the recently created snapshot
         api_url = '/'.join([context_info.env["FMS_API_URL"],
-                            '/api/snapshot/release/',
+                            'api/snapshot/release',
                             context_info.env["ALLIANCE_RELEASE"]])
         self.logger.info(api_url)
 

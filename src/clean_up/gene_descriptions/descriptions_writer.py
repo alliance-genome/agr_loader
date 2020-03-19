@@ -1,3 +1,5 @@
+'''Neo4J Gene Descriptions Writter'''
+
 from genedescriptions.descriptions_writer import DescriptionsWriter
 
 from ..transactions import GeneDescriptionTransaction

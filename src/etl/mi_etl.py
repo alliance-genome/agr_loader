@@ -13,7 +13,7 @@ class MIETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query_template = """
+    main_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -33,7 +33,7 @@ class MIETL(ETL):
         filepath = self.data_type_config.get_single_filepath()
         generators = self.get_generators(filepath)
 
-        query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
+        query_list = [[self.main_query, 10000, "mi_term_data.csv"]]
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)

@@ -116,9 +116,8 @@ class Neo4jTransactor():
                                               total_query_counter)
                             pickle.dump(neo4j_query, file)
                     else:
-                        session = graph.session()
-                        session.run(neo4j_query)
-                        session.close()
+                        with graph.session() as session:
+                            session.run(neo4j_query)
 
                     end = time.time()
                     elapsed_time = end - start
@@ -130,7 +129,7 @@ class Neo4jTransactor():
                                      time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
                 except Exception as error:
                     self.logger.error(error)
-                    #logger.error("%s: Query Failed: %s" % (self._get_name(), neo4j_query))
+                    self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
                     # TODO Extract and print NODE information from error message.
                     # Would be helpful for troubleshooting.
                     self.logger.warning("%s: Query Conflict, putting data back in Queue to run later. %s",

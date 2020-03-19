@@ -2,8 +2,8 @@ import datetime
 import os
 import boto3
 from genedescriptions.config_parser import GenedescConfigParser
-from genedescriptions.data_fetcher import DataFetcher, DataType
-from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator, generate_orthology_sentence_alliance_human
+#from genedescriptions.data_fetcher import DataFetcher, DataType
+#from genedescriptions.descriptions_rules import GeneDesc, SentenceGenerator, generate_orthology_sentence_alliance_human
 from .descriptions_writer import Neo4jGDWriter
 from .data_extraction_functions import *
 

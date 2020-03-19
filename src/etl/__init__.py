@@ -23,11 +23,10 @@ from .gene_descriptions_etl import GeneDescriptionsETL
 from .expression_ribbon_other_etl import ExpressionRibbonOtherETL
 from .sequence_targeting_reagent_etl import SequenceTargetingReagentETL
 from .affected_genomic_model_etl import AffectedGenomicModelETL
-from .ECOMAP_etl import ECOMAPETL
+from .ecomap_etl import ECOMAPETL
 from .vep_etl import VEPETL
-from .veptranscript import VEPTranscriptETL
+from .vep_transcript_etl import VEPTranscriptETL
 from .construct_etl import ConstructETL
 from .transcript_etl import TranscriptETL
-from .mol_interactions_mod_xref import MolInteractionsModXrefETL
 from .mol_interactions_mod_xref import MolInteractionsModXrefETL
 from .mol_interactions_xref import MolInteractionsXrefETL

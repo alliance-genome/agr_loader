@@ -23,10 +23,11 @@ from common import ContextInfo  # Must be the last timeport othersize program fa
 def main():
     ''' Entry point to ETL program'''
 
-    parser = argparse.ArgumentParser(description='Load data into the Neo4j database for the Alliance of Genome Resources.')
+    parser = argparse.ArgumentParser(description=\
+        'Load data into the Neo4j database for the Alliance of Genome Resources.')
     parser.add_argument('-c',
-                        '--config',
-                        help='Specify the filename of the YAML config. It must reside in the src/config/ directory',
+                        '--config',\
+        help='Specify the filename of the YAML config. It must reside in the src/config/ directory',
                         default='default.yml')
     parser.add_argument('-v',
                         '--verbose',
@@ -176,7 +177,7 @@ class AggregateLoader():
         data_manager = DataFileManager(self.context_info.config_file_location)
         file_transactor = FileTransactor()
 
-        file_transactor.start_threads(data_manager.get_FT_thread_settings())
+        file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())
 
         data_manager.download_and_validate()
         self.logger.info("finished downloading now doing thread")
@@ -189,7 +190,7 @@ class AggregateLoader():
         file_transactor.shutdown()
 
         neo_transactor = Neo4jTransactor()
-        neo_transactor.start_threads(data_manager.get_NT_thread_settings())
+        neo_transactor.start_threads(data_manager.get_neo_transactor_thread_settings())
 
         self.logger.info("finished starting neo threads ")
 

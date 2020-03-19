@@ -6,8 +6,6 @@ from ontobio import OntologyFactory
 from .etl_helper import ETLHelper
 
 
-
-
 class OBOHelper():
     '''OBO Helper'''
 
@@ -252,11 +250,11 @@ class OBOHelper():
             value = value[1:]
             if key in o_dict:
                 # If it's an entry with a single string, turn it into a list.
-                if isinstance(o_dict[key]) is str:
+                if isinstance(o_dict[key], str):
                     temp_value = o_dict[key]
                     o_dict[key] = [temp_value, value]
                 # If it's already a list, append to it.
-                elif isinstance(o_dict[key]) is list:
+                elif isinstance(o_dict[key], list):
                     o_dict[key].append(value)
             # If it's the first time we're seeing this key-value, make a new entry.
             else:
