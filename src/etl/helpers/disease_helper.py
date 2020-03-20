@@ -12,7 +12,7 @@ class DiseaseHelper():
     logger = logging.getLogger(__name__)
 
     @staticmethod
-    def get_disease_record(disease_record, data_providers, date_produced, data_provider_single):
+    def get_disease_allele(disease_record, data_providers, date_produced, data_provider_single):
         '''Get Disease Record'''
 
         qualifier = None
