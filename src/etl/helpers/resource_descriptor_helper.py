@@ -6,7 +6,7 @@ import yaml
 from files import Download
 
 
-class ResourceDescriptorHelper(object):
+class ResourceDescriptorHelper():
     '''Resource Descriptor Helper'''
 
     logger = logging.getLogger(__name__)

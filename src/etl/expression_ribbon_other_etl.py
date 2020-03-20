@@ -22,9 +22,9 @@ class ExpressionRibbonOtherETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_id})
                 MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
-                MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
-    """
-   
+                MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm) """
+
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -34,7 +34,7 @@ class ExpressionRibbonOtherETL(ETL):
         self.logger.info("Starting Expression Ribbon Data")
 
         query_list = [
-            [ExpressionRibbonOtherETL.insert_ribonless_ebes, "30000", "expression_ribbonless_ebes" + ".csv"]
+            [self.insert_ribonless_ebes, "30000", "expression_ribbonless_ebes" + ".csv"]
         ]
 
         generators = self.get_ribbon_terms()

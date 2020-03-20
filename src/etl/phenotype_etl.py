@@ -294,13 +294,14 @@ class PhenoTypeETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                                                                           data_provider,
-                                                                           data_provider_page,
-                                                                           data_provider_page,
-                                                                           data_provider,
-                                                                           cross_ref_complete_url,
-                                                                           data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.debug("data provider: %s", data_provider)
@@ -315,8 +316,8 @@ class PhenoTypeETL(ETL):
             primary_id = pheno.get('objectId')
             phenotype_statement = pheno.get('phenotypeStatement')
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(primary_id)
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(primary_id)
                 if is_it_test_entry is False:
                     continue
 

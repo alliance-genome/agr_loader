@@ -6,7 +6,7 @@ import logging
 import os
 
 
-class CSVTransactor(object):
+class CSVTransactor():
     '''CSV Transactor'''
 
     logger = logging.getLogger(__name__)
@@ -54,8 +54,11 @@ class CSVTransactor(object):
                                                           current_filename)
                             CSVTransactor.logger.critical(error)
 
+                    print(individual_list)
                     # Write the remainder of the list
                     csv_file_writer[index].writerows(individual_list)
                     # content for this iteration.
-                    # logger.info("%s: Finished Writting %s entries to file: %s" % (self._get_name(),
-                    # len(individual_list), current_filename))
+                    # logger.info("%s: Finished Writting %s entries to file: %s",
+                    #             self._get_name(),
+                    #             len(individual_list),
+                    #             current_filename)

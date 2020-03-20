@@ -15,7 +15,7 @@ class GenericOntologyETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    generic_ontology_term_template = """
+    generic_ontology_term_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -33,7 +33,7 @@ class GenericOntologyETL(ETL):
         MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
-    generic_ontology_synonyms_template = """
+    generic_ontology_synonyms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -43,7 +43,7 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
-    generic_ontology_isas_template = """
+    generic_ontology_isas_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +52,7 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:IS_A]->(g2)
         """
 
-    generic_ontology_partofs_template = """
+    generic_ontology_partofs_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -90,11 +90,14 @@ class GenericOntologyETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [GenericOntologyETL.generic_ontology_term_template, 600000, "generic_ontology_term_" + ont_type + ".csv", ont_type],
-            [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
-              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_term_query, 600000,
+             "generic_ontology_term_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_isas_query, commit_size,
+             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
+            [self.generic_ontology_partofs_query, commit_size,
+             "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
+            [self.generic_ontology_synonyms_query, 400000,
+             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator
@@ -187,17 +190,19 @@ class GenericOntologyETL(ETL):
                     o_part_of = relationship_descriptors[0]
                     if o_part_of == 'part_of':
                         partof_dict_to_append = {
-                                'oid' : ident,
-                                'partof' : relationship_descriptors[1]
-                        }
+                            'oid' : ident,
+                            'partof' : relationship_descriptors[1]}
                         partofs.append(partof_dict_to_append)
 
             definition = line.get('def')
             if definition is None:
                 definition = ""
             else:
-                if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
-                    definition = definition.replace('\\\"', '\"') # Replace them with just a single "
+                # Looking to remove instances of \" in the definition string.
+                if "\\\"" in definition:
+                    # Replace them with just a single "
+                    definition = definition.replace('\\\"', '\"')
+
             if definition is None:
                 definition = ""
 

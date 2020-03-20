@@ -22,9 +22,8 @@ class TranscriptETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
             MATCH (g:Gene {primaryKey:row.curie})
-            set g.gff3ID = row.gff3ID
-    
-    """
+            set g.gff3ID = row.gff3ID"""
+
 
     transcript_query = """
             USING PERIODIC COMMIT %s
@@ -38,8 +37,8 @@ class TranscriptETL(ETL):
                         t.dataProvider = row.dataProvider
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               MERGE (g)<-[gt:TRANSCRIPT]-(t)
-                """
+               MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
+
 
     chromosomes_query = """
         USING PERIODIC COMMIT %s
@@ -67,13 +66,13 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (a)-[ao:ASSOCIATION]->(o)
+            CREATE (a)-[ao:ASSOCIATION]->(o)"""
 
-        """
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
+
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -85,6 +84,7 @@ class TranscriptETL(ETL):
 
         ETL.wait_for_threads(thread_pool)
 
+
     def _process_sub_type(self, sub_type):
         self.logger.info("Loading Transcript Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -94,7 +94,7 @@ class TranscriptETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [self.transcript_alternate_id_query, commit_size,
-             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
+             "transcript_gff3_id_data_" + sub_type.get_data_provider() + ".csv"],
             [self.transcript_query, commit_size,
              "transcript_data_" + sub_type.get_data_provider() + ".csv"],
             [self.chromosomes_query, commit_size,
@@ -109,6 +109,7 @@ class TranscriptETL(ETL):
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+
 
     def get_generators(self, filepath, batch_size):
         '''Get Generators'''
@@ -176,14 +177,14 @@ class TranscriptETL(ETL):
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1
                             # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
 
-                                if self.testObject.using_test_data() is True:
-                                    is_it_test_entry = self.testObject \
+                                if self.test_object.using_test_data() is True:
+                                    is_it_test_entry = self.test_object \
                                                            .check_for_test_id_entry(curie)
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.testObject \
+                                        is_it_test_entry = self.test_object \
                                                                .check_for_test_id_entry(parent)
                                         if is_it_test_entry is False:
-                                            is_it_test_entry = self.testObject \
+                                            is_it_test_entry = self.test_object \
                                                                    .check_for_test_id_entry(gene_id)
                                             if is_it_test_entry is False:
                                                 counter = counter - 1

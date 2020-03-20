@@ -36,7 +36,7 @@ class SequenceTargetingReagentETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    sequence_targeting_reagent_secondaryids_query = """
+    sequence_targeting_reagent_secondary_ids_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -107,8 +107,8 @@ class SequenceTargetingReagentETL(ETL):
         query_list = [
             [self.sequence_targeting_reagent_query_query,
              commit_size, "str_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_secondaryids_query, commit_size,
-             "str_secondaryids_" + sub_type.get_data_provider() + ".csv"],
+            [self.sequence_targeting_reagent_secondary_ids_query, commit_size,
+             "str_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
             [self.sequence_targeting_reagent_synonyms_query, commit_size,
              "str_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [self.sequence_targeting_reagent_target_genes_query, commit_size,
@@ -169,8 +169,8 @@ class SequenceTargetingReagentETL(ETL):
             global_id = sqtr_record['primaryId']
             local_id = global_id.split(":")[1]
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(global_id)
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue

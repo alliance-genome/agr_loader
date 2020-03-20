@@ -10,37 +10,38 @@ from .helpers import Neo4jHelper
 class ExpressionRibbonETL(ETL):
     '''Expression Ribbon ETL'''
 
+
     logger = logging.getLogger(__name__)
 
-    insert_gocc_self_ribbon_terms = """
+
+    insert_gocc_self_ribbon_terms_query = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                   MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
-                   MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
+                   MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
+                   MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
 
-                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
-                   """
+                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
 
-    insert_gocc_ribbon_terms = """
+
+    insert_gocc_ribbon_terms_query = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                   MATCH (ebe:ExpressionBioEntity) where ebe.primaryKey = row.ebe_id
-                   MATCH (goTerm:GOTerm:Ontology) where goTerm.primaryKey = row.go_id
+                   MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
+                   MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
 
-                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
-                   """
+                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
 
-    expression_gocc_ribbon_retrieve = """
+
+    expression_gocc_ribbon_retrieve_query = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
-                where slimTerm.subset =~ '.*goslim_agr.*'
-                return ebe.primaryKey, slimTerm.primaryKey
-                """
+                WHERE slimTerm.subset =~ '.*goslim_agr.*'
+                RETURN ebe.primaryKey, slimTerm.primaryKey"""
 
-    gocc_self_ribbon_ebes = """
+
+    gocc_self_ribbon_ebes_query = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology) 
-        where got.subset =~ '.*goslim_agr.*'
-        return ebe.primaryKey, got.primaryKey; 
-        """
+        WHERE got.subset =~ '.*goslim_agr.*'
+        RETURN ebe.primaryKey, got.primaryKey; """
 
 
     def __init__(self, config):
@@ -52,8 +53,10 @@ class ExpressionRibbonETL(ETL):
 
         self.logger.info("Starting Expression Ribbon Data")
         query_list = [
-            [ExpressionRibbonETL.insert_gocc_ribbon_terms, "30000", "expression_gocc_ribbon_terms.csv"],
-            [ExpressionRibbonETL.insert_gocc_self_ribbon_terms, "30000", "expression_gocc_self_ribbon_terms" + ".csv"]
+            [self.insert_gocc_ribbon_terms_query, "30000",
+             "expression_gocc_ribbon_terms.csv"],
+            [self.insert_gocc_self_ribbon_terms_query, "30000",
+             "expression_gocc_self_ribbon_terms" + ".csv"]
         ]
 
         generators = self.get_ribbon_terms()
@@ -71,7 +74,7 @@ class ExpressionRibbonETL(ETL):
 
         self.logger.debug("made it to the gocc ribbon retrieve")
 
-        return_set_rt = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve)
+        return_set_rt = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve_query)
         gocc_ribbon_data = []
         for record in return_set_rt:
             row = dict(ebe_id=record["ebe.primaryKey"],
@@ -80,7 +83,7 @@ class ExpressionRibbonETL(ETL):
 
         gocc_self_ribbon_data = []
 
-        return_set_srt = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes)
+        return_set_srt = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes_query)
         for record in return_set_srt:
             row = dict(ebe_id=record["ebe.primaryKey"],
                        go_id=record["got.primaryKey"])
@@ -88,4 +91,3 @@ class ExpressionRibbonETL(ETL):
             gocc_self_ribbon_data.append(row)
 
         yield [gocc_ribbon_data, gocc_self_ribbon_data]
-

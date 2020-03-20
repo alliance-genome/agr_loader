@@ -2,7 +2,7 @@
 
 import re
 
-class TextProcessingHelper(object):
+class TextProcessingHelper():
     '''Text Processing Helper'''
 
     @staticmethod

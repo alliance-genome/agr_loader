@@ -18,14 +18,14 @@ class DiseaseETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    execute_annotation_xrefs_template = """
+    execute_annotation_xrefs_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DiseaseEntityJoin {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
-    execute_agms_template = """
+    execute_agms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
@@ -64,7 +64,7 @@ class DiseaseETL(ETL):
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
-    execute_allele_gene_dej_relationship_template ="""
+    execute_allele_gene_dej_relationship_query ="""
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
@@ -76,7 +76,7 @@ class DiseaseETL(ETL):
     
     """
 
-    execute_allele_template = """
+    execute_allele_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
@@ -119,7 +119,7 @@ class DiseaseETL(ETL):
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
-    execute_gene_template = """
+    execute_gene_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -155,7 +155,7 @@ class DiseaseETL(ETL):
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
             """
 
-    execute_ecode_template = """
+    execute_ecode_query = """
     
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -165,7 +165,7 @@ class DiseaseETL(ETL):
             MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
     """
 
-    execute_withs_template = """
+    execute_withs_query = """
     
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -176,7 +176,7 @@ class DiseaseETL(ETL):
     
     """
 
-    execute_pges_gene_template = """
+    execute_pges_gene_query = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -187,7 +187,7 @@ class DiseaseETL(ETL):
 
     """
 
-    execute_pges_allele_template = """
+    execute_pges_allele_query = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -198,7 +198,7 @@ class DiseaseETL(ETL):
 
     """
 
-    execute_pges_agm_template = """
+    execute_pges_agm_query = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -215,7 +215,7 @@ class DiseaseETL(ETL):
 
     def _load_and_process_data(self):
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
             process.start()
@@ -226,6 +226,7 @@ class DiseaseETL(ETL):
         self.delete_empty_nodes()
 
     def delete_empty_nodes(self):
+        '''Delete Empty Nodes'''
 
         self.logger.debug("delete empty nodes")
 
@@ -237,7 +238,7 @@ class DiseaseETL(ETL):
         Neo4jHelper.run_single_query(delete_empty_do_nodes)
 
     def _process_sub_type(self, sub_type):
-        
+
         self.logger.info("Loading Disease Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
@@ -250,33 +251,33 @@ class DiseaseETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # This needs to be in this format (template, param1, params2) others will be ignored
+        # This needs to be in this format (query, param1, params2) others will be ignored
         query_list = [
-            [DiseaseETL.execute_allele_template, commit_size, "disease_allele_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_allele_gene_dej_relationship_template, commit_size, "disease_allele_gene_relation_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_gene_template, commit_size, "disease_gene_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_agms_template, commit_size, "disease_agms_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_pges_gene_template, commit_size, "disease_pges_gene_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_pges_allele_template, commit_size, "disease_pges_allele_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_pges_agm_template, commit_size, "disease_pges_agms_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_withs_template, commit_size, "disease_withs_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_ecode_template, commit_size, "disease_evidence_code_data_" + \
-             sub_type.get_data_provider() + ".csv"],
-            [DiseaseETL.execute_annotation_xrefs_template, commit_size, "disease_annotation_xrefs_data_" + \
-             sub_type.get_data_provider() + ".csv"]
+            [self.execute_allele_query, commit_size,
+             "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_allele_gene_dej_relationship_query, commit_size,
+             "disease_allele_gene_relation_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_gene_query, commit_size,
+             "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_agms_query, commit_size,
+             "disease_agms_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_pges_gene_query, commit_size,
+             "disease_pges_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_pges_allele_query, commit_size,
+             "disease_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_pges_agm_query, commit_size,
+             "disease_pges_agms_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_withs_query, commit_size,
+             "disease_withs_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_ecode_query, commit_size,
+             "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_annotation_xrefs_query, commit_size,
+             "disease_annotation_xrefs_data_" +  sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
-        
+
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
@@ -311,13 +312,14 @@ class DiseaseETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                                                                           data_provider,
-                                                                           data_provider_page,
-                                                                           data_provider_page,
-                                                                           data_provider,
-                                                                           cross_ref_complete_url,
-                                                                           data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.info("data provider: %s", data_provider)
@@ -346,18 +348,18 @@ class DiseaseETL(ETL):
                         evidence_code_list_to_yield.append(ecode_map)
 
 
-                    disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                                           disease_record['objectRelation'].get("associationType").upper()
+                    disease_unique_key = disease_record.get('objectId') \
+                                 + disease_record.get('DOid') \
+                                 + disease_record['objectRelation'].get("associationType").upper()
 
                     if 'with' in disease_record:
                         with_record = disease_record.get('with')
                         for rec in with_record:
                             disease_unique_key = disease_unique_key + rec
                         for rec in with_record:
-                            withMap = {
+                            with_map = {
                                 "diseaseUniqueKey": disease_unique_key,
-                                "withD": rec
-                            }
+                                "withD": rec}
                             withs.append(with_map)
 
 
@@ -379,17 +381,19 @@ class DiseaseETL(ETL):
                                 annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xrefUrlMap,
-                                                                                              prefix,
-                                                                                              page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                                   prefix,
-                                                                   page,
-                                                                   page,
-                                                                   cross_ref_id,
-                                                                   mod_global_cross_ref_id,
-                                                                   cross_ref_id + page + annotation_type)
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
+                                            local_crossref_id,
+                                            self.xref_url_map,
+                                            prefix,
+                                            page)
+                                    xref = ETLHelper.get_xref_dict(\
+                                            local_crossref_id,
+                                            prefix,
+                                            page,
+                                            page,
+                                            cross_ref_id,
+                                            mod_global_cross_ref_id,
+                                            cross_ref_id + page + annotation_type)
                                     xref['dataId'] = disease_unique_key
                                     if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'
@@ -400,7 +404,6 @@ class DiseaseETL(ETL):
 
                                     xrefs.append(xref)
                 gene_list_to_yield.append(disease_record)
-                 
             elif disease_object_type == "allele":
                 disease_record = DiseaseHelper.get_disease_record(disease_record,
                                                                   data_providers,
@@ -417,18 +420,18 @@ class DiseaseETL(ETL):
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                                           disease_record['objectRelation'].get("associationType").upper()
+                    disease_unique_key = disease_record.get('objectId') \
+                             + disease_record.get('DOid') \
+                             + disease_record['objectRelation'].get("associationType").upper()
 
                     if 'with' in disease_record:
-                        withRecord = disease_record.get('with')
+                        with_record = disease_record.get('with')
                         for rec in with_record:
                             disease_unique_key = disease_unique_key + rec
                         for rec in with_record:
                             with_map = {
                                 "diseaseUniqueKey": disease_unique_key,
-                                "withD": rec
-                            }
+                                "withD": rec}
                             withs.append(with_map)
 
                     if disease_record.get('pgeIds') is not None:
@@ -449,17 +452,19 @@ class DiseaseETL(ETL):
                             prefix = cross_ref_id
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xref_url_map,
-                                                                                              prefix,
-                                                                                              page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                                   prefix,
-                                                                   page,
-                                                                   page,
-                                                                   cross_ref_id,
-                                                                   mod_global_cross_ref_id,
-                                                                   cross_ref_id + page + annotation_type)
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
+                                            local_crossref_id,
+                                            self.xref_url_map,
+                                            prefix,
+                                            page)
+                                    xref = ETLHelper.get_xref_dict(\
+                                            local_crossref_id,
+                                            prefix,
+                                            page,
+                                            page,
+                                            cross_ref_id,
+                                            mod_global_cross_ref_id,
+                                            cross_ref_id + page + annotation_type)
                                     xref['dataId'] = disease_unique_key
                                     if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'
@@ -485,8 +490,9 @@ class DiseaseETL(ETL):
                                      "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
-                    disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                                           disease_record['objectRelation'].get("associationType").upper()
+                    disease_unique_key = disease_record.get('objectId') \
+                            + disease_record.get('DOid') \
+                            + disease_record['objectRelation'].get("associationType").upper()
 
                     if 'with' in disease_record:
                         with_record = disease_record.get('with')
@@ -516,17 +522,19 @@ class DiseaseETL(ETL):
                                 annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xref_url_map,
-                                                                                              prefix,
-                                                                                              page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                                   prefix,
-                                                                   page,
-                                                                   page,
-                                                                   cross_ref_id,
-                                                                   mod_global_cross_ref_id,
-                                                                   cross_ref_id + page + annotation_type)
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url( \
+                                            local_crossref_id,
+                                            self.xref_url_map,
+                                            prefix,
+                                            page)
+                                    xref = ETLHelper.get_xref_dict( \
+                                            local_crossref_id,
+                                            prefix,
+                                            page,
+                                            page,
+                                            cross_ref_id,
+                                            mod_global_cross_ref_id,
+                                            cross_ref_id + page + annotation_type)
                                     xref['dataId'] = disease_unique_key
                                     if 'loaded' in annotation_type:
                                         xref['loadedDB'] = 'true'

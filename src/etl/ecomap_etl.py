@@ -12,7 +12,9 @@ from transactors import Neo4jTransactor
 class ECOMAPETL(ETL):
     '''ECOMAP ETL'''
 
+
     logger = logging.getLogger(__name__)
+
 
     eco_query = """
 
@@ -20,13 +22,13 @@ class ECOMAPETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
-            SET e.displaySynonym = row.threeLetterCode
-        
-        """
+            SET e.displaySynonym = row.threeLetterCode"""
+
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
+
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -38,6 +40,7 @@ class ECOMAPETL(ETL):
 
         ETL.wait_for_threads(thread_pool)
 
+
     def _process_sub_type(self, sub_type):
         self.logger.info("Loading ECOMAP Ontology Data: %s", sub_type.get_data_provider())
 
@@ -48,7 +51,8 @@ class ECOMAPETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [ECOMAPETL.eco_query, commit_size, "ecomap_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.eco_query, commit_size,
+             "ecomap_data_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         # Obtain the generator
@@ -59,6 +63,7 @@ class ECOMAPETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.info("Finished Loading ECOMAP Data: %s", sub_type.get_data_provider())
+
 
     def get_generators(self, filepath, batch_size):
         '''Create Generator'''

@@ -1,12 +1,12 @@
-USING_PICKLE: false
-DEBUG: false
+USING_PICKLE: False
+DEBUG: False
 DOWNLOAD_HOST: "download.alliancegenome.org"
-GENERATE_REPORTS: false
+GENERATE_REPORTS: False
 ALLIANCE_RELEASE: "0.0.0"
 NEO4J_HOST: "localhost"
 NEO4J_PORT: 7687
 FMS_API_URL: "https://fms.alliancegenome.org"
-TEST_SET: false
+TEST_SET: False
 AWS_ACCESS_KEY: ""
 AWS_SECRET_KEY: ""
 API_KEY: ""

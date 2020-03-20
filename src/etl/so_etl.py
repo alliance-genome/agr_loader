@@ -14,7 +14,7 @@ class SOETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query_template = """
+    main_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -37,7 +37,7 @@ class SOETL(ETL):
 
         generators = self.get_generators(filepath)
 
-        query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
+        query_list = [[self.main_query, commit_size, "so_term_data.csv"]]
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)

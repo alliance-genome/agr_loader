@@ -26,8 +26,7 @@ class ETLHelper():
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName
                 
-                MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
-                """
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
 
     @staticmethod
@@ -45,13 +44,15 @@ class ETLHelper():
                      id.uuid = row.uuid,
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
-                     id.displayName = row.displayName
-                     """
+                     id.displayName = row.displayName"""
+
+
     @staticmethod
     def merge_crossref_relationships():
         '''Merge Crossref Relationships'''
 
         return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
+
 
     @staticmethod
     def get_cypher_xref_text_interactions():
@@ -71,6 +72,7 @@ class ETLHelper():
                      id.displayName = row.displayName
 
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
+
 
     @staticmethod
     def get_cypher_xref_text_annotation_level():
@@ -107,9 +109,11 @@ class ETLHelper():
             elif "SGD:" in publication_mod_id:
                 pub_mod_url = "https://www.yeastgenome.org/reference/" + pub_mod_local_id
             elif "WB:" in publication_mod_id:
-                pub_mod_url = "https://www.wormbase.org/db/get?name=" + pub_mod_local_id + ";class=Paper"
+                pub_mod_url = "https://www.wormbase.org/db/get?name=" \
+                        + pub_mod_local_id + ";class=Paper"
             elif "RGD:" in publication_mod_id:
-                pub_mod_url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
+                pub_mod_url = "https://rgd.mcw.edu" \
+                                 + "/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
             elif "FB:" in publication_mod_id:
                 pub_mod_url = "http://flybase.org/reports/" + pub_mod_local_id
 
@@ -132,9 +136,10 @@ class ETLHelper():
             "uuid":  str(uuid.uuid4()),
             "page": page,
             "primaryKey": primary_id,
-            "displayName": display_name
-        }
+            "displayName": display_name}
+
         return cross_reference
+
 
     @staticmethod
     def get_species_order(taxon_id):
@@ -185,6 +190,7 @@ class ETLHelper():
 
         return species_name
 
+
     @staticmethod
     def species_lookup_by_data_provider(provider):
         '''Species Lookup by Data Provider'''
@@ -209,6 +215,7 @@ class ETLHelper():
 
         return species_name
 
+
     @staticmethod
     def data_provider_lookup(species):
         '''Data Provider Lookup'''
@@ -230,7 +237,8 @@ class ETLHelper():
             mod = 'SGD'
 
         return mod
-        
+
+
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     @staticmethod
     def get_complete_url_ont(local_id, global_id):
@@ -255,6 +263,7 @@ class ETLHelper():
 
         return complete_url
 
+
     @staticmethod
     def get_complete_pub_url(local_id, global_id):
         '''Get Complete Pub URL'''
@@ -276,6 +285,7 @@ class ETLHelper():
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
 
         return complete_url
+
 
     @staticmethod
     def process_identifiers(identifier):
@@ -306,6 +316,7 @@ class ETLHelper():
 
         return new_identifier
 
+
     @staticmethod
     def get_short_species_abbreviation(taxon_id):
         '''Get short Species Abbreviation'''
@@ -328,6 +339,7 @@ class ETLHelper():
 
         return short_species_abbreviation
 
+
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):
         '''GO Annotation Prefix Lookup'''
@@ -335,6 +347,7 @@ class ETLHelper():
         if dataprovider in ["MGI", "Human"]:
             return ""
         return dataprovider + ":"
+
 
     @staticmethod
     def get_mod_from_taxon(taxon_id):
@@ -348,10 +361,10 @@ class ETLHelper():
             '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
-            '9606': 'HUMAN'
-        }
+            '9606': 'HUMAN'}
 
         return taxon_mod_dict[taxon_id]
+
 
     @staticmethod
     def get_taxon_from_mod(mod):
@@ -364,8 +377,7 @@ class ETLHelper():
             'RGD': '10116',
             'SGD': '559292',
             'FB': '7227',
-            'HUMAN': '9606'
-        }
+            'HUMAN': '9606'}
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
         return taxon_mod_dict.get(mod, mod)

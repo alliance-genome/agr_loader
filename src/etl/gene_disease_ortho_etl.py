@@ -13,7 +13,9 @@ from .helpers import Neo4jHelper
 class GeneDiseaseOrthoETL(ETL):
     '''Gene Disease Orthology ETL'''
 
+
     logger = logging.getLogger(__name__)
+
 
     insert_gene_disease_ortho_query = """
                 USING PERIODIC COMMIT %s
@@ -48,8 +50,8 @@ class GeneDiseaseOrthoETL(ETL):
                 MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
                 
                 CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
-                CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
-    """
+                CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)"""
+
 
     def __init__(self, config):
         super().__init__()
@@ -133,15 +135,16 @@ class GeneDiseaseOrthoETL(ETL):
                 relation_type = 'IMPLICATED_VIA_ORTHOLOGY'
             elif record['relationType'] == 'IS_MARKER_FOR':
                 relation_type = 'BIOMARKER_VIA_ORTHOLOGY'
-            row = dict(primary_id=record["geneID"],
-                       from_gene_id=record["fromGeneID"],
-                       relationship_type=relation_type,
-                       relation_type_lower=relation_type.lower(),
-                       do_id=record["doId"],
-                       date_produced=date,
-                       date_assigned=date,
-                       uuid=record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
-                       pub_evidence_uuid=str(uuid.uuid4()))
+            row = dict(\
+                    primary_id=record["geneID"],
+                    from_gene_id=record["fromGeneID"],
+                    relationship_type=relation_type,
+                    relation_type_lower=relation_type.lower(),
+                    do_id=record["doId"],
+                    date_produced=date,
+                    date_assigned=date,
+                    uuid=record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
+                    pub_evidence_uuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

@@ -11,7 +11,7 @@ class GOETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query_template = """
+    main_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' as row
 
@@ -26,7 +26,7 @@ class GOETL(ETL):
              g.href = row.href 
             MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
 
-    goterm_isas_template = """
+    goterm_isas_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -34,7 +34,7 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:IS_A]->(g2) """
 
-    goterm_partofs_template = """
+    goterm_partofs_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -42,7 +42,7 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:PART_OF]->(g2) """
 
-    goterm_synonyms_template = """
+    goterm_synonyms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,23 +52,25 @@ class GOETL(ETL):
                 SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    goterm_regulates_template = """
+    goterm_regulates_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:REGULATES]->(g2) """
-    
-    goterm_negatively_regulates_template = """
+
+
+    goterm_negatively_regulates_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2) """
-            
-    goterm_positively_regulates_template = """
+
+
+    goterm_positively_regulates_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -92,13 +94,20 @@ class GOETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_list = [
-            [GOETL.query_template, commit_size, "go_term_data.csv"],
-            [GOETL.goterm_isas_template, commit_size, "go_isas_data.csv"],
-            [GOETL.goterm_partofs_template, commit_size, "go_partofs_data.csv"],
-            [GOETL.goterm_synonyms_template, commit_size, "go_synonym_data.csv"],
-            [GOETL.goterm_regulates_template, commit_size, "go_regulates_data.csv"],
-            [GOETL.goterm_negatively_regulates_template, commit_size, "go_negatively_regulates_data.csv"],
-            [GOETL.goterm_positively_regulates_template, commit_size, "go_positively_regulates_data.csv"],
+            [self.main_query, commit_size,
+             "go_term_data.csv"],
+            [self.goterm_isas_query, commit_size,
+             "go_isas_data.csv"],
+            [self.goterm_partofs_query, commit_size,
+             "go_partofs_data.csv"],
+            [self.goterm_synonyms_query, commit_size,
+             "go_synonym_data.csv"],
+            [self.goterm_regulates_query, commit_size,
+             "go_regulates_data.csv"],
+            [self.goterm_negatively_regulates_query, commit_size,
+             "go_negatively_regulates_data.csv"],
+            [self.goterm_positively_regulates_query, commit_size,
+             "go_positively_regulates_data.csv"]
         ]
 
         query_and_file_list = self.process_query_params(query_list)
@@ -107,7 +116,7 @@ class GOETL(ETL):
 
 
     def get_generators(self, filepath, batch_size):
-        '''Create Generators'''
+        '''Get Generators'''
 
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
@@ -122,7 +131,7 @@ class GOETL(ETL):
         counter = 0
 
         # Convert parsed obo term into a schema-friendly AGR dictionary.
-        for key in parsed_line.items():
+        for key, line in parsed_line.items():
             counter = counter + 1
             node = ont.graph.node[key]
             if len(node) == 0:

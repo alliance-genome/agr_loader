@@ -12,9 +12,11 @@ from transactors import CSVTransactor, Neo4jTransactor
 class DOETL(ETL):
     '''DO ETL'''
 
+
     logger = logging.getLogger(__name__)
 
-    do_query_template = """
+
+    do_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -41,17 +43,19 @@ class DOETL(ETL):
              
             MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
 
-    doterm_synonyms_template = """
+
+    doterm_synonyms_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (d:DOTerm {primaryKey:row.primary_id})
             
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+            MERGE (syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    doterm_isas_template = """
+
+    doterm_isas_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -59,13 +63,15 @@ class DOETL(ETL):
             MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (d1)-[aka:IS_A]->(d2) """
 
-    xrefs_template = """
+
+    xrefs_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
 
-    doterm_altids_template = """
+
+    doterm_alt_ids_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -80,6 +86,7 @@ class DOETL(ETL):
         super().__init__()
         self.data_type_config = config
 
+
     def _load_and_process_data(self):
         filepath = self.data_type_config.get_single_filepath()
 
@@ -89,11 +96,11 @@ class DOETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_list = [
-            [DOETL.do_query_template, commit_size, "do_term_data.csv"],
-            [DOETL.doterm_isas_template, commit_size, "do_isas_data.csv"],
-            [DOETL.doterm_synonyms_template, commit_size, "do_synonyms_data.csv"],
-            [DOETL.xrefs_template, commit_size, "do_xrefs_data.csv"],
-            [DOETL.doterm_altids_template, commit_size, "do_altids_data.csv"],
+            [self.do_query, commit_size, "do_term_data.csv"],
+            [self.doterm_isas_query, commit_size, "do_isas_data.csv"],
+            [self.doterm_synonyms_query, commit_size, "do_synonyms_data.csv"],
+            [self.xrefs_query, commit_size, "do_xrefs_data.csv"],
+            [self.doterm_alt_ids_query, commit_size, "do_alt_ids_data.csv"]
         ]
 
         query_and_file_list = self.process_query_params(query_list)
@@ -101,7 +108,7 @@ class DOETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
-        '''Create Generators'''
+        '''Get Generators'''
 
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
@@ -109,7 +116,7 @@ class DOETL(ETL):
         do_term_list = []
         do_isas_list = []
         do_synonyms_list = []
-        do_altids_list = []
+        do_alt_ids_list = []
         xrefs = []
         counter = 0
 
@@ -120,7 +127,8 @@ class DOETL(ETL):
             if len(node) == 0:
                 continue
 
-            ### Switching id to curie form and saving URI in "uri" - might wildly break things later on???
+            # Switching id to curie form and saving URI in "uri"
+            # - might wildly break things later on???
             node["uri"] = node["id"]
             node["id"] = key
 
@@ -146,14 +154,14 @@ class DOETL(ETL):
                         do_synonyms_list.append(do_synonym)
 
                 if "basicPropertyValues" in node["meta"]:
-                    altids = [s["val"] for s in node["meta"]["basicPropertyValues"]]
-                    for alt_id in altids:
+                    alt_ids = [s["val"] for s in node["meta"]["basicPropertyValues"]]
+                    for alt_id in alt_ids:
                         if "DOID:" in alt_id:
                             secondary_id = {
                                 "primary_id": key,
                                 "secondary_id": alt_id
                             }
-                            do_altids_list.append(secondary_id)
+                            do_alt_ids_list.append(secondary_id)
 
                 if "xrefs" in node["meta"]:
                     o_xrefs = node["meta"].get('xrefs')
@@ -164,13 +172,14 @@ class DOETL(ETL):
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(local_id,
-                                                                         prefix,
-                                                                         "ontology_provided_cross_reference",
-                                                                         "ontology_provided_cross_reference",
-                                                                         xref_id,
-                                                                         complete_url,
-                                                                         xref_id + "ontology_provided_cross_reference")
+                                generated_xref = ETLHelper.get_xref_dict(\
+                                        local_id,
+                                        prefix,
+                                        "ontology_provided_cross_reference",
+                                        "ontology_provided_cross_reference",
+                                        xref_id,
+                                        complete_url,
+                                        xref_id + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
                         else: #TODO Need to make sure this else is correct
@@ -178,13 +187,14 @@ class DOETL(ETL):
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(local_id,
-                                                                         prefix,
-                                                                         "ontology_provided_cross_reference",
-                                                                         "ontology_provided_cross_reference",
-                                                                         o_xrefs,
-                                                                         complete_url,
-                                                                         o_xrefs)
+                                generated_xref = ETLHelper.get_xref_dict(\
+                                        local_id,
+                                        prefix,
+                                        "ontology_provided_cross_reference",
+                                        "ontology_provided_cross_reference",
+                                        o_xrefs,
+                                        complete_url,
+                                        o_xrefs)
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
@@ -229,8 +239,12 @@ class DOETL(ETL):
             if definition is None:
                 definition = ""
             else:
-                #definition = definition.replace('\n', ' ') # Remove new lines that cause this to split across two lines in the file
-                #definition = definition.replace('  ', ' ') # Remove any extra double space that might have been introduces in the last replace
+                # Remove new lines that cause this to split across two lines in the file
+                # definition = definition.replace('\n', ' ')
+
+                # Remove any extra double space that might have been introduces in the last replace
+                # definition = definition.replace('  ', ' ')
+
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
@@ -280,9 +294,15 @@ class DOETL(ETL):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' + node['id'] + '#annot',
-                'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' + node['id'] + '#annot',
+                'rgd_link': 'http://rgd.mcw.edu'
+                            + '/rgdweb/ontology/annot.html?species=All&x=1&acc_id='
+                            + node['id'] + '#annot',
+                'rat_only_rgd_link': 'http://rgd.mcw.edu'\
+                                     + '/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id='
+                                     + node['id'] + '#annot',
+                'human_only_rgd_link': 'http://rgd.mcw.edu'
+                                       + '/rgdweb/ontology/annot.html?species=Human&x=1&acc_id='
+                                       + node['id'] + '#annot',
                 'mgi_link': 'http://www.informatics.jax.org/disease/' + node['id'],
                 'zfin_link': 'https://zfin.org/' + node['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id=' + node['id'],
@@ -290,16 +310,16 @@ class DOETL(ETL):
                 'sgd_link': 'https://yeastgenome.org/disease/' + node['id']
             }
 
-            do_term_list.append(dict_to_append)            
+            do_term_list.append(dict_to_append)
 
             if counter == batch_size:
-                yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_altids_list]
+                yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_alt_ids_list]
                 do_term_list = []
                 do_isas_list = []
                 do_synonyms_list = []
-                do_altids_list = []
+                do_alt_ids_list = []
                 xrefs = []
                 counter = 0
 
         if counter > 0:
-            yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_altids_list]
+            yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_alt_ids_list]

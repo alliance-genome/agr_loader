@@ -121,20 +121,22 @@ class Neo4jTransactor():
 
                     end = time.time()
                     elapsed_time = end - start
-                    self.logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s",
-                                     self._get_name(),
-                                     filename,
-                                     query_counter,
-                                     Neo4jTransactor.queue.qsize(),
-                                     time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+                    self.logger.info(\
+                            "%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s",
+                            self._get_name(),
+                            filename,
+                            query_counter,
+                            Neo4jTransactor.queue.qsize(),
+                            time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
                 except Exception as error:
                     self.logger.error(error)
-                    self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
+                    #self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
                     # TODO Extract and print NODE information from error message.
                     # Would be helpful for troubleshooting.
-                    self.logger.warning("%s: Query Conflict, putting data back in Queue to run later. %s",
-                                        self._get_name(),
-                                        filename)
+                    self.logger.warning(\
+                            "%s: Query Conflict, putting data back in Queue to run later. %s",
+                            self._get_name(),
+                            filename)
                     query_batch.insert(0, (neo4j_query, filename))
                     time.sleep(12)
                     Neo4jTransactor.queue.put((query_batch, query_counter))

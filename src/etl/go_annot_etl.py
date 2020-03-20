@@ -15,7 +15,7 @@ class GOAnnotETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query_template = """
+    main_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -60,12 +60,14 @@ class GOAnnotETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        generators = self.get_generators(file,
-                                         ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
-                                         batch_size)
+        generators = self.get_generators(\
+                file,
+                ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
+                batch_size)
 
         query_list = [
-            [GOAnnotETL.query_template, commit_size, "go_annot_" + sub_type.get_data_provider() + ".csv"],
+            [self.main_query, commit_size,
+             "go_annot_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         query_and_file_list = self.process_query_params(query_list)

@@ -55,6 +55,6 @@ class StubETL(ETL):
 
     def get_generators(self, filepath, batch_size):
         '''Get Generators'''
-        
+
         generators = 1
         return generators

@@ -9,8 +9,11 @@ from .sub_type_config import SubTypeConfig
 
 
 class DataTypeConfig():
+    '''Data Type Config'''
+
 
     logger = logging.getLogger(__name__)
+
 
     def __init__(self, data_type, submission_system_data):
         self.data_type = data_type
@@ -21,6 +24,7 @@ class DataTypeConfig():
         self.generator_batch_size = 10000
 
         self.list_of_subtype_objects = []
+
 
     def get_data(self):
         '''Download data and put in tmp folder'''
@@ -46,15 +50,18 @@ class DataTypeConfig():
             # Send it off to be queued and executed.
             FileTransactor.execute_transaction(sub_type)
 
+
     def get_neo4j_commit_size(self):
         '''Returns NEO4J commit size'''
 
         return self.neo4j_commit_size
 
+
     def get_generator_batch_size(self):
         '''Returns generator Batch size'''
 
         return self.generator_batch_size
+
 
     def check_for_single(self):
         '''Determin if list of subtypes is only one'''
@@ -66,11 +73,13 @@ class DataTypeConfig():
         else:
             pass
 
+
     def get_single_filepath(self):
         '''Gets filepath for single file'''
 
         self.check_for_single()
         return self.list_of_subtype_objects[0].get_filepath()
+
 
     def get_sub_type_objects(self):
         '''Gets subtype objects'''

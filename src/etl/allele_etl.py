@@ -16,7 +16,7 @@ class AlleleETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    allele_construct_no_gene_query_template = """
+    allele_construct_no_gene_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -45,7 +45,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:CONTAINS]-(c) """
 
-    allele_construct_gene_query_template = """
+    allele_construct_gene_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -76,7 +76,7 @@ class AlleleETL(ETL):
             MERGE (o)-[:CONTAINS]-(c) """
 
 
-    allele_gene_no_construct_query_template = """
+    allele_gene_no_construct_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -105,7 +105,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:IS_ALLELE_OF]->(g) """
 
-    allele_no_gene_no_construct_query_template = """
+    allele_no_gene_no_construct_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -132,7 +132,7 @@ class AlleleETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    allele_secondaryids_template = """
+    allele_secondary_ids_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -143,7 +143,7 @@ class AlleleETL(ETL):
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
 
-    allele_synonyms_template = """
+    allele_synonyms_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -154,12 +154,13 @@ class AlleleETL(ETL):
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    allele_xrefs_template = """
+    allele_xrefs_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Allele:Feature {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Allele:Feature {primaryKey:row.dataId})
+     """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -188,7 +189,7 @@ class AlleleETL(ETL):
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
 
-        # This order is the same as the lists yielded from the get_generators function.    
+        # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -196,13 +197,20 @@ class AlleleETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [AlleleETL.allele_gene_no_construct_query_template, commit_size, "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_gene_query_template, commit_size, "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_no_gene_query_template, commit_size, "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_no_gene_no_construct_query_template, commit_size, "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_secondaryids_template, commit_size, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_synonyms_template, commit_size, "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_gene_no_construct_query, commit_size,
+             "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_construct_gene_query, commit_size,
+             "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_construct_no_gene_query, commit_size,
+             "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_no_gene_no_construct_query, commit_size,
+             "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_secondary_ids_query, commit_size,
+             "allele_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_synonyms_query, commit_size,
+             "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [self.allele_xrefs_query, commit_size,
+             "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         # Obtain the generator
@@ -246,13 +254,14 @@ class AlleleETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                                                                           data_provider,
-                                                                           data_provider_page,
-                                                                           data_provider_page,
-                                                                           data_provider,
-                                                                           cross_ref_complete_url,
-                                                                           data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.info("data provider: %s", data_provider)
@@ -278,7 +287,8 @@ class AlleleETL(ETL):
                     counter = counter - 1
                     continue
 
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(allele_record.get('taxonId'))
+            short_species_abbreviation = ETLHelper.get_short_species_abbreviation( \
+                    allele_record.get('taxonId'))
             symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
 
             gene = allele_record.get('gene')
@@ -299,7 +309,8 @@ class AlleleETL(ETL):
                     "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": allele_record.get('symbol') + " ("+ short_species_abbreviation + ")",
+                    "symbolWithSpecies": allele_record.get('symbol')\
+                                         + " ("+ short_species_abbreviation + ")",
                     "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
                     "symbolText": symbol_text,
                     "alleleDescription": description,
@@ -321,7 +332,8 @@ class AlleleETL(ETL):
                     "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                    "symbolWithSpecies": allele_record.get('symbol') \
+                                         + " (" + short_species_abbreviation + ")",
                     "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
                     "symbolText": symbol_text,
                     "alleleDescription": description,
@@ -345,7 +357,8 @@ class AlleleETL(ETL):
                     "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                    "symbolWithSpecies": allele_record.get('symbol') \
+                                         + " (" + short_species_abbreviation + ")",
                     "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
                     "symbolText": symbol_text,
                     "alleleDescription": description
@@ -355,21 +368,22 @@ class AlleleETL(ETL):
 
             elif gene is None and construct is None:
                 allele_no_gene_no_construct_dataset = {
-                    "symbol": alleleRecord.get('symbol'),
-                    "primaryId": alleleRecord.get('primaryId'),
-                    "globalId": globalId,
-                    "localId": localId,
-                    "taxonId": alleleRecord.get('taxonId'),
-                    "dataProviders": dataProviders,
-                    "dateProduced": dateProduced,
-                    "loadKey": loadKey,
+                    "symbol": allele_record.get('symbol'),
+                    "primaryId": allele_record.get('primaryId'),
+                    "globalId": global_id,
+                    "localId": local_id,
+                    "taxonId": allele_record.get('taxonId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
+                    "loadKey": load_key,
                     "release": release,
-                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
-                    "symbolText": symbolText,
+                    "symbolWithSpecies": allele_record.get('symbol') \
+                                         + " ("+ short_species_abbreviation + ")",
+                    "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
+                    "symbolText": symbol_text,
                     "alleleDescription": description
                 }
 
@@ -390,12 +404,14 @@ class AlleleETL(ETL):
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            if page in ['allele', 'allele/references', 'transgene', \
-                                        'construct', 'transgene/references', 'construct/references']:
-                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                          self.xrefUrlMap,
-                                                                                          prefix,
-                                                                                          page)
+                            if page in ['allele', 'allele/references', 'transgene',
+                                        'construct', 'transgene/references',
+                                        'construct/references']:
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
+                                        local_crossref_id,
+                                        self.xref_url_map,
+                                        prefix,
+                                        page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id,
                                                                prefix,
                                                                page,
@@ -429,7 +445,7 @@ class AlleleETL(ETL):
                        alleles_no_constrcut_no_gene,
                        allele_secondary_ids,
                        allele_synonyms,
-                       crossReferenceList]
+                       cross_reference_list]
                 alleles_no_construct = []
                 alleles_construct_gene = []
                 alleles_no_gene = []

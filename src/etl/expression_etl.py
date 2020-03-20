@@ -14,25 +14,27 @@ from transactors import CSVTransactor, Neo4jTransactor
 class ExpressionETL(ETL):
     '''Expression ETL'''
 
+
     logger = logging.getLogger(__name__)
 
-    xrefs_template = """
+
+    xrefs_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
         """ + ETLHelper.get_cypher_xref_text()
 
-    bio_entity_expression = """
+
+    bio_entity_expression_query = """
     
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
     
     MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-         ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
-    
-    """
+         ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement"""
 
-    bio_entity_gene_expression_join = """
+
+    bio_entity_gene_expression_join_query = """
     
      USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -41,11 +43,10 @@ class ExpressionETL(ETL):
         MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
             ON CREATE SET gej.joinType = 'expression'
     
-        MERGE (gej)-[geja:ASSAY]->(assay)
-    
-    """
+        MERGE (gej)-[geja:ASSAY]->(assay)"""
 
-    bio_entity_gene_ao = """
+
+    bio_entity_gene_ao_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -57,11 +58,10 @@ class ExpressionETL(ETL):
             
             MERGE (g)-[gex:EXPRESSED_IN]->(e)
                     ON CREATE SET gex.uuid = row.ei_uuid
-            MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
-    
-    """
+            MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)"""
 
-    add_pubs_template = """
+
+    add_pubs_query = """
     
      USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -74,11 +74,10 @@ class ExpressionETL(ETL):
                      pubf.pubModUrl = row.pubModUrl,
                      pubf.pubMedUrl = row.pubMedUrl
 
-            CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) 
-    
-    """
+            CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
-    ao_expression = """
+
+    ao_expression_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -90,11 +89,10 @@ class ExpressionETL(ETL):
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 
             MERGE (g)-[ggej:ASSOCIATION]->(gej)     
-            MERGE (e)-[egej:ASSOCIATION]->(gej)
-    
-     """
+            MERGE (e)-[egej:ASSOCIATION]->(gej)"""
 
-    sgd_cc_expression = """
+
+    sgd_cc_expression_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -117,11 +115,10 @@ class ExpressionETL(ETL):
 
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
 
-        """
 
-    cc_expression = """
+    cc_expression_query = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -146,11 +143,10 @@ class ExpressionETL(ETL):
                     
                 MERGE (e)-[egej:ASSOCIATION]->(gej)
                     
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
 
-         """
 
-    ao_cc_expression = """
+    ao_cc_expression_query = """
         
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -183,10 +179,10 @@ class ExpressionETL(ETL):
                 
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
                     
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
-        """
+                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)"""
 
-    eas_substructure = """
+
+    eas_substructure_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -196,7 +192,8 @@ class ExpressionETL(ETL):
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
 
-    eas_qualified = """
+
+    eas_qualified_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -206,7 +203,8 @@ class ExpressionETL(ETL):
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
 
-    eass_qualified = """
+
+    eass_qualified_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -216,7 +214,8 @@ class ExpressionETL(ETL):
             
             MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
 
-    ccq_expression = """
+
+    ccq_expression_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -226,7 +225,8 @@ class ExpressionETL(ETL):
                       
             MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
 
-    stage_expression = """
+
+    stage_expression_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -235,7 +235,8 @@ class ExpressionETL(ETL):
                 ON CREATE SET s.name = row.stageName
             MERGE (ei)-[eotcctq:DURING]-(s) """
 
-    uberon_ao = """
+
+    uberon_ao_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -243,7 +244,8 @@ class ExpressionETL(ETL):
             MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})     
             MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
 
-    uberon_stage = """
+
+    uberon_stage_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -252,7 +254,8 @@ class ExpressionETL(ETL):
             
             MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
 
-    uberon_ao_other = """
+
+    uberon_ao_other_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -260,7 +263,8 @@ class ExpressionETL(ETL):
             MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
             MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
 
-    uberon_stage_other = """
+
+    uberon_stage_other_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -310,31 +314,48 @@ class ExpressionETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [ExpressionETL.bio_entity_expression, commit_size, "expression_entities_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.bio_entity_gene_ao, commit_size, "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.bio_entity_gene_expression_join, commit_size, "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.ao_expression, commit_size, "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
+            [self.bio_entity_expression_query, commit_size,
+             "expression_entities_" + sub_type.get_data_provider() + ".csv"],
+            [self.bio_entity_gene_ao_query, commit_size,
+             "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
+            [self.bio_entity_gene_expression_join_query, commit_size,
+             "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
+            [self.ao_expression_query, commit_size,
+             "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         if data_provider == 'SGD':
-            query_list += [[ExpressionETL.sgd_cc_expression, commit_size,  "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"]]
+            query_list += [[self.sgd_cc_expression_query, commit_size,
+                            "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"]]
         else:
-            query_list += [[ExpressionETL.cc_expression, commit_size, "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
+            query_list += [[self.cc_expression_query, commit_size,
+                            "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
 
         query_list += [
-            [ExpressionETL.ao_cc_expression, commit_size, "expression_AOCCExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.eas_qualified, commit_size, "expression_EASQualified_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.eas_substructure, commit_size, "expression_EASSubstructure_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.eass_qualified, commit_size, "expression_EASSQualified_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.ccq_expression, commit_size, "expression_CCQExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.stage_expression, commit_size, "expression_stageExpression_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberon_stage, commit_size, "expression_uberonStage_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberon_ao, commit_size, "expression_uberonAO_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberon_ao_other, commit_size, "expression_uberonAOOther_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.uberon_stage_other, commit_size, "expression_uberonStageOther_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.xrefs_template, commit_size, "expression_crossReferences_" + sub_type.get_data_provider() + ".csv"],
-            [ExpressionETL.add_pubs_template, commit_size,
-             "expression_addPubs_" + sub_type.get_data_provider() + ".csv"]
+            [self.ao_cc_expression_query, commit_size,
+             "expression_ao_cc_expression_" + sub_type.get_data_provider() + ".csv"],
+            [self.eas_qualified_query, commit_size,
+             "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
+            [self.eas_substructure_query, commit_size,
+             "expression_eas_substructure_" + sub_type.get_data_provider() + ".csv"],
+            [self.eass_qualified_query, commit_size,
+             "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
+            [self.ccq_expression_query, commit_size,
+             "expression_ccq_expression_" + sub_type.get_data_provider() + ".csv"],
+            [self.stage_expression_query, commit_size,
+             "expression_stage_expression_" + sub_type.get_data_provider() + ".csv"],
+            [self.uberon_stage_query, commit_size,
+             "expression_uberon_stage_" + sub_type.get_data_provider() + ".csv"],
+            [self.uberon_ao_query, commit_size,
+             "expression_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
+            [self.uberon_ao_other_query, commit_size,
+             "expression_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
+            [self.uberon_stage_other_query, commit_size,
+             "expression_uberon_stage_other_" + sub_type.get_data_provider() + ".csv"],
+            [self.xrefs_query, commit_size,
+             "expression_cross_references_" + sub_type.get_data_provider() + ".csv"],
+            [self.add_pubs_query, commit_size,
+             "expression_add_pubs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -349,10 +370,11 @@ class ExpressionETL(ETL):
         self.logger.info("Finished Loading Expression Data: %s", sub_type.get_data_provider())
 
     def add_other(self):
+        '''Add Other'''
 
         self.logger.debug("made it to the addOther statement")
 
-        add_other = """
+        add_other_query = """
 
             MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
                 ON CREATE SET other.name = 'other'
@@ -364,12 +386,16 @@ class ExpressionETL(ETL):
                 ON CREATE SET othergo.type = 'other'
                 ON CREATE SET othergo.subset = 'goslim_agr' """
 
-        Neo4jHelper.run_single_query(add_other)
+        Neo4jHelper.run_single_query(add_other_query)
 
 
     def get_generators(self, expression_file, batch_size):
+        '''Get Generators'''
+
         self.logger.debug("made it to the expression generator")
+
         counter = 0
+
         cross_references = []
         bio_entities = []
         bio_join_entities = []
@@ -381,10 +407,10 @@ class ExpressionETL(ETL):
         ao_substructures = []
         ao_ss_qualifiers = []
         cc_qualifiers = []
-        aocc_expressions = []
+        ao_cc_expressions = []
         stage_list = []
         stage_uberon_data = []
-        uberon_ao_data =[]
+        uberon_ao_data = []
         uberon_ao_other_data = []
         uberon_stage_other_data = []
 
@@ -402,8 +428,8 @@ class ExpressionETL(ETL):
                 stage_uberon_term_id = ""
                 gene_id = xpat.get('geneId')
 
-                if self.testObject.using_test_data() is True:
-                    is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                if self.test_object.using_test_data() is True:
+                    is_it_test_entry = self.test_object.check_for_test_id_entry(gene_id)
                     if is_it_test_entry is False:
                         counter = counter - 1
                         continue
@@ -427,12 +453,14 @@ class ExpressionETL(ETL):
                             publication_mod_id = pub_xref.get('id')
 
                             if publication_mod_id is not None:
-                                pub_mod_url = ETLHelper.get_expression_pub_annotation_xref(publication_mod_id)
+                                pub_mod_url = ETLHelper.get_expression_pub_annotation_xref( \
+                                        publication_mod_id)
 
                     else:
                         publication_mod_id = evidence['publicationId']
                         if publication_mod_id is not None:
-                            pub_mod_url = ETLHelper.get_expression_pub_annotation_xref(publication_mod_id)
+                            pub_mod_url = ETLHelper.get_expression_pub_annotation_xref(\
+                                              publication_mod_id)
 
                     if publication_mod_id is None:
                         publication_mod_id = ""
@@ -442,12 +470,14 @@ class ExpressionETL(ETL):
                 if 'whereExpressed' in xpat:
 
                     where_expressed = xpat.get('whereExpressed')
-                    cellular_component_qualifier_term_id = where_expressed.get('cellularComponentQualifierTermId')
+                    cellular_component_qualifier_term_id = \
+                           where_expressed.get('cellularComponentQualifierTermId')
                     cellular_component_term_id = where_expressed.get('cellularComponentTermId')
                     anatomical_structure_term_id = where_expressed.get('anatomicalStructureTermId')
                     anatomical_structure_qualifier_term_id = where_expressed.get(
                         'anatomicalStructureQualifierTermId')
-                    anatomical_sub_structure_term_id = where_expressed.get('anatomicalSubStructureTermId')
+                    anatomical_sub_structure_term_id = \
+                            where_expressed.get('anatomicalSubStructureTermId')
                     anatomical_sub_structure_qualifier_term_id = where_expressed.get(
                         'anatomicalSubStructureQualifierTermId')
                     where_expressed_statement = where_expressed.get('whereExpressedStatement')
@@ -459,12 +489,13 @@ class ExpressionETL(ETL):
                     if 'stageName' in when_expressed_stage:
                         stage_name = when_expressed_stage.get('stageName')
 
-                    # TODO: making unique BioEntityGeneExpressionJoin nodes and ExpressionBioEntity nodes is tedious.
+                    # TODO: making unique BioEntityGeneExpressionJoin nodes
+                    # and ExpressionBioEntity nodes is tedious.
                     # TODO: Lets get the DQMs to fix this.
                     expression_unique_key = gene_id + assay + stage_name
                     expression_entity_unique_key = ""
 
-                    if anatomicalStructureTermId is not None:
+                    if anatomical_structure_term_id is not None:
                         expression_unique_key += anatomical_structure_term_id
                         expression_entity_unique_key = anatomical_structure_term_id
 
@@ -485,39 +516,44 @@ class ExpressionETL(ETL):
 
                         if anatomical_sub_structure_qualifier_term_id is not None:
                             expression_unique_key += anatomical_sub_structure_qualifier_term_id
-                            expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
+                            expression_entity_unique_key \
+                                    += anatomical_sub_structure_qualifier_term_id
 
                     expression_entity_unique_key += where_expressed_statement
                     expression_unique_key += where_expressed_statement
 
                     if where_expressed.get('anatomicalStructureUberonSlimTermIds') is not None:
-                        for uberon_structure_term_object in where_expressed.get('anatomicalStructureUberonSlimTermIds'):
-                            structure_uberon_term_id = uberon_structure_term_object.get('uberonTerm')
-                            if structure_uberon_term_id is not None and structure_uberon_term_id != 'Other':
+                        for uberon_structure_term_object in \
+                                where_expressed.get('anatomicalStructureUberonSlimTermIds'):
+                            structure_uberon_term_id = \
+                                    uberon_structure_term_object.get('uberonTerm')
+                            if structure_uberon_term_id is not None \
+                                    and structure_uberon_term_id != 'Other':
                                 structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
-                                    "aoUberonId": structure_uberon_term_id
-                                }
-                                uberonAOData.append(structure_uberon_term)
-                            elif structure_uberon_term_id is not None and structure_uberon_term_id == 'Other':
+                                    "aoUberonId": structure_uberon_term_id}
+                                uberon_ao_data.append(structure_uberon_term)
+                            elif structure_uberon_term_id is not None \
+                                    and structure_uberon_term_id == 'Other':
                                 other_structure_uberon_term = {
-                                    "ebe_uuid": expression_entity_unique_key
-                                }
+                                    "ebe_uuid": expression_entity_unique_key}
                                 uberon_ao_other_data.append(other_structure_uberon_term)
 
                     if where_expressed.get('anatomicalSubStructureUberonSlimTermIds') is not None:
-                        for uberon_sub_structure_term_object in where_expressed.get('anatomicalSubStructureUberonSlimTermIds'):
-                            sub_structure_uberon_term_id = uberon_sub_structure_term_object.get('uberonTerm')
-                            if sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id != 'Other':
+                        for uberon_sub_structure_term_object in \
+                                where_expressed.get('anatomicalSubStructureUberonSlimTermIds'):
+                            sub_structure_uberon_term_id = \
+                                    uberon_sub_structure_term_object.get('uberonTerm')
+                            if sub_structure_uberon_term_id is not None \
+                                    and sub_structure_uberon_term_id != 'Other':
                                 sub_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
-                                    "aoUberonId": sub_structure_uberon_term_id
-                                }
+                                    "aoUberonId": sub_structure_uberon_term_id}
                                 uberon_ao_data.append(sub_structure_uberon_term)
-                            elif sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id == 'Other':
+                            elif sub_structure_uberon_term_id is not None \
+                                    and sub_structure_uberon_term_id == 'Other':
                                 other_structure_uberon_term = {
-                                    "ebe_uuid": expression_entity_unique_key
-                                }
+                                    "ebe_uuid": expression_entity_unique_key}
                                 uberon_ao_other_data.append(other_structure_uberon_term)
 
                     if cellular_component_term_id is None:
@@ -526,7 +562,8 @@ class ExpressionETL(ETL):
                     if when_expressed_stage.get('stageUberonSlimTerm') is not None:
                         stage_uberon_term_object = when_expressed_stage.get('stageUberonSlimTerm')
                         stage_uberon_term_id = stage_uberon_term_object.get("uberonTerm")
-                        if stage_uberon_term_id is not None and stage_uberon_term_id != "post embryonic, pre-adult":
+                        if stage_uberon_term_id is not None \
+                            and stage_uberon_term_id != "post embryonic, pre-adult":
                             stage_uberon = {
                                 "uberonStageId": stage_uberon_term_id,
                                 "ei_uuid": expression_unique_key
@@ -544,15 +581,11 @@ class ExpressionETL(ETL):
                         stage_uberon_term_id = ""
 
                     if stage_name is not None:
-
                         stage = {
                             "stageTermId": stage_term_id,
                             "stageName": stage_name,
-                            "ei_uuid": expression_unique_key
-                        }
-
+                            "ei_uuid": expression_unique_key}
                         stage_list.append(stage)
-
                     else:
                         stage_uberon_term_id = ""
 
@@ -568,9 +601,10 @@ class ExpressionETL(ETL):
                         if pages is not None and len(pages) > 0:
                             for page in pages:
                                 if page == 'gene/expression/annotation/detail':
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_cross_ref_id,
-                                                                                              self.xref_url_map,
-                                                                                              prefix, page)
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
+                                            local_cross_ref_id,
+                                            self.xref_url_map,
+                                            prefix, page)
 
                                     xref = ETLHelper.get_xref_dict(local_cross_ref_id,
                                                                    prefix,
@@ -584,24 +618,19 @@ class ExpressionETL(ETL):
 
                     bio_entity = {
                         "ebe_uuid": expression_entity_unique_key,
-                        "whereExpressedStatement": where_expressed_statement
-                    }
+                        "whereExpressedStatement": where_expressed_statement}
                     bio_entities.append(bio_entity)
 
-                    bio_entity_join = {
+                    bio_join_entity = {
                         "ei_uuid": expression_unique_key,
-                        "assay": assay
-                    }
-
-                    bio_join_entities.append(bio_entity_join)
-
+                        "assay": assay}
+                    bio_join_entities.append(bio_join_entity)
 
                     bio_entity_gene_ao = {
                         "geneId": gene_id,
                         "ebe_uuid": expression_entity_unique_key,
                         "anatomicalStructureTermId": anatomical_structure_term_id,
-                        "ei_uuid": expression_unique_key
-                    }
+                        "ei_uuid": expression_unique_key}
                     bio_entity_gene_aos.append(bio_entity_gene_ao)
 
                     pub = {
@@ -610,9 +639,7 @@ class ExpressionETL(ETL):
                         "pubMedId": pub_med_id,
                         "pubMedUrl": pub_med_url,
                         "pubModId": publication_mod_id,
-                        "pubModUrl": pub_mod_url
-                    }
-
+                        "pubModUrl": pub_mod_url}
                     pubs.append(pub)
 
                     ao_expression = {
@@ -628,9 +655,7 @@ class ExpressionETL(ETL):
                         "anatomicalStructureTermId": anatomical_structure_term_id,
                         "whereExpressedStatement": where_expressed_statement,
                         "ei_uuid": expression_unique_key,
-                        "ebe_uuid": expression_entity_unique_key
-
-                    }
+                        "ebe_uuid": expression_entity_unique_key}
                     ao_expressions.append(ao_expression)
 
                     if cellular_component_qualifier_term_id is not None:
@@ -663,32 +688,41 @@ class ExpressionETL(ETL):
 
                     if anatomical_structure_qualifier_term_id is not None:
                         ao_qualifier = {
-                            "ebe_uuid": expression_entity_unique_key,
-                            "anatomicalStructureQualifierTermId": anatomical_structure_qualifier_term_id
-                        }
+                            "ebe_uuid":
+                            expression_entity_unique_key,
+
+                            "anatomicalStructureQualifierTermId":
+                            anatomical_structure_qualifier_term_id}
+
                         ao_qualifiers.append(ao_qualifier)
 
                     if anatomical_sub_structure_term_id is not None:
                         ao_substructure = {
-                            "ebe_uuid": expression_entity_unique_key,
-                            "anatomicalSubStructureTermId": anatomical_sub_structure_term_id
+                            "ebe_uuid":
+                            expression_entity_unique_key,
 
-                        }
+                            "anatomicalSubStructureTermId":
+                            anatomical_sub_structure_term_id}
+
                         ao_substructures.append(ao_substructure)
 
                     if anatomical_sub_structure_qualifier_term_id is not None:
                         ao_ss_qualifier = {
-                            "ebe_uuid": expression_entity_unique_key,
-                            "anatomicalSubStructureQualifierTermId": anatomical_sub_structure_qualifier_term_id
+                            "ebe_uuid":
+                            expression_entity_unique_key,
 
-                        }
+                            "anatomicalSubStructureQualifierTermId":
+                            anatomical_sub_structure_qualifier_term_id}
+
                         ao_ss_qualifiers.append(ao_ss_qualifier)
 
                     if where_expressed_statement is None:
                         where_expressed_statement = ""
 
-                    if anatomical_structure_term_id is not None and anatomical_structure_term_id != "" \
-                            and cellular_component_term_id is not None and cellular_component_term_id != "":
+                    if anatomical_structure_term_id is not None \
+                            and anatomical_structure_term_id != "" \
+                            and cellular_component_term_id is not None \
+                            and cellular_component_term_id != "":
 
                         ao_cc_expression = {
                             "geneId": gene_id,
@@ -707,8 +741,7 @@ class ExpressionETL(ETL):
                             "anatomicalStructureTermId": anatomical_structure_term_id,
                             "whereExpressedStatement": where_expressed_statement,
                             "ei_uuid": expression_unique_key,
-                            "ebe_uuid": expression_entity_unique_key
-                        }
+                            "ebe_uuid": expression_entity_unique_key}
 
                         ao_cc_expressions.append(ao_cc_expression)
 
@@ -758,8 +791,8 @@ class ExpressionETL(ETL):
                        ao_cc_expressions,
                        ao_qualifiers,
                        ao_substructures,
-                       ao_ss_qualifier,
-                       cc_qualifier,
+                       ao_ss_qualifiers,
+                       cc_qualifiers,
                        stage_list,
                        stage_uberon_data,
                        uberon_ao_data,

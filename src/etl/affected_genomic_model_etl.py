@@ -15,7 +15,7 @@ class AffectedGenomicModelETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    agm_query_template = """
+    agm_query = """
         
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -40,7 +40,7 @@ class AffectedGenomicModelETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    agm_secondaryids_template = """
+    agm_secondary_ids_query = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +52,7 @@ class AffectedGenomicModelETL(ETL):
 
         """
 
-    agm_sqtrs_template = """
+    agm_sqtrs_query = """
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -62,7 +62,7 @@ class AffectedGenomicModelETL(ETL):
             MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
 
-    agm_synonyms_template = """
+    agm_synonyms_query = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -74,7 +74,7 @@ class AffectedGenomicModelETL(ETL):
 
         """
 
-    agm_backgrounds_template = """
+    agm_backgrounds_query = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -85,7 +85,7 @@ class AffectedGenomicModelETL(ETL):
 
     """
 
-    agm_components_template = """
+    agm_components_query = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -133,17 +133,17 @@ class AffectedGenomicModelETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [AffectedGenomicModelETL.agm_query_template,
-             commit_size, "agm_data_" + sub_type.get_data_provider() + ".csv"],
-            [AffectedGenomicModelETL.agm_secondaryids_template, commit_size,
-             "agm_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-            [AffectedGenomicModelETL.agm_synonyms_template, commit_size,
+            [self.agm_query, commit_size,
+             "agm_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.agm_secondary_ids_query, commit_size,
+             "agm_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
+            [self.agm_synonyms_query, commit_size,
              "agm_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [AffectedGenomicModelETL.agm_components_template, commit_size,
+            [self.agm_components_query, commit_size,
              "agm_components_" + sub_type.get_data_provider() + ".csv"],
-            [AffectedGenomicModelETL.agm_sqtrs_template, commit_size,
+            [self.agm_sqtrs_query, commit_size,
              "agm_sqtrs_" + sub_type.get_data_provider() + ".csv"],
-            [AffectedGenomicModelETL.agm_backgrounds_template, commit_size,
+            [self.agm_backgrounds_query, commit_size,
              "agm_backgrounds_" + sub_type.get_data_provider() + ".csv"]
         ]
 
@@ -156,6 +156,8 @@ class AffectedGenomicModelETL(ETL):
 
 
     def get_generators(self, agm_data, data_provider, batch_size):
+        '''Get Generators'''
+
         data_providers = []
         agms = []
         agm_synonyms = []
@@ -184,13 +186,14 @@ class AffectedGenomicModelETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                                                                           data_provider,
-                                                                           data_provider_page,
-                                                                           data_provider_page,
-                                                                           data_provider,
-                                                                           cross_ref_complete_url,
-                                                                           data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.info("data provider: %s", data_provider)
@@ -200,8 +203,8 @@ class AffectedGenomicModelETL(ETL):
             global_id = agm_record['primaryID']
             local_id = global_id.split(":")[1]
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(global_id)
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
@@ -234,12 +237,14 @@ class AffectedGenomicModelETL(ETL):
                 if pages is not None and len(pages) > 0:
                     for page in pages:
                         if page in ['Fish', 'genotype', 'strain']:
-                            mod_global_cross_ref_url = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                       self.xref_url_map,
-                                                                                       prefix,
-                                                                                       page)
+                            mod_global_cross_ref_url = ETLHelper.get_page_complete_url(\
+                                    local_crossref_id,
+                                    self.xref_url_map,
+                                    prefix,
+                                    page)
 
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(agm_record.get('taxonId'))
+            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(\
+                    agm_record.get('taxonId'))
             name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))
 
             # TODO: make subtype required in submission file.

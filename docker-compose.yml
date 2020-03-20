@@ -16,14 +16,14 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=8G
-      - NEO4J_dbms_memory_pagecache_size=8G
-      - NEO4J_dbms_memory_heap_initial_size=8G
-      - dbms.memory.heap_maxSize=8G
+      - NEO4J_dbms_memory_heap_maxSize=11G
+      - NEO4J_dbms_memory_pagecache_size=11G
+      - NEO4J_dbms_memory_heap_initial_size=11G
+      - dbms.memory.heap_maxSize=11G
       - dbms.security.allow_csv_import_from_file_urls=true
       - dbms.directories.import=import
-      - dbms.memory.pagecache_size=8G
-      - dbms.memory.heap.initial_size=8G
+      - dbms.memory.pagecache_size=11G
+      - dbms.memory.heap.initial_size=11G
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest

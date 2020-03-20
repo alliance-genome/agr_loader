@@ -1,9 +1,14 @@
+'''Resource Desciptor Transaction'''
 
 import logging
 
-logger = logging.getLogger(__name__)
 
-class ResourceDescriptorTransaction(object):
+class ResourceDescriptorTransaction():
+    '''Resource Desciptor Transaction'''
+
+
+    logger = logging.getLogger(__name__)
+
 
     def resource_descriptor_tx(self, data):
         '''
@@ -43,4 +48,3 @@ class ResourceDescriptorTransaction(object):
         """
 
         self.execute_transaction(query, data)
-

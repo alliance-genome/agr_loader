@@ -141,4 +141,3 @@ class Neo4jHelper():
 
             for index in indicies:
                 session.run("CREATE INDEX ON " + index)
-

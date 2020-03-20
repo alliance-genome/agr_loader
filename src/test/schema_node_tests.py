@@ -276,8 +276,8 @@ class TestClass():
                              # with uberon, this can not be unique any longer, unless
                              # every term is just 'ontology' not ontology-specific node labels.
                              # dict(node='Ontology', prop='primaryKey'),
-                             # TODO refactor ontology transaction to use id prefix to name node labels so
-                             # we can turn this back on
+                             # TODO refactor ontology transaction to use id prefix to name
+                             # node labels so we can turn this back on
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]

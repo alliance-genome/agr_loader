@@ -13,7 +13,7 @@ import jsonschema
 from files import S3File, TARFile, Download
 
 
-class SubTypeConfig(object):
+class SubTypeConfig():
     '''SubType Configuration'''
 
     logger = logging.getLogger(__name__)

@@ -18,7 +18,7 @@ ONTOLOGY:
   - SO
   - GO
   - DOID
-#  - MI
+  - MI
   - ZFA
   - ZFS
   - WBBT
@@ -50,7 +50,7 @@ Closure:
   - GO
   - SO
   - DOID
-#  - MI
+  - MI
   - ZFA
   - ZFS
   - WBBT

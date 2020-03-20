@@ -1,11 +1,17 @@
+'''Other Data Loader'''
+
 import logging
 
 from .resource_descriptor import ResourceDescriptorService
 from .resource_descriptor_transaction import ResourceDescriptorTransaction
 
-logger = logging.getLogger(__name__)
 
-class OtherDataLoader(object):
+
+class OtherDataLoader():
+    '''Other Data Loader'''
+
+    logger = logging.getLogger(__name__)
+
     def __init__(self):
         self.batch_size = 4000
 
@@ -16,5 +22,5 @@ class OtherDataLoader(object):
         #self.load_resource_descriptors()
 
     def load_resource_descriptors(self):
-        logger.info("Extracting and loading resource descriptors")
+        self.logger.info("Extracting and loading resource descriptors")
         ResourceDescriptorTransaction().resource_descriptor_tx(ResourceDescriptorService().get_data())

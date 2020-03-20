@@ -13,7 +13,7 @@ def pytest_generate_tests(metafunc):
 # MATCH (n)-[r]-(m) RETURN DISTINCT labels(n), labels(m);
 
 
-class TestClass(object):
+class TestClass():
     '''Test Class'''
 
     # a map specifying multiple argument sets for a test method

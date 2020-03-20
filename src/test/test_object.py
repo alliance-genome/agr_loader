@@ -1,12 +1,13 @@
 '''Test Object'''
 
 #a Used for loading a test subset of data for AGR.
-# Note: When testing is enabled, GO annotations and GO terms are only loaded for the following testIdSet.
+# Note: When testing is enabled, GO annotations and GO terms
+# are only loaded for the following testIdSet.
 # The testIdSet is used to "filter" these entries in the appropriate extractor files.
 import logging
 
 
-class TestObject(object):
+class TestObject():
     '''Test Object'''
 
     logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ import logging
 from . import ETLHelper
 
 
-class DiseaseHelper(object):
+class DiseaseHelper():
     '''Disease Helper'''
 
     logger = logging.getLogger(__name__)
