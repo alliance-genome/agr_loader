@@ -21,7 +21,7 @@ class JSONFile():
             self.logger.info(filename)
             self.remove_bom_inplace(filename)
         with codecs.open(filename, 'r', 'utf-8') as file_handle:
-            self.logger.debug("Opening JSONFile: %s", filename)
+            self.logger.debug("Opening JSON file: %s", filename)
             data = json.load(file_handle)
             self.logger.debug("JSON data extracted %s", filename)
 

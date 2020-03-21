@@ -54,7 +54,6 @@ class CSVTransactor():
                                                           current_filename)
                             CSVTransactor.logger.critical(error)
 
-                    print(individual_list)
                     # Write the remainder of the list
                     csv_file_writer[index].writerows(individual_list)
                     # content for this iteration.

@@ -317,19 +317,19 @@ class ExpressionETL(ETL):
             [self.bio_entity_expression_query, commit_size,
              "expression_entities_" + sub_type.get_data_provider() + ".csv"],
             [self.bio_entity_gene_ao_query, commit_size,
-             "expression_geneao_" + sub_type.get_data_provider() + ".csv"],
+             "expression_gene_ao_" + sub_type.get_data_provider() + ".csv"],
             [self.bio_entity_gene_expression_join_query, commit_size,
              "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
             [self.ao_expression_query, commit_size,
-             "expression_AOExpression_" + sub_type.get_data_provider() + ".csv"]
+             "expression_ao_xpression_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         if data_provider == 'SGD':
             query_list += [[self.sgd_cc_expression_query, commit_size,
-                            "expression_SGDCCExpression_" + sub_type.get_data_provider() + ".csv"]]
+                            "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
         else:
             query_list += [[self.cc_expression_query, commit_size,
-                            "expression_CCExpression_" + sub_type.get_data_provider() + ".csv"]]
+                            "expression_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
 
         query_list += [
             [self.ao_cc_expression_query, commit_size,

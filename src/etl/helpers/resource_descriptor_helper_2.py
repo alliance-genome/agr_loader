@@ -10,7 +10,10 @@ from files import Download
 class ResourceDescriptorHelper2():
     '''Resource Descriptor Helper 2'''
 
+
     logger = logging.getLogger(__name__)
+
+
     def __init__(self):
 
         # TODO This should eventually be tied to the schemas submodule.

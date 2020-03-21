@@ -261,7 +261,7 @@ class PhenoTypeETL(ETL):
         basic_query_and_file_list = self.process_query_params(basic_query_list)
         Neo4jTransactor.execute_query_batch(basic_query_and_file_list)
 
-        Neo4jTransactor.wait_for_queues(self)
+        Neo4jTransactor.wait_for_queues()
 
         query_agm_and_file_list = self.process_query_params(query_agm_list)
         Neo4jTransactor.execute_query_batch(query_agm_and_file_list)

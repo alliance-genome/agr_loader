@@ -69,13 +69,13 @@ class GeoXrefETL(ETL):
         geo_data_file_contents = Download("tmp", url, "geo").get_downloaded_data()
         geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
 
-        for efetch_key, efetch_value in geo_data.items():
+        for efetch_value in dict(geo_data.items()).values():
             # IdList is a value returned from efetch XML spec,
             # within IdList, there is another map with "Id"
             # as the key and the entrez local ids a list value.
             for sub_map_key, sub_map_value in efetch_value.items():
                 if sub_map_key == 'IdList':
-                    for id_list in sub_map_value.items().values():
+                    for id_list in dict(sub_map_value.items()).values():
                         for entrez_id in id_list:
                             # print ("here is the entrezid: " +entrezId)
                             entrez_ids.append("NCBI_Gene:" + entrez_id)
