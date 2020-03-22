@@ -28,6 +28,7 @@ class GOAnnotETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        return
         thread_pool = []
 
         query_tracking_list = multiprocessing.Manager().list()

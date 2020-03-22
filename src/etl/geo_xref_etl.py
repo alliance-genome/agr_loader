@@ -66,7 +66,7 @@ class GeoXrefETL(ETL):
 
         self.logger.info("Geo Url: %s", url)
 
-        geo_data_file_contents = Download("tmp", url, "geo").get_downloaded_data()
+        geo_data_file_contents = Download("tmp", url, "geo" + species_encoded).get_downloaded_data()
         geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
 
         for efetch_value in dict(geo_data.items()).values():

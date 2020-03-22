@@ -144,8 +144,7 @@ class GeneDescriptionsETL(ETL):
         #go_onto_config = data_manager.get_config('GO')
         go_annot_config = data_manager.get_config('GAF')
         #do_onto_config = data_manager.get_config('DOID')
-        go_annot_sub_dict = {sub.get_data_provider(): sub \
-                for sub in go_annot_config.get_sub_type_objects()}
+        go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
         gd_config = GenedescConfigParser(os.path.join(this_dir,
                                                       os.pardir,
