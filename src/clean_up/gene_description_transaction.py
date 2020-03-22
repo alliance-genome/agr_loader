@@ -17,7 +17,7 @@ class GeneDescriptionTransaction():
         Loads gene descriptions data into Neo4j.
         '''
         query = """
-            UNWIND $data as 
+            UNWIND $data as row
 
             MATCH (g:Gene {primaryKey:row.gene_id})
                 WHERE g.automatedGeneSynopsis is NULL
