@@ -166,6 +166,8 @@ class AggregateLoader():
             logger.info(etl_time_message)
             etl_time_tracker_list.append(etl_time_message)
 
+        return etl_time_tracker_list
+
 
     def run_loader(self):
         '''Main function for running loader'''

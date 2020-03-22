@@ -62,7 +62,7 @@ class SubTypeConfig():
                     download_object = Download(download_folder,
                                                self.file_to_download,
                                                download_filename)
-                    self.already_downloaded = download_object.get_downloaded_data_new()
+                    self.already_downloaded = download_object.is_data_downloaded()
                 else:
                     self.logger.debug("Downloading JSON File: %s", self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download,

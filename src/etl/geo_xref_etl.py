@@ -47,7 +47,7 @@ class GeoXrefETL(ETL):
 
             query_list = [
                 [self.geo_xref_query, commit_size,
-                 "geoxref_data_" + sub_type.get_data_provider() + ".csv"],
+                 "geo_xref_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             query_and_file_list = self.process_query_params(query_list)

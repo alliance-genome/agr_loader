@@ -138,6 +138,10 @@ class GenericOntologyETL(ETL):
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
                         synsplit = syn.split("\"")[1].strip()
+
+                        #remove trailing backslahs - not quoted properly by python csv
+                        synsplit = synsplit[:-1] if synsplit.endswith('\\') else synsplit
+
                         syns_dict_to_append = {
                             'oid' : ident,
                             'syn' : synsplit
@@ -147,6 +151,10 @@ class GenericOntologyETL(ETL):
                             display_synonym = synsplit
                 else:
                     synsplit = o_syns.split("\"")[1].strip()
+
+                    #remove trailing backslahs - not quoted properly by python csv
+                    synsplit = synsplit[:-1] if synsplit.endswith('\\') else synsplit
+
                     syns_dict_to_append = {'oid' : ident,
                                            'syn' : synsplit}
                     syns.append(syns_dict_to_append) # Synonyms appended here.

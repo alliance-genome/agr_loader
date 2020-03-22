@@ -63,17 +63,21 @@ class GeneDiseaseOrthoETL(ETL):
 
         thread_pool = []
 
-        process = multiprocessing.Process(target=self._process, args=(self))
-        process.start()
-        thread_pool.append(process)
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
-    def _process(self):
 
-        self.logger.info("Starting Gene Disease Ortho Data")
+    def _process_sub_type(self, subtype):
+
+        self.logger.info("Starting Gene Disease Ortho Data: %s", subtype)
+
         query_list = [
-            [self.insert_gene_disease_ortho_query, "10000", "gene_disease_by_orthology.csv"]
+            [self.insert_gene_disease_ortho_query, "10000",
+             "gene_disease_by_orthology.csv"]
         ]
 
         self.logger.info("gene disease ortho pub created")
@@ -85,6 +89,7 @@ class GeneDiseaseOrthoETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.info("Finished Gene Disease Ortho Data")
+
 
     def create_pub(self):
         '''create publication'''
@@ -104,6 +109,7 @@ class GeneDiseaseOrthoETL(ETL):
         Neo4jHelper().run_single_query(add_pub_query)
 
         self.logger.info("pub creation finished")
+
 
     def retrieve_gene_disease_ortho(self):
         '''Retrieve Gene Disease Orthology'''

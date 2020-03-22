@@ -49,7 +49,7 @@ class CSVTransactor():
                                                           fieldnames=list(individual_list[0]),
                                                           quoting=csv.QUOTE_NONNUMERIC)
                             csv_file_writer[index].writeheader()
-                        except Exception as error:
+                        except csv.Error as error:
                             CSVTransactor.logger.critical("Couldn't write to file: %s ",
                                                           current_filename)
                             CSVTransactor.logger.critical(error)

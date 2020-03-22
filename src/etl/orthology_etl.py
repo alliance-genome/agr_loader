@@ -62,7 +62,7 @@ class OrthologyETL(ETL):
             CREATE (ogj)-[:MATCHED]->(oa) """
 
 
-    notcalled_algorithm_query = """
+    not_called_algorithm_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -144,8 +144,8 @@ class OrthologyETL(ETL):
         query_list.append([self.not_matched_algorithm_query, commit_size,
                            "orthology_not_matched_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
-        query_list.append([self.notcalled_algorithm_query, commit_size,
-                           "orthology_notcalled_algorithm_data_"\
+        query_list.append([self.not_called_algorithm_query, commit_size,
+                           "orthology_not_called_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
 
         query_and_file_list = self.process_query_params(query_list)
@@ -197,7 +197,7 @@ class OrthologyETL(ETL):
 
         matched_algorithm_data = []
         unmatched_algorithm_data = []
-        notcalled_algorithm_data = []
+        not_called_algorithm_data = []
 
         list_of_mod_lists = {}
 
@@ -273,12 +273,12 @@ class OrthologyETL(ETL):
                         }
                         unmatched_algorithm_data.append(unmatched_dataset)
 
-                    for notcalled in ortho_record.get('predictionMethodsNotCalled'):
-                        notcalled_dataset = {
+                    for not_called in ortho_record.get('predictionMethodsNotCalled'):
+                        not_called_dataset = {
                             "uuid": ortho_uuid,
-                            "algorithm": notcalled
+                            "algorithm": not_called
                         }
-                        notcalled_algorithm_data.append(notcalled_dataset)
+                        not_called_algorithm_data.append(not_called_dataset)
 
                     # Establishes the number of entries to yield (return) at a time.
                     if counter == batch_size:
@@ -288,7 +288,7 @@ class OrthologyETL(ETL):
                                 list_to_yeild.append(list_of_mod_lists[mod_sub_type])
                         list_to_yeild.append(matched_algorithm_data)
                         list_to_yeild.append(unmatched_algorithm_data)
-                        list_to_yeild.append(notcalled_algorithm_data)
+                        list_to_yeild.append(not_called_algorithm_data)
 
                         yield list_to_yeild
 
@@ -297,7 +297,7 @@ class OrthologyETL(ETL):
                                 list_of_mod_lists[mod_sub_type] = []
                         matched_algorithm_data = []
                         unmatched_algorithm_data = []
-                        notcalled_algorithm_data = []
+                        not_called_algorithm_data = []
                         counter = 0
 
             if counter > 0:
@@ -307,6 +307,6 @@ class OrthologyETL(ETL):
                         list_to_yeild.append(list_of_mod_lists[mod_sub_type])
                 list_to_yeild.append(matched_algorithm_data)
                 list_to_yeild.append(unmatched_algorithm_data)
-                list_to_yeild.append(notcalled_algorithm_data)
+                list_to_yeild.append(not_called_algorithm_data)
 
                 yield list_to_yeild

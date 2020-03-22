@@ -1,19 +1,19 @@
 schemaVersion: 1.0.1.0
 releaseVersion: 3.0.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-CONSTRUCT: [ZFIN, WB, FB]
-ALLELE: [FB, WB, ZFIN, RGD, MGI]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
-PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+BGI: [FB, MGI, SGD, HUMAN]
+CONSTRUCT: [FB]
+ALLELE: [FB]
+#EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
+#PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
+DAF: [FB, SGD, HUMAN]
+GAF: [FB, SGD, HUMAN]
+#GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
-GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, WB, ZFIN, MGI, RGD]
-AGM: [ZFIN, MGI, RGD, WB]
-SQTR: [ZFIN]
+#GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+VARIATION: [FB]
+GFF: [FB]
+AGM: [MGI]
+#SQTR: [ZFIN]
 ONTOLOGY:
   - SO
   - GO
@@ -41,10 +41,10 @@ ONTOLOGY:
   - WBPhenotype
   - MP
   - HP
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
+#ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+ORTHO: [FB, SGD, MGI, HUMAN]
+#ExpressionRibbon: [ExpressionRibbon]
+#ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
 Closure:
   - GO
@@ -73,9 +73,9 @@ Closure:
   - MP
   - HP
 #INTERACTION-MOL: [COMBINED]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
-VEP: [FB, WB, ZFIN, RGD, MGI]
+GeneDescriptions: [FB, SGD, MGI, HUMAN]
+VEPTRANSCRIPT: [FB, MGI]
+VEP: [FB, MGI]
 
 # Loader configuration values are below.
 # Please modify with caution!
