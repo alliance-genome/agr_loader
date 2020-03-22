@@ -19,11 +19,6 @@ services:
       - NEO4J_dbms_memory_heap_maxSize=12G
       - NEO4J_dbms_memory_pagecache_size=12G
       - NEO4J_dbms_memory_heap_initial_size=12G
-      - dbms.memory.heap_maxSize=12G
-      - dbms.security.allow_csv_import_from_file_urls=true
-      - dbms.directories.import=import
-      - dbms.memory.pagecache_size=12G
-      - dbms.memory.heap.initial_size=12G
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
