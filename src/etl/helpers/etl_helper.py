@@ -390,7 +390,7 @@ class ETLHelper():
         complete_url = ""
         for rdstanza in xref_url_map:
 
-            for resource_key in rdstanza.items():
+            for resource_key in dict(rdstanza.items()):
                 if resource_key == prefix + page:
                     individual_stanza_map = rdstanza[prefix + page]
 

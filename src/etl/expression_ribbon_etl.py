@@ -77,17 +77,16 @@ class ExpressionRibbonETL(ETL):
         return_set_rt = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve_query)
         gocc_ribbon_data = []
         for record in return_set_rt:
-            row = dict(ebe_id=record["ebe.primaryKey"],
-                       go_id=record["slimTerm.primaryKey"])
+            row = {"ebe_id": record["ebe.primaryKey"],
+                   "go_id": record["slimTerm.primaryKey"]}
             gocc_ribbon_data.append(row)
 
         gocc_self_ribbon_data = []
 
         return_set_srt = Neo4jHelper().run_single_query(self.gocc_self_ribbon_ebes_query)
         for record in return_set_srt:
-            row = dict(ebe_id=record["ebe.primaryKey"],
-                       go_id=record["got.primaryKey"])
-
+            row = {"ebe_id": record["ebe.primaryKey"],
+                   "go_id": record["got.primaryKey"]}
             gocc_self_ribbon_data.append(row)
 
         yield [gocc_ribbon_data, gocc_self_ribbon_data]

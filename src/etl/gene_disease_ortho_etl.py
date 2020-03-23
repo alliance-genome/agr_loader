@@ -141,16 +141,15 @@ class GeneDiseaseOrthoETL(ETL):
                 relation_type = 'IMPLICATED_VIA_ORTHOLOGY'
             elif record['relationType'] == 'IS_MARKER_FOR':
                 relation_type = 'BIOMARKER_VIA_ORTHOLOGY'
-            row = dict(\
-                    primary_id=record["geneID"],
-                    from_gene_id=record["fromGeneID"],
-                    relationship_type=relation_type,
-                    relation_type_lower=relation_type.lower(),
-                    do_id=record["doId"],
-                    date_produced=date,
-                    date_assigned=date,
-                    uuid=record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
-                    pub_evidence_uuid=str(uuid.uuid4()))
+            row = {"primaryId": record["geneID"],
+                   "fromGeneId": record["fromGeneID"],
+                   "relationshipType": relation_type,
+                   "relationTypeLower": relation_type.lower(),
+                   "doId": record["doId"],
+                   "dateProduced": date,
+                   "dateAssigned":date,
+                   "uuid": record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
+                   "pubEvidenceUuid": str(uuid.uuid4())}
             gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

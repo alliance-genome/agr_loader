@@ -297,7 +297,7 @@ class DOETL(ETL):
                 'rgd_link': 'http://rgd.mcw.edu'
                             + '/rgdweb/ontology/annot.html?species=All&x=1&acc_id='
                             + node['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu'\
+                'rat_only_rgd_link': 'http://rgd.mcw.edu'
                                      + '/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id='
                                      + node['id'] + '#annot',
                 'human_only_rgd_link': 'http://rgd.mcw.edu'
