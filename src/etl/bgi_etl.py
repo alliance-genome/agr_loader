@@ -315,7 +315,6 @@ class BGIETL(ETL):
             basic_genetic_entity = gene_record['basicGeneticEntity']
             primary_id = basic_genetic_entity.get('primaryId')
             global_id = basic_genetic_entity.get('primaryId')
-
             local_id = global_id.split(":")[1]
             gene_literature_url = ""
             genetic_entity_external_url = ""

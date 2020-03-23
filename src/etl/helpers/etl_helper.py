@@ -425,10 +425,11 @@ class ETLHelper():
     def get_no_page_complete_url(local_id, xref_url_map, prefix, primary_id):
         '''Get No Page Complete URL'''
 
+
         complete_url = ""
         global_id = prefix + local_id
         for rdstanza in xref_url_map:
-            for resource_key in rdstanza.items():
+            for resource_key in dict(rdstanza.items()):
                 if resource_key == prefix:
                     individual_stanza_map = rdstanza[prefix]
 
