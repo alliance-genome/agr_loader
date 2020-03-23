@@ -281,20 +281,20 @@ class BGIETL(ETL):
 
         # if dataProviderPages is not None:
         #     for dataProviderPage in dataProviderPages:
-        #         cross_ref_complete_url = UrlService.get_page_complete_url(dataProvider,
+        #         cross_ref_complete_url = UrlService.get_page_complete_url(data_provider,
         #                                                                   ETL.xref_url_map,
-        #                                                                   dataProvider,
-        #                                                                   dataProviderPage)
-        #         data_prrovider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+        #                                                                   data_provider,
+        #                                                                   data_provider_page)
+        #         data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
         #              data_provider,
         #              data_provider,
-        #              data_providerPage,
-        #              data_providerPage,
+        #              data_provider_page,
+        #              data_provider_page,
         #              data_provider,
         #              cross_ref_complete_url,
         #              data_provider + data_provider_page))
-        #         dataProviders.append(dataProvider)
-        #         logger.info("BGI using data provider: " + dataProvider)
+        #         data_providers.append(data_provider)
+        #         self.logger.info("BGI using data provider: " + data_provider)
 
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']

@@ -15,7 +15,7 @@ class ClosureETL(ETL):
     logger = logging.getLogger(__name__)
 
 
-    insert_isa_partof_closure_query = """
+    insert_is_a_part_of_closure_query = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -24,7 +24,7 @@ class ClosureETL(ETL):
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
 
 
-    retrieve_isa_partof_closure_query = """
+    retrieve_is_a_part_of_closure_query = """
         MATCH (childTerm:%sTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:%sTerm:Ontology) 
         RETURN childTerm.primaryKey, parentTerm.primaryKey """
 
@@ -51,8 +51,8 @@ class ClosureETL(ETL):
         self.logger.debug("Starting isa_partof_ Closure for: %s", data_provider)
 
         query_list = [
-            [self.insert_isa_partof_closure_query, "10000",
-             "isa_partof_closure_" + data_provider + ".csv", data_provider, data_provider],
+            [self.insert_is_a_part_of_closure_query, "10000",
+             "is_a_part_of_closure_" + data_provider + ".csv", data_provider, data_provider],
         ]
 
         generators = self.get_closure_terms(data_provider)
@@ -66,7 +66,7 @@ class ClosureETL(ETL):
     def get_closure_terms(self, data_provider):
         '''Get clojure terms'''
 
-        query = self.retrieve_isa_partof_closure_query % (data_provider, data_provider)
+        query = self.retrieve_is_a_part_of_closure_query % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
         return_set = Neo4jHelper().run_single_query(query)

@@ -672,7 +672,7 @@ def test_human_gene_has_rgd_cross_reference():
 
 
 def test_human_gene_has_rgd_references_cross_reference():
-    '''Test Human Gene hs RGD References Cross Reference'''
+    '''Test Human Gene has RGD References Cross Reference'''
 
     query = """MATCH (g:Gene)--(cr:CrossReference)
                WHERE g.primaryKey = 'HGNC:11204'
@@ -802,7 +802,8 @@ def test_expression_for_mgi_109583():
 
     query = """
     MATCH (g:Gene)--(ebge:BioEntityGeneExpressionJoin)--(e:ExpressionBioEntity)--(o:Ontology)
-    WHERE o.name = 'spinal cord' AND g.primaryKey = 'MGI:109583'
+    WHERE o.name = 'spinal cord'
+        AND g.primaryKey = 'MGI:109583'
     RETURN count(distinct ebge) AS counter"""
     result = execute_transaction(query)
     for record in result:
