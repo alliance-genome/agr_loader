@@ -41,11 +41,11 @@ class GeneDescriptionTransaction():
 
         self.logger.info("Generating gene descriptions for %s.", mod.species)
         if mod.dataProvider and go_dataset != None and do_dataset != None:
-            cached_data_fetcher = genedesc_generator.generate_descriptions
-            go_annotations = go_annots,
-            do_annotations = do_annotations,
-            do_annotations_allele = do_annotations_allele,
-            ortho_data = ortholog_data,
-            data_provider = mod.dataProvider,
-            cached_data_fetcher = cached_data_fetcher,
-            human = isinstance(mod, Human)
+            cached_data_fetcher = genedesc_generator.generate_descriptions(
+            go_annotations=go_annots,
+            do_annotations=do_annotations,
+            do_annotations_allele=do_annotations_allele,
+            ortho_data=ortholog_data,
+            data_provider=mod.dataProvider,
+            cached_data_fetcher=cached_data_fetcher,
+            human=isinstance(mod, Human))
