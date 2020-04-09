@@ -155,14 +155,14 @@ class GenericOntologyETL(ETL):
             if o_is_as is not None:
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
-                        isaWithoutName = isa.split("!")[0].strip()
+                        isaWithoutName = isa.split(' ')[0].strip()
                         isas_dict_to_append ={
                             'oid' : ident,
                             'isa' : isaWithoutName
                         }
                         isas.append(isas_dict_to_append)
                 else:
-                    isaWithoutName = o_is_as.split("!")[0].strip()
+                    isaWithoutName = o_is_as.split(' ')[0].strip()
                     isas_dict_to_append ={
                             'oid' : ident,
                             'isa' : isaWithoutName
@@ -198,8 +198,6 @@ class GenericOntologyETL(ETL):
             else:
                 if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
                     definition = definition.replace('\\\"', '\"') # Replace them with just a single "
-                else:
-                    definition = defText
             if definition is None:
                 definition = ""
 

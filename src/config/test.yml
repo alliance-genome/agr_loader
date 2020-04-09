@@ -6,12 +6,12 @@ ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, WB, ZFIN, MGI]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, WB, ZFIN, MGI, RGD, HUMAN]
+GFF: [FB, WB, ZFIN, MGI, RGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
@@ -42,7 +42,7 @@ ONTOLOGY:
   - MP
   - HP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
@@ -82,11 +82,6 @@ VEP: [FB, WB, ZFIN, RGD, MGI]
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
-
-
-
 
 
 
