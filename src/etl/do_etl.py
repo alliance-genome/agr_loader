@@ -15,8 +15,9 @@ class DOETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    do_query = """
+    do_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -44,7 +45,7 @@ class DOETL(ETL):
             MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
 
 
-    doterm_synonyms_query = """
+    doterm_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -55,7 +56,7 @@ class DOETL(ETL):
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
 
-    doterm_isas_query = """
+    doterm_isas_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -64,14 +65,14 @@ class DOETL(ETL):
             MERGE (d1)-[aka:IS_A]->(d2) """
 
 
-    xrefs_query = """
+    xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
 
 
-    doterm_alt_ids_query = """
+    doterm_alt_ids_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -95,15 +96,15 @@ class DOETL(ETL):
 
         generators = self.get_generators(filepath, batch_size)
 
-        query_list = [
-            [self.do_query, commit_size, "do_term_data.csv"],
-            [self.doterm_isas_query, commit_size, "do_isas_data.csv"],
-            [self.doterm_synonyms_query, commit_size, "do_synonyms_data.csv"],
-            [self.xrefs_query, commit_size, "do_xrefs_data.csv"],
-            [self.doterm_alt_ids_query, commit_size, "do_alt_ids_data.csv"]
+        query_template_list = [
+            [self.do_query_template, commit_size, "do_term_data.csv"],
+            [self.doterm_isas_query_template, commit_size, "do_isas_data.csv"],
+            [self.doterm_synonyms_query_template, commit_size, "do_synonyms_data.csv"],
+            [self.xrefs_query_template, commit_size, "do_xrefs_data.csv"],
+            [self.doterm_alt_ids_query_template, commit_size, "do_alt_ids_data.csv"]
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

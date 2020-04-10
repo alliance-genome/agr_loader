@@ -13,7 +13,9 @@ class MIETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    main_query = """
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -33,9 +35,9 @@ class MIETL(ETL):
         filepath = self.data_type_config.get_single_filepath()
         generators = self.get_generators(filepath)
 
-        query_list = [[self.main_query, 10000, "mi_term_data.csv"]]
+        query_template_list = [[self.main_query_template, 10000, "mi_term_data.csv"]]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

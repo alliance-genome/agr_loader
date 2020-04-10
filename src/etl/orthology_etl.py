@@ -20,8 +20,9 @@ class OrthologyETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    main_query = """
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -44,7 +45,7 @@ class OrthologyETL(ETL):
             CREATE (oa)-[a2:ASSOCIATION]->(g2) """
 
 
-    not_matched_algorithm_query = """
+    not_matched_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -53,7 +54,7 @@ class OrthologyETL(ETL):
             CREATE (ogj)-[:NOT_MATCHED]->(oa) """
 
 
-    matched_algorithm_query = """
+    matched_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -62,7 +63,7 @@ class OrthologyETL(ETL):
             CREATE (ogj)-[:MATCHED]->(oa) """
 
 
-    not_called_algorithm_query = """
+    not_called_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -131,24 +132,24 @@ class OrthologyETL(ETL):
                                          sub_types,
                                          batch_size)
 
-        query_list = []
+        query_template_list = []
 
         for mod_sub_type in sub_types:
             if mod_sub_type != sub_type.get_data_provider():
-                query_list.append([self.main_query, "100000",\
+                query_template_list.append([self.main_query_template, "100000",\
                     "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
 
-        query_list.append([self.matched_algorithm_query, commit_size,
+        query_template_list.append([self.matched_algorithm_query_template, commit_size,
                            "orthology_matched_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
-        query_list.append([self.not_matched_algorithm_query, commit_size,
+        query_template_list.append([self.not_matched_algorithm_query_template, commit_size,
                            "orthology_not_matched_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
-        query_list.append([self.not_called_algorithm_query, commit_size,
+        query_template_list.append([self.not_called_algorithm_query_template, commit_size,
                            "orthology_not_called_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
 
         CSVTransactor.save_file_static(generators, query_and_file_list)
 

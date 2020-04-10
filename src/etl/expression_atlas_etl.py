@@ -14,6 +14,8 @@ class ExpressionAtlasETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Querys which do not take params and can be used as is
+
     get_all_gene_primary_to_ensmbl_ids_query = """
         MATCH (g:Gene)-[:CROSS_REFERENCE]-(c:CrossReference)
         WHERE c.prefix = 'ENSEMBL'
@@ -29,7 +31,9 @@ class ExpressionAtlasETL(ETL):
         WHERE LOWER(g.primaryKey) IN {parameter}
         RETURN g.primaryKey, g.modLocalId"""
 
-    add_expression_atlas_crossreferences_query = """
+    # Query templates which take params and will be processed later
+
+    add_expression_atlas_crossreferences_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -107,12 +111,12 @@ class ExpressionAtlasETL(ETL):
 
         generators = self.get_generators(expression_atlas_gene_pages, data_provider, batch_size)
 
-        query_list = [
-            [self.add_expression_atlas_crossreferences_query, commit_size,
+        query_template_list = [
+            [self.add_expression_atlas_crossreferences_query_template, commit_size,
              "expression_atlas_" + data_provider  + "_data.csv"],
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

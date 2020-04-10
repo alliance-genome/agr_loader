@@ -13,8 +13,9 @@ class ExpressionRibbonETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    insert_gocc_self_ribbon_terms_query = """
+    insert_gocc_self_ribbon_terms_query_template = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                    MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
@@ -23,7 +24,7 @@ class ExpressionRibbonETL(ETL):
                    MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
 
 
-    insert_gocc_ribbon_terms_query = """
+    insert_gocc_ribbon_terms_query_template = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                    MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
@@ -31,6 +32,7 @@ class ExpressionRibbonETL(ETL):
 
                    MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
 
+    # Querys which do not take params and can be used as is
 
     expression_gocc_ribbon_retrieve_query = """
                 MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
@@ -52,17 +54,17 @@ class ExpressionRibbonETL(ETL):
     def _load_and_process_data(self):
 
         self.logger.info("Starting Expression Ribbon Data")
-        query_list = [
-            [self.insert_gocc_ribbon_terms_query, "30000",
+        query_template_list = [
+            [self.insert_gocc_ribbon_terms_query_template, "30000",
              "expression_gocc_ribbon_terms.csv"],
-            [self.insert_gocc_self_ribbon_terms_query, "30000",
+            [self.insert_gocc_self_ribbon_terms_query_template, "30000",
              "expression_gocc_self_ribbon_terms" + ".csv"]
         ]
 
         generators = self.get_ribbon_terms()
 
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

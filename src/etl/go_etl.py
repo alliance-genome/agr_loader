@@ -11,7 +11,9 @@ class GOETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    main_query = """
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' as row
 
@@ -26,7 +28,7 @@ class GOETL(ETL):
              g.href = row.href 
             MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
 
-    goterm_isas_query = """
+    goterm_isas_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -34,7 +36,7 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:IS_A]->(g2) """
 
-    goterm_partofs_query = """
+    goterm_partofs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -42,7 +44,7 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:PART_OF]->(g2) """
 
-    goterm_synonyms_query = """
+    goterm_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +54,7 @@ class GOETL(ETL):
                 SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    goterm_regulates_query = """
+    goterm_regulates_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -61,7 +63,7 @@ class GOETL(ETL):
             MERGE (g1)-[aka:REGULATES]->(g2) """
 
 
-    goterm_negatively_regulates_query = """
+    goterm_negatively_regulates_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -70,7 +72,7 @@ class GOETL(ETL):
             MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2) """
 
 
-    goterm_positively_regulates_query = """
+    goterm_positively_regulates_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -93,24 +95,24 @@ class GOETL(ETL):
 
         generators = self.get_generators(filepath, batch_size)
 
-        query_list = [
-            [self.main_query, commit_size,
+        query_template_list = [
+            [self.main_query_template, commit_size,
              "go_term_data.csv"],
-            [self.goterm_isas_query, commit_size,
+            [self.goterm_isas_query_template, commit_size,
              "go_isas_data.csv"],
-            [self.goterm_partofs_query, commit_size,
+            [self.goterm_partofs_query_template, commit_size,
              "go_partofs_data.csv"],
-            [self.goterm_synonyms_query, commit_size,
+            [self.goterm_synonyms_query_template, commit_size,
              "go_synonym_data.csv"],
-            [self.goterm_regulates_query, commit_size,
+            [self.goterm_regulates_query_template, commit_size,
              "go_regulates_data.csv"],
-            [self.goterm_negatively_regulates_query, commit_size,
+            [self.goterm_negatively_regulates_query_template, commit_size,
              "go_negatively_regulates_data.csv"],
-            [self.goterm_positively_regulates_query, commit_size,
+            [self.goterm_positively_regulates_query_template, commit_size,
              "go_positively_regulates_data.csv"]
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

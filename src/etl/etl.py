@@ -76,10 +76,10 @@ class ETL():
 
         for query_params in query_list_with_params:
             # Remove the first query + batch size + CSV file name
-            cypher_query = query_params.pop(0)
+            cypher_query_template = query_params.pop(0)
 
             #  from the list. Format the query with all remaining paramenters.
-            query_to_run = cypher_query % tuple(query_params)
+            query_to_run = cypher_query_template % tuple(query_params)
 
             while len(query_params) > 2:  # We need to remove extra params before we append
                 # the modified query. Assuming the last entry in the list is the filepath

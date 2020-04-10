@@ -15,7 +15,9 @@ class AffectedGenomicModelETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    agm_query = """
+    # Query templates which take params and will be processed later
+
+    agm_query_template = """
         
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -40,7 +42,7 @@ class AffectedGenomicModelETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    agm_secondary_ids_query = """
+    agm_secondary_ids_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +54,7 @@ class AffectedGenomicModelETL(ETL):
 
         """
 
-    agm_sqtrs_query = """
+    agm_sqtrs_query_template = """
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -62,7 +64,7 @@ class AffectedGenomicModelETL(ETL):
             MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
 
-    agm_synonyms_query = """
+    agm_synonyms_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -74,7 +76,7 @@ class AffectedGenomicModelETL(ETL):
 
         """
 
-    agm_backgrounds_query = """
+    agm_backgrounds_query_template = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -85,7 +87,7 @@ class AffectedGenomicModelETL(ETL):
 
     """
 
-    agm_components_query = """
+    agm_components_query_template = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -132,25 +134,25 @@ class AffectedGenomicModelETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.agm_query, commit_size,
+        query_template_list = [
+            [self.agm_query_template, commit_size,
              "agm_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_secondary_ids_query, commit_size,
+            [self.agm_secondary_ids_query_template, commit_size,
              "agm_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_synonyms_query, commit_size,
+            [self.agm_synonyms_query_template, commit_size,
              "agm_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_components_query, commit_size,
+            [self.agm_components_query_template, commit_size,
              "agm_components_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_sqtrs_query, commit_size,
+            [self.agm_sqtrs_query_template, commit_size,
              "agm_sqtrs_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_backgrounds_query, commit_size,
+            [self.agm_backgrounds_query_template, commit_size,
              "agm_backgrounds_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

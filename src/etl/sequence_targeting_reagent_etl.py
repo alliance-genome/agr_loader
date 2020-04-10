@@ -14,7 +14,9 @@ class SequenceTargetingReagentETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    sequence_targeting_reagent_query_query = """
+    # Query templates which take params and will be processed later
+
+    sequence_targeting_reagent_query_template = """
     
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -36,7 +38,7 @@ class SequenceTargetingReagentETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    sequence_targeting_reagent_secondary_ids_query = """
+    sequence_targeting_reagent_secondary_ids_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -47,7 +49,7 @@ class SequenceTargetingReagentETL(ETL):
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
     """
 
-    sequence_targeting_reagent_synonyms_query = """
+    sequence_targeting_reagent_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -58,7 +60,7 @@ class SequenceTargetingReagentETL(ETL):
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
     """
 
-    sequence_targeting_reagent_target_genes_query = """
+    sequence_targeting_reagent_target_genes_query_template = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -104,21 +106,21 @@ class SequenceTargetingReagentETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.sequence_targeting_reagent_query_query,
+        query_template_list = [
+            [self.sequence_targeting_reagent_query_template,
              commit_size, "str_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_secondary_ids_query, commit_size,
+            [self.sequence_targeting_reagent_secondary_ids_query_template, commit_size,
              "str_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_synonyms_query, commit_size,
+            [self.sequence_targeting_reagent_synonyms_query_template, commit_size,
              "str_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_target_genes_query, commit_size,
+            [self.sequence_targeting_reagent_target_genes_query_template, commit_size,
              "str_target_genes_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

@@ -15,19 +15,21 @@ class BGIETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    so_terms_query = """
+    # Query templates which take params and will be processed later
+
+    so_terms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Gene {primaryKey:row.primaryKey})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
             MERGE (o)-[:ANNOTATED_TO]->(s)"""
 
-    chromosomes_query = """
+    chromosomes_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MERGE (chrm:Chromosome {primaryKey: row.primaryKey}) """
 
-    genomic_locations_query = """
+    genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -50,7 +52,7 @@ class BGIETL(ETL):
             
         """
 
-    genomic_locations_bins_query = """
+    genomic_locations_bins_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -64,7 +66,7 @@ class BGIETL(ETL):
             MERGE (o)-[:LOCATED_IN]->(bin)
             MERGE (bin)-[:LOCATED_ON]->(chrm) """
 
-    gene_secondary_ids_query = """
+    gene_secondary_ids_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -74,7 +76,7 @@ class BGIETL(ETL):
                 ON CREATE SET second.name = row.secondary_id
             MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
 
-    gene_synonyms_query = """
+    gene_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -84,7 +86,7 @@ class BGIETL(ETL):
                     SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    gene_query = """
+    gene_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -115,7 +117,7 @@ class BGIETL(ETL):
                             spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
     """
 
-    basic_gene_load_relations_query = """
+    basic_gene_load_relations_query_template = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -125,7 +127,7 @@ class BGIETL(ETL):
     
     """
 
-    basic_gene_species_relations_query = """
+    basic_gene_species_relations_query_template = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -136,14 +138,14 @@ class BGIETL(ETL):
 
     """
 
-    xrefs_query = """
+    xrefs_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
 
-    xrefs_relationships_query = """
+    xrefs_relationships_query_template = """
     
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -156,7 +158,7 @@ class BGIETL(ETL):
     """ + ETLHelper.merge_crossref_relationships()
 
 
-    gene_metadata_query = """
+    gene_metadata_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -212,35 +214,35 @@ class BGIETL(ETL):
 
         # gene_metadata, gene_dataset, secondary_ids, genomic_locations, cross_references, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.gene_metadata_query, commit_size,
+        query_template_list = [
+            [self.gene_metadata_query_template, commit_size,
              "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_query, commit_size,
+            [self.gene_query_template, commit_size,
              "gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_load_relations_query, commit_size,
+            [self.basic_gene_load_relations_query_template, commit_size,
              "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_species_relations_query, commit_size,
+            [self.basic_gene_species_relations_query_template, commit_size,
              "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query, commit_size,
+            [self.so_terms_query_template, commit_size,
              "gene_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_query, commit_size,
+            [self.chromosomes_query_template, commit_size,
              "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_secondary_ids_query, commit_size,
+            [self.gene_secondary_ids_query_template, commit_size,
              "gene_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query, commit_size,
+            [self.genomic_locations_query_template, commit_size,
              "gene_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query, commit_size,
+            [self.xrefs_query_template, commit_size,
              "gene_cross_references_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_relationships_query, commit_size,
+            [self.xrefs_relationships_query_template, commit_size,
              "gene_cross_references_relationships_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_synonyms_query, 600000,
+            [self.gene_synonyms_query_template, 600000,
              "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
 
         for item in query_and_file_list:
