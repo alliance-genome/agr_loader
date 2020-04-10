@@ -508,51 +508,6 @@ class GeneDescriptionsETL(ETL):
         return best_orthologs
 
     @staticmethod
-    def upload_files_to_s3(context_info, file_path, file_name,
-                           cur_date, release_version, latest_file_name):
-        '''Upload Files to S3'''
-
-        client = boto3.client('s3',
-                              aws_access_key_id=context_info.env["AWS_ACCESS_KEY"],
-                              aws_secret_access_key=context_info.env["AWS_SECRET_KEY"])
-        pre_release = "/release/" if context_info.env["GENERATE_REPORTS"] is True else \
-            "/" + context_info.env["GENERATE_REPORTS"] + "/"
-        client.upload_file(file_path + ".json",
-                           "agr-db-reports",
-                           os.path.join("gene-descriptions",
-                                        release_version + pre_release + cur_date,
-                                        file_name + ".json"),
-                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-        client.upload_file(file_path + ".txt",
-                           "agr-db-reports",
-                           os.path.join("gene-descriptions",
-                                        release_version + pre_release + cur_date,
-                                        file_name + ".txt"),
-                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-        client.upload_file(file_path + ".tsv", "agr-db-reports",
-                           os.path.join("gene-descriptions",
-                                        release_version + pre_release + cur_date,
-                                        file_name + ".tsv"),
-                           ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
-        if context_info.env["GENERATE_REPORTS"] is True:
-            client.upload_file(file_path + ".json",
-                               "agr-db-reports",
-                               os.path.join("gene-descriptions", latest_file_name + ".json"),
-                               ExtraArgs={'ContentType': "binary/octet-stream",
-                                          'ACL': "public-read"})
-            client.upload_file(file_path + ".txt",
-                               "agr-db-reports",
-                               os.path.join("gene-descriptions", latest_file_name + ".txt"),
-                               ExtraArgs={'ContentType': "binary/octet-stream",
-                                          'ACL': "public-read"})
-            client.upload_file(file_path + ".tsv",
-                               "agr-db-reports",
-                               os.path.join("gene-descriptions", latest_file_name + ".tsv"),
-                               ExtraArgs={'ContentType': "binary/octet-stream",
-                                          'ACL': "public-read"})
-
-
-    @staticmethod
     def upload_files_to_fms(file_path, context_info, data_provider, logger):
         '''Upload Files To FMS'''
 
