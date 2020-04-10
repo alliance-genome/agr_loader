@@ -100,32 +100,32 @@ class AggregateLoader():
     # i.e. After Ontology, there will be a pause.
     # After GO, DO, MI, there will be a pause, etc.
     etl_groups = [
-#        ['DOID', 'MI'],
-#        ['GO'],
-#        ['ONTOLOGY'],
-#        ['ECOMAP'],
-#        ['BGI'],
-#        ['CONSTRUCT'],
-#        ['ALLELE'],
-#        ['VARIATION'],
-#        ['SQTR'],
-#        ['AGM'],
-#        ['GFF'],
-#        ['EXPRESSION'],
-#        ['ExpressionRibbon'],
-#        ['ExpressionRibbonOther'],
-#        ['GENEEEXPRESSIONATLASSITEMAP'],
-#        ['DAF'],  # Locks Genes
-#        ['PHENOTYPE'],  # Locks Genes
-#        ['ORTHO'],  # Locks Genes
-#        ['GAF'],  # Locks Genes
-#        ['GeoXref'],  # Locks Genes
-#        ['GeneDiseaseOrtho'],
+        ['DOID', 'MI'],
+        ['GO'],
+        ['ONTOLOGY'],
+        ['ECOMAP'],
+        ['BGI'],
+        ['CONSTRUCT'],
+        ['ALLELE'],
+        ['VARIATION'],
+        ['SQTR'],
+        ['AGM'],
+        ['GFF'],
+        ['EXPRESSION'],
+        ['ExpressionRibbon'],
+        ['ExpressionRibbonOther'],
+        ['GENEEEXPRESSIONATLASSITEMAP'],
+        ['DAF'],  # Locks Genes
+        ['PHENOTYPE'],  # Locks Genes
+        ['ORTHO'],  # Locks Genes
+        ['GAF'],  # Locks Genes
+        ['GeoXref'],  # Locks Genes
+        ['GeneDiseaseOrtho'],
         ['INTERACTION-MOL'],
-#        ['Closure'],
+        ['Closure'],
         ['GeneDescriptions'],
-#        ['VEP'],
-#        ['VEPTRANSCRIPT']
+        ['VEP'],
+        ['VEPTRANSCRIPT']
     ]
 
 
