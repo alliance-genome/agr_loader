@@ -151,25 +151,9 @@ class GeneDescriptionsETL(ETL):
                                                       os.pardir,
                                                       "gene_descriptions.yml"))
         gd_data_manager = DataManager(do_relations=None, go_relations=["subClassOf", "BFO:0000050"])
-        #go_onto_path = "file://" + os.path.join(os.getcwd(), go_onto_config.get_single_filepath())
-        #gd_data_manager.load_ontology_from_file(ontology_type=DataType.GO,
-        #                                        ontology_url=go_onto_path,
-        #                                        config=gd_config,
-        #                                        ontology_cache_path=os.path.join(os.getcwd(),
-        #                                        "tmp",
-        #                                        "gd_cache",
-        #                                        "go.obo"))
         gd_data_manager.set_ontology(ontology_type=DataType.GO,
                                      ontology=self.get_ontology(data_type=DataType.GO),
                                      config=gd_config)
-        #do_onto_path = "file://" + os.path.join(os.getcwd(), do_onto_config.get_single_filepath())
-        #gd_data_manager.load_ontology_from_file(ontology_type=DataType.DO,
-        #                                        ontology_url=do_onto_path,
-        #                                        config=gd_config,
-        #                                        ontology_cache_path=os.path.join(os.getcwd(),
-        #                                        "tmp",
-        #                                        "gd_cache",
-        #                                        "do.obo"))
         gd_data_manager.set_ontology(ontology_type=DataType.DO,
                                      ontology=self.get_ontology(data_type=DataType.DO),
                                      config=gd_config)
@@ -194,10 +178,10 @@ class GeneDescriptionsETL(ETL):
                                                      "go_annot_" + prvdr + ".gaf"),
                 config=gd_config_mod_specific)
             gd_data_manager.set_associations(associations_type=DataType.DO,
-                                             associations=self.get_disease_annotations_from_db(\
-                                                     data_provider=data_provider,
-                                                     gd_data_manager=gd_data_manager,
-                                                     logger=self.logger),
+                                             associations=self.get_disease_annotations_from_db(
+                                                 data_provider=data_provider,
+                                                 gd_data_manager=gd_data_manager,
+                                                 logger=self.logger),
                                              config=gd_config_mod_specific)
             if prvdr in EXPRESSION_PRVD_SUBTYPE_MAP:
                 gd_data_manager.set_ontology(ontology_type=DataType.EXPR,
@@ -206,10 +190,9 @@ class GeneDescriptionsETL(ETL):
                                              config=gd_config_mod_specific)
                 gd_data_manager.set_associations(
                     associations_type=DataType.EXPR,
-                    associations=self.get_expression_annotations_from_db(\
-                            data_provider=data_provider,
-                            gd_data_manager=gd_data_manager,
-                            logger=self.logger),
+                    associations=self.get_expression_annotations_from_db(data_provider=data_provider,
+                                                                         gd_data_manager=gd_data_manager,
+                                                                         logger=self.logger),
                     config=gd_config_mod_specific)
             commit_size = self.data_type_config.get_neo4j_commit_size()
             generators = self.get_generators(prvdr,
@@ -285,19 +268,19 @@ class GeneDescriptionsETL(ETL):
         ontology = Ontology()
         terms_pairs = []
         if data_type == DataType.GO:
-            terms_pairs = Neo4jHelper.run_single_parameter_query(\
-                    self.get_ontology_pairs_query.format("GO", "GO"),
-                    None)
+            terms_pairs = Neo4jHelper.run_single_parameter_query(
+                self.get_ontology_pairs_query.format("GO", "GO"),
+                None)
         elif data_type == DataType.DO:
-            terms_pairs = Neo4jHelper.run_single_parameter_query(\
-                    self.get_ontology_pairs_query.format("DO", "DO"),
-                    None)
+            terms_pairs = Neo4jHelper.run_single_parameter_query(
+                self.get_ontology_pairs_query.format("DO", "DO"),
+                None)
         elif data_type == DataType.EXPR:
             if provider in EXPRESSION_PRVD_SUBTYPE_MAP:
-                terms_pairs = Neo4jHelper.run_single_parameter_query(\
-                        self.get_ontology_pairs_query.format(EXPRESSION_PRVD_SUBTYPE_MAP[provider],
-                                                             EXPRESSION_PRVD_SUBTYPE_MAP[provider]),
-                        None)
+                terms_pairs = Neo4jHelper.run_single_parameter_query(
+                    self.get_ontology_pairs_query.format(EXPRESSION_PRVD_SUBTYPE_MAP[provider],
+                                                         EXPRESSION_PRVD_SUBTYPE_MAP[provider]),
+                    None)
         for terms_pair in terms_pairs:
             self.add_neo_term_to_ontobio_ontology_if_not_exists(
                 terms_pair["term1.primaryKey"], terms_pair["term1.name"], terms_pair["term1.type"],
@@ -305,10 +288,9 @@ class GeneDescriptionsETL(ETL):
             self.add_neo_term_to_ontobio_ontology_if_not_exists(
                 terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"],
                 terms_pair["term2.isObsolete"], ontology)
-            ontology.add_parent(\
-                    terms_pair["term1.primaryKey"],
-                    terms_pair["term2.primaryKey"],
-                    relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
+            ontology.add_parent(terms_pair["term1.primaryKey"],
+                                terms_pair["term2.primaryKey"],
+                                relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
         if data_type == DataType.EXPR and provider == "MGI":
             self.add_neo_term_to_ontobio_ontology_if_not_exists("EMAPA_ARTIFICIAL_NODE:99999",
                                                                 "embryo",
@@ -537,35 +519,35 @@ class GeneDescriptionsETL(ETL):
             "/" + context_info.env["GENERATE_REPORTS"] + "/"
         client.upload_file(file_path + ".json",
                            "agr-db-reports",
-                           os.path.join(["gene-descriptions",
-                                         release_version + pre_release + cur_date,
-                                         file_name + ".json"]),
+                           os.path.join("gene-descriptions",
+                                        release_version + pre_release + cur_date,
+                                        file_name + ".json"),
                            ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
         client.upload_file(file_path + ".txt",
                            "agr-db-reports",
-                           os.path.join(["gene-descriptions",
-                                         release_version + pre_release + cur_date,
-                                         file_name + ".txt"]),
+                           os.path.join("gene-descriptions",
+                                        release_version + pre_release + cur_date,
+                                        file_name + ".txt"),
                            ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
         client.upload_file(file_path + ".tsv", "agr-db-reports",
-                           os.path.join(["gene-descriptions",
-                                         release_version + pre_release + cur_date,
-                                         file_name + ".tsv"]),
+                           os.path.join("gene-descriptions",
+                                        release_version + pre_release + cur_date,
+                                        file_name + ".tsv"),
                            ExtraArgs={'ContentType': "binary/octet-stream", 'ACL': "public-read"})
         if context_info.env["GENERATE_REPORTS"] is True:
             client.upload_file(file_path + ".json",
                                "agr-db-reports",
-                               os.path.join(["gene-descriptions", latest_file_name + ".json"]),
+                               os.path.join("gene-descriptions", latest_file_name + ".json"),
                                ExtraArgs={'ContentType': "binary/octet-stream",
                                           'ACL': "public-read"})
             client.upload_file(file_path + ".txt",
                                "agr-db-reports",
-                               os.path.join(["gene-descriptions", latest_file_name + ".txt"]),
+                               os.path.join("gene-descriptions", latest_file_name + ".txt"),
                                ExtraArgs={'ContentType': "binary/octet-stream",
                                           'ACL': "public-read"})
             client.upload_file(file_path + ".tsv",
                                "agr-db-reports",
-                               os.path.join(["gene-descriptions", latest_file_name + ".tsv"]),
+                               os.path.join("gene-descriptions", latest_file_name + ".tsv"),
                                ExtraArgs={'ContentType': "binary/octet-stream",
                                           'ACL': "public-read"})
 
@@ -608,7 +590,6 @@ class GeneDescriptionsETL(ETL):
         json_desc_writer.overall_properties.release_version = release_version
         json_desc_writer.overall_properties.date = self.cur_date
         file_name = self.cur_date + "_" + data_provider
-        #latest_file_name = data_provider + "_gene_desc_latest"
         file_path = os.path.join("tmp", file_name)
         json_desc_writer.write_json(file_path=file_path + ".json",
                                     pretty=True,
@@ -618,9 +599,3 @@ class GeneDescriptionsETL(ETL):
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         if context_info.env["GENERATE_REPORTS"]:
             self.upload_files_to_fms(file_path, context_info, data_provider, self.logger)
-            # GeneDescriptionsETL.upload_files_to_s3(context_info,
-            #                                        file_path,
-            #                                        file_name,
-            #                                        self.cur_date,
-            #                                        release_version,
-            #                                        latest_file_name)
