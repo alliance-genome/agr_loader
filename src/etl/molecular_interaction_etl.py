@@ -17,7 +17,9 @@ class MolecularInteractionETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    main_query = """
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         MATCH (g1:Gene {primaryKey:row.interactor_A})
@@ -67,7 +69,7 @@ class MolecularInteractionETL(ETL):
         CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
     """
 
-    xref_query = """
+    xref_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -75,7 +77,7 @@ class MolecularInteractionETL(ETL):
         MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
         """ + ETLHelper.get_cypher_xref_text()
 
-    mod_xref_query = """
+    mod_xref_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -104,13 +106,13 @@ class MolecularInteractionETL(ETL):
 
         generators = self.get_generators(filepath, batch_size)
 
-        query_list = [
-            [self.main_query, commit_size, "mol_int_data.csv"],
-            [self.xref_query, commit_size, "mol_int_xref.csv"],
-            [self.mod_xref_query, commit_size, "mol_int_mod_xref.csv"]
+        query_template_list = [
+            [self.main_query_template, commit_size, "mol_int_data.csv"],
+            [self.xref_query_template, commit_size, "mol_int_xref.csv"],
+            [self.mod_xref_query_template, commit_size, "mol_int_mod_xref.csv"]
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

@@ -16,7 +16,9 @@ class PhenoTypeETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    execute_allele_query = """
+    # Query templates which take params and will be processed later
+
+    execute_allele_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +54,7 @@ class PhenoTypeETL(ETL):
             
             """
 
-    execute_allele_gene_pej_relationship_query = """
+    execute_allele_gene_pej_relationship_query_template = """
     
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -64,7 +66,7 @@ class PhenoTypeETL(ETL):
         MERGE (g)-[gapf:ASSOCIATION]->(pej)
 
     """
-    execute_gene_query = """
+    execute_gene_query_template = """
 
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -99,7 +101,7 @@ class PhenoTypeETL(ETL):
 
             """
 
-    execute_agm_query = """
+    execute_agm_query_template = """
 
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -134,7 +136,7 @@ class PhenoTypeETL(ETL):
 
     """
 
-    execute_pges_allele_query = """
+    execute_pges_allele_query_template = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -145,7 +147,7 @@ class PhenoTypeETL(ETL):
 
     """
 
-    execute_pges_agm_query = """
+    execute_pges_agm_query_template = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -186,87 +188,87 @@ class PhenoTypeETL(ETL):
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_neo4j_commit_size()
-        query_allele_list = []
-        query_agm_list = []
+        query_template_allele_list = []
+        query_template_agm_list = []
         data_provider = sub_type.get_data_provider()
 
         generators = self.get_generators(data, batch_size, data_provider)
 
         if data_provider in ['MGI', 'ZFIN', 'RGD']:
-            query_list = [
-                [self.execute_gene_query, commit_size,
+            query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query, commit_size,
+                [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_agm_query, commit_size,
+                [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query, commit_size,
+                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_pges_agm_query, commit_size,
+                [self.execute_pges_agm_query_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-            query_agm_list = [
-                [self.execute_pges_agm_query, commit_size,
+            query_template_agm_list = [
+                [self.execute_pges_agm_query_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-            basic_query_list = [
-                [self.execute_gene_query, commit_size,
+            basic_query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query, commit_size,
+                [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query, commit_size,
+                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_agm_query, commit_size,
+                [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
             ]
 
         elif data_provider in ['FB', 'WB']:
-            query_list = [
-                [self.execute_gene_query, commit_size,
+            query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query, commit_size,
+                [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query, commit_size,
+                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_pges_allele_query, commit_size,
+                [self.execute_pges_allele_query_template, commit_size,
                  "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-            query_allele_list = [
-                [self.execute_pges_allele_query, commit_size,
+            query_template_allele_list = [
+                [self.execute_pges_allele_query_template, commit_size,
                  "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query, commit_size,
+                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-            basic_query_list = [
-                [self.execute_gene_query, commit_size,
+            basic_query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query, commit_size,
+                [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query, commit_size,
+                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
             ]
         else:
-            query_list = [
-                [self.execute_gene_query, commit_size,
+            query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-            basic_query_list = [
-                [self.execute_gene_query, commit_size,
+            basic_query_template_list = [
+                [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
             ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
 
-        basic_query_and_file_list = self.process_query_params(basic_query_list)
+        basic_query_and_file_list = self.process_query_params(basic_query_template_list)
         Neo4jTransactor.execute_query_batch(basic_query_and_file_list)
 
         Neo4jTransactor.wait_for_queues()
 
-        query_agm_and_file_list = self.process_query_params(query_agm_list)
+        query_agm_and_file_list = self.process_query_params(query_template_agm_list)
         Neo4jTransactor.execute_query_batch(query_agm_and_file_list)
 
-        query_allele_and_file_list = self.process_query_params(query_allele_list)
+        query_allele_and_file_list = self.process_query_params(query_template_allele_list)
         Neo4jTransactor.execute_query_batch(query_allele_and_file_list)
 
 

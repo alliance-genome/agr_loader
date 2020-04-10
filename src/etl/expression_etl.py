@@ -17,15 +17,16 @@ class ExpressionETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    xrefs_query = """
+    xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
         """ + ETLHelper.get_cypher_xref_text()
 
 
-    bio_entity_expression_query = """
+    bio_entity_expression_query_template = """
     
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -34,7 +35,7 @@ class ExpressionETL(ETL):
          ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement"""
 
 
-    bio_entity_gene_expression_join_query = """
+    bio_entity_gene_expression_join_query_template = """
     
      USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -46,7 +47,7 @@ class ExpressionETL(ETL):
         MERGE (gej)-[geja:ASSAY]->(assay)"""
 
 
-    bio_entity_gene_ao_query = """
+    bio_entity_gene_ao_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -61,7 +62,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)"""
 
 
-    add_pubs_query = """
+    add_pubs_query_template = """
     
      USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -77,7 +78,7 @@ class ExpressionETL(ETL):
             CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
 
 
-    ao_expression_query = """
+    ao_expression_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -92,7 +93,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[egej:ASSOCIATION]->(gej)"""
 
 
-    sgd_cc_expression_query = """
+    sgd_cc_expression_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -118,7 +119,7 @@ class ExpressionETL(ETL):
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
 
 
-    cc_expression_query = """
+    cc_expression_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -146,7 +147,7 @@ class ExpressionETL(ETL):
                 MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
 
 
-    ao_cc_expression_query = """
+    ao_cc_expression_query_template = """
         
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -182,7 +183,7 @@ class ExpressionETL(ETL):
                 MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)"""
 
 
-    eas_substructure_query = """
+    eas_substructure_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -193,7 +194,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
 
 
-    eas_qualified_query = """
+    eas_qualified_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -204,7 +205,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
 
 
-    eass_qualified_query = """
+    eass_qualified_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -215,7 +216,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
 
 
-    ccq_expression_query = """
+    ccq_expression_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -226,7 +227,7 @@ class ExpressionETL(ETL):
             MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
 
 
-    stage_expression_query = """
+    stage_expression_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -236,7 +237,7 @@ class ExpressionETL(ETL):
             MERGE (ei)-[eotcctq:DURING]-(s) """
 
 
-    uberon_ao_query = """
+    uberon_ao_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -245,7 +246,7 @@ class ExpressionETL(ETL):
             MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
 
 
-    uberon_stage_query = """
+    uberon_stage_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -255,7 +256,7 @@ class ExpressionETL(ETL):
             MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
 
 
-    uberon_ao_other_query = """
+    uberon_ao_other_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -264,7 +265,7 @@ class ExpressionETL(ETL):
             MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
 
 
-    uberon_stage_other_query = """
+    uberon_stage_other_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -313,55 +314,55 @@ class ExpressionETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.bio_entity_expression_query, commit_size,
+        query_template_list = [
+            [self.bio_entity_expression_query_template, commit_size,
              "expression_entities_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_ao_query, commit_size,
+            [self.bio_entity_gene_ao_query_template, commit_size,
              "expression_gene_ao_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_expression_join_query, commit_size,
+            [self.bio_entity_gene_expression_join_query_template, commit_size,
              "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
-            [self.ao_expression_query, commit_size,
+            [self.ao_expression_query_template, commit_size,
              "expression_ao_expression_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         if data_provider == 'SGD':
-            query_list += [[self.sgd_cc_expression_query, commit_size,
+            query_template_list += [[self.sgd_cc_expression_query_template, commit_size,
                             "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
         else:
-            query_list += [[self.cc_expression_query, commit_size,
+            query_template_list += [[self.cc_expression_query_template, commit_size,
                             "expression_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
 
-        query_list += [
-            [self.ao_cc_expression_query, commit_size,
+        query_template_list += [
+            [self.ao_cc_expression_query_template, commit_size,
              "expression_ao_cc_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.eas_qualified_query, commit_size,
+            [self.eas_qualified_query_template, commit_size,
              "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
-            [self.eas_substructure_query, commit_size,
+            [self.eas_substructure_query_template, commit_size,
              "expression_eas_substructure_" + sub_type.get_data_provider() + ".csv"],
-            [self.eass_qualified_query, commit_size,
+            [self.eass_qualified_query_template, commit_size,
              "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
-            [self.ccq_expression_query, commit_size,
+            [self.ccq_expression_query_template, commit_size,
              "expression_ccq_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.stage_expression_query, commit_size,
+            [self.stage_expression_query_template, commit_size,
              "expression_stage_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_stage_query, commit_size,
+            [self.uberon_stage_query_template, commit_size,
              "expression_uberon_stage_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_ao_query, commit_size,
+            [self.uberon_ao_query_template, commit_size,
              "expression_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_ao_other_query, commit_size,
+            [self.uberon_ao_other_query_template, commit_size,
              "expression_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_stage_other_query, commit_size,
+            [self.uberon_stage_other_query_template, commit_size,
              "expression_uberon_stage_other_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query, commit_size,
+            [self.xrefs_query_template, commit_size,
              "expression_cross_references_" + sub_type.get_data_provider() + ".csv"],
-            [self.add_pubs_query, commit_size,
+            [self.add_pubs_query_template, commit_size,
              "expression_add_pubs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data_file, batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
 
         for item in query_and_file_list:

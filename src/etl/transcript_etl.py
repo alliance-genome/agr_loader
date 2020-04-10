@@ -16,8 +16,9 @@ class TranscriptETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    transcript_alternate_id_query = """
+    transcript_alternate_id_query_template = """
     USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -25,7 +26,7 @@ class TranscriptETL(ETL):
             set g.gff3ID = row.gff3ID"""
 
 
-    transcript_query = """
+    transcript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -40,13 +41,13 @@ class TranscriptETL(ETL):
                MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
 
 
-    chromosomes_query = """
+    chromosomes_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
 
 
-    genomic_locations_query = """
+    genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -92,21 +93,21 @@ class TranscriptETL(ETL):
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.transcript_alternate_id_query, commit_size,
+        query_template_list = [
+            [self.transcript_alternate_id_query_template, commit_size,
              "transcript_gff3_id_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.transcript_query, commit_size,
+            [self.transcript_query_template, commit_size,
              "transcript_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_query, commit_size,
+            [self.chromosomes_query_template, commit_size,
              "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query, commit_size,
+            [self.genomic_locations_query_template, commit_size,
              "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath, batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

@@ -15,7 +15,9 @@ class GOAnnotETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    main_query = """
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -65,12 +67,12 @@ class GOAnnotETL(ETL):
                 ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
                 batch_size)
 
-        query_list = [
-            [self.main_query, commit_size,
+        query_template_list = [
+            [self.main_query_template, commit_size,
              "go_annot_" + sub_type.get_data_provider() + ".csv"],
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
 
         for item in query_and_file_list:

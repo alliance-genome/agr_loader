@@ -15,10 +15,18 @@ class StubETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query = """
+    # Query templates which take params and will be processed later
+
+    query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+        MERGE (n:Node {primaryKey:row.id})
+            SET n.name = row.name """
+
+    # Querys which do not take params and can be used as is
+
+    query = """
         MERGE (n:Node {primaryKey:row.id})
             SET n.name = row.name """
 
@@ -45,11 +53,11 @@ class StubETL(ETL):
 
         generators = self.get_generators(filepath, batch_size)
 
-        query_list = [
-            [self.query, commit_size, "stub_data.csv"],
+        query_template_list = [
+            [self.query_template, commit_size, "stub_data.csv"],
         ]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

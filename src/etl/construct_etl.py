@@ -16,8 +16,9 @@ class ConstructETL(ETL):
     logger = logging.getLogger(__name__)
     xref_url_map = ResourceDescriptorHelper().get_data()
 
+    # Query templates which take params and will be processed later
 
-    construct_query = """
+    construct_query_template = """
           USING PERIODIC COMMIT %s
           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -38,7 +39,7 @@ class ConstructETL(ETL):
 
             """
 
-    construct_secondary_ids_query = """
+    construct_secondary_ids_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -48,7 +49,7 @@ class ConstructETL(ETL):
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
 
-    construct_synonyms_query = """
+    construct_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -58,13 +59,13 @@ class ConstructETL(ETL):
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    construct_xrefs_query = """
+    construct_xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Construct {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
-    construct_gene_component_query = """
+    construct_gene_component_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -72,7 +73,7 @@ class ConstructETL(ETL):
             CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
             REMOVE rel.noOp"""
 
-    construct_no_gene_component_query = """
+    construct_no_gene_component_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -80,7 +81,7 @@ class ConstructETL(ETL):
             CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
             REMOVE rel.noOp"""
 
-    non_bgi_component_query = """
+    non_bgi_component_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -120,27 +121,27 @@ class ConstructETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [ConstructETL.construct_query, commit_size,
+        query_template_list = [
+            [ConstructETL.construct_query_template, commit_size,
              "Construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_secondary_ids_query, commit_size,
+            [ConstructETL.construct_secondary_ids_query_template, commit_size,
              "Construct_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_synonyms_query, commit_size,
+            [ConstructETL.construct_synonyms_query_template, commit_size,
              "Construct_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_xrefs_query, commit_size,
+            [ConstructETL.construct_xrefs_query_template, commit_size,
              "Construct_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.non_bgi_component_query, commit_size,
+            [ConstructETL.non_bgi_component_query_template, commit_size,
              "Construct_non_bgi_component_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_gene_component_query, commit_size,
+            [ConstructETL.construct_gene_component_query_template, commit_size,
              "Construct_components_gene" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_no_gene_component_query, commit_size,
+            [ConstructETL.construct_no_gene_component_query_template, commit_size,
              "Construct_components_no_gene" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

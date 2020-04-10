@@ -35,8 +35,9 @@ class GeneDescriptionsETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    gene_descriptions_query = """
+    gene_descriptions_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -44,6 +45,7 @@ class GeneDescriptionsETL(ETL):
         WHERE o.primaryKey = row.genePrimaryKey 
         SET o.automatedGeneSynopsis = row.geneDescription"""
 
+    # Querys which do not take params and can be used as is
 
     get_all_genes_query = """
         MATCH (g:Gene)
@@ -199,12 +201,12 @@ class GeneDescriptionsETL(ETL):
                                              gd_data_manager,
                                              gd_config_mod_specific,
                                              json_desc_writer)
-            query_list = [
-                [self.gene_descriptions_query, commit_size,
+            query_template_list = [
+                [self.gene_descriptions_query_template, commit_size,
                  "genedescriptions_data_" + prvdr + ".csv"]
             ]
 
-            query_and_file_list = self.process_query_params(query_list)
+            query_and_file_list = self.process_query_params(query_template_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
             self.save_descriptions_report_files(data_provider=prvdr,

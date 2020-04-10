@@ -19,7 +19,9 @@ class GeoXrefETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    geo_xref_query = """
+    # Query templates which take params and will be processed later
+
+    geo_xref_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
@@ -45,12 +47,12 @@ class GeoXrefETL(ETL):
 
             generators = self.get_generators(batch_size, species_encoded)
 
-            query_list = [
-                [self.geo_xref_query, commit_size,
+            query_template_list = [
+                [self.geo_xref_query_template, commit_size,
                  "geo_xref_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
-            query_and_file_list = self.process_query_params(query_list)
+            query_and_file_list = self.process_query_params(query_template_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
 

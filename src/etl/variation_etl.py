@@ -17,7 +17,9 @@ class VariationETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    variation_query = """
+    # Query templates which take params and will be processed later
+
+    variation_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -41,7 +43,7 @@ class VariationETL(ETL):
                 MERGE (g)-[:COMPUTED_GENE]->(o) """
 
 
-    so_terms_query = """
+    so_terms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
@@ -49,7 +51,7 @@ class VariationETL(ETL):
             MERGE (o)-[:VARIATION_TYPE]->(s)"""
 
 
-    genomic_locations_query = """
+    genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -70,7 +72,7 @@ class VariationETL(ETL):
             MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)"""
 
 
-    xrefs_query = """
+    xrefs_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -113,20 +115,20 @@ class VariationETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.variation_query, commit_size,
+        query_template_list = [
+            [self.variation_query_template, commit_size,
              "variation_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query, commit_size,
+            [self.genomic_locations_query_template, commit_size,
              "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query, commit_size,
+            [self.so_terms_query_template, commit_size,
              "variant_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query, commit_size,
+            [self.xrefs_query_template, commit_size,
              "variant_xrefs_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

@@ -16,7 +16,9 @@ class AlleleETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    allele_construct_no_gene_query = """
+    # Query templates which take params and will be processed later
+
+    allele_construct_no_gene_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -45,7 +47,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:CONTAINS]-(c) """
 
-    allele_construct_gene_query = """
+    allele_construct_gene_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -76,7 +78,7 @@ class AlleleETL(ETL):
             MERGE (o)-[:CONTAINS]-(c) """
 
 
-    allele_gene_no_construct_query = """
+    allele_gene_no_construct_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -105,7 +107,7 @@ class AlleleETL(ETL):
 
             MERGE (o)-[:IS_ALLELE_OF]->(g) """
 
-    allele_no_gene_no_construct_query = """
+    allele_no_gene_no_construct_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -132,7 +134,7 @@ class AlleleETL(ETL):
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
-    allele_secondary_ids_query = """
+    allele_secondary_ids_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -143,7 +145,7 @@ class AlleleETL(ETL):
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
 
-    allele_synonyms_query = """
+    allele_synonyms_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -154,7 +156,7 @@ class AlleleETL(ETL):
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
-    allele_xrefs_query = """
+    allele_xrefs_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -196,27 +198,27 @@ class AlleleETL(ETL):
         batch_size = self.data_type_config.get_generator_batch_size()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.allele_gene_no_construct_query, commit_size,
+        query_template_list = [
+            [self.allele_gene_no_construct_query_template, commit_size,
              "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_construct_gene_query, commit_size,
+            [self.allele_construct_gene_query_template, commit_size,
              "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_construct_no_gene_query, commit_size,
+            [self.allele_construct_no_gene_query_template, commit_size,
              "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_no_gene_no_construct_query, commit_size,
+            [self.allele_no_gene_no_construct_query_template, commit_size,
              "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_secondary_ids_query, commit_size,
+            [self.allele_secondary_ids_query_template, commit_size,
              "allele_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_synonyms_query, commit_size,
+            [self.allele_synonyms_query_template, commit_size,
              "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [self.allele_xrefs_query, commit_size,
+            [self.allele_xrefs_query_template, commit_size,
              "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

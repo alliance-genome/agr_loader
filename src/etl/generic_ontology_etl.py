@@ -15,7 +15,9 @@ class GenericOntologyETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    generic_ontology_term_query = """
+    # Query templates which take params and will be processed later
+
+    generic_ontology_term_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -33,7 +35,7 @@ class GenericOntologyETL(ETL):
         MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
-    generic_ontology_synonyms_query = """
+    generic_ontology_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -43,7 +45,7 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
-    generic_ontology_isas_query = """
+    generic_ontology_isas_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -52,7 +54,7 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:IS_A]->(g2)
         """
 
-    generic_ontology_partofs_query = """
+    generic_ontology_partofs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -89,21 +91,21 @@ class GenericOntologyETL(ETL):
         ont_type = sub_type.get_data_provider()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [self.generic_ontology_term_query, 600000,
+        query_template_list = [
+            [self.generic_ontology_term_query_template, 600000,
              "generic_ontology_term_" + ont_type + ".csv", ont_type],
-            [self.generic_ontology_isas_query, commit_size,
+            [self.generic_ontology_isas_query_template, commit_size,
              "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
-            [self.generic_ontology_partofs_query, commit_size,
+            [self.generic_ontology_partofs_query_template, commit_size,
              "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [self.generic_ontology_synonyms_query, 400000,
+            [self.generic_ontology_synonyms_query_template, 400000,
              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath, batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

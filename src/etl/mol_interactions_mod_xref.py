@@ -12,14 +12,16 @@ class MolInteractionsModXrefETL(ETL):
 
     logger = logging.getLogger(__name__)
 
-    query_mod_xref_query = """
+    # Query templates which take params and will be processed later
+
+    query_mod_xref_query_template = """
 
     USING PERIODIC COMMIT %s
     LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
 
-    xrefs_relationships_query = """
+    xrefs_relationships_query_template = """
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -40,10 +42,10 @@ class MolInteractionsModXrefETL(ETL):
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
 
-        all_query_list = [
-            [self.query_mod_xref_query, commit_size, "mol_int_MOD_xref.csv"],
-            [self.xrefs_relationships_query, commit_size, "mol_int_MOD_xref.csv"]
+        query_template_list = [
+            [self.query_mod_xref_query_template, commit_size, "mol_int_MOD_xref.csv"],
+            [self.xrefs_relationships_query_template, commit_size, "mol_int_MOD_xref.csv"]
         ]
 
-        query_list = self.process_query_params(all_query_list)
+        query_list = self.process_query_params(query_template_list)
         Neo4jTransactor.execute_query_batch(query_list)

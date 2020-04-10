@@ -19,8 +19,9 @@ class DiseaseETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    execute_annotation_xrefs_query = """
+    execute_annotation_xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -28,7 +29,7 @@ class DiseaseETL(ETL):
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
 
-    execute_agms_query = """
+    execute_agms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
@@ -68,7 +69,7 @@ class DiseaseETL(ETL):
             """
 
 
-    execute_allele_gene_dej_relationship_query = """
+    execute_allele_gene_dej_relationship_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                 // GET PRIMARY DATA OBJECTS
@@ -79,7 +80,7 @@ class DiseaseETL(ETL):
             MERGE (g)-[gadf:ASSOCIATION]->(dej)"""
 
 
-    execute_allele_query = """
+    execute_allele_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
@@ -120,7 +121,7 @@ class DiseaseETL(ETL):
             MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
 
 
-    execute_gene_query = """
+    execute_gene_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -156,7 +157,7 @@ class DiseaseETL(ETL):
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
 
 
-    execute_ecode_query = """
+    execute_ecode_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -165,7 +166,7 @@ class DiseaseETL(ETL):
             MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)"""
 
 
-    execute_withs_query = """
+    execute_withs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
@@ -173,7 +174,7 @@ class DiseaseETL(ETL):
             MATCH (diseaseWith:Gene {primaryKey:row.withD})
             MERGE (dga)-[dgaw:FROM_ORTHOLOGOUS_GENE]-(diseaseWith) """
 
-    execute_pges_gene_query = """
+    execute_pges_gene_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Gene {primaryKey:row.pgeId})
@@ -181,7 +182,7 @@ class DiseaseETL(ETL):
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
 
-    execute_pges_allele_query = """
+    execute_pges_allele_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:Allele {primaryKey:row.pgeId})
@@ -189,7 +190,7 @@ class DiseaseETL(ETL):
 
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
 
-    execute_pges_agm_query = """
+    execute_pges_agm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
@@ -240,34 +241,34 @@ class DiseaseETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # This needs to be in this format (query, param1, params2) others will be ignored
-        query_list = [
-            [self.execute_allele_query, commit_size,
+        # This needs to be in this format (query_template, param1, params2) others will be ignored
+        query_template_list = [
+            [self.execute_allele_query_template, commit_size,
              "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_allele_gene_dej_relationship_query, commit_size,
+            [self.execute_allele_gene_dej_relationship_query_template, commit_size,
              "disease_allele_gene_relation_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_gene_query, commit_size,
+            [self.execute_gene_query_template, commit_size,
              "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_agms_query, commit_size,
+            [self.execute_agms_query_template, commit_size,
              "disease_agms_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_gene_query, commit_size,
+            [self.execute_pges_gene_query_template, commit_size,
              "disease_pges_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_allele_query, commit_size,
+            [self.execute_pges_allele_query_template, commit_size,
              "disease_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_agm_query, commit_size,
+            [self.execute_pges_agm_query_template, commit_size,
              "disease_pges_agms_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_withs_query, commit_size,
+            [self.execute_withs_query_template, commit_size,
              "disease_withs_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_ecode_query, commit_size,
+            [self.execute_ecode_query_template, commit_size,
              "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_annotation_xrefs_query, commit_size,
+            [self.execute_annotation_xrefs_query_template, commit_size,
              "disease_annotation_xrefs_data_" +  sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 

@@ -16,8 +16,9 @@ class GeneDiseaseOrthoETL(ETL):
 
     logger = logging.getLogger(__name__)
 
+    # Query templates which take params and will be processed later
 
-    insert_gene_disease_ortho_query = """
+    insert_gene_disease_ortho_query_template = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
                 
@@ -75,8 +76,8 @@ class GeneDiseaseOrthoETL(ETL):
 
         self.logger.info("Starting Gene Disease Ortho Data: %s", subtype)
 
-        query_list = [
-            [self.insert_gene_disease_ortho_query, "10000",
+        query_template_list = [
+            [self.insert_gene_disease_ortho_query_template, "10000",
              "gene_disease_by_orthology.csv"]
         ]
 
@@ -84,7 +85,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         generators = self.retrieve_gene_disease_ortho()
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
@@ -116,7 +117,7 @@ class GeneDiseaseOrthoETL(ETL):
 
         self.logger.info("reached gene disease ortho retrieval")
 
-        retrieve_gene_disease_ortho = """
+        retrieve_gene_disease_ortho_query = """
             MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
             MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationJoin:Association)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)
                     WHERE o.strictFilter = true
@@ -131,7 +132,7 @@ class GeneDiseaseOrthoETL(ETL):
                     ec.primaryKey as ec
         """
 
-        return_set = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
+        return_set = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho_query)
 
         gene_disease_ortho_data = []
         relation_type = ""
