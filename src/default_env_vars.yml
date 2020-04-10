@@ -5,7 +5,7 @@ GENERATE_REPORTS: False
 ALLIANCE_RELEASE: "0.0.0"
 NEO4J_HOST: "localhost"
 NEO4J_PORT: 7687
-FMS_API_URL: "https://fms.alliancegenome.org"
+FMS_API_URL: "https://fmsdev.alliancegenome.org"
 TEST_SET: False
 AWS_ACCESS_KEY: ""
 AWS_SECRET_KEY: ""
