@@ -120,8 +120,6 @@ class GenericOntologyETL(ETL):
 
             counter += 1
             o_syns = line.get('synonym')
-            defText = None
-            definition = ""
             is_obsolete = "false"
             syn = ""
             ident = line['id'].strip()
@@ -132,6 +130,7 @@ class GenericOntologyETL(ETL):
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
                         synsplit = re.split(r'(?<!\\)"', syn)
+                        synsplit = synsplit.replace('\\\"', '\"')
                         syns_dict_to_append = {
                             'oid' : ident,
                             'syn' : synsplit
@@ -141,6 +140,7 @@ class GenericOntologyETL(ETL):
                             display_synonym = synsplit
                 else:
                     synsplit = re.split(r'(?<!\\)"', o_syns)
+                    synsplit = synsplit.replace('\\\"', '\"')
                     syns_dict_to_append = {
                             'oid' : ident,
                             'syn' : synsplit
@@ -217,7 +217,6 @@ class GenericOntologyETL(ETL):
                     'definition': definition,
                     'is_obsolete': is_obsolete,
                     'oPrefix': prefix,
-                    'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
                     'display_synonym': display_synonym
