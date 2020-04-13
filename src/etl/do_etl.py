@@ -1,5 +1,5 @@
 import logging
-
+import re
 from ontobio import OntologyFactory
 
 from etl import ETL
