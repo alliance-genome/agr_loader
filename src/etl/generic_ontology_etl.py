@@ -1,4 +1,6 @@
-import logging, multiprocessing
+import logging
+import multiprocessing
+import re
 
 from etl import ETL
 from etl.helpers import ETLHelper, OBOHelper
@@ -129,7 +131,7 @@ class GenericOntologyETL(ETL):
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
-                        synsplit = syn.split("\"")[1].strip()
+                        synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
                             'oid' : ident,
                             'syn' : synsplit
@@ -138,7 +140,7 @@ class GenericOntologyETL(ETL):
                         if "DISPLAY_SYNONYM" in syn:
                             display_synonym = synsplit
                 else:
-                    synsplit = o_syns.split("\"")[1].strip()
+                    synsplit = re.split(r'(?<!\\)"', o_syns)
                     syns_dict_to_append = {
                             'oid' : ident,
                             'syn' : synsplit

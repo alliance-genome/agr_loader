@@ -218,7 +218,7 @@ class DOETL(ETL):
                 #definition = definition.replace('\n', ' ') # Remove new lines that cause this to split across two lines in the file
                 #definition = definition.replace('  ', ' ') # Remove any extra double space that might have been introduces in the last replace
                 if definition is not None and "\"" in definition:
-                    split_definition = definition.split("\"")
+                    split_definition = re.split(r'(?<!\\)"', definition)
                     if len(split_definition) > 1:
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             defLinks = split_definition[2].strip()
