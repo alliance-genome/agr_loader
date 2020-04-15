@@ -210,8 +210,9 @@ class GeneDescriptionsETL(ETL):
             GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
                 terms_pair["term2.primaryKey"], terms_pair["term2.name"], terms_pair["term2.type"],
                 terms_pair["term2.isObsolete"], ontology)
-            ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
-                                relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
+            if terms_pair["term1.primaryKey"] != "FBbt:10000000":
+                ontology.add_parent(terms_pair["term1.primaryKey"], terms_pair["term2.primaryKey"],
+                                    relation="subClassOf" if terms_pair["rel_type"] == "IS_A" else "BFO:0000050")
         if data_type == DataType.EXPR and provider == "MGI":
             GeneDescriptionsETL.add_neo_term_to_ontobio_ontology_if_not_exists(
                 "EMAPA_ARTIFICIAL_NODE:99999", "embryo", "anatomical_structure", False, ontology)
