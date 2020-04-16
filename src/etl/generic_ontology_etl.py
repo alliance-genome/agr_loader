@@ -145,7 +145,7 @@ class GenericOntologyETL(ETL):
                         }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
-                        display_synonym = synsplit
+                        display_synonym = synsplit[1].replace('\"','""')
             # subset
             newSubset = line.get('subset')
             subsets.append(newSubset)
