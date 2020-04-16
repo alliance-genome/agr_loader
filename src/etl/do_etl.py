@@ -1,7 +1,7 @@
 '''DO ETL'''
 
 import logging
-
+import re
 from ontobio import OntologyFactory
 
 from etl import ETL
@@ -247,7 +247,7 @@ class DOETL(ETL):
                 # definition = definition.replace('  ', ' ')
 
                 if definition is not None and "\"" in definition:
-                    split_definition = definition.split("\"")
+                    split_definition = re.split(r'(?<!\\)"', definition)
                     if len(split_definition) > 1:
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             def_links = split_definition[2].strip()

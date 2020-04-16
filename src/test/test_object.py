@@ -284,10 +284,12 @@ class TestObject():
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
+
             'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601',
             'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884', 'HGNC:1058',
             'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526',
-            'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950'}
+            'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950', 'HGNC:11448'}
+
 
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,

@@ -1,7 +1,9 @@
+
 '''Generic Ontology ETL'''
 
 import logging
 import multiprocessing
+import re
 
 from etl import ETL
 from etl.helpers import ETLHelper, OBOHelper
@@ -128,8 +130,6 @@ class GenericOntologyETL(ETL):
 
             counter += 1
             o_syns = line.get('synonym')
-            def_text = None
-            definition = ""
             is_obsolete = "false"
             syn = ""
             ident = line['id'].strip()
@@ -139,29 +139,24 @@ class GenericOntologyETL(ETL):
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
-                        synsplit = syn.split("\"")[1].strip()
 
-                        #remove trailing backslahs - not quoted properly by python csv
-                        synsplit = synsplit[:-1] if synsplit.endswith('\\') else synsplit
-
+                        synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : synsplit
+                            'syn' : synsplit[1].replace('\\"','""')
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                         if "DISPLAY_SYNONYM" in syn:
-                            display_synonym = synsplit
+                            display_synonym = synsplit[1].replace('"','""')
                 else:
-                    synsplit = o_syns.split("\"")[1].strip()
-
-                    #remove trailing backslahs - not quoted properly by python csv
-                    synsplit = synsplit[:-1] if synsplit.endswith('\\') else synsplit
-
-                    syns_dict_to_append = {'oid' : ident,
-                                           'syn' : synsplit}
+                    synsplit = re.split(r'(?<!\\)"', o_syns)
+                    syns_dict_to_append = {
+                            'oid' : ident,
+                            'syn' : synsplit[1].replace('\"','""')
+                        }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
-                        display_synonym = synsplit
+                        display_synonym = synsplit[1].replace('\"','""')
             # subset
             new_subset = line.get('subset')
             subsets.append(new_subset)
@@ -230,7 +225,6 @@ class GenericOntologyETL(ETL):
                     'definition': definition,
                     'is_obsolete': is_obsolete,
                     'oPrefix': prefix,
-                    'defText': def_text,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
                     'display_synonym': display_synonym
