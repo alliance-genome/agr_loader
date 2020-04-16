@@ -19,7 +19,6 @@ class PhenoTypeETL(ETL):
 
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
             
-            MATCH (ag:Gene)-[a:IS_ALLELE_OF]-(allele)
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
@@ -33,7 +32,6 @@ class PhenoTypeETL(ETL):
 
             MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
             MERGE (pa)-[pad:ASSOCIATION]->(p)
-            MERGE (ag)-[agpa:ASSOCIATION]->(pa)
             
              MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
@@ -50,7 +48,19 @@ class PhenoTypeETL(ETL):
             CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
-            
+
+    execute_allele_gene_pej_relationship_template = """
+    
+    USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            // GET PRIMARY DATA OBJECTS
+        MATCH (pej:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+        MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+        MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
+
+        MERGE (g)-[gapf:ASSOCIATION]->(pej)
+
+    """
     execute_gene_template = """
 
             USING PERIODIC COMMIT %s
@@ -184,6 +194,8 @@ class PhenoTypeETL(ETL):
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_agm_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_gene_pej_relationship_template, commit_size,
+                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_pges_agm_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
@@ -196,6 +208,8 @@ class PhenoTypeETL(ETL):
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_allele_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_gene_pej_relationship_template, commit_size,
+                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_agm_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
             ]
@@ -206,18 +220,24 @@ class PhenoTypeETL(ETL):
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_allele_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_gene_pej_relationship_template, commit_size,
+                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_pges_allele_template, commit_size,
                  "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
             ]
             query_allele_list = [
                 [PhenoTypeETL.execute_pges_allele_template, commit_size,
-                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
+                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_gene_pej_relationship_template, commit_size,
+                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
             ]
             basic_query_list = [
                 [PhenoTypeETL.execute_gene_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [PhenoTypeETL.execute_allele_template, commit_size,
-                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"]
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
+                [PhenoTypeETL.execute_allele_gene_pej_relationship_template, commit_size,
+                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
             ]
         else:
             query_list = [
@@ -370,12 +390,12 @@ class PhenoTypeETL(ETL):
                     list_to_yield = []
                     counter = 0
                 elif data_provider =='FB' or data_provider == 'WB':
-                    yield [list_to_yield, list_to_yield, pge_list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
                 else:
-                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+                    yield [list_to_yield, list_to_yield, list_to_yield,list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
@@ -384,6 +404,6 @@ class PhenoTypeETL(ETL):
             if data_provider == 'SGD':
                 yield [list_to_yield]
             elif data_provider == 'FB' or data_provider =='WB':
-                yield [list_to_yield, list_to_yield, pge_list_to_yield]
-            else:
                 yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+            else:
+                yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]

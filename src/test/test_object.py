@@ -37,7 +37,7 @@ class TestObject(object):
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338', 'MGI:96575',
             'MGI:95832', 'MGI:2387629', 'MGI:2446564', 'MGI:2446568', 'MGI:1860955', 'MGI:1860970', 'MGI:2384499',
-            'MGI:2388016'
+            'MGI:2388016', 'MGI:2151016', 'MGI:1328362',
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
@@ -51,7 +51,7 @@ class TestObject(object):
             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
             # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
             'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
-            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2',
+            'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2', 'MGI:3618599', 'MGI:3693208', 'MGI:109196',
         }
 
         self.wormbaseIdSet = {
@@ -65,7 +65,8 @@ class TestObject(object):
             'WB:WBGene00003883', 'WB:WBGene00006508',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013', 'WB:WBVar00000001', 'WB:WBVar00242490', 'WB:WBGene00004264',
-            'WB:WBGene00004488', 'WB:WBGene00000898',
+            'WB:WBGene00004488', 'WB:WBGene00000898', 'WB:WBGene00001865', 'WB:WBTransgene00001048',
+            'WB:WBCnstr00001039', 'WB:WBStrain00004845', 'WB:WBGene00000898', 'WB:WBGene00013817', 'WB:WBGene00004077',
             # gene descriptions
             'WB:WBGene00003412', 'WB:WBGene00000227', 'WB:WBGene00006844', 'WB:WBGene00022425', 'WB:WBGene00022223',
             'WB:WBVar00239315',
@@ -73,9 +74,11 @@ class TestObject(object):
             'WB:WBGene00006752', 'WB:WBGene00021840', 'WB:WBGene00001117', 'WB:WBVar00241694', 'WB:WBVar02147569',
             'WB:WBVar00089131',
             # disease
-            'WB:WBGene00011936',
+            'WB:WBGene00011936', 'WB:WBTransgene00004656', 'WB:WBTransgene00004658', 'WB:WBTransgene00004656',
+            'WB:WBTransgene00004658', 'WB:WBTransgene00019002', 'WB:WBStrain00004846', 'WB:WBStrain00007215',
+            'WB:WBVar00275424', 'WB:WBGene00000149',
             # construct
-            'WB:WBGene00017738', 'WB:WBCnstr00027061',
+            'WB:WBGene00017738', 'WB:WBCnstr00027061', 'WB:WBCnstr00004638', 'WB:WBGene00002992',
         }
 
         self.sgdIdSet = {
@@ -84,6 +87,7 @@ class TestObject(object):
             'SGD:S000001101', 'SGD:S000006136', 'SGD:S000000383',
             # disease
             'SGD:S000005481', 'SGD:S000005246', 'SGD:S000003865', 'SGD:S000002862', 'SGD:S000001596',
+            'SGD:S000004802', 'SGD:S000005844', 'SGD:S000004802', 'SGD:S000004802',
             # expression
             'SGD:S000005737', 'SGD:S000004802', 'SGD:S000000002', 'SGD:S000001596',
             # gene descriptions
@@ -130,7 +134,8 @@ class TestObject(object):
             'ZFIN:ZDB-FISH-180928-1', 'ZFIN:ZDB-FISH-180912-16', 'ZFIN:ZDB-GENE-060503-338',
             'ZFIN:ZDB-FISH-150901-3961', 'ZFIN:ZDB-ALT-040716-14', 'ZFIN:ZDB-GENE-980526-178',
             'ZFIN:ZDB-GENE-060503-338', 'ZFIN:ZDB-FISH-190411-12', 'ZFIN:ZDB-ALT-181016-1', 'ZFIN:ZDB-GENE-060503-219',
-
+            'ZFIN:ZDB-GENE-030219-1', 'ZFIN:ZDB-FISH-160331-6', 'ZFIN:ZDB-ALT-080918-2', 'ZFIN:ZDB-MRPHLNO-060112-1',
+            'ZFIN:ZDB-TGCONSTRCT-070117-95',
             # expression
             'ZFIN:ZDB-GENE-070410-17', 'ZFIN:ZDB-GENE-990714-29', 'ZFIN:ZDB-GENE-001103-1', 'ZFIN:ZDB-GENE-050913-20',
             'ZFIN:ZDB-GENE-980526-474', 'ZFIN:ZDB-GENE-000627-1', 'ZFIN:ZDB-GENE-050913-20', 'ZFIN:ZDB-GENE-030912-6',
@@ -168,6 +173,10 @@ class TestObject(object):
             'ZFIN:ZDB-GENE-080424-7',
             # Phenotype
             'ZFIN:ZDB-FISH-150901-24820', 'ZFIN:ZDB-ALT-980203-469', 'ZFIN:ZDB-GENE-990415-198',
+            'ZFIN:ZDB-GENE-990415-8', 'ZFIN:ZDB-FISH-150901-25192', 'ZFIN:ZDB-ALT-980203-1248',
+            # disease
+            'ZFIN:ZDB-GENE-130530-760', 'ZFIN:ZDB-GENE-040426-2816', 'ZFIN:ZDB-FISH-150901-1536',
+            'ZFIN:ZDB-FISH-180904-5', 'ZFIN:ZDB-FISH-180904-6','ZFIN:ZDB-MRPHLNO-180831-2', 'ZFIN:ZDB-MRPHLNO-180831-1'
 
 
         }
@@ -184,6 +193,7 @@ class TestObject(object):
             'FB:FBgn0027660', 'FB:FBgn0284221', 'FB:FBgn0013765', 'FB:FBgn0004620',
             # disease
             'FB:FBgn0004644', 'FB:FBgn0039129', 'FB:FBgn0010412', 'FB:FBgn0263006', 'FB:FBgn0283499', 'FB:FBgn0025790',
+            'FB:FBgn0002906',
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
             # variants
@@ -221,7 +231,9 @@ class TestObject(object):
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
-            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7',
+            'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884',
+            'HGNC:1058', 'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526', 'HGNC:10996', 'HGNC:16496', 'HGNC:10998',
+            'HGNC:11950', 'HGNC:11448',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

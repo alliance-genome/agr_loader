@@ -177,6 +177,7 @@ class DataFileManager(metaclass=Singleton):
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'ONTOLOGY':
+                        logger.info(sub_entry)
                         self.transformed_submission_system_data[sub_entry] = []
                         self.transformed_submission_system_data[sub_entry].append([sub_entry, path, tempExtractedFile])
                     else:

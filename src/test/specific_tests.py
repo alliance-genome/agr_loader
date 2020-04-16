@@ -27,7 +27,7 @@ def test_isobsolete_false():
 
 
 def test_currated_disease_associations_have_date_assigned():
-    query = "MATCH (n:DiseaseEntityJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(n.dateAssigned)" \
+    query = "MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(p.dateAssigned)" \
             "RETURN COUNT(n) as count"
     result = execute_transaction(query)
     for record in result:
@@ -678,7 +678,7 @@ def test_allele_has_description():
         assert record["counter"] > 0
 
 
-def test_allele_has_description():
+def test_allele_has_submitted_description():
     query = "match (a:Allele) where a.description is not null " \
             "return count(a) as counter"
     result = execute_transaction(query)
@@ -686,9 +686,75 @@ def test_allele_has_description():
         assert record["counter"] > 0
 
 
+def test_sgd_gene_has_dej_with_many_orthologous_genes():
+    query = "match (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene) " \
+            "where dej.primaryKey = 'SGD:S000005844DOID:14501IS_IMPLICATED_INHGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998' "\
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
 
 
+def test_spaw_should_have_disease_genes():
+    query = "match (dej:DiseaseEntityJoin)--(g:Gene) " \
+            "where g.primaryKey = 'ZFIN:ZDB-GENE-030219-1' "\
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
+def test_wb_transgene_has_phenotype():
+    query = "match (a:Allele)--(pej:PhenotypeEntityJoin) " \
+            "where a.primaryKey = 'WB:WBTransgene00001048' "\
+            "return count(a) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
+def test_wb_gene_has_inferred_from_allele():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(pej:PublicationJoin)--(a:Allele) " \
+            "where g.primaryKey = 'WB:WBGene00000149' " \
+            "and a.primaryKey = 'WB:WBVar00275424'" \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+# currently WB file is not submitting these, will reactivate when we get a corrected file.
+# def test_wb_genes_have_phenotype():
+#     query = "match (g:Gene)--(pej:PhenotypeEntityJoin)--(pej:PublicationJoin)--(a:Allele) " \
+#             "where g.primaryKey in ['WB:WBGene00000898','WB:WBGene00013817','WB:WBGene00004077']" \
+#             "return count(g) as counter"
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 2
+
+
+def test_human_gene_has_disease():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin) " \
+            "where g.primaryKey = 'HGNC:11950'" \
+            "return count(g) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mi_term_has_name_flybase():
+    query = "match (o:MITerm) " \
+            "where o.label = 'FlyBase'" \
+            "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mi_term_has_corrected_url():
+    query = "match (o:MITerm) " \
+            "where o.primaryKey = 'MI:0465'" \
+            "and o.url = 'http://dip.doe-mbi.ucla.edu/'" \
+            "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

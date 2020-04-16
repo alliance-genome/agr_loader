@@ -23,24 +23,22 @@ class GeneDiseaseOrthoETL(ETL):
                   (pub:Publication {primaryKey:"MGI:6194238"}),
                   (ecode:ECOTerm {primaryKey:"ECO:0000501"})
 
+                 CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                    SET rel.dataProvider = "Alliance",
+                        rel.dateProduced = row.dateProduced,
+                        rel.dateAssigned = row.dateAssigned
+                    REMOVE rel.noOp
+
                 MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.uuid})
-                    SET dga.dataProvider = 'Alliance',
-                                  dga.sortOrder = 10
-
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_MARKER_FOR' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:BIOMARKER_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'biomarker_via_orthology')
-
-                FOREACH (rel IN CASE when row.relationshipType = 'IS_IMPLICATED_IN' THEN [1] ELSE [] END |
-                    CREATE (gene)-[fafg:IMPLICATED_VIA_ORTHOLOGY {uuid:row.uuid}]->(d)
-                    SET fafg.dataProvider = "Alliance",
-                        fafg.dateProduced = row.dateProduced,
-                        dga.joinType = 'implicated_via_orthology')
+                    ON CREATE SET dga.dataProvider = 'Alliance',
+                                  dga.sortOrder = 10,
+                                  dga.joinType = row.relationTypeLower
 
                 CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pubEvidenceUuid})
-                    SET pubEJ.joinType = 'pub_evidence_code_join'
+                    SET pubEJ.joinType = 'pub_evidence_code_join',
+                         pubEJ.dateProduced = row.dateProduced,
+                        pubEJ.dateAssigned = row.dateAssigned
+                        
                     
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
                 MERGE (dga)-[dadg:ASSOCIATION]->(d)
@@ -91,7 +89,7 @@ class GeneDiseaseOrthoETL(ETL):
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
-              MERGE (:ECOTerm {primaryKey:"ECO:0000501"})
+              MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
               
                     """
 
@@ -121,14 +119,21 @@ class GeneDiseaseOrthoETL(ETL):
         returnSet = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho)
 
         gene_disease_ortho_data = []
-
+        relationType = ""
+        date = datetime.now()
         for record in returnSet:
+            if record['relationType'] == 'IS_IMPLICATED_IN':
+                relationType = 'IMPLICATED_VIA_ORTHOLOGY'
+            elif record['relationType'] == 'IS_MARKER_FOR':
+                relationType = 'BIOMARKER_VIA_ORTHOLOGY'
             row = dict(primaryId=record["geneID"],
                     fromGeneId=record["fromGeneID"],
-                    relationshipType=record["relationType"],
+                    relationshipType=relationType,
+                    relationTypeLower=relationType.lower(),
                     doId=record["doId"],
-                    dateProduced=datetime.now(),
-                    uuid=record["geneID"]+record["relationType"]+record["doId"],
+                    dateProduced=date,
+                    dateAssigned=date,
+                    uuid=record["geneID"]+record["fromGeneID"]+relationType+record["doId"],
                     pubEvidenceUuid=str(uuid.uuid4()))
             gene_disease_ortho_data.append(row)
 

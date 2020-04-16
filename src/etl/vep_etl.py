@@ -18,14 +18,14 @@ class VEPETL(ETL):
                    MATCH (g:Gene {modLocalId:row.geneId})
                    MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
 
-                   CREATE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
-                   SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                   MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                   ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
                        gc.geneId = g.primaryKey,
                        gc.variantId = a.hgvsNomenclature,
                        gc.impact = row.impact
 
-                   CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
-                   CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                   MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                   MERGE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
 
                    """
 
@@ -88,7 +88,7 @@ class VEPETL(ETL):
 
                 vep_result = {"hgvsNomenclature": columns[0],
                               "geneLevelConsequence": columns[6],
-                              "primaryKey": str(uuid.uuid4()),
+                              "primaryKey": columns[0]+columns[6]+impact+geneId,
                               "impact": impact,
                               "geneId":geneId}
                 vep_maps.append(vep_result)
