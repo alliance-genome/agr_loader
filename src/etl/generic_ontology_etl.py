@@ -132,16 +132,16 @@ class GenericOntologyETL(ETL):
                         synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : synsplit
+                            'syn' : synsplit[1].replace('\\"','""')
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                         if "DISPLAY_SYNONYM" in syn:
-                            display_synonym = synsplit
+                            display_synonym = synsplit[1].replace('"','""')
                 else:
                     synsplit = re.split(r'(?<!\\)"', o_syns)
                     syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : synsplit
+                            'syn' : synsplit[1].replace('\"','""')
                         }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
