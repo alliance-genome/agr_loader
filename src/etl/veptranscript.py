@@ -81,15 +81,6 @@ class VEPTRANSCRIPTETL(ETL):
         impact = ''
         amino_acid_reference = ''
         amino_acid_variation = ''
-        cdna_start_position = ''
-        cdna_end_position = ''
-        cdna_range = ''
-        cds_start_position = ''
-        cds_end_position = ''
-        cds_range = ''
-        protein_start_position = ''
-        protein_end_position = ''
-        protein_range = ''
 
         for line in data:
             columns = line.split()
