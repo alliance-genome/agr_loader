@@ -161,8 +161,7 @@ class AlleleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Allele:Feature {primaryKey:row.dataId})
-     """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Allele:Feature {primaryKey:row.dataId})""" + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -256,8 +255,7 @@ class AlleleETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
-                        data_provider,
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
                         data_provider,
                         data_provider_page,
                         data_provider_page,
@@ -359,8 +357,7 @@ class AlleleETL(ETL):
                     "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": allele_record.get('symbol') \
-                                         + " (" + short_species_abbreviation + ")",
+                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
                     "symbolTextWithSpecies": symbol_text + " ("+ short_species_abbreviation + ")",
                     "symbolText": symbol_text,
                     "alleleDescription": description
@@ -409,8 +406,7 @@ class AlleleETL(ETL):
                             if page in ['allele', 'allele/references', 'transgene',
                                         'construct', 'transgene/references',
                                         'construct/references']:
-                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
-                                        local_crossref_id,
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                         self.xref_url_map,
                                         prefix,
                                         page)
