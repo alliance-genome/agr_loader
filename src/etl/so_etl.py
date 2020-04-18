@@ -6,7 +6,8 @@ import logging
 from itertools import islice, chain, tee
 from etl import ETL
 from files import TXTFile
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
 
 class SOETL(ETL):
