@@ -65,7 +65,8 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
- 
+            MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
+            
             CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
                         SET rel.uuid = row.diseaseUniqueKey 
             REMOVE rel.noOp
@@ -81,7 +82,8 @@ class DiseaseETL(ETL):
             
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
-
+            MERGE (g)-[dag:ASSOCIATION]->(d)
+            
             // PUBLICATIONS FOR FEATURE
             
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
