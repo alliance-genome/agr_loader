@@ -173,8 +173,7 @@ class DOETL(ETL):
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(\
-                                        local_id,
+                                generated_xref = ETLHelper.get_xref_dict(local_id,
                                         prefix,
                                         "ontology_provided_cross_reference",
                                         "ontology_provided_cross_reference",
@@ -188,8 +187,7 @@ class DOETL(ETL):
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(\
-                                        local_id,
+                                generated_xref = ETLHelper.get_xref_dict(local_id,
                                         prefix,
                                         "ontology_provided_cross_reference",
                                         "ontology_provided_cross_reference",
@@ -266,11 +264,6 @@ class DOETL(ETL):
                     for link in def_link:
                         if link.strip().startswith("http"):
                             def_links_processed.append(link)
-                # elif "." in def_link:
-                #     def_link = def_link.split(".")
-                #     for link in def_link:
-                #         if link.strip().startswith("http"):
-                #             def_links_processed.append(link)
                 else:
                     if def_link.strip().startswith("http"):
                         def_links_processed.append(def_link)
