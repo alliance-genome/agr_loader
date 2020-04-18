@@ -46,9 +46,7 @@ class DataFileManager(metaclass=Singleton):
         http = urllib3.PoolManager()
 
         # use the recently created snapshot
-        api_url = '/'.join([context_info.env["FMS_API_URL"],
-                            'api/snapshot/release',
-                            context_info.env["ALLIANCE_RELEASE"]])
+        api_url = context_info.env["FMS_API_URL"] + '/api/snapshot/release/' + context_info.env["ALLIANCE_RELEASE"]
         self.logger.info(api_url)
 
         submission_data = http.request('GET', api_url)
@@ -150,8 +148,7 @@ class DataFileManager(metaclass=Singleton):
     def _search_submission_data(self, data_type, sub_type):
 
         try:
-            returned_dict = next(item for item in self.submission_system_data['snapShot'] \
-                                                                             ['dataFiles']
+            returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
                                  if item['dataType'].get('name') == data_type
                                  and item['dataSubType'].get('name') == sub_type)
         except StopIteration:
