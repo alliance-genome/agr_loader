@@ -165,8 +165,20 @@ class TestClass(object):
                             dict(node='GenomicLocation', prop='chromosome'),
                             dict(node='GenomicLocation', prop='assembly'),
                             dict(node='GeneLevelConsequence', prop='geneLevelConsequence'),
-                            dict(node='TranscriptLevelConsequence', prop='transcriptLevelConsequence'),
+                            dict(node='TranscriptLevelConsequence', prop='amino_acid_reference'),
+                            dict(node='TranscriptLevelConsequence', prop='amino_acid_variation'),
+                            dict(node='TranscriptLevelConsequence', prop='amino_acid_change'),
+                            dict(node='TranscriptLevelConsequence', prop='cdna_start_position'),
+                            dict(node='TranscriptLevelConsequence', prop='cdna_end_position'),
+                            dict(node='TranscriptLevelConsequence', prop='cdna_range'),
+                            dict(node='TranscriptLevelConsequence', prop='cds_start_position'),
+                            dict(node='TranscriptLevelConsequence', prop='cds_end_position'),
+                            dict(node='TranscriptLevelConsequence', prop='cds_range'),
+                            dict(node='TranscriptLevelConsequence', prop='protein_start_position'),
+                            dict(node='TranscriptLevelConsequence', prop='protein_end_position'),
+                            dict(node='TranscriptLevelConsequence', prop='protein_range')
                             ],
+
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
                                dict(node='AffectedGenomicModel', prop='name'),

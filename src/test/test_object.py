@@ -211,6 +211,7 @@ class TestObject(object):
             'RGD:1309312', 'RGD:7627512', 'RGD:1309105', 'RGD:1309109', 'RGD:7627503', 'RGD:1578801',
             # disease pheno specific test objects
             'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329', 'RGD:2917', 'RGD:2869',
+            'RGD:2004',
             # expression
             'RGD:3884', 'RGD:3889', 'RGD:2129',
             # allele gene and alleles
@@ -233,7 +234,7 @@ class TestObject(object):
             # disease
             'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601', 'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884',
             'HGNC:1058', 'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526', 'HGNC:10996', 'HGNC:16496', 'HGNC:10998',
-            'HGNC:11950', 'HGNC:11448',
+            'HGNC:11950', 'HGNC:11448', 'HGNC:7',
         }
 
         self.modMap = {"RGD": self.rgdTestSet,

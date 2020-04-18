@@ -106,16 +106,15 @@ def test_gene_has_automated_description():
              "and g.automatedGeneSynopsis is not null return count(g) as counter"
      result = execute_transaction(query)
      for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 10
 
-#ZFIN:ZDB-GENE-990415-131
-#ZFIN:ZDB-GENE-050517-20
 
 def test_gene_has_all_three_automated_description_components():
     query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
               "'FB:FBgn0027655', " \
               "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
-              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+              "'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131','HGNC:1884', 'HGNC:795', " \
+              "'HGNC:11291','RGD:1593265', 'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20','ZFIN:ZDB-GENE-990415-131'] " \
             "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
               "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
@@ -757,6 +756,26 @@ def test_mi_term_has_corrected_url():
             "where o.primaryKey = 'MI:0465'" \
             "and o.url = 'http://dip.doe-mbi.ucla.edu/'" \
             "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_rgd_dej_has_rgd_full_url_cross_reference():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference) " \
+            "where g.primaryKey = 'RGD:2004'" \
+            "and cr.crossRefCompleteUrl == 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=RGD:2004#annot''" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_dej_has_omim_url_cross_reference():
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference) " \
+            "where g.primaryKey = 'HGNC:7'" \
+            "and cr.crossRefCompleteUrl == 'https://www.omim.org/'" \
+            "return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
