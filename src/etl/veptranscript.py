@@ -41,18 +41,6 @@ class VEPTRANSCRIPTETL(ETL):
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
 
                 """
-    "amino_acid_reference": amino_acid_reference,
-    "amino_acid_variation": amino_acid_variation,
-    "amino_acid_change": amino_acid_change,
-    "cdna_start_position": cdna_start_position,
-    "cdna_end_position": cdna_end_position,
-    "cdna_range": cdna_range,
-    "cds_start_position": cds_start_position,
-    "cds_end_position": cds_end_position,
-    "cds_range": cds_range,
-    "protein_start_position":protein_start_position,
-    "protein_end_position":protein_end_position,
-    "protein_range": protein_range
 
 
     def __init__(self, config):
