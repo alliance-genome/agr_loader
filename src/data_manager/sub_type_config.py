@@ -51,7 +51,7 @@ class SubTypeConfig():
         # Grab the data (TODO validate).
         # Some of this algorithm is temporary.
         # e.g. Files from the submission system will arrive without the need for unzipping, etc.
-        download_folder = 'tmp'
+        download_dir = 'tmp'
 
         if self.filepath is not None:
             if not os.path.isfile(self.filepath):
@@ -59,18 +59,18 @@ class SubTypeConfig():
                 if self.file_to_download.startswith('http'):
                     download_filename = os.path.basename(self.filepath)
                     self.logger.debug("Download Name: %s", download_filename)
-                    download_object = Download(download_folder,
+                    download_object = Download(download_dir,
                                                self.file_to_download,
                                                download_filename)
                     self.already_downloaded = download_object.is_data_downloaded()
                 else:
                     self.logger.debug("Downloading JSON File: %s", self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download,
-                                                     download_folder).download_new()
+                                                     download_dir).download_new()
                     self.logger.debug("File already downloaded: %s", self.already_downloaded)
                     if self.file_to_download.endswith('tar.gz'):
                         self.logger.debug("Extracting all files: %s", self.file_to_download)
-                        tar_object = TARFile(download_folder, self.file_to_download)
+                        tar_object = TARFile(download_dir, self.file_to_download)
                         tar_object.extract_all()
                         # Check whether the file exists locally.
                 if self.filepath is not None:
