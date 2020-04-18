@@ -178,8 +178,6 @@ class VEPTRANSCRIPTETL(ETL):
                               "protein_end_position":protein_end_position,
                               "protein_range": protein_range}
 
-                if columns[4] == 'FBtr0079106':
-                    logger.info(vep_result)
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
