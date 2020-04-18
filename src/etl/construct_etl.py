@@ -5,9 +5,11 @@ import multiprocessing
 import uuid
 from etl.helpers import ResourceDescriptorHelper
 from etl import ETL
-from etl.helpers import ETLHelper, TextProcessingHelper
+from etl.helpers import ETLHelper
+from etl.helpers import TextProcessingHelper
 from files import JSONFile
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
 
 class ConstructETL(ETL):
@@ -179,8 +181,7 @@ class ConstructETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
-                    data_provider,
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
                     data_provider,
                     data_provider_page,
                     data_provider_page,
@@ -237,8 +238,10 @@ class ConstructETL(ETL):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'construct':
-                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
-                                           local_crossref_id, self.xref_url_map, prefix, page)
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                          self.xref_url_map,
+                                                                                          prefix,
+                                                                                          page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id,
                                                                prefix,
                                                                page,
