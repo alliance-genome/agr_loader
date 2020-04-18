@@ -54,7 +54,7 @@ class ContextInfo(metaclass=Singleton):
         return_value = env_var_value
         if env_var_value in ["true", "True"]:
             return_value = True
-        elif env_var_value in ["flase", "False"]:
+        elif env_var_value in ["false", "False"]:
             return_value = False
 
         return return_value
