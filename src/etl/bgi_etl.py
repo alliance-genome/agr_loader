@@ -351,8 +351,7 @@ class BGIETL(ETL):
                                 gene_literature_url = ""
                                 display_name = ""
 
-                                cross_ref_complete_url = ETLHelper.get_page_complete_url(\
-                                        local_cross_ref_id,
+                                cross_ref_complete_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
                                         page)
@@ -362,8 +361,7 @@ class BGIETL(ETL):
                                             local_cross_ref_id,
                                             cross_ref_id)
                                 elif page == 'gene':
-                                    mod_cross_reference_complete_url \
-                                        = ETLHelper.get_page_complete_url(local_cross_ref_id,
+                                    mod_cross_reference_complete_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
                                                                           ETL.xref_url_map,
                                                                           prefix,
                                                                           prefix + page)
@@ -375,21 +373,18 @@ class BGIETL(ETL):
                                         prefix + page)
 
                                 if page == 'gene/references':
-                                    gene_literature_url = ETLHelper.get_page_complete_url(\
-                                            local_cross_ref_id,
+                                    gene_literature_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
                                             ETL.xref_url_map,
                                             prefix,
                                             prefix + page)
 
                                 if page == 'gene/spell':
-                                    display_name = \
-                                            'Serial Patterns of Expression Levels Locator (SPELL)'
+                                    display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'
 
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    cross_ref_complete_url = ETLHelper.get_no_page_complete_url(\
-                                            local_cross_ref_id,
+                                    cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
                                             ETL.xref_url_map,
                                             prefix,
                                             primary_id)
@@ -419,13 +414,11 @@ class BGIETL(ETL):
                             # TODO handle in the resourceDescriptor.yaml
                             if prefix == 'PANTHER':                     
                                 cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
-                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(\
-                                        local_cross_ref_id,
+                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
                                         primary_id)
-                                xref_map = ETLHelper.get_xref_dict(\
-                                        local_cross_ref_id,
+                                xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
                                         prefix,
                                         "gene/panther",
                                         "gene/panther",
@@ -479,8 +472,7 @@ class BGIETL(ETL):
             gene = {
                 "symbol": gene_record.get('symbol'),
                 # globallyUniqueSymbolWithSpecies requested by search group
-                "symbolWithSpecies": gene_record.get('symbol')\
-                                     + " (" + short_species_abbreviation + ")",
+                "symbolWithSpecies": gene_record.get('symbol') + " (" + short_species_abbreviation + ")",
                 "name": gene_record.get('name'),
                 "geneticEntityExternalUrl": genetic_entity_external_url,
                 "description": gene_record.get('description'),
@@ -536,32 +528,6 @@ class BGIETL(ETL):
                         strand = genome_location['strand']
                     else:
                         strand = None
-
-#                    if primary_id and start and end and assembly and chromosome:
-#                        bin_size = 2000
-#                        start_int = int(start)
-#                        end_int = int(end)
-#                        if start_int < endInt:
-#                            min_coordinate = start_int
-#                            max_coordinate = end_int
-#                        else:
-#                            min_coordinate = end_int
-#                            max_coordinate = start_int
-#
-#                        start_bin = math.floor(min_coordinate / bin_size)
-#                        end_bin = math.ceil(max_coordinate / bin_size)
-#
-#                        for bin_number in list(range(start_bin, end_bin)):
-#                            bin_primary_key = '\'.join([taxon_id,
-#                                                        assembly,
-#                                                        chromosome,
-#                                                        str(bin_number)]))
-#                            genomic_location_bins.append({"bin_primary_key": bin_primary_key,
-#                                                          "gene_primary_id": primary_id,
-#                                                          "chromosome": chromosome,
-#                                                          "taxon_id": taxon_id,
-#                                                          "assembly": assembly,
-#                                                          "number": bin_number})
 
                     genomic_locations.append({"primaryId": primary_id,
                                               "chromosome": chromosome,
