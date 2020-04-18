@@ -764,7 +764,7 @@ def test_mi_term_has_corrected_url():
 def test_rgd_dej_has_rgd_full_url_cross_reference():
     query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference) " \
             "where g.primaryKey = 'RGD:2004'" \
-            "and cr.crossRefCompleteUrl == 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=RGD:2004#annot''" \
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=RGD:2004#annot''" \
             "return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -774,7 +774,22 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
 def test_human_dej_has_omim_url_cross_reference():
     query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference) " \
             "where g.primaryKey = 'HGNC:7'" \
-            "and cr.crossRefCompleteUrl == 'https://www.omim.org/'" \
+            "and cr.crossRefCompleteUrl = 'https://www.omim.org/'" \
+            "return count(cr) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def vep_transcript_consequence_has_cdna_start_end_range():
+    query = "match (v:Variant)--(t:Transcript)--(tc:TranscriptConsequence)" \
+            "where v.hgvsNomenclature = '007112.7:g.236854C>A'" \
+            "and t.primaryKey ='ENSEMBL:ENSDART00000003317'" \
+            "and tc.cdna_start_position is not null" \
+            "and tc.cds_start_position is not null" \
+            "and tc.protein_position_start is not null" \
+            "and tc.amino_acid_reference is not null" \
+            "and tc.amino_acid_variation is not null" \
             "return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
