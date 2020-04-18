@@ -1,4 +1,4 @@
-'''Clojure ETL'''
+'''Closure ETL'''
 
 import logging
 import multiprocessing
