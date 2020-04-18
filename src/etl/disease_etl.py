@@ -406,51 +406,47 @@ class DiseaseETL(ETL):
                         crossRefId = xref.get('id')
                         pages = xref.get('pages')
 
-                        annotationDataProvider = {"annotationType": annotationType,
-                                              "crossRefId": crossRefId,
-                                              "dpPages": pages}
-                        annotationDP.append(annotationDataProvider)
-
-                        crossRefId = dp.get('crossRefId')
-                        pages = dp.get('dpPages')
-                        annotationType = dp.get('annotationType')
-
                         local_crossref_id = ""
                         prefix = crossRefId
 
                         if annotationType is None:
                             annotationType = 'curated'
+
                         if pages is not None and len(pages) > 0:
                             for page in pages:
+                                # TODO: get the DQMs to restructure this so that we get a global id here instead of
+                                # RGD
                                 if page == 'homepage' and crossRefId == 'RGD':
 
+                                    local_crossref_id = primaryId.split(":")[1]
                                     crossRefId = primaryId
+                                    prefix = "RGD"
+
                                     page = 'disease/rat'
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                              self.xrefUrlMap, prefix,
                                                                                               page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
+                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
                                                                        crossRefId,
                                                                        modGlobalCrossRefId,
                                                                        crossRefId + page + annotationType)
-                                    xref['dataId'] = diseaseUniqueKey
+                                    passing_xref['dataId'] = diseaseUniqueKey
                                 else:
                                     modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                           self.xrefUrlMap, prefix, page)
-                                    xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
+                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                    modGlobalCrossRefId,
                                                                    crossRefId + page + annotationType)
-                                    xref['dataId'] = diseaseUniqueKey
+                                    passing_xref['dataId'] = diseaseUniqueKey
 
                                 if 'loaded' in annotationType:
-                                    xref['loadedDB'] = 'true'
-                                    xref['curatedDB'] = 'false'
+                                    passing_xref['loadedDB'] = 'true'
+                                    passing_xref['curatedDB'] = 'false'
                                 else:
-                                    xref['curatedDB'] = 'true'
-                                    xref['loadedDB'] = 'false'
+                                    passing_xref['curatedDB'] = 'true'
+                                    passing_xref['loadedDB'] = 'false'
 
-                                xrefs.append(xref)
-
+                                xrefs.append(passing_xref)
 
                 disease_record = {"diseaseUniqueKey": diseaseUniqueKey,
                                   "doId": doId,
@@ -473,9 +469,8 @@ class DiseaseETL(ETL):
                                   "annotationDP": annotationDP,
                                   "ecodes": ecodes
                                   }
-                if primaryId == "HGNC:11950":
-                    logger.info(diseaseRecord)
-                    logger.info(disease_record)
+
+
 
                 if diseaseObjectType == 'gene':
                     gene_list_to_yield.append(disease_record)
