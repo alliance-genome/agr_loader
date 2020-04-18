@@ -10,7 +10,8 @@ from etl.helpers import DiseaseHelper
 from etl.helpers import ETLHelper
 from etl.helpers import Neo4jHelper
 from files import JSONFile
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
 
 class DiseaseETL(ETL):
@@ -302,8 +303,7 @@ class DiseaseETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
-                        data_provider,
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
                         data_provider,
                         data_provider_page,
                         data_provider_page,
@@ -370,13 +370,11 @@ class DiseaseETL(ETL):
                                 annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
-                                            local_crossref_id,
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                             self.xref_url_map,
                                             prefix,
                                             page)
-                                    xref = ETLHelper.get_xref_dict(\
-                                            local_crossref_id,
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
                                             prefix,
                                             page,
                                             page,
@@ -441,13 +439,11 @@ class DiseaseETL(ETL):
                             prefix = cross_ref_id
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
-                                            local_crossref_id,
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                             self.xref_url_map,
                                             prefix,
                                             page)
-                                    xref = ETLHelper.get_xref_dict(\
-                                            local_crossref_id,
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
                                             prefix,
                                             page,
                                             page,
@@ -511,13 +507,11 @@ class DiseaseETL(ETL):
                                 annotation_type = 'curated'
                             if pages is not None and len(pages) > 0:
                                 for page in pages:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url( \
-                                            local_crossref_id,
+                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                             self.xref_url_map,
                                             prefix,
                                             page)
-                                    xref = ETLHelper.get_xref_dict( \
-                                            local_crossref_id,
+                                    xref = ETLHelper.get_xref_dict(local_crossref_id,
                                             prefix,
                                             page,
                                             page,
