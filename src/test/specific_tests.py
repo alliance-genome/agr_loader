@@ -106,7 +106,7 @@ def test_gene_has_automated_description():
              "and g.automatedGeneSynopsis is not null return count(g) as counter"
      result = execute_transaction(query)
      for record in result:
-        assert record["counter"] == 10
+        assert record["counter"] == 1
 
 
 def test_gene_has_all_three_automated_description_components():
@@ -762,10 +762,10 @@ def test_mi_term_has_corrected_url():
 
 
 def test_rgd_dej_has_rgd_full_url_cross_reference():
-    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference) " \
+    query = "match (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)"\
             "where g.primaryKey = 'RGD:2004'" \
-            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=RGD:2004#annot''" \
-            "return count(cr) as counter"
+            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'"\
+            "return count(distinct(cr)) as counter"
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
