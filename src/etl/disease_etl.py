@@ -273,27 +273,19 @@ class DiseaseETL(ETL):
         pge_list_to_yield = []
         xrefs = []
         counter = 0
-        date_produced = disease_data['metaData']['dateProduced']
         publication_mod_id = ""
         pub_med_id = ""
         pub_mod_url = None
         pub_med_url = None
+        pge_key = ''
         disease_association_type = None
-        ecodes = []
-        annotation_d_p = []
-        pge_ids = []
-        annotation_uuid = str(uuid.uuid4())
-        pecj_primary_key = annotation_uuid
-        data_providers = []
+        pecj_primary_key = str(uuid.uuid4())
 
         data_provider_object = disease_data['metaData']['dataProvider']
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
         data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
 
-        pge_key = ''
 
         for disease_record in disease_data['data']:
 
@@ -311,11 +303,6 @@ class DiseaseETL(ETL):
             primary_id = disease_record.get('objectId')
             do_id = disease_record.get('DOid')
 
-
-            load_key = date_produced + "_Disease"
-
-            for data_provider in data_providers:
-                load_key = data_provider + load_key
 
             if 'qualifier' in disease_record:
                 qualifier = disease_record.get('qualifier')
@@ -356,20 +343,6 @@ class DiseaseETL(ETL):
                                 {"id": component_id, "componentUrl": component_url, "componentSymbol": component_symbol}
                             )
 
-                # TODO: get SGD to fix their files.
-                if data_provider_pages is not None:
-                    for data_provider_page in data_provider_pages:
-                        cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider, ETL.xrefUrlMap,
-                                                                                 data_provider, data_provider_page)
-
-                        data_provider_cross_ref_set.append(
-                            ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
-                                                    data_provider_page, data_provider,
-                                                    cross_ref_complete_url,
-                                                    data_provider + data_provider_page))
-
-                        data_providers.append(data_provider)
-
                 if 'evidenceCodes' in disease_record['evidence']:
                     for ecode in disease_record['evidence'].get('evidenceCodes'):
                         ecode_map = {"pecjPrimaryKey": pecj_primary_key,
@@ -398,8 +371,6 @@ class DiseaseETL(ETL):
                         pge_list_to_yield.append(pge_map)
 
                 if 'dataProvider' in disease_record:
-                    if primary_id == 'HGNC:11950':
-                        logger.info(primary_id)
                     for dp in disease_record['dataProvider']:
                         annotation_type = dp.get('type')
                         xref = dp.get('crossReference')
@@ -447,29 +418,23 @@ class DiseaseETL(ETL):
                                 else:
                                     passing_xref['curatedDB'] = 'true'
                                     passing_xref['loadedDB'] = 'false'
-
+                                logger.info(passing_xref)
                                 xrefs.append(passing_xref)
 
                 disease_record = {"diseaseUniqueKey": disease_unique_key,
                                   "doId": do_id,
                                   "primaryId": primary_id,
-                                  "pecjPrimaryKey": annotation_uuid,
-                                  "dataProviders": data_providers,
+                                  "pecjPrimaryKey": pecj_primary_key,
                                   "relationshipType": disease_association_type.upper(),
-                                  "dateProduced": date_produced,
                                   "dataProvider": data_provider,
                                   "dateAssigned": disease_record.get("dateAssigned"),
                                   "pubPrimaryKey": publication_mod_id + pub_med_id,
                                   "pubModId": publication_mod_id,
                                   "pubMedId": pub_med_id,
                                   "pubMedUrl": pub_med_url,
-                                  "pubModUrl": pub_mod_url,
-                                  "pgeIds": pge_ids,
-                                  "pgeKey": pge_key,
-                                  "annotationDP": annotation_d_p,
-                                  "ecodes": ecodes}
+                                  "pubModUrl": pub_mod_url}
 
-
+                logger.info(disease_record)
                 if disease_object_type == 'gene':
                     gene_list_to_yield.append(disease_record)
                 elif disease_object_type == 'allele':
