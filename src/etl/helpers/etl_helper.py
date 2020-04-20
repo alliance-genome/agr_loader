@@ -349,32 +349,6 @@ class ETLHelper(object):
         return completeUrl
 
     @staticmethod
-    def get_page_complete_url_for_curated_db(localId, xrefUrlMap, prefix, page, diseaseId):
-        # TODO: this is a strange, hard coding fix for a change in UI requirements post submission.  We will
-        # be fixing this at the DQM level for 3.1.0
-        if page == 'homepage':
-            page = 'disease'
-
-        if localId == '':
-            localId = diseaseId
-
-        completeUrl = ""
-
-        for rdstanza in xrefUrlMap:
-
-            for resourceKey, valueMap in rdstanza.items():
-                if resourceKey == prefix+page:
-
-                    individualStanzaMap = rdstanza[prefix+page]
-
-                    pageUrlPrefix = individualStanzaMap["page_url_prefix"]
-                    pageUrlSuffix = individualStanzaMap["page_url_suffix"]
-
-                    completeUrl = pageUrlPrefix + localId + pageUrlSuffix
-
-        return completeUrl
-
-    @staticmethod
     def get_expression_images_url(localId, crossRefId):
         if 'MGI' in crossRefId:
             return "http://www.informatics.jax.org/gxd/marker/MGI:"+localId+"?tab=imagestab"
