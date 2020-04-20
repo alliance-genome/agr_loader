@@ -434,6 +434,7 @@ class DiseaseETL(ETL):
                                   "pubModUrl": pub_mod_url}
 
                 logger.info(disease_record)
+
                 if disease_object_type == 'gene':
                     gene_list_to_yield.append(disease_record)
                 elif disease_object_type == 'allele':
@@ -454,7 +455,7 @@ class DiseaseETL(ETL):
                     withs = []
                     counter = 0
 
-            if counter > 0:
-                yield [allele_list_to_yield, gene_list_to_yield,
-                       agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
-                       withs, evidence_code_list_to_yield, xrefs]
+        if counter > 0:
+            yield [allele_list_to_yield, gene_list_to_yield,
+                    agm_list_to_yield, pge_list_to_yield, pge_list_to_yield, pge_list_to_yield,
+                    withs, evidence_code_list_to_yield, xrefs]
