@@ -122,11 +122,11 @@ class AggregateLoader(object):
             ['SQTR'],
             ['AGM'],
             ['GFF'],
+            ['DAF'],  # Locks Genes
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
             ['GENEEEXPRESSIONATLASSITEMAP'],
-            ['DAF'],  # Locks Genes
             ['PHENOTYPE'],  # Locks Genes
             ['ORTHO'],  # Locks Genes
             ['GAF'],  # Locks Genes
