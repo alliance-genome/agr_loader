@@ -418,7 +418,6 @@ class DiseaseETL(ETL):
                                 else:
                                     passing_xref['curatedDB'] = 'true'
                                     passing_xref['loadedDB'] = 'false'
-                                logger.info(passing_xref)
                                 xrefs.append(passing_xref)
 
                 disease_record = {"diseaseUniqueKey": disease_unique_key,
