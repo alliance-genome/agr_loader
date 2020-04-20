@@ -1,5 +1,5 @@
 USING_PICKLE: false
-DEBUG: false
+DEBUG: true
 DOWNLOAD_HOST: "download.alliancegenome.org"
 GENERATE_REPORTS: false
 ALLIANCE_RELEASE: "0.0.0"
