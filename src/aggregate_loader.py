@@ -123,15 +123,15 @@ class AggregateLoader(object):
             ['AGM'],
             ['GFF'],
             ['DAF'],  # Locks Genes
+            ['ORTHO'],  # Locks Genes
+            ['GeneDiseaseOrtho'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],
             ['GENEEEXPRESSIONATLASSITEMAP'],
             ['PHENOTYPE'],  # Locks Genes
-            ['ORTHO'],  # Locks Genes
             ['GAF'],  # Locks Genes
             ['GeoXref'],  # Locks Genes
-            ['GeneDiseaseOrtho'],
             ['INTERACTION-MOL'],
             ['Closure'],
             ['GeneDescriptions'],
