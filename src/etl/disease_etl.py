@@ -433,8 +433,6 @@ class DiseaseETL(ETL):
                                   "pubMedUrl": pub_med_url,
                                   "pubModUrl": pub_mod_url}
 
-                logger.info(disease_record)
-
                 if disease_object_type == 'gene':
                     gene_list_to_yield.append(disease_record)
                 elif disease_object_type == 'allele':
