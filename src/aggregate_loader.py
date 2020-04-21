@@ -121,10 +121,10 @@ class AggregateLoader(object):
             ['VARIATION'],
             ['SQTR'],
             ['AGM'],
-            ['GFF'],
             ['DAF'],  # Locks Genes
             ['ORTHO'],  # Locks Genes
             ['GeneDiseaseOrtho'],
+            ['GFF'],
             ['EXPRESSION'],
             ['ExpressionRibbon'],
             ['ExpressionRibbonOther'],

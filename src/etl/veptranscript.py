@@ -24,18 +24,18 @@ class VEPTRANSCRIPTETL(ETL):
                     gc.transcriptId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
                     gc.impact = row.impact,
-                    gc.amino_acid_reference = row.amino_acid_reference,
-                    gc.amino_acid_variation = row.amino_acid_variation,
-                    gc.amino_acid_change = row.amino_acid_change,
-                    gc.cdna_start_position = row.cdna_start_position,
-                    gc.cdna_end_position = row.cdna_end_position,
-                    gc.cdna_range = row.cdna_range,
-                    gc.cds_start_position = row.cds_start_position,
-                    gc.cds_end_position = row.cds_end_position,
-                    gc.cds_range = row.cds_range,
-                    gc.protein_start_position = row.protein_start_position,
-                    gc.protein_end_position = row.protein_end_position,
-                    gc.protein_range = row.protein_range                 
+                    gc.aminoAcidReference = row.amino_acid_reference,
+                    gc.aminoAcidVariation = row.amino_acid_variation,
+                    gc.aminoAcidChange = row.amino_acid_change,
+                    gc.cdnaStartPosition = row.cdna_start_position,
+                    gc.cdnaEndPosition = row.cdna_end_position,
+                    gc.cdnaRange = row.cdna_range,
+                    gc.cdsStartPosition = row.cds_start_position,
+                    gc.cdsEndPosition = row.cds_end_position,
+                    gc.cdsRange = row.cds_range,
+                    gc.proteinStartPosition = row.protein_start_position,
+                    gc.proteinEndPosition = row.protein_end_position,
+                    gc.proteinRange = row.protein_range                 
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
