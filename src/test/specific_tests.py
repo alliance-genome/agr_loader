@@ -762,9 +762,9 @@ def test_mi_term_has_corrected_url():
 
 
 def test_rgd_dej_has_rgd_full_url_cross_reference():
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)"\
-            WHERE g.primaryKey = 'RGD:2004'" \
-            AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'"\
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+            WHERE g.primaryKey = 'RGD:2004'
+            AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'
             RETURN count(distinct(cr)) AS counter"""
     result = execute_transaction(query)
     for record in result:
@@ -782,14 +782,14 @@ def test_human_dej_has_omim_url_cross_reference():
 
 
 def vep_transcript_consequence_has_cdna_start_end_range():
-    query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptConsequence)
+    query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
             WHERE v.hgvsNomenclature = '007112.7:g.236854C>A'
             AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
-            AND tc.cdna_start_position IS NOT NULL
-            AND tc.cds_start_position IS NOT NULL
-            AND tc.protein_position_start IS NOT NULL
-            AND tc.amino_acid_reference IS NOT NULL
-            AND tc.amino_acid_variation IS NOT NULL
+            AND tc.cdnaStartPosition IS NOT NULL
+            AND tc.cdsStartPosition IS NOT NULL
+            AND tc.proteinPositionStart IS NOT NULL
+            AND tc.aminoAcidReference IS NOT NULL
+            AND tc.aminoAcidVariation IS NOT NULL
             RETURN COUNT(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
