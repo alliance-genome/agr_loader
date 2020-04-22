@@ -781,7 +781,7 @@ def test_human_dej_has_omim_url_cross_reference():
         assert record["counter"] > 0
 
 
-def vep_transcript_consequence_has_cdna_start_end_range():
+def test_vep_transcript_consequence_has_cdna_start_end_range():
     query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
             WHERE v.hgvsNomenclature = '007112.7:g.236854C>A'
             AND t.primaryKey ='ENSEMBL:ENSDART00000003317'

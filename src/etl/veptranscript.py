@@ -165,18 +165,18 @@ class VEPTRANSCRIPTETL(ETL):
                               "impact": impact,
                               "gene": geneId,
                               "transcriptId": columns[4],
-                              "amino_acid_reference": amino_acid_reference,
-                              "amino_acid_variation": amino_acid_variation,
-                              "amino_acid_change": amino_acid_change,
-                              "cdna_start_position": cdna_start_position,
-                              "cdna_end_position": cdna_end_position,
-                              "cdna_range": cdna_range,
-                              "cds_start_position": cds_start_position,
-                              "cds_end_position": cds_end_position,
-                              "cds_range": cds_range,
-                              "protein_start_position":protein_start_position,
-                              "protein_end_position":protein_end_position,
-                              "protein_range": protein_range}
+                              "aminoAcidReference": amino_acid_reference,
+                              "aminoAcidVariation": amino_acid_variation,
+                              "aminoAcidChange": amino_acid_change,
+                              "cdnaStartPosition": cdna_start_position,
+                              "cdnaEndPosition": cdna_end_position,
+                              "cdnaRange": cdna_range,
+                              "cdsStartPosition": cds_start_position,
+                              "cdsEndPosition": cds_end_position,
+                              "cdsRange": cds_range,
+                              "proteinStartPosition":protein_start_position,
+                              "proteinEndPosition":protein_end_position,
+                              "proteinRange": protein_range}
 
                 vep_maps.append(vep_result)
 
