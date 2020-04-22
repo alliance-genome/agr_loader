@@ -111,9 +111,10 @@ def test_gene_has_automated_description():
 
 def test_gene_has_all_three_automated_description_components():
     query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
-              "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
+              "'FB:FBgn0027655', " \
               "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
-              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
+              "'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131','HGNC:1884', 'HGNC:795', " \
+              "'HGNC:11291','RGD:1593265', 'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20','ZFIN:ZDB-GENE-990415-131'] " \
             "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
               "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
               "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
@@ -755,6 +756,41 @@ def test_mi_term_has_corrected_url():
             "where o.primaryKey = 'MI:0465'" \
             "and o.url = 'http://dip.doe-mbi.ucla.edu/'" \
             "return count(o) as counter"
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_rgd_dej_has_rgd_full_url_cross_reference():
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+            WHERE g.primaryKey = 'RGD:2004'
+            AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'
+            RETURN count(distinct(cr)) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_dej_has_omim_url_cross_reference():
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+            WHERE g.primaryKey = 'HGNC:7' 
+            AND cr.crossRefCompleteUrl = 'https://www.omim.org/'
+            RETURN count(cr) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def vep_transcript_consequence_has_cdna_start_end_range():
+    query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+            WHERE v.hgvsNomenclature = '007112.7:g.236854C>A'
+            AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
+            AND tc.cdnaStartPosition IS NOT NULL
+            AND tc.cdsStartPosition IS NOT NULL
+            AND tc.proteinPositionStart IS NOT NULL
+            AND tc.aminoAcidReference IS NOT NULL
+            AND tc.aminoAcidVariation IS NOT NULL
+            RETURN COUNT(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0

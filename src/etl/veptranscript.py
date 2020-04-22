@@ -1,6 +1,7 @@
 import logging
 import multiprocessing
 import uuid
+import re
 from etl import ETL
 from files import TXTFile
 
@@ -22,12 +23,25 @@ class VEPTRANSCRIPTETL(ETL):
                 SET gc.transcriptLevelConsequence = row.transcriptLevelConsequence,
                     gc.transcriptId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
-                    gc.impact = row.impact
+                    gc.impact = row.impact,
+                    gc.aminoAcidReference = row.amino_acid_reference,
+                    gc.aminoAcidVariation = row.amino_acid_variation,
+                    gc.aminoAcidChange = row.amino_acid_change,
+                    gc.cdnaStartPosition = row.cdna_start_position,
+                    gc.cdnaEndPosition = row.cdna_end_position,
+                    gc.cdnaRange = row.cdna_range,
+                    gc.cdsStartPosition = row.cds_start_position,
+                    gc.cdsEndPosition = row.cds_end_position,
+                    gc.cdsRange = row.cds_range,
+                    gc.proteinStartPosition = row.protein_start_position,
+                    gc.proteinEndPosition = row.protein_end_position,
+                    gc.proteinRange = row.protein_range                 
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
 
                 """
+
 
     def __init__(self, config):
         super().__init__()
@@ -65,6 +79,8 @@ class VEPTRANSCRIPTETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
+        amino_acid_reference = ''
+        amino_acid_variation = ''
 
         for line in data:
             columns = line.split()
@@ -85,15 +101,83 @@ class VEPTRANSCRIPTETL(ETL):
                     geneId = columns[3].lstrip('RGD:')
                 else:
                     geneId = columns[3]
+                if "/" in columns[10]:
+                    amino_acid_reference = columns[10].split("/")[0]
+                    amino_acid_variation = columns[10].split("/")[1]
+                    amino_acid_change = columns[10]
+                else:
+                    amino_acid_change = columns[10]
+
+                if amino_acid_change == '-':
+                    amino_acid_change = ""
+
+
+                position_is_a_range = re.compile('[0-9]*-[0-9]*')
+                cdna_range_match = re.search(position_is_a_range, columns[7])
+                cds_range_match = re.search(position_is_a_range, columns[8])
+                protein_range_match = re.search(position_is_a_range, columns[9])
+
+                if cdna_range_match:
+                    cdna_start_position = columns[7].split("-")[0]
+                    cdna_end_position = columns[7].split("-")[1]
+                    cdna_range = columns[7]
+                else:
+                    if columns[7] == '-':
+                        cdna_start_position = ""
+                        cdna_end_position = ""
+                        cdna_range = ""
+                    else:
+                        cdna_start_position = columns[7]
+                        cdna_end_position = columns[7]
+                        cdna_range = columns[7]
+
+                if cds_range_match:
+                    cds_start_position = columns[8].split("-")[0]
+                    cds_end_position = columns[8].split("-")[1]
+                    cds_range = columns[8]
+                else:
+                    if columns[8] == '-':
+                        cds_start_position = ""
+                        cds_end_position = ""
+                        cds_range = ""
+                    else:
+                        cds_start_position = columns[8]
+                        cds_end_position = columns[8]
+                        cds_range = columns[8]
+
+                if protein_range_match:
+                    protein_start_position = columns[9].split("-")[0]
+                    protein_end_position = columns[9].split("-")[1]
+                    protein_range = columns[9]
+                else:
+                    if columns[9] == '-':
+                        protein_start_position = ""
+                        protein_end_position = ""
+                        protein_range = ""
+                    else:
+                        protein_start_position = columns[8]
+                        protein_end_position = columns[8]
+                        protein_range = columns[8]
 
                 vep_result = {"hgvsNomenclature": columns[0],
                               "transcriptLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
                               "impact": impact,
                               "gene": geneId,
-                              "transcriptId": columns[4]}
-                if columns[4] == 'FBtr0079106':
-                    logger.info(vep_result)
+                              "transcriptId": columns[4],
+                              "amino_acid_reference": amino_acid_reference,
+                              "amino_acid_variation": amino_acid_variation,
+                              "amino_acid_change": amino_acid_change,
+                              "cdna_start_position": cdna_start_position,
+                              "cdna_end_position": cdna_end_position,
+                              "cdna_range": cdna_range,
+                              "cds_start_position": cds_start_position,
+                              "cds_end_position": cds_end_position,
+                              "cds_range": cds_range,
+                              "protein_start_position":protein_start_position,
+                              "protein_end_position":protein_end_position,
+                              "protein_range": protein_range}
+
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
