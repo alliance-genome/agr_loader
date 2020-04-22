@@ -110,6 +110,10 @@ class AggregateLoader(object):
         # After each list, the loader will "pause" and wait for that item to finish.
         # i.e. After Ontology, there will be a pause.
         # After GO, DO, MI, there will be a pause, etc.
+        # the order of this list matters somewhat: first we do ontologies and basic genetic objects
+        # like genes, constructs, alleles, AGMs, etc.... Next come the annotations and orthology, GeneDescriptions
+        # should fall after all the annotations except VEP as it uses other data sources to calculate its work.
+        
         list_of_etl_groups = [
             ['DOID', 'MI'],
             ['GO'],

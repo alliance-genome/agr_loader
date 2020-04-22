@@ -659,7 +659,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
             " return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 1
+        assert record["counter"] == 1
 
 
 def test_pej_has_agm():
@@ -766,16 +766,6 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
             WHERE g.primaryKey = 'RGD:2004'
             AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'
             RETURN count(distinct(cr)) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
-def test_human_dej_has_omim_url_cross_reference():
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
-            WHERE g.primaryKey = 'HGNC:7' 
-            AND cr.crossRefCompleteUrl = 'https://www.omim.org/'
-            RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
