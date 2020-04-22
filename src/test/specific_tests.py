@@ -780,7 +780,7 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
             AND tc.proteinPositionStart IS NOT NULL
             AND tc.aminoAcidReference IS NOT NULL
             AND tc.aminoAcidVariation IS NOT NULL
-            RETURN COUNT(cr) AS counter"""
+            RETURN COUNT(tc) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
