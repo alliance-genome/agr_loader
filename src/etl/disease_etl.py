@@ -400,6 +400,9 @@ class DiseaseETL(ETL):
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
                                     passing_xref['dataId'] = disease_unique_key
+                                elif page == 'homepage' and cross_ref_id == 'OMIM':
+                                    continue
+                                    
                                 else:
                                     mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                               self.xrefUrlMap, prefix,
