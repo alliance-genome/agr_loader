@@ -277,7 +277,6 @@ class DiseaseETL(ETL):
         pub_med_url = None
         pge_key = ''
         disease_association_type = None
-        pecj_primary_key = str(uuid.uuid4())
 
         data_provider_object = disease_data['metaData']['dataProvider']
 
@@ -286,6 +285,7 @@ class DiseaseETL(ETL):
 
 
         for disease_record in disease_data['data']:
+
 
             if self.testObject.using_test_data() is True:
                 is_it_test_entry = self.testObject.check_for_test_id_entry(disease_record.get('objectId'))
@@ -308,8 +308,7 @@ class DiseaseETL(ETL):
             else:
 
                 if 'evidence' in disease_record:
-                    if primary_id == 'HGNC:11950':
-                        logger.info("evidence is in disease record")
+                    pecj_primary_key = str(uuid.uuid4())
                     evidence = disease_record.get('evidence')
                     if 'publication' in evidence:
                         publication = evidence.get('publication')
@@ -327,6 +326,12 @@ class DiseaseETL(ETL):
                             local_pub_mod_id = publication_mod_id.split(":")[1]
                             pub_mod_url = ETLHelper.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
 
+                    if 'evidenceCodes' in disease_record['evidence']:
+                        for ecode in disease_record['evidence'].get('evidenceCodes'):
+                            ecode_map = {"pecjPrimaryKey": pecj_primary_key,
+                                        "ecode": ecode}
+                            evidence_code_list_to_yield.append(ecode_map)
+
                 if 'objectRelation' in disease_record:
                     disease_association_type = disease_record['objectRelation'].get("associationType").upper()
 
@@ -341,11 +346,7 @@ class DiseaseETL(ETL):
                                 {"id": component_id, "componentUrl": component_url, "componentSymbol": component_symbol}
                             )
 
-                if 'evidenceCodes' in disease_record['evidence']:
-                    for ecode in disease_record['evidence'].get('evidenceCodes'):
-                        ecode_map = {"pecjPrimaryKey": pecj_primary_key,
-                                     "ecode": ecode}
-                        evidence_code_list_to_yield.append(ecode_map)
+
 
                 if 'with' in disease_record:
                     with_record = disease_record.get('with')
@@ -401,7 +402,13 @@ class DiseaseETL(ETL):
                                                                            cross_ref_id + page + annotation_type)
                                     passing_xref['dataId'] = disease_unique_key
                                 elif page == 'homepage' and cross_ref_id == 'OMIM':
-                                    continue
+                                    # remove the link for OMIM homepage for now.
+                                    mod_global_cross_ref_id = ""
+                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
+                                                                           cross_ref_id,
+                                                                           mod_global_cross_ref_id,
+                                                                           cross_ref_id + page + annotation_type)
+                                    passing_xref['dataId'] = disease_unique_key
 
                                 else:
                                     mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
