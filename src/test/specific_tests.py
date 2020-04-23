@@ -774,14 +774,14 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
 
 def test_vep_transcript_consequence_has_cdna_start_end_range():
     query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-            WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
-            AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
-            AND tc.cdnaStartPosition IS NOT NULL
-            AND tc.cdsStartPosition IS NOT NULL
-            AND tc.proteinPositionStart IS NOT NULL
-            AND tc.aminoAcidReference IS NOT NULL
-            AND tc.aminoAcidVariation IS NOT NULL
-            RETURN COUNT(tc) AS counter"""
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
+                AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
+                AND tc.cdnaStartPosition IS NOT NULL
+                AND tc.cdsStartPosition IS NOT NULL
+                AND tc.aminoAcidReference IS NOT NULL
+                and tc.proteinStartPosition IS NOT NULL
+                AND tc.aminoAcidVariation IS NOT NULL
+                RETURN COUNT(tc) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
