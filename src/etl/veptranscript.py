@@ -17,7 +17,7 @@ class VEPTRANSCRIPTETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (g:Transcript {gff3ID:row.transcriptId})
-                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
                 SET gc.transcriptLevelConsequence = row.transcriptLevelConsequence,
@@ -39,6 +39,7 @@ class VEPTRANSCRIPTETL(ETL):
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
 
                 """
 
