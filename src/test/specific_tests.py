@@ -79,6 +79,7 @@ def test_mods_have_gene_expression_atlas_link():
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
             "and cr.crossRefType <> 'interaction' " \
+            "and (cr.crossRefType <> 'homepage' and cr.displayName = 'OMIM')" \
             "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -659,7 +660,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
             " return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] > 1
 
 
 def test_pej_has_agm():
@@ -773,7 +774,7 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
 
 def test_vep_transcript_consequence_has_cdna_start_end_range():
     query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-            WHERE v.hgvsNomenclature = '007112.7:g.236854C>A'
+            WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
             AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
             AND tc.cdnaStartPosition IS NOT NULL
             AND tc.cdsStartPosition IS NOT NULL
