@@ -103,7 +103,8 @@ class AggregateLoader(object):
             'INTERACTION-MOL': MolecularInteractionETL,
             'GeneDescriptions': GeneDescriptionsETL,
             'VEP': VEPETL,
-            'VEPTRANSCRIPT': VEPTRANSCRIPTETL
+            'VEPTRANSCRIPT': VEPTRANSCRIPTETL,
+            'DB-SUMMARY': NodeCountETL,
         }
 
         # This is the order in which data types are loaded.
@@ -140,7 +141,8 @@ class AggregateLoader(object):
             ['Closure'],
             ['GeneDescriptions'],
             ['VEP'],
-            ['VEPTRANSCRIPT']
+            ['VEPTRANSCRIPT'],
+            ['DB-SUMMARY']
         ]
         etl_time_tracker_list = []
 

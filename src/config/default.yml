@@ -76,6 +76,8 @@ INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 VEP: [FB, WB, ZFIN, RGD, MGI]
+DB-SUMMARY:
+  - 3.0.0
 
 # Loader configuration values are below.
 # Please modify with caution!

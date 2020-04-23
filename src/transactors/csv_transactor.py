@@ -24,7 +24,6 @@ class CSVTransactor(object):
                     # Remove None's from list which cause the write rows to crash
                     individual_list = [x for x in individual_list if x is not None]
 
-
                     if len(individual_list) == 0:
                         logger.debug("No data found when writing to csv! Skipping output file: %s" % current_filename)
                         continue
