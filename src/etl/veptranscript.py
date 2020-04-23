@@ -112,7 +112,7 @@ class VEPTRANSCRIPTETL(ETL):
                     amino_acid_change = ""
 
 
-                position_is_a_range = re.compile('[0-9]*-[0-9]*')
+                position_is_a_range = re.compile('[0-9]+-[0-9]+')
                 cdna_range_match = re.search(position_is_a_range, columns[7])
                 cds_range_match = re.search(position_is_a_range, columns[8])
                 protein_range_match = re.search(position_is_a_range, columns[9])
@@ -178,6 +178,7 @@ class VEPTRANSCRIPTETL(ETL):
                               "proteinEndPosition":protein_end_position,
                               "proteinRange": protein_range}
 
+                logger.info (vep_result)
                 vep_maps.append(vep_result)
 
         yield [vep_maps]

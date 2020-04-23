@@ -389,8 +389,9 @@ class DiseaseETL(ETL):
                                 if page == 'homepage' and cross_ref_id == 'RGD':
 
                                     local_crossref_id = primary_id.split(":")[1]
+
                                     cross_ref_id = primary_id
-                                    prefix = "RGD"
+                                    prefix = primary_id.split(":")[0]
 
                                     page = 'disease/rat'
                                     mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,

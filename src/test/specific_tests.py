@@ -786,9 +786,9 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
     for record in result:
         assert record["counter"] > 0
 
-
-def test_node_count_is_consistently_growing():
+# please retain this code for testing purposes.
+#def test_node_count_is_consistently_growing():
     # this file is generated in node_count_etl and represents the node labels that have fewer
     # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
     # as based on the DB-SUMMARY file produced by the file generator.
-    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0
+#    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0
