@@ -178,7 +178,6 @@ class VEPTRANSCRIPTETL(ETL):
                               "proteinEndPosition":protein_end_position,
                               "proteinRange": protein_range}
 
-                logger.info (vep_result)
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
