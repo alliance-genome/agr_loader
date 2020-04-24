@@ -31,6 +31,7 @@ class TranscriptETL(ETL):
                 MERGE (t:Transcript {primaryKey:row.curie})
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider
+                        t.name = row.name        
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
                MERGE (g)<-[gt:TRANSCRIPT]-(t)
