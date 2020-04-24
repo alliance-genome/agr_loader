@@ -1,5 +1,5 @@
 from etl import Neo4jHelper
-
+import os
 
 def execute_transaction(query):
     return Neo4jHelper.run_single_query(query)
@@ -79,6 +79,7 @@ def test_mods_have_gene_expression_atlas_link():
 def test_xref_complete_url_is_formatted():
     query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
             "and cr.crossRefType <> 'interaction' " \
+            "and (cr.crossRefType <> 'homepage' and cr.displayName = 'OMIM')" \
             "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
     result = execute_transaction(query)
     for record in result:
@@ -771,26 +772,23 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
         assert record["counter"] > 0
 
 
-def test_human_dej_has_omim_url_cross_reference():
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
-            WHERE g.primaryKey = 'HGNC:7' 
-            AND cr.crossRefCompleteUrl = 'https://www.omim.org/'
-            RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
-
-
-def vep_transcript_consequence_has_cdna_start_end_range():
+def test_vep_transcript_consequence_has_cdna_start_end_range():
     query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-            WHERE v.hgvsNomenclature = '007112.7:g.236854C>A'
-            AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
-            AND tc.cdnaStartPosition IS NOT NULL
-            AND tc.cdsStartPosition IS NOT NULL
-            AND tc.proteinPositionStart IS NOT NULL
-            AND tc.aminoAcidReference IS NOT NULL
-            AND tc.aminoAcidVariation IS NOT NULL
-            RETURN COUNT(cr) AS counter"""
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
+                AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
+                AND tc.cdnaStartPosition IS NOT NULL
+                AND tc.cdsStartPosition IS NOT NULL
+                AND tc.aminoAcidReference IS NOT NULL
+                and tc.proteinStartPosition IS NOT NULL
+                AND tc.aminoAcidVariation IS NOT NULL
+                RETURN COUNT(tc) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+# please retain this code for testing purposes.
+#def test_node_count_is_consistently_growing():
+    # this file is generated in node_count_etl and represents the node labels that have fewer
+    # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
+    # as based on the DB-SUMMARY file produced by the file generator.
+#    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0

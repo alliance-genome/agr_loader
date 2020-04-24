@@ -17,28 +17,29 @@ class VEPTRANSCRIPTETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                 MATCH (g:Transcript {gff3ID:row.transcriptId})
-                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
                 SET gc.transcriptLevelConsequence = row.transcriptLevelConsequence,
                     gc.transcriptId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
                     gc.impact = row.impact,
-                    gc.aminoAcidReference = row.amino_acid_reference,
-                    gc.aminoAcidVariation = row.amino_acid_variation,
-                    gc.aminoAcidChange = row.amino_acid_change,
-                    gc.cdnaStartPosition = row.cdna_start_position,
-                    gc.cdnaEndPosition = row.cdna_end_position,
-                    gc.cdnaRange = row.cdna_range,
-                    gc.cdsStartPosition = row.cds_start_position,
-                    gc.cdsEndPosition = row.cds_end_position,
-                    gc.cdsRange = row.cds_range,
-                    gc.proteinStartPosition = row.protein_start_position,
-                    gc.proteinEndPosition = row.protein_end_position,
-                    gc.proteinRange = row.protein_range                 
+                    gc.aminoAcidReference = row.aminoAcidReference,
+                    gc.aminoAcidVariation = row.aminoAcidVariation,
+                    gc.aminoAcidChange = row.aminoAcidChange,
+                    gc.cdnaStartPosition = row.cdnaStartPosition,
+                    gc.cdnaEndPosition = row.cdnaEndPosition,
+                    gc.cdnaRange = row.cdnaRange,
+                    gc.cdsStartPosition = row.cdsStartPosition,
+                    gc.cdsEndPosition = row.cdsEndPosition,
+                    gc.cdsRange = row.cdsRange,
+                    gc.proteinStartPosition = row.proteinStartPosition,
+                    gc.proteinEndPosition = row.proteinEndPosition,
+                    gc.proteinRange = row.proteinRange                 
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
 
                 """
 
@@ -112,7 +113,7 @@ class VEPTRANSCRIPTETL(ETL):
                     amino_acid_change = ""
 
 
-                position_is_a_range = re.compile('[0-9]*-[0-9]*')
+                position_is_a_range = re.compile('[0-9]+-[0-9]+')
                 cdna_range_match = re.search(position_is_a_range, columns[7])
                 cds_range_match = re.search(position_is_a_range, columns[8])
                 protein_range_match = re.search(position_is_a_range, columns[9])
@@ -165,18 +166,18 @@ class VEPTRANSCRIPTETL(ETL):
                               "impact": impact,
                               "gene": geneId,
                               "transcriptId": columns[4],
-                              "amino_acid_reference": amino_acid_reference,
-                              "amino_acid_variation": amino_acid_variation,
-                              "amino_acid_change": amino_acid_change,
-                              "cdna_start_position": cdna_start_position,
-                              "cdna_end_position": cdna_end_position,
-                              "cdna_range": cdna_range,
-                              "cds_start_position": cds_start_position,
-                              "cds_end_position": cds_end_position,
-                              "cds_range": cds_range,
-                              "protein_start_position":protein_start_position,
-                              "protein_end_position":protein_end_position,
-                              "protein_range": protein_range}
+                              "aminoAcidReference": amino_acid_reference,
+                              "aminoAcidVariation": amino_acid_variation,
+                              "aminoAcidChange": amino_acid_change,
+                              "cdnaStartPosition": cdna_start_position,
+                              "cdnaEndPosition": cdna_end_position,
+                              "cdnaRange": cdna_range,
+                              "cdsStartPosition": cds_start_position,
+                              "cdsEndPosition": cds_end_position,
+                              "cdsRange": cds_range,
+                              "proteinStartPosition":protein_start_position,
+                              "proteinEndPosition":protein_end_position,
+                              "proteinRange": protein_range}
 
                 vep_maps.append(vep_result)
 
