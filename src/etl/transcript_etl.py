@@ -152,6 +152,8 @@ class TranscriptETL(ETL):
                                         gene_id = value
                                     if key == 'Parent':
                                         parent = value
+                                    if key == 'Name':
+                                        name = value
                                     #if key == 'Alias':
                                        #aliases = value.split(',')
                                 #       transcriptMap.update({'aliases' : aliases})
@@ -190,6 +192,7 @@ class TranscriptETL(ETL):
                             transcriptMap.update({'end':columns[4]})
                             transcriptMap.update({'assembly': assembly})
                             transcriptMap.update({'dataProvider': dataProvider})
+                            transcriptMap.update({'name': name})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
