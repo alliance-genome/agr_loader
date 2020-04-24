@@ -796,9 +796,10 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
 
 def test_variant_consequence_has_codon_change():
     query = """ MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A	1:262775'
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A'
                 AND t.primaryKey = 'ENSEMBL:ENSDART00000111806'
                 AND tc.codonChange IS NOT NULL
+                RETURN COUNT(tc) AS counter
     """
     result = execute_transaction(query)
     for record in result:

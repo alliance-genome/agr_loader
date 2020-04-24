@@ -35,7 +35,10 @@ class VEPTRANSCRIPTETL(ETL):
                     gc.cdsRange = row.cdsRange,
                     gc.proteinStartPosition = row.proteinStartPosition,
                     gc.proteinEndPosition = row.proteinEndPosition,
-                    gc.proteinRange = row.proteinRange                 
+                    gc.proteinRange = row.proteinRange,
+                    gc.codonChange = row.codonChange,
+                    gc.codon_reference = row.codonReference,
+                    gc.codon_variation = row.codonVariation                 
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
