@@ -35,7 +35,10 @@ class VEPTRANSCRIPTETL(ETL):
                     gc.cdsRange = row.cdsRange,
                     gc.proteinStartPosition = row.proteinStartPosition,
                     gc.proteinEndPosition = row.proteinEndPosition,
-                    gc.proteinRange = row.proteinRange                 
+                    gc.proteinRange = row.proteinRange,
+                    gc.codonChange = row.codonChange,
+                    gc.codon_reference = row.codonReference,
+                    gc.codon_variation = row.codonVariation                 
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
@@ -80,8 +83,6 @@ class VEPTRANSCRIPTETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
-        amino_acid_reference = ''
-        amino_acid_variation = ''
 
         for line in data:
             columns = line.split()
@@ -102,16 +103,6 @@ class VEPTRANSCRIPTETL(ETL):
                     geneId = columns[3].lstrip('RGD:')
                 else:
                     geneId = columns[3]
-                if "/" in columns[10]:
-                    amino_acid_reference = columns[10].split("/")[0]
-                    amino_acid_variation = columns[10].split("/")[1]
-                    amino_acid_change = columns[10]
-                else:
-                    amino_acid_change = columns[10]
-
-                if amino_acid_change == '-':
-                    amino_acid_change = ""
-
 
                 position_is_a_range = re.compile('[0-9]+-[0-9]+')
                 cdna_range_match = re.search(position_is_a_range, columns[7])
@@ -160,6 +151,39 @@ class VEPTRANSCRIPTETL(ETL):
                         protein_end_position = columns[8]
                         protein_range = columns[8]
 
+                before_after_change = re.compile("'+/'+")
+                amino_acid_range_match = re.search(before_after_change, columns[10])
+                codon_range_match = re.search(before_after_change, columns[11])
+
+                if amino_acid_range_match:
+                    amino_acid_reference = columns[10].split("/")[0]
+                    amino_acid_variation = columns[10].split("/")[1]
+                    amino_acid_change = columns[10]
+                else:
+                    if columns[10] == '-':
+                        amino_acid_reference = ""
+                        amino_acid_variation = ""
+                        amino_acid_change = ""
+                    else:
+                        amino_acid_reference = columns[10]
+                        amino_acid_variation = columns[10]
+                        amino_acid_change = columns[10]
+
+
+                if codon_range_match:
+                    codon_reference = columns[11].split("/")[0]
+                    codon_variation = columns[11].split("/")[1]
+                    codon_change = columns[11]
+                else:
+                    if columns[11] == '-':
+                        codon_reference = ""
+                        codon_variation = ""
+                        codon_change = ""
+                    else:
+                        codon_reference = columns[11]
+                        codon_variation = columns[11]
+                        codon_change = columns[11]
+
                 vep_result = {"hgvsNomenclature": columns[0],
                               "transcriptLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
@@ -177,7 +201,10 @@ class VEPTRANSCRIPTETL(ETL):
                               "cdsRange": cds_range,
                               "proteinStartPosition":protein_start_position,
                               "proteinEndPosition":protein_end_position,
-                              "proteinRange": protein_range}
+                              "proteinRange": protein_range,
+                              "codonReference": codon_reference,
+                              "codonVariation": codon_variation,
+                              "codonChange": codon_change}
 
                 vep_maps.append(vep_result)
 

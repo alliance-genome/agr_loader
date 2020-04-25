@@ -792,3 +792,15 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
     # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
     # as based on the DB-SUMMARY file produced by the file generator.
 #    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0
+
+
+def test_variant_consequence_has_codon_change():
+    query = """ MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A'
+                AND t.primaryKey = 'ENSEMBL:ENSDART00000111806'
+                AND tc.codonChange IS NOT NULL
+                RETURN COUNT(tc) AS counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
