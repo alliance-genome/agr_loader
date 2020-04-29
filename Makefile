@@ -11,6 +11,7 @@ stopdb:
 
 pull:
 	docker pull agrdocker/agr_neo4j_env:latest
+	docker pull agrdocker/agr_base_linux_env:latest
 
 removedb:
 	docker-compose down -v
