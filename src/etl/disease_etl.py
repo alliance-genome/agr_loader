@@ -51,7 +51,7 @@ class DiseaseETL(ETL):
 
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                                pubEJ.dateAssigned = apoc.date.format(row.dateAssigned)
 
             MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -92,7 +92,7 @@ class DiseaseETL(ETL):
            
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                                pubEJ.dateAssigned = apoc.date.format(row.dateAssigned)
             
             MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             
@@ -129,7 +129,7 @@ class DiseaseETL(ETL):
             
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                                pubEJ.dateAssigned = apoc.date.format(row.dateAssigned)
 
             MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)

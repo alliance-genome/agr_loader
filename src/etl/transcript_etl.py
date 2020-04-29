@@ -116,7 +116,7 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possible_transcript_gene_types = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 gene_id = ''
 
                 if line.startswith('#!'):
@@ -136,7 +136,7 @@ class TranscriptETL(ETL):
                 else:
                     columns = re.split(r'\t', line)
                     featureTypeName = columns[2]
-                    if featureTypeName in possibleTypes or featureTypeName == 'gene':
+                    if featureTypeName in possible_transcript_gene_types or featureTypeName == 'gene':
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)

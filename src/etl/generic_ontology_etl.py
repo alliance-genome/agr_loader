@@ -59,6 +59,14 @@ class GenericOntologyETL(ETL):
             MERGE (g)-[aka:PART_OF]->(g2)
         """
 
+    generic_ontology_altids_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+            MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+    """
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
@@ -88,11 +96,11 @@ class GenericOntologyETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [GenericOntologyETL.generic_ontology_term_template, 600000, "generic_ontology_term_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_term_template, commit_size, "generic_ontology_term_" + ont_type + ".csv", ont_type],
             [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
             [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
-              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_synonyms_template, commit_size, "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [GenericOntologyETL.generic_ontology_altids_template, commit_size, "generic_ontology_altids_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator
@@ -115,16 +123,35 @@ class GenericOntologyETL(ETL):
         isas = []
         partofs = []
         subsets = []
+        altids = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
             counter += 1
             o_syns = line.get('synonym')
-            is_obsolete = "false"
-            syn = ""
+            altid = ""
             ident = line['id'].strip()
             prefix = ident.split(":")[0]
+            if ident == 'ZFA:0000008':
+                logger.info(line)
             display_synonym = ""
+            o_altids = line.get('alt_id')
+
+            if o_altids is not None:
+                if isinstance(o_altids, (list, tuple)):
+                    for altid in o_altids:
+                        alt_dict_to_append = {
+                            'primary_id': ident,
+                            'secondary_id': altid
+                        }
+                        altids.append(alt_dict_to_append)
+                else:
+                    alt_dict_to_append = {
+                        'primary_id': ident,
+                        'secondary_id': altid
+                    }
+                    altids.append(alt_dict_to_append)
+
 
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
@@ -225,11 +252,11 @@ class GenericOntologyETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [terms, isas, partofs, syns]
+                yield [terms, isas, partofs, syns, altids]
                 terms = []
                 syns = []
                 isas = []
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, syns]
+            yield [terms, isas, partofs, syns, altids]
