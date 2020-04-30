@@ -22,10 +22,10 @@ class ExonETL(ETL):
                 MERGE (e:Exon {primaryKey:row.curie})
                     ON CREATE SET e.gff3ID = row.gff3ID,
                         e.dataProvider = row.dataProvider,
-                        te.name = row.name        
+                        e.name = row.name        
 
-               MERGE (e)<-[tso:TRANSCRIPT_TYPE]-(so)
-               MERGE (t)<-[gt:TRANSCRIPT]-(e)
+               MERGE (e)<-[tso:TYPE]-(so)
+               MERGE (t)<-[gt:EXON]-(e)
                 """
 
     chromosomes_template = """
@@ -97,17 +97,17 @@ class ExonETL(ETL):
     def get_generators(self, filepath, batch_size):
 
         with open(filepath) as f:
-            tscriptMaps = []
+            exonMaps = []
             counter = 0
             dataProvider = ''
             assembly = ''
             for line in f:
                 counter = counter + 1
-                transcriptMap = {}
+                exonMap = {}
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possible_transcript_gene_types = ['exon','intron']
+                possible_types = ['exon']
                 gene_id = ''
 
                 if line.startswith('#!'):
@@ -127,7 +127,7 @@ class ExonETL(ETL):
                 else:
                     columns = re.split(r'\t', line)
                     featureTypeName = columns[2]
-                    if featureTypeName in possible_transcript_gene_types or featureTypeName == 'gene':
+                    if featureTypeName in possible_types or featureTypeName == 'gene':
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
@@ -173,27 +173,27 @@ class ExonETL(ETL):
                                                 counter = counter - 1
                                             continue
 
-                            transcriptMap.update({'curie': curie})
+                            exonMap.update({'curie': curie})
 
-                            transcriptMap.update({'parentId': parent})
-                            transcriptMap.update({'gff3ID': gff3ID})
-                            transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                            transcriptMap.update({'chromosomeNumber': columns[0]})
-                            transcriptMap.update({'featureType': featureTypeName})
-                            transcriptMap.update({'start': columns[3]})
-                            transcriptMap.update({'end': columns[4]})
-                            transcriptMap.update({'assembly': assembly})
-                            transcriptMap.update({'dataProvider': dataProvider})
-                            transcriptMap.update({'name': name})
+                            exonMap.update({'parentId': parent})
+                            exonMap.update({'gff3ID': gff3ID})
+                            exonMap.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            exonMap.update({'chromosomeNumber': columns[0]})
+                            exonMap.update({'featureType': featureTypeName})
+                            exonMap.update({'start': columns[3]})
+                            exonMap.update({'end': columns[4]})
+                            exonMap.update({'assembly': assembly})
+                            exonMap.update({'dataProvider': dataProvider})
+                            exonMap.update({'name': name})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
-                                transcriptMap.update({'assembly': assembly})
-                            tscriptMaps.append(transcriptMap)
+                                exonMap.update({'assembly': assembly})
+                            exonMaps.append(exonMap)
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
-                    tscriptMaps = []
+                    yield [exonMaps, exonMaps, exonMaps, exonMaps]
+                    exonMaps = []
 
             if counter > 0:
-                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
+                yield [exonMaps, exonMaps, exonMaps, exonMaps]
