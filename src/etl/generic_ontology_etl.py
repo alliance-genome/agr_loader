@@ -118,6 +118,7 @@ class GenericOntologyETL(ETL):
         parsed_line = OBOHelper.parseOBO(o_data)
 
         counter = 0
+
         terms = []
         syns = []
         isas = []
@@ -127,13 +128,11 @@ class GenericOntologyETL(ETL):
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
+
             counter += 1
             o_syns = line.get('synonym')
-            altid = ""
             ident = line['id'].strip()
             prefix = ident.split(":")[0]
-            if ident == 'ZFA:0000008':
-                logger.info(line)
             display_synonym = ""
             o_altids = line.get('alt_id')
 
@@ -148,10 +147,9 @@ class GenericOntologyETL(ETL):
                 else:
                     alt_dict_to_append = {
                         'primary_id': ident,
-                        'secondary_id': altid
+                        'secondary_id': o_altids
                     }
                     altids.append(alt_dict_to_append)
-
 
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
