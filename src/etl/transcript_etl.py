@@ -131,8 +131,7 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [TranscriptETL.tscript_alternate_id_query_template, commit_size,
-             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.tscript_alternate_id_query_template, commit_size, "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
@@ -184,6 +183,7 @@ class TranscriptETL(ETL):
                     columns = re.split(r'\t', line)
                     featureTypeName = columns[2]
                     if featureTypeName in possibleTypes:
+
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
@@ -218,6 +218,7 @@ class TranscriptETL(ETL):
 
                                     is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
 
+
                                     if is_it_test_entry is False:
                                         is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
 
@@ -227,7 +228,6 @@ class TranscriptETL(ETL):
                                             if is_it_test_entry is False:
                                                 counter = counter - 1
                                             continue
-
                         if featureTypeName in tscriptTypes:
                             transcriptMap.update({'curie' : curie})
                             transcriptMap.update({'parentId': parent})
