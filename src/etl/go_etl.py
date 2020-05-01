@@ -248,7 +248,14 @@ class GOETL(ETL):
             go_term_list.append(dict_to_append)
             
             if counter == batch_size:
-                yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list, go_altids_list]
+                yield [go_term_list,
+                       go_isas_list,
+                       go_partofs_list,
+                       go_synonyms_list,
+                       go_regulates_list,
+                       go_negatively_regulates_list,
+                       go_positively_regulates_list,
+                       go_altids_list]
                 go_term_list = []
                 go_isas_list = []
                 go_partofs_list = []
@@ -260,6 +267,13 @@ class GOETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [go_term_list, go_isas_list, go_partofs_list, go_synonyms_list, go_regulates_list, go_negatively_regulates_list, go_positively_regulates_list, go_altids_list]
+            yield [go_term_list,
+                   go_isas_list,
+                   go_partofs_list,
+                   go_synonyms_list,
+                   go_regulates_list,
+                   go_negatively_regulates_list,
+                   go_positively_regulates_list,
+                   go_altids_list]
 
         
