@@ -16,9 +16,13 @@ class ClosureETL(ETL):
             MATCH (termParent:%sTerm:Ontology {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
     
-    retrieve_isa_partof_closure = """
-        MATCH (childTerm:%sTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:%sTerm:Ontology) 
-            RETURN childTerm.primaryKey, parentTerm.primaryKey """
+    retrieve_isa_closure = """
+        MATCH (childTerm:%sTerm:Ontology)-[r:IS_A*]->(parentTerm:%sTerm:Ontology) 
+            RETURN distinct childTerm.primaryKey, parentTerm.primaryKey """
+
+    retrieve_partof_closure = """
+        MATCH (childTerm:%sTerm:Ontology)-[r:PART_OF*]->(parentTerm:%sTerm:Ontology) 
+            RETURN distinct childTerm.primaryKey, parentTerm.primaryKey """
 
     def __init__(self, config):
         super().__init__()
@@ -43,7 +47,10 @@ class ClosureETL(ETL):
         logger.debug("Starting isa_partof_ Closure for: %s" % data_provider)
         
         query_list = [
-            [ClosureETL.insert_isa_partof_closure, "10000", "isa_partof_closure_" + data_provider + ".csv", data_provider, data_provider],
+            [ClosureETL.insert_isa_partof_closure, "10000", "isa_closure_" + data_provider + ".csv",
+             data_provider, data_provider],
+            [ClosureETL.insert_isa_partof_closure, "10000", "partof_closure_" + data_provider + ".csv",
+             data_provider, data_provider]
         ]
 
         generators = self.get_closure_terms(data_provider)
@@ -56,15 +63,24 @@ class ClosureETL(ETL):
 
     def get_closure_terms(self, data_provider):
 
-        query = self.retrieve_isa_partof_closure % (data_provider, data_provider)
-        logger.debug("Query to Run: %s" % query)
-        
-        returnSet = Neo4jHelper().run_single_query(query)
+        query_isa = self.retrieve_isa_closure % (data_provider, data_provider)
+        query_partof = self.retrieve_partof_closure % (data_provider, data_provider)
 
-        closure_data = []
-        for record in returnSet:
+        logger.debug("Query to Run: %s" % query_isa)
+        returnSetIsa = Neo4jHelper().run_single_query(query_isa)
+
+        logger.debug("Query to Run: %s" % query_partof)
+        returnSetPartOf = Neo4jHelper().run_single_query(query_partof)
+
+        closure_data_isa = []
+        closure_data_partof = []
+        for record in returnSetIsa:
             row = dict(child_id=record["childTerm.primaryKey"],
                        parent_id=record["parentTerm.primaryKey"])
-            closure_data.append(row)
+            closure_data_isa.append(row)
+        for record in returnSetPartOf:
+            row = dict(child_id=record["childTerm.primaryKey"],
+                       parent_id=record["parentTerm.primaryKey"])
+            closure_data_partof.append(row)
 
-        yield [closure_data]
+        yield [closure_data_isa, closure_data_partof]

@@ -38,7 +38,7 @@ class GenericOntologyETL(ETL):
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
                     SET syn.name = row.syn
-            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
+            CREATE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
     generic_ontology_isas_template = """
@@ -47,7 +47,7 @@ class GenericOntologyETL(ETL):
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
-            MERGE (g)-[aka:IS_A]->(g2)
+            CREATE (g)-[aka:IS_A]->(g2)
         """
 
     generic_ontology_partofs_template = """
@@ -56,7 +56,7 @@ class GenericOntologyETL(ETL):
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
-            MERGE (g)-[aka:PART_OF]->(g2)
+            CREATE (g)-[aka:PART_OF]->(g2)
         """
 
     generic_ontology_altids_template = """
@@ -65,7 +65,7 @@ class GenericOntologyETL(ETL):
 
             MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
             MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-            MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+            CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
     """
     def __init__(self, config):
         super().__init__()
