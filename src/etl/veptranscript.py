@@ -38,7 +38,8 @@ class VEPTRANSCRIPTETL(ETL):
                     gc.proteinRange = row.proteinRange,
                     gc.codonChange = row.codonChange,
                     gc.codonReference = row.codonReference,
-                    gc.codonVariation = row.codonVariation                 
+                    gc.codonVariation = row.codonVariation,
+                    gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature                
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
@@ -83,6 +84,7 @@ class VEPTRANSCRIPTETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
+        hgvs_p = ''
 
         for line in data:
             columns = line.split()
@@ -92,11 +94,15 @@ class VEPTRANSCRIPTETL(ETL):
                 notes = columns[13]
                 kvpairs = notes.split(";")
                 if kvpairs is not None:
+                    impact = ''
+                    hgvs_p = ''
                     for pair in kvpairs:
                         key = pair.split("=")[0]
                         value = pair.split("=")[1]
                         if key == 'IMPACT':
                             impact = value
+                        if key == 'HGVSp':
+                            hgvs_p = value
                 if columns[3].startswith('Gene:'):
                     geneId = columns[3].lstrip('Gene:')
                 elif columns[3].startswith('RGD:'):
@@ -188,6 +194,7 @@ class VEPTRANSCRIPTETL(ETL):
                               "transcriptLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
                               "impact": impact,
+                              "hgvsProteinNomenclature": hgvs_p,
                               "gene": geneId,
                               "transcriptId": columns[4],
                               "aminoAcidReference": amino_acid_reference,

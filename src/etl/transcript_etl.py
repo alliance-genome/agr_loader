@@ -25,8 +25,8 @@ class TranscriptETL(ETL):
                         t.dataProvider = row.dataProvider,
                         t.name = row.name        
 
-               MERGE (t)<-[tso:TYPE]-(so)
-               MERGE (g)<-[gt:EXON]-(t)
+               CREATE (t)<-[tso:TYPE]-(so)
+               CREATE (g)<-[gt:EXON]-(t)
                 """
 
 
@@ -36,8 +36,7 @@ class TranscriptETL(ETL):
 
             MATCH (o:Exon {primaryKey: row.gff3ID})
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-
-            MERGE (a:Assembly {primaryKey: row.assembly})
+            MATCH (a:Assembly {primaryKey: row.assembly})
 
             CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
 

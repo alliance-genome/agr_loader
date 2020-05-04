@@ -28,7 +28,7 @@ class GenericOntologyETL(ETL):
                 g.href = row.href,
                 g.displaySynonym = row.display_synonym,
                 g.subsets = apoc.convert.fromJsonList(row.subsets)
-        MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
+        CREATE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
     generic_ontology_synonyms_template = """
@@ -46,7 +46,7 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.isa})
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
             MERGE (g)-[aka:IS_A]->(g2)
         """
 
@@ -55,7 +55,7 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.partof})
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
             MERGE (g)-[aka:PART_OF]->(g2)
         """
 
