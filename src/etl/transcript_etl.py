@@ -150,6 +150,7 @@ class TranscriptETL(ETL):
 
         with open(filepath) as f:
             tscriptMaps = []
+            geneMaps =[]
             exonMaps = []
             counter = 0
             dataProvider = ''
@@ -157,11 +158,12 @@ class TranscriptETL(ETL):
             for line in f:
                 counter = counter + 1
                 transcriptMap = {}
+                geneMap = {}
                 exonMap = {}
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                tscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA','gene']
+                tscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
                 possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA','exon']
                 gene_id = ''
 
@@ -181,14 +183,12 @@ class TranscriptETL(ETL):
                     continue
                 else:
                     columns = re.split(r'\t', line)
-                    featureTypeName = columns[2]
+                    featureTypeName = columns[2].strip()
                     if featureTypeName in possibleTypes:
-
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
                         if kvpairs is not None:
-
                             for pair in kvpairs:
                                 if "=" in pair:
                                     key = pair.split("=")[0]
@@ -225,7 +225,7 @@ class TranscriptETL(ETL):
                                         if is_it_test_entry is False:
                                             is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
 
-                                            if is_it_test_entry is False:
+                                            if is_it_test_entry is True:
                                                 counter = counter - 1
                                             continue
                         if featureTypeName in tscriptTypes:
@@ -244,6 +244,11 @@ class TranscriptETL(ETL):
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
                             tscriptMaps.append(transcriptMap)
+                        elif featureTypeName == 'gene':
+                            geneMap.update({'curie': curie})
+                            geneMap.update({'parentId': parent})
+                            geneMap.update({'gff3ID': gff3ID})
+                            geneMaps.append(geneMap)
                         elif featureTypeName == 'exon':
                             exonMap.update({'parentId': parent})
                             exonMap.update({'gff3ID': str(uuid.uuid4())})
@@ -265,10 +270,12 @@ class TranscriptETL(ETL):
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
+                    yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
                     tscriptMaps = []
+                    geneMaps = []
                     exonMaps = []
 
 
             if counter > 0:
-                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
+                yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
+
