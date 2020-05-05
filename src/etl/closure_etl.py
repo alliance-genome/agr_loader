@@ -12,12 +12,12 @@ class ClosureETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MATCH (termChild:%sTerm {primaryKey:row.child_id})
-            MATCH (termParent:%sTerm {primaryKey:row.parent_id})
+            MATCH (termChild:Ontology {primaryKey:row.child_id})
+            MATCH (termParent:Ontology {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
     
     retrieve_isapartof_closure = """
-        MATCH (childTerm:Ontology:%sTerm)-[r:PART_OF|IS_A*]->(parentTerm:%sTerm) 
+        MATCH (childTerm:Ontology)-[r:PART_OF|IS_A*]->(parentTerm:Ontology) 
             RETURN distinct childTerm.primaryKey, parentTerm.primaryKey """
 
 
@@ -44,21 +44,21 @@ class ClosureETL(ETL):
         logger.debug("Starting isa_partof_ Closure for: %s" % data_provider)
         
         query_list = [
-            [ClosureETL.insert_isa_partof_closure, "10000", "isa_closure_" + data_provider + ".csv",
+            [ClosureETL.insert_isa_partof_closure, "10000", "isa_partof_closure_" + ".csv",
              data_provider, data_provider]
         ]
 
-        generators = self.get_closure_terms(data_provider)
+        generators = self.get_closure_terms()
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         
-        logger.debug("Finished isa_partof Closure for: %s" % data_provider)
+        logger.debug("Finished isa_partof Closure")
 
-    def get_closure_terms(self, data_provider):
+    def get_closure_terms(self):
 
-        query_isapartof = self.retrieve_isapartof_closure % (data_provider, data_provider)
+        query_isapartof = self.retrieve_isapartof_closure
 
         logger.debug("Query to Run: %s" % query_isapartof)
 
