@@ -12,8 +12,8 @@ class ClosureETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MATCH (termChild:Ontology:%sTerm {primaryKey:row.child_id})
-            MATCH (termParent:Ontology:%sTerm {primaryKey:row.parent_id})
+            MATCH (termChild:%sTerm {primaryKey:row.child_id})
+            MATCH (termParent:%sTerm {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
     
     retrieve_isapartof_closure = """
