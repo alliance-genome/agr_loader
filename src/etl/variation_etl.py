@@ -42,7 +42,7 @@ class VariationETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            MERGE (o)-[:VARIATION_TYPE]->(s)"""
+            CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
 
     genomic_locations_template = """
@@ -51,19 +51,19 @@ class VariationETL(ETL):
 
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
-
-            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            MERGE (a:Assembly {primaryKey:row.assembly})
+            MATCH (a:Assembly {primaryKey:row.assembly})
             
-            MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
+            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+
+            CREATE (gchrmn:GenomicLocation {primaryKey:row.uuid})
               SET gchrmn.start = apoc.number.parseInt(row.start),
                 gchrmn.end = apoc.number.parseInt(row.end),
                 gchrmn.assembly = row.assembly,
                 gchrmn.strand = row.strand,
                 gchrmn.chromosome = row.chromosome
                 
-            MERGE (o)-[of:ASSOCIATION]-(gchrmn)
-            MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
+            CREATE (o)-[of:ASSOCIATION]-(gchrmn)
+            CREATE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
     """
 
     xrefs_template = """

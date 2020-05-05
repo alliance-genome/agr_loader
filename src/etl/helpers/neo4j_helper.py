@@ -61,6 +61,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :GOTerm(primaryKey)")
         session.run("CREATE INDEX ON :Genotype(primaryKey)")
         session.run("CREATE INDEX ON :AffectedGenomicModel(primaryKey)")
+        session.run("CREATE INDEX ON :Ontology:SOTerm(primaryKey)")
         session.run("CREATE INDEX ON :SOTerm(primaryKey)")
         session.run("CREATE INDEX ON :SOTerm(name)")
         session.run("CREATE INDEX ON :Ontology(primaryKey)")
