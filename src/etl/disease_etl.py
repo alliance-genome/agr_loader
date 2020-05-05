@@ -396,11 +396,12 @@ class DiseaseETL(ETL):
                                         page = 'disease/rat'
                                     else:
                                         page = 'disease/human'
+
                                     mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                               self.xrefUrlMap, prefix,
                                                                                               page)
                                     passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           cross_ref_id,
+                                                                           'RGD',
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
                                     passing_xref['dataId'] = disease_unique_key
@@ -408,7 +409,7 @@ class DiseaseETL(ETL):
                                     # remove the link for OMIM homepage for now.
                                     mod_global_cross_ref_id = ""
                                     passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           cross_ref_id,
+                                                                           'OMIM',
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
                                     passing_xref['dataId'] = disease_unique_key
