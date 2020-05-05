@@ -62,8 +62,8 @@ class VariationETL(ETL):
                 gchrmn.strand = row.strand,
                 gchrmn.chromosome = row.chromosome
                 
-            CREATE (o)-[of:ASSOCIATION]-(gchrmn)
-            CREATE (gchrmn)-[ofc:ASSOCIATION]-(chrm)
+            CREATE (o)-[of:ASSOCIATION]->(gchrmn)
+            CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
     """
 
     xrefs_template = """

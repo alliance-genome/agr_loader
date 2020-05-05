@@ -22,7 +22,7 @@ class AlleleETL(ETL):
             MATCH (s:Species {primaryKey: row.taxonId})
 
             //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+            MERGE (o:Allele {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
                  o.taxonId = row.taxonId,
                  o.dateProduced = row.dateProduced,
