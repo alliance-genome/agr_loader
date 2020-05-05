@@ -136,7 +136,7 @@ class AlleleETL(ETL):
 
             MATCH (f:Allele:Feature {primaryKey:row.data_id})
 
-            MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+            MERGE (second:SecondaryId {primaryKey:row.secondary_id})
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
     
@@ -147,7 +147,7 @@ class AlleleETL(ETL):
 
             MATCH (a:Allele:Feature {primaryKey:row.data_id})
 
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+            MERGE(syn:Synonym {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
@@ -156,7 +156,7 @@ class AlleleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Allele:Feature {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Allele {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
