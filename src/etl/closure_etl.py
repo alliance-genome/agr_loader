@@ -12,12 +12,12 @@ class ClosureETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-            MATCH (termChild:%sTerm:Ontology {primaryKey:row.child_id})
-            MATCH (termParent:%sTerm:Ontology {primaryKey:row.parent_id})
+            MATCH (termChild:%sTerm {primaryKey:row.child_id})
+            MATCH (termParent:%sTerm {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
     
     retrieve_isapartof_closure = """
-        MATCH (childTerm:%sTerm:Ontology)-[r:PART_OF|IS_A*]->(parentTerm:%sTerm:Ontology) 
+        MATCH (childTerm:%sTerm)-[r:PART_OF|IS_A*]->(parentTerm:%sTerm) 
             RETURN distinct childTerm.primaryKey, parentTerm.primaryKey """
 
 

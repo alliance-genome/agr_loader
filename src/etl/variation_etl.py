@@ -41,7 +41,7 @@ class VariationETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
-            MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
+            MATCH (s:SOTerm {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
 
