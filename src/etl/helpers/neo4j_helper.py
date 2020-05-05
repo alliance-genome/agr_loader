@@ -75,7 +75,7 @@ class Neo4jHelper(object):
         session.run("CREATE INDEX ON :DiseaseEntityJoin(primaryKey)")
         session.run("CREATE INDEX ON :Species(primaryKey)")
         session.run("CREATE INDEX ON :Entity(primaryKey)")
-        session.run("CREATE INDEX ON :Exon(primaryKey)")r
+        session.run("CREATE INDEX ON :Exon(primaryKey)")
         session.run("CREATE INDEX ON :Synonym(primaryKey)")
         session.run("CREATE INDEX ON :Identifier(primaryKey)")
         session.run("CREATE INDEX ON :Association(primaryKey)")
