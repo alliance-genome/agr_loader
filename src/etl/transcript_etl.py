@@ -277,4 +277,3 @@ class TranscriptETL(ETL):
 
             if counter > 0:
                 yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
-
