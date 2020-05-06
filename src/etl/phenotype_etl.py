@@ -23,7 +23,7 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
@@ -71,7 +71,7 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
@@ -106,7 +106,7 @@ class PhenoTypeETL(ETL):
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                 ON CREATE SET 
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
