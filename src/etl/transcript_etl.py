@@ -12,12 +12,53 @@ logger = logging.getLogger(__name__)
 
 class TranscriptETL(ETL):
 
-    tscript_alternate_id_query_template = """
-    USING PERIODIC COMMIT %s
+
+    exon_query_template = """
+            USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+                MATCH (g:Transcript {gff3ID: row.parentId})
+                MATCH (so:SOTerm {name: row.featureType})
+
+                MERGE (t:Exon {primaryKey:row.gff3ID})
+                    ON CREATE SET t.gff3ID = row.gff3ID,
+                        t.dataProvider = row.dataProvider,
+                        t.name = row.name        
+
+               CREATE (t)<-[tso:TYPE]-(so)
+               CREATE (g)<-[gt:EXON]-(t)
+                """
+
+
+    exon_genomic_locations_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:Exon {primaryKey: row.gff3ID})
+            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+            MATCH (a:Assembly {primaryKey: row.assembly})
+
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+
+            CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+              SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
+                gchrm.assembly = row.assembly,
+                gchrm.strand = row.strand,
+                gchrm.chromosome = row.chromosomeNumber
+
+            CREATE (o)-[of:ASSOCIATION]->(gchrm)
+            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (a)-[ao:ASSOCIATION]->(o)
+
+        """
+
+    tscript_alternate_id_query_template = """
+            USING PERIODIC COMMIT %s
+                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
-            MATCH (g:Gene {primaryKey:row.curie})
-            set g.gff3ID = row.gff3ID
+                MATCH (g:Gene {primaryKey:row.curie})
+                  SET g.gff3ID = row.gff3ID
     
     """
 
@@ -89,11 +130,12 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [TranscriptETL.tscript_alternate_id_query_template, commit_size,
-             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.tscript_alternate_id_query_template, commit_size, "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
             [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"]
+            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.exon_query_template, commit_size, "exon_data_" + sub_type.get_data_provider() + ".csv"],
+            [TranscriptETL.exon_genomic_locations_template, commit_size, "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -107,16 +149,21 @@ class TranscriptETL(ETL):
 
         with open(filepath) as f:
             tscriptMaps = []
+            geneMaps =[]
+            exonMaps = []
             counter = 0
             dataProvider = ''
             assembly = ''
             for line in f:
                 counter = counter + 1
                 transcriptMap = {}
+                geneMap = {}
+                exonMap = {}
                 curie = ''
                 parent = ''
                 gff3ID = ''
-                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                tscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
+                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA','exon']
                 gene_id = ''
 
                 if line.startswith('#!'):
@@ -135,14 +182,12 @@ class TranscriptETL(ETL):
                     continue
                 else:
                     columns = re.split(r'\t', line)
-                    featureTypeName = columns[2]
-                    if featureTypeName in possibleTypes or featureTypeName == 'gene':
+                    featureTypeName = columns[2].strip()
+                    if featureTypeName in possibleTypes:
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
-                        #kvpairs = notes.split(";")
                         if kvpairs is not None:
-
                             for pair in kvpairs:
                                 if "=" in pair:
                                     key = pair.split("=")[0]
@@ -172,18 +217,18 @@ class TranscriptETL(ETL):
 
                                     is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
 
+
                                     if is_it_test_entry is False:
                                         is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
 
                                         if is_it_test_entry is False:
                                             is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
 
-                                            if is_it_test_entry is False:
+                                            if is_it_test_entry is True:
                                                 counter = counter - 1
                                             continue
-
+                        if featureTypeName in tscriptTypes:
                             transcriptMap.update({'curie' : curie})
-
                             transcriptMap.update({'parentId': parent})
                             transcriptMap.update({'gff3ID': gff3ID})
                             transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
@@ -198,13 +243,37 @@ class TranscriptETL(ETL):
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcriptMap.update({'assembly':assembly})
                             tscriptMaps.append(transcriptMap)
+                        elif featureTypeName == 'gene':
+                            geneMap.update({'curie': curie})
+                            geneMap.update({'parentId': parent})
+                            geneMap.update({'gff3ID': gff3ID})
+                            geneMaps.append(geneMap)
+                        elif featureTypeName == 'exon':
+                            exonMap.update({'parentId': parent})
+                            exonMap.update({'gff3ID': str(uuid.uuid4())})
+                            exonMap.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            exonMap.update({'chromosomeNumber': columns[0]})
+                            exonMap.update({'featureType': featureTypeName})
+                            exonMap.update({'start':columns[3]})
+                            exonMap.update({'end':columns[4]})
+                            exonMap.update({'assembly': assembly})
+                            exonMap.update({'dataProvider': dataProvider})
+                            exonMap.update({'name': name})
+                            if assembly is None:
+                                assembly = 'assembly_unlabeled_in_gff3_header'
+                                exonMap.update({'assembly':assembly})
+                            exonMaps.append(exonMap)
+                        else:
+                            continue
 
 
                 if counter == batch_size:
                     counter = 0
-                    yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
+                    yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
                     tscriptMaps = []
+                    geneMaps = []
+                    exonMaps = []
 
 
             if counter > 0:
-                yield [tscriptMaps, tscriptMaps, tscriptMaps, tscriptMaps]
+                yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]

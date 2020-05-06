@@ -79,7 +79,8 @@ class TestClass(object):
                              dict(node='GenomicLocation'),
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
-                             dict(node='Transcript')
+                             dict(node='Transcript'),
+                             dict(node='Exon')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -167,6 +168,9 @@ class TestClass(object):
                             dict(node='TranscriptLevelConsequence', prop='cdsStartPosition'),
                             dict(node='TranscriptLevelConsequence', prop='cdsEndPosition'),
                             dict(node='TranscriptLevelConsequence', prop='cdsRange'),
+                            dict(node='TranscriptLevelConsequence', prop='codonReference'),
+                            dict(node='TranscriptLevelConsequence', prop='codonVariation'),
+                            dict(node='TranscriptLevelConsequence', prop='codonChange'),
                             dict(node='TranscriptLevelConsequence', prop='proteinStartPosition'),
                             dict(node='TranscriptLevelConsequence', prop='proteinEndPosition'),
                             dict(node='TranscriptLevelConsequence', prop='proteinRange'),
