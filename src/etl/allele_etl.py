@@ -280,9 +280,9 @@ class AlleleETL(ETL):
 
             # TODO: remove when RGD updates their files to 1.0.1.1 schema.
 
-            if 'gene' in alleleRecord.get('gene') and gene_id == '':
+            if 'gene' in alleleRecord and gene_id == '':
                 gene_id = alleleRecord.get('gene')
-            if 'construct' in alleleRecord.get('construct') and construct_id == '':
+            if 'construct' in alleleRecord and construct_id == '':
                 construct_id = alleleRecord.get('construct')
 
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
