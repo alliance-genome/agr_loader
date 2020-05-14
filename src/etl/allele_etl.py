@@ -266,16 +266,33 @@ class AlleleETL(ETL):
                     counter = counter - 1
                     continue
 
+            gene_id = ''
+            construct_id = ''
+            association_type = ''
+
+            if alleleRecord.get('alleleObjectRelations') is not None:
+                for relation in alleleRecord.get('alleleObjectRelations'):
+                    association_type = relation.get('objectRelation').get('associationType')
+                    if relation.get('objectRelation').get('gene') is not None:
+                        gene_id = relation.get('objectRelation').get('gene')
+                    if relation.get('objectRelation').get('construct') is not None:
+                        construct_id = relation.get('objectRelation').get('construct')
+
+            # TODO: remove when RGD updates their files to 1.0.1.1 schema.
+
+            if 'gene' in alleleRecord.get('gene') and gene_id == '':
+                gene_id = alleleRecord.get('gene')
+            if 'construct' in alleleRecord.get('construct') and construct_id == '':
+                construct_id = alleleRecord.get('construct')
+
             shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
             symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
 
-            gene = alleleRecord.get('gene')
-            construct = alleleRecord.get('construct')
-
-            if gene is not None and construct is not None:
+            if gene_id != '' and construct_id != '':
+                logger.info(gene_id)
                 allele_construct_gene_dataset = {
                     "symbol": alleleRecord.get('symbol'),
-                    "geneId": alleleRecord.get('gene'),
+                    "geneId": gene_id,
                     "primaryId": alleleRecord.get('primaryId'),
                     "globalId": globalId,
                     "localId": localId,
@@ -291,11 +308,12 @@ class AlleleETL(ETL):
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
                     "alleleDescription": description,
-                    "constructId": alleleRecord.get('construct')
+                    "constructId": construct_id,
+                    "associationType": association_type
                 }
                 alleles_construct_gene.append(allele_construct_gene_dataset)
 
-            elif construct is not None and gene is None:
+            elif construct_id != '' and gene_id == '':
                 allele_construct_no_gene_dataset = {
                     "symbol": alleleRecord.get('symbol'),
                     "primaryId": alleleRecord.get('primaryId'),
@@ -313,15 +331,16 @@ class AlleleETL(ETL):
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
                     "alleleDescription": description,
-                    "constructId": alleleRecord.get('construct')
+                    "constructId": construct_id,
+                    "associationType": association_type
                 }
 
                 alleles_no_gene.append(allele_construct_no_gene_dataset)
 
-            elif gene is not None and construct is None:
+            elif gene_id != '' and construct_id == '':
                 allele_gene_no_construct_dataset = {
                     "symbol": alleleRecord.get('symbol'),
-                    "geneId": alleleRecord.get('gene'),
+                    "geneId": gene_id,
                     "primaryId": alleleRecord.get('primaryId'),
                     "globalId": globalId,
                     "localId": localId,
@@ -336,12 +355,13 @@ class AlleleETL(ETL):
                     "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
-                    "alleleDescription": description
+                    "alleleDescription": description,
+                    "associationType": association_type
                 }
 
                 alleles_no_construct.append(allele_gene_no_construct_dataset)
 
-            elif gene is None and construct is None:
+            elif gene_id == '' and construct_id == '':
                 allele_no_gene_no_construct_dataset = {
                     "symbol": alleleRecord.get('symbol'),
                     "primaryId": alleleRecord.get('primaryId'),
@@ -358,7 +378,8 @@ class AlleleETL(ETL):
                     "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
                     "symbolText": symbolText,
-                    "alleleDescription": description
+                    "alleleDescription": description,
+                    "associationType": association_type
                 }
 
                 alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)

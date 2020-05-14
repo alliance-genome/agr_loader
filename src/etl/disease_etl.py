@@ -302,8 +302,8 @@ class DiseaseETL(ETL):
             do_id = disease_record.get('DOid')
 
 
-            if 'qualifier' in disease_record:
-                qualifier = disease_record.get('qualifier')
+            if 'negation' in disease_record:
+                qualifier = disease_record.get('negation')
 
             else:
 
