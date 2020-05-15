@@ -376,8 +376,12 @@ class DiseaseETL(ETL):
                         cross_ref_id = xref.get('id')
                         pages = xref.get('pages')
 
-                        local_crossref_id = cross_ref_id.split(":")[1]
-                        prefix = cross_ref_id.split(":")[0]
+                        if ":" in cross_ref_id:
+                            local_crossref_id = cross_ref_id.split(":")[1]
+                            prefix = cross_ref_id.split(":")[0]
+                        else:
+                            local_crossref_id = ""
+                            prefix = cross_ref_id
 
                         if annotation_type is None:
                             annotation_type = 'curated'
