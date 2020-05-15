@@ -763,9 +763,21 @@ def test_mi_term_has_corrected_url():
 
 
 def test_rgd_dej_has_rgd_full_url_cross_reference():
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference), (dej)--(do:DOTerm)
             WHERE g.primaryKey = 'RGD:2004'
-            AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'
+            and cr.globalCrossRefId = 'DOID:583'
+            AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=583#annot'
+            RETURN count(distinct(cr)) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_dej_has_omim_full_url_cross_reference():
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference), (dej)--(do:DOTerm)
+            WHERE g.primaryKey = 'HGNC:12597'
+            and cr.globalCrossRefId = 'DOID:0110473'
+            AND cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
             RETURN count(distinct(cr)) AS counter"""
     result = execute_transaction(query)
     for record in result:
