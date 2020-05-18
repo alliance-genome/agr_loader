@@ -39,13 +39,21 @@ class VEPTRANSCRIPTETL(ETL):
                     gc.codonChange = row.codonChange,
                     gc.codonReference = row.codonReference,
                     gc.codonVariation = row.codonVariation,
-                    gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature                
+                    gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature,  
+                    gc.hgvsCodingNomenclature = row.hgvsCodingNomenclature, 
+                    gc.hgvsVEPGeneNomenclature = row.hgvsVEPGeneNomenclature            
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
 
-                """
+                MERGE(syn:Synonym:Identifier {primaryKey:row.hgvsVEPGeneNomenclature})
+                        SET syn.name = row.hgvsVEPGeneNomenclature
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) 
+            
+            """
+
+
 
 
     def __init__(self, config):
@@ -85,6 +93,8 @@ class VEPTRANSCRIPTETL(ETL):
         vep_maps = []
         impact = ''
         hgvs_p = ''
+        hgvs_c = ''
+        hgvs_g = ''
 
         for line in data:
             columns = line.split()
@@ -103,6 +113,10 @@ class VEPTRANSCRIPTETL(ETL):
                             impact = value
                         if key == 'HGVSp':
                             hgvs_p = value
+                        if key == 'HGVSc':
+                            hgvs_c = value
+                        if key == 'HGVSg':
+                            hgvs_g = value
                 if columns[3].startswith('Gene:'):
                     geneId = columns[3].lstrip('Gene:')
                 elif columns[3].startswith('RGD:'):
@@ -195,6 +209,8 @@ class VEPTRANSCRIPTETL(ETL):
                               "primaryKey": str(uuid.uuid4()),
                               "impact": impact,
                               "hgvsProteinNomenclature": hgvs_p,
+                              "hgvsCodingNomenclature": hgvs_c,
+                              "hgvsVEPGeneNomenclature": hgvs_g,
                               "gene": geneId,
                               "transcriptId": columns[4],
                               "aminoAcidReference": amino_acid_reference,

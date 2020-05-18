@@ -36,9 +36,8 @@ class ConstructETL(ETL):
                    o.nameText = row.nameText,
                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
                    o.dataProviders = row.dataProviders,
-                   o.dataProvider = row.dataProvider
-
-              MERGE (o)-[:FROM_SPECIES]-(s)
+                   o.dataProvider = row.dataProvider,
+                   o.symbol = row.symbol
 
             """
 
@@ -225,7 +224,8 @@ class ConstructETL(ETL):
                 "modGlobalCrossRefId": modGlobalCrossRefId,
                 "uuid": str(uuid.uuid4()),
                 "dataProvider": data_provider,
-                "nameText": nameText
+                "nameText": nameText,
+                "name": constructRecord.get('name')
             }
             constructs.append(construct_dataset)
 

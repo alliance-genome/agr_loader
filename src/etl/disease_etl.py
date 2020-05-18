@@ -302,8 +302,8 @@ class DiseaseETL(ETL):
             do_id = disease_record.get('DOid')
 
 
-            if 'qualifier' in disease_record:
-                qualifier = disease_record.get('qualifier')
+            if 'negation' in disease_record:
+                qualifier = disease_record.get('negation')
 
             else:
 
@@ -376,8 +376,12 @@ class DiseaseETL(ETL):
                         cross_ref_id = xref.get('id')
                         pages = xref.get('pages')
 
-                        local_crossref_id = ""
-                        prefix = cross_ref_id
+                        if ":" in cross_ref_id:
+                            local_crossref_id = cross_ref_id.split(":")[1]
+                            prefix = cross_ref_id.split(":")[0]
+                        else:
+                            local_crossref_id = ""
+                            prefix = cross_ref_id
 
                         if annotation_type is None:
                             annotation_type = 'curated'
@@ -386,43 +390,14 @@ class DiseaseETL(ETL):
                             for page in pages:
                                 # TODO: get the DQMs to restructure this so that we get a global id here instead of
                                 # RGD
-                                if page == 'homepage' and cross_ref_id == 'RGD':
-
-                                    local_crossref_id = primary_id.split(":")[1]
-
-                                    cross_ref_id = primary_id
-                                    prefix = primary_id.split(":")[0]
-                                    if prefix == 'RGD':
-                                        page = 'disease/rat'
-                                    else:
-                                        page = 'disease/human'
-
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                               self.xrefUrlMap, prefix,
                                                                                               page)
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           'RGD',
-                                                                           mod_global_cross_ref_id,
-                                                                           cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
-                                elif page == 'homepage' and cross_ref_id == 'OMIM':
-                                    # remove the link for OMIM homepage for now.
-                                    mod_global_cross_ref_id = ""
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           'OMIM',
-                                                                           mod_global_cross_ref_id,
-                                                                           cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
-
-                                else:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xrefUrlMap, prefix,
-                                                                                              page)
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
+                                passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
                                                                            cross_ref_id,
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
+                                passing_xref['dataId'] = disease_unique_key
 
                                 if 'loaded' in annotation_type:
                                     passing_xref['loadedDB'] = 'true'
