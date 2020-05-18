@@ -34,7 +34,7 @@ class GenericOntologyETL(ETL):
                 g.href = row.href,
                 g.displaySynonym = row.display_synonym,
                 g.subsets = apoc.convert.fromJsonList(row.subsets)
-        MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
+        CREATE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
     generic_ontology_synonyms_query_template = """
@@ -44,7 +44,7 @@ class GenericOntologyETL(ETL):
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
                     SET syn.name = row.syn
-            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
+            CREATE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
     generic_ontology_isas_query_template = """
@@ -52,8 +52,8 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.isa})
-            MERGE (g)-[aka:IS_A]->(g2)
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
+            CREATE (g)-[aka:IS_A]->(g2)
         """
 
     generic_ontology_partofs_query_template = """
@@ -61,9 +61,19 @@ class GenericOntologyETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.partof})
-            MERGE (g)-[aka:PART_OF]->(g2)
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
+            CREATE (g)-[aka:PART_OF]->(g2)
         """
+
+    generic_ontology_altids_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+            CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+    """
+
 
     def __init__(self, config):
         super().__init__()
@@ -102,6 +112,8 @@ class GenericOntologyETL(ETL):
              "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
             [self.generic_ontology_synonyms_query_template, 400000,
              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_altids_query_template, commit_size,
+             "generic_ontology_altids_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator
@@ -120,21 +132,38 @@ class GenericOntologyETL(ETL):
         parsed_line = OBOHelper.parse_obo(o_data)
 
         counter = 0
+
         terms = []
         syns = []
         isas = []
         partofs = []
         subsets = []
+        altids = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
+
             counter += 1
             o_syns = line.get('synonym')
-            is_obsolete = "false"
-            syn = ""
             ident = line['id'].strip()
             prefix = ident.split(":")[0]
             display_synonym = ""
+            o_altids = line.get('alt_id')
+
+            if o_altids is not None:
+                if isinstance(o_altids, (list, tuple)):
+                    for altid in o_altids:
+                        alt_dict_to_append = {
+                            'primary_id': ident,
+                            'secondary_id': altid
+                        }
+                        altids.append(alt_dict_to_append)
+                else:
+                    alt_dict_to_append = {
+                        'primary_id': ident,
+                        'secondary_id': o_altids
+                    }
+                    altids.append(alt_dict_to_append)
 
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
@@ -143,20 +172,20 @@ class GenericOntologyETL(ETL):
                         synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : synsplit[1].replace('\\"','""')
+                            'syn' : synsplit[1].replace('\\"', '""')
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                         if "DISPLAY_SYNONYM" in syn:
-                            display_synonym = synsplit[1].replace('"','""')
+                            display_synonym = synsplit[1].replace('"', '""')
                 else:
                     synsplit = re.split(r'(?<!\\)"', o_syns)
                     syns_dict_to_append = {
-                            'oid' : ident,
-                            'syn' : synsplit[1].replace('\"','""')
-                        }
+                        'oid' : ident,
+                        'syn' : synsplit[1].replace('\"', '""')
+                    }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
-                        display_synonym = synsplit[1].replace('\"','""')
+                        display_synonym = synsplit[1].replace('\"', '""')
             # subset
             new_subset = line.get('subset')
             subsets.append(new_subset)
@@ -235,11 +264,11 @@ class GenericOntologyETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [terms, isas, partofs, syns]
+                yield [terms, isas, partofs, syns, altids]
                 terms = []
                 syns = []
                 isas = []
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, syns]
+            yield [terms, isas, partofs, syns, altids]

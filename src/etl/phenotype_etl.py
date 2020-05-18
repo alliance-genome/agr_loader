@@ -22,7 +22,7 @@ class PhenoTypeETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+            MATCH (allele:Allele {primaryKey:row.primaryId})
             
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
@@ -45,7 +45,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -60,7 +60,7 @@ class PhenoTypeETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             // GET PRIMARY DATA OBJECTS
         MATCH (pej:PublicationJoin {primaryKey:row.pecjPrimaryKey})
-        MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+        MATCH (allele:Allele {primaryKey:row.primaryId})
         MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
 
         MERGE (g)-[gapf:ASSOCIATION]->(pej)
@@ -92,7 +92,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -127,7 +127,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
               SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -140,8 +140,8 @@ class PhenoTypeETL(ETL):
 
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:Allele:Feature {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (n:Allele {primaryKey:row.pgeId})
+            MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
@@ -152,7 +152,7 @@ class PhenoTypeETL(ETL):
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
 
             CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 

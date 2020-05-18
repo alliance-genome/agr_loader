@@ -4,29 +4,26 @@ import logging
 import multiprocessing
 
 from etl import ETL
-from transactors import CSVTransactor, Neo4jTransactor
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 from .helpers import Neo4jHelper
 
 
 class ClosureETL(ETL):
-    '''Closure ETL'''
-
+    '''Clojure ETL'''
 
     logger = logging.getLogger(__name__)
 
-    # Query templates which take params and will be processed later
-
-    insert_is_a_part_of_closure_query_template = """
+    insert_isa_partof_closure = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
-            MATCH (termChild:%sTerm:Ontology {primaryKey:row.child_id})
-            MATCH (termParent:%sTerm:Ontology {primaryKey:row.parent_id})
+            MATCH (termChild:%sTerm {primaryKey:row.child_id})
+            MATCH (termParent:%sTerm {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
 
-    retrieve_is_a_part_of_closure_query_template = """
-        MATCH (childTerm:%sTerm:Ontology)-[:PART_OF|IS_A*]->(parentTerm:%sTerm:Ontology) 
-        RETURN childTerm.primaryKey, parentTerm.primaryKey """
+    retrieve_isa_partof_closure = """
+        MATCH (childTerm:%sTerm)-[:PART_OF|IS_A*]->(parentTerm:%sTerm) 
+            RETURN DISTINCT childTerm.primaryKey, parentTerm.primaryKey """
 
     def __init__(self, config):
         super().__init__()
@@ -50,23 +47,24 @@ class ClosureETL(ETL):
 
         self.logger.debug("Starting isa_partof_ Closure for: %s", data_provider)
 
-        query_template_list = [
-            [self.insert_is_a_part_of_closure_query_template, "10000",
-             "is_a_part_of_closure_" + data_provider + ".csv", data_provider, data_provider],
+        query_list = [
+            [self.insert_isa_partof_closure, "100000",
+             "isa_partof_closure_" + data_provider + ".csv",
+             data_provider, data_provider],
         ]
 
         generators = self.get_closure_terms(data_provider)
 
-        query_and_file_list = self.process_query_params(query_template_list)
+        query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.debug("Finished isa_partof Closure for: %s", data_provider)
 
     def get_closure_terms(self, data_provider):
-        '''Get clojure terms'''
+        '''Get Clojure Terms'''
 
-        query = self.retrieve_is_a_part_of_closure_query_template % (data_provider, data_provider)
+        query = self.retrieve_isa_partof_closure % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
         return_set = Neo4jHelper().run_single_query(query)

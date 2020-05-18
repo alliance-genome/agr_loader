@@ -23,7 +23,7 @@ Resources.
 - git submodule update --init (on subsequent updates, run: git submodule update --remote` before merging changes to the `agr_loader` repo) 
   - currently, this submodule is tracking the 1.0.4 release - we need to change .gitmodules to reflect the next version when appropriate.
 
-- ensure that your local docker installation has access to at least 5G (preferentially 8G) of memory or else your run_test target will fail with a non-inituative error that "Cannot resolve address 'neo4j.nqc'" this can be done in the docker preferences.   
+- ensure that your local docker installation has access to at least 5G (preferentially 8G) of memory or else your run_test target will fail with a non-inituative error that "Cannot resolve address 'neo4j'" this can be done in the docker preferences.
 
 ## Running the Loader
 - Initialize a full load with `make run`.
@@ -33,7 +33,7 @@ Resources.
 - Once the loader has been run (either test load or full load), unit tests can be executed via `make unit_tests`.
 
 ## Accessing the Neo4j Shell
-- From your command line: `docker exec -ti neo4j.nqc bin/cypher-shell`
+- From your command line: `docker exec -ti neo4j bin/cypher-shell`
   - A quick command to count the number of nodes in your db: `match (n) return count (n);`
 
 ## Stopping and Removing the Database

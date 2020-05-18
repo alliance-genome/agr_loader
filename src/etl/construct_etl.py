@@ -47,7 +47,7 @@ class ConstructETL(ETL):
 
             MATCH (f:Construct {primaryKey:row.data_id})
 
-            MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+            MERGE (second:SecondaryId {primaryKey:row.secondary_id})
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
 
@@ -57,7 +57,7 @@ class ConstructETL(ETL):
 
             MATCH (a:Construct {primaryKey:row.data_id})
 
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+            MERGE(syn:Synonym {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 

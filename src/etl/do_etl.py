@@ -79,8 +79,8 @@ class DOETL(ETL):
 
             MATCH (d:DOTerm {primaryKey:row.primary_id})
 
-            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-
+            MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+    
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
 
@@ -123,7 +123,7 @@ class DOETL(ETL):
         counter = 0
 
         # Convert parsed obo term into a schema-friendly AGR dictionary.
-        for key, line in parsed_line.items():
+        for key in parsed_line.items():
             counter = counter + 1
             node = ont.graph.node[key]
             if len(node) == 0:
@@ -174,13 +174,13 @@ class DOETL(ETL):
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(local_id,
-                                        prefix,
-                                        "ontology_provided_cross_reference",
-                                        "ontology_provided_cross_reference",
-                                        xref_id,
-                                        complete_url,
-                                        xref_id + "ontology_provided_cross_reference")
+                                generated_xref = ETLHelper.get_xref_dict(local_id, 
+                                    prefix,
+                                    "ontology_provided_cross_reference",
+                                    "ontology_provided_cross_reference",
+                                    xref_id,
+                                    complete_url,
+                                    xref_id + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
                         else: #TODO Need to make sure this else is correct

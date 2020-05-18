@@ -30,3 +30,4 @@ from .construct_etl import ConstructETL
 from .transcript_etl import TranscriptETL
 from .mol_interactions_mod_xref import MolInteractionsModXrefETL
 from .mol_interactions_xref import MolInteractionsXrefETL
+from .node_count_etl import NodeCountETL

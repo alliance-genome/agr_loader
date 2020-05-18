@@ -226,8 +226,15 @@ class TestObject():
             # disease
             'ZFIN:ZDB-GENE-130530-760', 'ZFIN:ZDB-GENE-040426-2816',
             'ZFIN:ZDB-FISH-150901-1536', 'ZFIN:ZDB-FISH-180904-5',
-            'ZFIN:ZDB-FISH-180904-6', 'ZFIN:ZDB-MRPHLNO-180831-2',
-            'ZFIN:ZDB-MRPHLNO-180831-1'}
+            'ZFIN:ZDB-FISH-180904-6','ZFIN:ZDB-MRPHLNO-180831-2',
+            'ZFIN:ZDB-MRPHLNO-180831-1',
+            # transcript
+            'ZFIN:ZDB-GENE-040426-1746', 'ENSEMBL:ENSDART00000003317',
+            'ENSDART00000003317', 'ZFIN:ZDB-ALT-160601-5948',
+            'ZFIN:ZDB-GENE-030131-7773', 'ENSEMBL:ENSDART00000010092',
+            'ENSDART00000010092', 'ZFIN:ZDB-GENE-060929-860',
+            'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
+            'ENSDART00000111806'}
 
         self.flybase_id_set = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006',
@@ -262,6 +269,8 @@ class TestObject():
             # disease pheno specific test objects
             'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329',
             'RGD:2917', 'RGD:2869',
+            'RGD:68936', 'RGD:3886', 'RGD:3673', 'RGD:6498788', 'RGD:1303329',
+            'RGD:2917', 'RGD:2869', 'RGD:2004',
             # expression
             'RGD:3884', 'RGD:3889', 'RGD:2129',
             # allele gene and alleles
@@ -284,12 +293,11 @@ class TestObject():
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
-
             'HGNC:4693', 'HGNC:11179', 'HGNC:7325', 'HGNC:3650', 'HGNC:4601',
             'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884', 'HGNC:1058',
             'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526',
-            'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950', 'HGNC:11448'}
-
+            'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950', 'HGNC:11448',
+            'HGNC:7'}
 
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,

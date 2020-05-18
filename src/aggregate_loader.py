@@ -13,7 +13,7 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
                 AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
                 ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
                 GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper
+                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL
 
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -92,7 +92,8 @@ class AggregateLoader():
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
         'VEP': VEPETL,
-        'VEPTRANSCRIPT': VEPTranscriptETL
+        'VEPTRANSCRIPT': VEPTranscriptETL,
+        'DB-SUMMARY': NodeCountETL
     }
 
     # This is the order in which data types are loaded.
@@ -110,24 +111,24 @@ class AggregateLoader():
         ['VARIATION'],
         ['SQTR'],
         ['AGM'],
+        ['DAF'],  # Locks Genes
+        ['ORTHO'],  # Locks Genes
+        ['GeneDiseaseOrtho'],
         ['GFF'],
         ['EXPRESSION'],
         ['ExpressionRibbon'],
         ['ExpressionRibbonOther'],
         ['GENEEEXPRESSIONATLASSITEMAP'],
-        ['DAF'],  # Locks Genes
         ['PHENOTYPE'],  # Locks Genes
-        ['ORTHO'],  # Locks Genes
         ['GAF'],  # Locks Genes
         ['GeoXref'],  # Locks Genes
-        ['GeneDiseaseOrtho'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],
         ['VEP'],
-        ['VEPTRANSCRIPT']
+        ['VEPTRANSCRIPT'],
+        ['DB-SUMMARY']
     ]
-
 
     def __init__(self, args, logger, context_info):
         self.args = args
@@ -138,7 +139,6 @@ class AggregateLoader():
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
         '''This function runs each of the ETL in parellel'''
-
         etl_time_tracker_list = []
         for etl_group in cls.etl_groups:
             etl_group_start_time = time.time()

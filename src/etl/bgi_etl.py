@@ -21,7 +21,7 @@ class BGIETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Gene {primaryKey:row.primaryKey})
-            MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
+            MATCH (s:SOTerm {primaryKey:row.soTermId})
             MERGE (o)-[:ANNOTATED_TO]->(s)"""
 
     chromosomes_query_template = """

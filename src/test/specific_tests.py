@@ -1,5 +1,5 @@
 from etl import Neo4jHelper
-
+import os
 
 def execute_transaction(query):
     '''Excute Transactor'''
@@ -112,11 +112,11 @@ def test_mods_have_gene_expression_atlas_link():
 def test_xref_complete_url_is_formatted():
     '''Test XREF Complete URL is Formatted'''
 
-    query = """MATCH (cr:CrossReference)
-               WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
-                     AND cr.crossRefType <> 'interaction'
-                     AND cr.crossRefType <> 'ontology_provided_cross_reference'
-               RETURN count(cr) AS counter"""
+    query = """"MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
+                AND cr.crossRefType <> 'interaction'
+                AND (cr.crossRefType <> 'homepage' AND cr.displayName = 'OMIM')
+                AND cr.crossRefType <> 'ontology_provided_cross_reference' 
+                RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
@@ -161,20 +161,21 @@ def test_gene_has_all_three_automated_description_components():
     '''Test Gene has All Three Automated Description Components'''
 
     query = """MATCH (g:Gene)
-               WHERE g.primaryKey IN ['SGD:S000002536','ZFIN:ZDB-GENE-990415-131',
-                                      'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', 
+               WHERE g.primaryKey IN ['SGD:S000002536', "'FB:FBgn0027655',
                                       'FB:FBgn0045035','RGD:68337', 'RGD:2332',
                                       'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
-                                      'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795',
-                                      'HGNC:11291','RGD:1593265', 'RGD:1559787']
-                      AND (NOT (g.automatedGeneSynopsis =~ '.*xhibits.*'
-                               OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
-                               OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
-                               OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
-                               OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')
-                          OR NOT (g.automatedGeneSynopsis =~ '.*sed to study.*'
-                                  OR g.automatedGeneSynopsis =~ '.*mplicated in.*'))
-                RETURN count(g) AS counter"""
+                                      'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
+                                      'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
+                                      'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
+                                      'ZFIN:ZDB-GENE-990415-131']
+               AND (NOT (g.automatedGeneSynopsis =~ '.*xhibits.*'
+                         OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
+                         OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
+                         OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
+                         OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')
+                    OR NOT (g.automatedGeneSynopsis =~ '.*sed to study.*'
+                            OR g.automatedGeneSynopsis =~ '.*mplicated in.*'))
+              RETURN COUNT(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 0
@@ -1023,6 +1024,56 @@ def test_mi_term_has_corrected_url():
                WHERE o.primaryKey = 'MI:0465'
                      AND o.url = 'http://dip.doe-mbi.ucla.edu/'
                RETURN count(o) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_rgd_dej_has_rgd_full_url_cross_reference():
+    """Test RGD DEJ has RGD full URL Cross Reference"""
+
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+               WHERE g.primaryKey = 'RGD:2004'
+                   AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=2004#annot'
+               RETURN COUNT(DISTINCT(cr)) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_vep_transcript_consequence_has_cdna_start_end_range():
+    """Test VEP Transcript Consequence has cDNA start end range"""
+
+    query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
+                AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
+                AND tc.cdnaStartPosition IS NOT NULL
+                AND tc.cdsStartPosition IS NOT NULL
+                AND tc.aminoAcidReference IS NOT NULL
+                and tc.proteinStartPosition IS NOT NULL
+                AND tc.aminoAcidVariation IS NOT NULL
+                RETURN COUNT(tc) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+# please retain this code for testing purposes.
+#def test_node_count_is_consistently_growing():
+    # this file is generated in node_count_etl and represents the node labels that have fewer
+    # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
+    # as based on the DB-SUMMARY file produced by the file generator.
+#    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0
+
+
+def test_variant_consequence_has_codon_change():
+    """Test Variant Consequence has Codon Change"""
+
+    query = """ MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A'
+                AND t.primaryKey = 'ENSEMBL:ENSDART00000111806'
+                AND tc.codonChange IS NOT NULL
+                RETURN COUNT(tc) AS counter
+    """
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0

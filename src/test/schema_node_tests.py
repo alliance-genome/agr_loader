@@ -69,7 +69,6 @@ class TestClass():
                              dict(node='SequenceTargetingReagent'),
                              dict(node='BioEntityGeneExpressionJoin'),
                              dict(node='InteractionGeneJoin'),
-                             #dict(node='GenomicLocationBin'),
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
@@ -85,7 +84,8 @@ class TestClass():
                              dict(node='GenomicLocation'),
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
-                             dict(node='Transcript')
+                             dict(node='Transcript'),
+                             dict(node='Exon')
                              ],
 
         'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
@@ -99,9 +99,6 @@ class TestClass():
                             dict(node='Gene', prop='modGlobalId'),
                             dict(node='Gene', prop='uuid'),
                             dict(node='Gene', prop='symbolWithSpecies'),
-                            #dict(node='GenomicLocationBin', prop='primaryKey'),
-                            #dict(node='GenomicLocationBin', prop='assembly'),
-                            #dict(node='GenomicLocationBin', prop='number'),
                             dict(node='GOTerm', prop='primaryKey'),
                             dict(node='Gene', prop='dataProvider'),
                             dict(node='AffectedGenomicModel', prop='primaryKey'),
@@ -109,7 +106,6 @@ class TestClass():
                             dict(node='AffectedGenomicModel', prop='nameText'),
                             dict(node='AffectedGenomicModel', prop='nameTextWithSpecies'),
                             dict(node='AffectedGenomicModel', prop='nameWithSpecies'),
-                            #dict(node='SOTerm', prop='name'),
                             dict(node='SOTerm', prop='primaryKey'),
                             dict(node='DOTerm', prop='doPrefix'),
                             dict(node='DOTerm', prop='doId'),
@@ -147,8 +143,6 @@ class TestClass():
                             dict(node='Association', prop='primaryKey'),
                             dict(node='Phenotype', prop='primaryKey'),
                             dict(node='Phenotype', prop='phenotypeStatement'),
-                            #dict(node='Publication', prop='pubMedId'),
-                            #dict(node='Publication', prop='pubModId'),
                             dict(node='Publication', prop='primaryKey'),
                             dict(node='Allele', prop='primaryKey'),
                             dict(node='Allele', prop='symbol'),
@@ -170,9 +164,26 @@ class TestClass():
                             dict(node='GenomicLocation', prop='chromosome'),
                             dict(node='GenomicLocation', prop='assembly'),
                             dict(node='GeneLevelConsequence', prop='geneLevelConsequence'),
-                            dict(node='TranscriptLevelConsequence',
-                                 prop='transcriptLevelConsequence'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidReference'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidVariation'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidChange'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaRange'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsRange'),
+                            dict(node='TranscriptLevelConsequence', prop='codonReference'),
+                            dict(node='TranscriptLevelConsequence', prop='codonVariation'),
+                            dict(node='TranscriptLevelConsequence', prop='codonChange'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinRange'),
+                            dict(node='Transcript', prop='primaryKey'),
+                            dict(node='Transcript', prop='gff3ID'),
+                            dict(node='Transcript', prop='name')
                             ],
+
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
                                dict(node='AffectedGenomicModel', prop='name'),
@@ -188,11 +199,7 @@ class TestClass():
                                dict(node='Gene', prop='modGlobalId'),
                                dict(node='Gene', prop='uuid'),
                                dict(node='Gene', prop='dataProvider'),
-                               #dict(node='GenomicLocationBin', prop='primaryKey'),
-                               #dict(node='GenomicLocationBin', prop='assembly'),
-                               #dict(node='GenomicLocationBin', prop='number'),
                                dict(node='GOTerm', prop='primaryKey'),
-                               #dict(node='SOTerm', prop='name'),
                                dict(node='SOTerm', prop='primaryKey'),
                                dict(node='DOTerm', prop='doPrefix'),
                                dict(node='DOTerm', prop='doId'),
@@ -226,7 +233,6 @@ class TestClass():
                                dict(node='Phenotype', prop='phenotypeStatement'),
                                dict(node='Association', prop='joinType'),
                                dict(node='Association', prop='primaryKey'),
-                               #dict(node='Publication', prop='pubMedId'),
                                dict(node='Publication', prop='primaryKey'),
                                dict(node='Allele', prop='primaryKey'),
                                dict(node='Allele', prop='symbol'),
@@ -251,16 +257,12 @@ class TestClass():
         'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),
-                             #dict(node='GenomicLocationBin', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                             # dict(node='Chromosome', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
                              dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
-                             # Commenting out until we have a fix for UBERON
-                             # dict(node='Synonym', prop='primaryKey'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),
                              dict(node='GOTerm', prop='primaryKey'),
@@ -273,21 +275,11 @@ class TestClass():
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
                              dict(node='Variant', prop='hgvsNomenclature'),
-                             # with uberon, this can not be unique any longer, unless
-                             # every term is just 'ontology' not ontology-specific node labels.
-                             # dict(node='Ontology', prop='primaryKey'),
-                             # TODO refactor ontology transaction to use id prefix to name
-                             # node labels so we can turn this back on
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]
     }
 
-    # Query to return all distinct properties from all nodes of a certain type:
-    # MATCH (n:Gene)
-    # WITH DISTINCT keys(n) AS keys UNWIND keys AS keyslisting
-    # WITH DISTINCT keyslisting AS allfields
-    # RETURN allfields;
 
     @staticmethod
     def test_node_exists(node):
@@ -295,7 +287,6 @@ class TestClass():
 
         query = '''MATCH (n:%s)
                    RETURN DISTINCT COUNT(n) AS count''' % node
-
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0

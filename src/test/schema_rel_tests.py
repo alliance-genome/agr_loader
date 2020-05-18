@@ -10,8 +10,6 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames] \
                                      for funcargs in funcarglist])
 
-# MATCH (n)-[r]-(m) RETURN DISTINCT labels(n), labels(m);
-
 
 class TestClass():
     '''Test Class'''
@@ -27,11 +25,11 @@ class TestClass():
                             dict(node1='Ontology:DOTerm', node2='DiseaseEntityJoin:Association'),
                             dict(node1='Identifier:Synonym', node2='Ontology:DOTerm'),
                             dict(node1='Identifier:CrossReference', node2='Ontology:DOTerm'),
+                            dict(node1='Ontology', node2='SecondaryId'),
                             dict(node1='Gene', node2='Identifier:Synonym'),
                             dict(node1='Gene', node2='Identifier:SecondaryId'),
                             dict(node1='Gene', node2='CrossReference'),
                             dict(node1='Gene', node2='Species'),
-                            #dict(node1='Gene', node2='GenomicLocationBin'),
                             dict(node1='Load', node2='Gene'),
                             dict(node1='Allele', node2='Species'),
                             dict(node1='Allele', node2='Synonym'),

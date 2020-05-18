@@ -80,6 +80,16 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2) """
 
+    goterm_secondary_template = """
+         USING PERIODIC COMMIT %s
+         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (got:GOTerm {primaryKey:row.primary_id})
+
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+    
+            MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec) """
+
 
     def __init__(self, config):
         super().__init__()
@@ -109,7 +119,9 @@ class GOETL(ETL):
             [self.goterm_negatively_regulates_query_template, commit_size,
              "go_negatively_regulates_data.csv"],
             [self.goterm_positively_regulates_query_template, commit_size,
-             "go_positively_regulates_data.csv"]
+             "go_positively_regulates_data.csv"],
+            [self.goterm_secondary_query_template, commit_size,
+             "goterm_secondary_data.csv"]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)
@@ -130,10 +142,11 @@ class GOETL(ETL):
         go_regulates_list = []
         go_negatively_regulates_list = []
         go_positively_regulates_list = []
+        go_altids_list = []
         counter = 0
 
         # Convert parsed obo term into a schema-friendly AGR dictionary.
-        for key, line in parsed_line.items():
+        for key in parsed_line.items():
             counter = counter + 1
             node = ont.graph.node[key]
             if len(node) == 0:
@@ -158,20 +171,32 @@ class GOETL(ETL):
                     val = property_value_map['val']
                     if pred == 'OIO:hasOBONamespace':
                         term_type = val
+
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
                     for synonym in syns:
                         go_synonym = {
                             "primary_id": key,
-                            "synonym": synonym
-                        }
+                            "synonym": synonym}
                         go_synonyms_list.append(go_synonym)
+
+                if "basicPropertyValues" in node["meta"]:
+                    alt_ids = [s["val"] for s in node["meta"]["basicPropertyValues"]]
+                    for alt_id in alt_ids:
+                        if "GO:" in alt_id:
+                            secondary_id = {
+                                "primary_id": key,
+                                "secondary_id": alt_id}
+                            go_altids_list.append(secondary_id)
+
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
                     is_obsolete = "true"
+
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
+
                 if "subsets" in node["meta"]:
                     new_subset = node['meta'].get('subsets')
                     if isinstance(new_subset, (list, tuple)):
@@ -179,6 +204,7 @@ class GOETL(ETL):
                     else:
                         if new_subset is not None:
                             subset.append(new_subset)
+
                 if len(subset) > 1:
                     converted_subsets = []
                     for subset_str in subset:
@@ -254,7 +280,9 @@ class GOETL(ETL):
                        go_synonyms_list,
                        go_regulates_list,
                        go_negatively_regulates_list,
-                       go_positively_regulates_list]
+                       go_positively_regulates_list,
+                       go_altids_list]
+
                 go_term_list = []
                 go_isas_list = []
                 go_partofs_list = []
@@ -262,6 +290,7 @@ class GOETL(ETL):
                 go_regulates_list = []
                 go_negatively_regulates_list = []
                 go_positively_regulates_list = []
+                go_altids_list = []
                 counter = 0
 
         if counter > 0:
@@ -271,4 +300,5 @@ class GOETL(ETL):
                    go_synonyms_list,
                    go_regulates_list,
                    go_negatively_regulates_list,
-                   go_positively_regulates_list]
+                   go_positively_regulates_list,
+                   go_altids_list]

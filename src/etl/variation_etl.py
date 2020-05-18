@@ -23,7 +23,7 @@ class VariationETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Allele:Feature {primaryKey: row.alleleId})
+                MATCH (a:Allele {primaryKey: row.alleleId})
                 MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
                 
                 //Create the variant node and set properties. primaryKey is required.
@@ -47,8 +47,8 @@ class VariationETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:Variant {primaryKey:row.variantId})
-            MATCH (s:SOTerm:Ontology {primaryKey:row.soTermId})
-            MERGE (o)-[:VARIATION_TYPE]->(s)"""
+            MATCH (s:SOTerm {primaryKey:row.soTermId})
+            CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
 
     genomic_locations_query_template = """
@@ -57,20 +57,20 @@ class VariationETL(ETL):
 
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
-
-            MERGE (o)-[gchrm:LOCATED_ON]->(chrm)
-            MERGE (a:Assembly {primaryKey:row.assembly})
+            MATCH (a:Assembly {primaryKey:row.assembly})
             
-            MERGE (gchrmn:GenomicLocation {primaryKey:row.uuid})
+            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+
+            CREATE (gchrmn:GenomicLocation {primaryKey:row.uuid})
               SET gchrmn.start = apoc.number.parseInt(row.start),
                 gchrmn.end = apoc.number.parseInt(row.end),
                 gchrmn.assembly = row.assembly,
                 gchrmn.strand = row.strand,
                 gchrmn.chromosome = row.chromosome
                 
-            MERGE (o)-[of:ASSOCIATION]-(gchrmn)
-            MERGE (gchrmn)-[ofc:ASSOCIATION]-(chrm)"""
-
+            CREATE (o)-[of:ASSOCIATION]->(gchrmn)
+            CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
+    """
 
     xrefs_query_template = """
 
