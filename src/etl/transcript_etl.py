@@ -55,7 +55,7 @@ class TranscriptETL(ETL):
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             CREATE (a)-[ao:ASSOCIATION]->(o)"""
 
-    tscript_alternate_id_query_template = """
+    transcript_alternate_id_query_template = """
             USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
@@ -131,13 +131,13 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.tscript_alternate_id_query_template, commit_size,
+            [self.transcript_alternate_id_query_template, commit_size,
              "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.tscript_query_template, commit_size,
+            [self.transcript_query_template, commit_size,
              "transcript_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_template, commit_size,
+            [self.chromosomes_query_template, commit_size,
              "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_template, commit_size,
+            [self.genomic_locations_query_template, commit_size,
              "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
             [self.exon_query_template, commit_size,
              "exon_data_" + sub_type.get_data_provider() + ".csv"],
@@ -158,7 +158,7 @@ class TranscriptETL(ETL):
 
         with open(filepath) as file_handle:
             transcript_maps = []
-            gene_maps =[]
+            gene_maps = []
             exon_maps = []
             counter = 0
             data_provider = ''
@@ -225,13 +225,16 @@ class TranscriptETL(ETL):
 
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
                             # transcript: ID=MGI_C57BL6J_3588256_transcript_1
-                            # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+
+                                if self.test_object.using_test_data() is True:
+  
+                                    is_it_test_entry = self.test_object.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
                                         is_it_test_entry = self.test_object \
                                                                .check_for_test_id_entry(parent)
                                         if is_it_test_entry is False:
-                                            is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                                            is_it_test_entry = self.test_object.check_for_test_id_entry(gene_id)
 
                                             if is_it_test_entry is True:
                                                 counter = counter - 1
@@ -251,7 +254,7 @@ class TranscriptETL(ETL):
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcript_map.update({'assembly': assembly})
-                            tscript_maps.append(transcript_map)
+                            transcript_maps.append(transcript_map)
                         elif feature_type_name == 'gene':
                             gene_map.update({'curie': curie})
                             gene_map.update({'parentId': parent})
@@ -271,7 +274,7 @@ class TranscriptETL(ETL):
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 exon_map.update({'assembly': assembly})
-                            exonMaps.append(exon_map)
+                            exon_maps.append(exon_map)
                         else:
                             continue
 

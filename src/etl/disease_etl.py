@@ -283,8 +283,8 @@ class DiseaseETL(ETL):
         for disease_record in disease_data['data']:
 
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(disease_record.get('objectId'))
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(disease_record.get('objectId'))
                 if is_it_test_entry is False:
                     continue
 
@@ -298,8 +298,8 @@ class DiseaseETL(ETL):
             do_id = disease_record.get('DOid')
 
 
-            if 'qualifier' in disease_record:
-                qualifier = disease_record.get('qualifier')
+            if 'negation' in disease_record:
+                qualifier = disease_record.get('negation')
             else:
                 if 'evidence' in disease_record:
                     pecj_primary_key = str(uuid.uuid4())
@@ -337,7 +337,9 @@ class DiseaseETL(ETL):
                             component_id = component.get('componentId')
                             component_url = component.get('componentUrl') + component_id
                             additional_genetic_components.append(
-                                {"id": component_id, "componentUrl": component_url, "componentSymbol": component_symbol}
+                                {"id": component_id,
+                                 "componentUrl": component_url,
+                                 "componentSymbol": component_symbol}
                             )
 
 
@@ -370,8 +372,12 @@ class DiseaseETL(ETL):
                         cross_ref_id = xref.get('id')
                         pages = xref.get('pages')
 
-                        local_crossref_id = ""
-                        prefix = cross_ref_id
+                        if ":" in cross_ref_id:
+                            local_crossref_id = cross_ref_id.split(":")[1]
+                            prefix = cross_ref_id.split(":")[0]
+                        else:
+                            local_crossref_id = ""
+                            prefix = cross_ref_id
 
                         if annotation_type is None:
                             annotation_type = 'curated'
@@ -380,43 +386,14 @@ class DiseaseETL(ETL):
                             for page in pages:
                                 # TODO: get the DQMs to restructure this so that we get a global id here instead of
                                 # RGD
-                                if page == 'homepage' and cross_ref_id == 'RGD':
-
-                                    local_crossref_id = primary_id.split(":")[1]
-
-                                    cross_ref_id = primary_id
-                                    prefix = primary_id.split(":")[0]
-                                    if prefix == 'RGD':
-                                        page = 'disease/rat'
-                                    else:
-                                        page = 'disease/human'
-
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xrefUrlMap, prefix,
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                              self.xref_url_map, prefix,
                                                                                               page)
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           'RGD',
-                                                                           mod_global_cross_ref_id,
-                                                                           cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
-                                elif page == 'homepage' and cross_ref_id == 'OMIM':
-                                    # remove the link for OMIM homepage for now.
-                                    mod_global_cross_ref_id = ""
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           'OMIM',
-                                                                           mod_global_cross_ref_id,
-                                                                           cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
-
-                                else:
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                              self.xrefUrlMap, prefix,
-                                                                                              page)
-                                    passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
+                                passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
                                                                            cross_ref_id,
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
-                                    passing_xref['dataId'] = disease_unique_key
+                                passing_xref['dataId'] = disease_unique_key
 
                                 if 'loaded' in annotation_type:
                                     passing_xref['loadedDB'] = 'true'
@@ -447,15 +424,15 @@ class DiseaseETL(ETL):
                     agm_list_to_yield.append(disease_record)
 
                 if counter == batch_size:
-                    yield [allele_list_to_yield, 
-                          gene_list_to_yield,
-                          agm_list_to_yield,
-                          pge_list_to_yield,
-                          pge_list_to_yield,
-                          pge_list_to_yield,
-                          withs,
-                          evidence_code_list_to_yield,
-                          xrefs]
+                    yield [allele_list_to_yield,
+                           gene_list_to_yield,
+                           agm_list_to_yield,
+                           pge_list_to_yield,
+                           pge_list_to_yield,
+                           pge_list_to_yield,
+                           withs,
+                           evidence_code_list_to_yield,
+                           xrefs]
                     agm_list_to_yield = []
                     allele_list_to_yield = []
                     gene_list_to_yield = []
