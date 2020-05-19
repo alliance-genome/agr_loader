@@ -96,6 +96,7 @@ services:
     entrypoint:
       - pytest
       - --verbose
+      - -n=3
 
 networks:
   esnet:
