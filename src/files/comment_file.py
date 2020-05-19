@@ -1,12 +1,18 @@
-class CommentFile(object):
-    def __init__(self, f, commentstring="#"):
-        self.f = f
+'''Comment File'''
+
+class CommentFile():
+    '''Comment File'''
+
+    def __init__(self, file_handle, commentstring="#"):
+        self.file_handle = file_handle
         self.commentstring = commentstring
 
     def next(self):
-        line = self.f.next()
+        '''next'''
+
+        line = self.file_handle.next()
         while line.startswith(self.commentstring):
-            line = self.f.next()
+            line = self.file_handle.next()
         return line
 
     def __iter__(self):

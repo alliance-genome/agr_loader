@@ -1,3 +1,5 @@
+'''VEP Transcript ETL'''
+
 import logging
 import multiprocessing
 import uuid
@@ -8,10 +10,13 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
+class VEPTranscriptETL(ETL):
+    '''VEP Transcript ETL'''
 
+    logger = logging.getLogger(__name__)
 
-class VEPTRANSCRIPTETL(ETL):
+    # Query templates which take params and will be processed later
+
     vep_transcript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -64,30 +69,32 @@ class VEPTRANSCRIPTETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-        logger.info("Loading VEP Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading VEP Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [VEPTRANSCRIPTETL.vep_transcript_query_template, commit_size, "vep_transcript_data_" + sub_type.get_data_provider() + ".csv"]
+        query_template_list = [
+            [self.vep_transcript_query_template, commit_size,
+             "vep_transcript_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath):
+        '''Get Generators'''
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
@@ -100,6 +107,19 @@ class VEPTRANSCRIPTETL(ETL):
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
+
+            notes = columns[13]
+            kvpairs = notes.split(";")
+            if kvpairs is not None:
+                for pair in kvpairs:
+                    key = pair.split("=")[0]
+                    value = pair.split("=")[1]
+                    if key == 'IMPACT':
+                        impact = value
+            if columns[3].startswith('Gene:'):
+                gene_id = columns[3].lstrip('Gene:')
+            elif columns[3].startswith('RGD:'):
+                gene_id = columns[3].lstrip('RGD:')
             else:
                 notes = columns[13]
                 kvpairs = notes.split(";")
@@ -118,11 +138,11 @@ class VEPTRANSCRIPTETL(ETL):
                         if key == 'HGVSg':
                             hgvs_g = value
                 if columns[3].startswith('Gene:'):
-                    geneId = columns[3].lstrip('Gene:')
+                    gene_id = columns[3].lstrip('Gene:')
                 elif columns[3].startswith('RGD:'):
-                    geneId = columns[3].lstrip('RGD:')
+                    gene_id = columns[3].lstrip('RGD:')
                 else:
-                    geneId = columns[3]
+                    gene_id = columns[3]
 
                 position_is_a_range = re.compile('[0-9]+-[0-9]+')
                 cdna_range_match = re.search(position_is_a_range, columns[7])
@@ -211,7 +231,7 @@ class VEPTRANSCRIPTETL(ETL):
                               "hgvsProteinNomenclature": hgvs_p,
                               "hgvsCodingNomenclature": hgvs_c,
                               "hgvsVEPGeneNomenclature": hgvs_g,
-                              "gene": geneId,
+                              "gene": gene_id,
                               "transcriptId": columns[4],
                               "aminoAcidReference": amino_acid_reference,
                               "aminoAcidVariation": amino_acid_variation,
@@ -232,4 +252,3 @@ class VEPTRANSCRIPTETL(ETL):
                 vep_maps.append(vep_result)
 
         yield [vep_maps]
-

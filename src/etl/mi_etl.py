@@ -1,17 +1,21 @@
-import urllib, json
+'''Molecular Interaction ETL'''
+
 import logging
-from etl.helpers import ETLHelper, OBOHelper
-from files import TXTFile
+
 from etl import ETL
+from etl.helpers import OBOHelper
+from files import TXTFile
 from transactors import CSVTransactor, Neo4jTransactor
-
-logger = logging.getLogger(__name__)
-
 
 
 class MIETL(ETL):
+    '''MI ETL'''
 
-    query_template = """
+    logger = logging.getLogger(__name__)
+
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -31,14 +35,17 @@ class MIETL(ETL):
         filepath = self.data_type_config.get_single_filepath()
         generators = self.get_generators(filepath)
 
-        query_list = [[MIETL.query_template, 10000, "mi_term_data.csv"]]
+        query_template_list = [[self.main_query_template, 10000, "mi_term_data.csv"]]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        
+
+
     @staticmethod
     def add_miterm_url(identifier):
+        '''Add MI Term URL'''
+
         mi_term_url_dict = {
             'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
             'MI:0469' : 'http://www.ebi.ac.uk/intact',
@@ -62,6 +69,8 @@ class MIETL(ETL):
 
     @staticmethod
     def adjust_database_names(name):
+        '''Adjust database names'''
+
         mi_database_name_dict = {
             'flybase': 'FlyBase',
             'wormbase': 'WormBase',
@@ -87,15 +96,18 @@ class MIETL(ETL):
 
     @staticmethod
     def add_definition(term):
+        '''Add definition'''
+
         try:
             return term['annotation']['definition'][0]
         except KeyError:
             return None
 
     def get_generators(self, filepath):
+        '''Create Genrators'''
 
         o_data = TXTFile(filepath).get_data()
-        parsed_line = OBOHelper.parseOBO(o_data)
+        parsed_line = OBOHelper.parse_obo(o_data)
 
         processed_mi_list = []
 
@@ -108,17 +120,19 @@ class MIETL(ETL):
             if definition is None:
                 definition = ""
             else:
-                if "\\\"" in definition:  # Looking to remove instances of \" in the definition string.
-                    definition = definition.replace('\\\"', '\"')  # Replace them with just a single "
-            if definition is None:
-                definition = ""
+                # Looking to remove instances of \" in the definition string.
+                if "\\\"" in definition:
+                    # Replace them with just a single "
+                    definition = definition.replace('\\\"', '\"')
+                if definition is None:
+                    definition = ""
 
             is_obsolete = line.get('is_obsolete')
             if is_obsolete is None:
                 is_obsolete = "false"
 
             if ident is None or ident == '':
-                logger.warn("Missing oid.")
+                self.logger.warning("Missing oid.")
 
             else:
                 dict_to_append = {

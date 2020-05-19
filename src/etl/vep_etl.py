@@ -1,16 +1,22 @@
+'''VEP ETL'''
+
 import logging
 import multiprocessing
-import uuid
 from etl import ETL
 from files import TXTFile
 
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class VEPETL(ETL):
+    '''VEP ETL'''
+
+
+    logger = logging.getLogger(__name__)
+
+    # Query templates which take params and will be processed later
+
     vep_gene_query_template = """
                USING PERIODIC COMMIT %s
                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -37,30 +43,33 @@ class VEPETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-        logger.info("Loading VEP Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading VEP Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [VEPETL.vep_gene_query_template, commit_size, "vep_gene_data_" + sub_type.get_data_provider() + ".csv"]
+        query_template_list = [
+            [self.vep_gene_query_template, commit_size,
+             "vep_gene_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, filepath):
+    @staticmethod
+    def get_generators(filepath):
+        '''Get Generators'''
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
@@ -70,28 +79,27 @@ class VEPETL(ETL):
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
-            else:
-                notes = columns[13]
-                kvpairs = notes.split(";")
-                if kvpairs is not None:
-                    for pair in kvpairs:
-                        key = pair.split("=")[0]
-                        value = pair.split("=")[1]
-                        if key == 'IMPACT':
-                            impact = value
-                if columns[3].startswith('Gene:'):
-                    geneId = columns[3].lstrip('Gene:')
-                elif columns[3].startswith('RGD:'):
-                    geneId = columns[3].lstrip('RGD:')
-                else:
-                    geneId = columns[3]
 
-                vep_result = {"hgvsNomenclature": columns[0],
-                              "geneLevelConsequence": columns[6],
-                              "primaryKey": columns[0]+columns[6]+impact+geneId,
-                              "impact": impact,
-                              "geneId":geneId}
-                vep_maps.append(vep_result)
+            notes = columns[13]
+            kvpairs = notes.split(";")
+            if kvpairs is not None:
+                for pair in kvpairs:
+                    key = pair.split("=")[0]
+                    value = pair.split("=")[1]
+                    if key == 'IMPACT':
+                        impact = value
+            if columns[3].startswith('Gene:'):
+                gene_id = columns[3].lstrip('Gene:')
+            elif columns[3].startswith('RGD:'):
+                gene_id = columns[3].lstrip('RGD:')
+            else:
+                gene_id = columns[3]
+
+            vep_result = {"hgvsNomenclature": columns[0],
+                          "geneLevelConsequence": columns[6],
+                          "primaryKey": columns[0] + columns[6] + impact + gene_id,
+                          "impact": impact,
+                          "geneId":gene_id}
+            vep_maps.append(vep_result)
 
         yield [vep_maps]
-
