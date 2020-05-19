@@ -25,12 +25,11 @@ class NodeCountETL(ETL):
         for current_db_node in current_datastore_generators:
             if current_db_node in production_datastore_generators:
                 if self.testObject.using_test_data() is False:
-                    if int(current_datastore_generators[current_db_node]) < int(production_datastore_generators[current_db_node]):
-                        logger.warn("Node name: " + current_db_node + " current: "
+                    logger.warn("Node name: " + current_db_node + " current: "
                                                     + str(current_datastore_generators[current_db_node])
                                                     + " prod: "
                                                     + str(production_datastore_generators[current_db_node]))
-                        file.write(current_db_node)
+                    file.write(current_db_node)
 
 
     def get_generators(self, filepath):
