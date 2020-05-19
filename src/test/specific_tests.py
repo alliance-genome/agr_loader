@@ -112,11 +112,11 @@ def test_mods_have_gene_expression_atlas_link():
 def test_xref_complete_url_is_formatted():
     '''Test XREF Complete URL is Formatted'''
 
-    query = """"MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
-                AND cr.crossRefType <> 'interaction'
-                AND (cr.crossRefType <> 'homepage' AND cr.displayName = 'OMIM')
-                AND cr.crossRefType <> 'ontology_provided_cross_reference' 
-                RETURN count(cr) AS counter"""
+    query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
+               AND cr.crossRefType <> 'interaction'
+               AND (cr.crossRefType <> 'homepage' AND cr.displayName = 'OMIM')
+               AND cr.crossRefType <> 'ontology_provided_cross_reference'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
@@ -161,7 +161,7 @@ def test_gene_has_all_three_automated_description_components():
     '''Test Gene has All Three Automated Description Components'''
 
     query = """MATCH (g:Gene)
-               WHERE g.primaryKey IN ['SGD:S000002536', "'FB:FBgn0027655',
+               WHERE g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655',
                                       'FB:FBgn0045035','RGD:68337', 'RGD:2332',
                                       'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
                                       'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',

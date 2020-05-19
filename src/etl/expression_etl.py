@@ -340,7 +340,7 @@ class ExpressionETL(ETL):
             [self.eas_substructure_query_template, commit_size,
              "expression_eas_substructure_" + sub_type.get_data_provider() + ".csv"],
             [self.eass_qualified_query_template, commit_size,
-             "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
+             "expression_eass_qualified_" + sub_type.get_data_provider() + ".csv"],
             [self.ccq_expression_query_template, commit_size,
              "expression_ccq_expression_" + sub_type.get_data_provider() + ".csv"],
             [self.stage_expression_query_template, commit_size,

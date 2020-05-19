@@ -312,7 +312,6 @@ class AlleleETL(ETL):
             symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
 
             if gene_id != '' and construct_id != '':
-                self.logger.info(gene_id)
                 allele_construct_gene_dataset = {
                     "symbol": allele_record.get('symbol'),
                     "geneId": gene_id,
