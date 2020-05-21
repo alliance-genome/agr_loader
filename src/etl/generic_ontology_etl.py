@@ -195,38 +195,42 @@ class GenericOntologyETL(ETL):
             if o_is_as is not None:
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
-                        isa_without_name = isa.split(' ')[0].strip()
-                        isas_dict_to_append = {
-                            'oid' : ident,
-                            'isa' : isa_without_name}
-                        isas.append(isas_dict_to_append)
+                        if 'gci_filler=' not in isa:
+                            isa_without_name = isa.split(' ')[0].strip()
+                            isas_dict_to_append = {
+                                'oid' : ident,
+                                'isa' : isa_without_name}
+                            isas.append(isas_dict_to_append)
                 else:
-                    isa_without_name = o_is_as.split(' ')[0].strip()
-                    isas_dict_to_append = {'oid' : ident,
-                                           'isa' : isa_without_name}
-                    isas.append(isas_dict_to_append)
+                    if 'gci_filler=' not in o_is_as:
+                        isa_without_name = o_is_as.split(' ')[0].strip()
+                        isas_dict_to_append = {'oid' : ident,
+                                               'isa' : isa_without_name}
+                        isas.append(isas_dict_to_append)
 
             # part_of processing
             relations = line.get('relationship')
             if relations is not None:
                 if isinstance(relations, (list, tuple)):
                     for partof in relations:
-                        relationship_descriptors = partof.split(' ')
+                        if 'gci_filler=' not in partof:
+                            relationship_descriptors = partof.split(' ')
+                            o_part_of = relationship_descriptors[0]
+                            if o_part_of == 'part_of':
+                                partof_dict_to_append = {
+                                    'oid': ident,
+                                    'partof': relationship_descriptors[1]
+                                }
+                                partofs.append(partof_dict_to_append)
+                else:
+                    if 'gci_filler=' not in relations:
+                        relationship_descriptors = relations.split(' ')
                         o_part_of = relationship_descriptors[0]
                         if o_part_of == 'part_of':
                             partof_dict_to_append = {
-                                'oid': ident,
-                                'partof': relationship_descriptors[1]
-                            }
+                                'oid' : ident,
+                                'partof' : relationship_descriptors[1]}
                             partofs.append(partof_dict_to_append)
-                else:
-                    relationship_descriptors = relations.split(' ')
-                    o_part_of = relationship_descriptors[0]
-                    if o_part_of == 'part_of':
-                        partof_dict_to_append = {
-                            'oid' : ident,
-                            'partof' : relationship_descriptors[1]}
-                        partofs.append(partof_dict_to_append)
 
             definition = line.get('def')
             if definition is None:
