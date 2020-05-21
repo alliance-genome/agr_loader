@@ -188,60 +188,60 @@ class AlleleETL(ETL):
 
     def get_generators(self, allele_data, data_provider, batch_size):
 
-        dataProviders = []
+        data_providers = []
         release = ""
         alleles_no_constrcut_no_gene = []
         alleles_construct_gene = []
         alleles_no_construct = []
         alleles_no_gene = []
         allele_synonyms = []
-        allele_secondaryIds = []
-        crossReferenceList = []
+        allele_secondary_ids = []
+        cross_reference_list = []
 
         counter = 0
-        dateProduced = allele_data['metaData']['dateProduced']
+        date_produced = allele_data['metaData']['dateProduced']
 
-        dataProviderObject = allele_data['metaData']['dataProvider']
+        data_provider_object = allele_data['metaData']['dataProvider']
 
-        dataProviderCrossRef = dataProviderObject.get('crossReference')
-        dataProvider = dataProviderCrossRef.get('id')
-        dataProviderPages = dataProviderCrossRef.get('pages')
-        dataProviderCrossRefSet = []
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        loadKey = dateProduced + dataProvider + "_ALLELE"
+        loadKey = date_produced + data_provider + "_ALLELE"
 
         # TODO: get SGD to fix their files.
 
-        if dataProviderPages is not None:
-            for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xref_url_map, dataProvider,
-                                                                      dataProviderPage)
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider, self.xref_url_map, data_provider,
+                                                                      data_provider_page)
 
-                dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                       dataProviderPage, dataProvider,
-                                                                       crossRefCompleteUrl,
-                                                                       dataProvider + dataProviderPage))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
+                                                                       data_provider_page, data_provider,
+                                                                       cross_ref_complete_url,
+                                                                       data_provider + data_provider_page))
 
-                dataProviders.append(dataProvider)
-                logger.info("data provider: " + dataProvider)
+                data_providers.append(data_provider)
+                logger.info("data provider: " + data_provider)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
 
-        for alleleRecord in allele_data['data']:
+        for allele_record in allele_data['data']:
             counter = counter + 1
-            globalId = alleleRecord['primaryId']
+            global_id = allele_record['primaryId']
             # fixing parsing error on this end while MGI fixes on their end.
-            if globalId == 'MGI:3826848':
-                description = alleleRecord.get('description')[:-2]
+            if global_id == 'MGI:3826848':
+                description = allele_record.get('description')[:-2]
             else:
-                description = alleleRecord.get('description')
+                description = allele_record.get('description')
 
-            localId = globalId.split(":")[1]
-            modGlobalCrossRefId = ""
+            local_id = global_id.split(":")[1]
+            mod_global_cross_ref_id = ""
 
             if self.test_object.using_test_data() is True:
-                is_it_test_entry = self.test_object.check_for_test_id_entry(globalId)
+                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
@@ -250,11 +250,11 @@ class AlleleETL(ETL):
             construct_id = ''
             association_type = ''
 
-            shortSpeciesAbbreviation = ETLHelper.get_short_species_abbreviation(alleleRecord.get('taxonId'))
-            symbolText = TextProcessingHelper.cleanhtml(alleleRecord.get('symbol'))
+            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(allele_record.get('taxonId'))
+            symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
 
-            if alleleRecord.get('alleleObjectRelations') is not None:
-                for relation in alleleRecord.get('alleleObjectRelations'):
+            if allele_record.get('alleleObjectRelations') is not None:
+                for relation in allele_record.get('alleleObjectRelations'):
                     association_type = relation.get('objectRelation').get('associationType')
                     if relation.get('objectRelation').get('gene') is not None:
                         gene_id = relation.get('objectRelation').get('gene')
@@ -263,22 +263,22 @@ class AlleleETL(ETL):
 
                     if gene_id != '' and construct_id != '':
                         allele_construct_gene_dataset = {
-                            "symbol": alleleRecord.get('symbol'),
+                            "symbol": allele_record.get('symbol'),
                             "geneId": gene_id,
-                            "primaryId": alleleRecord.get('primaryId'),
-                            "globalId": globalId,
-                            "localId": localId,
-                            "taxonId": alleleRecord.get('taxonId'),
-                            "dataProviders": dataProviders,
-                            "dateProduced": dateProduced,
+                            "primaryId": allele_record.get('primaryId'),
+                            "globalId": global_id,
+                            "localId": local_id,
+                            "taxonId": allele_record.get('taxonId'),
+                            "dataProviders": data_providers,
+                            "dateProduced": date_produced,
                             "loadKey": loadKey,
                             "release": release,
-                            "modGlobalCrossRefId": modGlobalCrossRefId,
+                            "modGlobalCrossRefId": mod_global_cross_ref_id,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolText": symbolText,
+                            "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                            "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                            "symbolText": symbol_text,
                             "alleleDescription": description,
                             "constructId": construct_id,
                             "associationType": association_type
@@ -287,21 +287,21 @@ class AlleleETL(ETL):
 
                     elif construct_id != '' and gene_id == '':
                         allele_construct_no_gene_dataset = {
-                            "symbol": alleleRecord.get('symbol'),
-                            "primaryId": alleleRecord.get('primaryId'),
-                            "globalId": globalId,
-                            "localId": localId,
-                            "taxonId": alleleRecord.get('taxonId'),
-                            "dataProviders": dataProviders,
-                            "dateProduced": dateProduced,
+                            "symbol": allele_record.get('symbol'),
+                            "primaryId": allele_record.get('primaryId'),
+                            "globalId": global_id,
+                            "localId": local_id,
+                            "taxonId": allele_record.get('taxonId'),
+                            "dataProviders": data_providers,
+                            "dateProduced": date_produced,
                             "loadKey": loadKey,
                             "release": release,
-                            "modGlobalCrossRefId": modGlobalCrossRefId,
+                            "modGlobalCrossRefId": mod_global_cross_ref_id,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolText": symbolText,
+                            "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                            "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                            "symbolText": symbol_text,
                             "alleleDescription": description,
                             "constructId": construct_id,
                             "associationType": association_type
@@ -311,22 +311,22 @@ class AlleleETL(ETL):
 
                     elif gene_id != '' and construct_id == '':
                         allele_gene_no_construct_dataset = {
-                            "symbol": alleleRecord.get('symbol'),
+                            "symbol": allele_record.get('symbol'),
                             "geneId": gene_id,
-                            "primaryId": alleleRecord.get('primaryId'),
-                            "globalId": globalId,
-                            "localId": localId,
-                            "taxonId": alleleRecord.get('taxonId'),
-                            "dataProviders": dataProviders,
-                            "dateProduced": dateProduced,
+                            "primaryId": allele_record.get('primaryId'),
+                            "globalId": global_id,
+                            "localId": local_id,
+                            "taxonId": allele_record.get('taxonId'),
+                            "dataProviders": data_providers,
+                            "dateProduced": date_produced,
                             "loadKey": loadKey,
                             "release": release,
-                            "modGlobalCrossRefId": modGlobalCrossRefId,
+                            "modGlobalCrossRefId": mod_global_cross_ref_id,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolText": symbolText,
+                            "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                            "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                            "symbolText": symbol_text,
                             "alleleDescription": description,
                             "associationType": association_type
                         }
@@ -335,21 +335,21 @@ class AlleleETL(ETL):
 
                     elif gene_id == '' and construct_id == '':
                         allele_no_gene_no_construct_dataset = {
-                            "symbol": alleleRecord.get('symbol'),
-                            "primaryId": alleleRecord.get('primaryId'),
-                            "globalId": globalId,
-                            "localId": localId,
-                            "taxonId": alleleRecord.get('taxonId'),
-                            "dataProviders": dataProviders,
-                            "dateProduced": dateProduced,
+                            "symbol": allele_record.get('symbol'),
+                            "primaryId": allele_record.get('primaryId'),
+                            "globalId": global_id,
+                            "localId": local_id,
+                            "taxonId": allele_record.get('taxonId'),
+                            "dataProviders": data_providers,
+                            "dateProduced": date_produced,
                             "loadKey": loadKey,
                             "release": release,
-                            "modGlobalCrossRefId": modGlobalCrossRefId,
+                            "modGlobalCrossRefId": mod_global_cross_ref_id,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
-                            "symbolText": symbolText,
+                            "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                            "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                            "symbolText": symbol_text,
                             "alleleDescription": description,
                             "associationType": association_type
                         }
@@ -358,29 +358,29 @@ class AlleleETL(ETL):
 
             else:
                 allele_no_gene_no_construct_dataset = {
-                    "symbol": alleleRecord.get('symbol'),
-                    "primaryId": alleleRecord.get('primaryId'),
-                    "globalId": globalId,
-                    "localId": localId,
-                    "taxonId": alleleRecord.get('taxonId'),
-                    "dataProviders": dataProviders,
-                    "dateProduced": dateProduced,
+                    "symbol": allele_record.get('symbol'),
+                    "primaryId": allele_record.get('primaryId'),
+                    "globalId": global_id,
+                    "localId": local_id,
+                    "taxonId": allele_record.get('taxonId'),
+                    "dataProviders": data_providers,
+                    "dateProduced": date_produced,
                     "loadKey": loadKey,
                     "release": release,
-                    "modGlobalCrossRefId": modGlobalCrossRefId,
+                    "modGlobalCrossRefId": mod_global_cross_ref_id,
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": data_provider,
-                    "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
-                    "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
-                    "symbolText": symbolText,
+                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                    "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                    "symbolText": symbol_text,
                     "alleleDescription": description,
                     "associationType": association_type
                 }
                 alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)
 
-            if 'crossReferences' in alleleRecord:
+            if 'crossReferences' in allele_record:
 
-                for crossRef in alleleRecord['crossReferences']:
+                for crossRef in allele_record['crossReferences']:
                     crossRefId = crossRef.get('id')
                     local_crossref_id = crossRefId.split(":")[1]
                     prefix = crossRef.get('id').split(":")[0]
@@ -391,43 +391,43 @@ class AlleleETL(ETL):
                         for page in pages:
                             if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
                                     or page == 'transgene/references' or page == 'construct/references':
-                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
+                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                       self.xref_url_map, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                               modGlobalCrossRefId, crossRefId + page)
-                                xref['dataId'] = globalId
-                                crossReferenceList.append(xref)
+                                                               mod_global_cross_ref_id, crossRefId + page)
+                                xref['dataId'] = global_id
+                                cross_reference_list.append(xref)
 
-            if 'synonyms' in alleleRecord:
-                for syn in alleleRecord.get('synonyms'):
+            if 'synonyms' in allele_record:
+                for syn in allele_record.get('synonyms'):
                     allele_synonym = {
-                        "data_id": alleleRecord.get('primaryId'),
+                        "data_id": allele_record.get('primaryId'),
                         "synonym": syn.strip()
                     }
                     allele_synonyms.append(allele_synonym)
 
-            if 'secondaryIds' in alleleRecord:
-                for secondaryId in alleleRecord.get('secondaryIds'):
-                    allele_secondaryId = {
-                        "data_id": alleleRecord.get('primaryId'),
-                        "secondary_id": secondaryId
+            if 'secondaryIds' in allele_record:
+                for secondary_id in allele_record.get('secondaryIds'):
+                    allele_secondary_id = {
+                        "data_id": allele_record.get('primaryId'),
+                        "secondary_id": secondary_id
                     }
-                    allele_secondaryIds.append(allele_secondaryId)
+                    allele_secondary_ids.append(allele_secondary_id)
 
             if counter == batch_size:
                 yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
-                       allele_secondaryIds, allele_synonyms, crossReferenceList]
+                       allele_secondary_ids, allele_synonyms, cross_reference_list]
                 alleles_no_construct = []
                 alleles_construct_gene = []
                 alleles_no_gene = []
                 alleles_no_constrcut_no_gene = []
 
-                allele_secondaryIds = []
+                allele_secondary_ids = []
                 allele_synonyms = []
-                crossReferenceList = []
+                cross_reference_list = []
                 counter = 0
 
         if counter > 0:
             yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
-                   allele_secondaryIds, allele_synonyms, crossReferenceList]
+                   allele_secondary_ids, allele_synonyms, cross_reference_list]
 
