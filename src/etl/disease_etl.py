@@ -384,13 +384,18 @@ class DiseaseETL(ETL):
 
                         if pages is not None and len(pages) > 0:
                             for page in pages:
-                                # TODO: get the DQMs to restructure this so that we get a global id here instead of
-                                # RGD
+                                if (data_provider == 'RGD' or data_provider == 'HUMAN') and prefix == 'DOID':
+                                    display_name = 'RGD'
+                                elif (data_provider == 'RGD' or data_provider == 'HUMAN') and prefix == 'OMIM':
+                                    display_name = 'OMIM'
+                                else:
+                                    display_name = cross_ref_id
+
                                 mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                               self.xref_url_map, prefix,
                                                                                               page)
                                 passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           cross_ref_id,
+                                                                           display_name,
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
                                 passing_xref['dataId'] = disease_unique_key
@@ -401,6 +406,7 @@ class DiseaseETL(ETL):
                                 else:
                                     passing_xref['curatedDB'] = 'true'
                                     passing_xref['loadedDB'] = 'false'
+
                                 xrefs.append(passing_xref)
 
                 disease_record = {"diseaseUniqueKey": disease_unique_key,

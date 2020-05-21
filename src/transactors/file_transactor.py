@@ -25,7 +25,6 @@ class FileTransactor():
     def _get_name():
         return "FileTransactor %s" % multiprocessing.current_process().name
 
-
     def start_threads(self, thread_count):
         '''Start Threads'''
 
@@ -53,12 +52,10 @@ class FileTransactor():
 
         ETL.wait_for_threads(self.thread_pool, FileTransactor.queue)
 
-
     def wait_for_queues(self):
         '''Wait for Queues'''
 
         FileTransactor.queue.join()
-
 
     def shutdown(self):
         '''Shutdown'''

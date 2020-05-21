@@ -1,14 +1,15 @@
 from etl import Neo4jHelper
 import os
 
+
 def execute_transaction(query):
-    '''Excute Transactor'''
+    """Excute Transactor"""
 
     return Neo4jHelper.run_single_query(query)
 
 
 def test_fgf8a_exists():
-    '''Test fgf8a Exists'''
+    """Test fgf8a Exists"""
 
     query = """MATCH (g:Gene)
                WHERE g.symbol = 'fgf8a'
@@ -19,7 +20,7 @@ def test_fgf8a_exists():
 
 
 def test_doterm_exists():
-    '''Test DO Term Exists'''
+    """Test DO Term Exists"""
 
     query = """MATCH(n:DOTerm)
                WHERE n.primaryKey = 'DOID:0001816'
@@ -30,7 +31,7 @@ def test_doterm_exists():
 
 
 def test_isobsolete_false():
-    '''Test isobsolete False'''
+    """Test isobsolete False"""
 
     query = """MATCH(n:DOTerm)
                WHERE n.isObsolete = 'false'
@@ -41,7 +42,7 @@ def test_isobsolete_false():
 
 
 def test_currated_disease_associations_have_date_assigned():
-    '''Test Currated Disaese Associiations Have Date Assigned'''
+    """Test Currated Disaese Associiations Have Date Assigned"""
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
@@ -53,7 +54,7 @@ def test_currated_disease_associations_have_date_assigned():
 
 
 def test_species_disease_pub_gene_exists():
-    '''Test Species Disease Pub Gene Exists'''
+    """Test Species Disease Pub Gene Exists"""
 
     query = """
         MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
@@ -64,7 +65,7 @@ def test_species_disease_pub_gene_exists():
 
 
 def test_species_disease_pub_allele_exists():
-    '''Test Species Disease Pub Allele Exists'''
+    """Test Species Disease Pub Allele Exists"""
 
     query = """
         MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
@@ -75,7 +76,7 @@ def test_species_disease_pub_allele_exists():
 
 
 def test_uuid_is_not_duplicated():
-    '''Test UUID is Not Duplicated'''
+    """Test UUID is Not Duplicated"""
 
     query = """MATCH (g)
                WITH g.uuid AS uuid, count(*)
@@ -87,7 +88,7 @@ def test_uuid_is_not_duplicated():
 
 
 def test_zfin_gene_has_expression_link():
-    '''Test ZFIN Gene Has Expression Link'''
+    """Test ZFIN Gene Has Expression Link"""
 
     query = """MATCH (g:Gene)-[]-(c:CrossReference)
                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-990415-72'
@@ -99,7 +100,7 @@ def test_zfin_gene_has_expression_link():
 
 
 def test_mods_have_gene_expression_atlas_link():
-    '''Test MODs have Gene Expression Atlass Links'''
+    """Test MODs have Gene Expression Atlass Links"""
 
     query = """MATCH (g:Gene)-[]-(c:CrossReference)
                WHERE c.crossRefType = 'gene/expression-atlas'
@@ -110,7 +111,7 @@ def test_mods_have_gene_expression_atlas_link():
 
 
 def test_xref_complete_url_is_formatted():
-    '''Test XREF Complete URL is Formatted'''
+    """Test XREF Complete URL is Formatted"""
 
     query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
                AND cr.crossRefType <> 'interaction'
@@ -123,7 +124,7 @@ def test_xref_complete_url_is_formatted():
 
 
 def test_spell_display_name():
-    '''Test SPELL Display Name'''
+    """Test SPELL Display Name"""
 
     query = """MATCH (cr:CrossReference)
                WHERE cr.prefix = 'SPELL'
@@ -135,7 +136,7 @@ def test_spell_display_name():
 
 
 def test_spell_cross_ref_type():
-    '''Test SPELL Cross Ref Type'''
+    """Test SPELL Cross Ref Type"""
 
     query = """MATCH (cr:CrossReference)
                WHERE cr.prefix = 'SPELL'
@@ -147,7 +148,7 @@ def test_spell_cross_ref_type():
 
 
 def test_gene_has_automated_description():
-    '''Test Gene has Automated Description'''
+    """Test Gene has Automated Description"""
 
     query = """MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430'
                AND g.automatedGeneSynopsis IS NOT NULL
@@ -158,7 +159,7 @@ def test_gene_has_automated_description():
 
 
 def test_gene_has_all_three_automated_description_components():
-    '''Test Gene has All Three Automated Description Components'''
+    """Test Gene has All Three Automated Description Components"""
 
     query = """MATCH (g:Gene)
                WHERE g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655',
@@ -182,7 +183,7 @@ def test_gene_has_all_three_automated_description_components():
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
-    '''Test Nephrogenic Diabetes Insipidus Has at Leat One Gene'''
+    """Test Nephrogenic Diabetes Insipidus Has at Leat One Gene"""
 
     query = """MATCH (d:DOTerm)-[]-(g:Gene)
                WHERE d.name = 'nephrogenic diabetes insipidus'
@@ -193,7 +194,7 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
 
 
 def test_zdb_alt_160129_6_has_at_least_one_disease():
-    '''Test ZDB ALT 160129 6 Has at Lease One Disease'''
+    """Test ZDB ALT 160129 6 Has at Lease One Disease"""
 
     query = """MATCH (d:DOTerm)-[]-(a:Allele)
                WHERE a.dataProvider = 'ZFIN'
@@ -205,7 +206,7 @@ def test_zdb_alt_160129_6_has_at_least_one_disease():
 
 
 def test_do_terms_have_parents():
-    '''Test DO Terms Have Parents'''
+    """Test DO Terms Have Parents"""
 
     query = """MATCH (d:DOTerm)
                WHERE NOT (d)-[:IS_A]->()
@@ -219,7 +220,7 @@ def test_do_terms_have_parents():
 
 
 def test_phenotype_for_all_species_exists():
-    '''Test Phenotype For All Species Exists'''
+    """Test Phenotype For All Species Exists"""
 
     query = """MATCH (s:Species)--(r)--(p:Phenotype)
                WHERE labels(r) = ['Gene']
@@ -227,11 +228,11 @@ def test_phenotype_for_all_species_exists():
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 6
+        assert record["counter"] == 7
 
 
 def test_variant_for_expected_species_exists():
-    '''Test Variant for Expected Species Exists'''
+    """Test Variant for Expected Species Exists"""
 
     query = """MATCH (s:Species)--(r)--(p:Variant)
                WHERE labels(r) = ['Feature', 'Allele']
@@ -242,7 +243,7 @@ def test_variant_for_expected_species_exists():
 
 
 def test_disease_for_all_species_exists():
-    '''Test Disease for All Species Exists'''
+    """Test Disease for All Species Exists"""
 
     query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
                WHERE labels(r) = ['Gene'] 
@@ -254,7 +255,7 @@ def test_disease_for_all_species_exists():
 
 
 def test_goannot_for_all_species_exists():
-    '''Test GO Annotation for ALl Species Exists'''
+    """Test GO Annotation for ALl Species Exists"""
 
     query = """MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm)
                RETURN count(distinct s) AS counter"""
@@ -264,7 +265,7 @@ def test_goannot_for_all_species_exists():
 
 
 def test_molint_for_all_species_exists():
-    '''Test Moleculart Interaction for all Species Exists'''
+    """Test Moleculart Interaction for all Species Exists"""
 
     query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
                RETURN count(distinct s) AS counter"""
@@ -274,7 +275,7 @@ def test_molint_for_all_species_exists():
 
 
 #def test_variant_consequences_for_five_species_exists():
-#    '''Test Variant Consequences for all Five Species Exists'''
+#    """Test Variant Consequences for all Five Species Exists"""
 #    query = \
 #     """MATCH (s:Species)--(:Gene)--(feature:Feature)--(v:Variant)--(glc:GeneLevelConsequence)
 #               RETURN count(distinct s) AS counter"""
@@ -284,7 +285,7 @@ def test_molint_for_all_species_exists():
 
 
 def test_expression_for_non_human_species_exists():
-    '''Test Expression for Non Human Species Exists'''
+    """Test Expression for Non Human Species Exists"""
 
     query = """MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity)
              RETURN count(distinct s) AS counter"""
@@ -294,7 +295,7 @@ def test_expression_for_non_human_species_exists():
 
 
 def test_cellular_component_relationship_for_expression_exists():
-    '''Test Cellular Component Relationship For Expression Exists'''
+    """Test Cellular Component Relationship For Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT]-(g:GOTerm)
                RETURN count(r) AS counter"""
@@ -304,7 +305,7 @@ def test_cellular_component_relationship_for_expression_exists():
 
 
 def test_anatomical_structure_relationship_for_expression_exists():
-    '''Test Anatomical Strucutre Relationship for Expression Exists'''
+    """Test Anatomical Strucutre Relationship for Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE]-(o:Ontology)
                RETURN count(r) AS counter"""
@@ -314,7 +315,7 @@ def test_anatomical_structure_relationship_for_expression_exists():
 
 
 def test_anatomical_sub_structure_relationship_for_expression_exists():
-    '''Test Anatomical Substructure Relationship for Expression Exists'''
+    """Test Anatomical Substructure Relationship for Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology)
                RETURN count(r) AS counter"""
@@ -324,7 +325,7 @@ def test_anatomical_sub_structure_relationship_for_expression_exists():
 
 
 def test_anatomical_structure_qualifier_relationship_for_expression_exists():
-    '''Test Anatomical Structure Qualifier Relationship For Expression Exists'''
+    """Test Anatomical Structure Qualifier Relationship For Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
@@ -334,7 +335,7 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
 
 
 def test_cellular_component_qualifier_relationship_for_expression_exists():
-    '''Test Cellular Component Qualifier Relationship For Exprssion Exists'''
+    """Test Cellular Component Qualifier Relationship For Exprssion Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
@@ -344,7 +345,7 @@ def test_cellular_component_qualifier_relationship_for_expression_exists():
 
 
 def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
-    '''Test Anaatomical Sub Strucutre qualifier Relationship For Exprssion Exists'''
+    """Test Anaatomical Sub Strucutre qualifier Relationship For Exprssion Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
@@ -354,7 +355,7 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
-    '''Test Anatomical Structure UBERON Relationship for Expression Exists'''
+    """Test Anatomical Structure UBERON Relationship for Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                WHERE o.primaryKey <> 'UBERON:AnatomyOtherLocation'
@@ -365,7 +366,7 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
 
 
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
-    '''Test Anatomical Strucutre UBERON Other Relationship for Expression Exists'''
+    """Test Anatomical Strucutre UBERON Other Relationship for Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                WHERE o.primaryKey = 'UBERON:AnatomyOtherLocation'
@@ -376,7 +377,7 @@ def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
 
 
 def test_gocc_other_relationship_for_expression_exists():
-    '''Test GOCC Other Relationship For Expression Exists'''
+    """Test GOCC Other Relationship For Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
                WHERE o.primaryKey = 'GO:otherLocations'
@@ -387,7 +388,7 @@ def test_gocc_other_relationship_for_expression_exists():
 
 
 def test_gocc_ribbon_relationship_for_expression_exists():
-    '''Test GOCC Ribbon Relationship for Expression Exists'''
+    """Test GOCC Ribbon Relationship for Expression Exists"""
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
                WHERE o.primaryKey <> 'GO:otherLocations'
@@ -398,7 +399,7 @@ def test_gocc_ribbon_relationship_for_expression_exists():
 
 
 def test_stage_uberon_other_relationship_for_expression_exists():
-    '''Test Stage UBERON Other Relationship for Expression Exists'''
+    """Test Stage UBERON Other Relationship for Expression Exists"""
 
     query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                RETURN count(r) AS counter"""
@@ -408,7 +409,7 @@ def test_stage_uberon_other_relationship_for_expression_exists():
 
 
 def test_stage_uberon_relationship_for_expression_exists():
-    '''Test Stage UBERON Relationship For Expression Exists'''
+    """Test Stage UBERON Relationship For Expression Exists"""
 
     query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                RETURN count(r) AS counter"""
@@ -418,7 +419,7 @@ def test_stage_uberon_relationship_for_expression_exists():
 
 
 def test_mmoterm_has_display_synonym():
-    '''Test MMO Term has Display Synonym'''
+    """Test MMO Term has Display Synonym"""
 
     query = """MATCH (n:MMOTerm)
                WHERE n.primaryKey = 'MMO:0000658' AND n.displaySynonym = 'RNA in situ'
@@ -429,7 +430,7 @@ def test_mmoterm_has_display_synonym():
 
 
 def test_crip2_has_cardiac_neural_crest():
-    '''Test crip2 has Cardiac Neural Crest'''
+    """Test crip2 has Cardiac Neural Crest"""
 
     query = """
     MATCH (gene:Gene)--(ebe:ExpressionBioEntity)--(ei:BioEntityGeneExpressionJoin)--(pub:Publication)
@@ -443,7 +444,7 @@ def test_crip2_has_cardiac_neural_crest():
 
 
 def test_expression_gocc_other_term_for_specific_gene_exists():
-    '''Test Expression GOCC Other Term For Specific Gene Exists'''
+    """Test Expression GOCC Other Term For Specific Gene Exists"""
 
     query = """MATCH (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm),
                      (ebe)-[cr:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm)
@@ -457,7 +458,7 @@ def test_expression_gocc_other_term_for_specific_gene_exists():
 
 
 def test_expression_gocc_term_for_specific_gene_exists():
-    '''Test Expression GOCC Term For SpecificGene Exists'''
+    """Test Expression GOCC Term For SpecificGene Exists"""
 
     query = """MATCH (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm)
                WHERE g.primaryKey = 'RGD:2129'
@@ -469,7 +470,7 @@ def test_expression_gocc_term_for_specific_gene_exists():
 
 
 def test_gocc_other_has_type():
-    '''Test GOCC Other Has Type'''
+    """Test GOCC Other Has Type"""
 
     query = """MATCH (go:GOTerm)
                WHERE go.subset = 'goslim_agr'
@@ -481,7 +482,7 @@ def test_gocc_other_has_type():
 
 
 def test_gocc_self_ribbon_term_exists():
-    '''Test GOCC Self Ribbin Term Exists'''
+    """Test GOCC Self Ribbin Term Exists"""
 
     query = """
     MATCH (gene:Gene)--(ebe:ExpressionBioEntity)-[c:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm)
@@ -494,7 +495,7 @@ def test_gocc_self_ribbon_term_exists():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
-    '''Test Gene To Disease Annotation Via Orthology Has Biomarker Relation'''
+    """Test Gene To Disease Annotation Via Orthology Has Biomarker Relation"""
 
     query = """MATCH (gene:Gene)-[r:BIOMARKER_VIA_ORTHOLOGY]-(do:DOTerm)
                RETURN count(gene) AS counter"""
@@ -504,7 +505,7 @@ def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
-    '''Test Gene To Disease Annotation Via Orthology has Implicated Relation'''
+    """Test Gene To Disease Annotation Via Orthology has Implicated Relation"""
 
     query = """MATCH (gene:Gene)-[r:IMPLICATED_VIA_ORTHOLOGY]-(do:DOTerm)
                RETURN count(gene) AS counter"""
@@ -514,7 +515,7 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    '''Test Gene To Disease Annotation Via ORthology Has Alliance Source Type'''
+    """Test Gene To Disease Annotation Via ORthology Has Alliance Source Type"""
 
     query = """
        MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(ec:ECOTerm)
@@ -527,7 +528,7 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
 
 
 def test_gene_to_disease_annotation_via_ortho_has_publication():
-    '''Test Gene TO Disease Annotation Via ORthology has Publication'''
+    """Test Gene TO Disease Annotation Via ORthology has Publication"""
 
     query = """
        MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
@@ -539,7 +540,7 @@ def test_gene_to_disease_annotation_via_ortho_has_publication():
 
 
 def test_gene_to_disease_annotation_has_publication():
-    '''Test Gene To Disease Annoation Has Publication '''
+    """Test Gene To Disease Annoation Has Publication """
 
     query = """
         MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
@@ -550,7 +551,7 @@ def test_gene_to_disease_annotation_has_publication():
 
 
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
-    '''Test Gene To Disease Via Orholoogy Exists For Holoprosencephaly3'''
+    """Test Gene To Disease Via Orholoogy Exists For Holoprosencephaly3"""
 
     query = """MATCH (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm),
                      (deg)--(g2:Gene)--(species2:Species)
@@ -563,7 +564,7 @@ def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
 
 
 def test_gene_has_two_ortho_disease_annotations():
-    '''Test Gene Has Two Ortho Disease Annotations'''
+    """Test Gene Has Two Ortho Disease Annotations"""
 
     query = """
         MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
@@ -577,7 +578,7 @@ def test_gene_has_two_ortho_disease_annotations():
 
 
 def test_human_gene_has_zebrafish_ortho_disease_annotation():
-    '''Test Human Gene Has Zebrafish Orhto Diesaes Annotation'''
+    """Test Human Gene Has Zebrafish Orhto Diesaes Annotation"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -590,7 +591,7 @@ def test_human_gene_has_zebrafish_ortho_disease_annotation():
 
 
 def test_worm_gene_has_human_alzheimers_via_ortho():
-    '''Test Worm Gene has Human alzheimers Via Orhto'''
+    """Test Worm Gene has Human alzheimers Via Orhto"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -604,7 +605,7 @@ def test_worm_gene_has_human_alzheimers_via_ortho():
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
-    '''Test Worm Gene has Rat Alzhimers Via Orhtology'''
+    """Test Worm Gene has Rat Alzhimers Via Orhtology"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -618,7 +619,7 @@ def test_worm_gene_has_rat_alzheimers_via_ortho():
 
 
 def test_worm_gene2_has_rat_alzheimers_via_ortho():
-    '''Test Wrom Gen2 has Rat Alzheimers Via Orthology'''
+    """Test Wrom Gen2 has Rat Alzheimers Via Orthology"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -632,7 +633,7 @@ def test_worm_gene2_has_rat_alzheimers_via_ortho():
 
 
 def test_human_gene_has_mouse_ortho_disease_annotation():
-    '''Test human Gene has Mouse Ortho Disease Annotation'''
+    """Test human Gene has Mouse Ortho Disease Annotation"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -645,7 +646,7 @@ def test_human_gene_has_mouse_ortho_disease_annotation():
 
 
 def test_human_gene_has_hgnc_cross_reference():
-    '''Test Human Gene has HGNC Cross Reference'''
+    """Test Human Gene has HGNC Cross Reference"""
 
     query = """MATCH (g:Gene)--(cr:CrossReference)
                WHERE g.primaryKey = 'HGNC:11204'
@@ -659,7 +660,7 @@ def test_human_gene_has_hgnc_cross_reference():
 
 
 def test_human_gene_has_rgd_cross_reference():
-    '''Test Human Gene has RGD Cross REference'''
+    """Test Human Gene has RGD Cross REference"""
 
     query = """MATCH (g:Gene)--(cr:CrossReference)
                WHERE g.primaryKey = 'HGNC:11204'
@@ -673,7 +674,7 @@ def test_human_gene_has_rgd_cross_reference():
 
 
 def test_human_gene_has_rgd_references_cross_reference():
-    '''Test Human Gene has RGD References Cross Reference'''
+    """Test Human Gene has RGD References Cross Reference"""
 
     query = """MATCH (g:Gene)--(cr:CrossReference)
                WHERE g.primaryKey = 'HGNC:11204'
@@ -687,7 +688,7 @@ def test_human_gene_has_rgd_references_cross_reference():
 
 
 def test_gene_has_symbol_with_species():
-    '''Test Gene has Symbol With Species'''
+    """Test Gene has Symbol With Species"""
 
     query = """MATCH (gene:Gene)
                WHERE gene.symbolWithSpecies = 'fgf8a (Dre)'
@@ -699,7 +700,7 @@ def test_gene_has_symbol_with_species():
 
 
 def test_genome_start_is_long():
-    '''Test Genome Start is Long'''
+    """Test Genome Start is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
                WHERE ch.start <> toInt(ch.start)
@@ -710,7 +711,7 @@ def test_genome_start_is_long():
 
 
 def test_genome_end_is_long():
-    '''Test Genome End is Long'''
+    """Test Genome End is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
                WHERE ch.end <> toInt(ch.end)
@@ -721,7 +722,7 @@ def test_genome_end_is_long():
 
 
 def test_phylogenetic_order_is_int():
-    '''Test PHlogenic Order is Int'''
+    """Test PHlogenic Order is Int"""
 
     query = """MATCH (g:Species)
                WHERE g.phylogeneticOrder <> toInt(g.phylogeneticOrder)
@@ -732,7 +733,7 @@ def test_phylogenetic_order_is_int():
 
 
 def test_all_species_have_order():
-    '''Test All Species Hav Order'''
+    """Test All Species Hav Order"""
 
     query = """MATCH (g:Species)
                WHERE g.phylogeneticOrder IS NULL
@@ -743,7 +744,7 @@ def test_all_species_have_order():
 
 
 def test_ortho_is_strict_filter_is_boolean():
-    '''Test Ortho Is Struct Filter is Boolean'''
+    """Test Ortho Is Struct Filter is Boolean"""
 
     query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
                WHERE orth.strictFilter <> toBoolean(orth.strictFilter)
@@ -754,7 +755,7 @@ def test_ortho_is_strict_filter_is_boolean():
 
 
 def test_ortho_moderate_filter_is_boolean():
-    '''Test Ortho Moderate Filter is Boolean'''
+    """Test Ortho Moderate Filter is Boolean"""
 
     query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
                WHERE orth.moderateFilter <> toBoolean(orth.moderateFilter)
@@ -765,7 +766,7 @@ def test_ortho_moderate_filter_is_boolean():
 
 
 def test_go_term_has_type_biological_process():
-    '''Test Go Term has Type Biological Process'''
+    """Test Go Term has Type Biological Process"""
 
     query = """MATCH (go:GOTerm)
                WHERE go.primaryKey = 'GO:0000003' AND go.type = 'biological_process'
@@ -776,7 +777,7 @@ def test_go_term_has_type_biological_process():
 
 
 def test_sgd_gene_has_gene_disease_ortho():
-    '''Test SGD Gene hs Gene Disease Ortho'''
+    """Test SGD Gene hs Gene Disease Ortho"""
 
     query = """Match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)
                WHERE g.primaryKey = 'SGD:S000002536'
@@ -787,7 +788,7 @@ def test_sgd_gene_has_gene_disease_ortho():
 
 
 def test_mmo_term_has_display_alias():
-    '''Tst MMO Term hs Display Alias'''
+    """Tst MMO Term hs Display Alias"""
 
     query = """MATCH (mmo:MMOTerm)
                WHERE mmo.primaryKey = 'MMO:0000642'
@@ -799,7 +800,7 @@ def test_mmo_term_has_display_alias():
 
 
 def test_expression_for_mgi_109583():
-    '''Test Expression for MGI 109583'''
+    """Test Expression for MGI 109583"""
 
     query = """
     MATCH (g:Gene)--(ebge:BioEntityGeneExpressionJoin)--(e:ExpressionBioEntity)--(o:Ontology)
@@ -812,7 +813,7 @@ def test_expression_for_mgi_109583():
 
 
 def test_part_of_relations_exist():
-    '''Test part of Relations Exist'''
+    """Test part of Relations Exist"""
 
     query = """MAtch (e:EMAPATerm)--(em:EMAPATerm)
                WHERE e.name = 'nucleus pulposus'
@@ -824,7 +825,7 @@ def test_part_of_relations_exist():
 
 
 def test_expression_images_cross_references_for_species_exists():
-    '''Test Expression Images Cross References for Species Exists'''
+    """Test Expression Images Cross References for Species Exists"""
 
     query = """MATCH (s:Species)--(g:Gene)--(cr:CrossReference)
                WHERE cr.page = 'gene/expression_images'
@@ -835,7 +836,7 @@ def test_expression_images_cross_references_for_species_exists():
 
 
 def test_eco_term_has_display_synonym():
-    '''Test ECO Term has Display Synonym'''
+    """Test ECO Term has Display Synonym"""
 
     query = """MATCH (e:ECOTerm:Ontology)
                WHERE e.primaryKey = 'ECO:0000269' AND e.displaySynonym = 'EXP'
@@ -846,7 +847,7 @@ def test_eco_term_has_display_synonym():
 
 
 def test_point_mutation_hgvs():
-    '''Test Point Mutation HGVS'''
+    """Test Point Mutation HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
                WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
@@ -858,7 +859,7 @@ def test_point_mutation_hgvs():
 
 
 def test_variant_consequence():
-    '''Test Variant Consequence'''
+    """Test Variant Consequence"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
                WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
@@ -871,7 +872,7 @@ def test_variant_consequence():
 
 
 def test_deletion_hgvs():
-    '''Test Deletion HGVS'''
+    """Test Deletion HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
                WHERE v.hgvsNomenclature = 'NC_007116.7:g.72118557_72118563del'
@@ -883,7 +884,7 @@ def test_deletion_hgvs():
 
 
 def test_insertion_hgvs():
-    '''Test Insertion HGVS'''
+    """Test Insertion HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
                WHERE v.hgvsNomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT'
@@ -895,7 +896,7 @@ def test_insertion_hgvs():
 
 
 def test_hgnc_gene_has_curated_and_loaded_db_xref():
-    '''Test HGNC Gene has Curated and Loaded DB XREF'''
+    """Test HGNC Gene has Curated and Loaded DB XREF"""
 
     query = """
     MATCH (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)
@@ -907,7 +908,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
 
 
 def test_pej_has_agm():
-    '''Test PEG has AGM'''
+    """Test PEG has AGM"""
 
     query = """MATCH (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationJoin)
                WHERE agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'
@@ -918,7 +919,7 @@ def test_pej_has_agm():
 
 
 def test_allele_has_description():
-    '''Test Allele Has Description'''
+    """Test Allele Has Description"""
 
     query = """MATCH (a:Allele)--(cr:CrossReference)
                WHERE cr.crossRefType = 'allele/references'
@@ -929,7 +930,7 @@ def test_allele_has_description():
 
 
 def test_allele_has_submitted_description():
-    '''Test Allele has Submitted Description'''
+    """Test Allele has Submitted Description"""
 
     query = """MATCH (a:Allele)
                WHERE a.description IS NOT NULL
@@ -940,7 +941,7 @@ def test_allele_has_submitted_description():
 
 
 def test_sgd_gene_has_dej_with_many_orthologous_genes():
-    '''Test SGD Gene has DEJ with Many Ortholous Genes'''
+    """Test SGD Gene has DEJ with Many Ortholous Genes"""
 
     query = """MATCH (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene)
                WHERE dej.primaryKey = 'SGD:S000005844DOID:14501IS_IMPLICATED_INHGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998'
@@ -951,7 +952,7 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
 
 
 def test_spaw_should_have_disease_genes():
-    '''Test Spaw Should have Disease Genes'''
+    """Test Spaw Should have Disease Genes"""
 
     query = """MATCH (dej:DiseaseEntityJoin)--(g:Gene)
                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030219-1'
@@ -962,7 +963,7 @@ def test_spaw_should_have_disease_genes():
 
 
 def test_wb_transgene_has_phenotype():
-    '''Test WB Transgene has Phenotype'''
+    """Test WB Transgene has Phenotype"""
 
     query = """MATCH (a:Allele)--(pej:PhenotypeEntityJoin)
                WHERE a.primaryKey = 'WB:WBTransgene00001048'
@@ -973,7 +974,7 @@ def test_wb_transgene_has_phenotype():
 
 
 def test_wb_gene_has_inferred_from_allele():
-    '''Test WB Gene has Inferred from Allele'''
+    """Test WB Gene has Inferred from Allele"""
 
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(pej:PublicationJoin)--(a:Allele)
                WHERE g.primaryKey = 'WB:WBGene00000149'
@@ -985,7 +986,7 @@ def test_wb_gene_has_inferred_from_allele():
 
 # currently WB file is not submitting these, will reactivate when we get a corrected file.
 # def test_wb_genes_have_phenotype():
-#     '''Test WB Genes Have Phenotype'''
+#     """Test WB Genes Have Phenotype"""
 #
 #     query = """MATCH (g:Gene)--(pej:PhenotypeEntityJoin)--(pej:PublicationJoin)--(a:Allele)
 #                WHERE g.primaryKey in ['WB:WBGene00000898','WB:WBGene00013817','WB:WBGene00004077']
@@ -996,7 +997,7 @@ def test_wb_gene_has_inferred_from_allele():
 
 
 def test_human_gene_has_disease():
-    '''Test Human Gene has Disease'''
+    """Test Human Gene has Disease"""
 
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)
                WHERE g.primaryKey = 'HGNC:11950'
@@ -1007,7 +1008,7 @@ def test_human_gene_has_disease():
 
 
 def test_mi_term_has_name_flybase():
-    '''Test MI Term has Name FlyBase'''
+    """Test MI Term has Name FlyBase"""
 
     query = """MATCH (o:MITerm)
                WHERE o.label = 'FlyBase'
@@ -1018,7 +1019,7 @@ def test_mi_term_has_name_flybase():
 
 
 def test_mi_term_has_corrected_url():
-    '''Test MI Term has Corrected URL'''
+    """Test MI Term has Corrected URL"""
 
     query = """MATCH (o:MITerm)
                WHERE o.primaryKey = 'MI:0465'

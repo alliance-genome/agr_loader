@@ -1,4 +1,4 @@
-''''Phenotype ETL'''
+"""'Phenotype ETL"""
 
 import logging
 import uuid
@@ -12,7 +12,7 @@ from transactors import Neo4jTransactor
 
 
 class PhenoTypeETL(ETL):
-    '''Phenotype ETL'''
+    """Phenotype ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -192,9 +192,9 @@ class PhenoTypeETL(ETL):
         query_template_agm_list = []
         data_provider = sub_type.get_data_provider()
 
-        generators = self.get_generators(data, batch_size, data_provider)
-
+        generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
         if data_provider in ['MGI', 'ZFIN', 'RGD']:
+            self.logger.info("sub type data provider: " +data_provider)
             query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
@@ -272,8 +272,8 @@ class PhenoTypeETL(ETL):
         Neo4jTransactor.execute_query_batch(query_allele_and_file_list)
 
 
-    def get_generators(self, phenotype_data, batch_size, data_provider):
-        '''Get Generators'''
+    def get_generators(self, phenotype_data, batch_size, subtypeProvider):
+        """Get Generators"""
 
         list_to_yield = []
         pge_list_to_yield = []
@@ -314,6 +314,7 @@ class PhenoTypeETL(ETL):
             pub_med_id = None
             pub_mod_id = None
             pub_med_url = None
+            pge_list_to_yield = []
             pub_mod_url = None
             primary_id = pheno.get('objectId')
             phenotype_statement = pheno.get('phenotypeStatement')
@@ -373,9 +374,6 @@ class PhenoTypeETL(ETL):
                                "pgeId": pge}
                     pge_list_to_yield.append(pge_map)
 
-            else:
-                pge_ids = []
-
             phenotype = {
                 "primaryId": primary_id.strip(),
                 "phenotypeUniqueKey": primary_id.strip() + phenotype_statement.strip(),
@@ -395,9 +393,8 @@ class PhenoTypeETL(ETL):
             }
 
             list_to_yield.append(phenotype)
-
             if counter == batch_size:
-                if data_provider == 'SGD':
+                if data_provider == ['SGD'] or (data_provider == 'RGD' and subtypeProvider == 'HUMAN'):
                     yield [list_to_yield]
                     list_to_yield = []
                     counter = 0
@@ -417,7 +414,7 @@ class PhenoTypeETL(ETL):
                     counter = 0
 
         if counter > 0:
-            if data_provider == 'SGD':
+            if data_provider =='SGD' or (data_provider == 'RGD' and subtypeProvider == 'HUMAN'):
                 yield [list_to_yield]
             elif data_provider in ['FB', 'WB']:
                 yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]

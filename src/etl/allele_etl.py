@@ -214,7 +214,7 @@ class AlleleETL(ETL):
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xref_url_map, dataProvider,
                                                                       dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
@@ -240,8 +240,8 @@ class AlleleETL(ETL):
             localId = globalId.split(":")[1]
             modGlobalCrossRefId = ""
 
-            if self.testObject.using_test_data() is True:
-                is_it_test_entry = self.testObject.check_for_test_id_entry(globalId)
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(globalId)
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
@@ -392,7 +392,7 @@ class AlleleETL(ETL):
                             if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
                                     or page == 'transgene/references' or page == 'construct/references':
                                 modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                      self.xrefUrlMap, prefix, page)
+                                                                                      self.xref_url_map, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                modGlobalCrossRefId, crossRefId + page)
                                 xref['dataId'] = globalId
