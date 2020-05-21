@@ -213,6 +213,8 @@ class TranscriptETL(ETL):
                                         parent = value
                                     if key == 'Name':
                                         name = value
+                                    if key == 'transcript_id':
+                                        gff3_id = value
                                     #if key == 'Alias':
                                        #aliases = value.split(',')
                                 #       transcriptMap.update({'aliases' : aliases})
