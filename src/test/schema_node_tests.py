@@ -1,12 +1,17 @@
+'''Schema Node Tests'''
+
 from etl import Neo4jHelper
-import os
 
 
 def execute_transaction(query):
+    '''Execute Transaction'''
+
     return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
+    '''PyTest Generate Tests'''
+
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
     argnames = sorted(funcarglist[0])
@@ -14,10 +19,10 @@ def pytest_generate_tests(metafunc):
                                     for funcargs in funcarglist])
 
 
-class TestClass(object):
-    # a map specifying multiple argument sets for a test method
-    params = {
+class TestClass():
+    '''A map specifying multiple argument sets for a test method'''
 
+    params = {
         'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE'),
                                      dict(relationship='LOCATED_ON'),
                                      dict(relationship='VARIATION'),
@@ -258,8 +263,7 @@ class TestClass(object):
                                dict(node='PublicationJoin', prop='primaryKey')
                                ],
 
-        'test_prop_unique': [
-                             dict(node='Publication', prop='primaryKey'),
+        'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
@@ -285,36 +289,58 @@ class TestClass(object):
                              ]
     }
 
-    def test_node_exists(self, node):
-        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % node
+
+    @staticmethod
+    def test_node_exists(node):
+        '''Test Node Exists'''
+
+        query = '''MATCH (n:%s)
+                   RETURN DISTINCT COUNT(n) AS count''' % node
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] > 0
+
+    @staticmethod
+    def test_relationship_exists(relationship):
+        '''Test Relationship Exists'''
+
+        query = '''MATCH ()-[r:%s]-()
+                   RETURN count(r) AS count''' % relationship
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0
 
-    def test_relationship_exists(self, relationship):
-        query = 'MATCH ()-[r:%s]-() return count(r) as count' % relationship
-
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] > 0
-
-    def test_prop_exist(self, node, prop):
-        query = 'MATCH (n:%s) WHERE NOT EXISTS(n.%s) RETURN COUNT(n) as count' % (node, prop)
-
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 0
-
-    def test_prop_not_null(self, node, prop):
-        query = 'MATCH (n:%s) WHERE n.%s is NULL RETURN COUNT(n) as count' % (node, prop)
+    @staticmethod
+    def test_prop_exist(node, prop):
+        '''Test Prop Exits'''
+        query = '''MATCH (n:%s)
+                   WHERE NOT EXISTS(n.%s)
+                   RETURN COUNT(n) AS count''' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] == 0
 
-    def test_prop_unique(self, node, prop):
-        query = 'MATCH (n:%s) WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count RETURN count' % (node, prop)
+    @staticmethod
+    def test_prop_not_null(node, prop):
+        '''Test Prop Not Null'''
+
+        query = '''MATCH (n:%s)
+                   WHERE n.%s is NULL
+                   RETURN COUNT(n) AS count''' % (node, prop)
+
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] == 0
+
+    @staticmethod
+    def test_prop_unique(node, prop):
+        '''Test Prop Unique'''
+
+        query = '''MATCH (n:%s)
+                   WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count
+                   RETURN count''' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:

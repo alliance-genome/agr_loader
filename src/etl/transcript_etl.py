@@ -1,16 +1,22 @@
+'''Transcript ETL'''
+
+import re
 import logging
 import multiprocessing
 import uuid
-from etl import ETL
-import re
 
+from etl import ETL
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class TranscriptETL(ETL):
+    '''Transcript ETL'''
+
+
+    logger = logging.getLogger(__name__)
+
+    # Query templates which take params and will be processed later
 
 
     exon_query_template = """
@@ -26,9 +32,7 @@ class TranscriptETL(ETL):
                         t.name = row.name        
 
                CREATE (t)<-[tso:TYPE]-(so)
-               CREATE (g)<-[gt:EXON]-(t)
-                """
-
+               CREATE (g)<-[gt:EXON]-(t)"""
 
     exon_genomic_locations_template = """
         USING PERIODIC COMMIT %s
@@ -49,20 +53,16 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (a)-[ao:ASSOCIATION]->(o)
+            CREATE (a)-[ao:ASSOCIATION]->(o)"""
 
-        """
-
-    tscript_alternate_id_query_template = """
+    transcript_alternate_id_query_template = """
             USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             
                 MATCH (g:Gene {primaryKey:row.curie})
-                  SET g.gff3ID = row.gff3ID
-    
-    """
+                  SET g.gff3ID = row.gff3ID"""
 
-    tscript_query_template = """
+    transcript_query_template = """
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -75,16 +75,16 @@ class TranscriptETL(ETL):
                         t.name = row.name        
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               MERGE (g)<-[gt:TRANSCRIPT]-(t)
-                """
+               MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
 
-    chromosomes_template = """
+
+    chromosomes_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
 
 
-    genomic_locations_template = """
+    genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -104,86 +104,99 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (a)-[ao:ASSOCIATION]->(o)
+            CREATE (a)-[ao:ASSOCIATION]->(o)"""
 
-        """
 
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
 
+
     def _load_and_process_data(self):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
+
     def _process_sub_type(self, sub_type):
-        logger.info("Loading Transcript Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Transcript Data: %s", sub_type.get_data_provider())
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         filepath = sub_type.get_filepath()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [TranscriptETL.tscript_alternate_id_query_template, commit_size, "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.tscript_query_template, commit_size, "transcript_data_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.chromosomes_template, commit_size, "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.genomic_locations_template, commit_size, "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.exon_query_template, commit_size, "exon_data_" + sub_type.get_data_provider() + ".csv"],
-            [TranscriptETL.exon_genomic_locations_template, commit_size, "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
+        query_template_list = [
+            [self.transcript_alternate_id_query_template, commit_size,
+             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.transcript_query_template, commit_size,
+             "transcript_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.chromosomes_query_template, commit_size,
+             "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
+            [self.genomic_locations_query_template, commit_size,
+             "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
+            [self.exon_query_template, commit_size,
+             "exon_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.exon_genomic_locations_template, commit_size,
+             "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath, batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, filepath, batch_size):
 
-        with open(filepath) as f:
-            tscriptMaps = []
-            geneMaps =[]
-            exonMaps = []
+    def get_generators(self, filepath, batch_size):
+        '''Get Generators'''
+
+        with open(filepath) as file_handle:
+            transcript_maps = []
+            gene_maps = []
+            exon_maps = []
             counter = 0
-            dataProvider = ''
+            data_provider = ''
             assembly = ''
-            for line in f:
+            for line in file_handle:
                 counter = counter + 1
-                transcriptMap = {}
-                geneMap = {}
-                exonMap = {}
+                transcript_map = {}
+                gene_map = {}
+                exon_map = {}
+
                 curie = ''
                 parent = ''
-                gff3ID = ''
-                tscriptTypes = ['mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA']
-                possibleTypes = ['gene','mRNA','miRNA','ncRNA','rRNA','snRNA','snoRNA','tRNA','pre_miRNA','lnc_RNA','exon']
+                gff3_id = ''
+
+                transcript_types = ['mRNA', 'miRNA', 'ncRNA', 'rRNA', 'snRNA',
+                                    'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA']
+                possible_types = ['gene', 'mRNA', 'miRNA', 'ncRNA', 'rRNA',
+                                  'snRNA', 'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA', 'exon']
                 gene_id = ''
 
                 if line.startswith('#!'):
-                    headerColumns = line.split()
+                    header_columns = line.split()
                     if line.startswith('#!assembly'):
-                        assembly = headerColumns[1]
+                        assembly = header_columns[1]
 
                     elif line.startswith('#!data-source '):
-                        dataProvider = headerColumns[1]
-                        if dataProvider == 'FlyBase':
-                            dataProvider = 'FB'
-                        if dataProvider == 'WormBase':
-                            dataProvider = 'WB'
-                        logger.info("datasource " + headerColumns[1])
+                        data_provider = header_columns[1]
+                        if data_provider == 'FlyBase':
+                            data_provider = 'FB'
+                        if data_provider == 'WormBase':
+                            data_provider = 'WB'
+                        self.logger.info("datasource %s", header_columns[1])
                 elif line.startswith('#'):
                     continue
                 else:
                     columns = re.split(r'\t', line)
-                    featureTypeName = columns[2].strip()
-                    if featureTypeName in possibleTypes:
+                    feature_type_name = columns[2].strip()
+                    if feature_type_name in possible_types:
                         column8 = columns[8]
                         notes = "_".join(column8.split())
                         kvpairs = re.split(';', notes)
@@ -193,7 +206,7 @@ class TranscriptETL(ETL):
                                     key = pair.split("=")[0]
                                     value = pair.split("=")[1]
                                     if key == 'ID':
-                                        gff3ID = value
+                                        gff3_id = value
                                     if key == 'gene_id':
                                         gene_id = value
                                     if key == 'Parent':
@@ -211,69 +224,78 @@ class TranscriptETL(ETL):
                                 # gene: curie = RGD:1309770 ID=RGD:1309770
 
                             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
-                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1 curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
+                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1
 
-                                if self.testObject.using_test_data() is True:
-
-                                    is_it_test_entry = self.testObject.check_for_test_id_entry(curie)
-
+                                if self.test_object.using_test_data() is True:
+  
+                                    is_it_test_entry = self.test_object.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.testObject.check_for_test_id_entry(parent)
-
+                                        is_it_test_entry = self.test_object \
+                                                               .check_for_test_id_entry(parent)
                                         if is_it_test_entry is False:
-                                            is_it_test_entry = self.testObject.check_for_test_id_entry(gene_id)
+                                            is_it_test_entry = self.test_object.check_for_test_id_entry(gene_id)
 
                                             if is_it_test_entry is True:
                                                 counter = counter - 1
                                             continue
-                        if featureTypeName in tscriptTypes:
-                            transcriptMap.update({'curie' : curie})
-                            transcriptMap.update({'parentId': parent})
-                            transcriptMap.update({'gff3ID': gff3ID})
-                            transcriptMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                            transcriptMap.update({'chromosomeNumber': columns[0]})
-                            transcriptMap.update({'featureType': featureTypeName})
-                            transcriptMap.update({'start':columns[3]})
-                            transcriptMap.update({'end':columns[4]})
-                            transcriptMap.update({'assembly': assembly})
-                            transcriptMap.update({'dataProvider': dataProvider})
-                            transcriptMap.update({'name': name})
+                        if feature_type_name in transcript_types:
+                            transcript_map.update({'curie' : curie})
+                            transcript_map.update({'parentId': parent})
+                            transcript_map.update({'gff3ID': gff3_id})
+                            transcript_map.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            transcript_map.update({'chromosomeNumber': columns[0]})
+                            transcript_map.update({'featureType': feature_type_name})
+                            transcript_map.update({'start': columns[3]})
+                            transcript_map.update({'end': columns[4]})
+                            transcript_map.update({'assembly': assembly})
+                            transcript_map.update({'dataProvider': data_provider})
+                            transcript_map.update({'name': name})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
-                                transcriptMap.update({'assembly':assembly})
-                            tscriptMaps.append(transcriptMap)
-                        elif featureTypeName == 'gene':
-                            geneMap.update({'curie': curie})
-                            geneMap.update({'parentId': parent})
-                            geneMap.update({'gff3ID': gff3ID})
-                            geneMaps.append(geneMap)
-                        elif featureTypeName == 'exon':
-                            exonMap.update({'parentId': parent})
-                            exonMap.update({'gff3ID': str(uuid.uuid4())})
-                            exonMap.update({'genomicLocationUUID': str(uuid.uuid4())})
-                            exonMap.update({'chromosomeNumber': columns[0]})
-                            exonMap.update({'featureType': featureTypeName})
-                            exonMap.update({'start':columns[3]})
-                            exonMap.update({'end':columns[4]})
-                            exonMap.update({'assembly': assembly})
-                            exonMap.update({'dataProvider': dataProvider})
-                            exonMap.update({'name': name})
+                                transcript_map.update({'assembly': assembly})
+                            transcript_maps.append(transcript_map)
+                        elif feature_type_name == 'gene':
+                            gene_map.update({'curie': curie})
+                            gene_map.update({'parentId': parent})
+                            gene_map.update({'gff3ID': gff3_id})
+                            gene_maps.append(gene_map)
+                        elif feature_type_name == 'exon':
+                            exon_map.update({'parentId': parent})
+                            exon_map.update({'gff3ID': str(uuid.uuid4())})
+                            exon_map.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            exon_map.update({'chromosomeNumber': columns[0]})
+                            exon_map.update({'featureType': feature_type_name})
+                            exon_map.update({'start': columns[3]})
+                            exon_map.update({'end': columns[4]})
+                            exon_map.update({'assembly': assembly})
+                            exon_map.update({'dataProvider': data_provider})
+                            exon_map.update({'name': name})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
-                                exonMap.update({'assembly':assembly})
-                            exonMaps.append(exonMap)
+                                exon_map.update({'assembly': assembly})
+                            exon_maps.append(exon_map)
                         else:
                             continue
 
-
                 if counter == batch_size:
                     counter = 0
-                    yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
-                    tscriptMaps = []
-                    geneMaps = []
-                    exonMaps = []
+
+                    yield [gene_maps,
+                          transcript_maps,
+                          transcript_maps,
+                          transcript_maps,
+                          exon_maps,
+                          exon_maps]
+                    transcript_maps = []
+                    gene_maps = []
+                    exon_maps = []
 
 
             if counter > 0:
-                yield [geneMaps, tscriptMaps, tscriptMaps, tscriptMaps, exonMaps, exonMaps]
+                yield [gene_maps,
+                      transcript_maps,
+                      transcript_maps,
+                      transcript_maps,
+                      exon_maps,
+                      exon_maps]

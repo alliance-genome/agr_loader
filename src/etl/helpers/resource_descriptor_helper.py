@@ -1,23 +1,30 @@
-import codecs
+'''Resources Descriptor Helper'''
+
 import logging
-import shutil
 import uuid
 import yaml
 from files import Download
 
-logger = logging.getLogger(__name__)
 
+class ResourceDescriptorHelper():
+    '''Resource Descriptor Helper'''
 
-class ResourceDescriptorHelper(object):
+    logger = logging.getLogger(__name__)
     list_of_descriptor_maps_to_load = []
 
-    def get_data(self):
-        logger.info("got to resourcedescriptor")
+    @staticmethod
+    def get_data():
+        '''Get Data'''
+
+        ResourceDescriptorHelper.logger.info("got to resourcedescriptor")
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
 
-        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
-        resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
+        url = 'https://raw.githubusercontent.com/'\
+                + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
+        resource_descriptor_file = Download('tmp',
+                                            url,
+                                            'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for stanza in yaml_list:
@@ -47,46 +54,44 @@ class ResourceDescriptorHelper(object):
                             page_url_suffix = page_url_parts[1]
 
                         stanza_map[resource+page_name] = {"resource": resource,
-                                              "default_url": default_url,
-                                              "gid_pattern": gid_pattern,
-                                              "page_name": page_name,
-                                              "page_url": page_url,
-                                              "page_url_prefix": page_url_prefix,
-                                              "page_url_suffix": page_url_suffix,
-                                              "default_url_prefix": default_url_prefix,
-                                              "default_url_suffix": default_url_suffix,
-                                              "primaryKey": resource + page_name,
-                                              "uuid": str(uuid.uuid4())}
+                                                          "default_url": default_url,
+                                                          "gid_pattern": gid_pattern,
+                                                          "page_name": page_name,
+                                                          "page_url": page_url,
+                                                          "page_url_prefix": page_url_prefix,
+                                                          "page_url_suffix": page_url_suffix,
+                                                          "default_url_prefix": default_url_prefix,
+                                                          "default_url_suffix": default_url_suffix,
+                                                          "primaryKey": resource + page_name,
+                                                          "uuid": str(uuid.uuid4())}
                         ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
 
                         # TODO: fix special casing of NCBI links w/o pages in BGI
                         if resource == 'NCBI_Gene':
                             stanza_map[resource] = {"resource": resource,
-                                                            "default_url": default_url,
-                                                            "gid_pattern": gid_pattern,
-                                                            "default_url_prefix": default_url_prefix,
-                                                            "default_url_suffix": default_url_suffix,
-                                                            "page_url": "",
-                                                            "page_name": "",
-                                                            "page_url_prefix": default_url_prefix,
-                                                            "page_url_suffix": default_url_suffix,
-                                                            "primaryKey": resource,
-                                                            "uuid": str(uuid.uuid4())
-                                                            }
+                                                    "default_url": default_url,
+                                                    "gid_pattern": gid_pattern,
+                                                    "default_url_prefix": default_url_prefix,
+                                                    "default_url_suffix": default_url_suffix,
+                                                    "page_url": "",
+                                                    "page_name": "",
+                                                    "page_url_prefix": default_url_prefix,
+                                                    "page_url_suffix": default_url_suffix,
+                                                    "primaryKey": resource,
+                                                    "uuid": str(uuid.uuid4())}
 
             else:
                 stanza_map[resource] = {"resource": resource,
-                                      "default_url": default_url,
-                                      "gid_pattern": gid_pattern,
-                                      "default_url_prefix": default_url_prefix,
-                                      "default_url_suffix": default_url_suffix,
-                                      "page_url": "",
-                                      "page_name": "",
-                                      "page_url_prefix": default_url_prefix,
-                                      "page_url_suffix": default_url_suffix,
-                                      "primaryKey": resource,
-                                      "uuid": str(uuid.uuid4())
-                                      }
+                                        "default_url": default_url,
+                                        "gid_pattern": gid_pattern,
+                                        "default_url_prefix": default_url_prefix,
+                                        "default_url_suffix": default_url_suffix,
+                                        "page_url": "",
+                                        "page_name": "",
+                                        "page_url_prefix": default_url_prefix,
+                                        "page_url_suffix": default_url_suffix,
+                                        "primaryKey": resource,
+                                        "uuid": str(uuid.uuid4())}
                 ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
 
         return ResourceDescriptorHelper.list_of_descriptor_maps_to_load

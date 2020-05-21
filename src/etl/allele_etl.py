@@ -12,15 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 class AlleleETL(ETL):
-
     allele_construct_no_gene_query_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (c:Construct {primaryKey: row.constructId})
             MATCH (s:Species {primaryKey: row.taxonId})
-
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Allele {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
@@ -37,20 +33,15 @@ class AlleleETL(ETL):
                  o.symbolWithSpecies = row.symbolWithSpecies,
                  o.symbolTextWithSpecies = row.symbolTextWithSpecies,
                  o.description = row.alleleDescription
-
             MERGE (o)-[:FROM_SPECIES]-(s)
-
             MERGE (o)-[:CONTAINS]-(c) """
 
     allele_construct_gene_query_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (g:Gene {primaryKey: row.geneId})
             MATCH (c:Construct {primaryKey: row.constructId})
             MATCH (s:Species {primaryKey: row.taxonId})
-
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Allele:Feature {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
@@ -67,20 +58,15 @@ class AlleleETL(ETL):
                  o.symbolWithSpecies = row.symbolWithSpecies,
                  o.symbolTextWithSpecies = row.symbolTextWithSpecies,
                  o.description = row.alleleDescription
-
             MERGE (o)-[:FROM_SPECIES]-(s)
             MERGE (o)-[:IS_ALLELE_OF]-(g)
             MERGE (o)-[:CONTAINS]-(c) """
 
-
     allele_gene_no_construct_query_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (g:Gene {primaryKey: row.geneId})
             MATCH (s:Species {primaryKey: row.taxonId})
-
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Allele:Feature {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
@@ -97,18 +83,13 @@ class AlleleETL(ETL):
                  o.symbolWithSpecies = row.symbolWithSpecies,
                  o.symbolTextWithSpecies = row.symbolTextWithSpecies,
                  o.description = row.alleleDescription
-
             MERGE (o)-[:FROM_SPECIES]-(s)
-
             MERGE (o)-[:IS_ALLELE_OF]->(g) """
 
     allele_no_gene_no_construct_query_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (s:Species {primaryKey: row.taxonId})
-
             //Create the Allele node and set properties. primaryKey is required.
             MERGE (o:Allele:Feature {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
@@ -125,37 +106,28 @@ class AlleleETL(ETL):
                  o.symbolWithSpecies = row.symbolWithSpecies,
                  o.symbolTextWithSpecies = row.symbolTextWithSpecies,
                  o.description = row.alleleDescription
-
             MERGE (o)-[:FROM_SPECIES]-(s)
     """
 
     allele_secondaryids_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (f:Allele:Feature {primaryKey:row.data_id})
-
             MERGE (second:SecondaryId {primaryKey:row.secondary_id})
                 SET second.name = row.secondary_id
             MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
-    
-    allele_synonyms_template = """
 
+    allele_synonyms_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (a:Allele:Feature {primaryKey:row.data_id})
-
             MERGE(syn:Synonym {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
 
     allele_xrefs_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
             MATCH (o:Allele {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
@@ -164,16 +136,16 @@ class AlleleETL(ETL):
 
     def _load_and_process_data(self):
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
             p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
             p.start()
             thread_pool.append(p)
 
         ETL.wait_for_threads(thread_pool)
-  
+
     def _process_sub_type(self, sub_type):
-        
+
         logger.info("Loading Allele Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         logger.info(filepath)
@@ -184,7 +156,7 @@ class AlleleETL(ETL):
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
 
-        # This order is the same as the lists yielded from the get_generators function.    
+        # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -192,12 +164,18 @@ class AlleleETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [AlleleETL.allele_gene_no_construct_query_template, commit_size, "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_gene_query_template, commit_size, "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_no_gene_query_template, commit_size, "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_no_gene_no_construct_query_template, commit_size, "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_secondaryids_template, commit_size, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_synonyms_template, commit_size, "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_gene_no_construct_query_template, commit_size,
+             "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_construct_gene_query_template, commit_size,
+             "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_construct_no_gene_query_template, commit_size,
+             "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_no_gene_no_construct_query_template, commit_size,
+             "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_secondaryids_template, commit_size,
+             "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_synonyms_template, commit_size,
+             "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
             [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
         ]
 
@@ -215,7 +193,7 @@ class AlleleETL(ETL):
         alleles_no_constrcut_no_gene = []
         alleles_construct_gene = []
         alleles_no_construct = []
-        alleles_no_gene =[]
+        alleles_no_gene = []
         allele_synonyms = []
         allele_secondaryIds = []
         crossReferenceList = []
@@ -232,15 +210,17 @@ class AlleleETL(ETL):
 
         loadKey = dateProduced + dataProvider + "_ALLELE"
 
-        #TODO: get SGD to fix their files.
+        # TODO: get SGD to fix their files.
 
         if dataProviderPages is not None:
             for dataProviderPage in dataProviderPages:
-                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider, dataProviderPage)
+                crossRefCompleteUrl = ETLHelper.get_page_complete_url(dataProvider, self.xrefUrlMap, dataProvider,
+                                                                      dataProviderPage)
 
                 dataProviderCrossRefSet.append(ETLHelper.get_xref_dict(dataProvider, dataProvider, dataProviderPage,
-                                                                             dataProviderPage, dataProvider, crossRefCompleteUrl,
-                                                                             dataProvider + dataProviderPage))
+                                                                       dataProviderPage, dataProvider,
+                                                                       crossRefCompleteUrl,
+                                                                       dataProvider + dataProviderPage))
 
                 dataProviders.append(dataProvider)
                 logger.info("data provider: " + dataProvider)
@@ -283,26 +263,26 @@ class AlleleETL(ETL):
 
                     if gene_id != '' and construct_id != '':
                         allele_construct_gene_dataset = {
-                        "symbol": alleleRecord.get('symbol'),
-                        "geneId": gene_id,
-                        "primaryId": alleleRecord.get('primaryId'),
-                        "globalId": globalId,
-                        "localId": localId,
-                        "taxonId": alleleRecord.get('taxonId'),
-                        "dataProviders": dataProviders,
-                        "dateProduced": dateProduced,
-                        "loadKey": loadKey,
-                        "release": release,
-                        "modGlobalCrossRefId": modGlobalCrossRefId,
-                        "uuid": str(uuid.uuid4()),
-                        "dataProvider": data_provider,
-                        "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                        "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
-                        "symbolText": symbolText,
-                        "alleleDescription": description,
-                        "constructId": construct_id,
-                        "associationType": association_type
-                    }
+                            "symbol": alleleRecord.get('symbol'),
+                            "geneId": gene_id,
+                            "primaryId": alleleRecord.get('primaryId'),
+                            "globalId": globalId,
+                            "localId": localId,
+                            "taxonId": alleleRecord.get('taxonId'),
+                            "dataProviders": dataProviders,
+                            "dateProduced": dateProduced,
+                            "loadKey": loadKey,
+                            "release": release,
+                            "modGlobalCrossRefId": modGlobalCrossRefId,
+                            "uuid": str(uuid.uuid4()),
+                            "dataProvider": data_provider,
+                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
+                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
+                            "symbolText": symbolText,
+                            "alleleDescription": description,
+                            "constructId": construct_id,
+                            "associationType": association_type
+                        }
                         alleles_construct_gene.append(allele_construct_gene_dataset)
 
                     elif construct_id != '' and gene_id == '':
@@ -319,13 +299,13 @@ class AlleleETL(ETL):
                             "modGlobalCrossRefId": modGlobalCrossRefId,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
+                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
+                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
                             "symbolText": symbolText,
                             "alleleDescription": description,
                             "constructId": construct_id,
                             "associationType": association_type
-                    }
+                        }
 
                         alleles_no_gene.append(allele_construct_no_gene_dataset)
 
@@ -344,12 +324,12 @@ class AlleleETL(ETL):
                             "modGlobalCrossRefId": modGlobalCrossRefId,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
+                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
+                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
                             "symbolText": symbolText,
                             "alleleDescription": description,
                             "associationType": association_type
-                    }
+                        }
 
                         alleles_no_construct.append(allele_gene_no_construct_dataset)
 
@@ -367,12 +347,12 @@ class AlleleETL(ETL):
                             "modGlobalCrossRefId": modGlobalCrossRefId,
                             "uuid": str(uuid.uuid4()),
                             "dataProvider": data_provider,
-                            "symbolWithSpecies": alleleRecord.get('symbol') + " ("+ shortSpeciesAbbreviation + ")",
-                            "symbolTextWithSpecies": symbolText + " ("+ shortSpeciesAbbreviation + ")",
+                            "symbolWithSpecies": alleleRecord.get('symbol') + " (" + shortSpeciesAbbreviation + ")",
+                            "symbolTextWithSpecies": symbolText + " (" + shortSpeciesAbbreviation + ")",
                             "symbolText": symbolText,
                             "alleleDescription": description,
                             "associationType": association_type
-                    }
+                        }
 
                         alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)
 
@@ -398,7 +378,6 @@ class AlleleETL(ETL):
                 }
                 alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)
 
-
             if 'crossReferences' in alleleRecord:
 
                 for crossRef in alleleRecord['crossReferences']:
@@ -412,8 +391,10 @@ class AlleleETL(ETL):
                         for page in pages:
                             if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
                                     or page == 'transgene/references' or page == 'construct/references':
-                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id, self.xrefUrlMap, prefix, page)
-                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId, modGlobalCrossRefId, crossRefId+page)
+                                modGlobalCrossRefId = ETLHelper.get_page_complete_url(local_crossref_id,
+                                                                                      self.xrefUrlMap, prefix, page)
+                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
+                                                               modGlobalCrossRefId, crossRefId + page)
                                 xref['dataId'] = globalId
                                 crossReferenceList.append(xref)
 
@@ -434,7 +415,8 @@ class AlleleETL(ETL):
                     allele_secondaryIds.append(allele_secondaryId)
 
             if counter == batch_size:
-                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
+                       allele_secondaryIds, allele_synonyms, crossReferenceList]
                 alleles_no_construct = []
                 alleles_construct_gene = []
                 alleles_no_gene = []
@@ -446,4 +428,6 @@ class AlleleETL(ETL):
                 counter = 0
 
         if counter > 0:
-            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene, allele_secondaryIds, allele_synonyms, crossReferenceList]
+            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
+                   allele_secondaryIds, allele_synonyms, crossReferenceList]
+

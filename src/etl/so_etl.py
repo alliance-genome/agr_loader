@@ -1,15 +1,23 @@
+'''SO ETL'''
+
+import sys
+import logging
+
+from itertools import islice, chain, tee
 from etl import ETL
 from files import TXTFile
-from itertools import islice, chain, tee
-from transactors import CSVTransactor, Neo4jTransactor
-import logging
-import sys
+from transactors import CSVTransactor
+from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
 
 class SOETL(ETL):
+    '''SO ETL'''
 
-    query_template = """
+    logger = logging.getLogger(__name__)
+
+    # Query templates which take params and will be processed later
+
+    main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -18,26 +26,30 @@ class SOETL(ETL):
          
             MERGE (s)-[ggcg:IS_A_PART_OF_CLOSURE]->(s)"""
 
+
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
 
+
     def _load_and_process_data(self):
 
         filepath = self.data_type_config.get_single_filepath()
-        
+
         commit_size = self.data_type_config.get_neo4j_commit_size()
 
         generators = self.get_generators(filepath)
 
-        query_list = [[SOETL.query_template, commit_size, "so_term_data.csv"]]
+        query_template_list = [[self.main_query_template, commit_size, "so_term_data.csv"]]
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        
+
+
     def get_generators(self, filepath):
-        
+        '''Get Generators'''
+
         data = TXTFile(filepath).get_data()
         so_list = []
         for current_line, next_line in self.get_current_next(data):
@@ -53,16 +65,18 @@ class SOETL(ETL):
                     next_value = ("".join(":".join(next_line.split(":")[1:]))).strip()
                 else:
                     sys.exit("FATAL ERROR: Expected SO name not found for %s" % (key))
-                so_dataset = {
-                'id' : value,
-                'name' : next_value
-                }
+                so_dataset = {'id' : value,
+                              'name' : next_value}
                 so_list.append(so_dataset)
 
         yield [so_list]
 
 
-    def get_current_next(self, the_list):
+    @classmethod
+    def get_current_next(cls, the_list):
+        '''Get Current Next'''
+
         current, next_item = tee(the_list, 2)
         next_item = chain(islice(next_item, 1, None), [None])
+
         return zip(current, next_item)
