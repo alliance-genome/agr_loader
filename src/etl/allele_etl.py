@@ -180,13 +180,13 @@ class AlleleETL(ETL):
         ]
 
         # Obtain the generator
-        generators = self.get_generators(data, sub_type.get_data_provider(), batch_size)
+        generators = self.get_generators(data, batch_size)
 
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, allele_data, data_provider, batch_size):
+    def get_generators(self, allele_data, batch_size):
 
         data_providers = []
         release = ""
