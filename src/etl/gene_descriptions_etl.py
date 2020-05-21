@@ -239,15 +239,15 @@ class GeneDescriptionsETL(ETL):
             set_gene_ontology_module(dm=gd_data_manager,
                                      conf_parser=gd_config,
                                      gene_desc=gene_desc, gene=gene)
+            set_expression_module(df=gd_data_manager,
+                                  conf_parser=gd_config,
+                                  gene_desc=gene_desc,
+                                  gene=gene)
             set_disease_module(df=gd_data_manager,
                                conf_parser=gd_config,
                                gene_desc=gene_desc,
                                gene=gene,
                                human=data_provider == "HUMAN")
-            set_expression_module(df=gd_data_manager,
-                                  conf_parser=gd_config,
-                                  gene_desc=gene_desc,
-                                  gene=gene)
             if gene.id in best_orthologs:
                 gene_desc.stats.set_best_orthologs = best_orthologs[gene.id][0]
                 set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],

@@ -7,7 +7,7 @@ jsonschema
 pyyaml
 urllib3==1.24.2
 xmltodict
-git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.0.1#egg=genedescriptions
+git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.1.0#egg=genedescriptions
 ontobio==1.11.4
 boto3
 coloredlogs
