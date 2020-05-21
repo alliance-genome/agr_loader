@@ -1,12 +1,17 @@
+'''Schema Node Tests'''
+
 from etl import Neo4jHelper
-import os
 
 
 def execute_transaction(query):
+    '''Execute Transaction'''
+
     return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
+    '''PyTest Generate Tests'''
+
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
     argnames = sorted(funcarglist[0])
@@ -14,10 +19,10 @@ def pytest_generate_tests(metafunc):
                                     for funcargs in funcarglist])
 
 
-class TestClass(object):
-    # a map specifying multiple argument sets for a test method
-    params = {
+class TestClass():
+    '''A map specifying multiple argument sets for a test method'''
 
+    params = {
         'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE'),
                                      dict(relationship='LOCATED_ON'),
                                      dict(relationship='VARIATION'),
@@ -46,6 +51,7 @@ class TestClass(object):
                              dict(node='Gene'),
                              dict(node='Synonym'),
                              dict(node='CrossReference'),
+                             dict(node='Construct'),
                              dict(node='Species'),
                              dict(node='Entity'),
                              dict(node='Chromosome'),
@@ -64,7 +70,6 @@ class TestClass(object):
                              dict(node='SequenceTargetingReagent'),
                              dict(node='BioEntityGeneExpressionJoin'),
                              dict(node='InteractionGeneJoin'),
-                             #dict(node='GenomicLocationBin'),
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
@@ -80,10 +85,15 @@ class TestClass(object):
                              dict(node='GenomicLocation'),
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
-                             dict(node='Transcript')
+                             dict(node='Transcript'),
+                             dict(node='Exon')
                              ],
 
-        'test_prop_exist': [dict(node='Gene', prop='modGlobalCrossRefId'),
+        'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
+                            dict(node='Construct', prop='name'),
+                            dict(node='Construct', prop='nameText'),
+                            dict(node='Construct', prop='symbol'),
+                            dict(node='Gene', prop='modGlobalCrossRefId'),
                             dict(node='Gene', prop='geneLiteratureUrl'),
                             dict(node='Gene', prop='modCrossRefCompleteUrl'),
                             dict(node='Gene', prop='taxonId'),
@@ -94,9 +104,6 @@ class TestClass(object):
                             dict(node='Gene', prop='modGlobalId'),
                             dict(node='Gene', prop='uuid'),
                             dict(node='Gene', prop='symbolWithSpecies'),
-                            #dict(node='GenomicLocationBin', prop='primaryKey'),
-                            #dict(node='GenomicLocationBin', prop='assembly'),
-                            #dict(node='GenomicLocationBin', prop='number'),
                             dict(node='GOTerm', prop='primaryKey'),
                             dict(node='Gene', prop='dataProvider'),
                             dict(node='AffectedGenomicModel', prop='primaryKey'),
@@ -104,7 +111,6 @@ class TestClass(object):
                             dict(node='AffectedGenomicModel', prop='nameText'),
                             dict(node='AffectedGenomicModel', prop='nameTextWithSpecies'),
                             dict(node='AffectedGenomicModel', prop='nameWithSpecies'),
-                            #dict(node='SOTerm', prop='name'),
                             dict(node='SOTerm', prop='primaryKey'),
                             dict(node='DOTerm', prop='doPrefix'),
                             dict(node='DOTerm', prop='doId'),
@@ -142,8 +148,6 @@ class TestClass(object):
                             dict(node='Association', prop='primaryKey'),
                             dict(node='Phenotype', prop='primaryKey'),
                             dict(node='Phenotype', prop='phenotypeStatement'),
-                            #dict(node='Publication', prop='pubMedId'),
-                            #dict(node='Publication', prop='pubModId'),
                             dict(node='Publication', prop='primaryKey'),
                             dict(node='Allele', prop='primaryKey'),
                             dict(node='Allele', prop='symbol'),
@@ -165,8 +169,26 @@ class TestClass(object):
                             dict(node='GenomicLocation', prop='chromosome'),
                             dict(node='GenomicLocation', prop='assembly'),
                             dict(node='GeneLevelConsequence', prop='geneLevelConsequence'),
-                            dict(node='TranscriptLevelConsequence', prop='transcriptLevelConsequence'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidReference'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidVariation'),
+                            dict(node='TranscriptLevelConsequence', prop='aminoAcidChange'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdnaRange'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='cdsRange'),
+                            dict(node='TranscriptLevelConsequence', prop='codonReference'),
+                            dict(node='TranscriptLevelConsequence', prop='codonVariation'),
+                            dict(node='TranscriptLevelConsequence', prop='codonChange'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinStartPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinEndPosition'),
+                            dict(node='TranscriptLevelConsequence', prop='proteinRange'),
+                            dict(node='Transcript', prop='primaryKey'),
+                            dict(node='Transcript', prop='gff3ID'),
+                            dict(node='Transcript', prop='name')
                             ],
+
 
         'test_prop_not_null': [dict(node='AffectedGenomicModel', prop='primaryKey'),
                                dict(node='AffectedGenomicModel', prop='name'),
@@ -182,11 +204,7 @@ class TestClass(object):
                                dict(node='Gene', prop='modGlobalId'),
                                dict(node='Gene', prop='uuid'),
                                dict(node='Gene', prop='dataProvider'),
-                               #dict(node='GenomicLocationBin', prop='primaryKey'),
-                               #dict(node='GenomicLocationBin', prop='assembly'),
-                               #dict(node='GenomicLocationBin', prop='number'),
                                dict(node='GOTerm', prop='primaryKey'),
-                               #dict(node='SOTerm', prop='name'),
                                dict(node='SOTerm', prop='primaryKey'),
                                dict(node='DOTerm', prop='doPrefix'),
                                dict(node='DOTerm', prop='doId'),
@@ -198,6 +216,10 @@ class TestClass(object):
                                dict(node='DOTerm', prop='primaryKey'),
                                dict(node='Identifier', prop='primaryKey'),
                                dict(node='Synonym', prop='primaryKey'),
+                               dict(node='Construct', prop='primaryKey'),
+                               dict(node='Construct', prop='name'),
+                               dict(node='Construct', prop='nameText'),
+                               dict(node='Construct', prop='symbol'),
                                dict(node='CrossReference', prop='localId'),
                                dict(node='CrossReference', prop='name'),
                                dict(node='CrossReference', prop='primaryKey'),
@@ -220,7 +242,6 @@ class TestClass(object):
                                dict(node='Phenotype', prop='phenotypeStatement'),
                                dict(node='Association', prop='joinType'),
                                dict(node='Association', prop='primaryKey'),
-                               #dict(node='Publication', prop='pubMedId'),
                                dict(node='Publication', prop='primaryKey'),
                                dict(node='Allele', prop='primaryKey'),
                                dict(node='Allele', prop='symbol'),
@@ -242,20 +263,15 @@ class TestClass(object):
                                dict(node='PublicationJoin', prop='primaryKey')
                                ],
 
-        'test_prop_unique': [
-                             dict(node='Publication', prop='primaryKey'),
+        'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),
-                             #dict(node='GenomicLocationBin', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                             # dict(node='Chromosome', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
                              dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
-                             # Commenting out until we have a fix for UBERON
-                             # dict(node='Synonym', prop='primaryKey'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),
                              dict(node='GOTerm', prop='primaryKey'),
@@ -268,49 +284,63 @@ class TestClass(object):
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
                              dict(node='Variant', prop='hgvsNomenclature'),
-                             # with uberon, this can not be unique any longer, unless
-                             # every term is just 'ontology' not ontology-specific node labels.
-                             # dict(node='Ontology', prop='primaryKey'),
-                             # TODO refactor ontology transaction to use id prefix to name node labels so
-                             # we can turn this back on
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey')
                              ]
     }
 
-    # Query to return all distinct properties from all nodes of a certain type:
-    # MATCH (n:Gene) WITH DISTINCT keys(n) AS keys UNWIND keys AS keyslisting WITH DISTINCT keyslisting AS allfields RETURN allfields;
 
-    def test_node_exists(self, node):
-        query = 'MATCH (n:%s) RETURN DISTINCT COUNT(n) as count' % node
+    @staticmethod
+    def test_node_exists(node):
+        '''Test Node Exists'''
+
+        query = '''MATCH (n:%s)
+                   RETURN DISTINCT COUNT(n) AS count''' % node
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] > 0
+
+    @staticmethod
+    def test_relationship_exists(relationship):
+        '''Test Relationship Exists'''
+
+        query = '''MATCH ()-[r:%s]-()
+                   RETURN count(r) AS count''' % relationship
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0
 
-    def test_relationship_exists(self, relationship):
-        query = 'MATCH ()-[r:%s]-() return count(r) as count' % relationship
-
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] > 0
-
-    def test_prop_exist(self, node, prop):
-        query = 'MATCH (n:%s) WHERE NOT EXISTS(n.%s) RETURN COUNT(n) as count' % (node, prop)
-
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 0
-
-    def test_prop_not_null(self, node, prop):
-        query = 'MATCH (n:%s) WHERE n.%s is NULL RETURN COUNT(n) as count' % (node, prop)
+    @staticmethod
+    def test_prop_exist(node, prop):
+        '''Test Prop Exits'''
+        query = '''MATCH (n:%s)
+                   WHERE NOT EXISTS(n.%s)
+                   RETURN COUNT(n) AS count''' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
             assert record["count"] == 0
 
-    def test_prop_unique(self, node, prop):
-        query = 'MATCH (n:%s) WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count RETURN count' % (node, prop)
+    @staticmethod
+    def test_prop_not_null(node, prop):
+        '''Test Prop Not Null'''
+
+        query = '''MATCH (n:%s)
+                   WHERE n.%s is NULL
+                   RETURN COUNT(n) AS count''' % (node, prop)
+
+        result = execute_transaction(query)
+        for record in result:
+            assert record["count"] == 0
+
+    @staticmethod
+    def test_prop_unique(node, prop):
+        '''Test Prop Unique'''
+
+        query = '''MATCH (n:%s)
+                   WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count
+                   RETURN count''' % (node, prop)
 
         result = execute_transaction(query)
         for record in result:

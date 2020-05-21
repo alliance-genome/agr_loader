@@ -1,43 +1,47 @@
+'''OBO Helper'''
+
 import logging
 
 from ontobio import OntologyFactory
-
 from .etl_helper import ETLHelper
 
 
-logger = logging.getLogger(__name__)
+class OBOHelper():
+    '''OBO Helper'''
 
-class OBOHelper(object):
+    logger = logging.getLogger(__name__)
 
     def get_data(self, filepath):
+        '''Get Data'''
 
         ont = OntologyFactory().create(filepath)
 
         parsed_line = ont.graph.copy().node
-        last_syn = ""
-        for k, line in parsed_line.items():  # Convert parsed obo term into a schema-friendly AGR dictionary.
-            node = ont.graph.node[k]
+
+        #Convert parsed obo term into a schema-friendly AGR dictionary.
+        for key in parsed_line.items():
+            node = ont.graph.node[key]
             if len(node) == 0:
                 continue
 
-            ### Switching id to curie form and saving URI in "uri" - might wildly break things later on???
+            ### Switching id to curie form and saving URI in "uri"
+            # might wildly break things later on???
             node["uri"] = node["id"]
-            node["id"] = k
+            node["id"] = key
 
-            relationships = node.get('relationship')
             syns = []
             xrefs = []
             xref_urls = []
 
             local_id = None
-            defLinksUnprocessed = []
-            defLinksProcessed = []
-            defText = None
+            def_links_unprocessed = []
+            def_links_processed = []
+            def_text = None
             subset = []
             definition = ""
             namespace = ""
             is_obsolete = "false"
-            ident = k
+            ident = key
             prefix = ident.split(":")[0]
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
@@ -49,13 +53,19 @@ class OBOHelper(object):
 
                     o_xrefs = node["meta"].get('xrefs')
                     if o_xrefs is not None:
-                        for xrefIdDict in o_xrefs:
-                            xrefId = xrefIdDict["val"]
-                            if ":" in xrefId:
-                                local_id = xrefId.split(":")[1].strip()
-                                prefix = xrefId.split(":")[0].strip()
-                                complete_url = ETLHelper.get_complete_url_ont(local_id, xrefId)
-                                generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", xrefId, complete_url, xrefId + "ontology_provided_cross_reference")
+                        for xref_id_dict in o_xrefs:
+                            xref_id = xref_id_dict["val"]
+                            if ":" in xref_id:
+                                local_id = xref_id.split(":")[1].strip()
+                                prefix = xref_id.split(":")[0].strip()
+                                complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
+                                generated_xref = ETLHelper.get_xref_dict( \
+                                        local_id, prefix,
+                                        "ontology_provided_cross_reference",
+                                        "ontology_provided_cross_reference",
+                                        xref_id,
+                                        complete_url,
+                                        xref_id + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                         else:
@@ -63,7 +73,14 @@ class OBOHelper(object):
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(local_id, prefix, "ontology_provided_cross_reference", "ontology_provided_cross_reference", o_xrefs, complete_url, o_xrefs)
+                                generated_xref = ETLHelper.get_xref_dict( \
+                                        local_id,
+                                        prefix,
+                                        "ontology_provided_cross_reference",
+                                        "ontology_provided_cross_reference",
+                                        o_xrefs,
+                                        complete_url,
+                                        o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
@@ -72,77 +89,85 @@ class OBOHelper(object):
                     is_obsolete = "true"
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
-                    defLinksUnprocessed = node["meta"]["definition"]["xrefs"]
+                    def_links_unprocessed = node["meta"]["definition"]["xrefs"]
                 if "subsets" in node["meta"]:
-                    newSubset = node['meta'].get('subsets')
-                    if isinstance(newSubset, (list, tuple)):
-                        subset = newSubset
+                    new_subset = node['meta'].get('subsets')
+                    if isinstance(new_subset, (list, tuple)):
+                        subset = new_subset
                     else:
-                        if newSubset is not None:
-                            subset.append(newSubset)
+                        if new_subset is not None:
+                            subset.append(new_subset)
                 if len(subset) > 1:
                     converted_subsets = []
-                    for s in subset:
-                        if "#" in s:
-                            s = s.split("#")[-1]
-                        converted_subsets.append(s)
+                    for subset_str in subset:
+                        if "#" in subset_str:
+                            subset_str = subset_str.split("#")[-1]
+                        converted_subsets.append(subset_str)
                     subset = converted_subsets
                 if "basicPropertyValues" in node['meta']:
                     for bpv in node['meta']['basicPropertyValues']:
                         if bpv.get('pred') == 'OIO:hasOBONamespace':
                             namespace = bpv.get('val')
                             break
+
+            # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
             if xrefs is None:
-                xrefs = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
+                xrefs = []
 
-            all_parents = ont.parents(k)
-            all_parents.append(k)
-            all_parents_subont = ont.subontology(all_parents) # Improves performance when traversing relations
+            all_parents = ont.parents(key)
+            all_parents.append(key)
 
-            isasWithoutNames = all_parents_subont.parents(k, relations=['subClassOf'])
-            partofsWithoutNames = all_parents_subont.parents(k, relations=['BFO:0000050'])
-            regulates = all_parents_subont.parents(k, relations=['RO:0002211'])
-            negatively_regulates = all_parents_subont.parents(k, relations=['RO:0002212'])
-            positively_regulates = all_parents_subont.parents(k, relations=['RO:0002213'])
+            # Improves performance when traversing relations
+            all_parents_subont = ont.subontology(all_parents)
 
-            defLinksProcessed = []
-            defLinks = ""
+            isas_without_names = all_parents_subont.parents(key, relations=['subClassOf'])
+            partofs_without_names = all_parents_subont.parents(key, relations=['BFO:0000050'])
+            regulates = all_parents_subont.parents(key, relations=['RO:0002211'])
+            negatively_regulates = all_parents_subont.parents(key, relations=['RO:0002212'])
+            positively_regulates = all_parents_subont.parents(key, relations=['RO:0002213'])
+
+            def_links_unprocessed = []
+            def_links = ""
             if definition is None:
                 definition = ""
             else:
-                #definition = definition.replace('\n', ' ') # Remove new lines that cause this to split across two lines in the file
-                #definition = definition.replace('  ', ' ') # Remove any extra double space that might have been introduces in the last replace
+                #Remove new lines that cause this to split across two lines in the file
+                #definition = definition.replace('\n', ' ')
+
+                #Remove any extra double space that might have been introduces in the last replace
+                #definition = definition.replace('  ', ' ')
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
-                        defText = split_definition[1].strip()
+                        def_text = split_definition[1].strip()
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
-                            defLinks = split_definition[2].strip()
-                            defLinksUnprocessed.append(defLinks.rstrip("]").replace("[", ""))
+                            def_links = split_definition[2].strip()
+                            def_links_unprocessed.append(def_links.rstrip("]").replace("[", ""))
                 else:
-                    defText = definition
+                    def_text = definition
 
-            for dl in defLinksUnprocessed:
-                dl = dl.replace("url:www", "http://www")
-                dl = dl.replace("url:", "")
-                dl = dl.replace("URL:", "")
-                dl = dl.replace("\\:", ":")
+            for def_link_str in def_links_unprocessed:
+                def_link_str = def_link_str.replace("url:www", "http://www")
+                def_link_str = def_link_str.replace("url:", "")
+                def_link_str = def_link_str.replace("URL:", "")
+                def_link_str = def_link_str.replace("\\:", ":")
 
-                if "," in dl:
-                    dl = dl.split(",")
-                    for link in dl:
+                if "," in def_link_str:
+                    def_links = def_link_str.split(",")
+                    for link in def_links:
                         if link.strip().startswith("http"):
-                            defLinksProcessed.append(link)
+                            def_links_processed.append(link)
                 # elif "." in dl:
                 #     dl = dl.split(".")
                 #     for link in dl:
                 #         if link.strip().startswith("http"):
-                #             defLinksProcessed.append(link)
+                #             def_links_processed.append(link)
                 else:
-                    if dl.strip().startswith("http"):
-                        defLinksProcessed.append(dl)
+                    if def_link_str.strip().startswith("http"):
+                        def_links_processed.append(def_link_str)
 
-            # TODO: make this a generic section based on hte resourceDescriptor.yaml file.  need to have MODs add disease pages to their yaml stanzas
+            # TODO: make this a generic section based on hte resourceDescriptor.yaml file.
+            # need to have MODs add disease pages to their yaml stanzas
 
 
             alt_ids = node.get('alt_id')
@@ -151,7 +176,7 @@ class OBOHelper(object):
                     alt_ids = [alt_ids]
             else:
                 alt_ids = []
-            
+
             dict_to_append = {
 
                 'o_type': namespace,
@@ -163,12 +188,12 @@ class OBOHelper(object):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'o_synonyms': syns,
-                'isas': isasWithoutNames,
-                'partofs': partofsWithoutNames,
+                'isas': isas_without_names,
+                'partofs': partofs_without_names,
                 'regulates': regulates,
                 'negatively_regulates': negatively_regulates,
                 'positively_regulates': positively_regulates,
-                
+
                 ### This data might be needed for gene descriptions
                 ### Maybe should be turned into a different method in order
                 ### to keep the go do dict's smaller
@@ -177,10 +202,14 @@ class OBOHelper(object):
                 #'xrefs': xrefs,
                 #'ontologyLabel': filepath,
                 #TODO: fix links to not be passed for each ontology load.
-                #'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id='+node['id']+'#annot',
-                #'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=All&x=1&acc_id=' + node['id'] + '#annot',
-                #'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=' +node['id'] + '#annot',
-                #'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Human&x=1&acc_id=' +node['id'] + '#annot',
+                #'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html'\
+                #              + '?species=All&x=1&acc_id='+node['id']+'#annot',
+                #'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                #                   + 'species=All&x=1&acc_id=' + node['id'] + '#annot',
+                #'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                #                       + 'species=Rat&x=1&acc_id=' +node['id'] + '#annot',
+                #'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                #                        + 'species=Human&x=1&acc_id=' +node['id'] + '#annot',
                 #'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
                 #'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
                 #'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
@@ -189,76 +218,82 @@ class OBOHelper(object):
                 #'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
                 #'oPrefix': prefix,
                 #'crossReferences': xref_urls,
-                #'defText': defText,
-                #'defLinksProcessed': defLinksProcessed,
+                #'defText': def_text,
+                #'defLinksProcessed': def_links_processed,
                 #'oboFile': prefix,
                 #'category': 'go',
                 #'alt_ids': alt_ids,
             }
-            
+
             if node['id'] == 'GO:0099616':
                 print(dict_to_append)
-            
+
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node
 
         return ont
 
     @staticmethod
-    def process_line(line, o_dict, withinTerm):
-        if len(line.strip()) == 0: # If the line is blank, reset withinTerm and kick it back.
-            withinTerm = False
-            return o_dict, withinTerm # The o_dict should be fully populated at this point.
-        else:
-            if ":" in line:
+    def process_line(line, o_dict, within_term):
+        '''Process Line'''
 
-                k, v = line.strip().split(':', 1) # Split the lines on the first ':'
-                v = v[1:] # Remove erroneous first character from the split. TODO Typical whitespace removal doesn't work? Why?
-                if k in o_dict:
-                    if (type(o_dict[k]) is str): # If it's an entry with a single string, turn it into a list.
-                        temp_value = o_dict[k]
-                        o_dict[k] = [temp_value, v]
-                    elif (type(o_dict[k]) is list): # If it's already a list, append to it.
-                        o_dict[k].append(v)
-                else:
-                    o_dict[k] = v # If it's the first time we're seeing this key-value, make a new entry.
+        if len(line.strip()) == 0: # If the line is blank, reset withinTerm and kick it back.
+            within_term = False
+            return o_dict, within_term # The o_dict should be fully populated at this point.
+
+        if ":" in line:
+            # Split the lines on the first ':'
+            key, value = line.strip().split(':', 1)
+
+            # Remove erroneous first character from the split.
+            # TODO Typical whitespace removal doesn't work? Why?
+            value = value[1:]
+            if key in o_dict:
+                # If it's an entry with a single string, turn it into a list.
+                if isinstance(o_dict[key], str):
+                    temp_value = o_dict[key]
+                    o_dict[key] = [temp_value, value]
+                # If it's already a list, append to it.
+                elif isinstance(o_dict[key], list):
+                    o_dict[key].append(value)
+            # If it's the first time we're seeing this key-value, make a new entry.
             else:
-                logger.info(line)
-                logger.info(o_dict)
-    
-            return o_dict, withinTerm
+                o_dict[key] = value
+        else:
+            OBOHelper.logger.info(line)
+            OBOHelper.logger.info(o_dict)
+
+        return o_dict, within_term
+
 
     @staticmethod
-    def parseOBO(data):
-        ontologyData = []
+    def parse_obo(data):
+        '''Parse OBO'''
+
+        ontology_data = []
         o_dict = {}
-        withinTerm = False
-        withinTypedef = False
-    
+        within_term = False
+        within_typedef = False
+
         # Ignores withinTypedef entries.
-    
         for line in data:
             if '[Term]' in line:
-                withinTerm = True
-                if o_dict: # If o_dict has data (from pervious [Term]) add it to the list first.
-                    ontologyData.append(o_dict)
-                    o_dict = {} # New empty dict.
+                within_term = True
+
+                # If o_dict has data (from pervious [Term]) add it to the list first.
+                if o_dict:
+                    ontology_data.append(o_dict)
+                    o_dict = {}
                 else:
                     continue
             elif '[Typedef]' in line:
-                withinTypedef = True # Used for skipping data.
+                within_typedef = True # Used for skipping data.
             else:
-                if withinTerm is True:
-                    o_dict, withinTerm = OBOHelper.process_line(line, o_dict, withinTerm) # Process the line.
-                elif withinTypedef is True: # Skip Typedefs, look for empty line.
+                if within_term is True:
+                    o_dict, within_term = OBOHelper.process_line(line, o_dict, within_term)
+                elif within_typedef is True: # Skip Typedefs, look for empty line.
                     if len(line.strip()) == 0:
-                        withinTypedef = False # Reset withinTypedef
-                    else:
-                        continue # Keep looking for the blank line to indicate the end of an entry.
-                else:
-                    continue # If we hit blank lines or nonsensical lines, keep going. Skips stuff at top of file.
-    
-        ontologyData.append(o_dict) # Append last entry.
-    
-        return ontologyData # Return the list of dicts.
+                        within_typedef = False # Reset withinTypedef
+        ontology_data.append(o_dict)
 
+        return ontology_data

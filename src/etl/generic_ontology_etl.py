@@ -1,4 +1,9 @@
-import logging, multiprocessing
+
+'''Generic Ontology ETL'''
+
+import logging
+import multiprocessing
+import re
 
 from etl import ETL
 from etl.helpers import ETLHelper, OBOHelper
@@ -6,12 +11,15 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
-logger = logging.getLogger(__name__)
-
 
 class GenericOntologyETL(ETL):
+    '''Generic Ontology ETL'''
 
-    generic_ontology_term_template = """
+    logger = logging.getLogger(__name__)
+
+    # Query templates which take params and will be processed later
+
+    generic_ontology_term_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -26,36 +34,46 @@ class GenericOntologyETL(ETL):
                 g.href = row.href,
                 g.displaySynonym = row.display_synonym,
                 g.subsets = apoc.convert.fromJsonList(row.subsets)
-        MERGE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
+        CREATE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
         """
 
-    generic_ontology_synonyms_template = """
+    generic_ontology_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
                     SET syn.name = row.syn
-            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
+            CREATE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
-    generic_ontology_isas_template = """
+    generic_ontology_isas_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.isa})
-            MERGE (g)-[aka:IS_A]->(g2)
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
+            CREATE (g)-[aka:IS_A]->(g2)
         """
 
-    generic_ontology_partofs_template = """
+    generic_ontology_partofs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (g2:%sTerm:Ontology {primaryKey:row.partof})
-            MERGE (g)-[aka:PART_OF]->(g2)
+            MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
+            CREATE (g)-[aka:PART_OF]->(g2)
         """
+
+    generic_ontology_altids_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
+            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+            CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+    """
+
 
     def __init__(self, config):
         super().__init__()
@@ -63,20 +81,20 @@ class GenericOntologyETL(ETL):
 
     def _load_and_process_data(self):
         thread_pool = []
-        
+
         for sub_type in self.data_type_config.get_sub_type_objects():
-            p = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            p.start()
-            thread_pool.append(p)
+            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process.start()
+            thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-  
+
     def _process_sub_type(self, sub_type):
-        logger.info("Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Loading Generic Ontology Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
 
 
-        # This order is the same as the lists yielded from the get_generators function.    
+        # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
@@ -85,121 +103,144 @@ class GenericOntologyETL(ETL):
         ont_type = sub_type.get_data_provider()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
-        query_list = [
-            [GenericOntologyETL.generic_ontology_term_template, 600000, "generic_ontology_term_" + ont_type + ".csv", ont_type],
-            [GenericOntologyETL.generic_ontology_isas_template, commit_size, "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_partofs_template, commit_size, "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [GenericOntologyETL.generic_ontology_synonyms_template, 400000,
-              "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+        query_template_list = [
+            [self.generic_ontology_term_query_template, 600000,
+             "generic_ontology_term_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_isas_query_template, commit_size,
+             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
+            [self.generic_ontology_partofs_query_template, commit_size,
+             "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
+            [self.generic_ontology_synonyms_query_template, 400000,
+             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_altids_query_template, commit_size,
+             "generic_ontology_altids_" + ont_type + ".csv", ont_type],
         ]
 
         # Obtain the generator
         generators = self.get_generators(filepath, batch_size)
 
-        query_and_file_list = self.process_query_params(query_list)
+        query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-        logger.info("Finished Loading Generic Ontology Data: %s" % sub_type.get_data_provider())
+        self.logger.info("Finished Loading Generic Ontology Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, filepath, batch_size):
+        '''Get Genrators'''
 
         o_data = TXTFile(filepath).get_data()
-        parsed_line = OBOHelper.parseOBO(o_data)
+        parsed_line = OBOHelper.parse_obo(o_data)
 
         counter = 0
+
         terms = []
         syns = []
         isas = []
         partofs = []
         subsets = []
+        altids = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
+
             counter += 1
             o_syns = line.get('synonym')
-            defText = None
-            definition = ""
-            is_obsolete = "false"
-            syn = ""
             ident = line['id'].strip()
             prefix = ident.split(":")[0]
             display_synonym = ""
+            o_altids = line.get('alt_id')
+
+            if o_altids is not None:
+                if isinstance(o_altids, (list, tuple)):
+                    for altid in o_altids:
+                        alt_dict_to_append = {
+                            'primary_id': ident,
+                            'secondary_id': altid
+                        }
+                        altids.append(alt_dict_to_append)
+                else:
+                    alt_dict_to_append = {
+                        'primary_id': ident,
+                        'secondary_id': o_altids
+                    }
+                    altids.append(alt_dict_to_append)
 
             if o_syns is not None:
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
-                        synsplit = syn.split("\"")[1].strip()
+
+                        synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
                             'oid' : ident,
-                            'syn' : synsplit
+                            'syn' : synsplit[1].replace('\\"', '""')
                         }
                         syns.append(syns_dict_to_append) # Synonyms appended here.
                         if "DISPLAY_SYNONYM" in syn:
-                            display_synonym = synsplit
+                            display_synonym = synsplit[1].replace('"', '""')
                 else:
-                    synsplit = o_syns.split("\"")[1].strip()
+                    synsplit = re.split(r'(?<!\\)"', o_syns)
                     syns_dict_to_append = {
-                            'oid' : ident,
-                            'syn' : synsplit
-                        }
+                        'oid' : ident,
+                        'syn' : synsplit[1].replace('\"', '""')
+                    }
                     syns.append(syns_dict_to_append) # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
-                        display_synonym = synsplit
+                        display_synonym = synsplit[1].replace('\"', '""')
             # subset
-            newSubset = line.get('subset')
-            subsets.append(newSubset)
+            new_subset = line.get('subset')
+            subsets.append(new_subset)
 
             # is_a processing
             o_is_as = line.get('is_a')
             if o_is_as is not None:
                 if isinstance(o_is_as, (list, tuple)):
                     for isa in o_is_as:
-                        isaWithoutName = isa.split("!")[0].strip()
-                        isas_dict_to_append ={
-                            'oid' : ident,
-                            'isa' : isaWithoutName
-                        }
-                        isas.append(isas_dict_to_append)
+                        if 'gci_filler=' not in isa:
+                            isa_without_name = isa.split(' ')[0].strip()
+                            isas_dict_to_append = {
+                                'oid' : ident,
+                                'isa' : isa_without_name}
+                            isas.append(isas_dict_to_append)
                 else:
-                    isaWithoutName = o_is_as.split("!")[0].strip()
-                    isas_dict_to_append ={
-                            'oid' : ident,
-                            'isa' : isaWithoutName
-                        }
-                    isas.append(isas_dict_to_append)
+                    if 'gci_filler=' not in o_is_as:
+                        isa_without_name = o_is_as.split(' ')[0].strip()
+                        isas_dict_to_append = {'oid' : ident,
+                                               'isa' : isa_without_name}
+                        isas.append(isas_dict_to_append)
 
             # part_of processing
             relations = line.get('relationship')
             if relations is not None:
                 if isinstance(relations, (list, tuple)):
                     for partof in relations:
-                        relationshipDescriptors = partof.split(' ')
-                        o_part_of = relationshipDescriptors[0]
+                        if 'gci_filler=' not in partof:
+                            relationship_descriptors = partof.split(' ')
+                            o_part_of = relationship_descriptors[0]
+                            if o_part_of == 'part_of':
+                                partof_dict_to_append = {
+                                    'oid': ident,
+                                    'partof': relationship_descriptors[1]
+                                }
+                                partofs.append(partof_dict_to_append)
+                else:
+                    if 'gci_filler=' not in relations:
+                        relationship_descriptors = relations.split(' ')
+                        o_part_of = relationship_descriptors[0]
                         if o_part_of == 'part_of':
                             partof_dict_to_append = {
-                                'oid': ident,
-                                'partof': relationshipDescriptors[1]
-                            }
-                            partofs.append(partof_dict_to_append)
-                else:
-                    relationshipDescriptors = relations.split(' ')
-                    o_part_of = relationshipDescriptors[0]
-                    if o_part_of == 'part_of':
-                        partof_dict_to_append = {
                                 'oid' : ident,
-                                'partof' : relationshipDescriptors[1]
-                        }
-                        partofs.append(partof_dict_to_append)
+                                'partof' : relationship_descriptors[1]}
+                            partofs.append(partof_dict_to_append)
 
             definition = line.get('def')
             if definition is None:
                 definition = ""
             else:
-                if "\\\"" in definition: # Looking to remove instances of \" in the definition string.
-                    definition = definition.replace('\\\"', '\"') # Replace them with just a single "
-                else:
-                    definition = defText
+                # Looking to remove instances of \" in the definition string.
+                if "\\\"" in definition:
+                    # Replace them with just a single "
+                    definition = definition.replace('\\\"', '\"')
+
             if definition is None:
                 definition = ""
 
@@ -208,7 +249,7 @@ class GenericOntologyETL(ETL):
                 is_obsolete = "false"
 
             if ident is None or ident == '':
-                logger.warn("Missing oid.")
+                self.logger.warning("Missing oid.")
             else:
                 term_dict_to_append = {
                     'name': line.get('name'),
@@ -217,7 +258,6 @@ class GenericOntologyETL(ETL):
                     'definition': definition,
                     'is_obsolete': is_obsolete,
                     'oPrefix': prefix,
-                    'defText': defText,
                     'oboFile': prefix,
                     'o_type': line.get('namespace'),
                     'display_synonym': display_synonym
@@ -228,11 +268,11 @@ class GenericOntologyETL(ETL):
             # Establishes the number of genes to yield (return) at a time.
             if counter == batch_size:
                 counter = 0
-                yield [terms, isas, partofs, syns]
+                yield [terms, isas, partofs, syns, altids]
                 terms = []
                 syns = []
                 isas = []
                 partofs = []
 
         if counter > 0:
-            yield [terms, isas, partofs, syns]
+            yield [terms, isas, partofs, syns, altids]

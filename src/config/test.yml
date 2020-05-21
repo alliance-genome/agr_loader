@@ -1,17 +1,17 @@
 schemaVersion: 1.0.1.0
-releaseVersion: 3.0.0
+releaseVersion: 3.1.0
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 CONSTRUCT: [ZFIN, WB, FB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
 PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI]
 DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, WB, ZFIN, MGI]
+GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GeoXref: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VARIATION: [FB, WB, ZFIN, RGD, MGI]
-GFF: [FB, WB, ZFIN, MGI, RGD, HUMAN]
+GFF: [FB, WB, ZFIN, MGI, RGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
 ONTOLOGY:
@@ -42,7 +42,7 @@ ONTOLOGY:
   - MP
   - HP
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Human]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
@@ -76,23 +76,11 @@ INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 VEP: [FB, WB, ZFIN, RGD, MGI]
+DB-SUMMARY:
+  - 3.0.0
 
 # Loader configuration values are below.
 # Please modify with caution!
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
-
-
-
-
-
-
-
-
-
-
-
-

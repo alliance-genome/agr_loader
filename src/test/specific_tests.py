@@ -1,694 +1,1089 @@
 from etl import Neo4jHelper
-
+import os
 
 def execute_transaction(query):
+    '''Excute Transactor'''
+
     return Neo4jHelper.run_single_query(query)
 
 
 def test_fgf8a_exists():
-    query = "MATCH (g:Gene) WHERE g.symbol = 'fgf8a' RETURN count(g) AS count"
+    '''Test fgf8a Exists'''
+
+    query = """MATCH (g:Gene)
+               WHERE g.symbol = 'fgf8a'
+               RETURN count(g) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_doterm_exists():
-    query = "MATCH(n:DOTerm) where n.primaryKey = 'DOID:0001816' RETURN count(n) AS count"
+    '''Test DO Term Exists'''
+
+    query = """MATCH(n:DOTerm)
+               WHERE n.primaryKey = 'DOID:0001816'
+               RETURN count(n) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 1
 
 
 def test_isobsolete_false():
-    query = "MATCH(n:DOTerm) where n.isObsolete = 'false' RETURN count(n) AS count"
+    '''Test isobsolete False'''
+
+    query = """MATCH(n:DOTerm)
+               WHERE n.isObsolete = 'false'
+               RETURN count(n) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_currated_disease_associations_have_date_assigned():
-    query = "MATCH (n:DiseaseEntityJoin) WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology'] AND NOT EXISTS(n.dateAssigned)" \
-            "RETURN COUNT(n) as count"
+    '''Test Currated Disaese Associiations Have Date Assigned'''
+
+    query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
+               WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
+                     AND NOT EXISTS(p.dateAssigned)
+               RETURN COUNT(n) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] == 0
 
 
 def test_species_disease_pub_gene_exists():
-    query = "MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication) " \
-            "RETURN COUNT(p) AS count"
+    '''Test Species Disease Pub Gene Exists'''
+
+    query = """
+        MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
+        RETURN COUNT(p) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_species_disease_pub_allele_exists():
-    query = "MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication) " \
-            "RETURN COUNT(p) AS count"
+    '''Test Species Disease Pub Allele Exists'''
+
+    query = """
+        MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
+        RETURN COUNT(p) AS count"""
     result = execute_transaction(query)
     for record in result:
         assert record["count"] > 0
 
 
 def test_uuid_is_not_duplicated():
-    query = "MATCH (g) WITH g.uuid AS uuid, count(*) " \
-            "AS counter WHERE counter > 0 AND g.uuid IS NOT NULL RETURN uuid, counter"
+    '''Test UUID is Not Duplicated'''
+
+    query = """MATCH (g)
+               WITH g.uuid AS uuid, count(*)
+               AS counter WHERE counter > 0 AND g.uuid IS NOT NULL
+               RETURN uuid, counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 2
 
 
 def test_zfin_gene_has_expression_link():
-    query = "MATCH (g:Gene)-[]-(c:CrossReference) " \
-            "where g.primaryKey = 'ZFIN:ZDB-GENE-990415-72' " \
-            "and c.crossRefType = 'gene/expression' return count(g) as counter"
+    '''Test ZFIN Gene Has Expression Link'''
+
+    query = """MATCH (g:Gene)-[]-(c:CrossReference)
+               WHERE g.primaryKey = 'ZFIN:ZDB-GENE-990415-72'
+                     AND c.crossRefType = 'gene/expression'
+               RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_mods_have_gene_expression_atlas_link():
-    query = "MATCH (g:Gene)-[]-(c:CrossReference) " \
-            "WHERE c.crossRefType = 'gene/expression-atlas' " \
-            "RETURN count(distinct(g.taxonId)) AS counter"
+    '''Test MODs have Gene Expression Atlass Links'''
+
+    query = """MATCH (g:Gene)-[]-(c:CrossReference)
+               WHERE c.crossRefType = 'gene/expression-atlas'
+               RETURN count(distinct(g.taxonId)) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 def test_xref_complete_url_is_formatted():
-    query = "MATCH (cr:CrossReference) where not cr.crossRefCompleteUrl =~ 'http.*' " \
-            "and cr.crossRefType <> 'interaction' " \
-            "and cr.crossRefType <> 'ontology_provided_cross_reference' return count(cr) as counter"
+    '''Test XREF Complete URL is Formatted'''
+
+    query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
+               AND cr.crossRefType <> 'interaction'
+               AND (cr.crossRefType <> 'homepage' AND cr.displayName = 'OMIM')
+               AND cr.crossRefType <> 'ontology_provided_cross_reference'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_spell_display_name():
-    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' " \
-            "and cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)' return count(cr) as counter"
+    '''Test SPELL Display Name'''
+
+    query = """MATCH (cr:CrossReference)
+               WHERE cr.prefix = 'SPELL'
+                     AND cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
-def test_spell_crossRefType():
-    query = "MATCH (cr:CrossReference) where cr.prefix = 'SPELL' " \
-            "and cr.crossRefType <> 'gene/spell' return count(cr) as counter"
+def test_spell_cross_ref_type():
+    '''Test SPELL Cross Ref Type'''
+
+    query = """MATCH (cr:CrossReference)
+               WHERE cr.prefix = 'SPELL'
+                     AND cr.crossRefType <> 'gene/spell'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_gene_has_automated_description():
-     query = "MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430' " \
-             "and g.automatedGeneSynopsis is not null return count(g) as counter"
-     result = execute_transaction(query)
-     for record in result:
+    '''Test Gene has Automated Description'''
+
+    query = """MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430'
+               AND g.automatedGeneSynopsis IS NOT NULL
+               RETURN count(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
         assert record["counter"] == 1
 
 
 def test_gene_has_all_three_automated_description_components():
-    query = "MATCH (g:Gene) where g.primaryKey in ['SGD:S000002536'," \
-              "'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-050517-20', 'FB:FBgn0027655', " \
-              "'FB:FBgn0045035','RGD:68337', 'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658', " \
-              "'MGI:105043', 'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265', 'RGD:1559787'] " \
-            "and (not (g.automatedGeneSynopsis =~ '.*xhibits.*' " \
-              "or g.automatedGeneSynopsis =~ '.*nvolved in.*'or g.automatedGeneSynopsis =~ '.*ocalizes to.*'" \
-              "or g.automatedGeneSynopsis =~ '.*redicted to have.*'" \
-              "or g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')" \
-            "or not (g.automatedGeneSynopsis =~ '.*sed to study.*' " \
-              "or g.automatedGeneSynopsis =~ '.*mplicated in.*')) return count(g) as counter"
+    '''Test Gene has All Three Automated Description Components'''
+
+    query = """MATCH (g:Gene)
+               WHERE g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655',
+                                      'FB:FBgn0045035','RGD:68337', 'RGD:2332',
+                                      'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
+                                      'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
+                                      'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
+                                      'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
+                                      'ZFIN:ZDB-GENE-990415-131']
+               AND (NOT (g.automatedGeneSynopsis =~ '.*xhibits.*'
+                         OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
+                         OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
+                         OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
+                         OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')
+                    OR NOT (g.automatedGeneSynopsis =~ '.*sed to study.*'
+                            OR g.automatedGeneSynopsis =~ '.*mplicated in.*'))
+              RETURN COUNT(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
-    query = "MATCH (d:DOTerm)-[]-(g:Gene) where d.name = 'nephrogenic diabetes insipidus' return count(g) as counter"
+    '''Test Nephrogenic Diabetes Insipidus Has at Leat One Gene'''
+
+    query = """MATCH (d:DOTerm)-[]-(g:Gene)
+               WHERE d.name = 'nephrogenic diabetes insipidus'
+               RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_zdb_alt_160129_6_has_at_least_one_disease():
-    query = "MATCH (d:DOTerm)-[]-(a:Allele) where a.dataProvider = 'ZFIN' " \
-            "and a.primaryKey ='ZFIN:ZDB-ALT-160129-6' return count(a) as counter"
+    '''Test ZDB ALT 160129 6 Has at Lease One Disease'''
+
+    query = """MATCH (d:DOTerm)-[]-(a:Allele)
+               WHERE a.dataProvider = 'ZFIN'
+                     AND a.primaryKey ='ZFIN:ZDB-ALT-160129-6'
+               RETURN count(a) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_do_terms_have_parents():
-    query = "MATCH (d:DOTerm) WHERE NOT (d)-[:IS_A]->() " \
-            "and d.primaryKey =~ 'DO:.*'" \
-            "and d.isObsolete = 'false' and d.doId <> 'DOID:4' return count(d) as counter"
+    '''Test DO Terms Have Parents'''
+
+    query = """MATCH (d:DOTerm)
+               WHERE NOT (d)-[:IS_A]->()
+                     AND d.primaryKey =~ 'DO:.*'
+                     AND d.isObsolete = 'false'
+                     AND d.doId <> 'DOID:4'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_phenotype_for_all_species_exists():
-    query = "MATCH (s:Species)--(r)--(p:Phenotype) " \
-            "where labels(r) = ['Gene'] or labels(r) = ['Feature', 'Allele']  RETURN count(distinct s) as counter"
+    '''Test Phenotype For All Species Exists'''
+
+    query = """MATCH (s:Species)--(r)--(p:Phenotype)
+               WHERE labels(r) = ['Gene']
+                     OR labels(r) = ['Feature', 'Allele']
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6
 
 
 def test_variant_for_expected_species_exists():
-    query = "MATCH (s:Species)--(r)--(p:Variant) " \
-            "where labels(r) = ['Feature', 'Allele'] " \
-            "RETURN count(distinct s) as counter"
+    '''Test Variant for Expected Species Exists'''
+
+    query = """MATCH (s:Species)--(r)--(p:Variant)
+               WHERE labels(r) = ['Feature', 'Allele']
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 5
 
 
 def test_disease_for_all_species_exists():
-    query = "MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm) " \
-            "where labels(r) = ['Gene'] or labels(r) = ['Feature', 'Allele']" \
-            "RETURN count(distinct s) as counter"
+    '''Test Disease for All Species Exists'''
+
+    query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
+               WHERE labels(r) = ['Gene'] 
+                     OR labels(r) = ['Feature', 'Allele']
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 def test_goannot_for_all_species_exists():
-    query = "MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm) RETURN count(distinct s) as counter"
+    '''Test GO Annotation for ALl Species Exists'''
+
+    query = """MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm)
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 def test_molint_for_all_species_exists():
-    query = "MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin) RETURN count(distinct s) as counter"
+    '''Test Moleculart Interaction for all Species Exists'''
+
+    query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 7
 
 
 #def test_variant_consequences_for_five_species_exists():
-#    query = "MATCH (s:Species)--(:Gene)--(feature:Feature)--(v:Variant)--(glc:GeneLevelConsequence) RETURN count(distinct s) as counter"
+#    '''Test Variant Consequences for all Five Species Exists'''
+#    query = \
+#     """MATCH (s:Species)--(:Gene)--(feature:Feature)--(v:Variant)--(glc:GeneLevelConsequence)
+#               RETURN count(distinct s) AS counter"""
 #    result = execute_transaction(query)
 #    for record in result:
 #        assert record["counter"] == 5
 
 
 def test_expression_for_non_human_species_exists():
-    query = "MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity) RETURN count(distinct s) as counter"
+    '''Test Expression for Non Human Species Exists'''
+
+    query = """MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity)
+             RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6
 
 
 def test_cellular_component_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT]-(g:GOTerm) return count(r) as counter"
+    '''Test Cellular Component Relationship For Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT]-(g:GOTerm)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_structure_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE]-(o:Ontology) RETURN count(r) as counter"
+    '''Test Anatomical Strucutre Relationship for Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE]-(o:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_sub_structure_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology) RETURN count(r) as counter"
+    '''Test Anatomical Substructure Relationship for Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_structure_qualifier_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    '''Test Anatomical Structure Qualifier Relationship For Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE_QUALIFIER]-(o:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_cellular_component_qualifier_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology) RETURN count(r) as counter"
+    '''Test Cellular Component Qualifier Relationship For Exprssion Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology) " \
-            "RETURN count(r) as counter"
+    '''Test Anaatomical Sub Strucutre qualifier Relationship For Exprssion Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
-            "where o.primaryKey <> 'UBERON:AnatomyOtherLocation'" \
-            "RETURN count(r) as counter"
+    '''Test Anatomical Structure UBERON Relationship for Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
+               WHERE o.primaryKey <> 'UBERON:AnatomyOtherLocation'
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
-            "where o.primaryKey = 'UBERON:AnatomyOtherLocation'" \
-            "RETURN count(r) as counter"
+    '''Test Anatomical Strucutre UBERON Other Relationship for Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
+               WHERE o.primaryKey = 'UBERON:AnatomyOtherLocation'
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gocc_other_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology) " \
-            "where o.primaryKey = 'GO:otherLocations'" \
-            "RETURN count(r) as counter"
+    '''Test GOCC Other Relationship For Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
+               WHERE o.primaryKey = 'GO:otherLocations'
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gocc_ribbon_relationship_for_expression_exists():
-    query = "MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology) " \
-            "where o.primaryKey <> 'GO:otherLocations'" \
-            "RETURN count(r) as counter"
+    '''Test GOCC Ribbon Relationship for Expression Exists'''
+
+    query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
+               WHERE o.primaryKey <> 'GO:otherLocations'
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_stage_uberon_other_relationship_for_expression_exists():
-    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
-            "RETURN count(r) as counter"
+    '''Test Stage UBERON Other Relationship for Expression Exists'''
+
+    query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_stage_uberon_relationship_for_expression_exists():
-    query = "MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology) " \
-            "RETURN count(r) as counter"
+    '''Test Stage UBERON Relationship For Expression Exists'''
+
+    query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
+               RETURN count(r) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_mmoterm_has_display_synonym():
-    query = "MATCH (n:MMOTerm) where n.primaryKey = 'MMO:0000658' and n.displaySynonym = 'RNA in situ'" \
-            "RETURN count(n) as counter"
+    '''Test MMO Term has Display Synonym'''
+
+    query = """MATCH (n:MMOTerm)
+               WHERE n.primaryKey = 'MMO:0000658' AND n.displaySynonym = 'RNA in situ'
+               RETURN count(n) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_crip2_has_cardiac_neural_crest():
-    query = "MATCH (gene:Gene)--(ebe:ExpressionBioEntity)--(ei:BioEntityGeneExpressionJoin)--(pub:Publication)" \
-            "where ebe.whereExpressedStatement = 'cardiac neural crest'" \
-            "and gene.primaryKey = 'ZFIN:ZDB-GENE-040426-2889'" \
-            "and pub.pubModId = 'ZFIN:ZDB-PUB-130309-4' return count(gene) as counter"
+    '''Test crip2 has Cardiac Neural Crest'''
+
+    query = """
+    MATCH (gene:Gene)--(ebe:ExpressionBioEntity)--(ei:BioEntityGeneExpressionJoin)--(pub:Publication)
+       WHERE ebe.whereExpressedStatement = 'cardiac neural crest'
+          AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-2889'
+          AND pub.pubModId = 'ZFIN:ZDB-PUB-130309-4'
+       RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_expression_gocc_other_term_for_specific_gene_exists():
-    query = "match (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm), " \
-            "(ebe)-[cr:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm) where g.primaryKey = 'RGD:2129' " \
-            "and ebe.whereExpressedStatement = 'vesicle lumen' and got.primaryKey = 'GO:otherLocations' " \
-            "return count(got) as counter"
+    '''Test Expression GOCC Other Term For Specific Gene Exists'''
+
+    query = """MATCH (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm),
+                     (ebe)-[cr:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm)
+               WHERE  g.primaryKey = 'RGD:2129'
+                      AND ebe.whereExpressedStatement = 'vesicle lumen'
+                      AND got.primaryKey = 'GO:otherLocations'
+               RETURN count(got) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_expression_gocc_term_for_specific_gene_exists():
-    query = "match (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm) " \
-            "where g.primaryKey = 'RGD:2129' " \
-            "and ebe.whereExpressedStatement = 'vesicle lumen'" \
-            "return count(go) as counter"
+    '''Test Expression GOCC Term For SpecificGene Exists'''
+
+    query = """MATCH (g:Gene)--(ebe:ExpressionBioEntity)-[cc:CELLULAR_COMPONENT]-(go:GOTerm)
+               WHERE g.primaryKey = 'RGD:2129'
+                     AND ebe.whereExpressedStatement = 'vesicle lumen'
+               RETURN count(go) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_gocc_other_has_type():
-    query = "match (go:GOTerm) where go.subset = 'goslim_agr' and go.type = 'other'" \
-            "return count(go) as counter"
+    '''Test GOCC Other Has Type'''
+
+    query = """MATCH (go:GOTerm)
+               WHERE go.subset = 'goslim_agr'
+                     AND go.type = 'other'
+               RETURN count(go) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_gocc_self_ribbon_term_exists():
-    query = "match (gene:Gene)--(ebe:ExpressionBioEntity)-[c:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm) " \
-            "where gene.primaryKey = 'ZFIN:ZDB-GENE-140619-1'" \
-            "and got.primaryKey = 'GO:0005739' return count(gene) as counter"
+    '''Test GOCC Self Ribbin Term Exists'''
+
+    query = """
+    MATCH (gene:Gene)--(ebe:ExpressionBioEntity)-[c:CELLULAR_COMPONENT_RIBBON_TERM]-(got:GOTerm)
+    WHERE gene.primaryKey = 'ZFIN:ZDB-GENE-140619-1'
+         AND got.primaryKey = 'GO:0005739'
+    RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
-    query = "match (gene:Gene)-[r:BIOMARKER_VIA_ORTHOLOGY]-(do:DOTerm) " \
-            "return count(gene) as counter"
+    '''Test Gene To Disease Annotation Via Orthology Has Biomarker Relation'''
+
+    query = """MATCH (gene:Gene)-[r:BIOMARKER_VIA_ORTHOLOGY]-(do:DOTerm)
+               RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
-    query = "match (gene:Gene)-[r:IMPLICATED_VIA_ORTHOLOGY]-(do:DOTerm) " \
-            "return count(gene) as counter"
+    '''Test Gene To Disease Annotation Via Orthology has Implicated Relation'''
+
+    query = """MATCH (gene:Gene)-[r:IMPLICATED_VIA_ORTHOLOGY]-(do:DOTerm)
+               RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(ec:ECOTerm) " \
-            "where ec.primaryKey = 'ECO:0000501'" \
-            "and deg.dataProvider = 'Alliance'" \
-            "return count(gene) as counter"
+    '''Test Gene To Disease Annotation Via ORthology Has Alliance Source Type'''
+
+    query = """
+       MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(ec:ECOTerm)
+       WHERE ec.primaryKey = 'ECO:0000501'
+             AND deg.dataProvider = 'Alliance'
+       RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_publication():
-    query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication) " \
-            "where" \
-            " deg.dataProvider = 'Alliance'" \
-            "return count(gene) as counter"
+    '''Test Gene TO Disease Annotation Via ORthology has Publication'''
+
+    query = """
+       MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
+       WHERE deg.dataProvider = 'Alliance'
+       RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_has_publication():
-        query = "match (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication) " \
-                "return count(gene) as counter"
-        result = execute_transaction(query)
-        for record in result:
-            assert record["counter"] > 0
+    '''Test Gene To Disease Annoation Has Publication '''
+
+    query = """
+        MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
+        RETURN count(gene) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
-    query = "match (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm), " \
-            "(deg)--(g2:Gene)--(species2:Species) where g.primaryKey='HGNC:10848' " \
-            "and do.name = 'holoprosencephaly 3' " \
-            "return count(deg) as counter"
+    '''Test Gene To Disease Via Orholoogy Exists For Holoprosencephaly3'''
+
+    query = """MATCH (speciesg:Species)--(g:Gene)--(deg:DiseaseEntityJoin)--(do:DOTerm),
+                     (deg)--(g2:Gene)--(species2:Species)
+               WHERE g.primaryKey='HGNC:10848'
+                   AND do.name = 'holoprosencephaly 3'
+               RETURN count(deg) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_gene_has_two_ortho_disease_annotations():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where gene.primaryKey = 'MGI:98371' and ortho.primaryKey='HGNC:11204' return count(d) as counter"
+    '''Test Gene Has Two Ortho Disease Annotations'''
+
+    query = """
+        MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+              (d)--(do:DOTerm)
+        WHERE gene.primaryKey = 'MGI:98371'
+            AND ortho.primaryKey = 'HGNC:11204'
+        RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_human_gene_has_zebrafish_ortho_disease_annotation():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41' " \
-            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    '''Test Human Gene Has Zebrafish Orhto Diesaes Annotation'''
+
+    query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+                     (d)--(do:DOTerm)
+               WHERE ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41'
+                     AND gene.primaryKey = 'HGNC:12597'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_worm_gene_has_human_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
-            "where gene.primaryKey = 'WB:WBGene00000898'" \
-            "and do.primaryKey = 'DOID:10652'"  \
-            "and ortho.primaryKey = 'HGNC:6091'" \
-            "return count(d) as counter"
+    '''Test Worm Gene has Human alzheimers Via Orhto'''
+
+    query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+                     (d)--(do:DOTerm)
+               WHERE gene.primaryKey = 'WB:WBGene00000898'
+                     AND do.primaryKey = 'DOID:10652'
+                     AND ortho.primaryKey = 'HGNC:6091'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
-            "where gene.primaryKey = 'WB:WBGene00000898'" \
-            "and do.primaryKey = 'DOID:10652'" \
-            "and ortho.primaryKey = 'RGD:2869'" \
-            "return count(d) as counter"
+    '''Test Worm Gene has Rat Alzhimers Via Orhtology'''
+
+    query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+                     (d)--(do:DOTerm)
+               WHERE gene.primaryKey = 'WB:WBGene00000898'
+                     AND do.primaryKey = 'DOID:10652'
+                     AND ortho.primaryKey = 'RGD:2869'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_worm_gene2_has_rat_alzheimers_via_ortho():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm)" \
-            "where gene.primaryKey = 'WB:WBGene00000898'" \
-            "and do.primaryKey = 'DOID:10652'" \
-            "and ortho.primaryKey = 'RGD:2917'" \
-            "return count(d) as counter"
+    '''Test Wrom Gen2 has Rat Alzheimers Via Orthology'''
+
+    query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+                     (d)--(do:DOTerm)
+               WHERE gene.primaryKey = 'WB:WBGene00000898'
+                     AND do.primaryKey = 'DOID:10652'
+                     AND ortho.primaryKey = 'RGD:2917'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_human_gene_has_mouse_ortho_disease_annotation():
-    query = "match (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene), (d)--(do:DOTerm) " \
-            "where ortho.primaryKey = 'MGI:1919338' " \
-            "and gene.primaryKey='HGNC:12597' return count(d) as counter"
+    '''Test human Gene has Mouse Ortho Disease Annotation'''
+
+    query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
+                     (d)--(do:DOTerm)
+               WHERE ortho.primaryKey = 'MGI:1919338'
+                     AND gene.primaryKey = 'HGNC:12597'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_human_gene_has_hgnc_cross_reference():
-    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
-            "and cr.crossRefType = 'gene'" \
-            "and cr.globalCrossRefId = 'HGNC:11204'" \
-            "and cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'" \
-            "return count(cr) as counter"
+    '''Test Human Gene has HGNC Cross Reference'''
+
+    query = """MATCH (g:Gene)--(cr:CrossReference)
+               WHERE g.primaryKey = 'HGNC:11204'
+                     AND cr.crossRefType = 'gene'
+                     AND cr.globalCrossRefId = 'HGNC:11204'
+                     AND cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_human_gene_has_rgd_cross_reference():
-    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
-            "and cr.crossRefType = 'generic_cross_reference'" \
-            "and cr.globalCrossRefId = 'RGD:1322513'" \
-            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'" \
-            "return count(cr) as counter"
+    '''Test Human Gene has RGD Cross REference'''
+
+    query = """MATCH (g:Gene)--(cr:CrossReference)
+               WHERE g.primaryKey = 'HGNC:11204'
+                     AND cr.crossRefType = 'generic_cross_reference'
+                     AND cr.globalCrossRefId = 'RGD:1322513'
+                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_human_gene_has_rgd_references_cross_reference():
-    query = "match (g:Gene)--(cr:CrossReference) where g.primaryKey = 'HGNC:11204'" \
-            "and cr.crossRefType = 'gene/references'" \
-            "and cr.globalCrossRefId = 'RGD:1322513'" \
-            "and cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?view=5&id=1322513'" \
-            "return count(cr) as counter"
+    '''Test Human Gene has RGD References Cross Reference'''
+
+    query = """MATCH (g:Gene)--(cr:CrossReference)
+               WHERE g.primaryKey = 'HGNC:11204'
+                     AND cr.crossRefType = 'gene/references'
+                     AND cr.globalCrossRefId = 'RGD:1322513'
+                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?view=5&id=1322513'
+               RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_gene_has_symbol_with_species():
-    query = "match (gene:Gene) where gene.symbolWithSpecies = 'fgf8a (Dre)' and gene.symbol = 'fgf8a' " \
-            "return count(gene) as counter"
+    '''Test Gene has Symbol With Species'''
+
+    query = """MATCH (gene:Gene)
+               WHERE gene.symbolWithSpecies = 'fgf8a (Dre)'
+                     AND gene.symbol = 'fgf8a'
+               RETURN count(gene) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_genome_start_is_long():
-    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.start <> toInt(ch.start) return count(gf) " \
-            "as counter"
+    '''Test Genome Start is Long'''
+
+    query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
+               WHERE ch.start <> toInt(ch.start)
+               RETURN count(gf) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_genome_end_is_long():
-    query = "match (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation) where ch.end <> toInt(ch.end) " \
-            "return count(gf) as counter"
+    '''Test Genome End is Long'''
+
+    query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
+               WHERE ch.end <> toInt(ch.end)
+               RETURN count(gf) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_phylogenetic_order_is_int():
-    query = "match (g:Species) where g.phylogeneticOrder <> toInt(g.phylogeneticOrder) " \
-            "return count(g) as counter"
+    '''Test PHlogenic Order is Int'''
+
+    query = """MATCH (g:Species)
+               WHERE g.phylogeneticOrder <> toInt(g.phylogeneticOrder)
+               RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_all_species_have_order():
-    query = "match (g:Species) where g.phylogeneticOrder is null " \
-            "return count(g) as counter"
+    '''Test All Species Hav Order'''
+
+    query = """MATCH (g:Species)
+               WHERE g.phylogeneticOrder IS NULL
+               RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_ortho_is_strict_filter_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
-            "where orth.strictFilter <> toBoolean(orth.strictFilter) " \
-            "return count(orth) as counter"
+    '''Test Ortho Is Struct Filter is Boolean'''
+
+    query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
+               WHERE orth.strictFilter <> toBoolean(orth.strictFilter)
+               RETURN count(orth) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_ortho_moderate_filter_is_boolean():
-    query = "match (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene) " \
-            "where orth.moderateFilter <> toBoolean(orth.moderateFilter) " \
-            "return count(orth) as counter"
+    '''Test Ortho Moderate Filter is Boolean'''
+
+    query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
+               WHERE orth.moderateFilter <> toBoolean(orth.moderateFilter)
+               RETURN count(orth) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] < 1
 
 
 def test_go_term_has_type_biological_process():
-    query = "match (go:GOTerm) where go.primaryKey = 'GO:0000003' and go.type = 'biological_process' " \
-            "return count(go) as counter"
+    '''Test Go Term has Type Biological Process'''
+
+    query = """MATCH (go:GOTerm)
+               WHERE go.primaryKey = 'GO:0000003' AND go.type = 'biological_process'
+               RETURN count(go) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_sgd_gene_has_gene_disease_ortho():
-    query = "match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene) where g.primaryKey " \
-            "= 'SGD:S000002536' return count(d) as counter"
+    '''Test SGD Gene hs Gene Disease Ortho'''
+
+    query = """Match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)
+               WHERE g.primaryKey = 'SGD:S000002536'
+               RETURN count(d) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 1
 
 
 def test_mmo_term_has_display_alias():
-    query = "match (mmo:MMOTerm) where mmo.primaryKey " \
-            "= 'MMO:0000642' and mmo.displaySynonym = 'protein expression' return count(mmo) as counter"
+    '''Tst MMO Term hs Display Alias'''
+
+    query = """MATCH (mmo:MMOTerm)
+               WHERE mmo.primaryKey = 'MMO:0000642'
+                     AND mmo.displaySynonym = 'protein expression'
+               RETURN count(mmo) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_expression_for_mgi_109583():
-    query = "match (g:Gene)--(ebge:BioEntityGeneExpressionJoin)--(e:ExpressionBioEntity)--(o:Ontology) " \
-            "where o.name = 'spinal cord' and g.primaryKey = 'MGI:109583' " \
-            "return count(distinct ebge) as counter"
+    '''Test Expression for MGI 109583'''
+
+    query = """
+    MATCH (g:Gene)--(ebge:BioEntityGeneExpressionJoin)--(e:ExpressionBioEntity)--(o:Ontology)
+    WHERE o.name = 'spinal cord'
+        AND g.primaryKey = 'MGI:109583'
+    RETURN count(distinct ebge) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 2
 
 
 def test_part_of_relations_exist():
-    query = "match (e:EMAPATerm)--(em:EMAPATerm) where e.name = 'nucleus pulposus' " \
-            "and em.name = 'intervertebral disc' return count(e) as counter"
+    '''Test part of Relations Exist'''
+
+    query = """MAtch (e:EMAPATerm)--(em:EMAPATerm)
+               WHERE e.name = 'nucleus pulposus'
+               AND em.name = 'intervertebral disc'
+               RETURN count(e) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_expression_images_cross_references_for_species_exists():
-    query = "match (s:Species)--(g:Gene)--(cr:CrossReference) where cr.page = 'gene/expression_images' " \
-            "return count(distinct s) as counter"
+    '''Test Expression Images Cross References for Species Exists'''
+
+    query = """MATCH (s:Species)--(g:Gene)--(cr:CrossReference)
+               WHERE cr.page = 'gene/expression_images'
+               RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 4
 
 
 def test_eco_term_has_display_synonym():
-    query = "match (e:ECOTerm:Ontology) where e.primaryKey = 'ECO:0000269' and e.displaySynonym = 'EXP'" \
-            "return count(e) as counter"
+    '''Test ECO Term has Display Synonym'''
+
+    query = """MATCH (e:ECOTerm:Ontology)
+               WHERE e.primaryKey = 'ECO:0000269' AND e.displaySynonym = 'EXP'
+               RETURN count(e) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_point_mutation_hgvs():
-    query = "match (a:Allele:Feature)--(v:Variant) where v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T' " \
-            "and a.primaryKey='ZFIN:ZDB-ALT-160601-8105' " \
-            "return count(v) as counter"
+    '''Test Point Mutation HGVS'''
+
+    query = """MATCH (a:Allele:Feature)--(v:Variant)
+               WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
+                     AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105' 
+               RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_variant_consequence():
-    query = "match (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence) where v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T' " \
-            "and a.primaryKey='ZFIN:ZDB-ALT-160601-8105' " \
-            "and vc.geneLevelConsequence = 'splice_donor_variant'" \
-            "return count(v) as counter"
+    '''Test Variant Consequence'''
+
+    query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
+               WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
+                     AND a.primaryKey = 'ZFIN:ZDB-ALT-160601-8105'
+                     AND vc.geneLevelConsequence = 'splice_donor_variant'
+               RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_deletion_hgvs():
-    query = "match (a:Allele:Feature)--(v:Variant) where v.hgvsNomenclature = 'NC_007116.7:g.72118557_72118563del' " \
-            "and a.primaryKey='ZFIN:ZDB-ALT-170321-11' " \
-            "return count(v) as counter"
+    '''Test Deletion HGVS'''
+
+    query = """MATCH (a:Allele:Feature)--(v:Variant)
+               WHERE v.hgvsNomenclature = 'NC_007116.7:g.72118557_72118563del'
+                     AND a.primaryKey='ZFIN:ZDB-ALT-170321-11'
+               RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 1
 
 
 def test_insertion_hgvs():
-    query = "match (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence) " \
-            "where v.hgvsNomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT' " \
-            "and a.primaryKey='ZFIN:ZDB-ALT-180207-16' " \
-            "return count(v) as counter"
+    '''Test Insertion HGVS'''
+
+    query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
+               WHERE v.hgvsNomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT'
+                     AND a.primaryKey = 'ZFIN:ZDB-ALT-180207-16'
+               RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_hgnc_gene_has_curated_and_loaded_db_xref():
-    query = "match (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)" \
-            " where g.primaryKey = 'HGNC:7' " \
-            " return count(cr) as counter"
+    '''Test HGNC Gene has Curated and Loaded DB XREF'''
+
+    query = """
+    MATCH (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)
+    WHERE g.primaryKey = 'HGNC:7'
+    RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 1
 
 
 def test_pej_has_agm():
-    query = "match (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationJoin) " \
-            "where agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'" \
-            " return count(agm) as counter"
+    '''Test PEG has AGM'''
+
+    query = """MATCH (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationJoin)
+               WHERE agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'
+               RETuRN count(agm) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
 def test_allele_has_description():
-    query = "match (a:Allele)--(cr:CrossReference) where cr.crossRefType = 'allele/references' " \
-            "return count(a) as counter"
+    '''Test Allele Has Description'''
+
+    query = """MATCH (a:Allele)--(cr:CrossReference)
+               WHERE cr.crossRefType = 'allele/references'
+               RETURN count(a) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
-def test_allele_has_description():
-    query = "match (a:Allele) where a.description is not null " \
-            "return count(a) as counter"
+def test_allele_has_submitted_description():
+    '''Test Allele has Submitted Description'''
+
+    query = """MATCH (a:Allele)
+               WHERE a.description IS NOT NULL
+               RETURN count(a) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
 
 
+def test_sgd_gene_has_dej_with_many_orthologous_genes():
+    '''Test SGD Gene has DEJ with Many Ortholous Genes'''
+
+    query = """MATCH (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene)
+               WHERE dej.primaryKey = 'SGD:S000005844DOID:14501IS_IMPLICATED_INHGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998'
+               RETURN count(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 7
 
 
+def test_spaw_should_have_disease_genes():
+    '''Test Spaw Should have Disease Genes'''
+
+    query = """MATCH (dej:DiseaseEntityJoin)--(g:Gene)
+               WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030219-1'
+                RETuRN count(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
+def test_wb_transgene_has_phenotype():
+    '''Test WB Transgene has Phenotype'''
+
+    query = """MATCH (a:Allele)--(pej:PhenotypeEntityJoin)
+               WHERE a.primaryKey = 'WB:WBTransgene00001048'
+               RETURN count(a) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
+def test_wb_gene_has_inferred_from_allele():
+    '''Test WB Gene has Inferred from Allele'''
+
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(pej:PublicationJoin)--(a:Allele)
+               WHERE g.primaryKey = 'WB:WBGene00000149'
+                     AND a.primaryKey = 'WB:WBVar00275424'
+               RETURN count(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+# currently WB file is not submitting these, will reactivate when we get a corrected file.
+# def test_wb_genes_have_phenotype():
+#     '''Test WB Genes Have Phenotype'''
+#
+#     query = """MATCH (g:Gene)--(pej:PhenotypeEntityJoin)--(pej:PublicationJoin)--(a:Allele)
+#                WHERE g.primaryKey in ['WB:WBGene00000898','WB:WBGene00013817','WB:WBGene00004077']
+#                RETURN count(g) AS counter"""
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 2
+
+
+def test_human_gene_has_disease():
+    '''Test Human Gene has Disease'''
+
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)
+               WHERE g.primaryKey = 'HGNC:11950'
+               RETURN count(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mi_term_has_name_flybase():
+    '''Test MI Term has Name FlyBase'''
+
+    query = """MATCH (o:MITerm)
+               WHERE o.label = 'FlyBase'
+               RETURN count(o) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mi_term_has_corrected_url():
+    '''Test MI Term has Corrected URL'''
+
+    query = """MATCH (o:MITerm)
+               WHERE o.primaryKey = 'MI:0465'
+                     AND o.url = 'http://dip.doe-mbi.ucla.edu/'
+               RETURN count(o) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_rgd_dej_has_rgd_full_url_cross_reference():
+    """Test RGD DEJ has RGD full URL Cross Reference"""
+
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+            WHERE cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=583#annot'
+            RETURN COUNT(cr) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_human_dej_has_omim_full_url_cross_reference():
+    """Test Human DEJ has OMIM Full URL Cross Reference"""
+
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
+               WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
+               RETURN count(cr) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_vep_transcript_consequence_has_cdna_start_end_range():
+    """Test VEP Transcript Consequence has cDNA start end range"""
+
+    query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
+                AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
+                AND tc.cdnaStartPosition IS NOT NULL
+                AND tc.cdsStartPosition IS NOT NULL
+                AND tc.aminoAcidReference IS NOT NULL
+                and tc.proteinStartPosition IS NOT NULL
+                AND tc.aminoAcidVariation IS NOT NULL
+                RETURN COUNT(tc) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+# please retain this code for testing purposes.
+#def test_node_count_is_consistently_growing():
+    # this file is generated in node_count_etl and represents the node labels that have fewer
+    # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
+    # as based on the DB-SUMMARY file produced by the file generator.
+#    assert os.stat('tmp/labels_with_fewer_nodes.txt').st_size == 0
+
+
+def test_variant_consequence_has_codon_change():
+    """Test Variant Consequence has Codon Change"""
+
+    query = """ MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
+                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A'
+                AND t.primaryKey = 'ENSEMBL:ENSDART00000111806'
+                AND tc.codonChange IS NOT NULL
+                RETURN COUNT(tc) AS counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

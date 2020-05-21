@@ -16,9 +16,8 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_maxSize=8000m
-      - NEO4J_dbms_memory_heap_initialSize=2000m
-      - NEO4J_dbms_memory_pagecache_size=8000m
+      - NEO4J_dbms_memory_heap_max__size=12000m
+      - NEO4J_dbms_memory_pagecache__size=12000m
 
   agr_loader:
     image: agrdocker/agr_loader_run:latest
@@ -36,7 +35,7 @@ services:
       - UNIT_TESTS=False
       - NEO4J_HOST=neo4j
       - NET=production
-      - ALLIANCE_RELEASE=3.0.0
+      - ALLIANCE_RELEASE=3.1.0
       - FMS_API_URL=https://fms.alliancegenome.org
       - DOWNLOAD_HOST=download.alliancegenome.org
       - API_KEY=${API_KEY}
@@ -63,7 +62,7 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.0.0
+     - ALLIANCE_RELEASE=3.1.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
@@ -90,7 +89,7 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.0.0
+     - ALLIANCE_RELEASE=3.1.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
