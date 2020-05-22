@@ -191,6 +191,7 @@ class PhenoTypeETL(ETL):
         query_template_allele_list = []
         query_template_agm_list = []
         data_provider = sub_type.get_data_provider()
+        self.logger.info("subtype: " + data_provider)
 
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
         if data_provider in ['MGI', 'ZFIN', 'RGD'] :
@@ -246,7 +247,8 @@ class PhenoTypeETL(ETL):
                 [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
             ]
-        elif sub_type.get_data_provider() == 'HUMAN':
+        elif data_provider == 'HUMAN':
+            self.logger.info("human")
             query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
@@ -402,12 +404,18 @@ class PhenoTypeETL(ETL):
 
             list_to_yield.append(phenotype)
             if counter == batch_size:
-                if data_provider == ['SGD'] or (data_provider == 'RGD' and subtypeProvider == 'HUMAN'):
+                if data_provider == ['SGD'] or (subtypeProvider == 'HUMAN'):
+                    self.logger.inf("data_provider_counter: " + data_provider + " "+ subtypeProvider)
                     yield [list_to_yield]
                     list_to_yield = []
                     counter = 0
                 elif data_provider in ['FB', 'WB']:
                     yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+                    list_to_yield = []
+                    pge_list_to_yield = []
+                    counter = 0
+                elif data_provider in ['ZFIN','MGI'] or (data_provider == 'RGD' and subtypeProvider == 'RGD'):
+                    yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
                     list_to_yield = []
                     pge_list_to_yield = []
                     counter = 0
@@ -422,10 +430,12 @@ class PhenoTypeETL(ETL):
                     counter = 0
 
         if counter > 0:
-            if data_provider =='SGD' or (data_provider == 'RGD' and subtypeProvider == 'HUMAN'):
+            if data_provider =='SGD' or (subtypeProvider == 'HUMAN'):
                 yield [list_to_yield]
             elif data_provider in ['FB', 'WB']:
                 yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+            elif data_provider in ['ZFIN', 'MGI'] or (data_provider == 'RGD' and subtypeProvider == 'RGD'):
+                yield [list_to_yield, list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
             else:
                 yield [list_to_yield,
                        list_to_yield,
