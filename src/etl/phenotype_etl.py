@@ -193,7 +193,7 @@ class PhenoTypeETL(ETL):
         data_provider = sub_type.get_data_provider()
 
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
-        if data_provider in ['MGI', 'ZFIN'] or sub_type.get_data_provider == 'RGD':
+        if data_provider in ['MGI', 'ZFIN', 'RGD'] :
             query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
@@ -245,6 +245,15 @@ class PhenoTypeETL(ETL):
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_allele_gene_pej_relationship_query_template, commit_size,
                  "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+        elif sub_type.get_data_provider() == 'HUMAN':
+            query_template_list = [
+                [self.execute_gene_query_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
+            ]
+            basic_query_template_list = [
+                [self.execute_gene_query_template, commit_size,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
             ]
         else:
             query_template_list = [
