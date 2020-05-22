@@ -1,4 +1,4 @@
-''''Phenotype ETL'''
+"""'Phenotype ETL"""
 
 import logging
 import uuid
@@ -12,7 +12,7 @@ from transactors import Neo4jTransactor
 
 
 class PhenoTypeETL(ETL):
-    '''Phenotype ETL'''
+    """Phenotype ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -189,73 +189,32 @@ class PhenoTypeETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_neo4j_commit_size()
         query_template_allele_list = []
-        query_template_agm_list = []
         data_provider = sub_type.get_data_provider()
+        self.logger.info("subtype: " + data_provider)
 
-        generators = self.get_generators(data, batch_size, data_provider)
-
-        if data_provider in ['MGI', 'ZFIN', 'RGD']:
-            query_template_list = [
+        generators = self.get_generators(data, batch_size)
+        query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
-                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_pges_agm_query_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-            query_template_agm_list = [
+        ]
+        query_template_agm_list = [
                 [self.execute_pges_agm_query_template, commit_size,
                  "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-            basic_query_template_list = [
+        ]
+        basic_query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_allele_query_template, commit_size,
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
-                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-
-        elif data_provider in ['FB', 'WB']:
-            query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query_template, commit_size,
-                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
-                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_pges_allele_query_template, commit_size,
-                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-            query_template_allele_list = [
-                [self.execute_pges_allele_query_template, commit_size,
-                 "phenotype_allele_pge_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
-                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-            basic_query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query_template, commit_size,
-                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_gene_pej_relationship_query_template, commit_size,
-                 "phenotype_allele_gene_pej_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-        else:
-            query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
-            basic_query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"]
-            ]
+        ]
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
@@ -272,8 +231,8 @@ class PhenoTypeETL(ETL):
         Neo4jTransactor.execute_query_batch(query_allele_and_file_list)
 
 
-    def get_generators(self, phenotype_data, batch_size, data_provider):
-        '''Get Generators'''
+    def get_generators(self, phenotype_data, batch_size):
+        """Get Generators"""
 
         list_to_yield = []
         pge_list_to_yield = []
@@ -314,6 +273,7 @@ class PhenoTypeETL(ETL):
             pub_med_id = None
             pub_mod_id = None
             pub_med_url = None
+            pge_list_to_yield = []
             pub_mod_url = None
             primary_id = pheno.get('objectId')
             phenotype_statement = pheno.get('phenotypeStatement')
@@ -373,9 +333,6 @@ class PhenoTypeETL(ETL):
                                "pgeId": pge}
                     pge_list_to_yield.append(pge_map)
 
-            else:
-                pge_ids = []
-
             phenotype = {
                 "primaryId": primary_id.strip(),
                 "phenotypeUniqueKey": primary_id.strip() + phenotype_statement.strip(),
@@ -395,35 +352,10 @@ class PhenoTypeETL(ETL):
             }
 
             list_to_yield.append(phenotype)
-
             if counter == batch_size:
-                if data_provider == 'SGD':
-                    yield [list_to_yield]
-                    list_to_yield = []
-                    counter = 0
-                elif data_provider in ['FB', 'WB']:
-                    yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
-                    list_to_yield = []
-                    pge_list_to_yield = []
-                    counter = 0
-                else:
-                    yield [list_to_yield,
-                           list_to_yield,
-                           list_to_yield,
-                           list_to_yield,
-                           pge_list_to_yield]
-                    list_to_yield = []
-                    pge_list_to_yield = []
-                    counter = 0
-
-        if counter > 0:
-            if data_provider == 'SGD':
-                yield [list_to_yield]
-            elif data_provider in ['FB', 'WB']:
                 yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
-            else:
-                yield [list_to_yield,
-                       list_to_yield,
-                       list_to_yield,
-                       list_to_yield,
-                       pge_list_to_yield]
+                list_to_yield = []
+                pge_list_to_yield = []
+                counter = 0
+        if counter > 0:
+            yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]

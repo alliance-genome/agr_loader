@@ -1,14 +1,11 @@
-'''Test Object'''
+"""Test Object"""
 
-#a Used for loading a test subset of data for AGR.
-# Note: When testing is enabled, GO annotations and GO terms
-# are only loaded for the following testIdSet.
-# The testIdSet is used to "filter" these entries in the appropriate extractor files.
+# Used for loading a test subset of data for AGR.
 import logging
 
 
 class TestObject():
-    '''Test Object'''
+    """Test Object"""
 
     logger = logging.getLogger(__name__)
 
@@ -126,27 +123,23 @@ class TestObject():
             'ZFIN:ZDB-GENE-980526-388', 'ZFIN:ZDB-GENE-010525-1',
             'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-060117-5',
             'ZFIN:ZDB-GENE-050302-80', 'ZFIN:ZDB-GENE-060503-876',
-            'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430',
-            'ZFIN:ZDB-GENE-060503-872', 'ZFIN:ZDB-GENE-060503-873',
-            'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-990415-72',
-            'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11',
-            'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-010320-1',
-            'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
-            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1',
-            'ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47',
-            'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985',
-            'ZFIN:ZDB-ALT-060608-195', 'ZFIN:ZDB-ALT-050428-6',
-            'ZFIN:ZDB-ALT-151012-9', 'ZFIN:ZDB-GENE-070117-2142',
-            'ZFIN:ZDB-ALT-161003-10628', 'ZFIN:ZDB-GENE-980526-388',
-            'ZFIN:ZDB-MRPHLNO-110614-1', 'ZFIN:ZDB-ALT-980203-1091',
+            'ZFIN:ZDB-GENE-050302-82', 'ZFIN:ZDB-GENE-030131-4430', 'ZFIN:ZDB-GENE-060503-872',
+            'ZFIN:ZDB-GENE-060503-873', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-990415-72',
+            'ZFIN:ZDB-GENE-060503-867', 'ZFIN:ZDB-GENE-010323-11', 'ZFIN:ZDB-GENE-010525-1',
+            'ZFIN:ZDB-GENE-010320-1', 'ZFIN:ZDB-GENE-010525-1', 'ZFIN:ZDB-GENE-051127-5',
+            'ZFIN:ZDB-GENE-990415-270', 'ZFIN:ZDB-LINCRNAG-160518-1', 'ZFIN:ZDB-GENE-030131-3776',
+            'ZFIN:ZDB-GENE-030616-47',
+            'ZFIN:ZDB-GENE-040426-1716', 'ZFIN:ZDB-ALT-980203-985', 'ZFIN:ZDB-ALT-060608-195',
+            'ZFIN:ZDB-ALT-050428-6', 'ZFIN:ZDB-ALT-151012-9', 'ZFIN:ZDB-GENE-070117-2142', 'ZFIN:ZDB-ALT-161003-10628',
+            'ZFIN:ZDB-GENE-980526-388', 'ZFIN:ZDB-MRPHLNO-110614-1', 'ZFIN:ZDB-ALT-980203-1091',
+            'ZFIN:ZDB-ALT-120926-6',
             # construct
-            'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-ALT-120806-9701',
-            'ZFIN:ZDB-TGCONSTRCT-070117-175', 'ZFIN:ZDB-GENE-050321-1',
-            'ZFIN:ZDB-ALT-171010-9', 'ZFIN:ZDB-ALT-181002-149',
-            'ZFIN:ZDB-ETCONSTRCT-080904-1', 'ZFIN:ZDB-GENE-990714-11',
-            'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
-            # transcript -- keys here are not curies because GFF
-            # doesn't follow our strict rules for identifiers.
+            'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-ALT-120806-9701', 'ZFIN:ZDB-TGCONSTRCT-070117-175',
+            'ZFIN:ZDB-GENE-050321-1', 'ZFIN:ZDB-ALT-171010-9', 'ZFIN:ZDB-ALT-181002-149', 'ZFIN:ZDB-ETCONSTRCT-080904-1',
+            'ZFIN:ZDB-GENE-990714-11', 'ZFIN:ZDB-ALT-070420-1', 'ZFIN:ZDB-TGCONSTRCT-110825-1',
+            'ZFIN:ZDB-TGCONSTRCT-120926-5', 'ZFIN:ZDB-TGCONSTRCT-140429-8',
+            # transcript -- keys here are not curies because GFF doesn't follow our strict rules for identifiers.
+
             'ZFIN:ZDB-GENE-040724-143', 'ENSEMBL:ENSDART00000152692',
             'ZDB-GENE-040724-143', 'ENSDART00000152692', 'ENSEMBL:ENSDART00000003317',
             'ZDB-GENE-040426-1746', 'ZDB-GENE-040426-2185', 'ZDB-GENE-040426-2185',
@@ -315,12 +308,12 @@ class TestObject():
                                            .union(self.human_test_set))
 
     def using_test_data(self):
-        '''Using Test Data'''
+        """Using Test Data"""
 
         return self.use_test_object
 
     def check_for_test_id_entry(self, primary_id):
-        '''Check for Test Id Entry'''
+        """Check for Test Id Entry"""
 
         if primary_id in self.test_id_set:
             return True

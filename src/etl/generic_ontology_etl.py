@@ -44,7 +44,7 @@ class GenericOntologyETL(ETL):
             MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
             MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
                     SET syn.name = row.syn
-            CREATE (g)-[aka:ALSO_KNOWN_AS]->(syn)
+            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
         """
 
     generic_ontology_isas_query_template = """

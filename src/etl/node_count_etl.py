@@ -25,6 +25,7 @@ class NodeCountETL(ETL):
         current_datastore_generators = self.retrieve_node_counts_from_current_datastore()
 
         exception_filename = "labels_with_fewer_nodes.txt"
+
         with open(os.path.join('tmp', exception_filename), 'w', encoding='utf-8') as file:
             for current_db_node in current_datastore_generators:
                 if current_db_node in production_datastore_generators:
@@ -37,6 +38,7 @@ class NodeCountETL(ETL):
                                                           "prod:",
                                                           str(production_datastore_generators[current_db_node])]))
                             file.write(current_db_node)
+
 
 
     def get_generators(self, filepath):

@@ -77,13 +77,13 @@ class AggregateLoader():
         'VARIATION': VariationETL,
         'SQTR': SequenceTargetingReagentETL,
         'AGM': AffectedGenomicModelETL,
+        'PHENOTYPE': PhenoTypeETL,
         'GFF': TranscriptETL,
         'GO': GOETL,
         'EXPRESSION': ExpressionETL,
         'ExpressionRibbon': ExpressionRibbonETL,
         'ExpressionRibbonOther': ExpressionRibbonOtherETL,
         'DAF': DiseaseETL,
-        'PHENOTYPE': PhenoTypeETL,
         'ORTHO': OrthologyETL,
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
@@ -111,6 +111,7 @@ class AggregateLoader():
         ['VARIATION'],
         ['SQTR'],
         ['AGM'],
+        ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
         ['GeneDiseaseOrtho'],
@@ -119,7 +120,6 @@ class AggregateLoader():
         ['ExpressionRibbon'],
         ['ExpressionRibbonOther'],
         ['GENEEEXPRESSIONATLASSITEMAP'],
-        ['PHENOTYPE'],  # Locks Genes
         ['GAF'],  # Locks Genes
         ['GeoXref'],  # Locks Genes
         ['INTERACTION-MOL'],
