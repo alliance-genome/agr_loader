@@ -193,8 +193,7 @@ class PhenoTypeETL(ETL):
         data_provider = sub_type.get_data_provider()
 
         generators = self.get_generators(data, batch_size, sub_type.get_data_provider())
-        if data_provider in ['MGI', 'ZFIN', 'RGD']:
-            self.logger.info("sub type data provider: " +data_provider)
+        if data_provider in ['MGI', 'ZFIN'] or sub_type.get_data_provider == 'RGD':
             query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
