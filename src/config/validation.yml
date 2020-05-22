@@ -24,7 +24,7 @@ DAF:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 PHENOTYPE:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]

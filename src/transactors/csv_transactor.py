@@ -1,19 +1,18 @@
-'''CSV Transactor'''
+"""CSV Transactor"""
 
 from contextlib import ExitStack
 import csv
-import logging
 import os
+import logging
 
 
 class CSVTransactor():
-    '''CSV Transactor'''
-
+    """CSV Transactor"""
     logger = logging.getLogger(__name__)
 
     @staticmethod
     def save_file_static(generator, generator_file_list):
-        '''Save File Static'''
+        """Save File Static"""
 
         with ExitStack() as stack:
             # Open all necessary CSV files at once.
@@ -21,7 +20,6 @@ class CSVTransactor():
                                                    'w',
                                                    encoding='utf-8'))
                           for [query, file_name] in generator_file_list]
-
 
             # Create a list with 'None' placeholder entries.
             csv_file_writer = [None] * len(open_files)
