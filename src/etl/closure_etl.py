@@ -1,4 +1,4 @@
-'''Closure ETL'''
+"""Closure ETL"""
 
 import logging
 import multiprocessing
@@ -10,7 +10,7 @@ from .helpers import Neo4jHelper
 
 
 class ClosureETL(ETL):
-    '''Clojure ETL'''
+    """Clojure ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class ClosureETL(ETL):
         self.logger.debug("Starting isa_partof_ Closure for: %s", data_provider)
 
         query_list = [
-            [self.insert_isa_partof_closure, "100000",
+            [self.insert_isa_partof_closure_query_template, "100000",
              "isa_partof_closure_" + data_provider + ".csv",
              data_provider, data_provider],
         ]
@@ -62,9 +62,9 @@ class ClosureETL(ETL):
         self.logger.debug("Finished isa_partof Closure for: %s", data_provider)
 
     def get_closure_terms(self, data_provider):
-        '''Get Clojure Terms'''
+        """Get Closure Terms"""
 
-        query = self.retrieve_isa_partof_closure % (data_provider, data_provider)
+        query = self.retrieve_isa_partof_closure_query_template % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
         return_set = Neo4jHelper().run_single_query(query)
