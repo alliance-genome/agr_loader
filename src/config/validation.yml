@@ -31,7 +31,7 @@ EXPRESSION:
 GAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GeoXref:
+GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 FASTA:
