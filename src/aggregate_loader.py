@@ -87,7 +87,7 @@ class AggregateLoader():
         'ORTHO': OrthologyETL,
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
-        'GeoXref': GeoXrefETL,
+        'GEOXREF': GeoXrefETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
@@ -121,7 +121,7 @@ class AggregateLoader():
         ['ExpressionRibbonOther'],
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
-        ['GeoXref'],  # Locks Genes
+        ['GEOXREF'],  # Locks Genes
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],

@@ -6,6 +6,7 @@ import random
 import logging
 import urllib
 import xmltodict
+from pathlib import Path
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
@@ -13,13 +14,10 @@ from files import Download
 from transactors import CSVTransactor, Neo4jTransactor
 
 
-
 class GeoXrefETL(ETL):
     '''GEO XREF ETL'''
 
     logger = logging.getLogger(__name__)
-
-    # Query templates which take params and will be processed later
 
     geo_xref_query_template = """
         USING PERIODIC COMMIT %s
@@ -28,6 +26,10 @@ class GeoXrefETL(ETL):
         MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
         """ + ETLHelper.get_cypher_xref_text()
 
+    gene_crossref_query_template = """
+                   MATCH (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference)
+                   WHERE cr.globalCrossRefId IN {parameter}
+                   RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
 
     def __init__(self, config):
         super().__init__()
@@ -45,7 +47,7 @@ class GeoXrefETL(ETL):
             #batch_size = self.data_type_config.get_generator_batch_size()
             batch_size = 100000
 
-            generators = self.get_generators(batch_size, species_encoded)
+            generators = self.get_generators(sub_type, batch_size, species_encoded)
 
             query_template_list = [
                 [self.geo_xref_query_template, commit_size,
@@ -56,21 +58,13 @@ class GeoXrefETL(ETL):
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, batch_size, species_encoded):
+    def get_generators(self, sub_type, batch_size, species_encoded):
         '''Get Generators'''
 
         entrez_ids = []
 
-        time.sleep(random.randint(0, 10)) # So that Geo wont fails on "TO MANY URL REQUESTS"
-        url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi" \
-                + "?term=gene_geoprofiles[filter]+AND+%s[Organism]&retmax=%s&db=gene" \
-                % (species_encoded, batch_size)
-
-        self.logger.info("Geo Url: %s", url)
-
-        geo_data_file_contents = Download("tmp", url, "geo" + species_encoded).get_downloaded_data()
+        geo_data_file_contents = Path(sub_type.get_filepath()).read_text()
         geo_data = json.loads(json.dumps(xmltodict.parse(geo_data_file_contents)))
-
         for efetch_value in dict(geo_data.items()).values():
             # IdList is a value returned from efetch XML spec,
             # within IdList, there is another map with "Id"
@@ -79,18 +73,14 @@ class GeoXrefETL(ETL):
                 if sub_map_key == 'IdList':
                     for id_list in dict(sub_map_value.items()).values():
                         for entrez_id in id_list:
-                            # print ("here is the entrezid: " +entrezId)
+                            self.logger.debug("here is the entrez id: %s", entrez_id)
                             entrez_ids.append("NCBI_Gene:" + entrez_id)
 
-        query = """MATCH (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference)
-                   WHERE cr.globalCrossRefId IN {parameter}
-                   RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
-
         geo_data_list = []
-        return_set = Neo4jHelper.run_single_parameter_query(query, entrez_ids)
+        return_set = Neo4jHelper.run_single_parameter_query(self.gene_crossref_query_template,
+                                                            entrez_ids)
 
         for record in return_set:
-
             gene_primary_key = record["g.primaryKey"]
             mod_local_id = record["g.modLocalId"]
             global_cross_ref_id = record["cr.globalCrossRefId"]
