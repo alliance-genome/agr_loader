@@ -123,9 +123,10 @@ class ExpressionAtlasETL(ETL):
     def get_generators(self, expression_atlas_gene_pages, data_provider, batch_size):
         """Get Generators"""
 
-        return_set = Neo4jHelper.run_single_parameter_query(\
-                ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,
-                list(expression_atlas_gene_pages.keys()))
+        return_set = Neo4jHelper.run_single_parameter_query(
+            ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,
+            list(expression_atlas_gene_pages.keys())
+        )
 
         counter = 0
         cross_reference_list = []

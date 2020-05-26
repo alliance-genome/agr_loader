@@ -74,6 +74,7 @@ class TestClass():
                             dict(node1='AffectedGenomicModel', node2='AffectedGenomicModel'),
                             dict(node1='Variant', node2='SOTerm'),
                             dict(node1='Variant', node2='Feature'),
+                            dict(node1='Variant', node2='Synonym'),
                             dict(node1='AffectedGenomicModel', node2='SequenceTargetingReagent'),
                             dict(node1='AffectedGenomicModel', node2='AffectedGenomicModel'),
                             dict(node1='AffectedGenomicModel', node2='Feature'),

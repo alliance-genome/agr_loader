@@ -29,7 +29,8 @@ class TranscriptETL(ETL):
                 MERGE (t:Exon {primaryKey:row.gff3ID})
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider,
-                        t.name = row.name        
+                        t.name = row.name,
+                        t.synonym = row.synonym        
 
                CREATE (t)<-[tso:TYPE]-(so)
                CREATE (g)<-[gt:EXON]-(t)"""
@@ -72,7 +73,8 @@ class TranscriptETL(ETL):
                 MERGE (t:Transcript {primaryKey:row.curie})
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider,
-                        t.name = row.name        
+                        t.name = row.name,
+                        t.synonym = row.synonym           
                 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
                MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
@@ -172,6 +174,7 @@ class TranscriptETL(ETL):
                 curie = ''
                 parent = ''
                 gff3_id = ''
+                synonym = ''
 
                 transcript_types = ['mRNA', 'miRNA', 'ncRNA', 'rRNA', 'snRNA',
                                     'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA']
@@ -214,6 +217,7 @@ class TranscriptETL(ETL):
                                     if key == 'Name':
                                         name = value
                                     if key == 'transcript_id':
+                                        synonym = gff3_id
                                         gff3_id = value
                                     #if key == 'Alias':
                                        #aliases = value.split(',')
@@ -253,6 +257,7 @@ class TranscriptETL(ETL):
                             transcript_map.update({'assembly': assembly})
                             transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'name': name})
+                            transcript_map.update({'synonym': synonym})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcript_map.update({'assembly': assembly})
@@ -261,6 +266,7 @@ class TranscriptETL(ETL):
                             gene_map.update({'curie': curie})
                             gene_map.update({'parentId': parent})
                             gene_map.update({'gff3ID': gff3_id})
+                            gene_map.update({'synonym': synonym})
                             gene_maps.append(gene_map)
                         elif feature_type_name == 'exon':
                             exon_map.update({'parentId': parent})
@@ -273,6 +279,7 @@ class TranscriptETL(ETL):
                             exon_map.update({'assembly': assembly})
                             exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'name': name})
+                            exon_map.update({'synonym': synonym})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 exon_map.update({'assembly': assembly})
