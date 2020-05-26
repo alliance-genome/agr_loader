@@ -5,11 +5,10 @@ import logging
 import os
 import datetime
 import re
-from collections import defaultdict
-
-import boto3
 import requests
+import urllib.request
 
+from collections import defaultdict
 from etl import ETL
 from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
@@ -25,6 +24,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 from common import ContextInfo
 from data_manager import DataFileManager
 
+HEADER_TEMPLATE_URL = "https://github.com/alliance-genome/agr_file_generator/blob/master/src/generators/header_template.txt"
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
@@ -132,6 +132,9 @@ class GeneDescriptionsETL(ETL):
                t.primaryKey AS TermId,
                'EXP' AS relType,
                'A' AS aspect"""
+
+    get_taxon_id_from_provider = """
+        MATCH (g:Gene) where g.primaryKey starts with {provider} return g.taxonId limit 1"""
 
 
     def __init__(self, config):
@@ -537,7 +540,6 @@ class GeneDescriptionsETL(ETL):
                                      headers=headers)
             logger.info(response.text)
 
-
     def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
         '''Save Descripitons Report Files'''
 
@@ -552,6 +554,27 @@ class GeneDescriptionsETL(ETL):
                                     include_single_gene_stats=True,
                                     data_manager=gd_data_manager)
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
+        response = urllib.request.urlopen(HEADER_TEMPLATE_URL)
+        header_template = response.read()
+        taxon_id = Neo4jHelper.run_single_parameter_query(GeneDescriptionsETL.get_taxon_id_from_provider, data_provider
+                                                          if data_provider != "HUMAN" else "HGNC")
+        header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'txt', 'stringency_filter': 'stringent',
+                       'taxon_ids': taxon_id, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                           data_provider, 'gen_time': datetime.datetime.utcnow()}
+        header = header_template % header_dict
+        self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
+        header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'tsv', 'stringency_filter': 'stringent',
+                       'taxon_ids': taxon_id, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                           data_provider, 'gen_time': datetime.datetime.utcnow()}
+        header = header_template % header_dict
+        self.add_header_to_file(file_path=file_path + ".tsv", header=header)
         if context_info.env["GENERATE_REPORTS"]:
             self.upload_files_to_fms(file_path, context_info, data_provider, self.logger)
+
+    @staticmethod
+    def add_header_to_file(file_path, header):
+        with open(file_path, 'r') as original:
+            data = original.read()
+        with open(file_path, 'w') as modified:
+            modified.write(header + "\n\n" + data)
