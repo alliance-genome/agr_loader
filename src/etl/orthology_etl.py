@@ -5,9 +5,9 @@ import logging
 import uuid
 import multiprocessing
 import codecs
+from random import shuffle
 import ijson
 
-from random import shuffle
 from etl import ETL
 from etl.helpers import ETLHelper
 #from files import JSONFile

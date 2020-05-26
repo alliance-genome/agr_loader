@@ -106,22 +106,14 @@ class GOETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size,
-             "go_term_data.csv"],
-            [self.goterm_isas_query_template, commit_size,
-             "go_isas_data.csv"],
-            [self.goterm_partofs_query_template, commit_size,
-             "go_partofs_data.csv"],
-            [self.goterm_synonyms_query_template, commit_size,
-             "go_synonym_data.csv"],
-            [self.goterm_regulates_query_template, commit_size,
-             "go_regulates_data.csv"],
-            [self.goterm_negatively_regulates_query_template, commit_size,
-             "go_negatively_regulates_data.csv"],
-            [self.goterm_positively_regulates_query_template, commit_size,
-             "go_positively_regulates_data.csv"],
-            [self.goterm_secondary_query_template, commit_size,
-             "goterm_secondary_data.csv"]
+            [self.main_query_template, commit_size, "go_term_data.csv"],
+            [self.goterm_isas_query_template, commit_size, "go_isas_data.csv"],
+            [self.goterm_partofs_query_template, commit_size, "go_partofs_data.csv"],
+            [self.goterm_synonyms_query_template, commit_size, "go_synonym_data.csv"],
+            [self.goterm_regulates_query_template, commit_size, "go_regulates_data.csv"],
+            [self.goterm_negatively_regulates_query_template, commit_size, "go_negatively_regulates_data.csv"],
+            [self.goterm_positively_regulates_query_template, commit_size, "go_positively_regulates_data.csv"],
+            [self.goterm_secondary_query_template, commit_size, "goterm_secondary_data.csv"]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

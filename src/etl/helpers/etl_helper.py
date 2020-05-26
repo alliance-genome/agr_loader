@@ -1,17 +1,17 @@
-'''ETL Helper'''
+"""ETL Helper"""
 
 import uuid
 import logging
 
 
 class ETLHelper():
-    '''ETL Helper'''
+    """ETL Helper"""
 
     logger = logging.getLogger(__name__)
 
     @staticmethod
     def get_cypher_xref_text():
-        '''Get Cypher XREF Text'''
+        """Get Cypher XREF Text"""
 
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
@@ -31,7 +31,7 @@ class ETLHelper():
 
     @staticmethod
     def get_cypher_xref_tuned_text():
-        '''Get Cypher XREF Tuned Text'''
+        """Get Cypher XREF Tuned Text"""
 
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
@@ -49,14 +49,14 @@ class ETLHelper():
 
     @staticmethod
     def merge_crossref_relationships():
-        '''Merge Crossref Relationships'''
+        """Merge Crossref Relationships"""
 
         return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
 
 
     @staticmethod
     def get_cypher_xref_text_interactions():
-        '''Get Cypger XREF Text Interactions'''
+        """Get Cypger XREF Text Interactions"""
 
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey, crossRefType:row.crossRefType})
@@ -76,7 +76,7 @@ class ETLHelper():
 
     @staticmethod
     def get_cypher_xref_text_annotation_level():
-        '''Get Cypher XREF Text Annotation Level'''
+        """Get Cypher XREF Text Annotation Level"""
 
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
@@ -98,7 +98,7 @@ class ETLHelper():
 
     @staticmethod
     def get_expression_pub_annotation_xref(publication_mod_id):
-        '''Get Expression Pub Annotation XREF'''
+        """Get Expression Pub Annotation XREF"""
 
         if publication_mod_id is not None:
             pub_mod_local_id = publication_mod_id.split(":")[1]
@@ -109,11 +109,9 @@ class ETLHelper():
             elif "SGD:" in publication_mod_id:
                 pub_mod_url = "https://www.yeastgenome.org/reference/" + pub_mod_local_id
             elif "WB:" in publication_mod_id:
-                pub_mod_url = "https://www.wormbase.org/db/get?name=" \
-                        + pub_mod_local_id + ";class=Paper"
+                pub_mod_url = "https://www.wormbase.org/db/get?name=" + pub_mod_local_id + ";class=Paper"
             elif "RGD:" in publication_mod_id:
-                pub_mod_url = "https://rgd.mcw.edu" \
-                                 + "/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
+                pub_mod_url = "https://rgd.mcw.edu" + "/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
             elif "FB:" in publication_mod_id:
                 pub_mod_url = "http://flybase.org/reports/" + pub_mod_local_id
 
@@ -121,9 +119,9 @@ class ETLHelper():
 
 
     @staticmethod
-    def get_xref_dict(local_id, prefix, cross_ref_type, page, \
+    def get_xref_dict(local_id, prefix, cross_ref_type, page,
                       display_name, cross_ref_complete_url, primary_id):
-        '''Get XREF Dict'''
+        """Get XREF Dict"""
 
         global_xref_id = prefix + ":" + local_id
         cross_reference = {
@@ -143,7 +141,7 @@ class ETLHelper():
 
     @staticmethod
     def get_species_order(taxon_id):
-        '''Get Species Order'''
+        """Get Species Order"""
 
         order = None
         if taxon_id in "NCBITaxon:7955":
@@ -168,7 +166,7 @@ class ETLHelper():
 
     @staticmethod
     def species_lookup_by_taxonid(taxon_id):
-        '''Species Lookup by Taxon ID'''
+        """Species Lookup by Taxon ID"""
 
         species_name = None
         if taxon_id in "NCBITaxon:7955":
@@ -193,7 +191,7 @@ class ETLHelper():
 
     @staticmethod
     def species_lookup_by_data_provider(provider):
-        '''Species Lookup by Data Provider'''
+        """Species Lookup by Data Provider"""
 
         species_name = None
         if provider == "ZFIN":
@@ -218,7 +216,7 @@ class ETLHelper():
 
     @staticmethod
     def data_provider_lookup(species):
-        '''Data Provider Lookup'''
+        """Data Provider Lookup"""
 
         mod = 'Alliance'
         if species == 'Danio rerio':
@@ -242,7 +240,7 @@ class ETLHelper():
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     @staticmethod
     def get_complete_url_ont(local_id, global_id):
-        '''Get Complete URL'''
+        """Get Complete URL"""
 
         complete_url = None
         if 'OMIM:PS' in global_id:
@@ -266,7 +264,7 @@ class ETLHelper():
 
     @staticmethod
     def get_complete_pub_url(local_id, global_id):
-        '''Get Complete Pub URL'''
+        """Get Complete Pub URL"""
 
         complete_url = None
         if global_id.startswith('MGI:'):
@@ -289,7 +287,7 @@ class ETLHelper():
 
     @staticmethod
     def process_identifiers(identifier):
-        '''Process Identifier'''
+        """Process Identifier"""
 
         if identifier.startswith("DRSC:"):
             # strip off DSRC prefix
@@ -299,7 +297,7 @@ class ETLHelper():
 
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
-        '''Add AGR prefix by Species Taxon'''
+        """Add AGR prefix by Species Taxon"""
 
         species_dict = {
             7955: 'ZFIN:',
@@ -319,7 +317,7 @@ class ETLHelper():
 
     @staticmethod
     def get_short_species_abbreviation(taxon_id):
-        '''Get short Species Abbreviation'''
+        """Get short Species Abbreviation"""
 
         short_species_abbreviation = 'Alliance'
         if taxon_id == 'NCBITaxon:7955':
@@ -342,7 +340,7 @@ class ETLHelper():
 
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):
-        '''GO Annotation Prefix Lookup'''
+        """GO Annotation Prefix Lookup"""
 
         if dataprovider in ["MGI", "Human"]:
             return ""
@@ -351,7 +349,7 @@ class ETLHelper():
 
     @staticmethod
     def get_mod_from_taxon(taxon_id):
-        '''Get MOD from Taxon'''
+        """Get MOD from Taxon"""
 
         taxon_mod_dict = {
             '7955': 'ZFIN',
@@ -368,7 +366,7 @@ class ETLHelper():
 
     @staticmethod
     def get_taxon_from_mod(mod):
-        '''Get Taxon From MOD'''
+        """Get Taxon From MOD"""
 
         taxon_mod_dict = {
             'ZFIN': '7955',
@@ -385,7 +383,7 @@ class ETLHelper():
 
     @staticmethod
     def get_page_complete_url(local_id, xref_url_map, prefix, page):
-        '''Get Patge Complet URL'''
+        """Get Patge Complet URL"""
 
         complete_url = ""
         for rdstanza in xref_url_map:
@@ -404,7 +402,7 @@ class ETLHelper():
 
     @staticmethod
     def get_expression_images_url(local_id, cross_ref_id):
-        '''Get expression Images URL'''
+        """Get expression Images URL"""
 
         url = ""
         if 'MGI' in cross_ref_id:
@@ -423,7 +421,7 @@ class ETLHelper():
 
     @staticmethod
     def get_no_page_complete_url(local_id, xref_url_map, prefix, primary_id):
-        '''Get No Page Complete URL'''
+        """Get No Page Complete URL"""
 
 
         complete_url = ""

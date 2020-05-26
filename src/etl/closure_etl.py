@@ -1,4 +1,4 @@
-'''Closure ETL'''
+"""Closure ETL"""
 
 import logging
 import multiprocessing
@@ -10,18 +10,18 @@ from .helpers import Neo4jHelper
 
 
 class ClosureETL(ETL):
-    '''Clojure ETL'''
+    """Clojure ETL"""
 
     logger = logging.getLogger(__name__)
 
-    insert_isa_partof_closure = """
+    insert_isa_partof_closure_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (termChild:%sTerm {primaryKey:row.child_id})
             MATCH (termParent:%sTerm {primaryKey:row.parent_id})
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
 
-    retrieve_isa_partof_closure = """
+    retrieve_isa_partof_closure_query_template = """
         MATCH (childTerm:%sTerm)-[:PART_OF|IS_A*]->(parentTerm:%sTerm) 
             RETURN DISTINCT childTerm.primaryKey, parentTerm.primaryKey """
 
@@ -48,7 +48,7 @@ class ClosureETL(ETL):
         self.logger.debug("Starting isa_partof_ Closure for: %s", data_provider)
 
         query_list = [
-            [self.insert_isa_partof_closure, "100000",
+            [self.insert_isa_partof_closure_query_template, "100000",
              "isa_partof_closure_" + data_provider + ".csv",
              data_provider, data_provider],
         ]
@@ -62,9 +62,9 @@ class ClosureETL(ETL):
         self.logger.debug("Finished isa_partof Closure for: %s", data_provider)
 
     def get_closure_terms(self, data_provider):
-        '''Get Clojure Terms'''
+        """Get Closure Terms"""
 
-        query = self.retrieve_isa_partof_closure % (data_provider, data_provider)
+        query = self.retrieve_isa_partof_closure_query_template % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
         return_set = Neo4jHelper().run_single_query(query)
