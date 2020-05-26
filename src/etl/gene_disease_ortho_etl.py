@@ -106,8 +106,19 @@ class GeneDiseaseOrthoETL(ETL):
               
                     """
 
+        alliance_release = self.context_info.env["ALLIANCE_RELEASE"]
+        add_software_version_query = """
+
+              MERGE (l:SoftwareReleaseVersion {primaryKey: %s})
+                    """
+
         self.logger.info("pub creation started")
         Neo4jHelper().run_single_query(add_pub_query)
+
+        self.logger.info("pub creation finished")
+
+        self.logger.info("add software release version node")
+        Neo4jHelper().run_single_parameter_query(add_software_version_query, alliance_release)
 
         self.logger.info("pub creation finished")
 

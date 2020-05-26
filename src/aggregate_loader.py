@@ -23,12 +23,14 @@ from common import ContextInfo  # Must be the last timeport othersize program fa
 def main():
     """ Entry point to ETL program"""
 
-    parser = argparse.ArgumentParser(description=\
-        'Load data into the Neo4j database for the Alliance of Genome Resources.')
-    parser.add_argument('-c',
-                        '--config',\
-        help='Specify the filename of the YAML config. It must reside in the src/config/ directory',
-                        default='default.yml')
+    parser = argparse.ArgumentParser(
+        description='Load data into the Neo4j database for the Alliance of Genome Resources.'
+    )
+    parser.add_argument(
+        '-c',
+        '--config', help='Specify the filename of the YAML config. It must reside in the src/config/ directory',
+        default='default.yml'
+    )
     parser.add_argument('-v',
                         '--verbose',
                         help='Enable DEBUG mode for logging.',
@@ -138,7 +140,7 @@ class AggregateLoader():
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
-        """This function runs each of the ETL in parellel"""
+        """This function runs each of the ETL in parallel"""
         etl_time_tracker_list = []
         for etl_group in cls.etl_groups:
             etl_group_start_time = time.time()
@@ -168,7 +170,6 @@ class AggregateLoader():
 
         return etl_time_tracker_list
 
-
     def run_loader(self):
         """Main function for running loader"""
 
@@ -182,19 +183,19 @@ class AggregateLoader():
         file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())
 
         data_manager.download_and_validate()
-        self.logger.info("finished downloading now doing thread")
+        self.logger.debug("finished downloading now doing thread")
 
         file_transactor.check_for_thread_errors()
-        self.logger.info("finished threads waiting for queues")
+        self.logger.debug("finished threads waiting for queues")
 
         file_transactor.wait_for_queues()
-        self.logger.info("finished queues waiting for shutdown")
+        self.logger.debug("finished queues waiting for shutdown")
         file_transactor.shutdown()
 
         neo_transactor = Neo4jTransactor()
         neo_transactor.start_threads(data_manager.get_neo_transactor_thread_settings())
 
-        self.logger.info("finished starting neo threads ")
+        self.logger.debug("finished starting neo threads ")
 
         if not self.context_info.env["USING_PICKLE"]:
             self.logger.info("Creating indices.")
