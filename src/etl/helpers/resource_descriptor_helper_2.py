@@ -1,4 +1,4 @@
-'''Resource Descriptor Helper 2'''
+"""Resource Descriptor Helper 2"""
 
 import logging
 import sys
@@ -8,7 +8,7 @@ from files import Download
 
 
 class ResourceDescriptorHelper2():
-    '''Resource Descriptor Helper 2'''
+    """Resource Descriptor Helper 2"""
 
 
     logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class ResourceDescriptorHelper2():
 
     @staticmethod
     def alter_prefixes_to_match_resource_yaml(entry):
-        '''Alter Prefixes To Match Resource YAML'''
+        """Alter Prefixes To Match Resource YAML"""
 
         entry = entry.upper()
 
@@ -73,7 +73,7 @@ class ResourceDescriptorHelper2():
 
 
     def split_identifier(self, identifier):
-        '''Split Identifier'''
+        """Split Identifier"""
 
         prefix = None
         identifier_processed = None
@@ -96,7 +96,7 @@ class ResourceDescriptorHelper2():
         return prefix, identifier_processed, separator
 
     def return_url(self, identifier, page):
-        '''Return URL'''
+        """Return URL"""
 
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
 

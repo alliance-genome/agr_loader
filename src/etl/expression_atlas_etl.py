@@ -1,4 +1,4 @@
-'''Expression Atlas ETL'''
+"""Expression Atlas ETL"""
 
 import logging
 import multiprocessing
@@ -10,7 +10,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class ExpressionAtlasETL(ETL):
-    '''Expression Atlas ETL'''
+    """Expression Atlas ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class ExpressionAtlasETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, expression_atlas_gene_pages, data_provider, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         return_set = Neo4jHelper.run_single_parameter_query(\
                 ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,

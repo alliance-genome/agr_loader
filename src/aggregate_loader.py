@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''This is the main entry-point for running the ETL pipeline'''
+"""This is the main entry-point for running the ETL pipeline"""
 
 import logging
 import os
@@ -21,7 +21,7 @@ from common import ContextInfo  # Must be the last timeport othersize program fa
 
 
 def main():
-    ''' Entry point to ETL program'''
+    """ Entry point to ETL program"""
 
     parser = argparse.ArgumentParser(description=\
         'Load data into the Neo4j database for the Alliance of Genome Resources.')
@@ -60,7 +60,7 @@ def main():
 
 
 class AggregateLoader():
-    '''This runs all the individiual ETL pipelines'''
+    """This runs all the individiual ETL pipelines"""
 
     # This is the list of ETLs used for loading data.
     # The key (left) is derived from a value in the config YAML file.
@@ -138,7 +138,7 @@ class AggregateLoader():
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
-        '''This function runs each of the ETL in parellel'''
+        """This function runs each of the ETL in parellel"""
         etl_time_tracker_list = []
         for etl_group in cls.etl_groups:
             etl_group_start_time = time.time()
@@ -170,7 +170,7 @@ class AggregateLoader():
 
 
     def run_loader(self):
-        '''Main function for running loader'''
+        """Main function for running loader"""
 
         if self.args.verbose:
             self.logger.warn('DEBUG mode enabled!')

@@ -1,4 +1,4 @@
-'''Variation ETL'''
+"""Variation ETL"""
 
 import logging
 import multiprocessing
@@ -13,7 +13,7 @@ from common import ContextInfo
 
 
 class VariationETL(ETL):
-    '''Variation ETL'''
+    """Variation ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class VariationETL(ETL):
 
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
-            MATCH (a:Assembly {primaryKey:row.assembly})
+            MERGE (a:Assembly {primaryKey:row.assembly})
             
             CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
 
@@ -134,7 +134,7 @@ class VariationETL(ETL):
 
     def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position,
                               end_position, reference_sequence, variant_sequence):
-        '''Get HGVS nomenclature'''
+        """Get HGVS nomenclature"""
 
         if start_position is None:
             start_position_str = ""
@@ -175,7 +175,7 @@ class VariationETL(ETL):
 
 
     def get_generators(self, variant_data, data_provider, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         data_providers = []
         release = ""

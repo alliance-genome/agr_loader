@@ -1,10 +1,10 @@
-'''Test Class'''
+"""Test Class"""
 
 from etl import Neo4jHelper
 
 
 def pytest_generate_tests(metafunc):
-    '''called once per each test function'''
+    """called once per each test function"""
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
     argnames = sorted(funcarglist[0])
     metafunc.parametrize(argnames, [[funcargs[name] for name in argnames] \
@@ -12,7 +12,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestClass():
-    '''Test Class'''
+    """Test Class"""
 
     # a map specifying multiple argument sets for a test method
     # test_rel_exists checks for the existence of *at least one count*
@@ -91,10 +91,10 @@ class TestClass():
 
     @staticmethod
     def test_rel_exists(node1, node2):
-        '''Test Relationship Exists'''
+        """Test Relationship Exists"""
 
-        query = '''MATCH (n:%s)-[]-(m:%s)
-                   RETURN DISTINCT COUNT(n) AS count''' % (node1, node2)
+        query = """MATCH (n:%s)-[]-(m:%s)
+                   RETURN DISTINCT COUNT(n) AS count""" % (node1, node2)
 
         result = Neo4jHelper.run_single_query(query)
         for record in result:

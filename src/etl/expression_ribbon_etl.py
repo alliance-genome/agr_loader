@@ -1,4 +1,4 @@
-'''Expression Ribbon ETL'''
+"""Expression Ribbon ETL"""
 
 import logging
 
@@ -8,7 +8,7 @@ from .helpers import Neo4jHelper
 
 
 class ExpressionRibbonETL(ETL):
-    '''Expression Ribbon ETL'''
+    """Expression Ribbon ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class ExpressionRibbonETL(ETL):
 
 
     def get_ribbon_terms(self):
-        '''get ribbon terms'''
+        """get ribbon terms"""
 
         self.logger.debug("made it to the gocc ribbon retrieve")
 

@@ -1,4 +1,4 @@
-'''Stub ETL'''
+"""Stub ETL"""
 
 import logging
 import uuid
@@ -12,7 +12,7 @@ from transactors import Neo4jTransactor
 
 
 class StubETL(ETL):
-    '''Stub ETL'''
+    """Stub ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class StubETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         generators = 1
         return generators

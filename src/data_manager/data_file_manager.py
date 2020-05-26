@@ -1,4 +1,4 @@
-'''Getting files from FMS'''
+"""Getting files from FMS"""
 
 import logging
 import os
@@ -16,7 +16,7 @@ from .data_type_config import DataTypeConfig
 
 
 class DataFileManager(metaclass=Singleton):
-    '''Manages files'''
+    """Manages files"""
 
     logger = logging.getLogger(__name__)
     def __init__(self, config_file_loc):
@@ -74,16 +74,16 @@ class DataFileManager(metaclass=Singleton):
         self.process_config()
 
     def get_file_transactor_thread_settings(self):
-        '''Gets File Transactors thread settings'''
+        """Gets File Transactors thread settings"""
         return self.file_transactor_threads
 
     def get_neo_transactor_thread_settings(self):
-        '''Gets NEO4J thread setting'''
+        """Gets NEO4J thread setting"""
 
         return self.neo4j_transactor_threads
 
     def get_config(self, data_type):
-        '''Get the object for a data type. If the object doesn't exist, this returns None.'''
+        """Get the object for a data type. If the object doesn't exist, this returns None."""
 
         self.logger.debug("Getting config for: [%s] -> Config[%s]",
                           data_type,
@@ -91,9 +91,9 @@ class DataFileManager(metaclass=Singleton):
         return self.master_data_dictionary.get(data_type)
 
     def dispatch_to_object(self):
-        ''' This function sends off our data types to become DataTypeConfig objects.
+        """ This function sends off our data types to become DataTypeConfig objects.
             The smaller SubTypeConfig objects are created in the DataTypeConfig functions,
-            see data_type_config.py.'''
+            see data_type_config.py."""
 
         for config_entry in self.transformed_submission_system_data:
             # Skip string entries (e.g. schemaVersion, releaseVersion).
@@ -110,7 +110,7 @@ class DataFileManager(metaclass=Singleton):
                     self.transformed_submission_system_data[config_entry])
 
     def download_and_validate(self):
-        '''download an vlidatae config file'''
+        """download an vlidatae config file"""
 
         self.logger.debug('Beginning download and validation.')
         for entry in self.master_data_dictionary:
@@ -121,8 +121,8 @@ class DataFileManager(metaclass=Singleton):
                 self.logger.debug('done with %s data.', entry)
 
     def process_config(self):
-        ''' This checks for the validity of the YAML file.
-             See src/config/validation.yml for the layout of the schema.'''
+        """ This checks for the validity of the YAML file.
+             See src/config/validation.yml for the layout of the schema."""
         # TODO Add requirement checking and more validation to the YAML schema.
 
         validator = Validator(self.validation_schema)
@@ -165,7 +165,7 @@ class DataFileManager(metaclass=Singleton):
         return returned_dict
 
     def query_submission_system(self):
-        '''get file information from Submission System (FMS)'''
+        """get file information from Submission System (FMS)"""
 
         # The list of tuples below is created to filter out submission
         # system data against our config file.

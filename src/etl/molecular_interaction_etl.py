@@ -1,4 +1,4 @@
-'''Molecular Interactoin ETL'''
+"""Molecular Interactoin ETL"""
 
 import logging
 import uuid
@@ -13,7 +13,7 @@ from .helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
 
 
 class MolecularInteractionETL(ETL):
-    '''Molecular Interaction ETL'''
+    """Molecular Interaction ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def populate_genes():
-        '''Populate Genes'''
+        """Populate Genes"""
 
         master_gene_set = set()
 
@@ -133,7 +133,7 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def query_crossreferences(crossref_prefix):
-        '''Query Cross References'''
+        """Query Cross References"""
 
         query = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
                    WHERE cr.prefix = {parameter}
@@ -141,11 +141,11 @@ class MolecularInteractionETL(ETL):
         return Neo4jHelper().run_single_parameter_query(query, crossref_prefix)
 
     def populate_crossreference_dictionary(self):
-        ''' We're populating a rather large dictionary to use for looking up Alliance genes by
+        """ We're populating a rather large dictionary to use for looking up Alliance genes by
             their crossreferences.
             Edit the list below if you'd like to add more crossreferences to the dictionary.
             The key of the dictionary is the crossreference and the value is the Alliance
-            gene to which it resolves.'''
+            gene to which it resolves."""
 
         master_crossreference_dictionary = dict()
 
@@ -184,7 +184,7 @@ class MolecularInteractionETL(ETL):
         return master_crossreference_dictionary
 
     def process_interaction_identifier(self, entry, additional_row):
-        '''Create cross references for all the external identifiers.'''
+        """Create cross references for all the external identifiers."""
 
         xref_main_list = []
         entries = None
@@ -245,8 +245,8 @@ class MolecularInteractionETL(ETL):
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
                     self.logger.critical(
-                        '''Fatal Error: During special handling of FlyBase molecular interaction
-                           links, an FBig ID was not found.''')
+                        """Fatal Error: During special handling of FlyBase molecular interaction
+                           links, an FBig ID was not found.""")
                     self.logger.critical('Failed identifier: %s', individual)
                     self.logger.critical('PSI-MITAB row entry: %s', additional_row)
                     sys.exit(-1)
@@ -281,7 +281,7 @@ class MolecularInteractionETL(ETL):
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
-        '''Create an XREF linking back to interaction pages at each MOD for a particular gene.'''
+        """Create an XREF linking back to interaction pages at each MOD for a particular gene."""
 
         xref_dict = {}
         page = 'gene/MODinteractions'
@@ -318,7 +318,7 @@ class MolecularInteractionETL(ETL):
         return xref_dict
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
-        '''Resolve Iedntifiers by Row'''
+        """Resolve Iedntifiers by Row"""
 
         interactor_a_rows = [0, 2, 4, 22]
         interactor_b_rows = [1, 3, 5, 23]
@@ -349,7 +349,7 @@ class MolecularInteractionETL(ETL):
         return interactor_a_resolved, interactor_b_resolved
 
     def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):
-        '''Resolve Identifier'''
+        """Resolve Identifier"""
 
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
@@ -410,7 +410,7 @@ class MolecularInteractionETL(ETL):
         return None
 
     def get_generators(self, filepath, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         list_to_yield = []
         xref_list_to_yield = []

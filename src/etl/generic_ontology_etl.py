@@ -1,5 +1,5 @@
 
-'''Generic Ontology ETL'''
+"""Generic Ontology ETL"""
 
 import logging
 import multiprocessing
@@ -13,7 +13,7 @@ from transactors import Neo4jTransactor
 
 
 class GenericOntologyETL(ETL):
-    '''Generic Ontology ETL'''
+    """Generic Ontology ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -126,7 +126,7 @@ class GenericOntologyETL(ETL):
         self.logger.info("Finished Loading Generic Ontology Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, filepath, batch_size):
-        '''Get Genrators'''
+        """Get Genrators"""
 
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)

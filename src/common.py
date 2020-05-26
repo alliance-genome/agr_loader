@@ -1,4 +1,4 @@
-'''This is mainly used to create contextInfo'''
+"""This is mainly used to create contextInfo"""
 
 import logging
 import os
@@ -6,7 +6,7 @@ import yaml
 
 
 class Singleton(type):
-    '''Singleton'''
+    """Singleton"""
 
     _instances = {}
 
@@ -17,11 +17,11 @@ class Singleton(type):
 
 
 class NoDefaultValueError(Exception):
-    '''No Defualt Value Error'''
+    """No Defualt Value Error"""
 
 
 class ContextInfo(metaclass=Singleton):
-    '''Gets Configuration informatoin from files and from ENV variables'''
+    """Gets Configuration informatoin from files and from ENV variables"""
 
     logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class ContextInfo(metaclass=Singleton):
 
     @staticmethod
     def _parse_environ_var(env_var_value):
-        '''Determines if ENV variable is true or not'''
+        """Determines if ENV variable is true or not"""
 
         return_value = env_var_value
         if env_var_value in ["true", "True"]:

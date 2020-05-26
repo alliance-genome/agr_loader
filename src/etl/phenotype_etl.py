@@ -1,4 +1,4 @@
-"""'Phenotype ETL"""
+"""Phenotype ETL"""
 
 import logging
 import uuid
@@ -45,7 +45,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -92,7 +92,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -127,7 +127,7 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
            
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            CREATE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
               SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)

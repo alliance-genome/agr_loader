@@ -1,4 +1,4 @@
-'''Transcript ETL'''
+"""Transcript ETL"""
 
 import re
 import logging
@@ -11,7 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class TranscriptETL(ETL):
-    '''Transcript ETL'''
+    """Transcript ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -154,7 +154,7 @@ class TranscriptETL(ETL):
 
 
     def get_generators(self, filepath, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         with open(filepath) as file_handle:
             transcript_maps = []
