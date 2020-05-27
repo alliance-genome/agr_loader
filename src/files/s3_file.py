@@ -1,4 +1,4 @@
-'''S3 File'''
+"""S3 File"""
 
 import logging
 import os
@@ -8,7 +8,7 @@ from common import ContextInfo
 
 
 class S3File():
-    '''S3 File'''
+    """S3 File"""
 
     logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class S3File():
                              + "/" + self.filename
 
     def download(self):
-        '''Download'''
+        """Download"""
 
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
             self.logger.info("Making temp file storage: %s", self.savepath)
@@ -43,7 +43,7 @@ class S3File():
         return os.path.join(self.savepath, self.filename)
 
     def download_new(self):
-        '''Download New'''
+        """Download New"""
 
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
             self.logger.debug("Making temp file storage: %s", self.savepath)
@@ -88,4 +88,4 @@ class S3File():
         return False
 
     def list_files(self):
-        '''List Files'''
+        """List Files"""

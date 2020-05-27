@@ -1,4 +1,4 @@
-'''Neo4j Helper'''
+"""Neo4j Helper"""
 
 import logging
 
@@ -7,14 +7,14 @@ from common import ContextInfo
 
 
 class Neo4jHelper():
-    '''Neo4j Helper'''
+    """Neo4j Helper"""
 
     logger = logging.getLogger(__name__)
     context_info = ContextInfo()
 
     @staticmethod
     def run_single_parameter_query(query, parameter):
-        '''Run single parameter query'''
+        """Run single parameter query"""
 
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
                 + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
@@ -31,7 +31,7 @@ class Neo4jHelper():
 
     @staticmethod
     def run_single_query(query):
-        '''Run Single Query'''
+        """Run Single Query"""
 
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
                 + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
@@ -56,7 +56,7 @@ class Neo4jHelper():
 
     @staticmethod
     def create_indices():
-        '''Create Indicies'''
+        """Create Indicies"""
 
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
                 + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])

@@ -1,4 +1,4 @@
-'''Resources Descriptor Helper'''
+"""Resources Descriptor Helper"""
 
 import logging
 import uuid
@@ -7,14 +7,14 @@ from files import Download
 
 
 class ResourceDescriptorHelper():
-    '''Resource Descriptor Helper'''
+    """Resource Descriptor Helper"""
 
     logger = logging.getLogger(__name__)
     list_of_descriptor_maps_to_load = []
 
     @staticmethod
     def get_data():
-        '''Get Data'''
+        """Get Data"""
 
         ResourceDescriptorHelper.logger.info("got to resourcedescriptor")
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:

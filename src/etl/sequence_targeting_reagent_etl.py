@@ -1,4 +1,4 @@
-'''Sequence Targetting Reagent ETL'''
+"""Sequence Targetting Reagent ETL"""
 
 import logging
 import multiprocessing
@@ -11,7 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class SequenceTargetingReagentETL(ETL):
-    '''Sequence Targeting Reagent ETL'''
+    """Sequence Targeting Reagent ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -126,7 +126,7 @@ class SequenceTargetingReagentETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, sqtr_data, data_provider, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         data_providers = []
         sqtrs = []

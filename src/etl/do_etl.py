@@ -1,4 +1,4 @@
-'''DO ETL'''
+"""DO ETL"""
 
 import logging
 import re
@@ -11,7 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class DOETL(ETL):
-    '''DO ETL'''
+    """DO ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ class DOETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node

@@ -1,4 +1,4 @@
-'''Assembly Sequence Helper'''
+"""Assembly Sequence Helper"""
 
 import logging
 import os
@@ -9,7 +9,7 @@ from pyfaidx import Fasta
 
 
 class AssemblySequenceHelper():
-    '''Assembly Sequence Helper'''
+    """Assembly Sequence Helper"""
 
     logger = logging.getLogger(__name__)
 
@@ -41,22 +41,22 @@ class AssemblySequenceHelper():
         self.fasta_data = fasta_data
 
     def get_assembly(self):
-        '''Assembly'''
+        """Assembly"""
 
         return self.assembly
 
     def get_filepath(self):
-        '''Filepath'''
+        """Filepath"""
 
         return self.filepath
 
     def get_chromosomes(self):
-        '''Chromosomes'''
+        """Chromosomes"""
 
         return self.fasta_data.keys()
 
     def get_sequence(self, chromosome, first, second):
-        '''Sequence'''
+        """Sequence"""
 
         if first > second:
             start = second

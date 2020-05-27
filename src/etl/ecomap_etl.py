@@ -1,4 +1,4 @@
-'''ECOMAP ETL'''
+"""ECOMAP ETL"""
 
 import logging
 import multiprocessing
@@ -10,7 +10,7 @@ from transactors import Neo4jTransactor
 
 
 class ECOMAPETL(ETL):
-    '''ECOMAP ETL'''
+    """ECOMAP ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class ECOMAPETL(ETL):
 
 
     def get_generators(self, filepath, batch_size):
-        '''Create Generator'''
+        """Create Generator"""
 
         data = TXTFile(filepath).get_data()
         eco_maps = []

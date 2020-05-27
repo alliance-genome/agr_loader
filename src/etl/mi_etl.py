@@ -1,4 +1,4 @@
-'''Molecular Interaction ETL'''
+"""Molecular Interaction ETL"""
 
 import logging
 
@@ -9,7 +9,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class MIETL(ETL):
-    '''MI ETL'''
+    """MI ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class MIETL(ETL):
 
     @staticmethod
     def add_miterm_url(identifier):
-        '''Add MI Term URL'''
+        """Add MI Term URL"""
 
         mi_term_url_dict = {
             'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
@@ -69,7 +69,7 @@ class MIETL(ETL):
 
     @staticmethod
     def adjust_database_names(name):
-        '''Adjust database names'''
+        """Adjust database names"""
 
         mi_database_name_dict = {
             'flybase': 'FlyBase',
@@ -96,7 +96,7 @@ class MIETL(ETL):
 
     @staticmethod
     def add_definition(term):
-        '''Add definition'''
+        """Add definition"""
 
         try:
             return term['annotation']['definition'][0]
@@ -104,7 +104,7 @@ class MIETL(ETL):
             return None
 
     def get_generators(self, filepath):
-        '''Create Genrators'''
+        """Create Genrators"""
 
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)

@@ -1,4 +1,4 @@
-'''Gene Disease Orthology ETL'''
+"""Gene Disease Orthology ETL"""
 
 import logging
 import multiprocessing
@@ -8,10 +8,12 @@ from datetime import datetime
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 from .helpers import Neo4jHelper
+from common import ContextInfo
+import os
 
 
 class GeneDiseaseOrthoETL(ETL):
-    '''Gene Disease Orthology ETL'''
+    """Gene Disease Orthology ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -93,7 +95,7 @@ class GeneDiseaseOrthoETL(ETL):
 
 
     def create_pub(self):
-        '''create publication'''
+        """create publication"""
 
         self.logger.info("made it to the create pub for gene disease ortho")
 
@@ -113,7 +115,7 @@ class GeneDiseaseOrthoETL(ETL):
 
 
     def retrieve_gene_disease_ortho(self):
-        '''Retrieve Gene Disease Orthology'''
+        """Retrieve Gene Disease Orthology"""
 
         self.logger.info("reached gene disease ortho retrieval")
 

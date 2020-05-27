@@ -1,4 +1,4 @@
-'''Disease ETL'''
+"""Disease ETL"""
 
 ##TODO need to fix the difference between disaeseRecord and disease_record in original code
 
@@ -14,7 +14,7 @@ from transactors import Neo4jTransactor
 
 
 class DiseaseETL(ETL):
-    '''Disease ETL'''
+    """Disease ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class DiseaseETL(ETL):
         self.delete_empty_nodes()
 
     def delete_empty_nodes(self):
-        '''Delete Empty Nodes'''
+        """Delete Empty Nodes"""
 
         self.logger.debug("delete empty nodes")
 
@@ -257,7 +257,7 @@ class DiseaseETL(ETL):
 
 
     def get_generators(self, disease_data, batch_size, data_provider):
-        '''Creating generators'''
+        """Creating generators"""
 
         gene_list_to_yield = []
         allele_list_to_yield = []

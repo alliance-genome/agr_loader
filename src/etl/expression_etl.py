@@ -1,4 +1,4 @@
-'''Expression ETL'''
+"""Expression ETL"""
 
 import logging
 import codecs
@@ -12,7 +12,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class ExpressionETL(ETL):
-    '''Expression ETL'''
+    """Expression ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -371,7 +371,7 @@ class ExpressionETL(ETL):
         self.logger.info("Finished Loading Expression Data: %s", sub_type.get_data_provider())
 
     def add_other(self):
-        '''Add Other'''
+        """Add Other"""
 
         self.logger.debug("made it to the addOther statement")
 
@@ -391,7 +391,7 @@ class ExpressionETL(ETL):
 
 
     def get_generators(self, expression_file, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         self.logger.debug("made it to the expression generator")
 

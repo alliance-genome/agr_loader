@@ -1,4 +1,4 @@
-'''CSV file'''
+"""CSV file"""
 
 import logging
 import codecs
@@ -7,7 +7,7 @@ import csv
 from .comment_file import CommentFile
 
 class CSVFile():
-    '''CSV file download'''
+    """CSV file download"""
 
     logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class CSVFile():
         self.filename = filename
 
     def get_data(self):
-        '''Get Data'''
+        """Get Data"""
 
         self.logger.debug("Loading csv data from %s ...", (self.filename))
 

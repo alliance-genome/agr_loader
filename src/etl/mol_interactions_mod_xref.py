@@ -1,4 +1,4 @@
-'''Molecular Interactions MOD XREF ETL'''
+"""Molecular Interactions MOD XREF ETL"""
 
 import logging
 
@@ -8,7 +8,7 @@ from .helpers import ETLHelper
 
 
 class MolInteractionsModXrefETL(ETL):
-    '''Motecular Interactoins MOD XREF ETL'''
+    """Motecular Interactoins MOD XREF ETL"""
 
     logger = logging.getLogger(__name__)
 

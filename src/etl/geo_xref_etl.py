@@ -1,4 +1,4 @@
-'''GEO XREF ETL'''
+"""GEO XREF ETL"""
 
 import json
 import time
@@ -15,7 +15,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GeoXrefETL(ETL):
-    '''GEO XREF ETL'''
+    """GEO XREF ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class GeoXrefETL(ETL):
             Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, sub_type, batch_size, species_encoded):
-        '''Get Generators'''
+        """Get Generators"""
 
         entrez_ids = []
 

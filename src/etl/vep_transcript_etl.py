@@ -1,4 +1,4 @@
-'''VEP Transcript ETL'''
+"""VEP Transcript ETL"""
 
 import logging
 import multiprocessing
@@ -11,7 +11,7 @@ from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
 class VEPTranscriptETL(ETL):
-    '''VEP Transcript ETL'''
+    """VEP Transcript ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class VEPTranscriptETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, filepath):
-        '''Get Generators'''
+        """Get Generators"""
 
         data = TXTFile(filepath).get_data()
         vep_maps = []

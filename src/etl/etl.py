@@ -1,4 +1,4 @@
-'''ETL'''
+"""ETL"""
 
 import logging
 import sys
@@ -10,7 +10,7 @@ from common import ContextInfo
 
 
 class ETL():
-    '''ETL'''
+    """ETL"""
 
 
     xref_url_map = ResourceDescriptorHelper().get_data()
@@ -29,14 +29,14 @@ class ETL():
 
 
     def run_etl(self):
-        '''Run ETL'''
+        """Run ETL"""
 
         self._load_and_process_data()
 
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):
-        '''Wait for Threads'''
+        """Wait for Threads"""
 
         ETL.logger.debug("Waiting for Threads to finish: %s", len(thread_pool))
 
@@ -68,7 +68,7 @@ class ETL():
 
 
     def process_query_params(self, query_list_with_params):
-        '''Process Query Params'''
+        """Process Query Params"""
 
         # generators = list of yielded lists from parser
         # query_list_with_parms = list of queries, each with batch size and CSV file name.

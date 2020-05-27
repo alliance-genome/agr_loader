@@ -1,4 +1,4 @@
-'''File Trnasactor'''
+"""File Trnasactor"""
 
 import logging
 import multiprocessing
@@ -8,7 +8,7 @@ from etl import ETL
 
 
 class FileTransactor():
-    '''File Transactor'''
+    """File Transactor"""
 
     logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class FileTransactor():
         return "FileTransactor %s" % multiprocessing.current_process().name
 
     def start_threads(self, thread_count):
-        '''Start Threads'''
+        """Start Threads"""
 
         self.thread_pool = []
         for i in range(0, thread_count):
@@ -39,7 +39,7 @@ class FileTransactor():
 
     @staticmethod
     def execute_transaction(sub_type):
-        '''Execture Transaction'''
+        """Execture Transaction"""
 
         FileTransactor.count = FileTransactor.count + 1
         FileTransactor.queue.put((sub_type, FileTransactor.count))
@@ -48,17 +48,17 @@ class FileTransactor():
                                     FileTransactor.queue.qsize())
 
     def check_for_thread_errors(self):
-        '''Check for Thread Errors'''
+        """Check for Thread Errors"""
 
         ETL.wait_for_threads(self.thread_pool, FileTransactor.queue)
 
     def wait_for_queues(self):
-        '''Wait for Queues'''
+        """Wait for Queues"""
 
         FileTransactor.queue.join()
 
     def shutdown(self):
-        '''Shutdown'''
+        """Shutdown"""
 
         self.logger.debug("Shutting down FileTransactor threads: %s",
                           len(self.thread_pool))
@@ -67,7 +67,7 @@ class FileTransactor():
         self.logger.debug("Finished Shutting down FileTransactor threads")
 
     def run(self, filetracking_queue):
-        '''Run'''
+        """Run"""
 
         self.logger.debug("%s: Starting FileTransactor Thread Runner.", self._get_name())
         while True:
@@ -86,7 +86,7 @@ class FileTransactor():
         #EOFError
 
     def download_file(self, sub_type, filetracking_queue):
-        '''Download File'''
+        """Download File"""
 
         filepath = sub_type.get_filepath()
         filepath_to_download = sub_type.get_file_to_download()
