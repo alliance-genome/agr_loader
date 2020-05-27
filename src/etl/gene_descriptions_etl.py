@@ -10,7 +10,7 @@ import urllib.request
 
 from collections import defaultdict
 from etl import ETL
-from etl.helpers import Neo4jHelper
+from etl.helpers import Neo4jHelper, ETLHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
@@ -557,16 +557,19 @@ class GeneDescriptionsETL(ETL):
                                     data_manager=gd_data_manager)
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
         response = urllib.request.urlopen(HEADER_TEMPLATE_URL)
+        readme = "This file contains the following fields: gene ID, gene name, and gene description"
+        taxon = ETLHelper.get_taxon_from_mod(data_provider)
+        species = ETLHelper.species_lookup_by_data_provider(data_provider)
         header_template = HeaderTemplate(response.read().decode('ascii'))
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'txt', 'stringency_filter': '',
-                       'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
-                           data_provider, 'gen_time': datetime.datetime.utcnow(), 'readme': ''}
+                       'taxon_ids': taxon, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                           species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
         header = header_template.substitute(header_dict)
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'tsv', 'stringency_filter': '',
-                       'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
-                           data_provider, 'gen_time': datetime.datetime.utcnow(), 'readme': ''}
+                       'taxon_ids': taxon, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                           species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
         header = header_template.substitute(header_dict)
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
         if context_info.env["GENERATE_REPORTS"]:
