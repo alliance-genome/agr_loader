@@ -1,4 +1,4 @@
-'''XML File'''
+"""XML File"""
 
 import logging
 
@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ElementTree
 
 
 class XMLFile():
-    '''XML File'''
+    """XML File"""
 
     logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class XMLFile():
         self.filename = filename
 
     def get_data(self):
-        '''Get Data'''
+        """Get Data"""
 
         self.logger.debug("Parsing XML data from %s...", self.filename)
         tree = ElementTree.parse(self.filename)

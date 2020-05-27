@@ -1,4 +1,4 @@
-'''Gene Descriptions ETL'''
+"""Gene Descriptions ETL"""
 
 import copy
 import logging
@@ -36,7 +36,7 @@ class HeaderTemplate(Template):
 
 
 class GeneDescriptionsETL(ETL):
-    '''Gene Descriptions ETL'''
+    """Gene Descriptions ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -220,7 +220,7 @@ class GeneDescriptionsETL(ETL):
                                                 gd_data_manager=gd_data_manager)
 
     def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
-        '''Create generators'''
+        """Create generators"""
 
         gene_prefix = ""
         if data_provider == "HUMAN":
@@ -270,7 +270,7 @@ class GeneDescriptionsETL(ETL):
 
 
     def get_ontology(self, data_type: DataType, provider=None):
-        '''Get Ontology'''
+        """Get Ontology"""
 
         ontology = Ontology()
         terms_pairs = []
@@ -334,7 +334,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_neo_term_to_ontobio_ontology_if_not_exists(term_id, term_label,
                                                        term_type, is_obsolete, ontology):
-        '''Add NEO Term to Ontobio Ontology If Not Exists'''
+        """Add NEO Term to Ontobio Ontology If Not Exists"""
 
         if not ontology.has_node(term_id) and term_label:
             if is_obsolete in ["true", "True"]:
@@ -348,7 +348,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def create_annotation_record(gene_id, gene_symbol, term_id, aspect, ecode, prvdr, qualifier):
-        '''Create Annotation Record'''
+        """Create Annotation Record"""
 
         return {"source_line": "",
                 "subject": {
@@ -379,7 +379,7 @@ class GeneDescriptionsETL(ETL):
     @staticmethod
     def add_annotations(final_annotation_set, neo4j_annot_set, data_provider,
                         data_type: DataType, logger, ontology=None):
-        '''Add Annotations'''
+        """Add Annotations"""
 
         early_conceptus_re = re.compile(r'.*stage conceptus$')
         qualifier = ""
@@ -424,7 +424,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def get_disease_annotations_from_db(data_provider, gd_data_manager, logger):
-        '''Get Disease Annotations From DB'''
+        """Get Disease Annotations From DB"""
 
         annotations = []
         gene_annot_set = Neo4jHelper.run_single_parameter_query(
@@ -471,7 +471,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def get_expression_annotations_from_db(data_provider, gd_data_manager, logger):
-        '''Get Expression Annotations From DB'''
+        """Get Expression Annotations From DB"""
 
         annotations = []
         gene_annot_set = Neo4jHelper.run_single_parameter_query(
@@ -489,7 +489,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def get_best_orthologs_from_db(data_provider):
-        '''Get Best Orthologs_from_db'''
+        """Get Best Orthologs_from_db"""
 
         orthologs_set = Neo4jHelper.run_single_parameter_query(
             GeneDescriptionsETL.get_filtered_human_orthologs_query,
@@ -515,7 +515,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def upload_files_to_fms(file_path, context_info, data_provider, logger):
-        '''Upload Files To FMS'''
+        """Upload Files To FMS"""
 
         with open(file_path + ".json", 'rb') as f_json, \
              open(file_path + ".txt", 'rb') as f_txt, \
@@ -543,7 +543,7 @@ class GeneDescriptionsETL(ETL):
             logger.info(response.text)
 
     def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
-        '''Save Descripitons Report Files'''
+        """Save Descripitons Report Files"""
 
         release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
         json_desc_writer.overall_properties.species = data_provider

@@ -1,4 +1,4 @@
-'''Orthology ETL'''
+"""Orthology ETL"""
 
 from itertools import permutations
 import logging
@@ -15,7 +15,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class OrthologyETL(ETL):
-    '''Orthology ETL'''
+    """Orthology ETL"""
 
 
     logger = logging.getLogger(__name__)
@@ -160,7 +160,7 @@ class OrthologyETL(ETL):
 
 
     def get_randomized_list(self, sub_types):
-        '''Get Randomized List'''
+        """Get Randomized List"""
 
         pairs = [perm for perm in permutations(sub_types, 2)]
 
@@ -192,7 +192,7 @@ class OrthologyETL(ETL):
 
 
     def get_generators(self, datafile, sub_type, sub_types, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         counter = 0
 

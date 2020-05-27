@@ -1,4 +1,4 @@
-'''Download'''
+"""Download"""
 
 import logging
 
@@ -9,7 +9,7 @@ from urllib.error import HTTPError, URLError
 
 
 class Download():
-    '''Download'''
+    """Download"""
 
 
     logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class Download():
 
 
     def get_downloaded_data(self):
-        '''Get Download Data'''
+        """Get Download Data"""
 
         self.logger.info("Downloading data from: %s", self.url_to_retrieve)
 
@@ -51,7 +51,7 @@ class Download():
 
 
     def is_data_downloaded(self):
-        '''Is Data Downloaded'''
+        """Is Data Downloaded"""
 
         self.logger.info("Downloading data from: %s", self.url_to_retrieve)
 
@@ -72,7 +72,7 @@ class Download():
 
 
     def download_file(self):
-        '''Download File'''
+        """Download File"""
 
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath,
                                                            self.filename_to_save))):
@@ -97,4 +97,4 @@ class Download():
 
 
     def list_files(self):
-        '''List files'''
+        """List files"""

@@ -1,4 +1,4 @@
-'''SO ETL'''
+"""SO ETL"""
 
 import sys
 import logging
@@ -11,7 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class SOETL(ETL):
-    '''SO ETL'''
+    """SO ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class SOETL(ETL):
 
 
     def get_generators(self, filepath):
-        '''Get Generators'''
+        """Get Generators"""
 
         data = TXTFile(filepath).get_data()
         so_list = []
@@ -74,7 +74,7 @@ class SOETL(ETL):
 
     @classmethod
     def get_current_next(cls, the_list):
-        '''Get Current Next'''
+        """Get Current Next"""
 
         current, next_item = tee(the_list, 2)
         next_item = chain(islice(next_item, 1, None), [None])

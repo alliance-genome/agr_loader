@@ -1,4 +1,4 @@
-'''OBO Helper'''
+"""OBO Helper"""
 
 import logging
 
@@ -7,12 +7,12 @@ from .etl_helper import ETLHelper
 
 
 class OBOHelper():
-    '''OBO Helper'''
+    """OBO Helper"""
 
     logger = logging.getLogger(__name__)
 
     def get_data(self, filepath):
-        '''Get Data'''
+        """Get Data"""
 
         ont = OntologyFactory().create(filepath)
 
@@ -235,7 +235,7 @@ class OBOHelper():
 
     @staticmethod
     def process_line(line, o_dict, within_term):
-        '''Process Line'''
+        """Process Line"""
 
         if len(line.strip()) == 0: # If the line is blank, reset withinTerm and kick it back.
             within_term = False
@@ -268,7 +268,7 @@ class OBOHelper():
 
     @staticmethod
     def parse_obo(data):
-        '''Parse OBO'''
+        """Parse OBO"""
 
         ontology_data = []
         o_dict = {}

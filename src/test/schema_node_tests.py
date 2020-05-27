@@ -1,16 +1,16 @@
-'''Schema Node Tests'''
+"""Schema Node Tests"""
 
 from etl import Neo4jHelper
 
 
 def execute_transaction(query):
-    '''Execute Transaction'''
+    """Execute Transaction"""
 
     return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
-    '''PyTest Generate Tests'''
+    """PyTest Generate Tests"""
 
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
@@ -20,7 +20,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestClass():
-    '''A map specifying multiple argument sets for a test method'''
+    """A map specifying multiple argument sets for a test method"""
 
     params = {
         'test_relationship_exists': [dict(relationship='IS_A_PART_OF_CLOSURE'),
@@ -292,20 +292,20 @@ class TestClass():
 
     @staticmethod
     def test_node_exists(node):
-        '''Test Node Exists'''
+        """Test Node Exists"""
 
-        query = '''MATCH (n:%s)
-                   RETURN DISTINCT COUNT(n) AS count''' % node
+        query = """MATCH (n:%s)
+                   RETURN DISTINCT COUNT(n) AS count""" % node
         result = execute_transaction(query)
         for record in result:
             assert record["count"] > 0
 
     @staticmethod
     def test_relationship_exists(relationship):
-        '''Test Relationship Exists'''
+        """Test Relationship Exists"""
 
-        query = '''MATCH ()-[r:%s]-()
-                   RETURN count(r) AS count''' % relationship
+        query = """MATCH ()-[r:%s]-()
+                   RETURN count(r) AS count""" % relationship
 
         result = execute_transaction(query)
         for record in result:
@@ -313,10 +313,10 @@ class TestClass():
 
     @staticmethod
     def test_prop_exist(node, prop):
-        '''Test Prop Exits'''
-        query = '''MATCH (n:%s)
+        """Test Prop Exits"""
+        query = """MATCH (n:%s)
                    WHERE NOT EXISTS(n.%s)
-                   RETURN COUNT(n) AS count''' % (node, prop)
+                   RETURN COUNT(n) AS count""" % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
@@ -324,11 +324,11 @@ class TestClass():
 
     @staticmethod
     def test_prop_not_null(node, prop):
-        '''Test Prop Not Null'''
+        """Test Prop Not Null"""
 
-        query = '''MATCH (n:%s)
+        query = """MATCH (n:%s)
                    WHERE n.%s is NULL
-                   RETURN COUNT(n) AS count''' % (node, prop)
+                   RETURN COUNT(n) AS count""" % (node, prop)
 
         result = execute_transaction(query)
         for record in result:
@@ -336,11 +336,11 @@ class TestClass():
 
     @staticmethod
     def test_prop_unique(node, prop):
-        '''Test Prop Unique'''
+        """Test Prop Unique"""
 
-        query = '''MATCH (n:%s)
+        query = """MATCH (n:%s)
                    WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count
-                   RETURN count''' % (node, prop)
+                   RETURN count""" % (node, prop)
 
         result = execute_transaction(query)
         for record in result:

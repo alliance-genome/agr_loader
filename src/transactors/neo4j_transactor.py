@@ -1,4 +1,4 @@
-'''Neo4j Transacotr'''
+"""Neo4j Transacotr"""
 
 import logging
 import multiprocessing
@@ -10,7 +10,7 @@ from common import ContextInfo
 
 
 class Neo4jTransactor():
-    '''Neo4j Transactor'''
+    """Neo4j Transactor"""
 
     logger = logging.getLogger(__name__)
     count = 0
@@ -26,7 +26,7 @@ class Neo4jTransactor():
 
 
     def start_threads(self, thread_count):
-        '''Start Threads'''
+        """Start Threads"""
 
         manager = multiprocessing.Manager()
         queue = manager.Queue()
@@ -39,7 +39,7 @@ class Neo4jTransactor():
 
 
     def shutdown(self):
-        '''Shutdown'''
+        """Shutdown"""
 
         self.logger.info("Shutting down Neo4jTransactor threads: %s", len(self.thread_pool))
         for thread in self.thread_pool:
@@ -49,7 +49,7 @@ class Neo4jTransactor():
 
     @staticmethod
     def execute_query_batch(query_batch):
-        '''Execture Query Batch'''
+        """Execture Query Batch"""
 
         Neo4jTransactor.count = Neo4jTransactor.count + 1
         Neo4jTransactor.logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s ",
@@ -59,18 +59,18 @@ class Neo4jTransactor():
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
     def check_for_thread_errors(self):
-        '''Check for Thread Errors'''
+        """Check for Thread Errors"""
 
         ETL.wait_for_threads(self.thread_pool, Neo4jTransactor.queue)
 
     @staticmethod
     def wait_for_queues():
-        '''Wait for Queues'''
+        """Wait for Queues"""
 
         Neo4jTransactor.queue.join()
 
     def run(self):
-        '''Run'''
+        """Run"""
 
         context_info = ContextInfo()
 

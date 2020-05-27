@@ -1,10 +1,10 @@
-'''Text File'''
+"""Text File"""
 
 import logging
 import codecs
 
 class TXTFile():
-    '''Text File'''
+    """Text File"""
 
     logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class TXTFile():
         self.filename = filename
 
     def get_data(self):
-        '''Get Data'''
+        """Get Data"""
 
         self.logger.info("Loading txt data from %s...", self.filename)
 

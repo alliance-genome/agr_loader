@@ -1,4 +1,4 @@
-'''Gets information from YAML configs'''
+"""Gets information from YAML configs"""
 
 import logging
 import sys
@@ -9,7 +9,7 @@ from .sub_type_config import SubTypeConfig
 
 
 class DataTypeConfig():
-    '''Data Type Config'''
+    """Data Type Config"""
 
 
     logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class DataTypeConfig():
 
 
     def get_data(self):
-        '''Download data and put in tmp folder'''
+        """Download data and put in tmp folder"""
 
         download_dir = 'tmp'
 
@@ -52,19 +52,19 @@ class DataTypeConfig():
 
 
     def get_neo4j_commit_size(self):
-        '''Returns NEO4J commit size'''
+        """Returns NEO4J commit size"""
 
         return self.neo4j_commit_size
 
 
     def get_generator_batch_size(self):
-        '''Returns generator Batch size'''
+        """Returns generator Batch size"""
 
         return self.generator_batch_size
 
 
     def check_for_single(self):
-        '''Determin if list of subtypes is only one'''
+        """Determin if list of subtypes is only one"""
 
         if len(self.list_of_subtype_objects) > 1:
             self.logger.critical('Called for single item in object containing multiple children.')
@@ -75,13 +75,13 @@ class DataTypeConfig():
 
 
     def get_single_filepath(self):
-        '''Gets filepath for single file'''
+        """Gets filepath for single file"""
 
         self.check_for_single()
         return self.list_of_subtype_objects[0].get_filepath()
 
 
     def get_sub_type_objects(self):
-        '''Gets subtype objects'''
+        """Gets subtype objects"""
 
         return self.list_of_subtype_objects

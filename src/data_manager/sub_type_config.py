@@ -1,4 +1,4 @@
-'''Gets the subtypes config'''
+"""Gets the subtypes config"""
 
 import logging
 import os
@@ -14,7 +14,7 @@ from files import S3File, TARFile, Download
 
 
 class SubTypeConfig():
-    '''SubType Configuration'''
+    """SubType Configuration"""
 
     logger = logging.getLogger(__name__)
     def __init__(self, data_type, sub_data_type, file_to_download, filepath):
@@ -26,27 +26,27 @@ class SubTypeConfig():
         self.already_downloaded = False
 
     def get_filepath(self):
-        '''Get filepath'''
+        """Get filepath"""
 
         return self.filepath
 
     def get_sub_data_type(self):
-        '''Get sub data type'''
+        """Get sub data type"""
 
         return self.sub_data_type
 
     def get_file_to_download(self):
-        '''Get file to download'''
+        """Get file to download"""
 
         return self.file_to_download
 
     def get_data_provider(self):
-        '''Get data provider'''
+        """Get data provider"""
 
         return self.sub_data_type
 
     def get_data(self):
-        '''get data'''
+        """get data"""
 
         # Grab the data (TODO validate).
         # Some of this algorithm is temporary.
@@ -91,7 +91,7 @@ class SubTypeConfig():
             self.logger.debug("File Path is None not downloading")
 
     def validate(self):
-        '''validation of filepath'''
+        """validation of filepath"""
 
         if self.filepath is None:
             self.logger.warning('No filepath found for sub type: %s from data type: %s ',
