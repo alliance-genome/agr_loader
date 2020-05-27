@@ -29,7 +29,7 @@ class VariationETL(ETL):
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
-                     o.name = row.variantHGVSSynonym
+                     o.name = row.variantHGVSSynonym,
                      o.hgvsNomenclature = row.variantHGVSSynonym,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
