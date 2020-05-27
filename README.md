@@ -11,10 +11,6 @@ Resources.
 
 ## Installation
 - Build the local image with `make build`.
-- This repository has the agr_schemas as a submodule. Do the following the first time at checkout:
-  - cd into schemas directory
-  - git submodule init
-  - git submodule update (to fetch the actual data in this directory)
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
   - To initialize an empty database after previously using the loader, be sure to run `make removedb` **before** running `make startdb`.
 
