@@ -281,7 +281,10 @@ class ETLHelper():
             complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
         elif global_id.startswith('PMID:'):
             complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-
+        elif global_id.startswith('OMIM:'):
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        elif global_id.startswith('ORPHA:'):
+            complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
         return complete_url
 
 
