@@ -1088,3 +1088,29 @@ def test_variant_consequence_has_codon_change():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_orphanet_publication_exists():
+    """Test Orphanet Publication Exists"""
+
+    query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
+                WHERE g.primaryKey = 'HGNC:869'
+                AND pr.pubModId = 'ORPHA:198' 
+                RETURN COUNT(pr) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_omim_publication_exists():
+    """Test OMIM Publication Exists"""
+
+    query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
+                WHERE g.primaryKey = 'HGNC:1958'
+                and pr.pubModId = 'OMIM:600513'
+                RETURN count(p) AS counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

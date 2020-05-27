@@ -283,7 +283,7 @@ class TestObject():
             'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204',
-            'HGNC:12597', 'HGNC:811', 'HGNC:6091',
+            'HGNC:12597', 'HGNC:811', 'HGNC:6091', 'HGNC:869', 'HGNC:1958',
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
