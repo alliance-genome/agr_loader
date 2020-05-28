@@ -25,7 +25,7 @@ from common import ContextInfo
 from data_manager import DataFileManager
 from string import Template
 
-HEADER_TEMPLATE_URL = "https://raw.githubusercontent.com/alliance-genome/agr_file_generator/6fea7c7a12ef8f53de17f31f8a8bd3b468cb41e7/src/generators/header_template.txt"
+HEADER_TEMPLATE_URL = "https://raw.githubusercontent.com/alliance-genome/agr_file_generator/master/src/generators/header_template.txt"
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
