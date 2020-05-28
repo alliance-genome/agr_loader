@@ -41,6 +41,9 @@ ONTOLOGY:
   - WBPhenotype
   - MP
   - HP
+  - OBI
+  - BTO
+  - CHEBI
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
@@ -72,6 +75,9 @@ Closure:
   - WBPhenotype
   - MP
   - HP
+  - OBI
+  - BTO
+  - CHEBI
 INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
@@ -84,3 +90,4 @@ DB-SUMMARY:
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
+
