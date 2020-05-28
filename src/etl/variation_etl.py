@@ -30,7 +30,7 @@ class VariationETL(ETL):
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
                      o.name = row.variantHGVSSynonym,
-                     o.hgvsNomenclature = row.variantHGVSSynonym,
+                     o.hgvsNomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
                      o.paddingRight = row.paddingRight,
