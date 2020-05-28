@@ -564,17 +564,16 @@ class GeneDescriptionsETL(ETL):
                  "have been trimmed to an ancestor term in the ontology, in order to balance readability with the " \
                  "amount of information in the description. The complete set of annotations to any gene in this file " \
                  "may be found in the relevant data tables on the Alliance gene page."
-        taxon = ETLHelper.get_taxon_from_mod(data_provider)
         species = ETLHelper.species_lookup_by_data_provider(data_provider)
         header_template = HeaderTemplate(response.read().decode('ascii'))
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'txt', 'stringency_filter': '',
-                       'taxon_ids': taxon, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                       'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
                            species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
         header = header_template.substitute(header_dict)
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'tsv', 'stringency_filter': '',
-                       'taxon_ids': taxon, 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
+                       'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
                            species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
         header = header_template.substitute(header_dict)
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
