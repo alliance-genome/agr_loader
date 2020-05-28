@@ -81,6 +81,9 @@ ONTOLOGY:
     - WBPhenotype
     - MP
     - HP
+    - OBI
+    - BTO
+    - CHEBI
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -124,6 +127,9 @@ Closure:
     - WBPhenotype
     - MP
     - HP
+    - OBI
+    - BTO
+    - CHEBI
 INTERACTION-MOL:
   type: list
   allowed: [COMBINED]
