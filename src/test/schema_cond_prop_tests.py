@@ -1,16 +1,16 @@
-'''Schema String Property Test'''
+"""Schema String Property Test"""
 
 from etl import Neo4jHelper
 
 
 def execute_transaction(query):
-    '''Execute Transaction'''
+    """Execute Transaction"""
 
     return Neo4jHelper.run_single_query(query)
 
 
 def pytest_generate_tests(metafunc):
-    '''pyTest Generat Test'''
+    """pyTest Generat Test"""
 
     # called once per each test function
     funcarglist = metafunc.cls.params[metafunc.function.__name__]
@@ -20,7 +20,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestClass(object):
-    '''A map specifying multiple argument sets for a test method'''
+    """A map specifying multiple argument sets for a test method"""
     params = {
         'test_prop_with_other_prop': [dict(node1='CrossReference',
                                            prop1='MESH',
@@ -62,12 +62,12 @@ class TestClass(object):
 
     @staticmethod
     def test_prop_with_other_prop(node1, prop1, prop2):
-        '''Test Property with Other Property'''
+        """Test Property with Other Property"""
 
-        query = '''MATCH (n:%s)
+        query = """MATCH (n:%s)
                    WHERE n.prefix = \'%s\'
                          AND n.%s is NULL
-                   RETURN COUNT(n) as count''' % (node1, prop1, prop2)
+                   RETURN COUNT(n) as count""" % (node1, prop1, prop2)
 
         result = execute_transaction(query)
         for record in result:

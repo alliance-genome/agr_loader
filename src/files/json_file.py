@@ -1,4 +1,4 @@
-'''JSON File'''
+"""JSON File"""
 
 import logging
 import codecs
@@ -8,12 +8,12 @@ import jsonschema as js
 
 
 class JSONFile():
-    '''JSON File'''
+    """JSON File"""
 
     logger = logging.getLogger(__name__)
 
     def get_data(self, filename):
-        '''Get Data'''
+        """Get Data"""
 
         self.logger.debug("Loading JSON data from %s ...", filename)
 
@@ -29,7 +29,7 @@ class JSONFile():
         return data
 
     def validate_json(self, data, filename, json_type):
-        '''Validate JSON'''
+        """Validate JSON"""
 
         self.logger.debug("Validating %s JSON.", json_type)
 
@@ -73,7 +73,7 @@ class JSONFile():
 
     @staticmethod
     def remove_bom_inplace(path):
-        '''Removes BOM mark, if it exists, from a file and rewrites it in-place'''
+        """Removes BOM mark, if it exists, from a file and rewrites it in-place"""
 
         buffer_size = 4096
         bom_length = len(codecs.BOM_UTF8)

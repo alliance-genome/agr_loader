@@ -1,4 +1,4 @@
-'''BGI ETL'''
+"""BGI ETL"""
 
 import logging
 import sys
@@ -11,7 +11,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 from files import JSONFile
 
 class BGIETL(ETL):
-    '''BGI ETL'''
+    """BGI ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -252,7 +252,7 @@ class BGIETL(ETL):
                          sub_type.get_data_provider())
 
     def get_generators(self, gene_data, data_provider, batch_size):
-        '''Create Generators'''
+        """Create Generators"""
 
         date_produced = gene_data['metaData']['dateProduced']
         synonyms = []

@@ -1,4 +1,4 @@
-'''GO Anootation ETL'''
+"""GO Anootation ETL"""
 
 import os
 import logging
@@ -11,7 +11,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GOAnnotETL(ETL):
-    '''GO Annotation ETL'''
+    """GO Annotation ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class GOAnnotETL(ETL):
             query_tracking_list.append(item)
 
     def get_generators(self, file, prefix, batch_size):
-        '''Create Generators'''
+        """Create Generators"""
 
         go_annot_list = []
         counter = 0

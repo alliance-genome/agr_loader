@@ -1,4 +1,4 @@
-'''GO ETL'''
+"""GO ETL"""
 
 import logging
 from ontobio import OntologyFactory
@@ -7,7 +7,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GOETL(ETL):
-    '''GO ETL'''
+    """GO ETL"""
 
     logger = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ class GOETL(ETL):
 
 
     def get_generators(self, filepath, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node

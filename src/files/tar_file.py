@@ -1,4 +1,4 @@
-'''TAR File'''
+"""TAR File"""
 
 import logging
 import os
@@ -7,7 +7,7 @@ import time
 
 
 class TARFile():
-    '''TAR File'''
+    """TAR File"""
 
     logger = logging.getLogger(__name__)
     def __init__(self, path, tarfilename):
@@ -15,7 +15,7 @@ class TARFile():
         self.tarfilename = tarfilename
 
     def extract_all(self):
-        '''Extract All'''
+        """Extract All"""
 
         self.logger.debug("Reading header from %s/%s ...", self.path, self.tarfilename)
 

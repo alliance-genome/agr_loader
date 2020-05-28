@@ -1,4 +1,4 @@
-'''Construct ETL'''
+"""Construct ETL"""
 
 import logging
 import multiprocessing
@@ -13,7 +13,7 @@ from transactors import Neo4jTransactor
 
 
 class ConstructETL(ETL):
-    '''Construct ETL'''
+    """Construct ETL"""
 
     logger = logging.getLogger(__name__)
     xref_url_map = ResourceDescriptorHelper().get_data()
@@ -147,7 +147,7 @@ class ConstructETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, construct_data, data_provider, batch_size):
-        '''Create Generators'''
+        """Create Generators"""
 
         data_providers = []
         release = ""

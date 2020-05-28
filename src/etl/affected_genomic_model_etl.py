@@ -1,4 +1,4 @@
-''''Affected Genomic Model ETL'''
+"""'Affected Genomic Model ETL"""
 
 import logging
 import multiprocessing
@@ -11,7 +11,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class AffectedGenomicModelETL(ETL):
-    '''ETL for adding Affected Genomic Model'''
+    """ETL for adding Affected Genomic Model"""
 
     logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ class AffectedGenomicModelETL(ETL):
 
 
     def get_generators(self, agm_data, data_provider, batch_size):
-        '''Get Generators'''
+        """Get Generators"""
 
         data_providers = []
         agms = []
