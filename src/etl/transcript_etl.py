@@ -54,7 +54,7 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (a)-[ao:ASSOCIATION]->(o)"""
+            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     transcript_alternate_id_query_template = """
             USING PERIODIC COMMIT %s
@@ -106,7 +106,7 @@ class TranscriptETL(ETL):
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (a)-[ao:ASSOCIATION]->(o)"""
+            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
 
     def __init__(self, config):

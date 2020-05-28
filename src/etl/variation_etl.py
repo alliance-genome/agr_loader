@@ -75,6 +75,7 @@ class VariationETL(ETL):
                 
             CREATE (o)-[of:ASSOCIATION]->(gchrmn)
             CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
     """
 
     xrefs_query_template = """
