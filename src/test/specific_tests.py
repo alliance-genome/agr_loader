@@ -1114,3 +1114,52 @@ def test_omim_publication_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_wb_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'WB:WBGene00022276' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_zfin_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mgi_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'MGI:104554' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_fb_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'FB:FBgn0031209' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
