@@ -94,7 +94,10 @@ class TestClass():
                             dict(node1='PublicationJoin', node2='AffectedGenomicModel'),
                             dict(node1='PublicationJoin', node2='Allele'),
                             dict(node1='GeneLevelConsequence', node2='Gene'),
-                            dict(node1='GeneLevelConsequence', node2='Variant')
+                            dict(node1='GeneLevelConsequence', node2='Variant'),
+                            dict(node1='Construct', node2='CrossReference'),
+                            dict(node1='Construct', node2='Allele'),
+                            dict(node1='Construct', node2='Gene')
                             ]
 
     }
