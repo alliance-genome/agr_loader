@@ -193,6 +193,8 @@ class TranscriptETL(ETL):
                             data_provider = 'FB'
                         if data_provider == 'WormBase':
                             data_provider = 'WB'
+                        if data_provider == 'RAT':
+                            data_provider = 'RGD'
                         self.logger.info("datasource %s", header_columns[1])
                 elif line.startswith('#'):
                     continue
@@ -209,36 +211,43 @@ class TranscriptETL(ETL):
                                     key = pair.split("=")[0]
                                     value = pair.split("=")[1]
                                     if key == 'ID':
-                                        gff3_id = value
+                                        if data_provider == 'WB':
+                                            if ":" in value:
+                                                gff3_id = value.split(":")[1]
+                                            else:
+                                                gff3_id = value
+                                        else:
+                                            gff3_id = value
                                     if key == 'gene_id':
                                         gene_id = value
                                     if key == 'Parent':
-                                        parent = value
+                                        if data_provider == 'WB':
+                                            parent = value.split(":")[1]
+                                        else:
+                                            parent = value
                                     if key == 'Name':
                                         name = value
                                     if key == 'transcript_id':
-                                        synonym = gff3_id
-                                        gff3_id = value
-                                    #if key == 'Alias':
-                                       #aliases = value.split(',')
-                                #       transcriptMap.update({'aliases' : aliases})
-                                #       if key == 'SecondaryIds':
-                                #           secIds = value.split(',')
-                                #           transcriptMap.update({'secIds' : secIds})
+                                        if value.startswith("FB:") or data_provider == 'MGI':
+                                            synonym = gff3_id
+                                            if ":" in value:
+                                                gff3_id = value.split(":")[1]
+                                            else:
+                                                gff3_id = value
                                     if key == 'curie':
                                         curie = value
-                                # gene: curie = RGD:1309770 ID=RGD:1309770
 
-                            # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
-                            # transcript: ID=MGI_C57BL6J_3588256_transcript_1
+                                # NC_003279.8:g.14759_15004del	I:14759-15004	-	WBGene00022276	Y74C9A.2a.1	Transcript	splice_acceptor_variant,coding_sequence_variant,intron_variant	?-193
+                                # ?-103	?-35	-	-	-	IMPACT=HIGH;STRAND=1;SYMBOL=nlp-40;SOURCE=WB.gff.gz;HGVSc=Y74C9A.2a.1:c.50-192_103del;HGVSg=I:g.14759_15004del
 
+                                # I	WormBase	mRNA	4118	10232	.	-	.	ID=Transcript:Y74C9A.3.2;
+                                # curie=WB:Y74C9A.3.2;Ontology_term=SO:0000234;Parent=Gene:WBGene00022277;Name=Y74C9A.3.2;wormpep=CE28146;locus=homt-1
                                 if self.test_object.using_test_data() is True:
   
                                     is_it_test_entry = self.test_object.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
-                                        is_it_test_entry = self.test_object \
-                                                               .check_for_test_id_entry(parent)
+                                        is_it_test_entry = self.test_object.check_for_test_id_entry(parent)
                                         if is_it_test_entry is False:
                                             is_it_test_entry = self.test_object.check_for_test_id_entry(gene_id)
 
@@ -262,6 +271,9 @@ class TranscriptETL(ETL):
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcript_map.update({'assembly': assembly})
                             transcript_maps.append(transcript_map)
+                            if curie == 'WB:Y74C9A.3.2':
+                                self.logger.info(transcript_map)
+
                         elif feature_type_name == 'gene':
                             gene_map.update({'curie': curie})
                             gene_map.update({'parentId': parent})

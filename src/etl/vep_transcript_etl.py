@@ -224,6 +224,7 @@ class VEPTranscriptETL(ETL):
                         codon_variation = columns[11]
                         codon_change = columns[11]
 
+
                 vep_result = {"hgvsNomenclature": columns[0],
                               "transcriptLevelConsequence": columns[6],
                               "primaryKey": str(uuid.uuid4()),
