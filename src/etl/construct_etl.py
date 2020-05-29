@@ -228,7 +228,7 @@ class ConstructETL(ETL):
 
             if 'crossReferences' in construct_record:
 
-                for cross_ref in construct_record['crossReferences']:
+                for cross_ref in construct_record.get('crossReferences'):
                     cross_ref_id = cross_ref.get('id')
                     local_crossref_id = cross_ref_id.split(":")[1]
                     prefix = cross_ref.get('id').split(":")[0]
@@ -250,6 +250,7 @@ class ConstructETL(ETL):
                                                                mod_global_cross_ref_id,
                                                                cross_ref_id + page)
                                 xref['dataId'] = global_id
+                                self.logger.info(xref)
                                 cross_reference_list.append(xref)
 
             if 'constructComponents' in construct_record:
