@@ -1162,4 +1162,3 @@ def test_fb_gene_has_variant_tc_consequence_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
-

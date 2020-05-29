@@ -237,11 +237,6 @@ class TranscriptETL(ETL):
                                     if key == 'curie':
                                         curie = value
 
-                                # NC_003279.8:g.14759_15004del	I:14759-15004	-	WBGene00022276	Y74C9A.2a.1	Transcript	splice_acceptor_variant,coding_sequence_variant,intron_variant	?-193
-                                # ?-103	?-35	-	-	-	IMPACT=HIGH;STRAND=1;SYMBOL=nlp-40;SOURCE=WB.gff.gz;HGVSc=Y74C9A.2a.1:c.50-192_103del;HGVSg=I:g.14759_15004del
-
-                                # I	WormBase	mRNA	4118	10232	.	-	.	ID=Transcript:Y74C9A.3.2;
-                                # curie=WB:Y74C9A.3.2;Ontology_term=SO:0000234;Parent=Gene:WBGene00022277;Name=Y74C9A.3.2;wormpep=CE28146;locus=homt-1
                                 if self.test_object.using_test_data() is True:
   
                                     is_it_test_entry = self.test_object.check_for_test_id_entry(curie)
