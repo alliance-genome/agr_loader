@@ -116,10 +116,6 @@ class VEPTranscriptETL(ETL):
                     value = pair.split("=")[1]
                     if key == 'IMPACT':
                         impact = value
-            if columns[3].startswith('Gene:'):
-                gene_id = columns[3].lstrip('Gene:')
-            elif columns[3].startswith('RGD:'):
-                gene_id = columns[3].lstrip('RGD:')
             else:
                 notes = columns[13]
                 kvpairs = notes.split(";")
@@ -139,8 +135,6 @@ class VEPTranscriptETL(ETL):
                             hgvs_g = value
                 if columns[3].startswith('Gene:'):
                     gene_id = columns[3].lstrip('Gene:')
-                elif columns[3].startswith('RGD:'):
-                    gene_id = columns[3].lstrip('RGD:')
                 else:
                     gene_id = columns[3]
 
