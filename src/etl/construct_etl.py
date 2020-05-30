@@ -166,6 +166,7 @@ class ConstructETL(ETL):
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
         data_provider = data_provider_cross_ref.get('id')
+        self.logger.info("DataProvider: " + data_provider)
         data_provider_pages = data_provider_cross_ref.get('pages')
         data_provider_cross_ref_set = []
 
@@ -195,6 +196,7 @@ class ConstructETL(ETL):
             release = construct_data['metaData']['release']
 
         for construct_record in construct_data['data']:
+
             counter = counter + 1
             global_id = construct_record['primaryId']
             local_id = global_id.split(":")[1]
@@ -228,7 +230,7 @@ class ConstructETL(ETL):
 
             if 'crossReferences' in construct_record:
 
-                for cross_ref in construct_record['crossReferences']:
+                for cross_ref in construct_record.get('crossReferences'):
                     cross_ref_id = cross_ref.get('id')
                     local_crossref_id = cross_ref_id.split(":")[1]
                     prefix = cross_ref.get('id').split(":")[0]

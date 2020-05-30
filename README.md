@@ -10,18 +10,9 @@ Resources.
 - Docker-compose
 
 ## Installation
-- Build the local environment image with `make buildenv`.
 - Build the local image with `make build`.
-- This repository has the agr_schemas as a submodule. Do the following the first time at checkout:
-  - cd into schemas directory
-  - git submodule init
-  - git submodule update (to fetch the actual data in this directory)
 - Start the Neo4j database with `make startdb`. Allow ~10 seconds for Neo4j to initialize.
-  - The Docker volume `agrloader_storedb` will be created (if it does not already exist).
   - To initialize an empty database after previously using the loader, be sure to run `make removedb` **before** running `make startdb`.
-
-- git submodule update --init (on subsequent updates, run: git submodule update --remote` before merging changes to the `agr_loader` repo) 
-  - currently, this submodule is tracking the 1.0.4 release - we need to change .gitmodules to reflect the next version when appropriate.
 
 - ensure that your local docker installation has access to at least 5G (preferentially 8G) of memory or else your run_test target will fail with a non-inituative error that "Cannot resolve address 'neo4j'" this can be done in the docker preferences.
 
@@ -37,15 +28,14 @@ Resources.
   - A quick command to count the number of nodes in your db: `match (n) return count (n);`
 
 ## Stopping and Removing the Database
-- Once finished, stop the database with `make stopdb`.
-- Optionally, remove the database with `make removedb`.
+- Remove the database with `make removedb`.
 
 ## Shortcut Commands
 - `make reload` will re-run the `Installation` and `Running the Loader` steps from above.
 - `make reload_test` will re-run the same steps using a test subset of data.
 
 ## Config
-- There are 4 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml, travis.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.  
+- There are 3 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.
 - When adding a new data load, be sure to add to validation.yml as well so the system knows the expected data types and subtypes.
 - local_submission_system.json is a file consumed in addition to the submission system data (from the submission system API) that is used to customize non-submission system files like ontology files.
 

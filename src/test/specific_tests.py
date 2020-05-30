@@ -850,7 +850,7 @@ def test_point_mutation_hgvs():
     """Test Point Mutation HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
-               WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
+               WHERE v.primaryKey = 'NC_007124.7:g.50540171C>T'
                      AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105' 
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
@@ -862,7 +862,7 @@ def test_variant_consequence():
     """Test Variant Consequence"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
-               WHERE v.hgvsNomenclature = 'NC_007124.7:g.50540171C>T'
+               WHERE v.primaryKey = 'NC_007124.7:g.50540171C>T'
                      AND a.primaryKey = 'ZFIN:ZDB-ALT-160601-8105'
                      AND vc.geneLevelConsequence = 'splice_donor_variant'
                RETURN count(v) AS counter"""
@@ -875,7 +875,7 @@ def test_deletion_hgvs():
     """Test Deletion HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
-               WHERE v.hgvsNomenclature = 'NC_007116.7:g.72118557_72118563del'
+               WHERE v.primaryKey = 'NC_007116.7:g.72118557_72118563del'
                      AND a.primaryKey='ZFIN:ZDB-ALT-170321-11'
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
@@ -887,7 +887,7 @@ def test_insertion_hgvs():
     """Test Insertion HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)--(vc:GeneLevelConsequence)
-               WHERE v.hgvsNomenclature = 'NC_007121.7:g.16027812_16027813insCCGTT'
+               WHERE v.primaryKey = 'NC_007121.7:g.16027812_16027813insCCGTT'
                      AND a.primaryKey = 'ZFIN:ZDB-ALT-180207-16'
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
@@ -1056,7 +1056,7 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
     """Test VEP Transcript Consequence has cDNA start end range"""
 
     query = """MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-                WHERE v.hgvsNomenclature = 'NC_007112.7:g.236854C>A'
+                WHERE v.primaryKey = 'NC_007112.7:g.236854C>A'
                 AND t.primaryKey ='ENSEMBL:ENSDART00000003317'
                 AND tc.cdnaStartPosition IS NOT NULL
                 AND tc.cdsStartPosition IS NOT NULL
@@ -1080,10 +1080,84 @@ def test_variant_consequence_has_codon_change():
     """Test Variant Consequence has Codon Change"""
 
     query = """ MATCH (v:Variant)--(t:Transcript)--(tc:TranscriptLevelConsequence)
-                WHERE v.hgvsNomenclature = 'NC_007112.7:g.262775T>A'
+                WHERE v.primaryKey = 'NC_007112.7:g.262775T>A'
                 AND t.primaryKey = 'ENSEMBL:ENSDART00000111806'
                 AND tc.codonChange IS NOT NULL
                 RETURN COUNT(tc) AS counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_orphanet_publication_exists():
+    """Test Orphanet Publication Exists"""
+
+    query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
+                WHERE g.primaryKey = 'HGNC:869'
+                AND pr.pubModId = 'ORPHA:198' 
+                RETURN COUNT(pr) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_omim_publication_exists():
+    """Test OMIM Publication Exists"""
+
+    query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
+                WHERE g.primaryKey = 'HGNC:1958'
+                and pr.pubModId = 'OMIM:600513'
+                RETURN count(p) AS counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_wb_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'WB:WBGene00022276' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_zfin_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_mgi_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'MGI:104554' 
+                RETURN count(g) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_fb_gene_has_variant_tc_consequence_exists():
+    """Test WB gene has variant and transcript level consequences"""
+
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
+                WHERE g.primaryKey = 'FB:FBgn0031209' 
+                RETURN count(g) as counter
     """
     result = execute_transaction(query)
     for record in result:

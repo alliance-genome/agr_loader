@@ -29,6 +29,7 @@ class VariationETL(ETL):
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
                     ON CREATE SET 
+                     o.name = row.variantHGVSSynonym,
                      o.hgvsNomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
                      o.paddingLeft = row.paddingLeft,
@@ -39,8 +40,8 @@ class VariationETL(ETL):
                      o.dataProviders = row.dataProviders,
                      o.dataProvider = row.dataProvider
 
-                MERGE (s:Synonym:Identifier {primaryKey:row.variantHGVSSynonym})
-                    SET s.name = row.variantHGVSSynonym
+                MERGE (s:Synonym:Identifier {primaryKey:row.hgvs_nomenclature})
+                    SET s.name = row.hgvs_nomenclature
                 MERGE (o)-[aka2:ALSO_KNOWN_AS]->(s) 
                 
                 MERGE (o)-[:VARIATION]->(a) 
@@ -74,6 +75,7 @@ class VariationETL(ETL):
                 
             CREATE (o)-[of:ASSOCIATION]->(gchrmn)
             CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
     """
 
     xrefs_query_template = """

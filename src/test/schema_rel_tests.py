@@ -40,6 +40,12 @@ class TestClass():
                             dict(node1='Gene', node2='Ontology:SOTerm'),
                             dict(node1='Gene', node2='Chromosome'),
                             dict(node1='Gene', node2='DiseaseEntityJoin:Association'),
+                            dict(node1='GenomicLocation', node2='Assembly'),
+                            dict(node1='GenomicLocation', node2='Chromosome'),
+                            dict(node1='GenomicLocation', node2='Variant'),
+                            dict(node1='GenomicLocation', node2='Gene'),
+                            dict(node1='Exon', node2='GenomicLocation'),
+                            dict(node1='Transcript', node2='GenomicLocation'),
                             dict(node1='Identifier:SecondaryId', node2='Gene'),
                             dict(node1='Identifier:Synonym', node2='Gene'),
                             dict(node1='Species', node2='Gene'),
@@ -88,7 +94,10 @@ class TestClass():
                             dict(node1='PublicationJoin', node2='AffectedGenomicModel'),
                             dict(node1='PublicationJoin', node2='Allele'),
                             dict(node1='GeneLevelConsequence', node2='Gene'),
-                            dict(node1='GeneLevelConsequence', node2='Variant')
+                            dict(node1='GeneLevelConsequence', node2='Variant'),
+                            dict(node1='Construct', node2='CrossReference'),
+                            dict(node1='Construct', node2='Allele'),
+                            dict(node1='Construct', node2='Gene')
                             ]
 
     }

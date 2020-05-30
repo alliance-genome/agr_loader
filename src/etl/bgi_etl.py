@@ -49,6 +49,7 @@ class BGIETL(ETL):
                 
             MERGE (o)-[of:ASSOCIATION]-(gchrm)
             MERGE (gchrm)-[ofc:ASSOCIATION]-(chrm)
+            MERGE (gchrmn)-[ao:ASSOCIATION]->(a)
             
         """
 

@@ -85,6 +85,13 @@ class TestObject():
             'WB:WBGene00006752', 'WB:WBGene00021840',
             'WB:WBGene00001117', 'WB:WBVar00241694',
             'WB:WBVar02147569', 'WB:WBVar00089131',
+            'Y74C9A.2a.1', 'WB:Y74C9A.2a.1', 'WB:WBGene00022276', 'Transcript:Y74C9A.2a.1',
+            'WB:Y74C9A.2a.1', 'Gene:WBGene00022276',
+            'WB:WBVar00252636', 'WB:WBVar01474221',
+            'WB:WBVar00252633', 'WB:WBVar01474234',
+            'WB:WBVar00252636',
+
+
             # disease
             'WB:WBGene00011936', 'WB:WBTransgene00004656',
             'WB:WBTransgene00004658', 'WB:WBTransgene00004656',
@@ -253,7 +260,11 @@ class TestObject():
             'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590',
             'FB:FBgn0031209', 'FBgn0031209', 'FBtr0113008', 'FB:FBtr0113008',
             'FB:FBal0217157', 'FBal0217157', 'FB:FBal0161914', 'FBal0161914',
-            'FBgn0031721', 'FB:FBgn0031721', 'FBgn0004620', 'FB:FBgn0004620'}
+            'FBgn0031721', 'FB:FBgn0031721', 'FBgn0004620', 'FB:FBgn0004620',
+            'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
+            'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
+            'FB:FBal0355732',
+        }
 
         self.rgd_test_set = {
             'RGD:70891', 'RGD:1306349', 'RGD:708528', 'RGD:620796', 'RGD:61995',
@@ -273,9 +284,10 @@ class TestObject():
             'RGD:68337', 'RGD:2332', 'RGD:1593265', 'RGD:1559787', 'RGD:621409',
             # variant consequences
             'RGD:1310046', 'RGD:69305', 'RGD:1589755', 'RGD:1307511', 'RGD:3889', 'RGD:13437613',
-            'RGD:1600311', 'RGD:5143979', 'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
-            'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
-            'FB:FBal0355732'}
+            'RGD:1600311', 'RGD:5143979', 'rna31', 'RGD:1310046', 'rna853', 'RGD:1310046', 'RGD:13437613',
+
+
+             }
 
         self.human_test_set = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709',
@@ -283,7 +295,7 @@ class TestObject():
             'HGNC:6700', 'HGNC:9588', 'HGNC:11973',
             # disease pheno specific test objects
             'HGNC:897', 'HGNC:869', 'HGNC:10848', 'HGNC:10402', 'HGNC:11204',
-            'HGNC:12597', 'HGNC:811', 'HGNC:6091',
+            'HGNC:12597', 'HGNC:811', 'HGNC:6091', 'HGNC:869', 'HGNC:1958',
             # gene descriptions
             'HGNC:4851', 'HGNC:1884', 'HGNC:795', 'HGNC:11291', 'HGNC:9091',
             # disease
