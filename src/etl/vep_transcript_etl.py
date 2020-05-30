@@ -123,7 +123,6 @@ class VEPTranscriptETL(ETL):
         """Get Generators"""
 
         data = TXTFile(filepath).get_data()
-        self.logger.info(data)
         vep_maps = []
 
         for line in data:
@@ -206,7 +205,6 @@ class VEPTranscriptETL(ETL):
                               "codonChange": codon_change
                           }
 
-            self.logger.info(vep_result)
             vep_maps.append(vep_result)
 
         yield [vep_maps]
