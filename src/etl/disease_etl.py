@@ -25,7 +25,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:DiseaseEntityJoin {primaryKey:row.dataId})
+            MATCH (o:PublicationJoin:Association {primaryKey:row.dataId})
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
 
@@ -398,7 +398,7 @@ class DiseaseETL(ETL):
                                                                            display_name,
                                                                            mod_global_cross_ref_id,
                                                                            cross_ref_id + page + annotation_type)
-                                passing_xref['dataId'] = disease_unique_key
+                                passing_xref['dataId'] = pecj_primary_key
 
                                 if 'loaded' in annotation_type:
                                     passing_xref['loadedDB'] = 'true'
