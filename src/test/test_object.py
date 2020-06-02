@@ -32,11 +32,12 @@ class TestObject():
             # phenotype objects
             'MGI:2670749', 'MGI:2656842', 'MGI:3575645', 'MGI:104796',
             'MGI:1860955', 'MGI:1860970', 'MGI:2384499', 'MGI:2388016',
+            'MGI:109583', 'MGI:5796492', 'MGI:5645732', 'MGI:1328362',
             # disease objects
             'MGI:88123', 'MGI:2148259', 'MGI:98297', 'MGI:5011818', 'MGI:98371', 'MGI:1919338',
             'MGI:96575', 'MGI:95832', 'MGI:2387629', 'MGI:2446564', 'MGI:2446568',
             'MGI:1860955', 'MGI:1860970', 'MGI:2384499', 'MGI:2388016', 'MGI:2151016',
-            'MGI:1328362',
+
             # expression
             'MGI:97570', 'MGI:2181676', 'MGI:1918911', 'MGI:1919311', 'MGI:1920484', 'MGI:109583',
             # gene descriptions
@@ -303,7 +304,7 @@ class TestObject():
             'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884', 'HGNC:1058',
             'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526',
             'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950', 'HGNC:11448',
-            'HGNC:7'}
+            'HGNC:7', 'HGNC:583', }
 
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,

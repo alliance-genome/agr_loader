@@ -236,7 +236,6 @@ class ETLHelper():
 
         return mod
 
-
     #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
     @staticmethod
     def get_complete_url_ont(local_id, global_id):

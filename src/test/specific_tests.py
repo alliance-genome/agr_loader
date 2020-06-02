@@ -899,7 +899,7 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
     """Test HGNC Gene has Curated and Loaded DB XREF"""
 
     query = """
-    MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(p:PublicationJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)
+    MATCH (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)
     WHERE g.primaryKey = 'HGNC:7'
     RETURN count(cr) AS counter"""
     result = execute_transaction(query)
@@ -1033,7 +1033,7 @@ def test_mi_term_has_corrected_url():
 def test_rgd_dej_has_rgd_full_url_cross_reference():
     """Test RGD DEJ has RGD full URL Cross Reference"""
 
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(pj:PublicationJoin)--(cr:CrossReference)
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
             WHERE cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=583#annot'
             RETURN COUNT(cr) AS counter"""
     result = execute_transaction(query)
@@ -1044,7 +1044,7 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
 def test_human_dej_has_omim_full_url_cross_reference():
     """Test Human DEJ has OMIM Full URL Cross Reference"""
 
-    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(pj:PublicationJoin)--(cr:CrossReference)
+    query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
                WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
                RETURN count(cr) AS counter"""
     result = execute_transaction(query)

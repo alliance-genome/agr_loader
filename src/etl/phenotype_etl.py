@@ -53,19 +53,6 @@ class PhenoTypeETL(ETL):
             CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
             
             """
-
-    execute_allele_gene_pej_relationship_query_template = """
-    
-    USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            // GET PRIMARY DATA OBJECTS
-        MATCH (pej:PublicationJoin {primaryKey:row.pecjPrimaryKey})
-        MATCH (allele:Allele {primaryKey:row.primaryId})
-        MATCH (g:Gene)-[a:IS_ALLELE_OF]-(allele)
-
-        MERGE (g)-[gapf:ASSOCIATION]->(pej)
-
-    """
     execute_gene_query_template = """
 
             USING PERIODIC COMMIT %s
@@ -188,11 +175,9 @@ class PhenoTypeETL(ETL):
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_neo4j_commit_size()
-        query_template_allele_list = []
         data_provider = sub_type.get_data_provider()
         self.logger.info("subtype: " + data_provider)
 
-        generators = self.get_generators(data, batch_size)
         query_template_list = [
                 [self.execute_gene_query_template, commit_size,
                  "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
@@ -200,35 +185,18 @@ class PhenoTypeETL(ETL):
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.execute_pges_allele_query_template, commit_size,
+                 "phenotype_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_pges_agm_query_template, commit_size,
-                 "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
+                 "phenotype_pges_agm_data_" + sub_type.get_data_provider() + ".csv"]
         ]
-        query_template_agm_list = [
-                [self.execute_pges_agm_query_template, commit_size,
-                 "phenotype_agm_pge_data_" + sub_type.get_data_provider() + ".csv"]
-        ]
-        basic_query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query_template, commit_size,
-                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_agm_query_template, commit_size,
-                 "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"]
-        ]
+
+        # Obtain the generator
+        generators = self.get_generators(data, batch_size)
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
-
-        basic_query_and_file_list = self.process_query_params(basic_query_template_list)
-        Neo4jTransactor.execute_query_batch(basic_query_and_file_list)
-
-        Neo4jTransactor.wait_for_queues()
-
-        query_agm_and_file_list = self.process_query_params(query_template_agm_list)
-        Neo4jTransactor.execute_query_batch(query_agm_and_file_list)
-
-        query_allele_and_file_list = self.process_query_params(query_template_allele_list)
-        Neo4jTransactor.execute_query_batch(query_allele_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
 
 
     def get_generators(self, phenotype_data, batch_size):
@@ -273,7 +241,6 @@ class PhenoTypeETL(ETL):
             pub_med_id = None
             pub_mod_id = None
             pub_med_url = None
-            pge_list_to_yield = []
             pub_mod_url = None
             primary_id = pheno.get('objectId')
             phenotype_statement = pheno.get('phenotypeStatement')
@@ -281,6 +248,7 @@ class PhenoTypeETL(ETL):
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(primary_id)
                 if is_it_test_entry is False:
+                    counter = counter - 1
                     continue
 
             evidence = pheno.get('evidence')
@@ -334,8 +302,8 @@ class PhenoTypeETL(ETL):
                     pge_list_to_yield.append(pge_map)
 
             phenotype = {
-                "primaryId": primary_id.strip(),
-                "phenotypeUniqueKey": primary_id.strip() + phenotype_statement.strip(),
+                "primaryId": primary_id,
+                "phenotypeUniqueKey": primary_id + phenotype_statement.strip(),
                 "phenotypeStatement": phenotype_statement.strip(),
                 "dateAssigned": date_assigned,
                 "loadKey": load_key,
@@ -352,10 +320,12 @@ class PhenoTypeETL(ETL):
             }
 
             list_to_yield.append(phenotype)
+
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, pge_list_to_yield]
                 list_to_yield = []
                 pge_list_to_yield = []
                 counter = 0
+
         if counter > 0:
-            yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield]
+            yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, pge_list_to_yield]
