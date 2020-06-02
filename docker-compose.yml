@@ -16,8 +16,8 @@ services:
     networks:
       - esnet
     environment:
-      - NEO4J_dbms_memory_heap_max__size=27000m
-      - NEO4J_dbms_memory_pagecache_size=27000m
+      - NEO4J_dbms_memory_heap_max__size=12000m
+      - NEO4J_dbms_memory_pagecache_size=12000m
 
 
   agr_loader:
@@ -97,6 +97,7 @@ services:
     entrypoint:
       - pytest
       - --verbose
+      - -n=10
 
 networks:
   esnet:

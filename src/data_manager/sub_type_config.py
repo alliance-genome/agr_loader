@@ -17,6 +17,7 @@ class SubTypeConfig():
     """SubType Configuration"""
 
     logger = logging.getLogger(__name__)
+
     def __init__(self, data_type, sub_data_type, file_to_download, filepath):
         self.data_type = data_type
         self.sub_data_type = sub_data_type

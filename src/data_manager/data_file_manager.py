@@ -19,6 +19,7 @@ class DataFileManager(metaclass=Singleton):
     """Manages files"""
 
     logger = logging.getLogger(__name__)
+
     def __init__(self, config_file_loc):
 
         context_info = ContextInfo()
