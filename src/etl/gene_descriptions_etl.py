@@ -566,14 +566,16 @@ class GeneDescriptionsETL(ETL):
         header_template = HeaderTemplate(response.read().decode('ascii'))
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'txt', 'stringency_filter': '',
                        'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
-                           species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
+                           species, 'gen_time': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M"), 'readme': readme}
         header = header_template.substitute(header_dict)
+        header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header_dict = {'filetype': 'Gene Descriptions', 'data_format': 'tsv', 'stringency_filter': '',
                        'taxon_ids': '', 'database_version': context_info.env["ALLIANCE_RELEASE"], 'species':
-                           species, 'gen_time': datetime.datetime.utcnow(), 'readme': readme}
+                           species, 'gen_time': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M"), 'readme': readme}
         header = header_template.substitute(header_dict)
+        header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
         if context_info.env["GENERATE_REPORTS"]:
             self.upload_files_to_fms(file_path, context_info, data_provider, self.logger)
