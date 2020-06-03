@@ -25,7 +25,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:DiseaseEntityJoin {primaryKey:row.dataId})
+            MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
 
@@ -259,21 +259,15 @@ class DiseaseETL(ETL):
     def get_generators(self, disease_data, batch_size, data_provider):
         """Creating generators"""
 
+        counter = 0
+        disease_association_type = None
         gene_list_to_yield = []
         allele_list_to_yield = []
         agm_list_to_yield = []
         evidence_code_list_to_yield = []
-        withs =[]
+        withs = []
         pge_list_to_yield = []
         xrefs = []
-        counter = 0
-        publication_mod_id = ""
-        pub_med_id = ""
-        pub_mod_url = None
-        pub_med_url = None
-        pge_key = ''
-        disease_association_type = None
-
         data_provider_object = disease_data['metaData']['dataProvider']
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
@@ -282,6 +276,11 @@ class DiseaseETL(ETL):
 
         for disease_record in disease_data['data']:
 
+            publication_mod_id = ""
+            pub_med_id = ""
+            pub_mod_url = None
+            pub_med_url = None
+            pge_key = ''
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(disease_record.get('objectId'))

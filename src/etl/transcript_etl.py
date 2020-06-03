@@ -230,7 +230,7 @@ class TranscriptETL(ETL):
                                     if key == 'transcript_id':
                                         if value.startswith("FB:") or data_provider == 'MGI':
                                             synonym = gff3_id
-                                            if ":" in value:
+                                            if ":" in value and data_provider == 'MGI':
                                                 gff3_id = value.split(":")[1]
                                             else:
                                                 gff3_id = value
