@@ -27,11 +27,6 @@ from generators.header import create_header
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
 
-class HeaderTemplate(Template):
-
-    delimiter = '%'
-
-
 class GeneDescriptionsETL(ETL):
     """Gene Descriptions ETL"""
 
