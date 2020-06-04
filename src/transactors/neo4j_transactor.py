@@ -6,7 +6,7 @@ import pickle
 import time
 from neo4j import GraphDatabase
 from etl import ETL
-from common import ContextInfo
+from loader_common import ContextInfo
 
 
 class Neo4jTransactor():

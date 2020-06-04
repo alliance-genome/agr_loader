@@ -6,7 +6,6 @@ import os
 import datetime
 import re
 import requests
-import urllib.request
 
 from collections import defaultdict
 from etl import ETL
@@ -21,7 +20,7 @@ from genedescriptions.precanned_modules import set_gene_ontology_module, set_dis
                                                set_expression_module
 from ontobio import AssociationSetFactory, Ontology
 from transactors import CSVTransactor, Neo4jTransactor
-from common import ContextInfo
+from loader_common import ContextInfo
 from data_manager import DataFileManager
 from generators.header import create_header
 

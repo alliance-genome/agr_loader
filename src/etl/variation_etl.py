@@ -9,7 +9,7 @@ from etl.helpers import ETLHelper, AssemblySequenceHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 from data_manager import DataFileManager
-from common import ContextInfo
+from loader_common import ContextInfo
 
 
 class VariationETL(ETL):

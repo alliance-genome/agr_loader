@@ -3,7 +3,7 @@
 import logging
 
 from neo4j import GraphDatabase
-from common import ContextInfo
+from loader_common import ContextInfo
 
 
 class Neo4jHelper():
