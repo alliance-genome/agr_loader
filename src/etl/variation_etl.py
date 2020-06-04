@@ -63,6 +63,7 @@ class VariationETL(ETL):
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
             MERGE (a:Assembly {primaryKey:row.assembly})
+             ON CREATE SET a.dataProvider = row.dataProvider
             
             CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
 
@@ -238,7 +239,9 @@ class VariationETL(ETL):
                 chromosome_str = chromosome
 
             assembly = allele_record["assembly"]
+
             if assembly not in assemblies:
+                self.logger.info(assembly)
                 context_info = ContextInfo()
                 data_manager = DataFileManager(context_info.config_file_location)
                 assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
@@ -365,7 +368,8 @@ class VariationETL(ETL):
                     "chromosome": chromosome_str,
                     "start": allele_record.get('start'),
                     "end": allele_record.get('end'),
-                    "uuid": str(uuid.uuid4())}
+                    "uuid": str(uuid.uuid4()),
+                    "dataProvider": data_provider}
 
                 variant_so_term = {
                     "variantId": hgvs_nomenclature,

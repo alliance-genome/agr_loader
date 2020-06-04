@@ -94,6 +94,7 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
             
             MERGE (a:Assembly {primaryKey: row.assembly})
+             ON CREATE SET a.dataProvider = row.dataProvider
             
             CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
 
@@ -175,6 +176,7 @@ class TranscriptETL(ETL):
                 parent = ''
                 gff3_id = ''
                 synonym = ''
+                name = ''
 
                 transcript_types = ['mRNA', 'miRNA', 'ncRNA', 'rRNA', 'snRNA',
                                     'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA']
@@ -183,6 +185,7 @@ class TranscriptETL(ETL):
                 gene_id = ''
 
                 if line.startswith('#!'):
+                    self.logger.info(line)
                     header_columns = line.split()
                     if line.startswith('#!assembly'):
                         assembly = header_columns[1]
@@ -257,6 +260,7 @@ class TranscriptETL(ETL):
                             transcript_map.update({'chromosomeNumber': columns[0]})
                             transcript_map.update({'featureType': feature_type_name})
                             transcript_map.update({'start': columns[3]})
+                            transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'end': columns[4]})
                             transcript_map.update({'assembly': assembly})
                             transcript_map.update({'dataProvider': data_provider})
@@ -282,14 +286,16 @@ class TranscriptETL(ETL):
                             exon_map.update({'chromosomeNumber': columns[0]})
                             exon_map.update({'featureType': feature_type_name})
                             exon_map.update({'start': columns[3]})
+                            exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'end': columns[4]})
                             exon_map.update({'assembly': assembly})
                             exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'name': name})
                             exon_map.update({'synonym': synonym})
-                            if assembly is None:
+                            if assembly is None or assembly == '':
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 exon_map.update({'assembly': assembly})
+                                transcript_map.update({'assembly': assembly})
                             exon_maps.append(exon_map)
                         else:
                             continue
