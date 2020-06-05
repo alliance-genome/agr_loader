@@ -4,7 +4,7 @@ import logging
 import os
 import time
 import urllib.request
-from common import ContextInfo
+from loader_common import ContextInfo
 
 
 class S3File():
