@@ -17,7 +17,7 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
 
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
-from common import ContextInfo  # Must be the last timeport othersize program fails
+from loader_common import ContextInfo  # Must be the last timeport othersize program fails
 
 
 def main():

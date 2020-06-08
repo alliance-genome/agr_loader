@@ -10,4 +10,3 @@ TEST_SET: False
 AWS_ACCESS_KEY: ""
 AWS_SECRET_KEY: ""
 API_KEY: ""
-HEADER_TEMPLATE_URL: "https://raw.githubusercontent.com/alliance-genome/agr_file_generator/6fea7c7a12ef8f53de17f31f8a8bd3b468cb41e7/src/generators/header_template.txt"

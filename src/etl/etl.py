@@ -6,7 +6,7 @@ import time
 
 from test import TestObject
 from etl.helpers import ResourceDescriptorHelper
-from common import ContextInfo
+from loader_common import ContextInfo
 
 
 class ETL():

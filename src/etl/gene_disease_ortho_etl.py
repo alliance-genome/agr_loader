@@ -8,8 +8,6 @@ from datetime import datetime
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 from .helpers import Neo4jHelper
-from common import ContextInfo
-import os
 
 
 class GeneDiseaseOrthoETL(ETL):
