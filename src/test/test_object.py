@@ -264,7 +264,7 @@ class TestObject():
             'FBgn0031721', 'FB:FBgn0031721', 'FBgn0004620', 'FB:FBgn0004620',
             'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
             'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
-            'FB:FBal0355732',
+            'FB:FBal0355732', 'FB:FBal0138114', 'FB:FBtp0015957', 
         }
 
         self.rgd_test_set = {
