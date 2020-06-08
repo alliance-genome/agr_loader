@@ -185,7 +185,6 @@ class TranscriptETL(ETL):
                 gene_id = ''
 
                 if line.startswith('#!'):
-                    self.logger.info(line)
                     header_columns = line.split()
                     if line.startswith('#!assembly'):
                         assembly = header_columns[1]
@@ -198,7 +197,6 @@ class TranscriptETL(ETL):
                             data_provider = 'WB'
                         if data_provider == 'RAT':
                             data_provider = 'RGD'
-                        self.logger.info("datasource %s", header_columns[1])
                 elif line.startswith('#'):
                     continue
                 else:
@@ -270,8 +268,6 @@ class TranscriptETL(ETL):
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcript_map.update({'assembly': assembly})
                             transcript_maps.append(transcript_map)
-                            if curie == 'WB:Y74C9A.3.2':
-                                self.logger.info(transcript_map)
 
                         elif feature_type_name == 'gene':
                             gene_map.update({'curie': curie})
