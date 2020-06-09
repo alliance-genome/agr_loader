@@ -38,6 +38,7 @@ class BGIETL(ETL):
 
             MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
             MERGE (a:Assembly {primaryKey:row.assembly})
+              ON CREATE SET a.dataProvider = row.dataProvider
             
             MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
@@ -536,7 +537,8 @@ class BGIETL(ETL):
                                               "end": end,
                                               "strand": strand,
                                               "assembly": assembly,
-                                              "uuid": str(uuid.uuid4())})
+                                              "uuid": str(uuid.uuid4()),
+                                              "dataProvider": data_provider})
 
             if basic_genetic_entity.get('synonyms') is not None:
                 for synonym in basic_genetic_entity.get('synonyms'):

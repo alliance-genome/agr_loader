@@ -1161,3 +1161,15 @@ def test_fb_gene_has_variant_tc_consequence_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_fb_allele_synonym_exists():
+    """Test FB allele has synonyms"""
+
+    query = """ MATCH (a:Allele)--(s:Synonym)
+                WHERE a.primaryKey = 'FB:FBal0138114' 
+                RETURN count(a) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
