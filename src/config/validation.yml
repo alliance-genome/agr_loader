@@ -43,7 +43,7 @@ GENEEEXPRESSIONATLASSITEMAP:
 VEPGENE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
-VEP:
+VEPGENE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
 VEPTRANSCRIPT:

@@ -124,7 +124,9 @@ class TestObject():
             'SGD:S000006068', 'SGD:S000005269', 'SGD:S000007324',
             'SGD:S000004241', 'SGD:S000002536',
             # expression
-            'SGD:S000002200'}
+            'SGD:S000002200',
+            # gff ARS object
+            'SGD:S000121253', }
 
         self.zfin_id_set = {
             'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445',
@@ -265,6 +267,8 @@ class TestObject():
             'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
             'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
             'FB:FBal0355732', 'FB:FBal0138114', 'FB:FBtp0015957',
+            # gff transcripts
+            'FB:FBtr0307588', 'FB:FBgn0052821',
         }
 
         self.rgd_test_set = {
