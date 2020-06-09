@@ -178,10 +178,13 @@ class TranscriptETL(ETL):
                 synonym = ''
                 name = ''
 
-                transcript_types = ['mRNA', 'miRNA', 'ncRNA', 'rRNA', 'snRNA',
-                                    'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA']
-                possible_types = ['gene', 'mRNA', 'miRNA', 'ncRNA', 'rRNA',
-                                  'snRNA', 'snoRNA', 'tRNA', 'pre_miRNA', 'lnc_RNA', 'exon']
+                transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lnc_RNA',
+                                    'tRNA', 'snRNA', 'rRNA', 'antisense_RNA', 'C_gene_segment',
+                                    'V_gene_segment', 'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
+                possible_types = ['gene', 'exon','mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
+                                  'pre_miRNA', 'snoRNA', 'lnc_RNA', 'tRNA', 'snRNA', 'rRNA',
+                                  'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
+                                  'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
                 gene_id = ''
 
                 if line.startswith('#!'):
@@ -197,6 +200,8 @@ class TranscriptETL(ETL):
                             data_provider = 'WB'
                         if data_provider == 'RAT':
                             data_provider = 'RGD'
+                elif line.startswith('##FASTA'):
+                    break
                 elif line.startswith('#'):
                     continue
                 else:

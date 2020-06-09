@@ -93,7 +93,7 @@ class AggregateLoader():
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
-        'VEP': VEPETL,
+        'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
         'DB-SUMMARY': NodeCountETL
     }
@@ -127,7 +127,7 @@ class AggregateLoader():
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],
-        ['VEP'],
+        ['VEPGENE'],
         ['VEPTRANSCRIPT'],
         ['DB-SUMMARY']
     ]

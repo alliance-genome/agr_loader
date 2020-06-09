@@ -1173,3 +1173,14 @@ def test_fb_allele_synonym_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_pseudogenic_transcript_exists():
+    """Test FB allele has synonyms"""
+
+    query = """ MATCH (t:Transcript)--(so:SOTerm) WHERE so.primaryKey = 'SO:0000516'
+                RETURN count(t) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
