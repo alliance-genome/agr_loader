@@ -389,6 +389,8 @@ class DiseaseETL(ETL):
                                     display_name = 'OMIM'
                                 else:
                                     display_name = cross_ref_id.split(":")[0]
+                                    if display_name ==  'DOID':
+                                        display_name = data_provider
 
                                 mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
                                                                                               self.xref_url_map, prefix,
