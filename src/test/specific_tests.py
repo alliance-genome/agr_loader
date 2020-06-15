@@ -1176,11 +1176,25 @@ def test_fb_allele_synonym_exists():
 
 
 def test_pseudogenic_transcript_exists():
-    """Test FB allele has synonyms"""
+    """Test pseudogenic transcript exists"""
 
     query = """ MATCH (t:Transcript)--(so:SOTerm) WHERE so.primaryKey = 'SO:0000516'
                 RETURN count(t) as counter
     """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_codon_protein_consequences_exists():
+    """Test FB variant has protein and codon start/end """
+
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequences)
+                WHERE v.primaryKey = 'NT_033779.5:g.5464013C>T'
+                AND tlc.proteinStartPosition IS NOT NULL
+                AND tlc.proteinEndPostition IS NOT NULL
+                AND tlc.proteinRange IS NOT NULL
+                RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
