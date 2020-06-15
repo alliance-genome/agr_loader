@@ -1194,7 +1194,6 @@ def test_codon_protein_consequence_exists():
                     AND tlc.proteinRange IS NOT NULL
                     AND tlc.proteinStartPosition IS NOT NULL
                     AND tlc.proteinEndPosition IS NOT NULL
-                    RETURN v, tlc
                 RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:
