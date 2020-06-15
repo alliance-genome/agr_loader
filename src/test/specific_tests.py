@@ -1186,14 +1186,15 @@ def test_pseudogenic_transcript_exists():
         assert record["counter"] > 0
 
 
-def test_codon_protein_consequences_exists():
+def test_codon_protein_consequence_exists():
     """Test FB variant has protein and codon start/end """
 
-    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequences)
-                WHERE v.primaryKey = 'NT_033779.5:g.5464013C>T'
-                AND tlc.proteinStartPosition IS NOT NULL
-                AND tlc.proteinEndPostition IS NOT NULL
-                AND tlc.proteinRange IS NOT NULL
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequence)
+                    WHERE v.primaryKey = 'NT_033779.5:g.5464013C>T'
+                    AND tlc.proteinRange IS NOT NULL
+                    AND tlc.proteinStartPosition IS NOT NULL
+                    AND tlc.proteinEndPosition IS NOT NULL
+                    RETURN v, tlc
                 RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:

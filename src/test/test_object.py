@@ -319,12 +319,12 @@ class TestObject():
                         "FlyBase": self.flybase_id_set,
                         "Human": self.human_test_set}
 
-        self.test_id_set = self.zfin_id_set.union(self.mgi_id_set\
-                                           .union(self.wormbase_id_set)\
-                                           .union(self.flybase_id_set)\
-                                           .union(self.sgd_id_set)\
-                                           .union(self.rgd_test_set)\
-                                           .union(self.human_test_set))
+        self.test_id_set = self.zfin_id_set.union(self.mgi_id_set
+                                                  .union(self.wormbase_id_set)
+                                                  .union(self.flybase_id_set)
+                                                  .union(self.sgd_id_set)
+                                                  .union(self.rgd_test_set)
+                                                  .union(self.human_test_set))
 
     def using_test_data(self):
         """Using Test Data"""
