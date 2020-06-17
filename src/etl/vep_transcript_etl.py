@@ -158,12 +158,12 @@ class VEPTranscriptETL(ETL):
             else:
                 gene_id = columns[3]
 
-            position_is_a_range = re.compile('.+-.+')
+            position_is_a_range = re.compile('.*-.*')
             cdna_range_match = re.search(position_is_a_range, columns[7])
             cds_range_match = re.search(position_is_a_range, columns[8])
             protein_range_match = re.search(position_is_a_range, columns[9])
 
-            before_after_change = re.compile(".+/.+")
+            before_after_change = re.compile(".*/.*")
             amino_acid_range_match = re.search(before_after_change, columns[10])
             codon_range_match = re.search(before_after_change, columns[11])
 
@@ -183,6 +183,7 @@ class VEPTranscriptETL(ETL):
             codon_reference, codon_variation, codon_change = self.return_range_split_values(
                 columns[11], codon_range_match
             )
+
 
             vep_result = {"hgvsNomenclature": columns[0],
                               "transcriptLevelConsequence": columns[6],
