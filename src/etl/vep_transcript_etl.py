@@ -114,9 +114,14 @@ class VEPTranscriptETL(ETL):
                     end = column.split("/")[1]
                     ranger = column
         else:
-            start = column
-            end = column
-            ranger = column
+            if column == '-' or column == '/':
+                start = ""
+                end = ""
+                ranger = ""
+            else:
+                start = column
+                end = column
+                ranger = column
         return start, end, ranger
 
     def get_generators(self, filepath):
