@@ -110,11 +110,6 @@ class VEPTranscriptETL(ETL):
                 end = column.split("/")[1]
                 ranger = column
         else:
-            if column == '-' or column == '/':
-                start = ""
-                end = ""
-                ranger = ""
-            else:
                 start = column
                 end = column
                 ranger = column
@@ -171,7 +166,6 @@ class VEPTranscriptETL(ETL):
             codon_reference, codon_variation, codon_change = self.return_range_split_values(
                 columns[11]
             )
-
 
             vep_result = {"hgvsNomenclature": columns[0],
                               "transcriptLevelConsequence": columns[6],
