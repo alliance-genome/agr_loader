@@ -1225,4 +1225,4 @@ def test_tc_consequence_is_null_vs_dash():
                 RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 0
+        assert record["counter"] == 0
