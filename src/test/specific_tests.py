@@ -1212,3 +1212,17 @@ def test_codon_consequence_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_tc_consequence_is_null_vs_dash():
+    """Test FB variant has codon start/end """
+
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequence)
+                    WHERE v.primaryKey = 'NC_007116.7:g.65946401_65951486delins'
+                    AND tlc.aminoAcidVariation <> '-'
+                    AND tlc.aminoAcidChange <> '-'
+                    AND tlc.aminoAcidReference <> '-'
+                RETURN count(v) AS counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 0
