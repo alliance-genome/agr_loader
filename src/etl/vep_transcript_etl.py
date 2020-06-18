@@ -90,35 +90,26 @@ class VEPTranscriptETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def return_range_split_values(self, column, range_match):
-        start = ''
-        end = ''
-        ranger = ''
-        if range_match:
-            if "-" in column:
-                if column == '-':
-                    start = ""
-                    end = ""
-                    ranger = ""
-                else:
-                    start = column.split("-")[0]
-                    end = column.split("-")[1]
-                    ranger = column
-            elif "/" in column:
-                if column == '/':
-                    start = ""
-                    end = ""
-                    ranger = ""
-                else:
-                    start = column.split("/")[0]
-                    end = column.split("/")[1]
-                    ranger = column
-        else:
-            if column == '-' or column == '/':
+    def return_range_split_values(self, column):
+        if "-" in column:
+            if column == '-':
                 start = ""
                 end = ""
                 ranger = ""
             else:
+                start = column.split("-")[0]
+                end = column.split("-")[1]
+                ranger = column
+        elif "/" in column:
+            if column == '/':
+                start = ""
+                end = ""
+                ranger = ""
+            else:
+                start = column.split("/")[0]
+                end = column.split("/")[1]
+                ranger = column
+        else:
                 start = column
                 end = column
                 ranger = column
@@ -158,30 +149,22 @@ class VEPTranscriptETL(ETL):
             else:
                 gene_id = columns[3]
 
-            position_is_a_range = re.compile('.+-.+')
-            cdna_range_match = re.search(position_is_a_range, columns[7])
-            cds_range_match = re.search(position_is_a_range, columns[8])
-            protein_range_match = re.search(position_is_a_range, columns[9])
-
-            before_after_change = re.compile(".+/.+")
-            amino_acid_range_match = re.search(before_after_change, columns[10])
-            codon_range_match = re.search(before_after_change, columns[11])
 
             cdna_start_position, cdna_end_position, cdna_range = self.return_range_split_values(
-                columns[7], cdna_range_match
+                columns[7]
             )
             cds_start_position, cds_end_position, cds_range = self.return_range_split_values(
-                columns[8], cds_range_match
+                columns[8]
             )
             protein_start_position, protein_end_position, protein_range = self.return_range_split_values(
-                columns[9], protein_range_match
+                columns[9]
             )
 
             amino_acid_reference, amino_acid_variation, amino_acid_change = self.return_range_split_values(
-                columns[10], amino_acid_range_match
+                columns[10]
             )
             codon_reference, codon_variation, codon_change = self.return_range_split_values(
-                columns[11], codon_range_match
+                columns[11]
             )
 
             vep_result = {"hgvsNomenclature": columns[0],
