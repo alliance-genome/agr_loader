@@ -1176,7 +1176,7 @@ def test_fb_allele_synonym_exists():
 
 
 def test_pseudogenic_transcript_exists():
-    """Test FB allele has synonyms"""
+    """Test pseudogenic transcript exists"""
 
     query = """ MATCH (t:Transcript)--(so:SOTerm) WHERE so.primaryKey = 'SO:0000516'
                 RETURN count(t) as counter
@@ -1184,3 +1184,45 @@ def test_pseudogenic_transcript_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_protein_consequence_exists():
+    """Test FB variant has protein start/end """
+
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequence)
+                    WHERE v.primaryKey = 'NT_033779.5:g.5464013C>T'
+                    AND tlc.proteinRange IS NOT NULL
+                    AND tlc.proteinStartPosition IS NOT NULL
+                    AND tlc.proteinEndPosition IS NOT NULL
+                RETURN count(v) AS counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_codon_consequence_exists():
+    """Test FB variant has codon start/end """
+
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequence)
+                    WHERE v.primaryKey = 'NT_033779.5:g.5464013C>T'
+                    AND tlc.codonChange IS NOT NULL
+                    AND tlc.codonReference IS NOT NULL
+                    AND tlc.codonVariation IS NOT NULL
+                RETURN count(v) AS counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_tc_consequence_is_null_vs_dash():
+    """Test FB variant has codon start/end """
+
+    query = """ MATCH (v:Variant)--(tlc:TranscriptLevelConsequence)
+                    WHERE v.primaryKey = 'NC_007116.7:g.65946401_65951486delins'
+                    AND tlc.aminoAcidVariation <> '-'
+                    AND tlc.aminoAcidChange <> '-'
+                    AND tlc.aminoAcidReference <> '-'
+                RETURN count(v) AS counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0 

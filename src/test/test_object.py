@@ -238,7 +238,8 @@ class TestObject():
             'ZFIN:ZDB-GENE-030131-7773', 'ENSEMBL:ENSDART00000010092',
             'ENSDART00000010092', 'ZFIN:ZDB-GENE-060929-860',
             'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
-            'ENSDART00000111806'}
+            'ENSDART00000111806', 'ZFIN:ZDB-ALT-161017-2', 'ZFIN:ZDB-GENE-040625-66',
+        }
 
         self.flybase_id_set = {
             'FB:FBgn0083973', 'FB:FBgn0037960', 'FB:FBgn0027296', 'FB:FBgn0032006',
@@ -266,7 +267,8 @@ class TestObject():
             'FBgn0031721', 'FB:FBgn0031721', 'FBgn0004620', 'FB:FBgn0004620',
             'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
             'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
-            'FB:FBal0355732', 'FB:FBal0138114', 'FB:FBtp0015957',
+            'FB:FBal0355732', 'FB:FBal0138114', 'FB:FBtp0015957', 'FB:FBgn0261963',
+            'FB:FBal0012261',
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
         }
@@ -318,12 +320,12 @@ class TestObject():
                         "FlyBase": self.flybase_id_set,
                         "Human": self.human_test_set}
 
-        self.test_id_set = self.zfin_id_set.union(self.mgi_id_set\
-                                           .union(self.wormbase_id_set)\
-                                           .union(self.flybase_id_set)\
-                                           .union(self.sgd_id_set)\
-                                           .union(self.rgd_test_set)\
-                                           .union(self.human_test_set))
+        self.test_id_set = self.zfin_id_set.union(self.mgi_id_set
+                                                  .union(self.wormbase_id_set)
+                                                  .union(self.flybase_id_set)
+                                                  .union(self.sgd_id_set)
+                                                  .union(self.rgd_test_set)
+                                                  .union(self.human_test_set))
 
     def using_test_data(self):
         """Using Test Data"""

@@ -556,13 +556,16 @@ class GeneDescriptionsETL(ETL):
                  "amount of information in the description. The complete set of annotations to any gene in this file " \
                  "may be found in the relevant data tables on the Alliance gene page."
         species = ETLHelper.species_lookup_by_data_provider(data_provider)
+        taxon_id = ETLHelper.get_taxon_from_mod(data_provider)
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='txt', readme=readme, species=species)
+                               data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                                                                                            taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='tsv', readme=readme, species=species)
+                               data_format='tsv', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                                                                                            taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
         if context_info.env["GENERATE_REPORTS"]:
