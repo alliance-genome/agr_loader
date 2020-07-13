@@ -149,9 +149,13 @@ class MolecularInteractionETL(ETL):
 
         master_crossreference_dictionary = dict()
 
+        # If additional crossreferences need to be used to find interactors, they can be added here.
+        # Use the crossreference prefix as the dictionary name.
+        # Also add a regex entry to the resolve_identifier function.
         master_crossreference_dictionary['UniProtKB'] = dict()
         master_crossreference_dictionary['ENSEMBL'] = dict()
         master_crossreference_dictionary['NCBI_Gene'] = dict()
+        master_crossreference_dictionary['RefSeq'] = dict()
 
         for key in master_crossreference_dictionary:
             self.logger.info('Querying for %s cross references.', key)
@@ -355,6 +359,7 @@ class MolecularInteractionETL(ETL):
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
             'entrez gene/locuslink:.*'
+            'refseq:[\\w\\d_-]*$'
         ]
 
         # If we're dealing with multiple identifiers separated by a pipe.
@@ -499,12 +504,21 @@ class MolecularInteractionETL(ETL):
                 publication_url = None
 
                 if row[8] != '-':
+                    # Check for pubmed publication.
                     publication_re = re.search(r'pubmed:\d+', row[8])
                     if publication_re is not None:
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
                         publication_url = 'https://www.ncbi.nlm.nih.gov/' \
-                                           + 'pubmed/%s' % (publication[5:])
+                                           + 'pubmed/{}s'.format(publication[5:])
+                    elif publication_re is None:
+                        # If we can't find a pubmed publication, check for DOI.
+                        publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
+                        # e.g. DOI:10.1101/2020.03.31.019216
+                        if publication_re is not None:
+                            publication = publication_re.group(0)
+                            publication = publication.replace('DOI', 'doi')
+                            publication_url = 'https://doi.org/{}'.format(publication)
                     else:
                         continue
                 else:
