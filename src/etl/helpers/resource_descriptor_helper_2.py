@@ -53,6 +53,9 @@ class ResourceDescriptorHelper2():
     def alter_prefixes_to_match_resource_yaml(entry):
         """Alter Prefixes To Match Resource YAML"""
 
+        # We use database prefixes that are not all uppercase.
+        # TODO
+        # The following line will cause some to fail. This needs to be addressed.
         entry = entry.upper()
 
         # Occasionally, prefixes from incoming files do not line up with the Alliance YAML.
@@ -60,7 +63,7 @@ class ResourceDescriptorHelper2():
         prefix_translation_dictionary = {
             'WORMBASE' : 'WB',
             'FLYBASE' : 'FB',
-            'RCSB PDB' : 'RCSB_PDB'
+            'RCSB PDB' : 'RCSB_PDB',
         }
 
         prefix = None
@@ -101,8 +104,15 @@ class ResourceDescriptorHelper2():
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
 
         complete_url = None
-        gid_pattern = self.resource_descriptor_dict[db_prefix]['gid_pattern']
-        default_url = self.resource_descriptor_dict[db_prefix]['default_url']
+        try:
+            gid_pattern = self.resource_descriptor_dict[db_prefix]['gid_pattern']
+            default_url = self.resource_descriptor_dict[db_prefix]['default_url']
+        except KeyError:
+            self.logger.info('Fatal Error: The database prefix \'{}\' '
+                             'cannot be found in the Resource Descriptor YAML.'.format(db_prefix))
+            self.logger.info('Page: %s', page)
+            self.logger.info('Identifier: %s', identifier)
+            sys.exit(-1)
 
         identifier_post_processed = db_prefix + separator + identifier_stripped
 
