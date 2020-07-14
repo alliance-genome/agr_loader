@@ -452,10 +452,11 @@ class MolecularInteractionETL(ETL):
         unresolved_a_b_count = 0
         total_interactions_loaded_count = 0
         unresolved_publication_count = 0
-        unresolved_crossref_set = set()
 
         # Used for debugging.
         # unresolved_entries = []
+        # unresolved_crossref_set = set()
+
 
         self.logger.info('Attempting to open %s', filepath)
 
@@ -587,11 +588,10 @@ class MolecularInteractionETL(ETL):
 
                     # Uncomment the line below for debugging.
                     # unresolved_entries.append([row[0], interactor_a_resolved, row[1], interactor_b_resolved, row[8]])
-
-                    if interactor_a_resolved is None:
-                        unresolved_crossref_set.add(row[0])
-                    if interactor_b_resolved is None:
-                        unresolved_crossref_set.add(row[1])
+                    # if interactor_a_resolved is None:
+                    #     unresolved_crossref_set.add(row[0])
+                    # if interactor_b_resolved is None:
+                    #     unresolved_crossref_set.add(row[1])
 
                     continue # Skip this entry.
 
@@ -672,9 +672,9 @@ class MolecularInteractionETL(ETL):
         # for entry in unresolved_entries:
         #     self.logger.info(*entry)
 
-        self.logger.info('A set of unique unresolvable cross references:')
-        for unique_entry in unresolved_crossref_set:
-            self.logger.info(unique_entry)
+        # self.logger.info('A set of unique unresolvable cross references:')
+        # for unique_entry in unresolved_crossref_set:
+        #     self.logger.info(unique_entry)
 
         self.logger.info('Resolved identifiers for %s PSI-MITAB interactions.',
                          resolved_a_b_count)
