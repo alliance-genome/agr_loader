@@ -160,6 +160,8 @@ class ETLHelper():
             order = 50
         elif taxon_id in "NCBITaxon:9606":
             order = 10
+        elif taxon_id in "NCBITaxon:2697049":
+            order = 80
 
         return order
 
@@ -185,6 +187,8 @@ class ETLHelper():
             species_name = "Drosophila melanogaster"
         elif taxon_id in "NCBITaxon:9606":
             species_name = "Homo sapiens"
+        elif taxon_id in "NCBITaxon:2697049":
+            species_name = 'SARS-CoV-2'
 
         return species_name
 
@@ -309,7 +313,8 @@ class ETLHelper():
             559292: 'SGD:',
             4932: 'SGD:',
             7227: 'FB:',
-            9606: ''  # No HGNC prefix
+            9606: '',  # No HGNC prefix
+            2697049: '' # No SARS-CoV-2 prefix
         }
 
         new_identifier = species_dict[taxon_id] + identifier
@@ -336,6 +341,8 @@ class ETLHelper():
             short_species_abbreviation = 'Sce'
         elif taxon_id == 'NCBITaxon:9606':
             short_species_abbreviation = 'Hsa'
+        elif taxon_id == 'NCBITaxon:2697049':
+            short_species_abbreviation = 'SARS-CoV-2'
 
         return short_species_abbreviation
 
@@ -361,7 +368,8 @@ class ETLHelper():
             '559292': 'SGD',
             '4932': 'SGD',
             '7227': 'FB',
-            '9606': 'HUMAN'}
+            '9606': 'HUMAN',
+            '2697049': 'SARS-CoV-2'}
 
         return taxon_mod_dict[taxon_id]
 
@@ -377,7 +385,8 @@ class ETLHelper():
             'RGD': '10116',
             'SGD': '559292',
             'FB': '7227',
-            'HUMAN': '9606'}
+            'HUMAN': '9606',
+            'SARS-CoV-2': '2697049'}
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
         return taxon_mod_dict.get(mod, mod)
