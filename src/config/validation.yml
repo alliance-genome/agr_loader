@@ -6,7 +6,7 @@ releaseVersion:
   required: True
 BGI:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD]
