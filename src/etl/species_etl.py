@@ -25,20 +25,10 @@ class SpeciesETL(ETL):
                         s.name = row.name,
                         s.dataProviderFullName = row.data_provider_full_name,
                         s.dataProviderShortName = row.data_provider_short_name,
-                        s.phylogenicOrder = apoc.number.parseInt(row.phylogenic_order),
+                        s.phylogeneticOrder = apoc.number.parseInt(row.phylogenic_order),
                         s.commonNames = row.common_names
 
         """
-
-    common_name_query_template = """
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        MATCH (s:Species {primaryKey: row.taxon_id})
-        
-        
-        
-    
-    """
 
     def __init__(self, config):
         super().__init__()
@@ -76,7 +66,7 @@ class SpeciesETL(ETL):
                 "common_names": common_names,
                 "data_provider_full_name": stanza.get("primaryDataProvider").get("dataProviderFullName"),
                 "data_provider_short_name": stanza.get("primaryDataProvider").get("dataProviderShortName"),
-                "phylogenic_order": stanza.get("phylogenicOrder")
+                "phylogenetic_order": stanza.get("phylogeneticOrder")
             }
             species_list.append(species_dataset)
         yield [species_list]
