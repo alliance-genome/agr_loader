@@ -112,11 +112,6 @@ class BGIETL(ETL):
                               o.uuid = row.uuid,
                               o.dataProvider = row.dataProvider,
                               o.symbolWithSpecies = row.symbolWithSpecies
-                              
-            MERGE (spec:Species {primaryKey: row.taxonId})
-              ON CREATE SET spec.species = row.species, 
-                            spec.name = row.species,
-                            spec.phylogeneticOrder = apoc.number.parseInt(row.speciesPhylogeneticOrder)
     """
 
     basic_gene_load_relations_query_template = """
@@ -481,8 +476,6 @@ class BGIETL(ETL):
                 "geneSynopsis": gene_record.get('geneSynopsis'),
                 "geneSynopsisUrl": gene_record.get('geneSynopsisUrl'),
                 "taxonId": basic_genetic_entity.get('taxonId'),
-                "species": ETLHelper.species_lookup_by_taxonid(taxon_id),
-                "speciesPhylogeneticOrder": ETLHelper.get_species_order(taxon_id),
                 "geneLiteratureUrl": gene_literature_url,
                 "name_key": gene_record.get('symbol'),
                 "primaryId": primary_id,

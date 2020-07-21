@@ -4,6 +4,9 @@ schemaVersion:
 releaseVersion: 
   regex: ^(\d(\.\d){2})$
   required: True
+SPECIES:
+  type: list
+  allowed: [Species]
 BGI:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]

@@ -530,7 +530,7 @@ class MolecularInteractionETL(ETL):
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
                         publication_url = 'https://www.ncbi.nlm.nih.gov/' \
-                                           + 'pubmed/{}s'.format(publication[5:])
+                                           + 'pubmed/{}'.format(publication[5:])
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
