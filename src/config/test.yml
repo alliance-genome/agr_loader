@@ -86,7 +86,6 @@ VEPGENE: [FB, WB, ZFIN, RGD, MGI]
 DB-SUMMARY:
   - 3.0.0
 
-
 # Loader configuration values are below.
 # Please modify with caution!
 

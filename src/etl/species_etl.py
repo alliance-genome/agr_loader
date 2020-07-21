@@ -25,7 +25,7 @@ class SpeciesETL(ETL):
                         s.name = row.name,
                         s.dataProviderFullName = row.data_provider_full_name,
                         s.dataProviderShortName = row.data_provider_short_name,
-                        s.phylogeneticOrder = apoc.number.parseInt(row.phylogenic_order),
+                        s.phylogeneticOrder = apoc.number.parseInt(row.phylogenetic_order),
                         s.commonNames = row.common_names
 
         """
@@ -66,7 +66,7 @@ class SpeciesETL(ETL):
                 "common_names": common_names,
                 "data_provider_full_name": stanza.get("primaryDataProvider").get("dataProviderFullName"),
                 "data_provider_short_name": stanza.get("primaryDataProvider").get("dataProviderShortName"),
-                "phylogenetic_order": stanza.get("phylogeneticOrder")
+                "phylogenetic_order": stanza.get("phylogenicOrder")
             }
             species_list.append(species_dataset)
         yield [species_list]
