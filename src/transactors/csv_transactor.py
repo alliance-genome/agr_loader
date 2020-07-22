@@ -16,15 +16,14 @@ class CSVTransactor():
 
         with ExitStack() as stack:
             # Open all necessary CSV files at once.
-            open_files = [stack.enter_context(open(os.path.join('tmp', file_name),
-                                                   'w',
-                                                   encoding='utf-8'))
+            open_files = [stack.enter_context(open(os.path.join('tmp', file_name),'w',encoding='utf-8'))
                           for [query, file_name] in generator_file_list]
-
+            CSVTransactor.logger.debug(generator_file_list)
             # Create a list with 'None' placeholder entries.
             csv_file_writer = [None] * len(open_files)
             for generator_entry in generator:
                 for index, individual_list in enumerate(generator_entry):
+                    CSVTransactor.logger.debug(individual_list)
                     current_filename = open_files[index].name  # Our current CSV output file.
 
                     # Remove None's from list which cause the write rows to crash
@@ -41,7 +40,7 @@ class CSVTransactor():
                         CSVTransactor.logger.debug("Saving data to output file: %s",
                                                    current_filename)
                         try:
-                            csv_file_writer[index] = csv.DictWriter(\
+                            csv_file_writer[index] = csv.DictWriter(
                                                           open_files[index],
                                                           fieldnames=list(individual_list[0]),
                                                           quoting=csv.QUOTE_NONNUMERIC)
