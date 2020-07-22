@@ -61,7 +61,7 @@ class SpeciesETL(ETL):
                 common_names.append(name)
             species_dataset = {
                 "taxon_id": stanza.get("taxonId"),
-                "name": stanza.get("primaryDataProvider").get("dataProviderFullName"),
+                "name": stanza.get("fullName"),
                 "short_name": stanza.get("shortName"),
                 "common_names": common_names,
                 "data_provider_full_name": stanza.get("primaryDataProvider").get("dataProviderFullName"),
