@@ -47,7 +47,7 @@ class DiseaseETL(ETL):
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType,
-                              dfa:qualifier = row.qualifier
+                              dfa.negation = row.negation
 
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -87,7 +87,7 @@ class DiseaseETL(ETL):
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.sortOrder = 1,
                               dfa.joinType = row.relationshipType,
-                              dfa:qualifier = row.qualifier
+                              dfa.negation = row.negation
 
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -124,7 +124,7 @@ class DiseaseETL(ETL):
                 SET dga.dataProvider = row.dataProvider,
                     dga.sortOrder = 1,
                     dga.joinType = row.relationshipType,
-                    dfa:qualifier = row.qualifier
+                    dga.negation = row.negation
 
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
