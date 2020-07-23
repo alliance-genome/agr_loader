@@ -1,6 +1,7 @@
-schemaVersion: 1.0.1.1
-releaseVersion: 3.1.0
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+schemaVersion: 1.0.1.2
+releaseVersion: 3.1.1
+SPECIES: [Species]
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB]
 ALLELE: [FB, WB, ZFIN, RGD, MGI]
 EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -90,8 +91,3 @@ DB-SUMMARY:
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
-
-
-
