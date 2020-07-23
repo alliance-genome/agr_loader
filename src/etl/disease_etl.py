@@ -46,7 +46,8 @@ class DiseaseETL(ETL):
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.sortOrder = 1,
-                              dfa.joinType = row.relationshipType
+                              dfa.joinType = row.relationshipType,
+                              dfa:qualifier = row.qualifier
 
             MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -85,7 +86,8 @@ class DiseaseETL(ETL):
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.sortOrder = 1,
-                              dfa.joinType = row.relationshipType
+                              dfa.joinType = row.relationshipType,
+                              dfa:qualifier = row.qualifier
 
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
@@ -121,7 +123,8 @@ class DiseaseETL(ETL):
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 SET dga.dataProvider = row.dataProvider,
                     dga.sortOrder = 1,
-                    dga.joinType = row.relationshipType
+                    dga.joinType = row.relationshipType,
+                    dfa:qualifier = row.qualifier
 
 
             MERGE (gene)-[fdag:ASSOCIATION]->(dga)
@@ -322,6 +325,7 @@ class DiseaseETL(ETL):
                                         "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
+            negation = ''
             if 'objectRelation' in disease_record:
                 disease_association_type = disease_record['objectRelation'].get("associationType").upper()
                 if 'negation' in disease_record:
@@ -331,6 +335,7 @@ class DiseaseETL(ETL):
                         disease_association_type = 'is_not_model_of'
                     if disease_association_type == 'is_marker_for':
                         disease_association_type = 'is_not_marker_for'
+                    negation = 'NOT'
 
                 additional_genetic_components = []
 
@@ -425,7 +430,8 @@ class DiseaseETL(ETL):
                                   "pubModId": publication_mod_id,
                                   "pubMedId": pub_med_id,
                                   "pubMedUrl": pub_med_url,
-                                  "pubModUrl": pub_mod_url}
+                                  "pubModUrl": pub_mod_url,
+                                  "negation": negation}
 
             if disease_object_type == 'gene':
                 gene_list_to_yield.append(disease_record)
