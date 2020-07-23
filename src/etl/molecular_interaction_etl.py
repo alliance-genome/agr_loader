@@ -6,6 +6,7 @@ import csv
 import re
 import sys
 import itertools
+import pprint
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
@@ -149,9 +150,13 @@ class MolecularInteractionETL(ETL):
 
         master_crossreference_dictionary = dict()
 
+        # If additional crossreferences need to be used to find interactors, they can be added here.
+        # Use the crossreference prefix as the dictionary name.
+        # Also add a regex entry to the resolve_identifier function.
         master_crossreference_dictionary['UniProtKB'] = dict()
         master_crossreference_dictionary['ENSEMBL'] = dict()
         master_crossreference_dictionary['NCBI_Gene'] = dict()
+        master_crossreference_dictionary['RefSeq'] = dict()
 
         for key in master_crossreference_dictionary:
             self.logger.info('Querying for %s cross references.', key)
@@ -194,6 +199,7 @@ class MolecularInteractionETL(ETL):
         ignored_identifier_database_list = [
             # The following entries are not currently required.
             'brenda',
+            'bmrb',
             'cell ontology',
             'chebi',
             'chembl compound',
@@ -212,6 +218,7 @@ class MolecularInteractionETL(ETL):
             'pubmed',
             'go',
             'reactome',
+            'refseq',
             'tissue list',
             'uniprotkb'
         ]
@@ -328,7 +335,11 @@ class MolecularInteractionETL(ETL):
 
         for row_entry in interactor_a_rows:
             try:
-                interactor_a_resolved = self.resolve_identifier(row[row_entry],
+                # We need to change uniprot/swiss-prot to uniprotkb for interactor a and b.
+                # This is the only current prefix adjustment.
+                # If we need to do more, we should break this out into a function or small piece of code.
+                interactor_a = row[row_entry].replace("uniprot/swiss-prot:", "uniprotkb:")
+                interactor_a_resolved = self.resolve_identifier(interactor_a,
                                                                 master_gene_set,
                                                                 master_crossreference_dictionary)
                 if interactor_a_resolved is not None:
@@ -338,7 +349,8 @@ class MolecularInteractionETL(ETL):
 
         for row_entry in interactor_b_rows:
             try:
-                interactor_b_resolved = self.resolve_identifier(row[row_entry],
+                interactor_b = row[row_entry].replace("uniprot/swiss-prot:", "uniprotkb:")
+                interactor_b_resolved = self.resolve_identifier(interactor_b,
                                                                 master_gene_set,
                                                                 master_crossreference_dictionary)
                 if interactor_b_resolved is not None:
@@ -354,7 +366,8 @@ class MolecularInteractionETL(ETL):
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
-            'entrez gene/locuslink:.*'
+            'entrez gene/locuslink:.*',
+            'refseq:[\\w\\d_-]*$'
         ]
 
         # If we're dealing with multiple identifiers separated by a pipe.
@@ -382,13 +395,13 @@ class MolecularInteractionETL(ETL):
             if entry_stripped.startswith('WB'):
                 prefixed_identifier = 'WB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return [prefixed_identifier] # Always return a list for later processing.
+                    return [prefixed_identifier]  # Always return a list for later processing.
                 return None
             # TODO implement regex for WB / FB gene identifiers.
             elif entry_stripped.startswith('FB'):
                 prefixed_identifier = 'FB:' + entry_stripped
                 if prefixed_identifier in master_gene_set:
-                    return [prefixed_identifier] # Always return a list for later processing.
+                    return [prefixed_identifier]  # Always return a list for later processing.
                 return None
 
             for regex_entry in list_of_crossref_regex_to_search:
@@ -407,6 +420,10 @@ class MolecularInteractionETL(ETL):
                                 return master_crossreference_dictionary[crossreference_type]\
                                                                        [identifier.lower()]
         # If we can't resolve any of the crossReferences, return None
+
+        # print('Could not resolve identifiers.')
+        # print(row_entries)
+
         return None
 
     def get_generators(self, filepath, batch_size):
@@ -423,15 +440,23 @@ class MolecularInteractionETL(ETL):
 
         # Populate our master dictionary for resolving cross references.
         master_crossreference_dictionary = self.populate_crossreference_dictionary()
+        self.logger.info('Obtained the following number of cross references from Neo4j:')
+        for entry in master_crossreference_dictionary:
+            self.logger.info('{}: {}'.format(entry, len(master_crossreference_dictionary[entry])))
 
         # Populate our master gene set for filtering Alliance genes.
         master_gene_set = self.populate_genes()
+        self.logger.info('Obtained {} gene primary ids from Neo4j.'.format(len(master_gene_set)))
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0
         total_interactions_loaded_count = 0
+        unresolved_publication_count = 0
 
-        # database_linkout_set = set()
+        # Used for debugging.
+        # unresolved_entries = []
+        # unresolved_crossref_set = set()
+
 
         self.logger.info('Attempting to open %s', filepath)
 
@@ -499,15 +524,26 @@ class MolecularInteractionETL(ETL):
                 publication_url = None
 
                 if row[8] != '-':
+                    # Check for pubmed publication.
                     publication_re = re.search(r'pubmed:\d+', row[8])
                     if publication_re is not None:
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
                         publication_url = 'https://www.ncbi.nlm.nih.gov/' \
-                                           + 'pubmed/%s' % (publication[5:])
+                                           + 'pubmed/{}'.format(publication[5:])
+                    elif publication_re is None:
+                        # If we can't find a pubmed publication, check for DOI.
+                        publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
+                        # e.g. DOI:10.1101/2020.03.31.019216
+                        if publication_re is not None:
+                            publication = publication_re.group(0)
+                            publication = publication.replace('DOI', 'doi')
+                            publication_url = 'https://doi.org/{}'.format(publication)
                     else:
+                        unresolved_publication_count += 1
                         continue
                 else:
+                    unresolved_publication_count += 1
                     continue
 
                 # Other hardcoded values to be used for now.
@@ -548,7 +584,15 @@ class MolecularInteractionETL(ETL):
                         master_crossreference_dictionary)
 
                 if interactor_a_resolved is None or interactor_b_resolved is None:
-                    unresolved_a_b_count += 1 # Tracking unresolved identifiers.
+                    unresolved_a_b_count += 1  # Tracking unresolved identifiers.
+
+                    # Uncomment the line below for debugging.
+                    # unresolved_entries.append([row[0], interactor_a_resolved, row[1], interactor_b_resolved, row[8]])
+                    # if interactor_a_resolved is None:
+                    #     unresolved_crossref_set.add(row[0])
+                    # if interactor_b_resolved is None:
+                    #     unresolved_crossref_set.add(row[1])
+
                     continue # Skip this entry.
 
                 mol_int_dataset = {
@@ -604,7 +648,8 @@ class MolecularInteractionETL(ETL):
                     # Check whether we've made this xref previously by looking in a list.
                     # Should cut down loading time for Neo4j significantly.
                     # Hopefully the lookup is not too long -- this should be refined if it's slow.
-                    if not primary_gene_to_link.startswith('ZFIN'): # Ignore ZFIN interaction pages.
+                    # Ignore ZFIN interaction pages and REFSEQ.
+                    if not primary_gene_to_link.startswith('ZFIN') and not primary_gene_to_link.startswith('RefSeq'):
                         if primary_gene_to_link not in self.successful_mod_interaction_xrefs:
                             mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
                             mod_xref_list_to_yield.append(mod_xref_dataset)
@@ -624,11 +669,25 @@ class MolecularInteractionETL(ETL):
                 yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
 
         # TODO Clean up the set output.
+        # for entry in unresolved_entries:
+        #     self.logger.info(*entry)
+
+        # self.logger.info('A set of unique unresolvable cross references:')
+        # for unique_entry in unresolved_crossref_set:
+        #     self.logger.info(unique_entry)
+
         self.logger.info('Resolved identifiers for %s PSI-MITAB interactions.',
                          resolved_a_b_count)
         self.logger.info('Prepared to load %s total interactions %s.',
                          total_interactions_loaded_count,
                          '(accounting for multiple possible identifier resolutions)')
 
-        self.logger.info('Could not resolve [and subsequently will not load] %s interactions',
+        self.logger.info('Note: Interactions missing valid publications will be skipped, even if their identifiers'
+                         ' resolve correctly.')
+
+        self.logger.info('Could not resolve [and subsequently will not load] '
+                         '{} interactions due to missing publications.'.format(unresolved_publication_count))
+
+        self.logger.info('Could not resolve [and subsequently will not load] %s interactions due to unresolved'
+                         ' identifiers.',
                          unresolved_a_b_count)

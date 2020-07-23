@@ -219,7 +219,10 @@ def test_do_terms_have_parents():
 
 
 def test_phenotype_for_all_species_exists():
-    """Test Phenotype For All Species Exists"""
+    """
+    Test Phenotype For Expected Species Exists
+    Not used for SARS-CoV-2.
+    """
 
     query = """MATCH (s:Species)--(r)--(p:Phenotype)
                WHERE labels(r) = ['Gene']
@@ -242,7 +245,10 @@ def test_variant_for_expected_species_exists():
 
 
 def test_disease_for_all_species_exists():
-    """Test Disease for All Species Exists"""
+    """
+    Test Disease for Expected Species Exists
+    Not used for SARS-CoV-2.
+    """
 
     query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
                WHERE labels(r) = ['Gene'] 
@@ -254,7 +260,10 @@ def test_disease_for_all_species_exists():
 
 
 def test_goannot_for_all_species_exists():
-    """Test GO Annotation for ALl Species Exists"""
+    """
+    Test GO Annotation for Expected Species Exists
+    Not used for SARS-CoV-2.
+    """
 
     query = """MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm)
                RETURN count(distinct s) AS counter"""
@@ -264,13 +273,13 @@ def test_goannot_for_all_species_exists():
 
 
 def test_molint_for_all_species_exists():
-    """Test Moleculart Interaction for all Species Exists"""
+    """Test Molecular Interaction for all Species Exists"""
 
     query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        assert record["counter"] == 8
 
 
 #def test_variant_consequences_for_five_species_exists():
@@ -284,7 +293,10 @@ def test_molint_for_all_species_exists():
 
 
 def test_expression_for_non_human_species_exists():
-    """Test Expression for Non Human Species Exists"""
+    """
+    Test Expression for Non Human Species Exists
+    Not used for SARS-CoV-2.
+    """
 
     query = """MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity)
              RETURN count(distinct s) AS counter"""

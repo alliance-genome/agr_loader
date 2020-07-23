@@ -13,7 +13,7 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
                 AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
                 ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
                 GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL
+                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL
 
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -68,6 +68,7 @@ class AggregateLoader():
     # The key (left) is derived from a value in the config YAML file.
     # The value (right) is hard-coded by a developer as the name of an ETL class.
     etl_dispatch = {
+        'SPECIES': SpeciesETL,
         'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'BGI': BGIETL,
@@ -96,6 +97,7 @@ class AggregateLoader():
         'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
         'DB-SUMMARY': NodeCountETL
+
     }
 
     # This is the order in which data types are loaded.
@@ -103,6 +105,7 @@ class AggregateLoader():
     # i.e. After Ontology, there will be a pause.
     # After GO, DO, MI, there will be a pause, etc.
     etl_groups = [
+        ['SPECIES'],
         ['DOID', 'MI'],
         ['GO'],
         ['ONTOLOGY'],

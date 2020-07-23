@@ -24,7 +24,7 @@ class DataFileManager(metaclass=Singleton):
         context_info = ContextInfo()
 
         # Load config yaml.
-        self.logger.debug('Loading config file: %s', config_file_loc)
+        self.logger.info('Loading config file: %s', config_file_loc)
         config_file = open(config_file_loc, 'r')
         self.config_data = yaml.load(config_file, Loader=yaml.SafeLoader)
         self.logger.debug("Config Data: %s", self.config_data)

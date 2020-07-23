@@ -310,7 +310,15 @@ class TestObject():
             'HGNC:9508', 'HGNC:6893', 'HGNC:7', 'HGNC:13884', 'HGNC:1058',
             'HGNC:3569', 'HGNC:29567', 'HGNC:3570', 'HGNC:3571', 'HGNC:16526',
             'HGNC:10996', 'HGNC:16496', 'HGNC:10998', 'HGNC:11950', 'HGNC:11448',
-            'HGNC:7', 'HGNC:583', }
+            'HGNC:7', 'HGNC:583',
+            # interactions
+            'HGNC:11619', 'HGNC:11579', 'HGNC:13557'}
+
+        self.sars_cov_2_test_set = {
+            # interactions
+            'RefSeq:YP_009725255', 'RefSeq:YP_009725312', 'RefSeq:YP_009724390',
+            'RefSeq:YP_009724391', 'RefSeq:YP_009724392', 'RefSeq:YP_009724395'
+        }
 
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,
@@ -318,14 +326,16 @@ class TestObject():
                         "WB": self.wormbase_id_set,
                         "SGD": self.sgd_id_set,
                         "FlyBase": self.flybase_id_set,
-                        "Human": self.human_test_set}
+                        "Human": self.human_test_set,
+                        'SARS-CoV-2': self.sars_cov_2_test_set}
 
         self.test_id_set = self.zfin_id_set.union(self.mgi_id_set
                                                   .union(self.wormbase_id_set)
                                                   .union(self.flybase_id_set)
                                                   .union(self.sgd_id_set)
                                                   .union(self.rgd_test_set)
-                                                  .union(self.human_test_set))
+                                                  .union(self.human_test_set)
+                                                  .union(self.sars_cov_2_test_set))
 
     def using_test_data(self):
         """Using Test Data"""
