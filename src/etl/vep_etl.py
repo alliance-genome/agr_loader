@@ -94,8 +94,6 @@ class VEPETL(ETL):
             elif columns[3].startswith('RGD:'):
                 gene_id = columns[3].lstrip('RGD:')
             elif columns[3].startswith('FB:'):
-                logger.info(columns[3])
-                logger.info(columns[3].lstrip('FB:'))
                 gene_id = columns[3].replace('FB:','')
             else:
                 gene_id = columns[3]
