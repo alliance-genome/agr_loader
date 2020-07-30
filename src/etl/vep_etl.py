@@ -20,9 +20,9 @@ class VEPETL(ETL):
     vep_gene_query_template = """
                USING PERIODIC COMMIT %s
                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-                   MATCH (g:Gene {modLocalId:row.geneId})
+               
                    MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                   MATCH (g:Gene {modLocalId:row.geneId})
 
                    MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
                    ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
@@ -69,6 +69,8 @@ class VEPETL(ETL):
 
     @staticmethod
     def get_generators(filepath):
+
+        logger = logging.getLogger(__name__)
         """Get Generators"""
 
         data = TXTFile(filepath).get_data()
@@ -92,6 +94,10 @@ class VEPETL(ETL):
                 gene_id = columns[3].lstrip('Gene:')
             elif columns[3].startswith('RGD:'):
                 gene_id = columns[3].lstrip('RGD:')
+            elif columns[3].startswith('FB:'):
+                logger.info(columns[3])
+                logger.info(columns[3].lstrip('FB:'))
+                gene_id = columns[3].replace('FB:','')
             else:
                 gene_id = columns[3]
 
