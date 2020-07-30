@@ -70,7 +70,6 @@ class VEPETL(ETL):
     @staticmethod
     def get_generators(filepath):
 
-        logger = logging.getLogger(__name__)
         """Get Generators"""
 
         data = TXTFile(filepath).get_data()
