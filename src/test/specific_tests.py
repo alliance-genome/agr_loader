@@ -295,7 +295,7 @@ def test_vepgene_for_all_species_exists():
 def test_veptranscript_for_all_species_exists():
     """Test Molecular Interaction for all Species Exists"""
 
-    query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
+    query = """MATCH (s:Species)--(:Gene)--(:Transcript)--(glc:TranscriptLevelConsequence)
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
