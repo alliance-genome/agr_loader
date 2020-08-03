@@ -19,7 +19,6 @@ argparse
 jsonmerge
 requests
 xmltodict
-Bio==0.0.1
 biopython
 pprint
 pyfaidx
