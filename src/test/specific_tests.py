@@ -1258,4 +1258,15 @@ def test_tc_consequence_is_null_vs_dash():
                 RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 0 
+        assert record["counter"] > 0
+
+
+def test_manual_sars2_synonym_exists():
+    """Test_manual_sars2_synonym_exists"""
+
+    query = """ MATCH (s:Synonym) WHERE s.name = 'SARS-CoV-2 infection'
+                RETURN count(s) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

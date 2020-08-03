@@ -104,6 +104,12 @@ class GeneDiseaseOrthoETL(ETL):
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
               MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
               
+              // TODO remove for 3.2.0 - AGR-2343 for details.
+              MERGE (syn1:Synonym {primaryKey:"SARS-CoV-2 infection"})
+                SET syn1.name = "SARS-CoV-2 infection"
+              MERGE (syn2:Synonym {primaryKey:"SARS-CoV 2 infection"})
+                SET syn2.name = "SARS-CoV 2 infection"
+                
                     """
 
         self.logger.info("pub creation started")
