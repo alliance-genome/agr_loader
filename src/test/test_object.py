@@ -268,7 +268,7 @@ class TestObject():
             'FB:FBal0104420', 'FB:FBal0160417', 'FB:FBal0085982',
             'FB:FBal0192199', 'FB:FBal0318459', 'FB:FBal0355408', 'FB:FBal0355731',
             'FB:FBal0355732', 'FB:FBal0138114', 'FB:FBtp0015957', 'FB:FBgn0261963',
-            'FB:FBal0012261',
+            'FB:FBal0012261', 'FB:FBgn0003559',
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
         }
