@@ -72,7 +72,8 @@ services:
       - -u 
       - src/aggregate_loader.py
       - -c 
-      - test.yml
+      - ${TEST_CONFIG_OVERIDE:-test.yml}
+      - --verbose
 
   agr_loader_test_unit_tests:
     image: agrdocker/agr_loader_run:latest
@@ -104,3 +105,4 @@ networks:
 
 volumes:
   agr_data_share:
+
