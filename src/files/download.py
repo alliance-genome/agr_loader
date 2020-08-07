@@ -1,25 +1,20 @@
 """Download"""
 
 import logging
-
-
 import os
 import urllib.request
 from urllib.error import HTTPError, URLError
 
 
-class Download():
+class Download(object):
     """Download"""
 
-
     logger = logging.getLogger(__name__)
-
 
     def __init__(self, savepath, url_to_retieve, filename_to_save):
         self.savepath = savepath
         self.url_to_retrieve = url_to_retieve
         self.filename_to_save = filename_to_save
-
 
     def get_downloaded_data(self):
         """Get Download Data"""
@@ -49,7 +44,6 @@ class Download():
 
         return data
 
-
     def is_data_downloaded(self):
         """Is Data Downloaded"""
 
@@ -69,7 +63,6 @@ class Download():
                          self.savepath,
                          self.filename_to_save)
         return True
-
 
     def download_file(self):
         """Download File"""
@@ -94,7 +87,6 @@ class Download():
                              self.filename_to_save)
 
         return os.path.join(self.savepath, self.filename_to_save)
-
 
     def list_files(self):
         """List files"""

@@ -7,7 +7,7 @@ import urllib.request
 from loader_common import ContextInfo
 
 
-class S3File():
+class S3File(object):
     """S3 File"""
 
     logger = logging.getLogger(__name__)
