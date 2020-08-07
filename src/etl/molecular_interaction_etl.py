@@ -6,15 +6,14 @@ import csv
 import re
 import sys
 import itertools
-import pprint
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
-from .helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
+from etl.helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
 
 
 class MolecularInteractionETL(ETL):
-    """Molecular Interaction ETL"""
+    """Molecular Interaction ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -529,8 +528,9 @@ class MolecularInteractionETL(ETL):
                     if publication_re is not None:
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
-                        publication_url = 'https://www.ncbi.nlm.nih.gov/' \
-                                           + 'pubmed/{}'.format(publication[5:])
+                        old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
+                        publication_url = ETLHelper.get_complete_pub_url(publication[5:], publication)
+                        self.logger.debug('BOB: {} -- {}'.format(old_url, publication_url))
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
@@ -538,7 +538,9 @@ class MolecularInteractionETL(ETL):
                         if publication_re is not None:
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
-                            publication_url = 'https://doi.org/{}'.format(publication)
+                            publication_url = ETLHelper.get_complete_pub_url(publication, row[8])
+                            old_url = 'https://doi.org/{}'.format(publication)
+                            self.logger.debug('BOB2: {} -- {}'.format(old_url, publication_url))
                     else:
                         unresolved_publication_count += 1
                         continue
@@ -547,10 +549,10 @@ class MolecularInteractionETL(ETL):
                     continue
 
                 # Other hardcoded values to be used for now.
-                interactor_a_role = 'MI:0499' # Default to unspecified.
-                interactor_b_role = 'MI:0499' # Default to unspecified.
-                interactor_a_type = 'MI:0499' # Default to unspecified.
-                interactor_b_type = 'MI:0499' # Default to unspecified.
+                interactor_a_role = 'MI:0499'  # Default to unspecified.
+                interactor_b_role = 'MI:0499'  # Default to unspecified.
+                interactor_a_type = 'MI:0499'  # Default to unspecified.
+                interactor_b_type = 'MI:0499'  # Default to unspecified.
 
                 try:
                     interactor_a_role = re.findall(r'"([^"]*)"', row[18])[0]

@@ -1,0 +1,15 @@
+schemaVersion: 1.0.1.2
+releaseVersion: 3.1.1
+SPECIES: [Species]
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+
+ONTOLOGY:
+  - MI
+
+INTERACTION-MOL: [COMBINED]
+
+# Loader configuration values are below.
+# Please modify with caution!
+
+FileTransactorThreads: 10
+Neo4jTransactorThreads: 7

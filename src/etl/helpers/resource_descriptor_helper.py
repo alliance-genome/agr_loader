@@ -20,6 +20,7 @@ class ResourceDescriptorHelper():
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
 
+        ResourceDescriptorHelper.logger.critical("BOB. loading RD yaml")
         url = 'https://raw.githubusercontent.com/'\
                 + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
         resource_descriptor_file = Download('tmp',
@@ -55,7 +56,7 @@ class ResourceDescriptorHelper():
 
                         stanza_map[resource+page_name] = {"resource": resource,
                                                           "default_url": default_url,
-                                                          "gid_pattern": gid_pattern,
+                                                          "resource": gid_pattern,
                                                           "page_name": page_name,
                                                           "page_url": page_url,
                                                           "page_url_prefix": page_url_prefix,

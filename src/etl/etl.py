@@ -12,10 +12,8 @@ from loader_common import ContextInfo
 class ETL():
     """ETL"""
 
-
-    xref_url_map = ResourceDescriptorHelper().get_data()
     logger = logging.getLogger(__name__)
-
+    xref_url_map = ResourceDescriptorHelper().get_data()
 
     def __init__(self):
 

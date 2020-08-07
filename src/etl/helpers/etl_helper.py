@@ -1,18 +1,20 @@
-"""ETL Helper"""
+"""ETL Helper."""
 
 import uuid
 import logging
+import re
+from .resource_descriptor_helper_2 import ResourceDescriptorHelper2
 
 
 class ETLHelper():
     """ETL Helper"""
 
     logger = logging.getLogger(__name__)
+    rdh2 = ResourceDescriptorHelper2()
 
     @staticmethod
     def get_cypher_xref_text():
-        """Get Cypher XREF Text"""
-
+        """Get Cypher XREF Text."""
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     ON CREATE SET id.name = row.id,
@@ -25,9 +27,8 @@ class ETLHelper():
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName
-                
-                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
 
     @staticmethod
     def get_cypher_xref_tuned_text():
@@ -46,13 +47,11 @@ class ETLHelper():
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName"""
 
-
     @staticmethod
     def merge_crossref_relationships():
         """Merge Crossref Relationships"""
 
         return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
-
 
     @staticmethod
     def get_cypher_xref_text_interactions():
@@ -72,7 +71,6 @@ class ETLHelper():
                      id.displayName = row.displayName
 
                 MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
-
 
     @staticmethod
     def get_cypher_xref_text_annotation_level():
@@ -95,28 +93,14 @@ class ETLHelper():
 
                 MERGE (o)-[gcr:ANNOTATION_SOURCE_CROSS_REFERENCE]->(id) """
 
-
-    @staticmethod
-    def get_expression_pub_annotation_xref(publication_mod_id):
-        """Get Expression Pub Annotation XREF"""
-
-        if publication_mod_id is not None:
-            pub_mod_local_id = publication_mod_id.split(":")[1]
-            if "MGI:" in publication_mod_id:
-                pub_mod_url = "http://www.informatics.jax.org/reference/" + publication_mod_id
-            elif "ZFIN:" in publication_mod_id:
-                pub_mod_url = "http://zfin.org/" + publication_mod_id
-            elif "SGD:" in publication_mod_id:
-                pub_mod_url = "https://www.yeastgenome.org/reference/" + pub_mod_local_id
-            elif "WB:" in publication_mod_id:
-                pub_mod_url = "https://www.wormbase.org/db/get?name=" + pub_mod_local_id + ";class=Paper"
-            elif "RGD:" in publication_mod_id:
-                pub_mod_url = "https://rgd.mcw.edu" + "/rgdweb/report/reference/main.html?id=" + pub_mod_local_id
-            elif "FB:" in publication_mod_id:
-                pub_mod_url = "http://flybase.org/reports/" + pub_mod_local_id
-
-        return pub_mod_url
-
+    def get_expression_pub_annotation_xref(self, publication_mod_id):
+        """Get Expression Pub Annotation XREF."""
+        url = None
+        try:
+            url = self.rdh2.return_url_from_identifier(publication_mod_id)
+        except KeyError:
+            self.logger.critical("No reference page for {}".format(publication_mod_id))
+        return url
 
     @staticmethod
     def get_xref_dict(local_id, prefix, cross_ref_type, page,
@@ -138,157 +122,117 @@ class ETLHelper():
 
         return cross_reference
 
-
-    @staticmethod
-    def get_species_order(taxon_id):
-        """Get Species Order"""
-
+    def get_species_order(self, taxon_id):
+        """Get Species Order."""
         order = None
-        if taxon_id in "NCBITaxon:7955":
-            order = 40
-        elif taxon_id in "NCBITaxon:6239":
-            order = 60
-        elif taxon_id in "NCBITaxon:10090":
-            order = 30
-        elif taxon_id in "NCBITaxon:10116":
-            order = 20
-        elif taxon_id in "NCBITaxon:4932":
-            order = 70
-        elif taxon_id in "NCBITaxon:559292":
-            order = 70
-        elif taxon_id in "NCBITaxon:7227":
-            order = 50
-        elif taxon_id in "NCBITaxon:9606":
-            order = 10
-        elif taxon_id in "NCBITaxon:2697049":
-            order = 80
-
+        try:
+            order = self.rdh2.get_order(taxon_id)
+        except KeyError:
+            self.logger.critical("Could not find order for taxon_id '{}'".format(taxon_id))
         return order
 
+    def species_name_lookup(self, alt_key):
+        """Lookup species name using some key.
 
-    @staticmethod
-    def species_lookup_by_taxonid(taxon_id):
-        """Species Lookup by Taxon ID"""
-
+        alt_key: can be things like Taxon_id, (i.e. NCBITaxon:9606 or 9606)
+                 any case mod name (i.e. Rgd, RGD),
+                 common names (i.e. rat, rno)
+        """
         species_name = None
-        if taxon_id in "NCBITaxon:7955":
-            species_name = "Danio rerio"
-        elif taxon_id in "NCBITaxon:6239":
-            species_name = "Caenorhabditis elegans"
-        elif taxon_id in "NCBITaxon:10090":
-            species_name = "Mus musculus"
-        elif taxon_id in "NCBITaxon:10116":
-            species_name = "Rattus norvegicus"
-        elif taxon_id in "NCBITaxon:559292":
-            species_name = "Saccharomyces cerevisiae"
-        elif taxon_id in "taxon:559292":
-            species_name = "Saccharomyces cerevisiae"
-        elif taxon_id in "NCBITaxon:7227":
-            species_name = "Drosophila melanogaster"
-        elif taxon_id in "NCBITaxon:9606":
-            species_name = "Homo sapiens"
-        elif taxon_id in "NCBITaxon:2697049":
-            species_name = 'SARS-CoV-2'
+        try:
+            species_name = self.rdh2.get_full_name_from_key(alt_key)
+        except KeyError:
+            self.logger.critical("Could not find species name for {}".format(alt_key))
 
         return species_name
 
+    def species_lookup_by_taxonid(self, taxon_id):
+        """Species Lookup by Taxon ID."""
+        return self.species_name_lookup(taxon_id)
 
-    @staticmethod
-    def species_lookup_by_data_provider(provider):
-        """Species Lookup by Data Provider"""
+    def species_lookup_by_data_provider(self, provider):
+        """Species Lookup by Data Provider."""
+        return self.species_name_lookup(provider)
 
-        species_name = None
-        if provider == "ZFIN":
-            species_name = "Danio rerio"
-        elif provider == "MGI":
-            species_name = "Mus musculus"
-        elif provider == "FB":
-            species_name = "Drosophila melanogaster"
-        elif provider == "RGD":
-            species_name = "Rattus norvegicus"
-        elif provider == "WB":
-            species_name = "Caenorhabditis elegans"
-        elif provider == "SGD":
-            species_name = "Saccharomyces cerevisiae"
-        elif provider == "Human":
-            species_name = "Homo sapiens"
-        elif provider == "HUMAN":
-            species_name = "Homo sapiens"
-
-        return species_name
-
-
-    @staticmethod
-    def data_provider_lookup(species):
-        """Data Provider Lookup"""
-
+    def data_provider_lookup(self, species):
+        """Data Provider Lookup."""
         mod = 'Alliance'
-        if species == 'Danio rerio':
-            mod = 'ZFIN'
-        elif species == 'Mus musculus':
-            mod = 'MGI'
-        elif species == 'Drosophila melanogaster':
-            mod = 'FB'
-        elif species == 'Homo sapiens':
+        if species == 'Homo sapiens':
             mod = 'RGD'
-        elif species == 'Rattus norvegicus':
-            mod = 'RGD'
-        elif species == 'Caenorhabditis elegans':
-            mod = 'WB'
-        elif species == 'Saccharomyces cerevisiae':
-            mod = 'SGD'
-
+        else:
+            try:
+                mod = self.rdh2.get_key(species)
+            except KeyError:
+                self.logger.info("Using default {} as {} not found".format(mod, species))
         return mod
 
-    #TODO: add these to resourceDescriptors.yaml and remove hardcoding.
-    @staticmethod
-    def get_complete_url_ont(local_id, global_id):
-        """Get Complete URL"""
+    def get_complete_url_ont(self, local_id, global_id, page=None):
+        """Get Complete URL."""
 
         complete_url = None
         if 'OMIM:PS' in global_id:
+            page = 'ont'
             complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
         elif 'OMIM' in global_id:
             complete_url = 'https://www.omim.org/entry/' + local_id
+        # Check ORDO does not seem like a real code 'ORPHA' maybe?
         elif 'ORDO' in global_id:
             complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
         elif 'MESH' in global_id:
+            ETLHelper.logger.debug("BOB:MESH l={} g={}".format(local_id, global_id))
             complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
         elif 'EFO' in global_id:
+            ETLHelper.logger.debug("BOB:EFO l={} g={}".format(local_id, global_id))
             complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
         elif 'KEGG' in global_id:
+            ETLHelper.logger.debug("BOB:KEGG l={} g={}".format(local_id, global_id))
             complete_url = 'http://www.genome.jp/dbget-bin/www_bget?map' + local_id
         elif 'NCI' in global_id:
+            ETLHelper.logger.debug("BOB:NCI l={} g={}".format(local_id, global_id))
             complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp'\
                             + '?dictionary=NCI_Thesaurus&code=' + local_id
 
         return complete_url
 
-
     @staticmethod
-    def get_complete_pub_url(local_id, global_id):
-        """Get Complete Pub URL"""
+    def get_complete_pub_url(local_id, global_id, key=False):
+        """Get Complete Pub URL.
+
+        local_id: local value
+        global_id: global_id may not be just the id part
+        key: If passed we do not need to do the regular expression to get key
+             most routines will have this already so just send that later on.
+
+        Might be better to have this sort of thing in a yaml.
+        Also looking at get_complete_url_ont these might be merged.
+
+        Okay pausing this for mow while i look at the resourceDescriptors.
+        """
+        local_append = {
+            'DOI': 'https://doi.org/{}',
+            'FB': 'http://flybase.org/reports/{}.html',
+            'OMIM': 'https://www.omim.org/entry/{}',
+            'ORDO': 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert={}',
+            'PMID': 'https://www.ncbi.nlm.nih.gov/pubmed/{}',
+            'RGD': 'http://rgd.mcw.edu/rgdweb/search/search.html?term={}',
+            'SGD': 'http://www.yeastgenome.org/reference/{}',
+            'WB': 'http://www.wormbase.org/db/misc/paper?name={}',
+            'ZFIN': 'http://zfin.org/{}'
+        }
 
         complete_url = None
         if global_id.startswith('MGI:'):
-            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
-        elif global_id.startswith('RGD:'):
-            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
-        elif global_id.startswith('SGD:'):
-            complete_url = 'http://www.yeastgenome.org/reference/' + local_id
-        elif global_id.startswith('FB:'):
-            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
-        elif global_id.startswith('ZFIN:'):
-            complete_url = 'http://zfin.org/' + local_id
-        elif global_id.startswith('WB:'):
-            complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
-        elif global_id.startswith('PMID:'):
-            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
-        elif global_id.startswith('OMIM:'):
-            complete_url = 'https://www.omim.org/entry/' + local_id
-        elif global_id.startswith('ORPHA:'):
-            complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
-        return complete_url
+            return 'http://www.informatics.jax.org/accession/' + global_id
+
+        if key and key in local_append:
+            return local_append.format(local_id)
+
+        # So no key for this yet so use regular expression to get key
+        key_re = re.search(r'^(\w+):+', global_id)
+        key = key_re.group(0)
+        if key in local_append:
+            return local_append.format(local_id)
+        return None
 
 
     @staticmethod
