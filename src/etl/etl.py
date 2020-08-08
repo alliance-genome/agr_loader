@@ -5,7 +5,7 @@ import sys
 import time
 
 from test import TestObject
-from etl.helpers import ResourceDescriptorHelper
+from etl.helpers import ResourceDescriptorHelper, ETLHelper
 from loader_common import ContextInfo
 
 
@@ -14,6 +14,7 @@ class ETL():
 
     logger = logging.getLogger(__name__)
     xref_url_map = ResourceDescriptorHelper().get_data()
+    etlh = ETLHelper()
 
     def __init__(self):
 
@@ -24,7 +25,6 @@ class ETL():
             self.test_object = TestObject(True)
         else:
             self.test_object = TestObject(False)
-
 
     def run_etl(self):
         """Run ETL"""

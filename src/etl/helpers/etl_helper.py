@@ -1,8 +1,27 @@
-"""ETL Helper."""
+"""ETL Helper.
+
+NOTES: This can ve removed eventually just explaining why some thiongs havse changed.
+       local_id and global_id removed as those that use the global_id should
+       just have that bit in the url string.
+
+i.e. previously we had
+def get_complete_pub_url(local_id, global_id):
+    if global_id.startswith('MGI:'):
+        return 'http://www.informatics.jax.org/accession/' + global_id
+    elif global_id.startswith('FB:'):
+        return 'http://flybase.org/reports/{}.html' + local_id
+now we have
+def get_complete_pub_url(self, local_id, global_id, key=False):
+    if not key: # split not done
+       return self.rdh2.return_url_from_identifier(global_id)
+    else:
+       return self.rdh2.return_url_from_key_value(key, local_id)
+
+as the url stored have the MGI: or RGD: etc in the url already if they are required.    
+"""
 
 import uuid
 import logging
-import re
 from .resource_descriptor_helper_2 import ResourceDescriptorHelper2
 
 
@@ -155,7 +174,7 @@ class ETLHelper():
         return self.species_name_lookup(provider)
 
     def data_provider_lookup(self, species):
-        """Data Provider Lookup."""
+        """Lookup Data Provider."""
         mod = 'Alliance'
         if species == 'Homo sapiens':
             mod = 'RGD'
@@ -163,21 +182,23 @@ class ETLHelper():
             try:
                 mod = self.rdh2.get_key(species)
             except KeyError:
-                self.logger.info("Using default {} as {} not found".format(mod, species))
+                self.logger.critical("Using default {} as {} not found".format(mod, species))
         return mod
 
-    def get_complete_url_ont(self, local_id, global_id, page=None):
-        """Get Complete URL."""
-
+    def get_complete_url_ont(self, local_id, global_id, key=None):
+        """Get Complete 'ont'?.
+        """
         complete_url = None
+        page = None
         if 'OMIM:PS' in global_id:
             page = 'ont'
+        # Can delete from here to
             complete_url = 'https://www.omim.org/phenotypicSeries/' + local_id
         elif 'OMIM' in global_id:
             complete_url = 'https://www.omim.org/entry/' + local_id
         # Check ORDO does not seem like a real code 'ORPHA' maybe?
         elif 'ORDO' in global_id:
-            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' +local_id
+            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
         elif 'MESH' in global_id:
             ETLHelper.logger.debug("BOB:MESH l={} g={}".format(local_id, global_id))
             complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
@@ -189,13 +210,18 @@ class ETLHelper():
             complete_url = 'http://www.genome.jp/dbget-bin/www_bget?map' + local_id
         elif 'NCI' in global_id:
             ETLHelper.logger.debug("BOB:NCI l={} g={}".format(local_id, global_id))
-            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp'\
-                            + '?dictionary=NCI_Thesaurus&code=' + local_id
+            complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp' + '?dictionary=NCI_Thesaurus&code=' + local_id
+        # here, after testing
 
-        return complete_url
+        if not key:  # split not done
+            new_url = self.rdh2.return_url_from_identifier(global_id, page=page)
+        else:
+            new_url = self.rdh2.return_url_from_key_value(key, local_id, alt_page=page)
+        if new_url != complete_url:
+            self.logger.critical("get_complete_url_ont old url '{}' != new url '{}'".format(complete_url, new_url))
+        return new_url
 
-    @staticmethod
-    def get_complete_pub_url(local_id, global_id, key=False):
+    def get_complete_pub_url(self, local_id, global_id, key=False):
         """Get Complete Pub URL.
 
         local_id: local value
@@ -208,32 +234,32 @@ class ETLHelper():
 
         Okay pausing this for mow while i look at the resourceDescriptors.
         """
-        local_append = {
-            'DOI': 'https://doi.org/{}',
-            'FB': 'http://flybase.org/reports/{}.html',
-            'OMIM': 'https://www.omim.org/entry/{}',
-            'ORDO': 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert={}',
-            'PMID': 'https://www.ncbi.nlm.nih.gov/pubmed/{}',
-            'RGD': 'http://rgd.mcw.edu/rgdweb/search/search.html?term={}',
-            'SGD': 'http://www.yeastgenome.org/reference/{}',
-            'WB': 'http://www.wormbase.org/db/misc/paper?name={}',
-            'ZFIN': 'http://zfin.org/{}'
-        }
-
         complete_url = None
         if global_id.startswith('MGI:'):
-            return 'http://www.informatics.jax.org/accession/' + global_id
+            complete_url = 'http://www.informatics.jax.org/accession/' + global_id
+        elif global_id.startswith('RGD:'):
+            complete_url = 'http://rgd.mcw.edu/rgdweb/search/search.html?term=' + local_id
+        elif global_id.startswith('SGD:'):
+            complete_url = 'http://www.yeastgenome.org/reference/' + local_id
+        elif global_id.startswith('FB:'):
+            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
+        elif global_id.startswith('ZFIN:'):
+            complete_url = 'http://zfin.org/' + local_id
+        elif global_id.startswith('WB:'):
+            complete_url = 'http://www.wormbase.org/db/misc/paper?name=' + local_id
+        elif global_id.startswith('PMID:'):
+            complete_url = 'https://www.ncbi.nlm.nih.gov/pubmed/' + local_id
+        elif global_id.startswith('OMIM:'):
+            complete_url = 'https://www.omim.org/entry/' + local_id
+        elif global_id.startswith('ORPHA:'):
+            complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
+        return complete_url
 
-        if key and key in local_append:
-            return local_append.format(local_id)
+        new_url = self.rdh2.return_url_from_identifier(global_id)
+        if new_url != complete_url:
+            self.logger.critical("get_complete_url_ont old url '{}' != new url '{}'".format(complete_url, new_url))
 
-        # So no key for this yet so use regular expression to get key
-        key_re = re.search(r'^(\w+):+', global_id)
-        key = key_re.group(0)
-        if key in local_append:
-            return local_append.format(local_id)
-        return None
-
+        return complete_url
 
     @staticmethod
     def process_identifiers(identifier):
@@ -243,7 +269,6 @@ class ETLHelper():
             # strip off DSRC prefix
             identifier = identifier.split(":", 1)[1]
         return identifier
-
 
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
@@ -258,13 +283,12 @@ class ETLHelper():
             4932: 'SGD:',
             7227: 'FB:',
             9606: '',  # No HGNC prefix
-            2697049: '' # No SARS-CoV-2 prefix
+            2697049: ''  # No SARS-CoV-2 prefix
         }
 
         new_identifier = species_dict[taxon_id] + identifier
 
         return new_identifier
-
 
     @staticmethod
     def get_short_species_abbreviation(taxon_id):
@@ -290,7 +314,6 @@ class ETLHelper():
 
         return short_species_abbreviation
 
-
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):
         """GO Annotation Prefix Lookup"""
@@ -298,7 +321,6 @@ class ETLHelper():
         if dataprovider in ["MGI", "Human"]:
             return ""
         return dataprovider + ":"
-
 
     @staticmethod
     def get_mod_from_taxon(taxon_id):
@@ -317,7 +339,6 @@ class ETLHelper():
 
         return taxon_mod_dict[taxon_id]
 
-
     @staticmethod
     def get_taxon_from_mod(mod):
         """Get Taxon From MOD"""
@@ -335,10 +356,8 @@ class ETLHelper():
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
         return taxon_mod_dict.get(mod, mod)
 
-
-    @staticmethod
-    def get_page_complete_url(local_id, xref_url_map, prefix, page):
-        """Get Patge Complet URL"""
+    def get_page_complete_url(self, local_id, xref_url_map, prefix, page):
+        """Get Page Complete URL."""
 
         complete_url = ""
         for rdstanza in xref_url_map:
@@ -352,8 +371,10 @@ class ETLHelper():
 
                     complete_url = page_url_prefix + local_id + page_url_suffix
 
+        new_url = self.rdh2.return_url_from_key_value(prefix, local_id, alt_page=page)
+        if new_url != complete_url:
+            self.logger.critical("BOB: gpcu new '{}' != old '{}'".format(new_url, complete_url))
         return complete_url
-
 
     @staticmethod
     def get_expression_images_url(local_id, cross_ref_id):
@@ -373,12 +394,9 @@ class ETLHelper():
 
         return url
 
-
     @staticmethod
     def get_no_page_complete_url(local_id, xref_url_map, prefix, primary_id):
         """Get No Page Complete URL"""
-
-
         complete_url = ""
         global_id = prefix + local_id
         for rdstanza in xref_url_map:

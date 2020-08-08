@@ -211,7 +211,7 @@ class VariationETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
                                                                          self.xref_url_map,
                                                                          data_provider,
                                                                          data_provider_page)

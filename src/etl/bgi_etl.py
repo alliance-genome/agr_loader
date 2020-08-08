@@ -348,7 +348,7 @@ class BGIETL(ETL):
                                 gene_literature_url = ""
                                 display_name = ""
 
-                                cross_ref_complete_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
+                                cross_ref_complete_url = self.etlh.get_page_complete_url(local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
                                         page)
@@ -358,19 +358,19 @@ class BGIETL(ETL):
                                             local_cross_ref_id,
                                             cross_ref_id)
                                 elif page == 'gene':
-                                    mod_cross_reference_complete_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
+                                    mod_cross_reference_complete_url = self.etlh.get_page_complete_url(local_cross_ref_id,
                                                                           ETL.xref_url_map,
                                                                           prefix,
                                                                           prefix + page)
 
-                                genetic_entity_external_url = ETLHelper.get_page_complete_url(\
+                                genetic_entity_external_url = self.etlh.get_page_complete_url(\
                                         local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
                                         prefix + page)
 
                                 if page == 'gene/references':
-                                    gene_literature_url = ETLHelper.get_page_complete_url(local_cross_ref_id,
+                                    gene_literature_url = self.etlh.get_page_complete_url(local_cross_ref_id,
                                             ETL.xref_url_map,
                                             prefix,
                                             prefix + page)

@@ -8,6 +8,10 @@ ONTOLOGY:
 
 INTERACTION-MOL: [COMBINED]
 
+
+# not really bit want to check construct etl.
+CONSTRUCT: [ZFIN, WB, FB]
+PHENOTYPE: [FB]
 # Loader configuration values are below.
 # Please modify with caution!
 

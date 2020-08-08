@@ -150,7 +150,7 @@ class SequenceTargetingReagentETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
                                                                          self.xref_url_map,
                                                                          data_provider,
                                                                          data_provider_page)
@@ -215,7 +215,7 @@ class SequenceTargetingReagentETL(ETL):
                         continue
                     if 'sequence_targeting_reagent' in pages:
                         page = 'sequence_targeting_reagent'
-                        mod_global_cross_ref_url = ETLHelper.get_page_complete_url( \
+                        mod_global_cross_ref_url = self.etlh.get_page_complete_url( \
                                 local_crossref_id,
                                 self.xref_url_map,
                                 prefix,

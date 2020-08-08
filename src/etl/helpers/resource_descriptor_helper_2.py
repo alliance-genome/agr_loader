@@ -66,7 +66,7 @@ class ResourceDescriptorHelper2():
         """Get order for a key."""
         order = None
         try:
-            order = self.key_to_order(self.get_key(identifier))
+            order = self.key_to_order[self.get_key(identifier)]
         except KeyError:
             self.logger.critical("Could not find orddr for identifier {}".format(identifier))
         return order
@@ -93,6 +93,7 @@ class ResourceDescriptorHelper2():
                 db_name = 'HGNC'
                 self.key_lookup['HUMAN'] = db_name
             self.key_lookup[db_name] = db_name
+            self.key_lookup[item['fullName'].upper()] = db_name
             self.key_to_fullname[db_name] = item['fullName']
             pp.pprint(item)
             for name in item['commonNames']:
@@ -101,7 +102,7 @@ class ResourceDescriptorHelper2():
             self.key_lookup[item['taxonId'].upper()] = db_name
             self.key_lookup[tax_id] = db_name
             self.key_lookup[item['shortName'].upper()] = db_name
-            self.key_to_order = item['phylogenicOrder']
+            self.key_to_order[db_name] = item['phylogenicOrder']
 
         pp.pprint(self.key_lookup)
         pp.pprint(self.key_to_fullname)
@@ -132,6 +133,11 @@ class ResourceDescriptorHelper2():
         for item in yaml_list:
             name = item['db_prefix']
             resource_descriptor_dict[name] = item
+            if 'aliases' in item:
+                print("BOB: {}".format(item['aliases']))
+                for alt_name in item['aliases']:
+                    print("BOB: layname is {}".format(alt_name))
+                    self.key_lookup[alt_name.upper()] = item['db_prefix']
 
         # Iterate through this new dictionary and convert page lists to dictionaries.
         # These are keyed by the page name.
@@ -179,8 +185,8 @@ class ResourceDescriptorHelper2():
 
     def split_identifier(self, identifier):
         """Split Identifier
-        
-        Does not 
+
+        Does not throw exception anymore. Check return, if None returned, there was an error
         """
 
         prefix = None
@@ -218,20 +224,28 @@ class ResourceDescriptorHelper2():
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
             sys.exit(-1)
+        if 'default_url' not in self.resource_descriptor_dict[key]:
+            mess = "{} has no 'default_url'".format(key)
+            self.logger.critical(mess)
+            self.logger.critical('Identifier: %s', value)
+            sys.exit(-1)
         if not alt_page:
             try:
                 url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
             except KeyError:
                 mess = "default_url does not exist for '{}' in the Resource Descriptor YAML.".format(key)
                 self.logger.critical(mess)
-                sys.exit(-1)
+                exit(-1)
+            except AttributeError as e:
+                mess = "ERROR!!! key = '{}', value = '{}' error = '{}'".format(key, value, e)
+                self.logger.critical(mess)
+                exit(-1)
         else:
             try:
                 url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
             except KeyError:
                 mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML.".format(alt_page, key)
                 self.logger.critical(mess)
-                sys.exit(-1)
         return url
 
     def return_url(self, identifier, page):

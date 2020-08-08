@@ -602,7 +602,7 @@ class ExpressionETL(ETL):
                         if pages is not None and len(pages) > 0:
                             for page in pages:
                                 if page == 'gene/expression/annotation/detail':
-                                    mod_global_cross_ref_id = ETLHelper.get_page_complete_url(\
+                                    mod_global_cross_ref_id = self.etlh.get_page_complete_url(\
                                             local_cross_ref_id,
                                             self.xref_url_map,
                                             prefix, page)

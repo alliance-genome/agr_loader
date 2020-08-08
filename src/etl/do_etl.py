@@ -173,7 +173,7 @@ class DOETL(ETL):
                             if ":" in xref_id:
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
-                                complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
+                                complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
                                 generated_xref = ETLHelper.get_xref_dict(local_id, 
                                     prefix,
                                     "ontology_provided_cross_reference",
@@ -187,7 +187,7 @@ class DOETL(ETL):
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
-                                complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
+                                complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
                                 generated_xref = ETLHelper.get_xref_dict(local_id,
                                         prefix,
                                         "ontology_provided_cross_reference",

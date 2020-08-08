@@ -3,6 +3,7 @@
 import logging
 import uuid
 import multiprocessing
+import pprint
 
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -168,7 +169,10 @@ class PhenoTypeETL(ETL):
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
         self.logger.info("Finished Loading Phenotype Data: %s", sub_type.get_data_provider())
-
+        # self.logger.info("Finished Loading Phenotype Data: %s", data)
+        pp = pprint.PrettyPrinter(indent=20)
+        print("\n\nBOBDATA '{}'\n BOBDATA '{}'\n".format(type(data['data'][0]), type(data['metaData']['dataProvider'])))
+        pp.pprint(data['metaData'].keys())
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
@@ -218,7 +222,7 @@ class PhenoTypeETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
+                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
                                                                          ETL.xref_url_map,
                                                                          data_provider,
                                                                          data_provider_page)
@@ -270,14 +274,14 @@ class PhenoTypeETL(ETL):
                         pub_mod_id = pub_xref.get('id')
                         pub_mod_local_id = pub_mod_id.split(":")[1]
                         if pub_mod_id is not None:
-                            pub_mod_url = ETLHelper.get_complete_pub_url(pub_mod_local_id,
+                            pub_mod_url = self.etlh.get_complete_pub_url(pub_mod_local_id,
                                                                          pub_mod_id)
 
                 else:
                     pub_mod_id = evidence.get('publicationId')
                     if pub_mod_id is not None:
                         pub_mod_local_id = pub_mod_id.split(":")[1]
-                        pub_mod_url = ETLHelper.get_complete_pub_url(pub_mod_local_id, pub_mod_id)
+                        pub_mod_url = self.etlh.get_complete_pub_url(pub_mod_local_id, pub_mod_id)
 
                 if pub_mod_id is None:
                     pub_mod_id = ""

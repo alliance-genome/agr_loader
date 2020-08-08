@@ -270,12 +270,12 @@ class MolecularInteractionETL(ETL):
 
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
-            xref_dict['id'] = individual # Used for name.
+            xref_dict['id'] = individual  # Used for name.
             xref_dict['displayName'] = individual_body
             xref_dict['primaryKey'] = individual
             xref_dict['crossRefType'] = 'interaction'
             xref_dict['page'] = page
-            xref_dict['reference_uuid'] = None # For association interactions (later).
+            xref_dict['reference_uuid'] = None  # For association interactions (later).
 
             # Special case for FlyBase as "individual" is not unique in their case.
             # Individual_body needs to be used instead.
@@ -529,7 +529,7 @@ class MolecularInteractionETL(ETL):
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
                         old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
-                        publication_url = ETLHelper.get_complete_pub_url(publication[5:], publication)
+                        publication_url = self.etlh.get_complete_pub_url(publication[5:], publication)
                         self.logger.debug('BOB: {} -- {}'.format(old_url, publication_url))
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
@@ -538,7 +538,7 @@ class MolecularInteractionETL(ETL):
                         if publication_re is not None:
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
-                            publication_url = ETLHelper.get_complete_pub_url(publication, row[8])
+                            publication_url = self.etlh.get_complete_pub_url(publication, row[8])
                             old_url = 'https://doi.org/{}'.format(publication)
                             self.logger.debug('BOB2: {} -- {}'.format(old_url, publication_url))
                     else:
