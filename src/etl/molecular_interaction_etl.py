@@ -175,13 +175,10 @@ class MolecularInteractionETL(ETL):
                 # Append the gene if the crossref dict entry exists.
                 # Otherwise, create a list and append the entry.
                 if cross_ref_record.lower() in master_crossreference_dictionary[key]:
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()].append(record['g.primaryKey'])
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
                 else:
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()] = []
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()].append(record['g.primaryKey'])
+                    master_crossreference_dictionary[key][cross_ref_record.lower()] = []
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
 
                 # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
 
@@ -232,8 +229,7 @@ class MolecularInteractionETL(ETL):
             xref_dict = {}
             page = 'gene/interactions'
 
-            individual_prefix, individual_body, _ \
-                    = self.resource_descriptor_dict.split_identifier(individual)
+            individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(individual)
             # Capitalize the prefix to match the YAML
             # and change the prefix if necessary to match the YAML.
             xref_dict['prefix'] = individual_prefix
@@ -292,8 +288,7 @@ class MolecularInteractionETL(ETL):
         xref_dict = {}
         page = 'gene/MODinteractions'
 
-        individual_prefix, individual_body, _ \
-               = self.resource_descriptor_dict.split_identifier(gene_id)
+        individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(gene_id)
         individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
 
         # Exception for MGI
@@ -343,7 +338,7 @@ class MolecularInteractionETL(ETL):
                                                                 master_crossreference_dictionary)
                 if interactor_a_resolved is not None:
                     break
-            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+            except IndexError:  # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
 
         for row_entry in interactor_b_rows:
@@ -354,7 +349,7 @@ class MolecularInteractionETL(ETL):
                                                                 master_crossreference_dictionary)
                 if interactor_b_resolved is not None:
                     break
-            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+            except IndexError:  # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
 
         return interactor_a_resolved, interactor_b_resolved
@@ -416,8 +411,7 @@ class MolecularInteractionETL(ETL):
                             if identifier.lower() in \
                                      master_crossreference_dictionary[crossreference_type]:
                                 # Return the corresponding Alliance gene(s).
-                                return master_crossreference_dictionary[crossreference_type]\
-                                                                       [identifier.lower()]
+                                return master_crossreference_dictionary[crossreference_type][identifier.lower()]
         # If we can't resolve any of the crossReferences, return None
 
         # print('Could not resolve identifiers.')
@@ -426,8 +420,7 @@ class MolecularInteractionETL(ETL):
         return None
 
     def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+        """Get Generators."""
         list_to_yield = []
         xref_list_to_yield = []
         mod_xref_list_to_yield = []
@@ -455,7 +448,6 @@ class MolecularInteractionETL(ETL):
         # Used for debugging.
         # unresolved_entries = []
         # unresolved_crossref_set = set()
-
 
         self.logger.info('Attempting to open %s', filepath)
 
@@ -486,7 +478,7 @@ class MolecularInteractionETL(ETL):
                     taxon_id_2_re = re.search(r'\d+', taxon_id_2)
                     taxon_id_2_to_load = 'NCBITaxon:' + taxon_id_2_re.group(0)
                 else:
-                    taxon_id_2_to_load = taxon_id_1_to_load # self interaction
+                    taxon_id_2_to_load = taxon_id_1_to_load  # self interaction
 
                 try:
                     # Interactor ID for the UI table
@@ -501,21 +493,21 @@ class MolecularInteractionETL(ETL):
 
                 # database_linkout_set.add(source_database)
 
-                aggregation_database = 'MI:0670' # IMEx
+                aggregation_database = 'MI:0670'  # IMEx
 
-                if source_database == 'MI:0478': # FlyBase
+                if source_database == 'MI:0478':  # FlyBase
                     aggregation_database = 'MI:0478'
-                elif source_database == 'MI:0487': # WormBase
+                elif source_database == 'MI:0487':  # WormBase
                     aggregation_database = 'MI:0487'
-                elif source_database == 'MI:0463': # BioGRID
+                elif source_database == 'MI:0463':  # BioGRID
                     aggregation_database = 'MI:0463'
 
-                detection_method = 'MI:0686' # Default to unspecified.
+                detection_method = 'MI:0686'  # Default to unspecified.
                 try:
                     # grab the MI identifier between two quotes ""
                     detection_method = re.findall(r'"([^"]*)"', row[6])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 # TODO Replace this publication work with a service.
                 # Re-think publication implementation in Neo4j.
@@ -530,7 +522,8 @@ class MolecularInteractionETL(ETL):
                         publication = publication.replace('pubmed', 'PMID')
                         old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
                         publication_url = self.etlh.get_complete_pub_url(publication[5:], publication)
-                        self.logger.debug('BOB: {} -- {}'.format(old_url, publication_url))
+                        if old_url != publication_url:
+                            self.logger.debug('BOB: {} -- {}'.format(old_url, publication_url))
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
@@ -540,7 +533,8 @@ class MolecularInteractionETL(ETL):
                             publication = publication.replace('DOI', 'doi')
                             publication_url = self.etlh.get_complete_pub_url(publication, row[8])
                             old_url = 'https://doi.org/{}'.format(publication)
-                            self.logger.debug('BOB2: {} -- {}'.format(old_url, publication_url))
+                            if old_url != publication_url:
+                                self.logger.critical('BOB2: {} -- {}'.format(old_url, publication_url))
                     else:
                         unresolved_publication_count += 1
                         continue
@@ -557,21 +551,21 @@ class MolecularInteractionETL(ETL):
                 try:
                     interactor_a_role = re.findall(r'"([^"]*)"', row[18])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
                 try:
                     interactor_b_role = re.findall(r'"([^"]*)"', row[19])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 try:
                     interactor_a_type = re.findall(r'"([^"]*)"', row[20])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 try:
                     interactor_b_type = re.findall(r'"([^"]*)"', row[21])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 interaction_type = None
                 interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
@@ -579,11 +573,10 @@ class MolecularInteractionETL(ETL):
                 interactor_a_resolved = None
                 interactor_b_resolved = None
 
-                interactor_a_resolved, \
-                interactor_b_resolved = self.resolve_identifiers_by_row(\
-                        row,
-                        master_gene_set,
-                        master_crossreference_dictionary)
+                interactor_a_resolved, interactor_b_resolved = self.resolve_identifiers_by_row(
+                    row,
+                    master_gene_set,
+                    master_crossreference_dictionary)
 
                 if interactor_a_resolved is None or interactor_b_resolved is None:
                     unresolved_a_b_count += 1  # Tracking unresolved identifiers.
@@ -595,24 +588,24 @@ class MolecularInteractionETL(ETL):
                     # if interactor_b_resolved is None:
                     #     unresolved_crossref_set.add(row[1])
 
-                    continue # Skip this entry.
+                    continue  # Skip this entry.
 
                 mol_int_dataset = {
-                    'interactor_A' : None,
-                    'interactor_B' : None,
-                    'interactor_A_type' : interactor_a_type,
-                    'interactor_B_type' : interactor_b_type,
-                    'interactor_A_role' : interactor_a_role,
-                    'interactor_B_role' : interactor_b_role,
-                    'interaction_type' : interaction_type,
-                    'taxon_id_1' : taxon_id_1_to_load,
-                    'taxon_id_2' : taxon_id_2_to_load,
-                    'detection_method' : detection_method,
-                    'pub_med_id' : publication,
-                    'pub_med_url' : publication_url,
-                    'uuid' : None,
-                    'source_database' : source_database,
-                    'aggregation_database' :  aggregation_database
+                    'interactor_A': None,
+                    'interactor_B': None,
+                    'interactor_A_type': interactor_a_type,
+                    'interactor_B_type': interactor_b_type,
+                    'interactor_A_role': interactor_a_role,
+                    'interactor_B_role': interactor_b_role,
+                    'interaction_type': interaction_type,
+                    'taxon_id_1': taxon_id_1_to_load,
+                    'taxon_id_2': taxon_id_2_to_load,
+                    'detection_method': detection_method,
+                    'pub_med_id': publication,
+                    'pub_med_url': publication_url,
+                    'uuid': None,
+                    'source_database': source_database,
+                    'aggregation_database':  aggregation_database
                 }
 
                 # Remove possible duplicates from interactor lists.
@@ -620,7 +613,7 @@ class MolecularInteractionETL(ETL):
                 interactor_b_resolved_no_dupes = list(set(interactor_b_resolved))
 
                 # Get every possible combination of interactor A x interactor B
-                #(if multiple ids resulted from resolving the identifier.)
+                # (if multiple ids resulted from resolving the identifier.)
                 int_combos = list(itertools.product(interactor_a_resolved_no_dupes,
                                                     interactor_b_resolved_no_dupes))
 
@@ -630,7 +623,7 @@ class MolecularInteractionETL(ETL):
                                                 interactor_A=x,
                                                 interactor_B=y,
                                                 uuid=str(uuid.uuid4())) for x, y in int_combos]
-                #Tracking successfully loaded identifiers.
+                # Tracking successfully loaded identifiers.
                 total_interactions_loaded_count += len(list_of_mol_int_dataset)
                 # Tracking successfully resolved identifiers.
                 resolved_a_b_count += 1
@@ -639,9 +632,9 @@ class MolecularInteractionETL(ETL):
                 new_identifier_linkout_list = []
                 for dataset_entry in list_of_mol_int_dataset:
                     for identifier_linkout in identifier_linkout_list:
-                        new_identifier_linkout_list.append(\
-                                dict(identifier_linkout,
-                                     reference_uuid=dataset_entry['uuid']))
+                        new_identifier_linkout_list.append(
+                            dict(identifier_linkout,
+                                 reference_uuid=dataset_entry['uuid']))
 
                 # Create dictionaries for xrefs from Alliance genes
                 # to MOD interaction sections of gene reports.

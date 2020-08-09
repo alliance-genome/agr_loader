@@ -19,14 +19,13 @@ def get_complete_pub_url(self, local_id, global_id, key=False):
 
 as the url stored have the MGI: or RGD: etc in the url already if they are required.    
 """
-
 import uuid
 import logging
 from .resource_descriptor_helper_2 import ResourceDescriptorHelper2
 
 
 class ETLHelper():
-    """ETL Helper"""
+    """ETL Helper."""
 
     logger = logging.getLogger(__name__)
     rdh2 = ResourceDescriptorHelper2()
@@ -372,8 +371,11 @@ class ETLHelper():
                     complete_url = page_url_prefix + local_id + page_url_suffix
 
         new_url = self.rdh2.return_url_from_key_value(prefix, local_id, alt_page=page)
-        if new_url != complete_url:
-            self.logger.critical("BOB: gpcu new '{}' != old '{}'".format(new_url, complete_url))
+        if new_url != complete_url and (new_url != None and complete_url != ''):
+            mess = "BOB: prefix='{}' page='{}' local_id='{}': gpcu new '{}' != old '{}'".\
+                format(prefix, page, local_id, new_url, complete_url)
+            self.logger.critical(mess)
+            # bob = 1/0
         return complete_url
 
     @staticmethod

@@ -3,7 +3,7 @@ This tests the methods and no neo4j database is needed. Can be used for quickly
 testing methods.
 
 docker build -t agrdocker/agr_loader_run:latest .
-docker  run agrdocker/agr_loader_run pytest src/test/unit_tests.py
+docker run --rm agrdocker/agr_loader_run pytest src/test/unit_tests.py
 
 #Alt config files
 We can now add specific config files to just load specific data, better to have a list of 

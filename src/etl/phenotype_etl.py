@@ -146,11 +146,9 @@ class PhenoTypeETL(ETL):
 
     """
 
-
     def __init__(self, config):
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -170,9 +168,6 @@ class PhenoTypeETL(ETL):
         data = JSONFile().get_data(filepath)
         self.logger.info("Finished Loading Phenotype Data: %s", sub_type.get_data_provider())
         # self.logger.info("Finished Loading Phenotype Data: %s", data)
-        pp = pprint.PrettyPrinter(indent=20)
-        print("\n\nBOBDATA '{}'\n BOBDATA '{}'\n".format(type(data['data'][0]), type(data['metaData']['dataProvider'])))
-        pp.pprint(data['metaData'].keys())
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
@@ -202,6 +197,12 @@ class PhenoTypeETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+        self.logger.info("BOB:PHEN start")
+        for key in self.etlh.rdh2.missing_pages.keys():
+            self.logger.critical("BOB:PHEN Missing page {} seen {} times".format(key, self.etlh.missing_pages[key]))
+
+        for key in self.etlh.rdh2.missing_keys.keys():
+            self.logger.critical("BOB:PHEN Missing key {} seen {} times".format(key, self.etlh.missing_keys[key]))
 
     def get_generators(self, phenotype_data, batch_size):
         """Get Generators"""

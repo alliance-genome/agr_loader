@@ -1,21 +1,24 @@
 #!/usr/bin/env python
 """This is the main entry-point for running the ETL pipeline"""
 
-import logging
-import os
-import multiprocessing
-import time
 import argparse
+import logging
+import multiprocessing
+import os
+import time
 import coloredlogs
 
-from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, GenericOntologyETL, \
-                ECOMAPETL, AlleleETL, VariationETL, SequenceTargetingReagentETL, \
-                AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
-                ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
-                GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL
-
-from transactors import Neo4jTransactor, FileTransactor
+from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
+                 AffectedGenomicModelETL, AlleleETL, ClosureETL, ConstructETL,
+                 DiseaseETL, ExpressionAtlasETL, ExpressionETL,
+                 ExpressionRibbonETL, ExpressionRibbonOtherETL,
+                 GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
+                 GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
+                 NodeCountETL, OrthologyETL, PhenoTypeETL,
+                 SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
+                 VariationETL, VEPTranscriptETL)
+from etl.helpers.resource_descriptor_helper_2 import ResourceDescriptorHelper2
+from transactors import FileTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
 
@@ -59,6 +62,12 @@ def main():
     logging.getLogger("ontobio").setLevel(logging.ERROR)
 
     AggregateLoader(args, logger, context_info).run_loader()
+
+    for key in ResourceDescriptorHelper2.missing_pages.keys():
+        logger.info("Missing page {} seen {} times".format(key, ResourceDescriptorHelper2.missing_pages[key]))
+
+    for key in ResourceDescriptorHelper2.missing_keys.keys():
+        logger.info("Missing key {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
 
 
 class AggregateLoader():
@@ -213,7 +222,7 @@ class AggregateLoader():
         for time_item in etl_time_tracker_list:
             self.logger.info(time_item)
 
-        self.logger.info('Loader finished. Elapsed time: %s'
+        self.logger.critical('Loader finished. Elapsed time: %s'
                          % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 

@@ -29,6 +29,17 @@ class ResourceDescriptorHelper2():
     # i.e. RGD => 20
     key_to_order = {}
 
+    # report deprecated methids only one
+    deprecated_mess = {}
+
+    # missing pages
+    missing_pages = {}
+
+    # missing keys
+    missing_keys = {}
+
+    print("CRITICAL: BOB: initialise")
+
     def get_key(self, alt_key):
         """Get species/DB main key.
 
@@ -46,9 +57,11 @@ class ResourceDescriptorHelper2():
                 self.logger.debug("{} Found after splitting".format(alt_key))
                 ret_key = self.key_lookup[key_prefix]
             else:
-                self.logger.critical("BOB: key {} not found".format(alt_key))
+                if alt_key in self.missing_pages:
+                    self.missing_pages[alt_key] += 1
+                else:
+                    self.missing_pages[alt_key] = 1
         else:
-            self.logger.debug("alt ket {} Found directly".format(alt_key))
             ret_key = self.key_lookup[alt_key]
         return ret_key
 
@@ -121,7 +134,7 @@ class ResourceDescriptorHelper2():
         url = 'https://raw.githubusercontent.com/' \
             + 'alliance-genome/agr_schemas/AGR-1144/resourceDescriptors.yaml'
 
-        resource_descriptor_file = Download('tmp',
+        resource_descriptor_file = Download('tmp2',
                                             url,
                                             'resourceDescriptors.yaml').get_downloaded_data()
 
@@ -136,7 +149,7 @@ class ResourceDescriptorHelper2():
             if 'aliases' in item:
                 print("BOB: {}".format(item['aliases']))
                 for alt_name in item['aliases']:
-                    print("BOB: layname is {}".format(alt_name))
+                    print("BOB: alt_name is {}".format(alt_name))
                     self.key_lookup[alt_name.upper()] = item['db_prefix']
 
         # Iterate through this new dictionary and convert page lists to dictionaries.
@@ -219,38 +232,56 @@ class ResourceDescriptorHelper2():
         By default, if alt_page is not set it will use the main one 'default_url'
         """
         url = None
+        key = self.get_key(key)
         if key not in self.resource_descriptor_dict:
             mess = "The database/species prefix '{}' cannot be found in the Resource Descriptor YAML.".format(key)
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
-            sys.exit(-1)
+            return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "{} has no 'default_url'".format(key)
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
-            sys.exit(-1)
+            return None
         if not alt_page:
             try:
                 url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
             except KeyError:
                 mess = "default_url does not exist for '{}' in the Resource Descriptor YAML.".format(key)
+                key = "{}-default_url".format(key)
+                if key in self.missing_pages:
+                    self.missing_pages[key] += 1
+                else:
+                    self.missing_pages[key] = 1
                 self.logger.critical(mess)
                 exit(-1)
             except AttributeError as e:
                 mess = "ERROR!!! key = '{}', value = '{}' error = '{}'".format(key, value, e)
+                key = "{}-default_url".format(key)
+                if key in self.missing_pages:
+                    self.missing_pages[key] += 1
+                else:
+                    self.missing_pages[key] = 1
                 self.logger.critical(mess)
                 exit(-1)
         else:
             try:
                 url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
             except KeyError:
-                mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML.".format(alt_page, key)
-                self.logger.critical(mess)
+                key = "{}-{}".format(key, alt_page)
+                if key in self.missing_pages:
+                    self.missing_pages[key] += 1
+                else:
+                    mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML.".format(alt_page, key)
+                    self.logger.critical(mess)
+                    self.missing_pages[key] = 1
         return url
 
     def return_url(self, identifier, page):
         """Deprecated function please use return_url_from_identifier."""
-        self.logger.info("return_url is Deprecated please use return_url_from_identifier")
+        if 'return_url' not in self.deprecated_mess:
+            self.logger.info("return_url is Deprecated please use return_url_from_identifier")
+            self.deprecated_mess['return_url'] = 1
         return self.return_url_from_identifier(identifier, page)
 
     def return_url_from_identifier(self, identifier, page=None):

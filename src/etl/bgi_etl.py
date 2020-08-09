@@ -1,4 +1,4 @@
-"""BGI ETL"""
+"""BGI ETL."""
 
 import logging
 import sys
@@ -10,8 +10,9 @@ from etl.helpers import ETLHelper
 from transactors import CSVTransactor, Neo4jTransactor
 from files import JSONFile
 
+
 class BGIETL(ETL):
-    """BGI ETL"""
+    """BGI ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -36,10 +37,10 @@ class BGIETL(ETL):
             MATCH (o:Gene {primaryKey:row.primaryId})
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)            
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
             MERGE (a:Assembly {primaryKey:row.assembly})
               ON CREATE SET a.dataProvider = row.dataProvider
-            
+
             MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
             ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
@@ -47,11 +48,11 @@ class BGIETL(ETL):
                 gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosome,
                 gchrm.assembly = row.assembly
-                
+
             MERGE (o)-[of:ASSOCIATION]-(gchrm)
             MERGE (gchrm)-[ofc:ASSOCIATION]-(chrm)
             MERGE (gchrmn)-[ao:ASSOCIATION]->(a)
-            
+
         """
 
     genomic_locations_bins_query_template = """
@@ -73,7 +74,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
-            
+
             MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                 ON CREATE SET second.name = row.secondary_id
             MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
@@ -83,7 +84,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:Gene {primaryKey:row.primary_id})
-                
+
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
@@ -91,9 +92,9 @@ class BGIETL(ETL):
     gene_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (l:Load {primaryKey:row.loadKey})
-            
+
             //Create the Gene node and set properties. primaryKey is required.
             MERGE (o:Gene {primaryKey:row.primaryId})
                 ON CREATE SET o.symbol = row.symbol,
@@ -117,17 +118,17 @@ class BGIETL(ETL):
     basic_gene_load_relations_query_template = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (l:Load {primaryKey:row.loadKey})
         MATCH (g:Gene {primaryKey:row.primaryId})
-        MERGE (g)-[:LOADED_FROM]->(l) 
-    
+        MERGE (g)-[:LOADED_FROM]->(l)
+
     """
 
     basic_gene_species_relations_query_template = """
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (spec:Species {primaryKey: row.taxonId})
         MATCH (g:Gene {primaryKey: row.primaryId})
 
@@ -143,17 +144,16 @@ class BGIETL(ETL):
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
 
     xrefs_relationships_query_template = """
-    
+
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:Gene {primaryKey:row.dataId})
             MATCH (c:CrossReference {primaryKey:row.primaryKey})
-            
-            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
-            
-    """ + ETLHelper.merge_crossref_relationships()
 
+            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
+
+    """ + ETLHelper.merge_crossref_relationships()
 
     gene_metadata_query_template = """
 
@@ -170,7 +170,8 @@ class BGIETL(ETL):
         """
 
     def __init__(self, config):
-        self.metadata_is_loaded = {} # Dictionary for optimizing metadata loading.
+        """Initialise object."""
+        self.metadata_is_loaded = {}  # Dictionary for optimizing metadata loading.
         super().__init__()
         self.data_type_config = config
 
@@ -249,15 +250,14 @@ class BGIETL(ETL):
                          sub_type.get_data_provider())
 
     def get_generators(self, gene_data, data_provider, batch_size):
-        """Create Generators"""
-
+        """Create Generators."""
         date_produced = gene_data['metaData']['dateProduced']
         synonyms = []
         secondary_ids = []
         cross_references = []
-        #xref_relations = []
+        # xref_relations = []
         genomic_locations = []
-        #genomic_locationBins = []
+        # genomic_locationBins = []
         gene_dataset = []
         gene_metadata = []
         gene_to_so_terms = []
@@ -275,7 +275,7 @@ class BGIETL(ETL):
         load_key = date_produced + data_provider + "_BGI"
 
         # If we're not tracking the metadata, create the entry in our tracker.
-        if not load_key in self.metadata_is_loaded:
+        if load_key not in self.metadata_is_loaded:
             self.metadata_is_loaded[load_key] = False
 
         # if dataProviderPages is not None:
@@ -301,11 +301,11 @@ class BGIETL(ETL):
         if self.metadata_is_loaded[load_key] is False:
             gene_metadata = []
             metadata_dict = {
-                'loadKey' : load_key,
-                'loadName' : 'BGI',
-                'release' : release,
-                'dataProviders' : None,
-                'dataProvider' : data_provider
+                'loadKey': load_key,
+                'loadName': 'BGI',
+                'release': release,
+                'dataProviders': None,
+                'dataProvider': data_provider
             }
             gene_metadata.append(metadata_dict)
 
@@ -320,7 +320,6 @@ class BGIETL(ETL):
             mod_cross_reference_complete_url = ""
             taxon_id = basic_genetic_entity.get("taxonId")
             short_species_abbreviation = ETLHelper.get_short_species_abbreviation(taxon_id)
-
 
             if basic_genetic_entity.get('taxonId') in ["NCBITaxon:9606", "NCBITaxon:10090"]:
                 local_id = basic_genetic_entity.get('primaryId')
@@ -348,32 +347,35 @@ class BGIETL(ETL):
                                 gene_literature_url = ""
                                 display_name = ""
 
-                                cross_ref_complete_url = self.etlh.get_page_complete_url(local_cross_ref_id,
+                                cross_ref_complete_url = self.etlh.get_page_complete_url(
+                                    local_cross_ref_id,
+                                    ETL.xref_url_map,
+                                    prefix,
+                                    page)
+
+                                if page == 'gene/expression_images':
+                                    cross_ref_complete_url = ETLHelper.get_expression_images_url(
+                                        local_cross_ref_id,
+                                        cross_ref_id)
+                                elif page == 'gene':
+                                    mod_cross_reference_complete_url = self.etlh.get_page_complete_url(
+                                        local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
                                         page)
 
-                                if page == 'gene/expression_images':
-                                    cross_ref_complete_url = ETLHelper.get_expression_images_url(\
-                                            local_cross_ref_id,
-                                            cross_ref_id)
-                                elif page == 'gene':
-                                    mod_cross_reference_complete_url = self.etlh.get_page_complete_url(local_cross_ref_id,
-                                                                          ETL.xref_url_map,
-                                                                          prefix,
-                                                                          prefix + page)
-
-                                genetic_entity_external_url = self.etlh.get_page_complete_url(\
+                                genetic_entity_external_url = self.etlh.get_page_complete_url(
                                         local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
-                                        prefix + page)
+                                        page)
 
                                 if page == 'gene/references':
-                                    gene_literature_url = self.etlh.get_page_complete_url(local_cross_ref_id,
-                                            ETL.xref_url_map,
-                                            prefix,
-                                            prefix + page)
+                                    gene_literature_url = self.etlh.get_page_complete_url(
+                                        local_cross_ref_id,
+                                        ETL.xref_url_map,
+                                        prefix,
+                                        page)
 
                                 if page == 'gene/spell':
                                     display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'
@@ -381,10 +383,11 @@ class BGIETL(ETL):
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
-                                            ETL.xref_url_map,
-                                            prefix,
-                                            primary_id)
+                                    cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                        local_cross_ref_id,
+                                        ETL.xref_url_map,
+                                        prefix,
+                                        primary_id)
 
                                 # TODO: fix gene/disease xrefs for SGD once
                                 # resourceDescriptor change in develop
@@ -409,19 +412,21 @@ class BGIETL(ETL):
 
                         else:
                             # TODO handle in the resourceDescriptor.yaml
-                            if prefix == 'PANTHER':                     
+                            if prefix == 'PANTHER':
                                 cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
-                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        primary_id)
-                                xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
-                                        prefix,
-                                        "gene/panther",
-                                        "gene/panther",
-                                        display_name,
-                                        cross_ref_complete_url,
-                                        cross_ref_primary_id + "gene/panther")
+                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                    local_cross_ref_id,
+                                    ETL.xref_url_map,
+                                    prefix,
+                                    primary_id)
+                                xref_map = ETLHelper.get_xref_dict(
+                                    local_cross_ref_id,
+                                    prefix,
+                                    "gene/panther",
+                                    "gene/panther",
+                                    display_name,
+                                    cross_ref_complete_url,
+                                    cross_ref_primary_id + "gene/panther")
                                 xref_map['dataId'] = primary_id
                                 cross_references.append(xref_map)
                             # TODO handle human generic cross reference to RGD in resourceDescr.
@@ -431,32 +436,32 @@ class BGIETL(ETL):
                                                          + "/rgdweb/elasticResults.html?term=" \
                                                          + local_cross_ref_id
 
-                                xref_map = ETLHelper.get_xref_dict(\
-                                        local_cross_ref_id,
-                                        prefix,
-                                        "generic_cross_reference",
-                                        "generic_cross_reference",
-                                        display_name,
-                                        cross_ref_complete_url,
-                                        cross_ref_primary_id + "generic_cross_reference")
+                                xref_map = ETLHelper.get_xref_dict(
+                                    local_cross_ref_id,
+                                    prefix,
+                                    "generic_cross_reference",
+                                    "generic_cross_reference",
+                                    display_name,
+                                    cross_ref_complete_url,
+                                    cross_ref_primary_id + "generic_cross_reference")
                                 xref_map['dataId'] = primary_id
                                 cross_references.append(xref_map)
 
                             else:
                                 cross_ref_primary_id = cross_ref.get('id')
-                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(\
-                                        local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        primary_id)
-                                xref_map = ETLHelper.get_xref_dict(\
-                                        local_cross_ref_id,
-                                        prefix,
-                                        "generic_cross_reference",
-                                        "generic_cross_reference",
-                                        display_name,
-                                        cross_ref_complete_url,
-                                        cross_ref_primary_id + "generic_cross_reference")
+                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                    local_cross_ref_id,
+                                    ETL.xref_url_map,
+                                    prefix,
+                                    primary_id)
+                                xref_map = ETLHelper.get_xref_dict(
+                                    local_cross_ref_id,
+                                    prefix,
+                                    "generic_cross_reference",
+                                    "generic_cross_reference",
+                                    display_name,
+                                    cross_ref_complete_url,
+                                    cross_ref_primary_id + "generic_cross_reference")
                                 xref_map['dataId'] = primary_id
                                 cross_references.append(xref_map)
 
@@ -486,8 +491,8 @@ class BGIETL(ETL):
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
-                "loadKey" : load_key,
-                "dataProvider" : data_provider,
+                "loadKey": load_key,
+                "dataProvider": data_provider,
                 "dateProduced": date_produced}
 
             gene_dataset.append(gene)
@@ -551,7 +556,7 @@ class BGIETL(ETL):
             self.metadata_is_loaded[load_key] = True
 
             # Establishes the number of genes to yield (return) at a time.
-            if counter == batch_size: # only sending unique chromosomes, hense empty list here.
+            if counter == batch_size:  # only sending unique chromosomes, hense empty list here.
                 counter = 0
                 yield [gene_metadata,
                        gene_dataset,
@@ -571,7 +576,7 @@ class BGIETL(ETL):
                 genomic_locations = []
                 cross_references = []
                 gene_to_so_terms = []
-                #xref_relations = []
+                # xref_relations = []
 
         if counter > 0:
             yield [gene_metadata,
