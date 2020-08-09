@@ -1,4 +1,4 @@
-"""ETL"""
+"""ETL."""
 
 import logging
 import sys
@@ -10,14 +10,14 @@ from loader_common import ContextInfo
 
 
 class ETL():
-    """ETL"""
+    """ETL."""
 
     logger = logging.getLogger(__name__)
     xref_url_map = ResourceDescriptorHelper().get_data()
     etlh = ETLHelper()
 
     def __init__(self):
-
+        """Initialise objects."""
         context_info = ContextInfo()
         if context_info.env["TEST_SET"]:
             self.logger.warning("WARNING: Test data load enabled.")
@@ -26,16 +26,23 @@ class ETL():
         else:
             self.test_object = TestObject(False)
 
+    def error_messages(self):
+        """Print out error summary messages."""
+        for key in self.etlh.rdh2.missing_pages.keys():
+            self.logger.critical("Missing page {} seen {} times".format(key, self.etlh.rdh2.missing_pages[key]))
+        for key in self.etlh.rdh2.missing_keys.keys():
+            self.logger.critical("Missing key {} seen {} times".format(key, self.etlh.rdh2.missing_keys[key]))
+        for key in self.etlh.rdh2.deprecated_mess.keys():
+            self.logger.critical("Deprecated {} seen {} times".format(key, self.etlh.rdh2.deprecated_mess[key]))
+
     def run_etl(self):
-        """Run ETL"""
-
+        """Run ETL."""
         self._load_and_process_data()
-
+        self.error_messages()
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):
-        """Wait for Threads"""
-
+        """Wait for Threads."""
         ETL.logger.debug("Waiting for Threads to finish: %s", len(thread_pool))
 
         while len(thread_pool) > 0:
@@ -64,10 +71,8 @@ class ETL():
 
             time.sleep(5)
 
-
     def process_query_params(self, query_list_with_params):
-        """Process Query Params"""
-
+        """Process Query Params."""
         # generators = list of yielded lists from parser
         # query_list_with_parms = list of queries, each with batch size and CSV file name.
         query_and_file_names = []

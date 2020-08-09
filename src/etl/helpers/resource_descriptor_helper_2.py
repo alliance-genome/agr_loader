@@ -213,16 +213,21 @@ class ResourceDescriptorHelper2():
             prefix, identifier_processed = identifier.split('-', 1)  # Split on the first occurrence
             separator = '-'
         else:
-            self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
-            self.logger.info('Splitting identifier is not possible.')
-            self.logger.info('Identifier: %s', identifier)
+            key = "Identifier problem"
+            if key not in self.missing_keys:
+                self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
+                self.logger.critical('Splitting identifier is not possible.')
+                self.logger.critical('Identifier: %s', identifier)
+                self.missing_keys[key] = 1
+            else:
+                self.missing_keys[key] += 1
             prefix = identifier_processed = separator = None
         if prefix:
             prefix = self.alter_prefixes_to_match_resource_yaml(prefix)
 
         return prefix, identifier_processed, separator
 
-    def return_url_from_key_value(self, key, value, alt_page=None):
+    def return_url_from_key_value(self, alt_key, value, alt_page=None):
         """Return url for a key value pair.
 
         key:   DB/Species key i.e.     RGD,     MGI,    HGNC etc
@@ -232,11 +237,16 @@ class ResourceDescriptorHelper2():
         By default, if alt_page is not set it will use the main one 'default_url'
         """
         url = None
-        key = self.get_key(key)
+        key = self.get_key(alt_key)
         if key not in self.resource_descriptor_dict:
-            mess = "The database/species prefix '{}' cannot be found in the Resource Descriptor YAML.".format(key)
-            self.logger.critical(mess)
-            self.logger.critical('Identifier: %s', value)
+            mk_key = "{}-{}".format(alt_key, key)
+            if mk_key in self.missing_keys:
+                self.missing_keys[mk_key] += 1
+            else:
+                self.missing_keys[mk_key] = 1
+                mess = "The database/species prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
+                self.logger.critical(mess)
+                self.logger.critical('Identifier: %s', value)
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "{} has no 'default_url'".format(key)
@@ -282,6 +292,8 @@ class ResourceDescriptorHelper2():
         if 'return_url' not in self.deprecated_mess:
             self.logger.info("return_url is Deprecated please use return_url_from_identifier")
             self.deprecated_mess['return_url'] = 1
+        else:
+            self.deprecated_mess['return_url'] += 1
         return self.return_url_from_identifier(identifier, page)
 
     def return_url_from_identifier(self, identifier, page=None):

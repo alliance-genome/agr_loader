@@ -17,7 +17,7 @@ def get_complete_pub_url(self, local_id, global_id, key=False):
     else:
        return self.rdh2.return_url_from_key_value(key, local_id)
 
-as the url stored have the MGI: or RGD: etc in the url already if they are required.    
+as the url stored have the MGI: or RGD: etc in the url already if they are required.
 """
 import uuid
 import logging
@@ -29,6 +29,7 @@ class ETLHelper():
 
     logger = logging.getLogger(__name__)
     rdh2 = ResourceDescriptorHelper2()
+    logger.critical("BOB: Initialising ETLHelper")
 
     @staticmethod
     def get_cypher_xref_text():
@@ -50,8 +51,7 @@ class ETLHelper():
 
     @staticmethod
     def get_cypher_xref_tuned_text():
-        """Get Cypher XREF Tuned Text"""
-
+        """Get Cypher XREF Tuned Text."""
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     ON CREATE SET id.name = row.id,
@@ -67,14 +67,12 @@ class ETLHelper():
 
     @staticmethod
     def merge_crossref_relationships():
-        """Merge Crossref Relationships"""
-
+        """Merge Crossref Relationships."""
         return """ MERGE (o)-[gcr:CROSS_REFERENCE]->(id)"""
 
     @staticmethod
     def get_cypher_xref_text_interactions():
-        """Get Cypger XREF Text Interactions"""
-
+        """Get Cypger XREF Text Interactions."""
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey, crossRefType:row.crossRefType})
                     ON CREATE SET id.name = row.id,
@@ -92,8 +90,7 @@ class ETLHelper():
 
     @staticmethod
     def get_cypher_xref_text_annotation_level():
-        """Get Cypher XREF Text Annotation Level"""
-
+        """Get Cypher XREF Text Annotation Level."""
         return """
                 MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
                     SET id.name = row.id,
@@ -123,8 +120,7 @@ class ETLHelper():
     @staticmethod
     def get_xref_dict(local_id, prefix, cross_ref_type, page,
                       display_name, cross_ref_complete_url, primary_id):
-        """Get XREF Dict"""
-
+        """Get XREF Dict."""
         global_xref_id = prefix + ":" + local_id
         cross_reference = {
             "id": global_xref_id,
@@ -185,8 +181,7 @@ class ETLHelper():
         return mod
 
     def get_complete_url_ont(self, local_id, global_id, key=None):
-        """Get Complete 'ont'?.
-        """
+        """Get Complete 'ont'."""
         complete_url = None
         page = None
         if 'OMIM:PS' in global_id:
@@ -252,7 +247,6 @@ class ETLHelper():
             complete_url = 'https://www.omim.org/entry/' + local_id
         elif global_id.startswith('ORPHA:'):
             complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
-        return complete_url
 
         new_url = self.rdh2.return_url_from_identifier(global_id)
         if new_url != complete_url:

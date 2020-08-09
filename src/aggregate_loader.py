@@ -63,12 +63,6 @@ def main():
 
     AggregateLoader(args, logger, context_info).run_loader()
 
-    for key in ResourceDescriptorHelper2.missing_pages.keys():
-        logger.info("Missing page {} seen {} times".format(key, ResourceDescriptorHelper2.missing_pages[key]))
-
-    for key in ResourceDescriptorHelper2.missing_keys.keys():
-        logger.info("Missing key {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
-
 
 class AggregateLoader():
     """This runs all the individiual ETL pipelines"""
@@ -177,6 +171,17 @@ class AggregateLoader():
             etl_time_message = ("Finished ETL group: %s, Elapsed time: %s"
                                 % (etl_group,
                                    time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
+
+            for key in ResourceDescriptorHelper2.missing_pages.keys():
+                logger.critical("BOBBY:Missing page {} seen {} times".format(key, ResourceDescriptorHelper2.missing_pages[key]))
+            # ResourceDescriptorHelper2.missing_pages = {}
+            for key in ResourceDescriptorHelper2.missing_keys.keys():
+                logger.critical("BOBBY: Missing key {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
+            # ResourceDescriptorHelper2.missing_keys = {}
+            for key in ResourceDescriptorHelper2.deprecated_mess.keys():
+                logger.critical("BOBBY: Deprecated {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
+            # ResourceDescriptorHelper2.deprecated_mess = {}
+
             logger.info(etl_time_message)
             etl_time_tracker_list.append(etl_time_message)
 
@@ -222,8 +227,7 @@ class AggregateLoader():
         for time_item in etl_time_tracker_list:
             self.logger.info(time_item)
 
-        self.logger.critical('Loader finished. Elapsed time: %s'
-                         % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+        self.logger.critical('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 
 if __name__ == '__main__':

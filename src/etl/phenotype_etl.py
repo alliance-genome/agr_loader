@@ -197,7 +197,7 @@ class PhenoTypeETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-        self.logger.info("BOB:PHEN start")
+        self.logger.critical("BOB:PHEN start")
         for key in self.etlh.rdh2.missing_pages.keys():
             self.logger.critical("BOB:PHEN Missing page {} seen {} times".format(key, self.etlh.missing_pages[key]))
 

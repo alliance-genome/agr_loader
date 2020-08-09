@@ -89,7 +89,7 @@ class MolecularInteractionETL(ETL):
         self.data_type_config = config
 
         # Initialize an instance of ResourceDescriptor for processing external links.
-        self.resource_descriptor_dict = ResourceDescriptorHelper2()
+        # self.resource_descriptor_dict = ResourceDescriptorHelper2()
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
         self.ignored_database_linkouts = set()
@@ -115,7 +115,15 @@ class MolecularInteractionETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.logger.critical("BOB:INT start")
+        for key in self.etlh.rdh2.missing_pages.keys():
+            self.logger.critical("BOB:INT Missing page {} seen {} times".format(key, self.etlh.rd2h.missing_pages[key]))
 
+        for key in self.etlh.rdh2.missing_keys.keys():
+            self.logger.critical("BOB:INT Missing key {} seen {} times".format(key, self.etlh.rdh2.missing_keys[key]))
+        for key in self.etlh.rdh2.deprecated_mess.keys():
+            self.logger.critical("BOB:INT Deprecated {} seen {} times".format(key, self.etlh.rdh2.deprecated_mess[key]))
+ 
     @staticmethod
     def populate_genes():
         """Populate Genes"""
@@ -229,7 +237,7 @@ class MolecularInteractionETL(ETL):
             xref_dict = {}
             page = 'gene/interactions'
 
-            individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(individual)
+            individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(individual)
             # Capitalize the prefix to match the YAML
             # and change the prefix if necessary to match the YAML.
             xref_dict['prefix'] = individual_prefix
@@ -256,7 +264,7 @@ class MolecularInteractionETL(ETL):
             # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
-                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
+                    individual_url = self.etlh.rdh2.return_url(individual, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
                     # self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
@@ -288,8 +296,8 @@ class MolecularInteractionETL(ETL):
         xref_dict = {}
         page = 'gene/MODinteractions'
 
-        individual_prefix, individual_body, _ = self.resource_descriptor_dict.split_identifier(gene_id)
-        individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
+        individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
+        individual_url = self.etlh.rdh2.return_url(gene_id, page)
 
         # Exception for MGI
         if individual_prefix == 'MGI':
@@ -450,7 +458,7 @@ class MolecularInteractionETL(ETL):
         # unresolved_crossref_set = set()
 
         self.logger.info('Attempting to open %s', filepath)
-
+        one_mess = 0
         with open(filepath, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             counter = 0
@@ -534,7 +542,9 @@ class MolecularInteractionETL(ETL):
                             publication_url = self.etlh.get_complete_pub_url(publication, row[8])
                             old_url = 'https://doi.org/{}'.format(publication)
                             if old_url != publication_url:
-                                self.logger.critical('BOB2: {} -- {}'.format(old_url, publication_url))
+                                if not one_mess:
+                                    self.logger.critical('BOB2 one_mess: old {} -- new {} publication= {}'.format(old_url, publication_url, publication))
+                                one_mess += 1
                     else:
                         unresolved_publication_count += 1
                         continue
@@ -663,6 +673,7 @@ class MolecularInteractionETL(ETL):
             if counter > 0:
                 yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
 
+        self.logger.critical("one mess seen {} times".format(one_mess))
         # TODO Clean up the set output.
         # for entry in unresolved_entries:
         #     self.logger.info(*entry)
