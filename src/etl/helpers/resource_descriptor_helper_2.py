@@ -1,15 +1,14 @@
-"""Resource Descriptor Helper 2"""
+"""Resource Descriptor Helper 2."""
 
 import logging
 import sys
 import re
 import yaml
-import pprint
 from files import Download
 
 
 class ResourceDescriptorHelper2():
-    """Resource Descriptor Helper 2"""
+    """Resource Descriptor Helper 2."""
 
     logger = logging.getLogger(__name__)
     resource_descriptor_dict = {}
@@ -21,13 +20,11 @@ class ResourceDescriptorHelper2():
     # i.e. for RGD:- 10116 => RGD, NCBITaxon:10116 => RGD, Rno => RGD , RGD => RGD
     key_lookup = {}
 
-    # species
-    # i.e. RGD => 'Rattus norvegicus'
+    # species short cuts
     key_to_fullname = {}
-
-    # order
-    # i.e. RGD => 20
+    key_to_shortname = {}
     key_to_order = {}
+    key_to_taxonid = {}
 
     # report deprecated methids only one
     deprecated_mess = {}
@@ -37,8 +34,6 @@ class ResourceDescriptorHelper2():
 
     # missing keys
     missing_keys = {}
-
-    print("CRITICAL: BOB: initialise")
 
     def get_key(self, alt_key):
         """Get species/DB main key.
@@ -65,14 +60,31 @@ class ResourceDescriptorHelper2():
             ret_key = self.key_lookup[alt_key]
         return ret_key
 
-    def get_full_name_from_key(self, key):
+    def get_short_name(self, alt_key):
+        """Get short name."""
+        name = 'Alliance'
+        try:
+            key = self.get_key(alt_key)
+            name = self.key_to_shortname[key]
+        except KeyError:
+            pass
+        return name
+
+    def get_full_name_from_key(self, alt_key):
         """Lookup fullname for a given species key.
 
-        If key not found return None and ket user deal with it.
+        If key not found return None and let user deal with it.
         """
-        key = self.get_key(key)
+        key = self.get_key(alt_key)
         if key in self.key_to_fullname:
             return self.key_to_fullname[key]
+        return None
+
+    def get_taxon_from_key(self, alt_key):
+        """Get taxon id (number bit only ) from key."""
+        key = self.get_key(alt_key)
+        if key in self.key_to_taxonid:
+            return self.key_to_taxonid[key]
         return None
 
     def get_order(self, identifier):
@@ -97,28 +109,29 @@ class ResourceDescriptorHelper2():
                                             'species.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
-        pp = pprint.PrettyPrinter(indent=4)
         for item in yaml_list:
             db_name = item['primaryDataProvider']['dataProviderShortName'].upper()
             # Hack human data comes from RGD but we do not want to overwrite RGD
             # So hardcode test here to HGNC as the key instead.
             if db_name == 'RGD' and item['fullName'] == 'Homo sapiens':
-                db_name = 'HGNC'
+                db_name = 'HUMAN'
                 self.key_lookup['HUMAN'] = db_name
             self.key_lookup[db_name] = db_name
             self.key_lookup[item['fullName'].upper()] = db_name
             self.key_to_fullname[db_name] = item['fullName']
-            pp.pprint(item)
             for name in item['commonNames']:
                 self.key_lookup[name.upper()] = db_name
             tax_word, tax_id, _ = self.split_identifier(item['taxonId'])
+            self.key_to_taxonid[db_name] = tax_id
             self.key_lookup[item['taxonId'].upper()] = db_name
             self.key_lookup[tax_id] = db_name
+
             self.key_lookup[item['shortName'].upper()] = db_name
             self.key_to_order[db_name] = item['phylogenicOrder']
+            self.key_to_shortname[db_name] = item['shortName']
 
-        pp.pprint(self.key_lookup)
-        pp.pprint(self.key_to_fullname)
+        # pp.pprint(self.key_lookup)
+        # pp.pprint(self.key_to_fullname)
 
     def get_data(self):
         """Return dict."""
@@ -127,29 +140,24 @@ class ResourceDescriptorHelper2():
     def __init__(self):
         """Load the dict from file."""
         if ResourceDescriptorHelper2.resource_descriptor_dict:
-            self.logger.critical("BOB: Data already loaded returning")
             return
         # TODO This should eventually be tied to the schemas submodule.
         # NOTE: BOB change AGR-1144 to master once merged.
         url = 'https://raw.githubusercontent.com/' \
             + 'alliance-genome/agr_schemas/AGR-1144/resourceDescriptors.yaml'
 
-        resource_descriptor_file = Download('tmp2',
+        resource_descriptor_file = Download('tmp',
                                             url,
                                             'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
-        self.logger.critical("BOB: url = {}".format(url))
-        self.logger.critical("BOB. H2 loading RD yaml")
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
         resource_descriptor_dict = {}
         for item in yaml_list:
             name = item['db_prefix']
             resource_descriptor_dict[name] = item
             if 'aliases' in item:
-                print("BOB: {}".format(item['aliases']))
                 for alt_name in item['aliases']:
-                    print("BOB: alt_name is {}".format(alt_name))
                     self.key_lookup[alt_name.upper()] = item['db_prefix']
 
         # Iterate through this new dictionary and convert page lists to dictionaries.
@@ -171,33 +179,8 @@ class ResourceDescriptorHelper2():
         ResourceDescriptorHelper2.resource_descriptor_dict = resource_descriptor_dict
         self._get_alt_keys()
 
-    @staticmethod
-    def alter_prefixes_to_match_resource_yaml(entry):
-        """Alter Prefixes To Match Resource YAML"""
-
-        # We use database prefixes that are not all uppercase.
-        # TODO
-        # The following line will cause some to fail. This needs to be addressed.
-        entry = entry.upper()
-
-        # Occasionally, prefixes from incoming files do not line up with the Alliance YAML.
-        # The following dictionary translates these entries into the appropriate prefixes.
-        prefix_translation_dictionary = {
-            'WORMBASE': 'WB',
-            'FLYBASE': 'FB',
-            'RCSB PDB': 'RCSB_PDB',
-        }
-
-        prefix = None
-        if prefix_translation_dictionary.get(entry):
-            prefix = prefix_translation_dictionary[entry]
-        else:
-            prefix = entry
-
-        return prefix
-
     def split_identifier(self, identifier):
-        """Split Identifier
+        """Split Identifier.
 
         Does not throw exception anymore. Check return, if None returned, there was an error
         """
@@ -222,16 +205,14 @@ class ResourceDescriptorHelper2():
             else:
                 self.missing_keys[key] += 1
             prefix = identifier_processed = separator = None
-        if prefix:
-            prefix = self.alter_prefixes_to_match_resource_yaml(prefix)
 
         return prefix, identifier_processed, separator
 
     def return_url_from_key_value(self, alt_key, value, alt_page=None):
         """Return url for a key value pair.
 
-        key:   DB/Species key i.e.     RGD,     MGI,    HGNC etc
-        value: DB/Species value i.e.   1311419, 80863,  33510
+        key:   DB key i.e.             RGD,     MGI,    HGNC etc
+        value: DB value i.e.           1311419, 80863,  33510
         alt_page:  page to get i.e.    gene,    allele, disease/human
 
         By default, if alt_page is not set it will use the main one 'default_url'
@@ -244,7 +225,7 @@ class ResourceDescriptorHelper2():
                 self.missing_keys[mk_key] += 1
             else:
                 self.missing_keys[mk_key] = 1
-                mess = "The database/species prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
+                mess = "The databasevprefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
                 self.logger.critical(mess)
                 self.logger.critical('Identifier: %s', value)
             return None

@@ -319,7 +319,7 @@ class BGIETL(ETL):
             genetic_entity_external_url = ""
             mod_cross_reference_complete_url = ""
             taxon_id = basic_genetic_entity.get("taxonId")
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(taxon_id)
+            short_species_abbreviation = self.etlh.get_short_species_abbreviation(taxon_id)
 
             if basic_genetic_entity.get('taxonId') in ["NCBITaxon:9606", "NCBITaxon:10090"]:
                 local_id = basic_genetic_entity.get('primaryId')

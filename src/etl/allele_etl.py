@@ -250,7 +250,7 @@ class AlleleETL(ETL):
             construct_id = ''
             association_type = ''
 
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(allele_record.get('taxonId'))
+            short_species_abbreviation = self.etlh.get_short_species_abbreviation(allele_record.get('taxonId'))
             symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
 
             if allele_record.get('alleleObjectRelations') is not None:

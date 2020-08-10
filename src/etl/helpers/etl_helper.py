@@ -29,7 +29,6 @@ class ETLHelper():
 
     logger = logging.getLogger(__name__)
     rdh2 = ResourceDescriptorHelper2()
-    logger.critical("BOB: Initialising ETLHelper")
 
     @staticmethod
     def get_cypher_xref_text():
@@ -256,8 +255,7 @@ class ETLHelper():
 
     @staticmethod
     def process_identifiers(identifier):
-        """Process Identifier"""
-
+        """Process Identifier."""
         if identifier.startswith("DRSC:"):
             # strip off DSRC prefix
             identifier = identifier.split(":", 1)[1]
@@ -265,8 +263,7 @@ class ETLHelper():
 
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
-        """Add AGR prefix by Species Taxon"""
-
+        """Add AGR prefix by Species Taxon."""
         species_dict = {
             7955: 'ZFIN:',
             6239: 'WB:',
@@ -283,11 +280,14 @@ class ETLHelper():
 
         return new_identifier
 
-    @staticmethod
-    def get_short_species_abbreviation(taxon_id):
-        """Get short Species Abbreviation"""
-
+    def get_short_species_abbreviation(self, taxon_id):
+        """Get short Species Abbreviation."""
         short_species_abbreviation = 'Alliance'
+        try:
+            abbr = self.rdh2.get_short_name(taxon_id)
+        except KeyError:
+            self.logger.critical("Problem looking up short species name for {}".format(taxon_id))
+
         if taxon_id == 'NCBITaxon:7955':
             short_species_abbreviation = 'Dre'
         elif taxon_id == 'NCBITaxon:7227':
@@ -305,20 +305,20 @@ class ETLHelper():
         elif taxon_id == 'NCBITaxon:2697049':
             short_species_abbreviation = 'SARS-CoV-2'
 
+        if abbr != short_species_abbreviation:
+            self.logger.critical("{} != {}".format(abbr, short_species_abbreviation))
         return short_species_abbreviation
 
     @staticmethod
     def go_annot_prefix_lookup(dataprovider):
-        """GO Annotation Prefix Lookup"""
-
+        """GO Annotation Prefix Lookup."""
         if dataprovider in ["MGI", "Human"]:
             return ""
         return dataprovider + ":"
 
-    @staticmethod
-    def get_mod_from_taxon(taxon_id):
+    def get_mod_from_taxon(self, taxon_id):
         """Get MOD from Taxon"""
-
+        new_mod = self.rdh2.get_key(taxon_id)
         taxon_mod_dict = {
             '7955': 'ZFIN',
             '6239': 'WB',
@@ -330,11 +330,14 @@ class ETLHelper():
             '9606': 'HUMAN',
             '2697049': 'SARS-CoV-2'}
 
-        return taxon_mod_dict[taxon_id]
+        mod = taxon_mod_dict[taxon_id]
+        if mod != new_mod:
+            self.logger.critical("gmft: {} != {}".format(new_mod, mod))
+        return mod
 
-    @staticmethod
-    def get_taxon_from_mod(mod):
-        """Get Taxon From MOD"""
+    def get_taxon_from_mod(self, mod):
+        """Get Taxon From MOD."""
+        new_tax = self.rdh2.get_taxon_from_key(mod)
 
         taxon_mod_dict = {
             'ZFIN': '7955',
@@ -347,7 +350,9 @@ class ETLHelper():
             'SARS-CoV-2': '2697049'}
 
         # Attempt to get the taxon ID, return the MOD ID if the taxon is not found.
-        return taxon_mod_dict.get(mod, mod)
+        tax = taxon_mod_dict.get(mod, mod)
+        if new_tax != tax:
+            self.logger.critical("gtfm: {} != {}".format(new_tax, tax))
 
     def get_page_complete_url(self, local_id, xref_url_map, prefix, page):
         """Get Page Complete URL."""
@@ -365,17 +370,15 @@ class ETLHelper():
                     complete_url = page_url_prefix + local_id + page_url_suffix
 
         new_url = self.rdh2.return_url_from_key_value(prefix, local_id, alt_page=page)
-        if new_url != complete_url and (new_url != None and complete_url != ''):
+        if new_url != complete_url and (new_url is not None and complete_url != ''):
             mess = "BOB: prefix='{}' page='{}' local_id='{}': gpcu new '{}' != old '{}'".\
                 format(prefix, page, local_id, new_url, complete_url)
             self.logger.critical(mess)
-            # bob = 1/0
         return complete_url
 
     @staticmethod
     def get_expression_images_url(local_id, cross_ref_id):
-        """Get expression Images URL"""
-
+        """Get expression Images URL."""
         url = ""
         if 'MGI' in cross_ref_id:
             url = "http://www.informatics.jax.org/gxd/marker/MGI:" + local_id \

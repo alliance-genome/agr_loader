@@ -172,16 +172,6 @@ class AggregateLoader():
                                 % (etl_group,
                                    time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
 
-            for key in ResourceDescriptorHelper2.missing_pages.keys():
-                logger.critical("BOBBY:Missing page {} seen {} times".format(key, ResourceDescriptorHelper2.missing_pages[key]))
-            # ResourceDescriptorHelper2.missing_pages = {}
-            for key in ResourceDescriptorHelper2.missing_keys.keys():
-                logger.critical("BOBBY: Missing key {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
-            # ResourceDescriptorHelper2.missing_keys = {}
-            for key in ResourceDescriptorHelper2.deprecated_mess.keys():
-                logger.critical("BOBBY: Deprecated {} seen {} times".format(key, ResourceDescriptorHelper2.missing_keys[key]))
-            # ResourceDescriptorHelper2.deprecated_mess = {}
-
             logger.info(etl_time_message)
             etl_time_tracker_list.append(etl_time_message)
 

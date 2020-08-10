@@ -239,12 +239,13 @@ class AffectedGenomicModelETL(ETL):
                 if pages is not None and len(pages) > 0:
                     for page in pages:
                         if page in ['Fish', 'genotype', 'strain']:
-                            mod_global_cross_ref_url = self.etlh.get_page_complete_url(local_crossref_id,
-                                    self.xref_url_map,
-                                    prefix,
-                                    page)
+                            mod_global_cross_ref_url = self.etlh.get_page_complete_url(
+                                local_crossref_id,
+                                self.xref_url_map,
+                                prefix,
+                                page)
 
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(agm_record.get('taxonId'))
+            short_species_abbreviation = self.etlh.get_short_species_abbreviation(agm_record.get('taxonId'))
             name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))
 
             # TODO: make subtype required in submission file.

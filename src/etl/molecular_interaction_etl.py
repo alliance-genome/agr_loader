@@ -115,15 +115,7 @@ class MolecularInteractionETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        self.logger.critical("BOB:INT start")
-        for key in self.etlh.rdh2.missing_pages.keys():
-            self.logger.critical("BOB:INT Missing page {} seen {} times".format(key, self.etlh.rd2h.missing_pages[key]))
 
-        for key in self.etlh.rdh2.missing_keys.keys():
-            self.logger.critical("BOB:INT Missing key {} seen {} times".format(key, self.etlh.rdh2.missing_keys[key]))
-        for key in self.etlh.rdh2.deprecated_mess.keys():
-            self.logger.critical("BOB:INT Deprecated {} seen {} times".format(key, self.etlh.rdh2.deprecated_mess[key]))
- 
     @staticmethod
     def populate_genes():
         """Populate Genes"""
