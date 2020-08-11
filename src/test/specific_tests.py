@@ -1281,4 +1281,3 @@ def test_not_disease_annotation_exists_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
-
