@@ -1270,3 +1270,15 @@ def test_manual_sars2_synonym_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_not_disease_annotation_exists_exists():
+    """Test_not_disease_annotation_exists_exists"""
+
+    query = """ MATCH (d:DOTerm)-[x:IS_NOT_MARKER_FOR]-(g:Gene)
+                RETURN count(d) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
