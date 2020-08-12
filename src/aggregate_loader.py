@@ -13,7 +13,8 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
                 AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
                 ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
                 GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL
+                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL, \
+                HTPMetaDatasetSampleETL, HTPMetaDatasetETL
 
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
@@ -91,6 +92,8 @@ class AggregateLoader():
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
+        'HTPDATASET': HTPMetaDatasetETL,
+        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
@@ -127,6 +130,8 @@ class AggregateLoader():
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
+        ['HTPDATASET'],
+        ['HTPDATASAMPLE'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],

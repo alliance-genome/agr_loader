@@ -243,6 +243,9 @@ class TestObject():
             'ENSDART00000010092', 'ZFIN:ZDB-GENE-060929-860',
             'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
             'ENSDART00000111806', 'ZFIN:ZDB-ALT-161017-2', 'ZFIN:ZDB-GENE-040625-66',
+            # htp dataset
+            'ZFIN:ZDB-HTPDSET-200708-1', 'ZFIN:ZDB-HTPDSET-200708-7', 'ZFIN:ZDB-HTPDSET-200708-8'
+
         }
 
         self.flybase_id_set = {
@@ -298,6 +301,8 @@ class TestObject():
             'RGD:1600311', 'RGD:5143979', 'rna31', 'RGD:1310046', 'rna853', 'RGD:1310046', 'RGD:13437613',
             # disease, not
             'RGD:619937',
+            # HTP dataset
+            'GEO:GSE39', 'GEO:GSE95', 'GEO:GSE357',
 
         }
 

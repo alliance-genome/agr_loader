@@ -46,6 +46,17 @@ class ETLHelper():
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName"""
 
+    @staticmethod
+    def get_publication_object_cypher_text():
+        """Get Cypher Publication Text"""
+
+        return """
+             MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
+                ON CREATE SET pub.pubModId = row.pubModId,
+                 pub.pubMedId = row.pubMedId,
+                 pub.pubModUrl = row.pubModUrl,
+                 pub.pubMedUrl = row.pubMedUrl
+        """
 
     @staticmethod
     def merge_crossref_relationships():

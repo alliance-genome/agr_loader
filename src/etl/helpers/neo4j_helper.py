@@ -112,6 +112,8 @@ class Neo4jHelper():
                         ":OrthoAlgorithm(name)",
                         ":Gene(modGlobalId)",
                         ":Gene(localId)",
+                        ":HTPDataset(primaryId)",
+                        ":CategoryTag(primaryId)",
                         ":Load(primaryKey)",
                         ":Feature(primaryKey)",
                         ":Allele(primaryKey)",
