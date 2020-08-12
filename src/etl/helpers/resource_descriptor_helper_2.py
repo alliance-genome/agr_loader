@@ -1,7 +1,6 @@
 """Resource Descriptor Helper 2."""
 
 import logging
-import sys
 import re
 import yaml
 from files import Download
@@ -39,6 +38,9 @@ class ResourceDescriptorHelper2():
     # can be deleted eventually being used to check old url whioch werte hardcoded
     # against new one for yaml.
     bad_pages = {}
+
+    # identifier does not match the gid_pattern
+    bad_regex = {}
 
     def get_key(self, alt_key):
         """Get species/DB main key.
@@ -160,7 +162,7 @@ class ResourceDescriptorHelper2():
         # Have to specifiy a new tmpxx directory each time else the old
         # one is obtained even though it is not supposed to be kept.
         # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp12',
+        resource_descriptor_file = Download('tmp50',
                                             url,
                                             'resourceDescriptors.yaml').get_downloaded_data()
 
@@ -170,7 +172,7 @@ class ResourceDescriptorHelper2():
         for item in yaml_list:
             name = item['db_prefix'].upper()
             resource_descriptor_dict[name] = item
-            self.key_lookup[name.upper()] = name
+            self.key_lookup[name] = name
             if 'aliases' in item:
                 for alt_name in item['aliases']:
                     self.key_lookup[alt_name.upper()] = name
@@ -199,7 +201,6 @@ class ResourceDescriptorHelper2():
 
         Does not throw exception anymore. Check return, if None returned, there was an error
         """
-
         prefix = None
         identifier_processed = None
         separator = None
@@ -290,7 +291,7 @@ class ResourceDescriptorHelper2():
         return url
 
     def return_url(self, identifier, page):
-        """Deprecated function please use return_url_from_identifier."""
+        """Deprecated function so give message and call new one."""
         if 'return_url' not in self.deprecated_mess:
             self.logger.info("return_url is Deprecated please use return_url_from_identifier")
             self.deprecated_mess['return_url'] = 1
@@ -301,22 +302,33 @@ class ResourceDescriptorHelper2():
     def return_url_from_identifier(self, identifier, page=None):
         """Return URL for an identifier."""
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
+
+        key = self.get_key(db_prefix)
+        if not key:
+            return None
         try:
-            gid_pattern = self.resource_descriptor_dict[db_prefix]['gid_pattern']
+            gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
         except KeyError:
-            self.logger.critical("The database prefix '{}' cannot be found in the Resource Descriptor YAML.".format(db_prefix))
-            self.logger.critical('Page: %s', page)
-            self.logger.critical('Identifier: %s', identifier)
-            sys.exit(-1)
+            if key not in self.missing_keys:
+                self.logger.critical("The database prefix '{}' has no 'gid_pattern'.".format(db_prefix))
+                self.logger.critical('Page: %s', page)
+                self.logger.critical('Identifier: %s', identifier)
+                self.missing_keys[key] = 1
+            else:
+                self.missing_keys[key] += 1
+            return None
 
         identifier_post_processed = db_prefix + separator + identifier_stripped
 
         regex_output = re.match(gid_pattern, identifier_post_processed)
         if regex_output is None:
-            self.logger.critical('Cross Reference identifier did %s',
-                                 'not match Resource Descriptor YAML file gid pattern.')
-            self.logger.critical('Database prefix: %s', db_prefix)
-            self.logger.critical('Identifier: %s', identifier_post_processed)
-            self.logger.critical('gid pattern: %s', gid_pattern)
-            sys.exit(-1)
+            if key not in self.bad_regex:
+                self.logger.critical('Cross Reference identifier did %s',
+                                     'not match Resource Descriptor YAML file gid pattern.')
+                self.logger.critical('Database prefix: %s', db_prefix)
+                self.logger.critical('Identifier: %s', identifier_post_processed)
+                self.logger.critical('gid pattern: %s', gid_pattern)
+                self.bad_regex[key] = 1
+            else:
+                self.bad_regex[key] += 1
         return self.return_url_from_key_value(db_prefix, identifier_stripped, alt_page=page)

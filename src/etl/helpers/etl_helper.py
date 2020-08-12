@@ -192,7 +192,7 @@ class ETLHelper():
             complete_url = 'https://www.omim.org/entry/' + local_id
         # Check ORDO does not seem like a real code 'ORPHA' maybe?
         elif 'ORDO' in global_id:
-            complete_url = 'http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
+            complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
         elif 'MESH' in global_id:
             ETLHelper.logger.debug("BOB:MESH l={} g={}".format(local_id, global_id))
             complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
@@ -212,7 +212,13 @@ class ETLHelper():
         else:
             new_url = self.rdh2.return_url_from_key_value(key, local_id, alt_page=page)
         if new_url != complete_url:
-            self.logger.critical("get_complete_url_ont old url '{}' != new url '{}'".format(complete_url, new_url))
+            bad_key = "{}-{}".format(global_id.split(':')[0], 'pub')
+            if bad_key not in self.rdh2.bad_pages:
+                self.logger.critical("get_complete_pub_ont old url '{}' != new url '{}'".format(complete_url, new_url))
+                self.rdh2.bad_pages[bad_key] = 1
+            else:
+                self.rdh2.bad_pages[bad_key] += 1
+
         return new_url
 
     def get_complete_pub_url(self, local_id, global_id, key=False):

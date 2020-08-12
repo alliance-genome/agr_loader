@@ -51,3 +51,19 @@ class TestClass():
         for key in lookups.keys():
             name = self.etlh.data_provider_lookup(key)
             assert name == lookups[key]
+
+    def test_url_lookup_key_value(self):
+        """Test url lookups."""
+
+        lookups = [{'key': 'RGD', 'value': '123456', 'page': None, 'result': 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=RGD:123456'},
+                   {'key': 'RGD', 'value': '234567', 'page': 'allele', 'result': 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:234567'},
+                   {'key': 'FB', 'value': 'something', 'page': None, 'result': 'https://flybase.org/reports/something.html'},
+                   {'key': 'FB', 'value': 'FBsomething', 'page': 'badpage', 'result': None},
+                   {'key': 'BADKEY', 'value': 'something', 'page': None, 'result': None}]
+
+        for item in lookups:
+            url = self.etlh.rdh2.return_url_from_key_value(item['key'], item['value'], alt_page=item['page'])
+            assert url == item['result']
+
+       url = self.etlh.get_complete_pub_ont('C5604', 'NCI:C5604')
+       
