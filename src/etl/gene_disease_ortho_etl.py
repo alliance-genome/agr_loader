@@ -88,9 +88,10 @@ class GeneDiseaseOrthoETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages()
 
         self.logger.info("Finished Gene Disease Ortho Data")
-
+        self.error_messages("POST_PST")
 
     def create_pub(self):
         """create publication"""

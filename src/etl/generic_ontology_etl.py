@@ -124,6 +124,7 @@ class GenericOntologyETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.info("Finished Loading Generic Ontology Data: %s", sub_type.get_data_provider())
+        self.error_messages("POST_PST")
 
     def get_generators(self, filepath, batch_size):
         """Get Genrators"""

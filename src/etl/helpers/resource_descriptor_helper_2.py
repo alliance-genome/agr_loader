@@ -35,6 +35,11 @@ class ResourceDescriptorHelper2():
     # missing keys
     missing_keys = {}
 
+    # bad_pages
+    # can be deleted eventually being used to check old url whioch werte hardcoded
+    # against new one for yaml.
+    bad_pages = {}
+
     def get_key(self, alt_key):
         """Get species/DB main key.
 
@@ -103,8 +108,10 @@ class ResourceDescriptorHelper2():
         aliases. The keys for this are not used/stired but are here for reference
         or may be used at a later point.
         """
-        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
-        resource_descriptor_file = Download('tmp',
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/AGR-1144/ingest/species/species.yaml'
+        self.logger.critical("species url is {}".format(url))
+
+        resource_descriptor_file = Download('tmp7',
                                             url,
                                             'species.yaml').get_downloaded_data()
 
@@ -135,18 +142,25 @@ class ResourceDescriptorHelper2():
 
     def get_data(self):
         """Return dict."""
+        self.logger.critical("get_data keys are:- {}".format(self.resource_descriptor_dict.keys()))
         return self.resource_descriptor_dict
 
     def __init__(self):
         """Load the dict from file."""
-        if ResourceDescriptorHelper2.resource_descriptor_dict:
+        if self.resource_descriptor_dict:
+            self.logger.critical("keys are:- {}".format(self.resource_descriptor_dict.keys()))
             return
         # TODO This should eventually be tied to the schemas submodule.
         # NOTE: BOB change AGR-1144 to master once merged.
         url = 'https://raw.githubusercontent.com/' \
             + 'alliance-genome/agr_schemas/AGR-1144/resourceDescriptors.yaml'
+        ResourceDescriptorHelper2.logger.critical("rD url is {}".format(url))
 
-        resource_descriptor_file = Download('tmp',
+        # Something is being cached when it should not be.
+        # Have to specifiy a new tmpxx directory each time else the old
+        # one is obtained even though it is not supposed to be kept.
+        # There is no tmpxx directory so where is it being cached!
+        resource_descriptor_file = Download('tmp12',
                                             url,
                                             'resourceDescriptors.yaml').get_downloaded_data()
 
@@ -154,11 +168,12 @@ class ResourceDescriptorHelper2():
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
         resource_descriptor_dict = {}
         for item in yaml_list:
-            name = item['db_prefix']
+            name = item['db_prefix'].upper()
             resource_descriptor_dict[name] = item
+            self.key_lookup[name.upper()] = name
             if 'aliases' in item:
                 for alt_name in item['aliases']:
-                    self.key_lookup[alt_name.upper()] = item['db_prefix']
+                    self.key_lookup[alt_name.upper()] = name
 
         # Iterate through this new dictionary and convert page lists to dictionaries.
         # These are keyed by the page name.
@@ -219,20 +234,22 @@ class ResourceDescriptorHelper2():
         """
         url = None
         key = self.get_key(alt_key)
-        if key not in self.resource_descriptor_dict:
+        if key not in self.key_lookup:
             mk_key = "{}-{}".format(alt_key, key)
             if mk_key in self.missing_keys:
                 self.missing_keys[mk_key] += 1
             else:
                 self.missing_keys[mk_key] = 1
-                mess = "The databasevprefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
+                mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
                 self.logger.critical(mess)
                 self.logger.critical('Identifier: %s', value)
+                self.logger.critical("keys are:-{}".format(self.key_lookup.keys()))
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "{} has no 'default_url'".format(key)
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
+            exit(-1)
             return None
         if not alt_page:
             try:
@@ -259,13 +276,17 @@ class ResourceDescriptorHelper2():
             try:
                 url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
             except KeyError:
-                key = "{}-{}".format(key, alt_page)
-                if key in self.missing_pages:
-                    self.missing_pages[key] += 1
+                com_key = "{}-{}".format(key, alt_page)
+                if com_key in self.missing_pages:
+                    self.missing_pages[com_key] += 1
                 else:
-                    mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML.".format(alt_page, key)
+                    mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML. '{}' is the value".format(alt_page, key, value)
                     self.logger.critical(mess)
-                    self.missing_pages[key] = 1
+                    self.missing_pages[com_key] = 1
+                    if 'pages' in self.resource_descriptor_dict[key]:
+                        self.logger.critical(self.resource_descriptor_dict[key]['pages'])
+                    else:
+                        self.logger.critical("No extra pages")
         return url
 
     def return_url(self, identifier, page):
@@ -283,8 +304,7 @@ class ResourceDescriptorHelper2():
         try:
             gid_pattern = self.resource_descriptor_dict[db_prefix]['gid_pattern']
         except KeyError:
-            self.critical.info('The database prefix \'{}\' ',
-                               'cannot be found in the Resource Descriptor YAML.'.format(db_prefix))
+            self.logger.critical("The database prefix '{}' cannot be found in the Resource Descriptor YAML.".format(db_prefix))
             self.logger.critical('Page: %s', page)
             self.logger.critical('Identifier: %s', identifier)
             sys.exit(-1)

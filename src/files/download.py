@@ -24,13 +24,14 @@ class Download():
     def get_downloaded_data(self):
         """Get Download Data"""
 
-        self.logger.info("Downloading data from: %s", self.url_to_retrieve)
+        self.logger.critical("Downloading data from: %s to %s", self.url_to_retrieve, self.savepath)
 
         if not os.path.exists(self.savepath):
             self.logger.debug("Making temp file storage: %s", self.savepath)
             os.makedirs(self.savepath)
 
         full_filepath = os.path.join(self.savepath, self.filename_to_save)
+        self.logger.critical("Downloading data to {}".format(full_filepath))
         if  os.path.exists(full_filepath):
             self.logger.info("File: %s already exists not downloading", full_filepath)
         else:
@@ -46,7 +47,6 @@ class Download():
 
         with open(full_filepath) as file_handle:
             data = file_handle.read()
-
         return data
 
 

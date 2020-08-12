@@ -369,6 +369,7 @@ class ExpressionETL(ETL):
             query_tracking_list.append(item)
 
         self.logger.info("Finished Loading Expression Data: %s", sub_type.get_data_provider())
+        self.error_messages("POST_PST")
 
     def add_other(self):
         """Add Other"""
@@ -442,7 +443,7 @@ class ExpressionETL(ETL):
                         pub_med_id = evidence.get('publicationId')
                         local_pub_med_id = pub_med_id.split(":")[1]
                         pub_med_prefix = pub_med_id.split(":")[0]
-                        pub_med_url = ETLHelper.get_no_page_complete_url(local_pub_med_id,
+                        pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id,
                                                                          self.xref_url_map,
                                                                          pub_med_prefix,
                                                                          gene_id)

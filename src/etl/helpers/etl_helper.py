@@ -29,6 +29,7 @@ class ETLHelper():
 
     logger = logging.getLogger(__name__)
     rdh2 = ResourceDescriptorHelper2()
+    rdh2.get_data()
 
     @staticmethod
     def get_cypher_xref_text():
@@ -222,10 +223,6 @@ class ETLHelper():
         key: If passed we do not need to do the regular expression to get key
              most routines will have this already so just send that later on.
 
-        Might be better to have this sort of thing in a yaml.
-        Also looking at get_complete_url_ont these might be merged.
-
-        Okay pausing this for mow while i look at the resourceDescriptors.
         """
         complete_url = None
         if global_id.startswith('MGI:'):
@@ -235,7 +232,7 @@ class ETLHelper():
         elif global_id.startswith('SGD:'):
             complete_url = 'http://www.yeastgenome.org/reference/' + local_id
         elif global_id.startswith('FB:'):
-            complete_url = 'http://flybase.org/reports/' + local_id + '.html'
+            complete_url = 'https://flybase.org/reports/' + local_id + '.html'
         elif global_id.startswith('ZFIN:'):
             complete_url = 'http://zfin.org/' + local_id
         elif global_id.startswith('WB:'):
@@ -249,7 +246,14 @@ class ETLHelper():
 
         new_url = self.rdh2.return_url_from_identifier(global_id)
         if new_url != complete_url:
-            self.logger.critical("get_complete_url_ont old url '{}' != new url '{}'".format(complete_url, new_url))
+            # just report the first one to reduce verboseness and count the rest.
+            # Not great but tempory until we reove old method.
+            bad_key = "{}-{}".format(global_id.split(':')[0], 'pub')
+            if bad_key not in self.rdh2.bad_pages:
+                self.logger.critical("get_complete_pub_url old url '{}' != new url '{}'".format(complete_url, new_url))
+                self.rdh2.bad_pages[bad_key] = 1
+            else:
+                self.rdh2.bad_pages[bad_key] += 1
 
         return complete_url
 
@@ -376,8 +380,7 @@ class ETLHelper():
             self.logger.critical(mess)
         return complete_url
 
-    @staticmethod
-    def get_expression_images_url(local_id, cross_ref_id):
+    def get_expression_images_url(self, local_id, cross_ref_id, prefix):
         """Get expression Images URL."""
         url = ""
         if 'MGI' in cross_ref_id:
@@ -389,13 +392,19 @@ class ETLHelper():
             url = "https://www.wormbase.org/db/get?name=" + local_id \
                                                           + ";class=Gene;widget=expression"
         elif 'FB' in cross_ref_id:
-            url = "http://flybase.org/reports/" + local_id + ".html#expression"
+            url = "https://flybase.org/reports/" + local_id + ".html#expression"
 
+        new_url = self.rdh2.return_url_from_key_value(prefix, local_id, alt_page='gene/expression_images')
+        if new_url != url:
+            self.logger.critical("old {} != new {}".format(url, new_url))
+            self.logger.critical("{} {} {}".format(local_id, cross_ref_id, prefix))
         return url
 
-    @staticmethod
-    def get_no_page_complete_url(local_id, xref_url_map, prefix, primary_id):
-        """Get No Page Complete URL"""
+    def get_no_page_complete_url(self, local_id, xref_url_map, prefix, primary_id):
+        """Get No Page Complete URL.
+
+        No idea why its called get no page complete url.
+        """
         complete_url = ""
         global_id = prefix + local_id
         for rdstanza in xref_url_map:
@@ -429,4 +438,17 @@ class ETLHelper():
                         elif primary_id.startswith('HGNC'):
                             complete_url = panther_url + '&seq=HGNC=' + split_primary
 
+        if global_id.startswith('DRSC'):
+            return None
+        elif global_id.startswith('PANTHER'):
+            page, primary_id = split_primary = primary_id.split(':')
+            new_url = self.rdh2.return_url_from_key_value('PANTHER', primary_id, page).replace('PAN_BOOK', local_id)
+
+        else:
+            new_url = self.rdh2.return_url_from_key_value(prefix, local_id)
+        if complete_url != new_url:
+
+            mess = "local = '{}', prefix= '{}', primary_id = '{}', url = {}, new_url = {}".\
+                format(local_id, prefix, primary_id, complete_url, new_url)
+            self.logger.critical(mess)
         return complete_url

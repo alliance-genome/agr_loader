@@ -115,6 +115,7 @@ class MolecularInteractionETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages()
 
     @staticmethod
     def populate_genes():

@@ -3,7 +3,6 @@
 import logging
 import uuid
 import multiprocessing
-import pprint
 
 from etl import ETL
 from etl.helpers import ETLHelper
@@ -159,8 +158,7 @@ class PhenoTypeETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-
-
+    
     def _process_sub_type(self, sub_type):
 
         self.logger.info("Loading Phenotype Data: %s", sub_type.get_data_provider())
@@ -196,6 +194,7 @@ class PhenoTypeETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("BOB: ")
 
     def get_generators(self, phenotype_data, batch_size):
         """Get Generators"""
@@ -221,14 +220,14 @@ class PhenoTypeETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(
+                    data_provider,
+                    data_provider,
+                    data_provider_page,
+                    data_provider_page,
+                    data_provider,
+                    cross_ref_complete_url,
+                    data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.debug("data provider: %s", data_provider)
@@ -256,7 +255,7 @@ class PhenoTypeETL(ETL):
                     pub_med_id = evidence['publicationId']
                     local_pub_med_id = pub_med_id.split(":")[1]
                     pub_med_prefix = pub_med_id.split(":")[0]
-                    pub_med_url = ETLHelper.get_no_page_complete_url(local_pub_med_id,
+                    pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id,
                                                                      self.xref_url_map,
                                                                      pub_med_prefix,
                                                                      primary_id)

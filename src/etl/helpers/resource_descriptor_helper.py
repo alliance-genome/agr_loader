@@ -20,7 +20,6 @@ class ResourceDescriptorHelper():
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
 
-        ResourceDescriptorHelper.logger.critical("BOB. loading RD yaml")
         url = 'https://raw.githubusercontent.com/'\
                 + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
         resource_descriptor_file = Download('tmp',
@@ -94,5 +93,5 @@ class ResourceDescriptorHelper():
                                         "primaryKey": resource,
                                         "uuid": str(uuid.uuid4())}
                 ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
-
+        ResourceDescriptorHelper.logger.info("got to end of resourcedescriptor")
         return ResourceDescriptorHelper.list_of_descriptor_maps_to_load

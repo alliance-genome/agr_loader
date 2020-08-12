@@ -10,13 +10,12 @@ import ijson
 
 from etl import ETL
 from etl.helpers import ETLHelper
-#from files import JSONFile
+# from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
 
 class OrthologyETL(ETL):
-    """Orthology ETL"""
-
+    """Orthology ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ class OrthologyETL(ETL):
     not_matched_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             CREATE (ogj)-[:NOT_MATCHED]->(oa) """
@@ -66,7 +65,7 @@ class OrthologyETL(ETL):
     not_called_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             CREATE (ogj)-[:NOT_CALLED]->(oa) """
@@ -118,11 +117,12 @@ class OrthologyETL(ETL):
             Neo4jTransactor().wait_for_queues()
 
         Neo4jTransactor.execute_query_batch(algo_queries)
+        self.error_messages()
 
     def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
         self.logger.info("Loading Orthology Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        #data = JSONFile().get_data(filepath)
+        # data = JSONFile().get_data(filepath)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -139,9 +139,9 @@ class OrthologyETL(ETL):
                 query_template_list.append([self.main_query_template, "100000",\
                     "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
 
-        query_template_list.append([self.matched_algorithm_query_template, commit_size,
-                           "orthology_matched_algorithm_data_"\
-                           + sub_type.get_data_provider() + ".csv"])
+        query_template_list.append(
+            [self.matched_algorithm_query_template, commit_size,
+             "orthology_matched_algorithm_data_{}.csv".format(sub_type.get_data_provider())])
         query_template_list.append([self.not_matched_algorithm_query_template, commit_size,
                            "orthology_not_matched_algorithm_data_"\
                            + sub_type.get_data_provider() + ".csv"])
@@ -157,7 +157,7 @@ class OrthologyETL(ETL):
             query_tracking_list.append(item)
 
         self.logger.info("Finished Loading Orthology Data: %s", sub_type.get_data_provider())
-
+        self.error_messages("BOB: ")
 
     def get_randomized_list(self, sub_types):
         """Get Randomized List"""

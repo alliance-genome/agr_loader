@@ -206,6 +206,8 @@ class GeneDescriptionsETL(ETL):
             query_and_file_list = self.process_query_params(query_template_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
+            self.error_messages()
+
             self.save_descriptions_report_files(data_provider=prvdr,
                                                 json_desc_writer=json_desc_writer,
                                                 context_info=context_info,

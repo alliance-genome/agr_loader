@@ -26,19 +26,22 @@ class ETL():
         else:
             self.test_object = TestObject(False)
 
-    def error_messages(self):
+    def error_messages(self, prefix=""):
         """Print out error summary messages."""
+        self.logger.critical("{}Finished".format(prefix))
         for key in self.etlh.rdh2.missing_pages.keys():
-            self.logger.critical("Missing page {} seen {} times".format(key, self.etlh.rdh2.missing_pages[key]))
+            self.logger.critical("{}Missing page {} seen {} times".format(prefix, key, self.etlh.rdh2.missing_pages[key]))
         for key in self.etlh.rdh2.missing_keys.keys():
-            self.logger.critical("Missing key {} seen {} times".format(key, self.etlh.rdh2.missing_keys[key]))
+            self.logger.critical("{}Missing key {} seen {} times".format(prefix, key, self.etlh.rdh2.missing_keys[key]))
         for key in self.etlh.rdh2.deprecated_mess.keys():
-            self.logger.critical("Deprecated {} seen {} times".format(key, self.etlh.rdh2.deprecated_mess[key]))
+            self.logger.critical("{}Deprecated {} seen {} times".format(prefix, key, self.etlh.rdh2.deprecated_mess[key]))
+        for key in self.etlh.rdh2.bad_pages.keys():
+            self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_pages[key]))
 
     def run_etl(self):
         """Run ETL."""
         self._load_and_process_data()
-        self.error_messages()
+        self.error_messages("POSTRUN: ")
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):

@@ -227,7 +227,7 @@ class OBOHelper():
             }
 
             if node['id'] == 'GO:0099616':
-                print(dict_to_append)
+                self.logger.debug(dict_to_append)
 
             node = {**node, **dict_to_append}
             ont.graph.node[node["id"]] = node

@@ -246,8 +246,8 @@ class BGIETL(ETL):
         for item in query_and_file_list:
             query_tracking_list.append(item)
 
-        self.logger.info("Finished Loading BGI Data: %s",
-                         sub_type.get_data_provider())
+        self.logger.info("Finished Loading BGI Data: %s", sub_type.get_data_provider())
+        self.error_messages("BGI_POST_PST: ")
 
     def get_generators(self, gene_data, data_provider, batch_size):
         """Create Generators."""
@@ -354,9 +354,9 @@ class BGIETL(ETL):
                                     page)
 
                                 if page == 'gene/expression_images':
-                                    cross_ref_complete_url = ETLHelper.get_expression_images_url(
+                                    cross_ref_complete_url = self.etlh.get_expression_images_url(
                                         local_cross_ref_id,
-                                        cross_ref_id)
+                                        cross_ref_id, prefix)
                                 elif page == 'gene':
                                     mod_cross_reference_complete_url = self.etlh.get_page_complete_url(
                                         local_cross_ref_id,
@@ -383,7 +383,7 @@ class BGIETL(ETL):
                                 # TODO: fix generic_cross_reference in SGD, RGD
 
                                 if page == 'generic_cross_reference':
-                                    cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                    cross_ref_complete_url = self.etlh.get_no_page_complete_url(
                                         local_cross_ref_id,
                                         ETL.xref_url_map,
                                         prefix,
@@ -414,7 +414,7 @@ class BGIETL(ETL):
                             # TODO handle in the resourceDescriptor.yaml
                             if prefix == 'PANTHER':
                                 cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
-                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                cross_ref_complete_url = self.etlh.get_no_page_complete_url(
                                     local_cross_ref_id,
                                     ETL.xref_url_map,
                                     prefix,
@@ -449,7 +449,7 @@ class BGIETL(ETL):
 
                             else:
                                 cross_ref_primary_id = cross_ref.get('id')
-                                cross_ref_complete_url = ETLHelper.get_no_page_complete_url(
+                                cross_ref_complete_url = self.etlh.get_no_page_complete_url(
                                     local_cross_ref_id,
                                     ETL.xref_url_map,
                                     prefix,

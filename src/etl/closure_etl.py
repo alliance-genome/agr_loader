@@ -60,6 +60,7 @@ class ClosureETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.debug("Finished isa_partof Closure for: %s", data_provider)
+        self.error_messages("POST_PST")
 
     def get_closure_terms(self, data_provider):
         """Get Closure Terms"""

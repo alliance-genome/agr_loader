@@ -138,6 +138,7 @@ class VariationETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("BOB: ")
 
     def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position,
                               end_position, reference_sequence, variant_sequence,
@@ -303,7 +304,7 @@ class VariationETL(ETL):
             local_cross_ref_id = cross_ref_primary_id.split(":")[1]
             prefix = cross_ref_primary_id.split(":")[0]
 
-            cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
+            cross_ref_complete_url = self.etlh.get_no_page_complete_url(local_cross_ref_id,
                                                                         ETL.xref_url_map,
                                                                         prefix,
                                                                         global_id)
