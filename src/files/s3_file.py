@@ -24,7 +24,7 @@ class S3File():
         """Download"""
 
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
-            self.logger.info("Making temp file storage: %s", self.savepath)
+            self.logger.info("Making temp file storage: %s", os.path.dirname(os.path.join(self.savepath, self.filename)))
             os.makedirs(os.path.dirname(os.path.join(self.savepath, self.filename)))
 
         url = self.download_url
@@ -46,7 +46,7 @@ class S3File():
         """Download New"""
 
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
-            self.logger.debug("Making temp file storage: %s", self.savepath)
+            self.logger.debug("Making temp file storage: %s", os.path.dirname(os.path.join(self.savepath, self.filename)))
 
             # Our little retry loop. Implemented due to speed-related writing errors.
             # TODO Replace / update with "tenacity" module.
