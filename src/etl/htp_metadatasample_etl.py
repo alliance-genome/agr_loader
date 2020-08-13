@@ -608,8 +608,12 @@ class HTPMetaDatasetSampleETL(ETL):
                 "sequencingFormat": datasample_record.get('sequencingFormat')
 
             }
+            is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
+            if is_it_test_entry is True:
+                self.logger.info(htp_dataset_sample)
 
-            htp_datasetsamples.append(htp_dataset_sample)
+
+        htp_datasetsamples.append(htp_dataset_sample)
 
             if counter == batch_size:
                 yield [htp_datasetsamples
