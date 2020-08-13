@@ -52,17 +52,25 @@ class ResourceDescriptorHelper2():
         alt_key = alt_key.upper()
         if alt_key not in self.key_lookup:
             # try split incase RGD:123456 or something passed
-            key_prefix, _, _ = self.split_identifier(alt_key)
+            key_prefix, _, _ = self.split_identifier(alt_key, ignore_error=True)
             if not key_prefix:
+                mk_key = "{}".format(alt_key)
+                if mk_key in self.missing_keys:
+                    self.missing_keys[mk_key] += 1
+                else:
+                    self.missing_keys[mk_key] = 1
+                    mess = "The database key '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key)
+                    self.logger.critical(mess)
                 return ret_key
             if key_prefix not in self.key_lookup:
                 self.logger.debug("{} Found after splitting".format(alt_key))
                 ret_key = self.key_lookup[key_prefix]
             else:
-                if alt_key in self.missing_pages:
-                    self.missing_pages[alt_key] += 1
+                if alt_key in self.missing_keys:
+                    self.missing_keys[alt_key] += 1
                 else:
-                    self.missing_pages[alt_key] = 1
+
+                    self.missing_keys[alt_key] = 1
         else:
             ret_key = self.key_lookup[alt_key]
         return ret_key
@@ -162,9 +170,9 @@ class ResourceDescriptorHelper2():
         # Have to specifiy a new tmpxx directory each time else the old
         # one is obtained even though it is not supposed to be kept.
         # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp50',
+        resource_descriptor_file = Download('tmp',
                                             url,
-                                            'resourceDescriptors.yaml').get_downloaded_data()
+                                            'resourceDescriptorsBOB.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
@@ -196,7 +204,7 @@ class ResourceDescriptorHelper2():
         ResourceDescriptorHelper2.resource_descriptor_dict = resource_descriptor_dict
         self._get_alt_keys()
 
-    def split_identifier(self, identifier):
+    def split_identifier(self, identifier, ignore_error=False):
         """Split Identifier.
 
         Does not throw exception anymore. Check return, if None returned, there was an error
@@ -212,14 +220,20 @@ class ResourceDescriptorHelper2():
             prefix, identifier_processed = identifier.split('-', 1)  # Split on the first occurrence
             separator = '-'
         else:
-            key = "Identifier problem"
-            if key not in self.missing_keys:
-                self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
-                self.logger.critical('Splitting identifier is not possible.')
-                self.logger.critical('Identifier: %s', identifier)
-                self.missing_keys[key] = 1
-            else:
-                self.missing_keys[key] += 1
+            if not ignore_error:
+                key = "Identifier problem"
+                if key not in self.missing_keys:
+                    self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
+                    self.logger.critical('Splitting identifier is not possible.')
+                    self.logger.critical('Identifier: %s', identifier)
+                    self.missing_keys[key] = 1
+                elif self.missing_keys[key] < 100:
+                    self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
+                    self.logger.critical('Splitting identifier is not possible.')
+                    self.logger.critical('Identifier: %s', identifier)
+                    self.missing_keys[key] += 1
+                else:
+                    self.missing_keys[key] += 1
             prefix = identifier_processed = separator = None
 
         return prefix, identifier_processed, separator

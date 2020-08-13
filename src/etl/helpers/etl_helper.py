@@ -207,12 +207,14 @@ class ETLHelper():
             complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp' + '?dictionary=NCI_Thesaurus&code=' + local_id
         # here, after testing
 
+        if not local_id:
+            self.logger.critical("get_complete_pub_ont No local id for {}!!!".format(global_id))
         if not key:  # split not done
             new_url = self.rdh2.return_url_from_identifier(global_id, page=page)
         else:
             new_url = self.rdh2.return_url_from_key_value(key, local_id, alt_page=page)
         if new_url != complete_url:
-            bad_key = "{}-{}".format(global_id.split(':')[0], 'pub')
+            bad_key = "{}-{}".format(global_id.split(':')[0], page)
             if bad_key not in self.rdh2.bad_pages:
                 self.logger.critical("get_complete_pub_ont old url '{}' != new url '{}'".format(complete_url, new_url))
                 self.rdh2.bad_pages[bad_key] = 1
@@ -253,7 +255,7 @@ class ETLHelper():
         new_url = self.rdh2.return_url_from_identifier(global_id)
         if new_url != complete_url:
             # just report the first one to reduce verboseness and count the rest.
-            # Not great but tempory until we reove old method.
+            # Not great but tempory until we remove old method.
             bad_key = "{}-{}".format(global_id.split(':')[0], 'pub')
             if bad_key not in self.rdh2.bad_pages:
                 self.logger.critical("get_complete_pub_url old url '{}' != new url '{}'".format(complete_url, new_url))

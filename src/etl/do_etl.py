@@ -184,7 +184,8 @@ class DOETL(ETL):
                                     xref_id + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
-                        else: #TODO Need to make sure this else is correct
+                        else:   # TODO Need to make sure this else is correct
+                            # Nope pointless, will always be ran as there is no break in the above loop.
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
