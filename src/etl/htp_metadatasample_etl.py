@@ -1,10 +1,8 @@
 import logging
 import multiprocessing
-import uuid
 
 from etl import ETL
 from etl.helpers import ETLHelper
-from etl.helpers import TextProcessingHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -12,8 +10,244 @@ logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetSampleETL(ETL):
-    htp_query_template = """
-         """
+    htp_dataset_sample_query_template = """
+    
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (o:OBITerm {primaryKey:row.sampleType})
+        MATCH (s:Species {primaryKey: row.taxonId})
+        MATCH (a:MMOTerm {primaryKey: row.assayType})
+        OPTIONAL MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
+    
+        CREATE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+          SET ds.dateAssigned = row.dateAssigned,
+              ds.abundance = row.abundance,
+              ds.sex = row.sex,
+              ds.notes = row.notes,
+              ds.dateAssigned = row.dateAssigned,
+              ds.biosampleText = row.biosampleText,
+              ds.sequencingFormat = row.sequencingFormat
+              
+        MERGE (ds)-[dssp:FROM_SPECIES]-(s)
+        MERGE (ds)-[dsbs:BIOSAMPLE]-(agm)
+        MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+        
+          
+    """
+
+    htp_bio_entity_expression_query_template = """
+
+       USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+       MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+            
+    """
+
+    htp_datasetsample_expressionbioentity_join_query_template = """
+
+       USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+       MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+
+       MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(ebe)
+
+    """
+
+    htp_stages_query_template = """
+
+       USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+       MATCH (st:Stage {primaryKey:row.stageName})
+       
+       MERGE (s:Stage {primaryKey:row.stageId})
+        ON CREATE SET s.name = row.stageName,
+                      s.age = row.sampleAge
+               
+       MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
+    """
+
+
+    htp_dataset_join_query_template = """
+
+       USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+       MATCH (ds:HTPDataset {primaryKey:row.datasetId})
+       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+       
+       MERGE (ds)-[dsdss:ASSOCIATION]-(dss)
+    
+    """
+
+    htp_secondaryIds_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (dss:HTPDatasetSample {primaryKey: row.datasetSampleId})
+
+        MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondaryId})
+                ON CREATE SET sec.name = row.secondaryId
+
+        MERGE (dss)<-[aka:ALSO_KNOWN_AS]-(sec)
+
+
+    """
+
+    ao_substructures_query_template = """
+     USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+    
+    """
+
+    ao_qualifiers_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+    
+    
+    """
+
+    ao_ss_qualifiers_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+
+
+    """
+
+    ao_terms_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+    """
+
+    cc_term_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.cellularComponentTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+    """
+
+    eas_substructure_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                    AND NOT 'FBCVTerm' in LABELS(otasst)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
+
+    eas_qualified_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otastq)
+                    AND NOT 'FBCVTerm' in LABELS(otastq)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
+
+    eass_qualified_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otasstq)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+
+            MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
+
+    ccq_expression_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+                WHERE NOT 'UBERONTerm' in LABELS(otcctq)
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+
+            MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
+
+    stage_expression_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+            MERGE (s:Stage {primaryKey:row.stageName})
+                ON CREATE SET s.name = row.stageName
+            MERGE (ei)-[eotcctq:DURING]-(s) """
+
+    uberon_ao_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
+            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})     
+            MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
+
+    uberon_stage_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
+            MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
+
+            MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
+
+    uberon_ao_other_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
+            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
+            MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
+
+    uberon_stage_other_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+
+            MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
+
+
+    htpdataset_xrefs_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (o:HTPDatasetSample {primaryKey:row.datasetId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -31,11 +265,11 @@ class HTPMetaDatasetSampleETL(ETL):
 
     def _process_sub_type(self, sub_type):
 
-        logger.info("Loading HTP metadata Data: %s" % sub_type.get_data_provider())
+        logger.info("Loading HTP metadata sample data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         logger.info(filepath)
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading HTP metadata Data: %s" % sub_type.get_data_provider())
+        logger.info("Finished Loading HTP metadata sample data: %s" % sub_type.get_data_provider())
 
         if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
@@ -47,10 +281,49 @@ class HTPMetaDatasetSampleETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
+
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [HTPMetaDatasetETL.htp_query_template, commit_size,
-             "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, commit_size,
+             "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
+            #  "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, commit_size,
+            #  "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
+            #  "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.htp_stages_query_template, commit_size,
+            #  "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
+            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
+            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
+            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, commit_size,
+            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.cc_term_query_template, commit_size,
+            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            #
+            # [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
+            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
+            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+            #
+            # [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
+            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+
         ]
 
         # Obtain the generator
@@ -60,77 +333,308 @@ class HTPMetaDatasetSampleETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, htp_dataset_data, batch_size):
+    def get_generators(self, htp_datasetsample_data, batch_size):
 
+        htp_datasetsamples = []
+        secondaryIds = []
+        datasetIds = []
+        uberon_ao_data = []
+        ao_qualifiers = []
+        bio_entities = []
+        ao_ss_qualifiers = []
+        ao_substructures = []
+        ao_terms = []
+        uberon_ao_other_data = []
+        stages = []
+        ccq_components = []
         data_providers = []
-        release = ""
-        alleles_no_constrcut_no_gene = []
+        cc_components = []
+        bioSamples = []
         counter = 0
 
-        date_produced = allele_data['metaData']['dateProduced']
+        data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
 
-        loadKey = date_produced + data_provider + "_ALLELE"
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+        data_provider_pages = data_provider_cross_ref.get('pages')
+        data_provider_cross_ref_set = []
 
-        for allele_record in allele_data['data']:
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider, self.xref_url_map,
+                                                                         data_provider,
+                                                                         data_provider_page)
+
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
+                                            data_provider_page, data_provider,
+                                            cross_ref_complete_url,
+                                            data_provider + data_provider_page))
+
+                data_providers.append(data_provider)
+                logger.info("data provider: " + data_provider)
+
+        for datasample_record in htp_datasetsample_data['data']:
+
             counter = counter + 1
-            global_id = allele_record['primaryId']
 
-            if self.test_object.using_test_data() is True:
-                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
-                if is_it_test_entry is False:
-                    counter = counter - 1
-                    continue
+            sampleIds = ''
+            biosampleId = ''
+            biosampleText = ''
+            sampleId = ''
+            sampleTitle = ''
 
-            gene_id = ''
+            if 'sampleId' in datasample_record:
+                sampleIds = datasample_record.get('sampleId')
 
-            short_species_abbreviation = ETLHelper.get_short_species_abbreviation(allele_record.get('taxonId'))
-            symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
+                if 'sampleId' in sampleIds:
+                    sampleId = htp_datasetsample_data.get('sampleId')
 
-            if allele_record.get('alleleObjectRelations') is not None:
-                for relation in allele_record.get('alleleObjectRelations'):
-                    association_type = relation.get('objectRelation').get('associationType')
-                    if relation.get('objectRelation').get('gene') is not None:
-                        gene_id = relation.get('objectRelation').get('gene')
-                    if relation.get('objectRelation').get('construct') is not None:
-                        construct_id = relation.get('objectRelation').get('construct')
+            if 'sampleTitle' in sampleIds:
+                sampleTitle = htp_datasetsample_data.get('sampleTitle')
 
-                    if gene_id != '' and construct_id != '':
-                        allele_construct_gene_dataset = {
-                            "symbol": allele_record.get('symbol'),
-                            "geneId": gene_id,
-                            "primaryId": allele_record.get('primaryId'),
-                            "globalId": global_id,
-                            "localId": local_id,
-                            "taxonId": allele_record.get('taxonId'),
-                            "dataProviders": data_providers,
-                            "dateProduced": date_produced,
-                            "loadKey": loadKey,
-                            "release": release,
-                            "modGlobalCrossRefId": mod_global_cross_ref_id,
-                            "uuid": str(uuid.uuid4()),
-                            "dataProvider": data_provider,
-                            "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
-                            "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
-                            "symbolText": symbol_text,
-                            "alleleDescription": description,
-                            "constructId": construct_id,
-                            "associationType": association_type
-                        }
-                        alleles_construct_gene.append(allele_construct_gene_dataset)
+
+            datasetSampleId = sampleId + sampleTitle
+
+
+            if 'datasetId' in datasample_record:
+                datasetIdSet = datasample_record.get('datasetId')
+                for datasetID in datasetIdSet:
+                    datasetsample = {
+                        "datasetSampleId": datasetSampleId,
+                        "datasetId": datasetID
+                    }
+                    datasetIds.append(datasetsample)
+
+                    if self.test_object.using_test_data() is True:
+                        is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
+                        if is_it_test_entry is False:
+                            counter = counter - 1
+                            continue
+
+            if 'secondaryIds' in sampleIds:
+                for secId in sampleIds.get('secondaryIds'):
+                    secid = {
+                        "datasetId": datasetSampleId,
+                        "secondaryId": secId
+                    }
+                    secondaryIds.append(secid)
+
+            if 'genomicInformation' in datasample_record:
+                genomicInformation = datasample_record.get('genomicInformation')
+                if 'biosampleId' in genomicInformation:
+                    biosampleId = genomicInformation.get('biosampleId')
+                if 'bioSampleText' in genomicInformation:
+                    biosampleText = genomicInformation.get('bioSampleText')
+
+
+            age = ''
+            if 'sampleAge' in datasample_record:
+                sampleAge = datasample_record.get('sampleAge')
+                stageId = ""
+                if 'age' in sampleAge:
+                    age = sampleAge.get('age')
+                    stageId = stageId + age
+                if 'stage' in sampleAge:
+                    stage = sampleAge.get('stage')
+                    stageId = stageId + stage.get('stageName')
+
+                    stage = {"stageId": stageId,
+                             "stageTermId": stage.get('stageTermId'),
+                             "stageName": stage.get('stageName'),
+                             "stageUberonSlimTerm": stage.get('stageUberonSlimTerm'),
+                             "sampleAge": age,
+                             "datasetSampleId": datasetSampleId}
+                    stages.append(stage)
+                else:
+                    stage = {"stageId": stageId,
+                             "sampleAge": age}
+                    stages.append(stage)
+
+            if 'sampleLocations' in datasample_record:
+                sampleLocations = datasample_record.get('sampleLocations')
+
+                cellular_component_qualifier_term_id = sampleLocations.get('cellularComponentQualifierTermId')
+                cellular_component_term_id = sampleLocations.get('cellularComponentTermId')
+                anatomical_structure_term_id = sampleLocations.get('anatomicalStructureTermId')
+                anatomical_structure_qualifier_term_id = sampleLocations.get(
+                        'anatomicalStructureQualifierTermId')
+                anatomical_sub_structure_term_id = sampleLocations.get('anatomicalSubStructureTermId')
+                anatomical_sub_structure_qualifier_term_id = sampleLocations.get(
+                        'anatomicalSubStructureQualifierTermId')
+                where_expressed_statement = sampleLocations.get('whereExpressedStatement')
+
+
+                expression_unique_key = datasetSampleId
+                expression_entity_unique_key = ""
+
+                if anatomical_structure_term_id is not None:
+                    expression_unique_key += anatomical_structure_term_id
+                    expression_entity_unique_key = anatomical_structure_term_id
+
+                    if anatomical_structure_qualifier_term_id is not None:
+                        expression_unique_key += anatomical_structure_qualifier_term_id
+                        expression_entity_unique_key += anatomical_structure_qualifier_term_id
+
+                if cellular_component_term_id is not None:
+                    expression_unique_key += cellular_component_term_id
+                    expression_entity_unique_key += cellular_component_term_id
+
+                    if cellular_component_qualifier_term_id is not None:
+                        expression_unique_key += cellular_component_qualifier_term_id
+                        expression_entity_unique_key += cellular_component_qualifier_term_id
+
+                if anatomical_sub_structure_term_id is not None:
+                    expression_unique_key += anatomical_sub_structure_term_id
+
+                    if anatomical_sub_structure_qualifier_term_id is not None:
+                        expression_unique_key += anatomical_sub_structure_qualifier_term_id
+                        expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
+
+                expression_entity_unique_key += where_expressed_statement
+
+                if sampleLocations.get('anatomicalStructureUberonSlimTermIds') is not None:
+                    for uberon_structure_term_object in sampleLocations.get('anatomicalStructureUberonSlimTermIds'):
+                        structure_uberon_term_id = uberon_structure_term_object.get('uberonTerm')
+                        if structure_uberon_term_id is not None and structure_uberon_term_id != 'Other':
+                            structure_uberon_term = {
+                                    "ebe_uuid": expression_entity_unique_key,
+                                    "aoUberonId": structure_uberon_term_id}
+                            uberon_ao_data.append(structure_uberon_term)
+                        elif structure_uberon_term_id is not None and structure_uberon_term_id == 'Other':
+                            other_structure_uberon_term = {
+                                    "ebe_uuid": expression_entity_unique_key}
+                            uberon_ao_other_data.append(other_structure_uberon_term)
+
+                if sampleLocations.get('anatomicalSubStructureUberonSlimTermIds') is not None:
+                    for uberon_sub_structure_term_object in sampleLocations.get('anatomicalSubStructureUberonSlimTermIds'):
+                        sub_structure_uberon_term_id = uberon_sub_structure_term_object.get('uberonTerm')
+                        if sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id != 'Other':
+                            sub_structure_uberon_term = {
+                                    "ebe_uuid": expression_entity_unique_key,
+                                    "aoUberonId": sub_structure_uberon_term_id}
+                            uberon_ao_data.append(sub_structure_uberon_term)
+                        elif sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id == 'Other':
+                            other_structure_uberon_term = {
+                                    "ebe_uuid": expression_entity_unique_key}
+                            uberon_ao_other_data.append(other_structure_uberon_term)
+
+
+                if cellular_component_term_id is not None:
+                    cc_term = {
+                        "ebe_uuid":
+                            expression_entity_unique_key,
+
+                        "cellularComponentTermId":
+                            cellular_component_term_id
+                    }
+                    cc_components.append(cc_term)
+
+                if cellular_component_qualifier_term_id is not None:
+                    ccq_term = {
+                        "ebe_uuid":
+                            expression_entity_unique_key,
+
+                        "cellularComponentQualifierTermId":
+                            cellular_component_qualifier_term_id
+                    }
+                    ccq_components.append(ccq_term)
+
+                if anatomical_structure_term_id is not None:
+                    ao_term = {
+                        "ebe_uuid":
+                            expression_entity_unique_key,
+
+                        "anatomicalStructureTermId":
+                            anatomical_structure_term_id
+                    }
+                    ao_terms.append(ao_term)
+
+                if anatomical_structure_qualifier_term_id is not None:
+                    ao_qualifier = {
+                            "ebe_uuid":
+                            expression_entity_unique_key,
+
+                            "anatomicalStructureQualifierTermId":
+                            anatomical_structure_qualifier_term_id
+                    }
+
+                    ao_qualifiers.append(ao_qualifier)
+
+                if anatomical_sub_structure_term_id is not None:
+                    ao_substructure = {
+                            "ebe_uuid":
+                            expression_entity_unique_key,
+
+                            "anatomicalSubStructureTermId":
+                            anatomical_sub_structure_term_id
+                    }
+
+                    ao_substructures.append(ao_substructure)
+
+                if anatomical_sub_structure_qualifier_term_id is not None:
+                    ao_ss_qualifier = {
+                            "ebe_uuid":
+                            expression_entity_unique_key,
+
+                            "anatomicalSubStructureQualifierTermId":
+                            anatomical_sub_structure_qualifier_term_id}
+
+                    ao_ss_qualifiers.append(ao_ss_qualifier)
+
+                if where_expressed_statement is None:
+                    where_expressed_statement = ""
+
+
+                bio_entity = {
+                    "ebe_uuid": expression_entity_unique_key,
+                    "whereExpressedStatement": where_expressed_statement
+                }
+                bio_entities.append(bio_entity)
+
+
+            htp_dataset_sample = {
+
+                "datasetSampleId": datasetSampleId,
+                "abundance": datasample_record.get('abundance') ,
+                "sampleType": datasample_record.get('sampleType'),
+                "taxonId": datasample_record.get('taxonId'),
+                "sex": datasample_record.get('sex'),
+                "assayType": datasample_record.get('assayType'),
+                "notes": datasample_record.get('notes'),
+                "dateAssigned": datasample_record.get('dateAssigned'),
+                "biosampleId": biosampleId,
+                "biosampleText": biosampleText,
+                "sequencingFormat": datasample_record.get('sequencingFormat')
+
+            }
+
+            htp_datasetsamples.append(htp_dataset_sample)
 
             if counter == batch_size:
-                yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
-                       allele_secondary_ids, allele_synonyms, cross_reference_list]
-                alleles_no_construct = []
-                alleles_construct_gene = []
-                alleles_no_gene = []
-                alleles_no_constrcut_no_gene = []
-
-                allele_secondary_ids = []
-                allele_synonyms = []
-                cross_reference_list = []
+                yield [htp_datasetsamples
+                       # ,bio_entities, secondaryIds, datasetIds, stages,
+                       # ao_terms, ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                       # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data
+                       ]
                 counter = 0
+                htp_datasetsamples = []
+                datasetIds = []
+                uberon_ao_data = []
+                ao_qualifiers = []
+                bio_entities = []
+                ao_ss_qualifiers = []
+                ao_substructures = []
+                ao_terms = []
+                uberon_ao_other_data = []
+                stages = []
+                ccq_components = []
+                cc_components = []
+
 
         if counter > 0:
-            yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
-                   allele_secondary_ids, allele_synonyms, cross_reference_list]
+            yield [htp_datasetsamples
+                   # ,bio_entities, secondaryIds, datasetIds, stages,
+                   # ao_terms, ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                   # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data
+                   ]

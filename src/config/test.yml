@@ -1,6 +1,11 @@
 schemaVersion: 1.0.1.2
 releaseVersion: 3.1.1
-HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
+SPECIES: [Species]
+HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
+ONTOLOGY:
+  - MMO
+  - UBERON
+  - OBI
 
 # Loader configuration values are below.
 # Please modify with caution!

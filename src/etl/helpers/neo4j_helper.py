@@ -113,6 +113,7 @@ class Neo4jHelper():
                         ":Gene(modGlobalId)",
                         ":Gene(localId)",
                         ":HTPDataset(primaryId)",
+                        ":HTPDatasetSample(primaryId)",
                         ":CategoryTag(primaryId)",
                         ":Load(primaryKey)",
                         ":Feature(primaryKey)",

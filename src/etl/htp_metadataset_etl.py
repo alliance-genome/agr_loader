@@ -35,7 +35,7 @@ class HTPMetaDatasetETL(ETL):
                           p.pubModUrl = row.pubModUrl,
                           p.pubMedUrl = row.pubMedUrl
                           
-        MERGE (p)-[:ASSOCIATION]->(ds)
+        MERGE (p)-[:ASSOCIATION]-(ds)
     
     """
 
@@ -47,8 +47,22 @@ class HTPMetaDatasetETL(ETL):
         
         MERGE (ct:CategoryTag {primaryKey: row.tag})
         
-        MERGE (ds)-[:CATEGORY_TAG]->(ct)    
+        MERGE (ds)-[:CATEGORY_TAG]-(ct)    
             
+    """
+
+    htp_secondaryIds_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+        
+        MERGE (s:SecondaryId:Identifier {primaryKey:row.secondaryId})
+                ON CREATE SET s.name = row.secondaryId
+                
+        MERGE (ds)-[aka:ALSO_KNOWN_AS]-(s)
+   
+
     """
 
     htpdataset_xrefs_template = """
@@ -91,9 +105,11 @@ class HTPMetaDatasetETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
              [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,"htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,"htp_metadataset_tags" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs" + sub_type.get_data_provider() + ".csv"]
+             [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,"htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
+             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
+             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
+             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -108,6 +124,7 @@ class HTPMetaDatasetETL(ETL):
         data_providers = []
         htp_datasets = []
         publications = []
+        secondaryIds = []
         cross_reference_list = []
         counter = 0
         date_produced = htp_dataset_data['metaData']['dateProduced']
@@ -135,9 +152,19 @@ class HTPMetaDatasetETL(ETL):
 
         for dataset_record in htp_dataset_data['data']:
 
+            counter = counter + 1
+
             dataset = dataset_record.get('datasetId')
             datasetId = dataset.get('primaryId')
-            counter = counter + 1
+
+            if 'secondaryIds' in dataset:
+                for secId in dataset.get('secondaryIds'):
+                    secid = {
+                        "datasetId": datasetId,
+                        "secondaryId": secId
+                    }
+                    secondaryIds.append(secid)
+
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(datasetId)
@@ -216,7 +243,7 @@ class HTPMetaDatasetETL(ETL):
             htp_datasets.append(htp_dataset)
 
             if counter == batch_size:
-                yield [htp_datasets, dataset_tags, publications, cross_reference_list]
+                yield [htp_datasets, dataset_tags, publications, cross_reference_list, secondaryIds]
                 counter = 0
                 htp_datasets = []
                 dataset_tags = []
@@ -224,5 +251,5 @@ class HTPMetaDatasetETL(ETL):
                 cross_reference_list = []
 
         if counter > 0:
-            yield [htp_datasets, dataset_tags, publications, cross_reference_list]
+            yield [htp_datasets, dataset_tags, publications, cross_reference_list, secondaryIds]
 
