@@ -1,6 +1,6 @@
-"""Disease ETL"""
+"""Disease ETL."""
 
-##TODO need to fix the difference between disaeseRecord and disease_record in original code
+# TODO need to fix the difference between disaeseRecord and disease_record in original code
 
 import logging
 import multiprocessing
@@ -14,8 +14,7 @@ from transactors import Neo4jTransactor
 
 
 class DiseaseETL(ETL):
-    """Disease ETL"""
-
+    """Disease ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -27,7 +26,6 @@ class DiseaseETL(ETL):
 
             MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
-
 
     execute_agms_query_template = """
         USING PERIODIC COMMIT %s
@@ -76,13 +74,13 @@ class DiseaseETL(ETL):
 
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
-            
+
             CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
-                        SET rel.uuid = row.diseaseUniqueKey 
+                        SET rel.uuid = row.diseaseUniqueKey
             REMOVE rel.noOp
-            
+
             //This is an intentional MERGE, please leave as is
-            
+
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
                               dfa.sortOrder = 1,
@@ -91,23 +89,22 @@ class DiseaseETL(ETL):
 
             MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
             MERGE (dfa)-[dadf:ASSOCIATION]->(d)
-            
+
             // PUBLICATIONS FOR FEATURE
-            
+
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-           
+
             MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
                                 pubEJ.dateAssigned = row.dateAssigned
-            
-            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
 
+            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
 
     execute_gene_query_template = """
         USING PERIODIC COMMIT %s
@@ -117,7 +114,7 @@ class DiseaseETL(ETL):
             MATCH (gene:Gene {primaryKey:row.primaryId})
 
             CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
-                        SET rel.uuid = row.diseaseUniqueKey 
+                        SET rel.uuid = row.diseaseUniqueKey
             REMOVE rel.noOp
 
             MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
@@ -144,7 +141,6 @@ class DiseaseETL(ETL):
 
             MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
             MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
-
 
     execute_ecode_query_template = """
         USING PERIODIC COMMIT %s
@@ -187,6 +183,7 @@ class DiseaseETL(ETL):
             MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -203,8 +200,7 @@ class DiseaseETL(ETL):
         self.delete_empty_nodes()
 
     def delete_empty_nodes(self):
-        """Delete Empty Nodes"""
-
+        """Delete Empty Nodes."""
         self.logger.debug("delete empty nodes")
 
         delete_empty_do_nodes_query = """
@@ -248,7 +244,7 @@ class DiseaseETL(ETL):
             [self.execute_ecode_query_template, commit_size,
              "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_annotation_xrefs_query_template, commit_size,
-             "disease_annotation_xrefs_data_" +  sub_type.get_data_provider() + ".csv"]
+             "disease_annotation_xrefs_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -259,8 +255,8 @@ class DiseaseETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("BOB: ")
 
-    def get_generators(self, disease_data, batch_size, data_provider):
-        """Creating generators"""
+    def get_generators(self, disease_data, batch_size, data_provider):  # noqa
+        """Creating generators. """
 
         counter = 0
         disease_association_type = None
@@ -276,7 +272,6 @@ class DiseaseETL(ETL):
         data_provider_cross_ref = data_provider_object.get('crossReference')
         data_provider = data_provider_cross_ref.get('id')
 
-
         for disease_record in disease_data['data']:
 
             publication_mod_id = ""
@@ -291,14 +286,13 @@ class DiseaseETL(ETL):
                     continue
 
             disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                               disease_record['objectRelation'].get("associationType").upper()
+                disease_record['objectRelation'].get("associationType").upper()
 
             counter = counter + 1
             disease_object_type = disease_record['objectRelation'].get("objectType")
 
             primary_id = disease_record.get('objectId')
             do_id = disease_record.get('DOid')
-
 
             if 'evidence' in disease_record:
                 pecj_primary_key = str(uuid.uuid4())
@@ -322,7 +316,7 @@ class DiseaseETL(ETL):
                 if 'evidenceCodes' in disease_record['evidence']:
                     for ecode in disease_record['evidence'].get('evidenceCodes'):
                         ecode_map = {"pecjPrimaryKey": pecj_primary_key,
-                                        "ecode": ecode}
+                                     "ecode": ecode}
                         evidence_code_list_to_yield.append(ecode_map)
 
             negation = ''
@@ -350,8 +344,6 @@ class DiseaseETL(ETL):
                                  "componentSymbol": component_symbol}
                         )
 
-
-
             if 'with' in disease_record:
                 with_record = disease_record.get('with')
                 for rec in with_record:
@@ -370,7 +362,7 @@ class DiseaseETL(ETL):
                 for pge in pge_ids:
                     pge_key = pge_key + pge
                     pge_map = {"pecjPrimaryKey": pecj_primary_key,
-                                   "pgeId": pge}
+                               "pgeId": pge}
                     pge_list_to_yield.append(pge_map)
 
             if 'dataProvider' in disease_record:
@@ -398,16 +390,17 @@ class DiseaseETL(ETL):
                                 display_name = 'OMIM'
                             else:
                                 display_name = cross_ref_id.split(":")[0]
-                                if display_name ==  'DOID':
+                                if display_name == 'DOID':
                                     display_name = data_provider
 
-                            mod_global_cross_ref_id = self.etlh.get_page_complete_url(local_crossref_id,
-                                                                                              self.xref_url_map, prefix,
-                                                                                              page)
+                            mod_global_cross_ref_id = self.etlh.get_page_complete_url(
+                                local_crossref_id,
+                                self.xref_url_map, prefix,
+                                page)
                             passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                           display_name,
-                                                                           mod_global_cross_ref_id,
-                                                                           cross_ref_id + page + annotation_type)
+                                                                   display_name,
+                                                                   mod_global_cross_ref_id,
+                                                                   cross_ref_id + page + annotation_type)
                             passing_xref['dataId'] = disease_unique_key
 
                             if 'loaded' in annotation_type:
@@ -419,19 +412,20 @@ class DiseaseETL(ETL):
 
                             xrefs.append(passing_xref)
 
-            disease_record = {"diseaseUniqueKey": disease_unique_key,
-                                  "doId": do_id,
-                                  "primaryId": primary_id,
-                                  "pecjPrimaryKey": pecj_primary_key,
-                                  "relationshipType": disease_association_type.upper(),
-                                  "dataProvider": data_provider,
-                                  "dateAssigned": disease_record.get("dateAssigned"),
-                                  "pubPrimaryKey": publication_mod_id + pub_med_id,
-                                  "pubModId": publication_mod_id,
-                                  "pubMedId": pub_med_id,
-                                  "pubMedUrl": pub_med_url,
-                                  "pubModUrl": pub_mod_url,
-                                  "negation": negation}
+            disease_record = {
+                "diseaseUniqueKey": disease_unique_key,
+                "doId": do_id,
+                "primaryId": primary_id,
+                "pecjPrimaryKey": pecj_primary_key,
+                "relationshipType": disease_association_type.upper(),
+                "dataProvider": data_provider,
+                "dateAssigned": disease_record.get("dateAssigned"),
+                "pubPrimaryKey": publication_mod_id + pub_med_id,
+                "pubModId": publication_mod_id,
+                "pubMedId": pub_med_id,
+                "pubMedUrl": pub_med_url,
+                "pubModUrl": pub_mod_url,
+                "negation": negation}
 
             if disease_object_type == 'gene':
                 gene_list_to_yield.append(disease_record)
@@ -442,14 +436,14 @@ class DiseaseETL(ETL):
 
             if counter == batch_size:
                 yield [allele_list_to_yield,
-                           gene_list_to_yield,
-                           agm_list_to_yield,
-                           pge_list_to_yield,
-                           pge_list_to_yield,
-                           pge_list_to_yield,
-                           withs,
-                           evidence_code_list_to_yield,
-                           xrefs]
+                       gene_list_to_yield,
+                       agm_list_to_yield,
+                       pge_list_to_yield,
+                       pge_list_to_yield,
+                       pge_list_to_yield,
+                       withs,
+                       evidence_code_list_to_yield,
+                       xrefs]
                 agm_list_to_yield = []
                 allele_list_to_yield = []
                 gene_list_to_yield = []

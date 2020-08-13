@@ -180,7 +180,7 @@ class ETLHelper():
                 self.logger.critical("Using default {} as {} not found".format(mod, species))
         return mod
 
-    def get_complete_url_ont(self, local_id, global_id, key=None):
+    def get_complete_url_ont(self, local_id, global_id, key=None):  # noqa  # will be okay after removing old method
         """Get Complete 'ont'."""
         complete_url = None
         page = None
@@ -213,7 +213,7 @@ class ETLHelper():
             new_url = self.rdh2.return_url_from_identifier(global_id, page=page)
         else:
             new_url = self.rdh2.return_url_from_key_value(key, local_id, alt_page=page)
-        if new_url != complete_url:
+        if new_url != complete_url and complete_url:
             bad_key = "{}-{}".format(global_id.split(':')[0], page)
             if bad_key not in self.rdh2.bad_pages:
                 self.logger.critical("get_complete_pub_ont old url '{}' != new url '{}'".format(complete_url, new_url))
@@ -223,7 +223,7 @@ class ETLHelper():
 
         return new_url
 
-    def get_complete_pub_url(self, local_id, global_id, key=False):
+    def get_complete_pub_url(self, local_id, global_id, key=False):  # noqa  # will be okay after removing old method
         """Get Complete Pub URL.
 
         local_id: local value
@@ -292,7 +292,7 @@ class ETLHelper():
 
         return new_identifier
 
-    def get_short_species_abbreviation(self, taxon_id):
+    def get_short_species_abbreviation(self, taxon_id):  # noqa  # will be okay after removing old method
         """Get short Species Abbreviation."""
         short_species_abbreviation = 'Alliance'
         try:
@@ -329,7 +329,7 @@ class ETLHelper():
         return dataprovider + ":"
 
     def get_mod_from_taxon(self, taxon_id):
-        """Get MOD from Taxon"""
+        """Get MOD from Taxon."""
         new_mod = self.rdh2.get_key(taxon_id)
         taxon_mod_dict = {
             '7955': 'ZFIN',
@@ -368,7 +368,6 @@ class ETLHelper():
 
     def get_page_complete_url(self, local_id, xref_url_map, prefix, page):
         """Get Page Complete URL."""
-
         complete_url = ""
         for rdstanza in xref_url_map:
 
@@ -408,7 +407,7 @@ class ETLHelper():
             self.logger.critical("{} {} {}".format(local_id, cross_ref_id, prefix))
         return url
 
-    def get_no_page_complete_url(self, local_id, xref_url_map, prefix, primary_id):
+    def get_no_page_complete_url(self, local_id, xref_url_map, prefix, primary_id):  # noqa  # will be okay after removing old method
         """Get No Page Complete URL.
 
         No idea why its called get no page complete url.

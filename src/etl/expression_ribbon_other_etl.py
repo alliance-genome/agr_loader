@@ -1,4 +1,4 @@
-"""Expression Ribbon Other ETL"""
+"""Expression Ribbon Other ETL."""
 
 import logging
 
@@ -8,15 +8,15 @@ from .helpers import Neo4jHelper
 
 
 class ExpressionRibbonOtherETL(ETL):
-    """Expression Ribbon Other ETL"""
+    """Expression Ribbon Other ETL."""
 
     logger = logging.getLogger(__name__)
 
     # Querys which do not take params and can be used as is
 
     ribbonless_ebes_query = """
-        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology) 
-        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;           
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
+        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;
     """
 
     # Query templates which take params and will be processed later
@@ -28,11 +28,10 @@ class ExpressionRibbonOtherETL(ETL):
                 MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
                 MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm) """
 
-
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         self.logger.info("Starting Expression Ribbon Data")
@@ -50,10 +49,8 @@ class ExpressionRibbonOtherETL(ETL):
 
         self.logger.info("Finished Expression Ribbon Data")
 
-
     def get_ribbon_terms(self):
-        """Gets Robbon Terms"""
-
+        """Get Ribbon Terms."""
         self.logger.debug("made it to the gocc ribbon retrieve")
 
         return_set_rle = Neo4jHelper().run_single_query(self.ribbonless_ebes_query)

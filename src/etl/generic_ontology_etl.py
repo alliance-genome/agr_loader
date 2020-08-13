@@ -1,19 +1,19 @@
 
-"""Generic Ontology ETL"""
+"""Generic Ontology ETL."""
 
 import logging
 import multiprocessing
 import re
 
 from etl import ETL
-from etl.helpers import ETLHelper, OBOHelper
+from etl.helpers import OBOHelper
 from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
 
 class GenericOntologyETL(ETL):
-    """Generic Ontology ETL"""
+    """Generic Ontology ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -74,8 +74,8 @@ class GenericOntologyETL(ETL):
             CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
     """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -92,7 +92,6 @@ class GenericOntologyETL(ETL):
     def _process_sub_type(self, sub_type):
         self.logger.info("Loading Generic Ontology Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-
 
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
@@ -126,9 +125,8 @@ class GenericOntologyETL(ETL):
         self.logger.info("Finished Loading Generic Ontology Data: %s", sub_type.get_data_provider())
         self.error_messages("POST_PST")
 
-    def get_generators(self, filepath, batch_size):
-        """Get Genrators"""
-
+    def get_generators(self, filepath, batch_size):  # noqa
+        """Get Generators."""
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)
 
@@ -142,8 +140,6 @@ class GenericOntologyETL(ETL):
         altids = []
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
-
-
             counter += 1
             o_syns = line.get('synonym')
             ident = line['id'].strip()
@@ -172,19 +168,19 @@ class GenericOntologyETL(ETL):
 
                         synsplit = re.split(r'(?<!\\)"', syn)
                         syns_dict_to_append = {
-                            'oid' : ident,
-                            'syn' : synsplit[1].replace('\\"', '""')
+                            'oid': ident,
+                            'syn': synsplit[1].replace('\\"', '""')
                         }
-                        syns.append(syns_dict_to_append) # Synonyms appended here.
+                        syns.append(syns_dict_to_append)  # Synonyms appended here.
                         if "DISPLAY_SYNONYM" in syn:
                             display_synonym = synsplit[1].replace('"', '""')
                 else:
                     synsplit = re.split(r'(?<!\\)"', o_syns)
                     syns_dict_to_append = {
-                        'oid' : ident,
-                        'syn' : synsplit[1].replace('\"', '""')
+                        'oid': ident,
+                        'syn': synsplit[1].replace('\"', '""')
                     }
-                    syns.append(syns_dict_to_append) # Synonyms appended here.
+                    syns.append(syns_dict_to_append)  # Synonyms appended here.
                     if "DISPLAY_SYNONYM" in o_syns:
                         display_synonym = synsplit[1].replace('\"', '""')
             # subset
@@ -199,14 +195,14 @@ class GenericOntologyETL(ETL):
                         if 'gci_filler=' not in isa:
                             isa_without_name = isa.split(' ')[0].strip()
                             isas_dict_to_append = {
-                                'oid' : ident,
-                                'isa' : isa_without_name}
+                                'oid': ident,
+                                'isa': isa_without_name}
                             isas.append(isas_dict_to_append)
                 else:
                     if 'gci_filler=' not in o_is_as:
                         isa_without_name = o_is_as.split(' ')[0].strip()
-                        isas_dict_to_append = {'oid' : ident,
-                                               'isa' : isa_without_name}
+                        isas_dict_to_append = {'oid': ident,
+                                               'isa': isa_without_name}
                         isas.append(isas_dict_to_append)
 
             # part_of processing
@@ -229,8 +225,8 @@ class GenericOntologyETL(ETL):
                         o_part_of = relationship_descriptors[0]
                         if o_part_of == 'part_of':
                             partof_dict_to_append = {
-                                'oid' : ident,
-                                'partof' : relationship_descriptors[1]}
+                                'oid': ident,
+                                'partof': relationship_descriptors[1]}
                             partofs.append(partof_dict_to_append)
 
             definition = line.get('def')

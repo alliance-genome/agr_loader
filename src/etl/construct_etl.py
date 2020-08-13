@@ -1,4 +1,4 @@
-"""Construct ETL"""
+"""Construct ETL."""
 
 import logging
 import multiprocessing
@@ -13,7 +13,7 @@ from transactors import Neo4jTransactor
 
 
 class ConstructETL(ETL):
-    """Construct ETL"""
+    """Construct ETL."""
 
     logger = logging.getLogger(__name__)
     xref_url_map = ResourceDescriptorHelper().get_data()
@@ -85,14 +85,13 @@ class ConstructETL(ETL):
     non_bgi_component_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})"""
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -147,7 +146,7 @@ class ConstructETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("POST_PST")
 
-    def get_generators(self, construct_data, data_provider, batch_size):
+    def get_generators(self, construct_data, data_provider, batch_size):  # noqa
         """Create Generators"""
 
         data_providers = []
@@ -182,13 +181,15 @@ class ConstructETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                    data_provider,
-                    data_provider_page,
-                    data_provider_page,
-                    data_provider,
-                    cross_ref_complete_url,
-                    data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.info("data provider: %s", data_provider)
@@ -210,7 +211,6 @@ class ConstructETL(ETL):
                     continue
 
             name_text = TextProcessingHelper.cleanhtml(construct_record.get('name'))
-
 
             construct_dataset = {
                 "symbol": construct_record.get('name'),

@@ -1,4 +1,4 @@
-"""OBO Helper"""
+"""OBO Helper."""
 
 import logging
 
@@ -7,25 +7,24 @@ from .etl_helper import ETLHelper
 
 
 class OBOHelper():
-    """OBO Helper"""
+    """OBO Helper."""
 
     logger = logging.getLogger(__name__)
     etlh = ETLHelper()
 
-    def get_data(self, filepath):
-        """Get Data"""
-
+    def get_data(self, filepath):  # noqa
+        """Get Data."""
         ont = OntologyFactory().create(filepath)
 
         parsed_line = ont.graph.copy().node
 
-        #Convert parsed obo term into a schema-friendly AGR dictionary.
+        # Convert parsed obo term into a schema-friendly AGR dictionary.
         for key in parsed_line.items():
             node = ont.graph.node[key]
             if len(node) == 0:
                 continue
 
-            ### Switching id to curie form and saving URI in "uri"
+            # Switching id to curie form and saving URI in "uri"
             # might wildly break things later on???
             node["uri"] = node["id"]
             node["id"] = key
@@ -37,7 +36,6 @@ class OBOHelper():
             local_id = None
             def_links_unprocessed = []
             def_links_processed = []
-            def_text = None
             subset = []
             definition = ""
             namespace = ""
@@ -60,13 +58,13 @@ class OBOHelper():
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
                                 complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict( \
-                                        local_id, prefix,
-                                        "ontology_provided_cross_reference",
-                                        "ontology_provided_cross_reference",
-                                        xref_id,
-                                        complete_url,
-                                        xref_id + "ontology_provided_cross_reference")
+                                generated_xref = ETLHelper.get_xref_dict(
+                                    local_id, prefix,
+                                    "ontology_provided_cross_reference",
+                                    "ontology_provided_cross_reference",
+                                    xref_id,
+                                    complete_url,
+                                    xref_id + "ontology_provided_cross_reference")
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                         else:
@@ -74,14 +72,14 @@ class OBOHelper():
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict( \
-                                        local_id,
-                                        prefix,
-                                        "ontology_provided_cross_reference",
-                                        "ontology_provided_cross_reference",
-                                        o_xrefs,
-                                        complete_url,
-                                        o_xrefs)
+                                generated_xref = ETLHelper.get_xref_dict(
+                                    local_id,
+                                    prefix,
+                                    "ontology_provided_cross_reference",
+                                    "ontology_provided_cross_reference",
+                                    o_xrefs,
+                                    complete_url,
+                                    o_xrefs)
                                 generated_xref["oid"] = ident
                                 xref_urls.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
@@ -132,20 +130,17 @@ class OBOHelper():
             if definition is None:
                 definition = ""
             else:
-                #Remove new lines that cause this to split across two lines in the file
-                #definition = definition.replace('\n', ' ')
+                # Remove new lines that cause this to split across two lines in the file
+                # definition = definition.replace('\n', ' ')
 
-                #Remove any extra double space that might have been introduces in the last replace
-                #definition = definition.replace('  ', ' ')
+                # Remove any extra double space that might have been introduces in the last replace
+                # definition = definition.replace('  ', ' ')
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
-                        def_text = split_definition[1].strip()
                         if len(split_definition) > 2 and "[" in split_definition[2].strip():
                             def_links = split_definition[2].strip()
                             def_links_unprocessed.append(def_links.rstrip("]").replace("[", ""))
-                else:
-                    def_text = definition
 
             for def_link_str in def_links_unprocessed:
                 def_link_str = def_link_str.replace("url:www", "http://www")
@@ -169,7 +164,6 @@ class OBOHelper():
 
             # TODO: make this a generic section based on hte resourceDescriptor.yaml file.
             # need to have MODs add disease pages to their yaml stanzas
-
 
             alt_ids = node.get('alt_id')
             if alt_ids:
@@ -195,35 +189,35 @@ class OBOHelper():
                 'negatively_regulates': negatively_regulates,
                 'positively_regulates': positively_regulates,
 
-                ### This data might be needed for gene descriptions
-                ### Maybe should be turned into a different method in order
-                ### to keep the go do dict's smaller
-                #'o_genes': [],
-                #'o_species': [],
-                #'xrefs': xrefs,
-                #'ontologyLabel': filepath,
-                #TODO: fix links to not be passed for each ontology load.
-                #'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html'\
+                # This data might be needed for gene descriptions
+                # Maybe should be turned into a different method in order
+                # to keep the go do dict's smaller
+                # 'o_genes': [],
+                # 'o_species': [],
+                # 'xrefs': xrefs,
+                # 'ontologyLabel': filepath,
+                # TODO: fix links to not be passed for each ontology load.
+                # 'rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html'\
                 #              + '?species=All&x=1&acc_id='+node['id']+'#annot',
-                #'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                # 'rgd_all_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
                 #                   + 'species=All&x=1&acc_id=' + node['id'] + '#annot',
-                #'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                # 'rat_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
                 #                       + 'species=Rat&x=1&acc_id=' +node['id'] + '#annot',
-                #'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
+                # 'human_only_rgd_link': 'http://rgd.mcw.edu/rgdweb/ontology/annot.html?'\
                 #                        + 'species=Human&x=1&acc_id=' +node['id'] + '#annot',
-                #'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
-                #'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
-                #'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
-                #'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
-                #'zfin_link': 'https://zfin.org/'+node['id'],
-                #'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                #'oPrefix': prefix,
-                #'crossReferences': xref_urls,
-                #'defText': def_text,
-                #'defLinksProcessed': def_links_processed,
-                #'oboFile': prefix,
-                #'category': 'go',
-                #'alt_ids': alt_ids,
+                # 'mgi_link': 'http://www.informatics.jax.org/disease/'+node['id'],
+                # 'wormbase_link': 'http://www.wormbase.org/resources/disease/'+node['id'],
+                # 'sgd_link': 'https://yeastgenome.org/disease/'+node['id'],
+                # 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id='+node['id'],
+                # 'zfin_link': 'https://zfin.org/'+node['id'],
+                # 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
+                # 'oPrefix': prefix,
+                # 'crossReferences': xref_urls,
+                # 'defText': def_text,
+                # 'defLinksProcessed': def_links_processed,
+                # 'oboFile': prefix,
+                # 'category': 'go',
+                # 'alt_ids': alt_ids,
             }
 
             if node['id'] == 'GO:0099616':
@@ -236,11 +230,10 @@ class OBOHelper():
 
     @staticmethod
     def process_line(line, o_dict, within_term):
-        """Process Line"""
-
-        if len(line.strip()) == 0: # If the line is blank, reset withinTerm and kick it back.
+        """Process Line."""
+        if len(line.strip()) == 0:  # If the line is blank, reset withinTerm and kick it back.
             within_term = False
-            return o_dict, within_term # The o_dict should be fully populated at this point.
+            return o_dict, within_term  # The o_dict should be fully populated at this point.
 
         if ":" in line:
             # Split the lines on the first ':'
@@ -266,11 +259,9 @@ class OBOHelper():
 
         return o_dict, within_term
 
-
     @staticmethod
     def parse_obo(data):
-        """Parse OBO"""
-
+        """Parse OBO."""
         ontology_data = []
         o_dict = {}
         within_term = False
@@ -288,13 +279,13 @@ class OBOHelper():
                 else:
                     continue
             elif '[Typedef]' in line:
-                within_typedef = True # Used for skipping data.
+                within_typedef = True  # Used for skipping data.
             else:
                 if within_term is True:
                     o_dict, within_term = OBOHelper.process_line(line, o_dict, within_term)
-                elif within_typedef is True: # Skip Typedefs, look for empty line.
+                elif within_typedef is True:  # Skip Typedefs, look for empty line.
                     if len(line.strip()) == 0:
-                        within_typedef = False # Reset withinTypedef
+                        within_typedef = False  # Reset withinTypedef
         ontology_data.append(o_dict)
 
         return ontology_data

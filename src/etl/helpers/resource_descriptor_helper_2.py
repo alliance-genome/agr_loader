@@ -42,6 +42,9 @@ class ResourceDescriptorHelper2():
     # identifier does not match the gid_pattern
     bad_regex = {}
 
+    # DB should not generate a url.
+    no_url = {}
+
     def get_key(self, alt_key):
         """Get species/DB main key.
 
@@ -170,7 +173,7 @@ class ResourceDescriptorHelper2():
         # Have to specifiy a new tmpxx directory each time else the old
         # one is obtained even though it is not supposed to be kept.
         # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp',
+        resource_descriptor_file = Download('tmp65',
                                             url,
                                             'resourceDescriptorsBOB.yaml').get_downloaded_data()
 
@@ -184,7 +187,8 @@ class ResourceDescriptorHelper2():
             if 'aliases' in item:
                 for alt_name in item['aliases']:
                     self.key_lookup[alt_name.upper()] = name
-
+            if 'ignore_url_generation' in item:
+                self.no_url[name] = 1
         # Iterate through this new dictionary and convert page lists to dictionaries.
         # These are keyed by the page name.
         for entry in resource_descriptor_dict:
@@ -238,6 +242,18 @@ class ResourceDescriptorHelper2():
 
         return prefix, identifier_processed, separator
 
+    def missing_key_message(self, alt_key, key, value):
+        """Generate message for missing key."""
+        mk_key = "{}-{}".format(alt_key, key)
+        if mk_key in self.missing_keys:
+            self.missing_keys[mk_key] += 1
+        else:
+            self.missing_keys[mk_key] = 1
+            mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
+            self.logger.critical(mess)
+            self.logger.critical('Identifier: %s', value)
+            self.logger.critical("keys are:-{}".format(self.key_lookup.keys()))
+
     def return_url_from_key_value(self, alt_key, value, alt_page=None):
         """Return url for a key value pair.
 
@@ -249,16 +265,10 @@ class ResourceDescriptorHelper2():
         """
         url = None
         key = self.get_key(alt_key)
+        if key in self.no_url:
+            return ''
         if key not in self.key_lookup:
-            mk_key = "{}-{}".format(alt_key, key)
-            if mk_key in self.missing_keys:
-                self.missing_keys[mk_key] += 1
-            else:
-                self.missing_keys[mk_key] = 1
-                mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
-                self.logger.critical(mess)
-                self.logger.critical('Identifier: %s', value)
-                self.logger.critical("keys are:-{}".format(self.key_lookup.keys()))
+            self.missing_key_message(alt_key, key, value)
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "{} has no 'default_url'".format(key)
@@ -266,46 +276,38 @@ class ResourceDescriptorHelper2():
             self.logger.critical('Identifier: %s', value)
             exit(-1)
             return None
-        if not alt_page:
-            try:
-                url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
-            except KeyError:
-                mess = "default_url does not exist for '{}' in the Resource Descriptor YAML.".format(key)
-                key = "{}-default_url".format(key)
-                if key in self.missing_pages:
-                    self.missing_pages[key] += 1
-                else:
-                    self.missing_pages[key] = 1
-                self.logger.critical(mess)
-                exit(-1)
-            except AttributeError as e:
-                mess = "ERROR!!! key = '{}', value = '{}' error = '{}'".format(key, value, e)
-                key = "{}-default_url".format(key)
-                if key in self.missing_pages:
-                    self.missing_pages[key] += 1
-                else:
-                    self.missing_pages[key] = 1
-                self.logger.critical(mess)
-                exit(-1)
-        else:
-            try:
+
+        try:
+            if alt_page:
+                page = alt_page
                 url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
-            except KeyError:
-                com_key = "{}-{}".format(key, alt_page)
-                if com_key in self.missing_pages:
-                    self.missing_pages[com_key] += 1
-                else:
-                    mess = "page '{}' does not exist for '{}' in the Resource Descriptor YAML. '{}' is the value".format(alt_page, key, value)
-                    self.logger.critical(mess)
-                    self.missing_pages[com_key] = 1
-                    if 'pages' in self.resource_descriptor_dict[key]:
-                        self.logger.critical(self.resource_descriptor_dict[key]['pages'])
-                    else:
-                        self.logger.critical("No extra pages")
+            else:
+                page = 'default_url'
+                url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
+        except KeyError:
+            mess = "{} does not exist for '{}' in the Resource Descriptor YAML.".format(page, key)
+            key = "{}-{}".format(key, page)
+            if key in self.missing_pages:
+                self.missing_pages[key] += 1
+            else:
+                self.missing_pages[key] = 1
+            self.logger.critical(mess)
+        except AttributeError as e:
+            mess = "ERROR!!! key = '{}', value = '{}' error = '{}'".format(key, value, e)
+            key = "{}-default_url".format(key)
+            if key in self.missing_pages:
+                self.missing_pages[key] += 1
+            else:
+                self.missing_pages[key] = 1
+            self.logger.critical(mess)
+            exit(-1)
         return url
 
     def return_url(self, identifier, page):
-        """Deprecated function so give message and call new one."""
+        """Give message and call new one.
+
+        Deprecated so give message but continue by calling new method.
+        """
         if 'return_url' not in self.deprecated_mess:
             self.logger.info("return_url is Deprecated please use return_url_from_identifier")
             self.deprecated_mess['return_url'] = 1
@@ -319,6 +321,8 @@ class ResourceDescriptorHelper2():
 
         key = self.get_key(db_prefix)
         if not key:
+            return None
+        if key in self.no_url:
             return None
         try:
             gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']

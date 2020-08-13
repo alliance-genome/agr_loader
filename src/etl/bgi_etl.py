@@ -249,7 +249,7 @@ class BGIETL(ETL):
         self.logger.info("Finished Loading BGI Data: %s", sub_type.get_data_provider())
         self.error_messages("BGI_POST_PST: ")
 
-    def get_generators(self, gene_data, data_provider, batch_size):
+    def get_generators(self, gene_data, data_provider, batch_size):  # noqa
         """Create Generators."""
         date_produced = gene_data['metaData']['dateProduced']
         synonyms = []

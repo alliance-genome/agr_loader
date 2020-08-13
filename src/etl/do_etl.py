@@ -1,4 +1,4 @@
-"""DO ETL"""
+"""DO ETL."""
 
 import logging
 import re
@@ -11,8 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class DOETL(ETL):
-    """DO ETL"""
-
+    """DO ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -41,21 +40,19 @@ class DOETL(ETL):
              doterm.zfinLink = row.zfin_link,
              doterm.flybaseLink = row.flybase_link,
              doterm.wormbaseLink = row.wormbase_link,
-             doterm.sgdLink = row.sgd_link 
-             
-            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
+             doterm.sgdLink = row.sgd_link
 
+            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
 
     doterm_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (d:DOTerm {primaryKey:row.primary_id})
-            
+
             MERGE (syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
-
 
     doterm_isas_query_template = """
         USING PERIODIC COMMIT %s
@@ -65,13 +62,11 @@ class DOETL(ETL):
             MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (d1)-[aka:IS_A]->(d2) """
 
-
     xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
-
 
     doterm_alt_ids_query_template = """
         USING PERIODIC COMMIT %s
@@ -80,14 +75,13 @@ class DOETL(ETL):
             MATCH (d:DOTerm {primaryKey:row.primary_id})
 
             MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-    
+
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         filepath = self.data_type_config.get_single_filepath()
@@ -110,9 +104,8 @@ class DOETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("BOB: DO:")
 
-    def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, filepath, batch_size):  # noqa
+        """Get Generators."""
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
 
@@ -168,6 +161,8 @@ class DOETL(ETL):
 
                 if "xrefs" in node["meta"]:
                     o_xrefs = node["meta"].get('xrefs')
+                    # NOTE: think about turning this into a new method
+                    # obo_help.py has the same code.
                     if o_xrefs is not None:
                         for xref_id_dict in o_xrefs:
                             xref_id = xref_id_dict["val"]
@@ -175,7 +170,8 @@ class DOETL(ETL):
                                 local_id = xref_id.split(":")[1].strip()
                                 prefix = xref_id.split(":")[0].strip()
                                 complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(local_id, 
+                                generated_xref = ETLHelper.get_xref_dict(
+                                    local_id,
                                     prefix,
                                     "ontology_provided_cross_reference",
                                     "ontology_provided_cross_reference",
@@ -185,18 +181,19 @@ class DOETL(ETL):
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
                         else:   # TODO Need to make sure this else is correct
-                            # Nope pointless, will always be ran as there is no break in the above loop.
+                            # Nope, will always be ran as there is no break in the above loop.
                             if ":" in o_xrefs:
                                 local_id = o_xrefs.split(":")[1].strip()
                                 prefix = o_xrefs.split(":")[0].strip()
                                 complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(local_id,
-                                        prefix,
-                                        "ontology_provided_cross_reference",
-                                        "ontology_provided_cross_reference",
-                                        o_xrefs,
-                                        complete_url,
-                                        o_xrefs)
+                                generated_xref = ETLHelper.get_xref_dict(
+                                    local_id,
+                                    prefix,
+                                    "ontology_provided_cross_reference",
+                                    "ontology_provided_cross_reference",
+                                    o_xrefs,
+                                    complete_url,
+                                    o_xrefs)
                                 generated_xref["oid"] = ident
                                 xrefs.append(generated_xref)
                 if node["meta"].get('is_obsolete'):
@@ -273,7 +270,6 @@ class DOETL(ETL):
 
             # TODO: make this a generic section based on the resourceDescriptor.yaml file.
             # need to have MODs add disease pages to their yaml stanzas
-
 
             alt_ids = node.get('alt_id')
             if alt_ids:

@@ -1,4 +1,4 @@
-"""'Affected Genomic Model ETL"""
+"""Affected Genomic Model ETL."""
 
 import logging
 import multiprocessing
@@ -11,18 +11,18 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class AffectedGenomicModelETL(ETL):
-    """ETL for adding Affected Genomic Model"""
+    """ETL for adding Affected Genomic Model."""
 
     logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
 
     agm_query_template = """
-        
+
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (s:Species {primaryKey: row.taxonId})
-            
+
             MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
                 ON CREATE SET o.name = row.name,
                 o.nameText = row.nameText,
@@ -57,10 +57,10 @@ class AffectedGenomicModelETL(ETL):
     agm_sqtrs_query_template = """
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            
+
             MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-            
+
             MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
     """
 
@@ -79,10 +79,10 @@ class AffectedGenomicModelETL(ETL):
     agm_backgrounds_query_template = """
      USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            
+
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
             MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
-            
+
             MERGE (agm)-[:BACKGROUND]-(b)
 
     """
@@ -93,13 +93,14 @@ class AffectedGenomicModelETL(ETL):
 
             MATCH (feature:Feature:Allele {primaryKey:row.componentId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-            
+
             MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
                 SET agmf.zygosity = row.zygosityId
-    
+
     """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -157,9 +158,8 @@ class AffectedGenomicModelETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("POST_PST")
 
-    def get_generators(self, agm_data, data_provider, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, agm_data, data_provider, batch_size):  # noqa
+        """Get Generators."""
         data_providers = []
         agms = []
         agm_synonyms = []
@@ -188,7 +188,8 @@ class AffectedGenomicModelETL(ETL):
                                                                          data_provider,
                                                                          data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(
                         data_provider,
                         data_provider,
                         data_provider_page,
@@ -226,7 +227,6 @@ class AffectedGenomicModelETL(ETL):
                         "synonym": syn
                     }
                     agm_synonyms.append(syn_dataset)
-
 
             if 'crossReference' in agm_record:
                 cross_ref = agm_record.get('crossReference')

@@ -1,3 +1,5 @@
+"""Allele ETL."""
+
 import logging
 import multiprocessing
 import uuid
@@ -12,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class AlleleETL(ETL):
+    """Call AlleleETL."""
+
     allele_construct_no_gene_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -131,6 +135,7 @@ class AlleleETL(ETL):
             MATCH (o:Allele {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
+        """Initialise Object."""
         super().__init__()
         self.data_type_config = config
 
@@ -187,7 +192,7 @@ class AlleleETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("POST_PST")
 
-    def get_generators(self, allele_data, batch_size):
+    def get_generators(self, allele_data, batch_size):  # noqa
 
         data_providers = []
         release = ""
@@ -215,13 +220,14 @@ class AlleleETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider, self.xref_url_map, data_provider,
-                                                                      data_provider_page)
+                cross_ref_complete_url = self.etlh.get_page_complete_url(
+                    data_provider, self.xref_url_map, data_provider,
+                    data_provider_page)
 
                 data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
-                                                                       data_provider_page, data_provider,
-                                                                       cross_ref_complete_url,
-                                                                       data_provider + data_provider_page))
+                                                                           data_provider_page, data_provider,
+                                                                           cross_ref_complete_url,
+                                                                           data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 logger.info("data provider: " + data_provider)
@@ -393,7 +399,7 @@ class AlleleETL(ETL):
                             if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
                                     or page == 'transgene/references' or page == 'construct/references':
                                 mod_global_cross_ref_id = self.etlh.get_page_complete_url(local_crossref_id,
-                                                                                      self.xref_url_map, prefix, page)
+                                                                                          self.xref_url_map, prefix, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                mod_global_cross_ref_id, crossRefId + page)
                                 xref['dataId'] = global_id
@@ -431,4 +437,3 @@ class AlleleETL(ETL):
         if counter > 0:
             yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
                    allele_secondary_ids, allele_synonyms, cross_reference_list]
-
