@@ -194,16 +194,12 @@ class ETLHelper():
         elif 'ORDO' in global_id:
             complete_url = 'https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=' + local_id
         elif 'MESH' in global_id:
-            ETLHelper.logger.debug("BOB:MESH l={} g={}".format(local_id, global_id))
             complete_url = 'https://www.ncbi.nlm.nih.gov/mesh/' + local_id
         elif 'EFO' in global_id:
-            ETLHelper.logger.debug("BOB:EFO l={} g={}".format(local_id, global_id))
             complete_url = 'http://www.ebi.ac.uk/efo/EFO_' + local_id
         elif 'KEGG' in global_id:
-            ETLHelper.logger.debug("BOB:KEGG l={} g={}".format(local_id, global_id))
             complete_url = 'http://www.genome.jp/dbget-bin/www_bget?map' + local_id
         elif 'NCI' in global_id:
-            ETLHelper.logger.debug("BOB:NCI l={} g={}".format(local_id, global_id))
             complete_url = 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp' + '?dictionary=NCI_Thesaurus&code=' + local_id
         # here, after testing
 
@@ -296,29 +292,10 @@ class ETLHelper():
         """Get short Species Abbreviation."""
         short_species_abbreviation = 'Alliance'
         try:
-            abbr = self.rdh2.get_short_name(taxon_id)
+            short_species_abbreviation = self.rdh2.get_short_name(taxon_id)
         except KeyError:
             self.logger.critical("Problem looking up short species name for {}".format(taxon_id))
 
-        if taxon_id == 'NCBITaxon:7955':
-            short_species_abbreviation = 'Dre'
-        elif taxon_id == 'NCBITaxon:7227':
-            short_species_abbreviation = 'Dme'
-        elif taxon_id == 'NCBITaxon:10090':
-            short_species_abbreviation = 'Mmu'
-        elif taxon_id == 'NCBITaxon:6239':
-            short_species_abbreviation = 'Cel'
-        elif taxon_id == 'NCBITaxon:10116':
-            short_species_abbreviation = 'Rno'
-        elif taxon_id == 'NCBITaxon:559292':
-            short_species_abbreviation = 'Sce'
-        elif taxon_id == 'NCBITaxon:9606':
-            short_species_abbreviation = 'Hsa'
-        elif taxon_id == 'NCBITaxon:2697049':
-            short_species_abbreviation = 'SARS-CoV-2'
-
-        if abbr != short_species_abbreviation:
-            self.logger.critical("{} != {}".format(abbr, short_species_abbreviation))
         return short_species_abbreviation
 
     @staticmethod
