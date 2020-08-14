@@ -4,9 +4,35 @@ SPECIES: [Species]
 HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
 HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
 ONTOLOGY:
+  - SO
+  - GO
+  - DOID
+  - MI
+  - ZFA
+  - ZFS
+  - WBBT
+  - CL
+  - FBBT
+  - FBCV
+  - MMUSDV
+  - BSPO
   - MMO
+  - WBLS
+  - EMAPA
+  - MA
+  - ECO
   - UBERON
+  - ECOMAP
+  - PATO
+  - APO
+  - DPO
+  - FYPO
+  - WBPhenotype
+  - MP
+  - HP
   - OBI
+  - BTO
+  - CHEBI
 
 # Loader configuration values are below.
 # Please modify with caution!

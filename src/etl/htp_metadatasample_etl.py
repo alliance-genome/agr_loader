@@ -303,8 +303,8 @@ class HTPMetaDatasetSampleETL(ETL):
             [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
              "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
             #
-            # [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
-            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
+             "htp_metadataset_sample_aoterms_substructures_" + sub_type.get_data_provider() + ".csv"],
             #
             # [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
             #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
@@ -631,7 +631,8 @@ class HTPMetaDatasetSampleETL(ETL):
                        datasetIds,
                        stages,
                        ao_terms,
-                       #ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                       ao_substructures,
+                       # ao_qualifiers, ao_ss_qualifiers,
                        # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
                        ]
                 counter = 0
@@ -657,6 +658,7 @@ class HTPMetaDatasetSampleETL(ETL):
                    datasetIds,
                    stages,
                    ao_terms,
-                   #ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                   ao_substructures,
+                   # ao_qualifiers, ao_ss_qualifiers,
                    # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
                    ]
