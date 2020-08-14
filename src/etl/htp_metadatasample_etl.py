@@ -144,8 +144,7 @@ class HTPMetaDatasetSampleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
+                WHERE NOT 'FBCVTerm' in LABELS(otasst)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
     """
@@ -155,8 +154,7 @@ class HTPMetaDatasetSampleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasst:Ontology {primaryKey:row.cellularComponentTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
+                WHERE NOT 'FBCVTerm' in LABELS(otasst)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
     """
@@ -166,8 +164,7 @@ class HTPMetaDatasetSampleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
+                WHERE NOT 'FBCVTerm' in LABELS(otasst)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
 
@@ -176,8 +173,7 @@ class HTPMetaDatasetSampleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otastq)
-                    AND NOT 'FBCVTerm' in LABELS(otastq)
+                WHERE NOT 'FBCVTerm' in LABELS(otastq)
             MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
 
