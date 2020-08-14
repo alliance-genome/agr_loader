@@ -1,4 +1,4 @@
-"""Molecular Interactoin ETL"""
+"""Molecular Interaction ETL."""
 
 import logging
 import uuid
@@ -9,7 +9,7 @@ import itertools
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
-from etl.helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
+from etl.helpers import Neo4jHelper, ETLHelper
 
 
 class MolecularInteractionETL(ETL):
@@ -85,6 +85,7 @@ class MolecularInteractionETL(ETL):
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
+        """Initiaslise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -119,8 +120,7 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def populate_genes():
-        """Populate Genes"""
-
+        """Populate Genes."""
         master_gene_set = set()
 
         query = "MATCH (g:Gene) RETURN g.primaryKey"
@@ -134,20 +134,21 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def query_crossreferences(crossref_prefix):
-        """Query Cross References"""
-
+        """Query Cross References."""
         query = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
                    WHERE cr.prefix = {parameter}
                    RETURN g.primaryKey, cr.globalCrossRefId"""
         return Neo4jHelper().run_single_parameter_query(query, crossref_prefix)
 
     def populate_crossreference_dictionary(self):
-        """ We're populating a rather large dictionary to use for looking up Alliance genes by
-            their crossreferences.
-            Edit the list below if you'd like to add more crossreferences to the dictionary.
-            The key of the dictionary is the crossreference and the value is the Alliance
-            gene to which it resolves."""
+        """Populate the crossreference dictionary.
 
+        We're populating a rather large dictionary to use for looking up Alliance genes by
+        their crossreferences.
+        Edit the list below if you'd like to add more crossreferences to the dictionary.
+        The key of the dictionary is the crossreference and the value is the Alliance
+        gene to which it resolves.
+        """
         master_crossreference_dictionary = dict()
 
         # If additional crossreferences need to be used to find interactors, they can be added here.
@@ -187,7 +188,6 @@ class MolecularInteractionETL(ETL):
 
     def process_interaction_identifier(self, entry, additional_row):
         """Create cross references for all the external identifiers."""
-
         xref_main_list = []
         entries = None
 
@@ -285,7 +285,6 @@ class MolecularInteractionETL(ETL):
 
     def add_mod_interaction_links(self, gene_id):
         """Create an XREF linking back to interaction pages at each MOD for a particular gene."""
-
         xref_dict = {}
         page = 'gene/MODinteractions'
 
@@ -320,8 +319,7 @@ class MolecularInteractionETL(ETL):
         return xref_dict
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
-        """Resolve Iedntifiers by Row"""
-
+        """Resolve Iedntifiers by Row."""
         interactor_a_rows = [0, 2, 4, 22]
         interactor_b_rows = [1, 3, 5, 23]
 
@@ -355,9 +353,8 @@ class MolecularInteractionETL(ETL):
 
         return interactor_a_resolved, interactor_b_resolved
 
-    def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):
-        """Resolve Identifier"""
-
+    def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):  # noqa
+        """Resolve Identifier."""
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
@@ -420,7 +417,7 @@ class MolecularInteractionETL(ETL):
 
         return None
 
-    def get_generators(self, filepath, batch_size):
+    def get_generators(self, filepath, batch_size):  # noqa
         """Get Generators."""
         list_to_yield = []
         xref_list_to_yield = []
@@ -522,9 +519,9 @@ class MolecularInteractionETL(ETL):
                         publication = publication_re.group(0)
                         publication = publication.replace('pubmed', 'PMID')
                         old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
-                        publication_url = self.etlh.get_complete_pub_url(publication[5:], publication)
+                        publication_url = self.etlh.rdh2.return_url_from_identifier(row[8])
                         if old_url != publication_url:
-                            self.logger.debug('BOB: {} -- {}'.format(old_url, publication_url))
+                            self.logger.critical('BOB: {} -- {}'.format(old_url, publication_url))
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
@@ -532,7 +529,7 @@ class MolecularInteractionETL(ETL):
                         if publication_re is not None:
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
-                            publication_url = self.etlh.get_complete_pub_url(publication, row[8])
+                            publication_url = self.etlh.rdh2.return_url_from_identifier(row[8])
                             old_url = 'https://doi.org/{}'.format(publication)
                             if old_url != publication_url:
                                 if not one_mess:

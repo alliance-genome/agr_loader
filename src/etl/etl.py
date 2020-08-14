@@ -28,7 +28,6 @@ class ETL():
 
     def error_messages(self, prefix=""):
         """Print out error summary messages."""
-        self.logger.critical("{}Finished".format(prefix))
         for key in self.etlh.rdh2.missing_pages.keys():
             self.logger.critical("{}Missing page {} seen {} times".format(prefix, key, self.etlh.rdh2.missing_pages[key]))
         for key in self.etlh.rdh2.missing_keys.keys():

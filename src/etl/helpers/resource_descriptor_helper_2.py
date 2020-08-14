@@ -173,9 +173,9 @@ class ResourceDescriptorHelper2():
         # Have to specifiy a new tmpxx directory each time else the old
         # one is obtained even though it is not supposed to be kept.
         # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp65',
+        resource_descriptor_file = Download('tmp67',
                                             url,
-                                            'resourceDescriptorsBOB.yaml').get_downloaded_data()
+                                            'resourceDescriptorsBOB1.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
