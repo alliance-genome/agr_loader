@@ -109,7 +109,8 @@ class HTPMetaDatasetETL(ETL):
              [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
-             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"]
+             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+
         ]
 
         # Obtain the generator

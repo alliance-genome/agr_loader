@@ -10,15 +10,16 @@ logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetSampleETL(ETL):
+
+
     htp_dataset_sample_query_template = """
     
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (o:OBITerm {primaryKey:row.sampleType})
+        //MATCH (o:OBITerm {primaryKey:row.sampleType})
         MATCH (s:Species {primaryKey: row.taxonId})
-        MATCH (a:MMOTerm {primaryKey: row.assayType})
-        OPTIONAL MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
+        //MATCH (a:MMOTerm {primaryKey: row.assayType})
     
         CREATE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           SET ds.dateAssigned = row.dateAssigned,
@@ -26,14 +27,25 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.sex = row.sex,
               ds.notes = row.notes,
               ds.dateAssigned = row.dateAssigned,
-              ds.biosampleText = row.biosampleText,
-              ds.sequencingFormat = row.sequencingFormat
+              //ds.biosampleText = row.biosampleText,
+              ds.sequencingFormat = row.sequencingFormat,
+              ds.title = row.sampleTitle,
+              ds.sampleAge = row.sampleAge
               
         MERGE (ds)-[dssp:FROM_SPECIES]-(s)
-        MERGE (ds)-[dsbs:BIOSAMPLE]-(agm)
-        MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+        //MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+        //MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
         
           
+    """
+
+    htp_dataset_sample_agm_query_template = """
+    
+        MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
+        MATCH (ds:HTPDatasetSampl {primaryKey:row.datasetSampleId})
+
+        MERGE (agm)-[agmds:ASSOCIATION]-(ds)
+    
     """
 
     htp_bio_entity_expression_query_template = """
@@ -41,21 +53,13 @@ class HTPMetaDatasetSampleETL(ETL):
        USING PERIODIC COMMIT %s
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+       
        MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+       
+       MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(e)
             
-    """
-
-    htp_datasetsample_expressionbioentity_join_query_template = """
-
-       USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-       MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
-
-       MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(ebe)
-
     """
 
     htp_stages_query_template = """
@@ -65,12 +69,9 @@ class HTPMetaDatasetSampleETL(ETL):
 
        MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
        MATCH (st:Stage {primaryKey:row.stageName})
-       
-       MERGE (s:Stage {primaryKey:row.stageId})
-        ON CREATE SET s.name = row.stageName,
-                      s.age = row.sampleAge
                
        MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
+       
     """
 
 
@@ -287,20 +288,20 @@ class HTPMetaDatasetSampleETL(ETL):
             [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, commit_size,
              "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv"],
             #
-            # [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
-            #  "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
+              "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, commit_size,
+            "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
+             "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
             #
-            # [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, commit_size,
-            #  "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_stages_query_template, commit_size,
+             "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv"],
             #
-            # [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
-            #  "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.htp_stages_query_template, commit_size,
-            #  "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
-            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
+             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
             #
             # [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
             #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
@@ -323,6 +324,9 @@ class HTPMetaDatasetSampleETL(ETL):
             #
             # [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
             #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+
+            # [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
+            #  "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
 
         ]
 
@@ -349,7 +353,7 @@ class HTPMetaDatasetSampleETL(ETL):
         ccq_components = []
         data_providers = []
         cc_components = []
-        bioSamples = []
+        biosamples = []
         counter = 0
 
         data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
@@ -385,17 +389,21 @@ class HTPMetaDatasetSampleETL(ETL):
             sampleTitle = ''
 
             if 'sampleId' in datasample_record:
-                sampleIds = datasample_record.get('sampleId')
+                sampleIdObj = datasample_record.get('sampleId')
+                sampleId = sampleIdObj.get('primaryId')
 
-                if 'sampleId' in sampleIds:
-                    sampleId = htp_datasetsample_data.get('sampleId')
+                if 'secondaryIds' in sampleIdObj:
+                    for secId in sampleIdObj.get('secondaryIds'):
+                        secid = {
+                            "datasetSampleId": sampleId,
+                            "secondaryId": secId
+                        }
+                        secondaryIds.append(secid)
 
             if 'sampleTitle' in sampleIds:
-                sampleTitle = htp_datasetsample_data.get('sampleTitle')
-
+                sampleTitle = datasample_record.get('sampleTitle')
 
             datasetSampleId = sampleId + sampleTitle
-
 
             if 'datasetId' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetId')
@@ -405,20 +413,11 @@ class HTPMetaDatasetSampleETL(ETL):
                         "datasetId": datasetID
                     }
                     datasetIds.append(datasetsample)
-
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
-
-            if 'secondaryIds' in sampleIds:
-                for secId in sampleIds.get('secondaryIds'):
-                    secid = {
-                        "datasetId": datasetSampleId,
-                        "secondaryId": secId
-                    }
-                    secondaryIds.append(secid)
 
             if 'genomicInformation' in datasample_record:
                 genomicInformation = datasample_record.get('genomicInformation')
@@ -426,6 +425,12 @@ class HTPMetaDatasetSampleETL(ETL):
                     biosampleId = genomicInformation.get('biosampleId')
                 if 'bioSampleText' in genomicInformation:
                     biosampleText = genomicInformation.get('bioSampleText')
+
+                biosample = {
+                    "biosampleId": biosampleId,
+                    "datasetSampleId": datasetSampleId
+                }
+                biosamples.append(biosample)
 
 
             age = ''
@@ -451,146 +456,146 @@ class HTPMetaDatasetSampleETL(ETL):
                              "sampleAge": age}
                     stages.append(stage)
 
-            if 'sampleLocations' in datasample_record:
-                sampleLocations = datasample_record.get('sampleLocations')
+            if 'sampleLocation' in datasample_record:
+                sampleLocations = datasample_record.get('sampleLocation')
 
-                cellular_component_qualifier_term_id = sampleLocations.get('cellularComponentQualifierTermId')
-                cellular_component_term_id = sampleLocations.get('cellularComponentTermId')
-                anatomical_structure_term_id = sampleLocations.get('anatomicalStructureTermId')
-                anatomical_structure_qualifier_term_id = sampleLocations.get(
+                for location in sampleLocations:
+
+                    cellular_component_qualifier_term_id = location.get('cellularComponentQualifierTermId')
+                    cellular_component_term_id = location.get('cellularComponentTermId')
+                    anatomical_structure_term_id = location.get('anatomicalStructureTermId')
+                    anatomical_structure_qualifier_term_id = location.get(
                         'anatomicalStructureQualifierTermId')
-                anatomical_sub_structure_term_id = sampleLocations.get('anatomicalSubStructureTermId')
-                anatomical_sub_structure_qualifier_term_id = sampleLocations.get(
+                    anatomical_sub_structure_term_id = location.get('anatomicalSubStructureTermId')
+                    anatomical_sub_structure_qualifier_term_id = location.get(
                         'anatomicalSubStructureQualifierTermId')
-                where_expressed_statement = sampleLocations.get('whereExpressedStatement')
+                    where_expressed_statement = location.get('whereExpressedStatement')
 
 
-                expression_unique_key = datasetSampleId
-                expression_entity_unique_key = ""
+                    expression_unique_key = datasetSampleId
+                    expression_entity_unique_key = ""
 
-                if anatomical_structure_term_id is not None:
-                    expression_unique_key += anatomical_structure_term_id
-                    expression_entity_unique_key = anatomical_structure_term_id
+                    if anatomical_structure_term_id is not None:
+                        expression_unique_key += anatomical_structure_term_id
+                        expression_entity_unique_key = anatomical_structure_term_id
 
-                    if anatomical_structure_qualifier_term_id is not None:
-                        expression_unique_key += anatomical_structure_qualifier_term_id
-                        expression_entity_unique_key += anatomical_structure_qualifier_term_id
+                        if anatomical_structure_qualifier_term_id is not None:
+                            expression_unique_key += anatomical_structure_qualifier_term_id
+                            expression_entity_unique_key += anatomical_structure_qualifier_term_id
 
-                if cellular_component_term_id is not None:
-                    expression_unique_key += cellular_component_term_id
-                    expression_entity_unique_key += cellular_component_term_id
+                    if cellular_component_term_id is not None:
+                        expression_unique_key += cellular_component_term_id
+                        expression_entity_unique_key += cellular_component_term_id
 
-                    if cellular_component_qualifier_term_id is not None:
-                        expression_unique_key += cellular_component_qualifier_term_id
-                        expression_entity_unique_key += cellular_component_qualifier_term_id
+                        if cellular_component_qualifier_term_id is not None:
+                            expression_unique_key += cellular_component_qualifier_term_id
+                            expression_entity_unique_key += cellular_component_qualifier_term_id
 
-                if anatomical_sub_structure_term_id is not None:
-                    expression_unique_key += anatomical_sub_structure_term_id
+                    if anatomical_sub_structure_term_id is not None:
+                        expression_unique_key += anatomical_sub_structure_term_id
 
-                    if anatomical_sub_structure_qualifier_term_id is not None:
-                        expression_unique_key += anatomical_sub_structure_qualifier_term_id
-                        expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
+                        if anatomical_sub_structure_qualifier_term_id is not None:
+                            expression_unique_key += anatomical_sub_structure_qualifier_term_id
+                            expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
 
-                expression_entity_unique_key += where_expressed_statement
 
-                if sampleLocations.get('anatomicalStructureUberonSlimTermIds') is not None:
-                    for uberon_structure_term_object in sampleLocations.get('anatomicalStructureUberonSlimTermIds'):
-                        structure_uberon_term_id = uberon_structure_term_object.get('uberonTerm')
-                        if structure_uberon_term_id is not None and structure_uberon_term_id != 'Other':
-                            structure_uberon_term = {
+                    expression_entity_unique_key += where_expressed_statement
+
+                    if location.get('anatomicalStructureUberonSlimTermIds') is not None:
+                        for uberon_structure_term_object in location.get('anatomicalStructureUberonSlimTermIds'):
+                            structure_uberon_term_id = uberon_structure_term_object.get('uberonTerm')
+                            if structure_uberon_term_id is not None and structure_uberon_term_id != 'Other':
+                                structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
                                     "aoUberonId": structure_uberon_term_id}
-                            uberon_ao_data.append(structure_uberon_term)
-                        elif structure_uberon_term_id is not None and structure_uberon_term_id == 'Other':
-                            other_structure_uberon_term = {
+                                uberon_ao_data.append(structure_uberon_term)
+                            elif structure_uberon_term_id is not None and structure_uberon_term_id == 'Other':
+                                other_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key}
-                            uberon_ao_other_data.append(other_structure_uberon_term)
+                                uberon_ao_other_data.append(other_structure_uberon_term)
 
-                if sampleLocations.get('anatomicalSubStructureUberonSlimTermIds') is not None:
-                    for uberon_sub_structure_term_object in sampleLocations.get('anatomicalSubStructureUberonSlimTermIds'):
-                        sub_structure_uberon_term_id = uberon_sub_structure_term_object.get('uberonTerm')
-                        if sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id != 'Other':
-                            sub_structure_uberon_term = {
+                    if location.get('anatomicalSubStructureUberonSlimTermIds') is not None:
+                        for uberon_sub_structure_term_object in location.get('anatomicalSubStructureUberonSlimTermIds'):
+                            sub_structure_uberon_term_id = uberon_sub_structure_term_object.get('uberonTerm')
+                            if sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id != 'Other':
+                                sub_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
                                     "aoUberonId": sub_structure_uberon_term_id}
-                            uberon_ao_data.append(sub_structure_uberon_term)
-                        elif sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id == 'Other':
-                            other_structure_uberon_term = {
+                                uberon_ao_data.append(sub_structure_uberon_term)
+                            elif sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id == 'Other':
+                                other_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key}
-                            uberon_ao_other_data.append(other_structure_uberon_term)
+                                uberon_ao_other_data.append(other_structure_uberon_term)
 
 
-                if cellular_component_term_id is not None:
-                    cc_term = {
-                        "ebe_uuid":
-                            expression_entity_unique_key,
+                    if cellular_component_term_id is not None:
+                        cc_term = {
+                            "ebe_uuid":
+                                expression_entity_unique_key,
+                            "cellularComponentTermId":
+                                cellular_component_term_id
+                        }
+                        cc_components.append(cc_term)
 
-                        "cellularComponentTermId":
-                            cellular_component_term_id
-                    }
-                    cc_components.append(cc_term)
-
-                if cellular_component_qualifier_term_id is not None:
-                    ccq_term = {
-                        "ebe_uuid":
-                            expression_entity_unique_key,
-
-                        "cellularComponentQualifierTermId":
+                    if cellular_component_qualifier_term_id is not None:
+                        ccq_term = { "ebe_uuid": expression_entity_unique_key,
+                            "cellularComponentQualifierTermId":
                             cellular_component_qualifier_term_id
-                    }
-                    ccq_components.append(ccq_term)
+                        }
+                        ccq_components.append(ccq_term)
 
-                if anatomical_structure_term_id is not None:
-                    ao_term = {
-                        "ebe_uuid":
-                            expression_entity_unique_key,
-
-                        "anatomicalStructureTermId":
-                            anatomical_structure_term_id
-                    }
-                    ao_terms.append(ao_term)
-
-                if anatomical_structure_qualifier_term_id is not None:
-                    ao_qualifier = {
+                    if anatomical_structure_term_id is not None:
+                        ao_term = {
                             "ebe_uuid":
-                            expression_entity_unique_key,
+                                expression_entity_unique_key,
 
-                            "anatomicalStructureQualifierTermId":
-                            anatomical_structure_qualifier_term_id
+                            "anatomicalStructureTermId":
+                                anatomical_structure_term_id
+                        }
+                        ao_terms.append(ao_term)
+
+                    if anatomical_structure_qualifier_term_id is not None:
+                        ao_qualifier = {
+                                "ebe_uuid":
+                                expression_entity_unique_key,
+
+                                "anatomicalStructureQualifierTermId":
+                                anatomical_structure_qualifier_term_id
+                        }
+
+                        ao_qualifiers.append(ao_qualifier)
+
+                    if anatomical_sub_structure_term_id is not None:
+                        ao_substructure = {
+                                "ebe_uuid":
+                                expression_entity_unique_key,
+
+                                "anatomicalSubStructureTermId":
+                                anatomical_sub_structure_term_id
+                        }
+
+                        ao_substructures.append(ao_substructure)
+
+                    if anatomical_sub_structure_qualifier_term_id is not None:
+                        ao_ss_qualifier = {
+                                "ebe_uuid":
+                                expression_entity_unique_key,
+
+                                "anatomicalSubStructureQualifierTermId":
+                                anatomical_sub_structure_qualifier_term_id}
+
+                        ao_ss_qualifiers.append(ao_ss_qualifier)
+
+                    if where_expressed_statement is None:
+                        where_expressed_statement = ""
+
+
+                    bio_entity = {
+                        "ebe_uuid": expression_entity_unique_key,
+                        "whereExpressedStatement": where_expressed_statement,
+                        "datasetSampleId": datasetSampleId
                     }
-
-                    ao_qualifiers.append(ao_qualifier)
-
-                if anatomical_sub_structure_term_id is not None:
-                    ao_substructure = {
-                            "ebe_uuid":
-                            expression_entity_unique_key,
-
-                            "anatomicalSubStructureTermId":
-                            anatomical_sub_structure_term_id
-                    }
-
-                    ao_substructures.append(ao_substructure)
-
-                if anatomical_sub_structure_qualifier_term_id is not None:
-                    ao_ss_qualifier = {
-                            "ebe_uuid":
-                            expression_entity_unique_key,
-
-                            "anatomicalSubStructureQualifierTermId":
-                            anatomical_sub_structure_qualifier_term_id}
-
-                    ao_ss_qualifiers.append(ao_ss_qualifier)
-
-                if where_expressed_statement is None:
-                    where_expressed_statement = ""
-
-
-                bio_entity = {
-                    "ebe_uuid": expression_entity_unique_key,
-                    "whereExpressedStatement": where_expressed_statement
-                }
-                bio_entities.append(bio_entity)
+                    bio_entities.append(bio_entity)
 
 
             htp_dataset_sample = {
@@ -603,23 +608,31 @@ class HTPMetaDatasetSampleETL(ETL):
                 "assayType": datasample_record.get('assayType'),
                 "notes": datasample_record.get('notes'),
                 "dateAssigned": datasample_record.get('dateAssigned'),
-                "biosampleId": biosampleId,
                 "biosampleText": biosampleText,
-                "sequencingFormat": datasample_record.get('sequencingFormat')
+                "sequencingFormat": datasample_record.get('sequencingFormat'),
+                "sampleTitle": sampleTitle,
+                "sampleAge": age
 
             }
-            is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
-            if is_it_test_entry is True:
-                self.logger.info(htp_dataset_sample)
 
 
-        htp_datasetsamples.append(htp_dataset_sample)
+            htp_datasetsamples.append(htp_dataset_sample)
+
+            #
+            # if self.test_object.using_test_data() is True:
+            #     is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
+            #     if is_it_test_entry is True:
+            #         self.logger.info(htp_dataset_sample)
 
             if counter == batch_size:
-                yield [htp_datasetsamples
-                       # ,bio_entities, secondaryIds, datasetIds, stages,
-                       # ao_terms, ao_substructures, ao_qualifiers, ao_ss_qualifiers,
-                       # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data
+                yield [htp_datasetsamples,
+                       bio_entities,
+                       secondaryIds,
+                       datasetIds,
+                       stages,
+                       ao_terms,
+                       #ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                       # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
                        ]
                 counter = 0
                 htp_datasetsamples = []
@@ -634,11 +647,16 @@ class HTPMetaDatasetSampleETL(ETL):
                 stages = []
                 ccq_components = []
                 cc_components = []
+                biosamples = []
 
 
         if counter > 0:
-            yield [htp_datasetsamples
-                   # ,bio_entities, secondaryIds, datasetIds, stages,
-                   # ao_terms, ao_substructures, ao_qualifiers, ao_ss_qualifiers,
-                   # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data
+            yield [htp_datasetsamples,
+                   bio_entities,
+                   secondaryIds,
+                   datasetIds,
+                   stages,
+                   ao_terms,
+                   #ao_substructures, ao_qualifiers, ao_ss_qualifiers,
+                   # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
                    ]
