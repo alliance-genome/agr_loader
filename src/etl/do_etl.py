@@ -287,13 +287,13 @@ class DOETL(ETL):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                'rgd_link': 'http://rgd.mcw.edu'
+                'rgd_link': 'https://rgd.mcw.edu'
                             + '/rgdweb/ontology/annot.html?species=All&x=1&acc_id='
                             + node['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu'
+                'rat_only_rgd_link': 'https://rgd.mcw.edu'
                                      + '/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id='
                                      + node['id'] + '#annot',
-                'human_only_rgd_link': 'http://rgd.mcw.edu'
+                'human_only_rgd_link': 'https://rgd.mcw.edu'
                                        + '/rgdweb/ontology/annot.html?species=Human&x=1&acc_id='
                                        + node['id'] + '#annot',
                 'mgi_link': 'http://www.informatics.jax.org/disease/' + node['id'],
@@ -302,6 +302,17 @@ class DOETL(ETL):
                 'wormbase_link': 'http://www.wormbase.org/resources/disease/' + node['id'],
                 'sgd_link': 'https://yeastgenome.org/disease/' + node['id']
             }
+            rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/all')
+            if rgd_link != dict_to_append['rgd_link']:
+                self.bad_page('RGD', 'disease/all', dict_to_append['rgd_link'], rgd_link)
+
+            rat_only_rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/rat')
+            if rat_only_rgd_link != dict_to_append['rat_only_rgd_link']:
+                self.bad_page('RGD', 'disease/rat', dict_to_append['rat_only_rgd_link'], rat_only_rgd_link)
+
+            human_only_rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/human')
+            if human_only_rgd_link != dict_to_append['human_only_rgd_link']:
+                self.bad_page('RGD', 'disease/human', dict_to_append['human_only_rgd_link'], human_only_rgd_link)
 
             do_term_list.append(dict_to_append)
 
@@ -316,3 +327,14 @@ class DOETL(ETL):
 
         if counter > 0:
             yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_alt_ids_list]
+
+    def bad_page(self, species, page, old_url, new_url):
+        """Tempory bad page test."""
+        bad_key = "{}-{}".format(species, page)
+        if bad_key not in self.etlh.rdh2.bad_pages:
+            self.logger.critical("DO_UTL old url '{}' != new url '{}'".format(old_url, new_url))
+            self.etlh.rdh2.bad_pages[bad_key] = 1
+        else:
+            self.etlh.rdh2.bad_pages[bad_key] += 1
+
+       
