@@ -52,30 +52,33 @@ class ResourceDescriptorHelper2():
         Try splitting to see if that helps if main lookup fails.
         """
         ret_key = None
-        alt_key = alt_key.upper()
-        if alt_key not in self.key_lookup:
+        main_key = alt_key.upper()
+        if main_key not in self.key_lookup:
             # try split incase RGD:123456 or something passed
-            key_prefix, _, _ = self.split_identifier(alt_key, ignore_error=True)
+            key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
             if not key_prefix:
-                mk_key = "{}".format(alt_key)
+                mk_key = "{}".format(main_key)
                 if mk_key in self.missing_keys:
                     self.missing_keys[mk_key] += 1
                 else:
                     self.missing_keys[mk_key] = 1
-                    mess = "The database key '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key)
+                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
                     self.logger.critical(mess)
+                    self.logger.critical("Available are {}".format(self.key_lookup.keys()))
                 return ret_key
             if key_prefix not in self.key_lookup:
                 self.logger.debug("{} Found after splitting".format(alt_key))
                 ret_key = self.key_lookup[key_prefix]
             else:
-                if alt_key in self.missing_keys:
-                    self.missing_keys[alt_key] += 1
+                if main_key in self.missing_keys:
+                    self.missing_keys[main_key] += 1
                 else:
-
-                    self.missing_keys[alt_key] = 1
+                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
+                    self.logger.critical(mess)
+                    self.logger.critical("Available are {}".format(self.key_lookup.keys()))
+                    self.missing_keys[main_key] = 1
         else:
-            ret_key = self.key_lookup[alt_key]
+            ret_key = self.key_lookup[main_key]
         return ret_key
 
     def get_short_name(self, alt_key):
@@ -173,22 +176,24 @@ class ResourceDescriptorHelper2():
         # Have to specifiy a new tmpxx directory each time else the old
         # one is obtained even though it is not supposed to be kept.
         # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp67',
+        resource_descriptor_file = Download('tmp72',
                                             url,
-                                            'resourceDescriptorsBOB1.yaml').get_downloaded_data()
+                                            'resourceDescriptorsBOB5.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
         resource_descriptor_dict = {}
         for item in yaml_list:
-            name = item['db_prefix'].upper()
-            resource_descriptor_dict[name] = item
-            self.key_lookup[name] = name
+            main_key = item['db_prefix'].upper()
+            resource_descriptor_dict[main_key] = item
+            self.key_lookup[item['db_prefix']] = main_key
+            self.key_lookup[main_key] = main_key
+            self.key_lookup[item['name'].upper()] = main_key
             if 'aliases' in item:
                 for alt_name in item['aliases']:
-                    self.key_lookup[alt_name.upper()] = name
+                    self.key_lookup[alt_name.upper()] = main_key
             if 'ignore_url_generation' in item:
-                self.no_url[name] = 1
+                self.no_url[main_key] = 1
         # Iterate through this new dictionary and convert page lists to dictionaries.
         # These are keyed by the page name.
         for entry in resource_descriptor_dict:
@@ -291,16 +296,15 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] += 1
             else:
                 self.missing_pages[key] = 1
-            self.logger.critical(mess)
+                self.logger.critical(mess)
         except AttributeError as e:
-            mess = "ERROR!!! key = '{}', value = '{}' error = '{}'".format(key, value, e)
-            key = "{}-default_url".format(key)
+            mess = "BOB ***** ERROR!!! key = '{}', value = '{}' error = '{}'******| grep ERROR".format(key, value, e)
+            key = "{}-{}".format(key, page)
             if key in self.missing_pages:
                 self.missing_pages[key] += 1
             else:
                 self.missing_pages[key] = 1
-            self.logger.critical(mess)
-            exit(-1)
+                self.logger.critical(mess)
         return url
 
     def return_url(self, identifier, page):
@@ -338,7 +342,7 @@ class ResourceDescriptorHelper2():
 
         identifier_post_processed = db_prefix + separator + identifier_stripped
 
-        regex_output = re.match(gid_pattern, identifier_post_processed)
+        regex_output = re.match(gid_pattern, identifier_post_processed, re.IGNORECASE)
         if regex_output is None:
             if key not in self.bad_regex:
                 self.logger.critical('Cross Reference identifier did %s',

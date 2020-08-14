@@ -448,7 +448,6 @@ class MolecularInteractionETL(ETL):
         # unresolved_crossref_set = set()
 
         self.logger.info('Attempting to open %s', filepath)
-        one_mess = 0
         with open(filepath, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             counter = 0
@@ -516,12 +515,17 @@ class MolecularInteractionETL(ETL):
                     # Check for pubmed publication.
                     publication_re = re.search(r'pubmed:\d+', row[8])
                     if publication_re is not None:
-                        publication = publication_re.group(0)
+                        publication = publication_re.group(0)  # matching bit
                         publication = publication.replace('pubmed', 'PMID')
                         old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
-                        publication_url = self.etlh.rdh2.return_url_from_identifier(row[8])
+                        publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
                         if old_url != publication_url:
-                            self.logger.critical('BOB: {} -- {}'.format(old_url, publication_url))
+                            bad_key = "{}-{}".format('PMID', 'default_url')
+                            if bad_key not in self.etlh.rdh2.bad_pages:
+                                self.logger.critical("mol int pub old url '{}' != new url '{}'".format(old_url, publication_url))
+                                self.etlh.rdh2.bad_pages[bad_key] = 1
+                            else:
+                                self.etlh.rdh2.bad_pages[bad_key] += 1
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
@@ -529,12 +533,15 @@ class MolecularInteractionETL(ETL):
                         if publication_re is not None:
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
-                            publication_url = self.etlh.rdh2.return_url_from_identifier(row[8])
+                            publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
                             old_url = 'https://doi.org/{}'.format(publication)
                             if old_url != publication_url:
-                                if not one_mess:
-                                    self.logger.critical('BOB2 one_mess: old {} -- new {} publication= {}'.format(old_url, publication_url, publication))
-                                one_mess += 1
+                                bad_key = "{}-{}".format('DOI', 'default_url')
+                                if bad_key not in self.etlh.rdh2.bad_pages:
+                                    self.logger.critical("mol int pub old url '{}' != new url '{}'".format(old_url, publication_url))
+                                    self.etlh.rdh2.bad_pages[bad_key] = 1
+                                else:
+                                    self.etlh.rdh2.bad_pages[bad_key] += 1
                     else:
                         unresolved_publication_count += 1
                         continue
@@ -663,7 +670,6 @@ class MolecularInteractionETL(ETL):
             if counter > 0:
                 yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
 
-        self.logger.critical("one mess seen {} times".format(one_mess))
         # TODO Clean up the set output.
         # for entry in unresolved_entries:
         #     self.logger.info(*entry)

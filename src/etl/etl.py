@@ -36,6 +36,8 @@ class ETL():
             self.logger.critical("{}Deprecated {} seen {} times".format(prefix, key, self.etlh.rdh2.deprecated_mess[key]))
         for key in self.etlh.rdh2.bad_pages.keys():
             self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_pages[key]))
+        for key in self.etlh.rdh2.bad_regex.keys():
+            self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_regex[key]))
 
     def run_etl(self):
         """Run ETL."""
