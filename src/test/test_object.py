@@ -54,7 +54,10 @@ class TestObject():
             # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
             'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
             'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2', 'MGI:3618599',
-            'MGI:3693208', 'MGI:109196'}
+            'MGI:3693208', 'MGI:109196',
+            # htp meta data
+            'ArrayExpress:E-AFMX-1', 'ArrayExpress:E-BAIR-4', 'ArrayExpress:E-GEOD-41895', 'ArrayExpress:E-GEOD-56866',
+        }
 
         self.wormbase_id_set = {
             'WB:WBGene00044305', 'WB:WBGene00169423',
@@ -104,6 +107,9 @@ class TestObject():
             # construct
             'WB:WBGene00017738', 'WB:WBCnstr00027061',
             'WB:WBCnstr00004638', 'WB:WBGene00002992',
+            # htp meta data
+            'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
+            'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
         }
 
         self.sgd_id_set = {
@@ -130,6 +136,8 @@ class TestObject():
             'SGD:S000002200',
             # gff ARS object
             'SGD:S000121253',
+            # htp meta data
+            'GEO:GSE3431', 'GEO:GSE45273', 'GEO:GSE3818', 'GEO:GSE11071', 'GEO:GSE81666', 'GEO:GSE81822',
         }
 
         self.zfin_id_set = {

@@ -17,6 +17,7 @@ class HTPMetaDatasetSampleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+        //assayType and sampleType will be required in 1.0.1.3
         //MATCH (o:OBITerm {primaryKey:row.sampleType})
         MATCH (s:Species {primaryKey: row.taxonId})
         //MATCH (a:MMOTerm {primaryKey: row.assayType})
@@ -40,9 +41,23 @@ class HTPMetaDatasetSampleETL(ETL):
     """
 
     htp_dataset_sample_agm_query_template = """
-    
+        USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+           
+        MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
         MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
-        MATCH (ds:HTPDatasetSampl {primaryKey:row.datasetSampleId})
+
+        MERGE (agm)-[agmds:ASSOCIATION]-(ds)
+    
+    """
+
+    htp_dataset_sample_agmtext_query_template = """
+    
+        USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    
+        MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+        MERGE (agm:AffectedGenomicModel {primaryKey:row.biosampleText})
 
         MERGE (agm)-[agmds:ASSOCIATION]-(ds)
     
@@ -283,7 +298,7 @@ class HTPMetaDatasetSampleETL(ETL):
         query_list = [
             [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, commit_size,
              "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv"],
-            #
+
             [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
               "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
 
@@ -292,37 +307,39 @@ class HTPMetaDatasetSampleETL(ETL):
 
             [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
              "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
-            #
+
             [HTPMetaDatasetSampleETL.htp_stages_query_template, commit_size,
              "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv"],
-            #
+
             [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
              "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
-            #
+
             [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
              "htp_metadataset_sample_aoterms_substructures_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
-            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, commit_size,
-            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.cc_term_query_template, commit_size,
-            #  "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
-            #
-            #
-            # [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
-            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
-            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
-            #
-            # [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
-            #  "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
 
-            # [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
-            #  "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
+             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, commit_size,
+             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.cc_term_query_template, commit_size,
+             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
+            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
+            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
+            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
+            "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_agmtext_query_template, commit_size,
+             "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv"]
 
         ]
 
@@ -350,6 +367,7 @@ class HTPMetaDatasetSampleETL(ETL):
         data_providers = []
         cc_components = []
         biosamples = []
+        biosamplesTexts = []
         counter = 0
 
         data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
@@ -383,6 +401,7 @@ class HTPMetaDatasetSampleETL(ETL):
             biosampleText = ''
             sampleId = ''
             sampleTitle = ''
+            biosamplesTexts = ''
 
             if 'sampleId' in datasample_record:
                 sampleIdObj = datasample_record.get('sampleId')
@@ -422,11 +441,19 @@ class HTPMetaDatasetSampleETL(ETL):
                 if 'bioSampleText' in genomicInformation:
                     biosampleText = genomicInformation.get('bioSampleText')
 
-                biosample = {
-                    "biosampleId": biosampleId,
-                    "datasetSampleId": datasetSampleId
-                }
-                biosamples.append(biosample)
+                if biosampleId is not None and biosampleId != '':
+                    biosample = {
+                        "biosampleId": biosampleId,
+                        "datasetSampleId": datasetSampleId
+                    }
+                    biosamples.append(biosample)
+
+                if biosampleText is not None and biosampleText != '' and biosampleId == '':
+                    biosampleText = {
+                        "biosampleText": biosampleText,
+                        "datasetSampleId": datasetSampleId
+                    }
+                    biosamplesTexts.append(biosampleText)
 
 
             age = ''
@@ -604,7 +631,6 @@ class HTPMetaDatasetSampleETL(ETL):
                 "assayType": datasample_record.get('assayType'),
                 "notes": datasample_record.get('notes'),
                 "dateAssigned": datasample_record.get('dateAssigned'),
-                "biosampleText": biosampleText,
                 "sequencingFormat": datasample_record.get('sequencingFormat'),
                 "sampleTitle": sampleTitle,
                 "sampleAge": age
@@ -628,8 +654,14 @@ class HTPMetaDatasetSampleETL(ETL):
                        stages,
                        ao_terms,
                        ao_substructures,
-                       # ao_qualifiers, ao_ss_qualifiers,
-                       # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
+                       ao_qualifiers,
+                       ao_ss_qualifiers,
+                       cc_components,
+                       ccq_components,
+                       uberon_ao_data,
+                       uberon_ao_other_data,
+                       biosamples,
+                       biosamplesTexts
                        ]
                 counter = 0
                 htp_datasetsamples = []
@@ -655,6 +687,12 @@ class HTPMetaDatasetSampleETL(ETL):
                    stages,
                    ao_terms,
                    ao_substructures,
-                   # ao_qualifiers, ao_ss_qualifiers,
-                   # cc_components, ccq_components, uberon_ao_data, uberon_ao_other_data, biosamples
+                   ao_qualifiers,
+                   ao_ss_qualifiers,
+                   cc_components,
+                   ccq_components,
+                   uberon_ao_data,
+                   uberon_ao_other_data,
+                   biosamples,
+                   biosamplesTexts
                    ]

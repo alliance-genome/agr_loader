@@ -108,7 +108,7 @@ class HTPMetaDatasetETL(ETL):
              [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,"htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
+             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
              "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
 
         ]
@@ -173,12 +173,13 @@ class HTPMetaDatasetETL(ETL):
                     counter = counter - 1
                     continue
 
-            if 'crossReferences' in dataset:
-                for crossRef in dataset.get('crossReferences'):
-                    crossRefId = crossRef.get('id')
+            if 'crossReference' in dataset:
+                crossRefO = dataset.get('crossReference')
+                if crossRefO is not None:
+                    crossRefId = crossRefO.get('id')
                     local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
+                    prefix =crossRefId.split(":")[0]
+                    pages = crossRefO.get('pages')
 
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
@@ -190,7 +191,6 @@ class HTPMetaDatasetETL(ETL):
                             xref['dataId'] = datasetId
                             cross_reference_list.append(xref)
 
-
             category_tags = dataset_record.get('categoryTags')
 
             if category_tags is not None:
@@ -201,15 +201,16 @@ class HTPMetaDatasetETL(ETL):
                     }
                     dataset_tags.append(dataset_category_tag)
 
-            if 'publications' in dataset_record:
-                publications = dataset_record.get('publications')
+            if 'publication' in dataset_record:
+                publications = dataset_record.get('publication')
 
                 for pub in publications:
+                    pid = pub.get('publicationId')
                     publication_mod_id = ""
                     pub_med_id = ""
                     pub_mod_url = ""
                     pub_med_url = ""
-                    if pub.get('publicationId').startswith('PMID:'):
+                    if pid is not None and pid.startswith('PMID:'):
                         pub_med_id = pub.get('publicationId')
                         local_pub_med_id = pub_med_id.split(":")[1]
                         pub_med_url = ETLHelper.get_complete_pub_url(local_pub_med_id, pub_med_id)
@@ -218,7 +219,7 @@ class HTPMetaDatasetETL(ETL):
                             publication_mod_id = pub_xref.get('id')
                             local_pub_mod_id = publication_mod_id.split(":")[1]
                             pub_mod_url = ETLHelper.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
-                    else:
+                    elif pid is not None and not pid.startswith('PMID:'):
                         publication_mod_id = pub.get('publicationId')
                         local_pub_mod_id = publication_mod_id.split(":")[1]
                         pub_mod_url = ETLHelper.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
@@ -229,7 +230,7 @@ class HTPMetaDatasetETL(ETL):
                         "pubModId": publication_mod_id,
                         "pubMedId": pub_med_id,
                         "pubMedUrl": pub_med_url,
-                        "pubModUrl": pub_mod_url,
+                        "pubModUrl": pub_mod_url
                     }
                     publications.append(publication)
 
@@ -244,13 +245,20 @@ class HTPMetaDatasetETL(ETL):
             htp_datasets.append(htp_dataset)
 
             if counter == batch_size:
-                yield [htp_datasets, dataset_tags, publications, cross_reference_list, secondaryIds]
+                yield [htp_datasets, dataset_tags,
+                       publications, cross_reference_list,
+                       secondaryIds
+                       ]
                 counter = 0
                 htp_datasets = []
                 dataset_tags = []
                 publications = []
                 cross_reference_list = []
+                secondaryIds = []
 
         if counter > 0:
-            yield [htp_datasets, dataset_tags, publications, cross_reference_list, secondaryIds]
+            yield [htp_datasets, dataset_tags,
+                   publications, cross_reference_list,
+                   secondaryIds
+             ]
 

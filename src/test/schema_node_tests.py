@@ -58,6 +58,7 @@ class TestClass():
                              dict(node='Chromosome'),
                              dict(node='DiseaseEntityJoin'),
                              dict(node='HTPDataset'),
+                             dict(node='HTPDatasetSample'),
                              dict(node='CategoryTag'),
                              dict(node='Association'),
                              dict(node='Publication'),
@@ -271,6 +272,7 @@ class TestClass():
                                dict(node='GenomicLocation', prop='assembly'),
                                dict(node='PublicationJoin', prop='primaryKey'),
                                dict(node='HTPDataset', prop='primaryKey'),
+                               dict(node='HTPDatasetSample', prop='primaryKey'),
                                dict(node='CategoryTag', prop='primaryKey'),
                                ],
 
@@ -298,6 +300,7 @@ class TestClass():
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
                              dict(node='HTPDataset', prop='primaryKey'),
+                             dict(node='HTPDatasetSample', prop='primaryKey'),
                              dict(node='CategoryTag', prop='primaryKey')
                              ]
     }
