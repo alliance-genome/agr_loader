@@ -140,6 +140,14 @@ class AggregateLoader():
         self.logger = logger
         self.context_info = context_info
         self.start_time = time.time()
+        context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+        if self.schema_branch != 'master':
+            self.logger.warning("*******WARNING: Using branch {} for schema.".format(self.schema_branch))
+            for name in ['tmp/species.yaml', 'tmp/resourceDescriptors.yaml']:
+                if os.path.exists(name):
+                    self.logger.warning("*********WARNING: removing old {} file.".format(name))
+                    os.remove(name)
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
