@@ -3,7 +3,6 @@
 import logging
 import sys
 import time
-import os
 
 from test import TestObject
 from etl.helpers import ResourceDescriptorHelper
