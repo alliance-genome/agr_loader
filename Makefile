@@ -45,7 +45,7 @@ reload:
 
 reload_test: 
 	docker-compose up -d neo4j
-	docker-compose down -v
+	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
 	docker build -t agrdocker/agr_loader_run:latest .
