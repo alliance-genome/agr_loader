@@ -124,10 +124,10 @@ class ResourceDescriptorHelper2():
         aliases. The keys for this are not used/stired but are here for reference
         or may be used at a later point.
         """
-        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/AGR-1144/ingest/species/species.yaml'
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
         self.logger.critical("species url is {}".format(url))
 
-        resource_descriptor_file = Download('tmp7',
+        resource_descriptor_file = Download('tmp',
                                             url,
                                             'species.yaml').get_downloaded_data()
 
@@ -166,19 +166,13 @@ class ResourceDescriptorHelper2():
         if self.resource_descriptor_dict:
             self.logger.critical("keys are:- {}".format(self.resource_descriptor_dict.keys()))
             return
-        # TODO This should eventually be tied to the schemas submodule.
-        # NOTE: BOB change AGR-1144 to master once merged.
-        url = 'https://raw.githubusercontent.com/' \
-            + 'alliance-genome/agr_schemas/AGR-1144/resourceDescriptors.yaml'
-        ResourceDescriptorHelper2.logger.critical("rD url is {}".format(url))
 
-        # Something is being cached when it should not be.
-        # Have to specifiy a new tmpxx directory each time else the old
-        # one is obtained even though it is not supposed to be kept.
-        # There is no tmpxx directory so where is it being cached!
-        resource_descriptor_file = Download('tmp72',
+        url = 'https://raw.githubusercontent.com/' \
+            + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
+
+        resource_descriptor_file = Download('tmp',
                                             url,
-                                            'resourceDescriptorsBOB5.yaml').get_downloaded_data()
+                                            'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.

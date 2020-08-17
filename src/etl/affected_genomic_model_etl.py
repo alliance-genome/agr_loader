@@ -183,11 +183,13 @@ class AffectedGenomicModelETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
-
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, alt_page=data_provider_page)
+                # So originally sending data_provider as key and value????
+                # cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
+                #                                                         self.xref_url_map,
+                #                                                         data_provider,
+                #                                                         data_provider_page)
                 data_provider_cross_ref_set.append(
                     ETLHelper.get_xref_dict(
                         data_provider,
@@ -239,11 +241,13 @@ class AffectedGenomicModelETL(ETL):
                 if pages is not None and len(pages) > 0:
                     for page in pages:
                         if page in ['Fish', 'genotype', 'strain']:
-                            mod_global_cross_ref_url = self.etlh.get_page_complete_url(
-                                local_crossref_id,
-                                self.xref_url_map,
-                                prefix,
-                                page)
+                            mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
+                                prefix, local_crossref_id, alt_page=page)
+                            # mod_global_cross_ref_url = self.etlh.get_page_complete_url(
+                            #    local_crossref_id,
+                            #    self.xref_url_map,
+                            #    prefix,
+                            #    page)
 
             short_species_abbreviation = self.etlh.get_short_species_abbreviation(agm_record.get('taxonId'))
             name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))

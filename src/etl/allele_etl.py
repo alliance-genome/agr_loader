@@ -220,9 +220,12 @@ class AlleleETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(
-                    data_provider, self.xref_url_map, data_provider,
-                    data_provider_page)
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, data_provider_page)
+                # again key and value the same?
+                # cross_ref_complete_url = self.etlh.get_page_complete_url(
+                #    data_provider, self.xref_url_map, data_provider,
+                #    data_provider_page)
 
                 data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
                                                                            data_provider_page, data_provider,
@@ -398,8 +401,7 @@ class AlleleETL(ETL):
                         for page in pages:
                             if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
                                     or page == 'transgene/references' or page == 'construct/references':
-                                mod_global_cross_ref_id = self.etlh.get_page_complete_url(local_crossref_id,
-                                                                                          self.xref_url_map, prefix, page)
+                                mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(prefix, local_crossref_id, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
                                                                mod_global_cross_ref_id, crossRefId + page)
                                 xref['dataId'] = global_id

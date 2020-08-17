@@ -3,7 +3,6 @@
 import logging
 import multiprocessing
 import uuid
-from etl.helpers import ResourceDescriptorHelper
 from etl import ETL
 from etl.helpers import ETLHelper
 from etl.helpers import TextProcessingHelper
@@ -16,7 +15,6 @@ class ConstructETL(ETL):
     """Construct ETL."""
 
     logger = logging.getLogger(__name__)
-    xref_url_map = ResourceDescriptorHelper().get_data()
 
     # Query templates which take params and will be processed later
 

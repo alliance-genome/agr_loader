@@ -5,7 +5,7 @@ import sys
 import time
 
 from test import TestObject
-from etl.helpers import ResourceDescriptorHelper, ETLHelper
+from etl.helpers import ETLHelper
 from loader_common import ContextInfo
 
 
@@ -13,12 +13,14 @@ class ETL():
     """ETL."""
 
     logger = logging.getLogger(__name__)
-    xref_url_map = ResourceDescriptorHelper().get_data()
+    xref_url_map = None
     etlh = ETLHelper()
 
     def __init__(self):
         """Initialise objects."""
         context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+
         if context_info.env["TEST_SET"]:
             self.logger.warning("WARNING: Test data load enabled.")
             time.sleep(1)
@@ -37,7 +39,7 @@ class ETL():
         for key in self.etlh.rdh2.bad_pages.keys():
             self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_pages[key]))
         for key in self.etlh.rdh2.bad_regex.keys():
-            self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_regex[key]))
+            self.logger.critical("{} None matching regex {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_regex[key]))
 
     def run_etl(self):
         """Run ETL."""
