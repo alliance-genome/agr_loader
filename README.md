@@ -33,6 +33,7 @@ Resources.
 ## Shortcut Commands
 - `make reload` will re-run the `Installation` and `Running the Loader` steps from above.
 - `make reload_test` will re-run the same steps using a test subset of data.
+- note: reload_test will not re-download the file bolus. 
 
 ## Config
 - There are 3 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.
