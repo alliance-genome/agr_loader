@@ -54,7 +54,7 @@ reload_test:
 # rebuild targets do not remove and re-download files to the local docker volume.
 rebuild:
 	docker-compose up -d neo4j
-	docker-compose down -v
+	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
 	docker build -t agrdocker/agr_loader_run:latest .
