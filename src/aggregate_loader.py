@@ -19,8 +19,8 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  VariationETL, VEPTranscriptETL)
 from transactors import FileTransactor, Neo4jTransactor
 from data_manager import DataFileManager
-from loader_common import ContextInfo  # Must be the last timeport othersize program fails
 from files import Download
+from loader_common import ContextInfo  # Must be the last timeport othersize program fails
 
 
 def main():

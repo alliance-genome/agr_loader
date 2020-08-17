@@ -4,7 +4,7 @@ neo4j-driver
 ijson==2.4
 pytest
 jsonschema
-pyyaml
+PyYAML>=5.1
 urllib3==1.24.2
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.1.0#egg=genedescriptions

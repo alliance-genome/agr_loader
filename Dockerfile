@@ -1,12 +1,8 @@
-FROM agrdocker/agr_base_linux_env:latest
+FROM agrdocker/agr_base_linux_env:local
 
 WORKDIR /usr/src/app
 
 ADD requirements.txt .
-
-RUN apt-get update
-
-RUN apt-get -yq install gcc python3-dev
 
 RUN pip3 install -r requirements.txt
 

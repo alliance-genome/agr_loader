@@ -28,6 +28,7 @@ class ContextInfo(metaclass=Singleton):
     def __init__(self, logger=logger):
         # set default context info here
         config_file = open('src/default_env_vars.yml')
+        logger.critical("yaml version is {}".format(yaml.__version__))
         self.env = yaml.load(config_file, Loader=yaml.FullLoader)
 
         # Look for ENV variables to replace default variables from config file.
