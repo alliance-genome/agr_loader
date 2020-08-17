@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetETL(ETL):
+
     htp_dataset_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
         CREATE (ds:HTPDataset {primaryKey:row.datasetId})
           SET ds.dateAssigned = row.dateAssigned,
-              ds.title = row.title,
               ds.summary = row.summary,
               ds.numChannels = row.numChannels,
               ds.subSeries = row.subSeries
@@ -108,8 +108,7 @@ class HTPMetaDatasetETL(ETL):
              [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,"htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
-             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,"htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
 
         ]
 
@@ -201,10 +200,9 @@ class HTPMetaDatasetETL(ETL):
                     }
                     dataset_tags.append(dataset_category_tag)
 
-            if 'publication' in dataset_record:
-                publications = dataset_record.get('publication')
-
-                for pub in publications:
+            publicationNew = dataset_record.get('publication')
+            if publicationNew is not None:
+                for pub in publicationNew:
                     pid = pub.get('publicationId')
                     publication_mod_id = ""
                     pub_med_id = ""
@@ -234,6 +232,7 @@ class HTPMetaDatasetETL(ETL):
                     }
                     publications.append(publication)
 
+
             htp_dataset = {
                 "datasetId": datasetId,
                 "dateAssigned": dataset_record.get('dateAssigned'),
@@ -245,8 +244,10 @@ class HTPMetaDatasetETL(ETL):
             htp_datasets.append(htp_dataset)
 
             if counter == batch_size:
-                yield [htp_datasets, dataset_tags,
-                       publications, cross_reference_list,
+                yield [htp_datasets,
+                       dataset_tags,
+                       publications,
+                       cross_reference_list,
                        secondaryIds
                        ]
                 counter = 0
@@ -257,8 +258,10 @@ class HTPMetaDatasetETL(ETL):
                 secondaryIds = []
 
         if counter > 0:
-            yield [htp_datasets, dataset_tags,
-                   publications, cross_reference_list,
+            yield [htp_datasets,
+                   dataset_tags,
+                   publications,
+                   cross_reference_list,
                    secondaryIds
              ]
 

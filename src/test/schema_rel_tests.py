@@ -46,7 +46,6 @@ class TestClass():
                             dict(node1='GenomicLocation', node2='Gene'),
                             dict(node1='HTPDataset', node2='Publication'),
                             dict(node1='HTPDataset', node2='CategoryTag'),
-                            dict(node1='HTPDataset', node2='CrossReference'),
                             dict(node1='HTPDataset', node2='HTPDatasetSample'),
                             dict(node1='HTPDatasetSample', node2='Species'),
                             dict(node1='ExpressionBioEntity', node2='HTPDatasetSample'),

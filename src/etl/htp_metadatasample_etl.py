@@ -22,8 +22,8 @@ class HTPMetaDatasetSampleETL(ETL):
         MATCH (s:Species {primaryKey: row.taxonId})
         //MATCH (a:MMOTerm {primaryKey: row.assayType})
     
-        CREATE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
-          SET ds.dateAssigned = row.dateAssigned,
+        MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+          ON CREATE SET ds.dateAssigned = row.dateAssigned,
               ds.abundance = row.abundance,
               ds.sex = row.sex,
               ds.notes = row.notes,
