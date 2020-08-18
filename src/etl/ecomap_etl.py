@@ -60,8 +60,8 @@ class ECOMAPETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+        self.error_messages("Ecomap-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading ECOMAP Data: %s", sub_type.get_data_provider())
-        self.error_messages("POST_PST")
 
     def get_generators(self, filepath, batch_size):
         """Create Generator."""

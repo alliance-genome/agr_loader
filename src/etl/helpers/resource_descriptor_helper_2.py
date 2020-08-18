@@ -295,7 +295,7 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] = 1
                 self.logger.critical(mess)
         except AttributeError as e:
-            mess = "BOB ***** ERROR!!! key = '{}', value = '{}' error = '{}'******| grep ERROR".format(key, value, e)
+            mess = "BOB ***** ERROR!!! key = '{}', value = '{}' error = '{}'******".format(key, value, e)
             key = "{}-{}".format(key, page)
             if key in self.missing_pages:
                 self.missing_pages[key] += 1

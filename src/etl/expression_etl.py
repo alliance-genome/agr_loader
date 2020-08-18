@@ -348,9 +348,8 @@ class ExpressionETL(ETL):
 
         for item in query_and_file_list:
             query_tracking_list.append(item)
-
+        self.error_messages("Expression-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Expression Data: %s", sub_type.get_data_provider())
-        self.error_messages("POST_PST")
 
     def add_other(self):
         """Add Other."""

@@ -118,7 +118,7 @@ class ExpressionAtlasETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        self.error_messages()
+        self.error_messages("ExpAtlas-{}: ".format(sub_type.get_data_provider()))
 
     def get_generators(self, expression_atlas_gene_pages, data_provider, batch_size):
         """Get Generators."""

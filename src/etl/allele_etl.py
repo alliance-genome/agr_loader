@@ -155,7 +155,6 @@ class AlleleETL(ETL):
         filepath = sub_type.get_filepath()
         logger.info(filepath)
         data = JSONFile().get_data(filepath)
-        logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
 
         if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
@@ -190,7 +189,8 @@ class AlleleETL(ETL):
         query_and_file_list = self.process_query_params(query_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        self.error_messages("POST_PST")
+        self.error_messages("Allele-{}: ".format(sub_type.get_data_provider()))
+        logger.info("Finished Loading Allele Data: %s" % sub_type.get_data_provider())
 
     def get_generators(self, allele_data, batch_size):  # noqa
 

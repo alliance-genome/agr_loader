@@ -156,8 +156,8 @@ class OrthologyETL(ETL):
         for item in query_and_file_list:
             query_tracking_list.append(item)
 
+        self.error_messages("Ortho-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Orthology Data: %s", sub_type.get_data_provider())
-        self.error_messages("BOB: ")
 
     def get_randomized_list(self, sub_types):
         """Get Randomized List"""

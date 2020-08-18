@@ -154,6 +154,7 @@ class TranscriptETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("Transcript-{}: ".format(sub_type.get_data_provider()))
 
 
     def get_generators(self, filepath, batch_size):

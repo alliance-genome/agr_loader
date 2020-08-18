@@ -138,6 +138,7 @@ class VariationETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("Var-{}: ".format(sub_type.get_data_provider()))
 
     def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position,
                               end_position, reference_sequence, variant_sequence,

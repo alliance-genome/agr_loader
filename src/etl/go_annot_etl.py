@@ -78,7 +78,7 @@ class GOAnnotETL(ETL):
 
         for item in query_and_file_list:
             query_tracking_list.append(item)
-        self.error_messages("POST_PST: ")
+        self.error_messages("GenAnnot-{}: ".format(sub_type.get_data_provider()))
 
     def get_generators(self, file, prefix, batch_size):
         """Create Generators"""

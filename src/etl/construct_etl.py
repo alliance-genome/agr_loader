@@ -106,7 +106,6 @@ class ConstructETL(ETL):
         self.logger.info("Loading Construct Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
 
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
@@ -142,7 +141,8 @@ class ConstructETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        self.error_messages("POST_PST")
+        self.error_messages("Construct-{}: ".format(sub_type.get_data_provider()))
+        self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, construct_data, data_provider, batch_size):  # noqa
         """Create Generators"""
