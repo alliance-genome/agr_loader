@@ -134,7 +134,6 @@ class MIETL(ETL):
                 self.logger.warning("Missing oid.")
 
             else:
-                self.logger.critical("BOB: ident = {}".format(ident))
                 dict_to_append = {
                     'name': self.adjust_database_names(line.get('name')),
                     'name_key': self.adjust_database_names(line.get('name')),
