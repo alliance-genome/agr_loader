@@ -148,7 +148,10 @@ class ResourceDescriptorHelper2():
             self.key_to_taxonid[db_name] = tax_id
             self.key_lookup[item['taxonId'].upper()] = db_name
             self.key_lookup[tax_id] = db_name
-
+            # Sce has 2 taxon id's so hard code the second one not in species file
+            if item['fullName'] == 'Saccharomyces cerevisiae':
+                self.key_lookup['4932'] = db_name
+                self.key_lookup['NCBITAXON:4932'] = db_name
             self.key_lookup[item['shortName'].upper()] = db_name
             self.key_to_order[db_name] = item['phylogenicOrder']
             self.key_to_shortname[db_name] = item['shortName']
