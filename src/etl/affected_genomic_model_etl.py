@@ -190,6 +190,7 @@ class AffectedGenomicModelETL(ETL):
                 #                                                         self.xref_url_map,
                 #                                                         data_provider,
                 #                                                         data_provider_page)
+                self.logger.critical("Same prefix, value? {}".format(data_provider))
                 data_provider_cross_ref_set.append(
                     ETLHelper.get_xref_dict(
                         data_provider,
@@ -243,11 +244,6 @@ class AffectedGenomicModelETL(ETL):
                         if page in ['Fish', 'genotype', 'strain']:
                             mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
                                 prefix, local_crossref_id, alt_page=page)
-                            # mod_global_cross_ref_url = self.etlh.get_page_complete_url(
-                            #    local_crossref_id,
-                            #    self.xref_url_map,
-                            #    prefix,
-                            #    page)
 
             short_species_abbreviation = self.etlh.get_short_species_abbreviation(agm_record.get('taxonId'))
             name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))
