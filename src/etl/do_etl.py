@@ -104,7 +104,7 @@ class DOETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("DO-?: ")
 
-    def get_generators(self, filepath, batch_size):  # noqa
+    def get_generators(self, filepath, batch_size):  # noqa TODO:Needs splitting up really
         """Get Generators."""
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
@@ -287,33 +287,17 @@ class DOETL(ETL):
                 'is_obsolete': is_obsolete,
                 'subset': subset,
                 'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                'rgd_link': 'https://rgd.mcw.edu'
-                            + '/rgdweb/ontology/annot.html?species=All&x=1&acc_id='
-                            + node['id'] + '#annot',
-                'rat_only_rgd_link': 'https://rgd.mcw.edu'
-                                     + '/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id='
-                                     + node['id'] + '#annot',
-                'human_only_rgd_link': 'https://rgd.mcw.edu'
-                                       + '/rgdweb/ontology/annot.html?species=Human&x=1&acc_id='
-                                       + node['id'] + '#annot',
+                'rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/all'),
+                'rat_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/rat'),
+                'human_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/human'),
                 'mgi_link': 'http://www.informatics.jax.org/disease/' + node['id'],
                 'zfin_link': 'https://zfin.org/' + node['id'],
                 'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id=' + node['id'],
                 'wormbase_link': 'http://www.wormbase.org/resources/disease/' + node['id'],
                 'sgd_link': 'https://yeastgenome.org/disease/' + node['id']
             }
-            rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/all')
-            if rgd_link != dict_to_append['rgd_link']:
-                self.bad_page('RGD', 'disease/all', dict_to_append['rgd_link'], rgd_link)
 
-            rat_only_rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/rat')
-            if rat_only_rgd_link != dict_to_append['rat_only_rgd_link']:
-                self.bad_page('RGD', 'disease/rat', dict_to_append['rat_only_rgd_link'], rat_only_rgd_link)
-
-            human_only_rgd_link = self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/human')
-            if human_only_rgd_link != dict_to_append['human_only_rgd_link']:
-                self.bad_page('RGD', 'disease/human', dict_to_append['human_only_rgd_link'], human_only_rgd_link)
-
+            self.logger.critical("BOB: Node => {}".format(node['id']))
             do_term_list.append(dict_to_append)
 
             if counter == batch_size:
@@ -336,5 +320,3 @@ class DOETL(ETL):
             self.etlh.rdh2.bad_pages[bad_key] = 1
         else:
             self.etlh.rdh2.bad_pages[bad_key] += 1
-
-       
