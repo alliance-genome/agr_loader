@@ -81,7 +81,7 @@ class GeoXrefETL(ETL):
             gene_primary_key = record["g.primaryKey"]
             mod_local_id = record["g.modLocalId"]
             global_cross_ref_id = record["cr.globalCrossRefId"]
-            url = self.etlh.return_url_from_key_value('GEO', global_cross_ref_id.split(":")[1], 'entrezgene')
+            url = self.etlh.rdh2.return_url_from_key_value('GEO', global_cross_ref_id.split(":")[1], 'entrezgene')
             geo_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
                                                "NCBI_Gene",
                                                "gene/other_expression",
