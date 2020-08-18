@@ -16,6 +16,7 @@ class ResourceDescriptorHelper():
     def get_data():
         """Get Data"""
 
+        ResourceDescriptorHelper.logger.critical("ResourceDescriptorHelper get_data called?")
         ResourceDescriptorHelper.logger.info("got to resourcedescriptor")
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load

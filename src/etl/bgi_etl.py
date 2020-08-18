@@ -433,10 +433,7 @@ class BGIETL(ETL):
                             # TODO handle human generic cross reference to RGD in resourceDescr.
                             elif prefix == 'RGD':
                                 cross_ref_primary_id = cross_ref.get('id')
-                                cross_ref_complete_url = "https://rgd.mcw.edu" \
-                                                         + "/rgdweb/elasticResults.html?term=" \
-                                                         + local_cross_ref_id
-                                self.logger.critical(cross_ref_complete_url)
+                                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('RGD', local_cross_ref_id)
                                 xref_map = ETLHelper.get_xref_dict(
                                     local_cross_ref_id,
                                     prefix,

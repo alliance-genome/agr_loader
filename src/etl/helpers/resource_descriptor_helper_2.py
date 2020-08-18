@@ -64,7 +64,7 @@ class ResourceDescriptorHelper2():
                     self.missing_keys[mk_key] = 1
                     mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
                     self.logger.critical(mess)
-                    self.logger.critical("Available are {}".format(self.key_lookup.keys()))
+                    self.logger.info("Available are {}".format(self.key_lookup.keys()))
                 return ret_key
             if key_prefix not in self.key_lookup:
                 self.logger.debug("{} Found after splitting".format(alt_key))
