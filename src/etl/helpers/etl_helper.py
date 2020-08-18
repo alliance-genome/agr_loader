@@ -278,7 +278,7 @@ class ETLHelper():
             self.rdh2.deprecated_mess['get_expression_images_url'] = 1
         else:
             self.rdh2.deprecated_mess['get_expression_images_url'] += 1
-        return self.rdh2.return_url_from_key_value(prefix, local_id, alt_page='gene/expression_images') 
+        return self.rdh2.return_url_from_key_value(prefix, local_id, alt_page='gene/expression_images')
 
     def get_no_page_complete_url(self, local_id, xref_url_map, prefix, primary_id):
         """Get No Page Complete URL.
