@@ -38,7 +38,7 @@ class GeoXrefETL(ETL):
         for sub_type in self.data_type_config.get_sub_type_objects():
 
             species_encoded = urllib.parse.quote_plus(
-                ETLHelper.species_lookup_by_data_provider(sub_type.get_data_provider()))
+                self.etlh.species_lookup_by_data_provider(sub_type.get_data_provider()))
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
             # batch_size = self.data_type_config.get_generator_batch_size()
