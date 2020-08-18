@@ -8,7 +8,7 @@ PyYAML>=5.1
 urllib3==1.24.2
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.1.0#egg=genedescriptions
-git+https://github.com/alliance-genome/agr_file_generator.git@495c3b7
+git+https://github.com/alliance-genome/agr_file_generator.git@8b47011
 ontobio==1.11.4
 boto3
 coloredlogs
@@ -19,7 +19,6 @@ argparse
 jsonmerge
 requests
 xmltodict
-Bio
 biopython
 pyfaidx
 pytest-parallel

@@ -323,13 +323,15 @@ class DiseaseETL(ETL):
             if 'objectRelation' in disease_record:
                 disease_association_type = disease_record['objectRelation'].get("associationType").upper()
                 if 'negation' in disease_record:
-                    if disease_association_type == 'is_implicated_in':
-                        disease_association_type = 'is_not_implicated_in'
-                    if disease_association_type == 'is_model_of':
-                        disease_association_type = 'is_not_model_of'
-                    if disease_association_type == 'is_marker_for':
-                        disease_association_type = 'is_not_marker_for'
+                    # this capitalization is purposeful
+                    if disease_association_type == 'IS_IMPLICATED_IN':
+                        disease_association_type = 'IS_NOT_IMPLICATED_IN'
+                    if disease_association_type == 'IS_MODEL_OF':
+                        disease_association_type = 'IS_NOT_MODEL_OF'
+                    if disease_association_type == 'IS_MARKER_FOR':
+                        disease_association_type = 'IS_NOT_MARKER_FOR'
                     negation = 'NOT'
+                    disease_unique_key = disease_unique_key + negation
 
                 additional_genetic_components = []
 

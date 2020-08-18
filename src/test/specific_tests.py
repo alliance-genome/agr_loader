@@ -282,6 +282,27 @@ def test_molint_for_all_species_exists():
         assert record["counter"] == 8
 
 
+def test_vepgene_for_all_species_exists():
+    """Test Molecular Interaction for all Species Exists"""
+
+    query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
+               RETURN count(distinct s) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 5
+
+
+def test_veptranscript_for_all_species_exists():
+    """Test Molecular Interaction for all Species Exists"""
+
+    query = """MATCH (s:Species)--(:Gene)--(:Transcript)--(glc:TranscriptLevelConsequence)
+               RETURN count(distinct s) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 5
+
+
+
 #def test_variant_consequences_for_five_species_exists():
 #    """Test Variant Consequences for all Five Species Exists"""
 #    query = \
@@ -1237,4 +1258,26 @@ def test_tc_consequence_is_null_vs_dash():
                 RETURN count(v) AS counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 0 
+        assert record["counter"] > 0
+
+
+def test_manual_sars2_synonym_exists():
+    """Test_manual_sars2_synonym_exists"""
+
+    query = """ MATCH (s:Synonym) WHERE s.name = 'SARS-CoV-2 infection'
+                RETURN count(s) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_not_disease_annotation_exists_exists():
+    """Test_not_disease_annotation_exists_exists"""
+
+    query = """ MATCH (d:DOTerm)-[x:IS_NOT_MARKER_FOR]-(g:Gene)
+                RETURN count(d) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
