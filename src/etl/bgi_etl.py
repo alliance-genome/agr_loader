@@ -394,11 +394,12 @@ class BGIETL(ETL):
                                 # makes its way to the release branch.
 
                                 if page == 'gene/disease' and taxon_id == 'NCBITaxon:559292':
-                                    cross_ref_complete_url = '/'.join(
-                                        ["https://www.yeastgenome.org",
-                                         "locus",
-                                         local_id,
-                                         "disease"])
+                                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('SGD', local_id, page)
+                                    # '/'.join(
+                                    #    ["https://www.yeastgenome.org",
+                                    #     "locus",
+                                    #     local_id,
+                                    #     "disease"])
 
                                 xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
                                                                    prefix,
@@ -435,7 +436,7 @@ class BGIETL(ETL):
                                 cross_ref_complete_url = "https://rgd.mcw.edu" \
                                                          + "/rgdweb/elasticResults.html?term=" \
                                                          + local_cross_ref_id
-
+                                self.logger.critical(cross_ref_complete_url)
                                 xref_map = ETLHelper.get_xref_dict(
                                     local_cross_ref_id,
                                     prefix,

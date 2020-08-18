@@ -278,6 +278,8 @@ class DOETL(ETL):
             else:
                 alt_ids = []
 
+            # TODO: Need to add urls to resource Descriptis for SGD and MGI.
+            # NOTE: MGI had one but has 'MGI:' at the end of the url not required here.
             dict_to_append = {
                 'oid': node['id'],
                 'name': node.get('label'),
@@ -286,18 +288,17 @@ class DOETL(ETL):
                 'defLinksProcessed': def_links_processed,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
-                'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
+                'oUrl': self.etlh.rdh2.return_url_from_key_value('DOID', node['id']),
                 'rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/all'),
                 'rat_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/rat'),
                 'human_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/human'),
                 'mgi_link': 'http://www.informatics.jax.org/disease/' + node['id'],
-                'zfin_link': 'https://zfin.org/' + node['id'],
-                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id=' + node['id'],
-                'wormbase_link': 'http://www.wormbase.org/resources/disease/' + node['id'],
+                'zfin_link': self.etlh.rdh2.return_url_from_key_value('ZFIN', node['id'], 'disease'),
+                'flybase_link': self.etlh.rdh2.return_url_from_key_value('FB', node['id'], 'disease'),
+                'wormbase_link': self.etlh.rdh2.return_url_from_key_value('WB', node['id'], 'disease'),
                 'sgd_link': 'https://yeastgenome.org/disease/' + node['id']
             }
 
-            self.logger.critical("BOB: Node => {}".format(node['id']))
             do_term_list.append(dict_to_append)
 
             if counter == batch_size:
@@ -311,12 +312,3 @@ class DOETL(ETL):
 
         if counter > 0:
             yield [do_term_list, do_isas_list, do_synonyms_list, xrefs, do_alt_ids_list]
-
-    def bad_page(self, species, page, old_url, new_url):
-        """Tempory bad page test."""
-        bad_key = "{}-{}".format(species, page)
-        if bad_key not in self.etlh.rdh2.bad_pages:
-            self.logger.critical("DO_UTL old url '{}' != new url '{}'".format(old_url, new_url))
-            self.etlh.rdh2.bad_pages[bad_key] = 1
-        else:
-            self.etlh.rdh2.bad_pages[bad_key] += 1

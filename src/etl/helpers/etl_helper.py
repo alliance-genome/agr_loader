@@ -1,24 +1,5 @@
-"""ETL Helper.
+"""ETL Helper."""
 
-NOTES: This can ve removed eventually just explaining why some thiongs havse changed.
-       local_id and global_id removed as those that use the global_id should
-       just have that bit in the url string.
-
-i.e. previously we had
-def get_complete_pub_url(local_id, global_id):
-    if global_id.startswith('MGI:'):
-        return 'http://www.informatics.jax.org/accession/' + global_id
-    elif global_id.startswith('FB:'):
-        return 'http://flybase.org/reports/{}.html' + local_id
-now we have
-def get_complete_pub_url(self, local_id, global_id, key=False):
-    if not key: # split not done
-       return self.rdh2.return_url_from_identifier(global_id)
-    else:
-       return self.rdh2.return_url_from_key_value(key, local_id)
-
-as the url stored have the MGI: or RGD: etc in the url already if they are required.
-"""
 import uuid
 import logging
 from .resource_descriptor_helper_2 import ResourceDescriptorHelper2

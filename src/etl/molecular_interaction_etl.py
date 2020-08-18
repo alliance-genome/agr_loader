@@ -516,15 +516,7 @@ class MolecularInteractionETL(ETL):
                     if publication_re is not None:
                         publication = publication_re.group(0)  # matching bit
                         publication = publication.replace('pubmed', 'PMID')
-                        old_url = 'https://www.ncbi.nlm.nih.gov/' + 'pubmed/{}'.format(publication[5:])
                         publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
-                        if old_url != publication_url:
-                            bad_key = "{}-{}".format('PMID', 'default_url')
-                            if bad_key not in self.etlh.rdh2.bad_pages:
-                                self.logger.critical("mol int pub old url '{}' != new url '{}'".format(old_url, publication_url))
-                                self.etlh.rdh2.bad_pages[bad_key] = 1
-                            else:
-                                self.etlh.rdh2.bad_pages[bad_key] += 1
                     elif publication_re is None:
                         # If we can't find a pubmed publication, check for DOI.
                         publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
@@ -533,14 +525,6 @@ class MolecularInteractionETL(ETL):
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
                             publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
-                            old_url = 'https://doi.org/{}'.format(publication)
-                            if old_url != publication_url:
-                                bad_key = "{}-{}".format('DOI', 'default_url')
-                                if bad_key not in self.etlh.rdh2.bad_pages:
-                                    self.logger.critical("mol int pub old url '{}' != new url '{}'".format(old_url, publication_url))
-                                    self.etlh.rdh2.bad_pages[bad_key] = 1
-                                else:
-                                    self.etlh.rdh2.bad_pages[bad_key] += 1
                     else:
                         unresolved_publication_count += 1
                         continue
