@@ -49,4 +49,3 @@ class MolInteractionsXrefETL(ETL):
 
         query_list = self.process_query_params(query_template_list)
         Neo4jTransactor.execute_query_batch(query_list)
-        self.error_messages()

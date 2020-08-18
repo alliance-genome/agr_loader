@@ -44,7 +44,7 @@ class ETL():
     def run_etl(self):
         """Run ETL."""
         self._load_and_process_data()
-        self.error_messages("POSTRUN: ")
+        self.error_messages()
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):

@@ -55,7 +55,7 @@ class ResourceDescriptorHelper():
 
                         stanza_map[resource+page_name] = {"resource": resource,
                                                           "default_url": default_url,
-                                                          "resource": gid_pattern,
+                                                          "gid_pattern": gid_pattern,
                                                           "page_name": page_name,
                                                           "page_url": page_url,
                                                           "page_url_prefix": page_url_prefix,

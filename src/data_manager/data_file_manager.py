@@ -92,8 +92,7 @@ class DataFileManager(metaclass=Singleton):
 
     def dispatch_to_object(self):
         """ This function sends off our data types to become DataTypeConfig objects.
-            The smaller SubTypeConfi
-            g objects are created in the DataTypeConfig functions,
+            The smaller SubTypeConfig objects are created in the DataTypeConfig functions,
             see data_type_config.py."""
 
         for config_entry in self.transformed_submission_system_data:

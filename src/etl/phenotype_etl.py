@@ -165,7 +165,6 @@ class PhenoTypeETL(ETL):
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
         self.logger.info("Finished Loading Phenotype Data: %s", sub_type.get_data_provider())
-        # self.logger.info("Finished Loading Phenotype Data: %s", data)
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
@@ -194,7 +193,6 @@ class PhenoTypeETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-        self.error_messages("BOB: ")
 
     def get_generators(self, phenotype_data, batch_size):
         """Get Generators"""
