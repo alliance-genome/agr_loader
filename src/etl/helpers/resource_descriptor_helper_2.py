@@ -273,12 +273,10 @@ class ResourceDescriptorHelper2():
             self.missing_key_message(alt_key, key, value)
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
-            mess = "{} has no 'default_url'".format(key)
+            mess = "******** '{}' has no 'default_url' **********".format(key)
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
-            exit(-1)
             return None
-
         try:
             if alt_page:
                 page = alt_page
@@ -295,7 +293,7 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] = 1
                 self.logger.critical(mess)
         except AttributeError as e:
-            mess = "BOB ***** ERROR!!! key = '{}', value = '{}' error = '{}'******".format(key, value, e)
+            mess = "BOB ***** ERROR!!! key = '{}', value = '{}' page = {} error = '{}'******".format(key, value, page, e)
             key = "{}-{}".format(key, page)
             if key in self.missing_pages:
                 self.missing_pages[key] += 1
