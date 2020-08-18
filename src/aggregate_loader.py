@@ -19,7 +19,7 @@ from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, Gen
 from transactors import Neo4jTransactor, FileTransactor
 from data_manager import DataFileManager
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
-
+from files import Download
 
 def main():
     """ Entry point to ETL program"""
@@ -145,6 +145,24 @@ class AggregateLoader():
         self.logger = logger
         self.context_info = context_info
         self.start_time = time.time()
+        context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+        if self.schema_branch != 'master':
+            self.logger.warning("*******WARNING: Using branch {} for schema.".format(self.schema_branch))
+
+        # Lets delete the old files and down load new ones. They are small.
+        for name in ['tmp/species.yaml', 'tmp/resourceDescriptors.yaml']:
+            if os.path.exists(name):
+                self.logger.warning("*********WARNING: removing old {} file.".format(name))
+                os.remove(name)
+        self.logger.info("Getting files initially")
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/resourceDescriptors.yaml'
+        url = url.replace('SCHEMA_BRANCH', self.schema_branch)
+        Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/ingest/species/species.yaml'
+        url = url.replace('SCHEMA_BRANCH', self.schema_branch)
+        Download('tmp', url, 'species.yaml').get_downloaded_data()
+        self.logger.info("Finished getting files initially")
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
