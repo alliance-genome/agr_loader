@@ -246,8 +246,8 @@ class BGIETL(ETL):
         for item in query_and_file_list:
             query_tracking_list.append(item)
 
-        self.logger.info("Finished Loading BGI Data: %s", sub_type.get_data_provider())
         self.error_messages("BGI-{}: ".format(sub_type.get_data_provider()))
+        self.logger.info("Finished Loading BGI Data: %s", sub_type.get_data_provider())
 
     def get_generators(self, gene_data, data_provider, batch_size):  # noqa
         """Create Generators."""

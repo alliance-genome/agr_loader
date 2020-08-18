@@ -434,12 +434,12 @@ class ExpressionETL(ETL):
                             publication_mod_id = pub_xref.get('id')
 
                             if publication_mod_id is not None:
-                                pub_mod_url = ETLHelper.get_expression_pub_annotation_xref(publication_mod_id)
+                                pub_mod_url = self.etlh.get_expression_pub_annotation_xref(publication_mod_id)
 
                     else:
                         publication_mod_id = evidence['publicationId']
                         if publication_mod_id is not None:
-                            pub_mod_url = ETLHelper.get_expression_pub_annotation_xref(publication_mod_id)
+                            pub_mod_url = self.etlh.get_expression_pub_annotation_xref(publication_mod_id)
 
                     if publication_mod_id is None:
                         publication_mod_id = ""
