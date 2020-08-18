@@ -289,7 +289,9 @@ class ETLHelper():
             return None
         elif prefix.startswith('PANTHER'):
             page, primary_id = primary_id.split(':')
-            new_url = self.rdh2.return_url_from_key_value('PANTHER', primary_id, page).replace('PAN_BOOK', local_id)
+            new_url = self.rdh2.return_url_from_key_value('PANTHER', primary_id, page)
+            if new_url:
+                new_url = new_url.replace('PAN_BOOK', local_id)
         else:
             new_url = self.rdh2.return_url_from_key_value(prefix, local_id)
         return new_url
