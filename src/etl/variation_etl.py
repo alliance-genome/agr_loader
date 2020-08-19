@@ -299,10 +299,8 @@ class VariationETL(ETL):
             local_cross_ref_id = cross_ref_primary_id.split(":")[1]
             prefix = cross_ref_primary_id.split(":")[0]
 
-            cross_ref_complete_url = self.etlh.get_no_page_complete_url(local_cross_ref_id,
-                                                                        ETL.xref_url_map,
-                                                                        prefix,
-                                                                        global_id)
+            cross_ref_complete_url = self.etlh.get_no_page_complete_url(
+                local_cross_ref_id, prefix, global_id)
             xref_map = ETLHelper.get_xref_dict(
                 local_cross_ref_id,
                 prefix,

@@ -252,10 +252,8 @@ class PhenoTypeETL(ETL):
                     pub_med_id = evidence['publicationId']
                     local_pub_med_id = pub_med_id.split(":")[1]
                     pub_med_prefix = pub_med_id.split(":")[0]
-                    pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id,
-                                                                     self.xref_url_map,
-                                                                     pub_med_prefix,
-                                                                     primary_id)
+                    pub_med_url = self.etlh.get_no_page_complete_url(
+                        local_pub_med_id, pub_med_prefix, primary_id)
                     if pub_med_id is None:
                         pub_med_id = ""
 

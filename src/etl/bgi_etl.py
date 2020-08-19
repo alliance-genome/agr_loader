@@ -278,23 +278,6 @@ class BGIETL(ETL):
         if load_key not in self.metadata_is_loaded:
             self.metadata_is_loaded[load_key] = False
 
-        # if dataProviderPages is not None:
-        #     for dataProviderPage in dataProviderPages:
-        #         cross_ref_complete_url = UrlService.get_page_complete_url(data_provider,
-        #                                                                   ETL.xref_url_map,
-        #                                                                   data_provider,
-        #                                                                   data_provider_page)
-        #         data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(\
-        #              data_provider,
-        #              data_provider,
-        #              data_provider_page,
-        #              data_provider_page,
-        #              data_provider,
-        #              cross_ref_complete_url,
-        #              data_provider + data_provider_page))
-        #         data_providers.append(data_provider)
-        #         self.logger.info("BGI using data provider: " + data_provider)
-
         if 'release' in gene_data['metaData']:
             release = gene_data['metaData']['release']
 
@@ -373,10 +356,7 @@ class BGIETL(ETL):
 
                                 if page == 'generic_cross_reference':
                                     cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                        local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        primary_id)
+                                        local_cross_ref_id, prefix, primary_id)
 
                                 # TODO: fix gene/disease xrefs for SGD once
                                 # resourceDescriptor change in develop
@@ -405,10 +385,7 @@ class BGIETL(ETL):
                             if prefix == 'PANTHER':
                                 cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
                                 cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                    local_cross_ref_id,
-                                    ETL.xref_url_map,
-                                    prefix,
-                                    primary_id)
+                                    local_cross_ref_id, prefix, primary_id)
                                 xref_map = ETLHelper.get_xref_dict(
                                     local_cross_ref_id,
                                     prefix,
@@ -437,10 +414,7 @@ class BGIETL(ETL):
                             else:
                                 cross_ref_primary_id = cross_ref.get('id')
                                 cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                    local_cross_ref_id,
-                                    ETL.xref_url_map,
-                                    prefix,
-                                    primary_id)
+                                    local_cross_ref_id, prefix, primary_id)
                                 xref_map = ETLHelper.get_xref_dict(
                                     local_cross_ref_id,
                                     prefix,

@@ -234,7 +234,7 @@ class AggregateLoader():
         for time_item in etl_time_tracker_list:
             self.logger.info(time_item)
 
-        self.logger.critical('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+        self.logger.info('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 
 if __name__ == '__main__':

@@ -222,10 +222,6 @@ class AlleleETL(ETL):
             for data_provider_page in data_provider_pages:
                 cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                     data_provider, data_provider, data_provider_page)
-                # again key and value the same?
-                # cross_ref_complete_url = self.etlh.get_page_complete_url(
-                #    data_provider, self.xref_url_map, data_provider,
-                #    data_provider_page)
 
                 data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
                                                                            data_provider_page, data_provider,

@@ -13,7 +13,6 @@ class ETL():
     """ETL."""
 
     logger = logging.getLogger(__name__)
-    xref_url_map = None
     etlh = ETLHelper()
 
     def __init__(self):
