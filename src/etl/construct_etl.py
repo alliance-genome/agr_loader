@@ -144,6 +144,32 @@ class ConstructETL(ETL):
         self.error_messages("Construct-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
 
+    def secondary_process(self, secondarys, data_record):
+        """Get secondary ids.
+
+        secondarys: list of dataset items.
+        data_record: record to process.
+        """
+        if data_record.get('secondaryIds') is None:
+            return
+        for sid in data_record.get('secondaryIds'):
+            secondary_id_dataset = {
+                "data_id": data_record.get('primaryId'),
+                "secondary_id": sid
+            }
+            secondarys.append(secondary_id_dataset)
+
+    def synonyms_process(self, synonyms, data_record):
+        """Get synonyms."""
+        if data_record.get('synonyms') is None:
+            return
+        for syn in data_record.get('synonyms'):
+            syn_dataset = {
+                "data_id": data_record.get('primaryId'),
+                "synonym": syn.strip()
+            }
+            synonyms.append(syn_dataset)
+
     def get_generators(self, construct_data, data_provider, batch_size):  # noqa
         """Create Generators"""
 
@@ -257,8 +283,8 @@ class ConstructETL(ETL):
                         non_bgi_components.append(non_bgi_component)
                         component_no_gene_details.append(component_detail)
 
-            self.synonyms_process(construct_synonyms, construct_record, primary_key="data_id")
-            self.secondary_process(construct_secondary_ids, construct_record, primary_key="data_id")
+            self.synonyms_process(construct_synonyms, construct_record)
+            self.secondary_process(construct_secondary_ids, construct_record)
 
             if counter == batch_size:
                 yield [constructs,

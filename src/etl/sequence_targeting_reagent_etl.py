@@ -4,7 +4,6 @@ import logging
 import multiprocessing
 
 from etl import ETL
-from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -126,7 +125,33 @@ class SequenceTargetingReagentETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("STR-{}: ".format(sub_type.get_data_provider()))
 
-    def get_generators(self, sqtr_data, data_provider, batch_size):  # noqaå
+    def secondary_process(self, secondarys, data_record):
+        """Get secondary ids.
+
+        secondarys: list of dataset items.
+        data_record: record to process.
+        """
+        if data_record.get('secondaryIds') is None:
+            return
+        for sid in data_record.get('secondaryIds'):
+            secondary_id_dataset = {
+                "primaryId": data_record.get('primaryId'),
+                "secondaryId": sid
+            }
+            secondarys.append(secondary_id_dataset)
+
+    def synonyms_process(self, synonyms, data_record):
+        """Get synonyms."""
+        if data_record.get('synonyms') is None:
+            return
+        for syn in data_record.get('synonyms'):
+            syn_dataset = {
+                "primaryId": data_record.get('primaryId'),
+                "synonym": syn.strip()
+            }
+            synonyms.append(syn_dataset)
+
+    def get_generators(self, sqtr_data, data_provider, batch_size):  # noqa
         """Get Generators"""
 
         data_providers = []

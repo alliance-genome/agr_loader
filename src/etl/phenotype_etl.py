@@ -5,7 +5,6 @@ import uuid
 import multiprocessing
 
 from etl import ETL
-from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
