@@ -29,9 +29,11 @@ class Download():
 
         full_filepath = os.path.join(self.savepath, self.filename_to_save)
         self.logger.debug("Downloading data to {}".format(full_filepath))
+
         if os.path.exists(full_filepath):
             self.logger.info("File: %s already exists not downloading", full_filepath)
         else:
+            self.logger.info("File: %s does NOT exists downloading", full_filepath)
             count = 0
             while count < 10:
                 count = count + 1

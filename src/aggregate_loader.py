@@ -21,7 +21,7 @@ from transactors import FileTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from files import Download
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
-
+from files import Download
 
 def main():
     """Entry point to ETL program."""

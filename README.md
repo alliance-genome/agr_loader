@@ -33,6 +33,7 @@ Resources.
 ## Shortcut Commands
 - `make reload` will re-run the `Installation` and `Running the Loader` steps from above.
 - `make reload_test` will re-run the same steps using a test subset of data.
+- note: reload_test will not re-download the file bolus. 
 
 ## Config
 - There are 3 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.
@@ -43,5 +44,5 @@ Resources.
 - DOWNLOAD_HOST - the s3 bucket from which files are pulled.
 - ALLIANCE_RELEASE - the release version that this code acts on.
 - FMS_API_URL - the host from which this code pulls its available file paths from (submission system host).  Note: the submission system host is reliant on the ferret file grabber.  That pipeline is responsible for ontologie files and GAF files being up to date.  And, the submission system requires a snapshot to be taken to fetch 'latest' files.  
-
+- TEST_SCHEMA_BRANCH - If set that branch of the agr_schema wil be used instead of master
 - If the site is built with docker-compose, these will be set automatically to the 'dev' versions of all these variables.
