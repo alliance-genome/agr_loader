@@ -161,7 +161,6 @@ class ResourceDescriptorHelper2():
 
     def get_data(self):
         """Return dict."""
-        self.logger.critical("get_data keys are:- {}".format(self.resource_descriptor_dict.keys()))
         return self.resource_descriptor_dict
 
     def __init__(self):
