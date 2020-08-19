@@ -418,8 +418,8 @@ class AlleleETL(ETL):
                                 xref['dataId'] = global_id
                                 cross_reference_list.append(xref)
 
-            self.synonyms_process(allele_synonyms, allele_record, primary_key="data_id")
-            self.secondary_process(allele_secondary_ids, allele_record, primary_key="data_id")
+            self.synonyms_process(allele_synonyms, allele_record)
+            self.secondary_process(allele_secondary_ids, allele_record)
 
             if counter == batch_size:
                 yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,
