@@ -95,7 +95,7 @@ class ETLHelper():
         try:
             url = self.rdh2.return_url_from_identifier(publication_mod_id)
         except KeyError:
-            self.logger.critical("No reference page for {}".format(publication_mod_id))
+            self.logger.critical("No reference page for %s", publication_mod_id)
         return url
 
     @staticmethod
@@ -123,7 +123,7 @@ class ETLHelper():
         try:
             order = self.rdh2.get_order(taxon_id)
         except KeyError:
-            self.logger.critical("Could not find order for taxon_id '{}'".format(taxon_id))
+            self.logger.critical("Could not find order for taxon_id '%s'", taxon_id)
         return order
 
     def species_name_lookup(self, alt_key):
@@ -137,7 +137,7 @@ class ETLHelper():
         try:
             species_name = self.rdh2.get_full_name_from_key(alt_key)
         except KeyError:
-            self.logger.critical("Could not find species name for {}".format(alt_key))
+            self.logger.critical("Could not find species name for %s", alt_key)
 
         return species_name
 
@@ -158,7 +158,7 @@ class ETLHelper():
             try:
                 mod = self.rdh2.get_key(species)
             except KeyError:
-                self.logger.critical("Using default {} as {} not found".format(mod, species))
+                self.logger.critical("Using default %s as %s not found", mod, species)
         return mod
 
     def get_complete_url_ont(self, local_id, global_id, key=None):
@@ -224,7 +224,7 @@ class ETLHelper():
         try:
             short_species_abbreviation = self.rdh2.get_short_name(taxon_id)
         except KeyError:
-            self.logger.critical("Problem looking up short species name for {}".format(taxon_id))
+            self.logger.critical("Problem looking up short species name for %s", taxon_id)
 
         return short_species_abbreviation
 

@@ -64,10 +64,10 @@ class ResourceDescriptorHelper2():
                     self.missing_keys[mk_key] = 1
                     mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
                     self.logger.critical(mess)
-                    self.logger.info("Available are {}".format(self.key_lookup.keys()))
+                    self.logger.info("Available are %s", self.key_lookup.keys())
                 return ret_key
             if key_prefix not in self.key_lookup:
-                self.logger.debug("{} Found after splitting".format(alt_key))
+                self.logger.debug("%s Found after splitting", alt_key)
                 ret_key = self.key_lookup[key_prefix]
             else:
                 if main_key in self.missing_keys:
@@ -75,7 +75,7 @@ class ResourceDescriptorHelper2():
                 else:
                     mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
                     self.logger.critical(mess)
-                    self.logger.critical("Available are {}".format(self.key_lookup.keys()))
+                    self.logger.critical("Available are %s", self.key_lookup.keys())
                     self.missing_keys[main_key] = 1
         else:
             ret_key = self.key_lookup[main_key]
@@ -114,7 +114,7 @@ class ResourceDescriptorHelper2():
         try:
             order = self.key_to_order[self.get_key(identifier)]
         except KeyError:
-            self.logger.critical("Could not find orddr for identifier {}".format(identifier))
+            self.logger.critical("Could not find orddr for identifier %s", identifier)
         return order
 
     def _get_alt_keys(self):
@@ -125,7 +125,7 @@ class ResourceDescriptorHelper2():
         or may be used at a later point.
         """
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
-        self.logger.critical("species url is {}".format(url))
+        self.logger.critical("species url is %s", url)
 
         resource_descriptor_file = Download('tmp',
                                             url,
@@ -163,7 +163,7 @@ class ResourceDescriptorHelper2():
     def __init__(self):
         """Load the dict from file."""
         if self.resource_descriptor_dict:
-            self.logger.critical("keys are:- {}".format(self.resource_descriptor_dict.keys()))
+            self.logger.critical("keys are:- %s", self.resource_descriptor_dict.keys())
             return
 
         url = 'https://raw.githubusercontent.com/' \
@@ -245,7 +245,7 @@ class ResourceDescriptorHelper2():
             mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
             self.logger.critical(mess)
             self.logger.critical('Identifier: %s', value)
-            self.logger.critical("keys are:-{}".format(self.key_lookup.keys()))
+            self.logger.info("keys are:- %s", self.key_lookup.keys())
 
     def return_url_from_key_value(self, alt_key, value, alt_page=None):
         """Return url for a key value pair.
@@ -318,7 +318,7 @@ class ResourceDescriptorHelper2():
             gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
         except KeyError:
             if key not in self.missing_keys:
-                self.logger.critical("The database prefix '{}' has no 'gid_pattern'.".format(db_prefix))
+                self.logger.critical("The database prefix '%s' has no 'gid_pattern'.", db_prefix)
                 self.logger.critical('Page: %s', page)
                 self.logger.critical('Identifier: %s', identifier)
                 self.missing_keys[key] = 1
