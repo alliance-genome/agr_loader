@@ -18,6 +18,8 @@ class ETL():
     def __init__(self):
 
         context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+
         if context_info.env["TEST_SET"]:
             self.logger.warning("WARNING: Test data load enabled.")
             time.sleep(1)
