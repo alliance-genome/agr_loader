@@ -1,4 +1,4 @@
-"""Variation ETL"""
+"""Variation ETL."""
 
 import logging
 import multiprocessing
@@ -13,7 +13,7 @@ from loader_common import ContextInfo
 
 
 class VariationETL(ETL):
-    """Variation ETL"""
+    """Variation ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -25,10 +25,10 @@ class VariationETL(ETL):
 
                 MATCH (a:Allele {primaryKey: row.alleleId})
                 MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
-                
+
                 //Create the variant node and set properties. primaryKey is required.
                 MERGE (o:Variant {primaryKey:row.hgvs_nomenclature})
-                    ON CREATE SET 
+                    ON CREATE SET
                      o.name = row.variantHGVSSynonym,
                      o.hgvsNomenclature = row.hgvs_nomenclature,
                      o.genomicReferenceSequence = row.genomicReferenceSequence,
@@ -42,11 +42,10 @@ class VariationETL(ETL):
 
                 MERGE (s:Synonym:Identifier {primaryKey:row.hgvs_nomenclature})
                     SET s.name = row.hgvs_nomenclature
-                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(s) 
-                
-                MERGE (o)-[:VARIATION]->(a) 
-                MERGE (g)-[:COMPUTED_GENE]->(o) """
+                MERGE (o)-[aka2:ALSO_KNOWN_AS]->(s)
 
+                MERGE (o)-[:VARIATION]->(a)
+                MERGE (g)-[:COMPUTED_GENE]->(o) """
 
     so_terms_query_template = """
         USING PERIODIC COMMIT %s
@@ -54,7 +53,6 @@ class VariationETL(ETL):
             MATCH (o:Variant {primaryKey:row.variantId})
             MATCH (s:SOTerm {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
-
 
     genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
@@ -64,7 +62,7 @@ class VariationETL(ETL):
             MATCH (chrm:Chromosome {primaryKey:row.chromosome})
             MERGE (a:Assembly {primaryKey:row.assembly})
              ON CREATE SET a.dataProvider = row.dataProvider
-            
+
             CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
 
             CREATE (gchrmn:GenomicLocation {primaryKey:row.uuid})
@@ -73,7 +71,7 @@ class VariationETL(ETL):
                 gchrmn.assembly = row.assembly,
                 gchrmn.strand = row.strand,
                 gchrmn.chromosome = row.chromosome
-                
+
             CREATE (o)-[of:ASSOCIATION]->(gchrmn)
             CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
             CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
@@ -87,11 +85,10 @@ class VariationETL(ETL):
             MATCH (o:Variant {primaryKey:row.dataId})
     """ + ETLHelper.get_cypher_xref_text()
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -102,7 +99,6 @@ class VariationETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-
 
     def _process_sub_type(self, sub_type):
 
@@ -143,8 +139,7 @@ class VariationETL(ETL):
     def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position,
                               end_position, reference_sequence, variant_sequence,
                               assembly, chromosome):
-        """Get HGVS nomenclature"""
-
+        """Get HGVS nomenclature."""
         if start_position is None:
             start_position_str = ""
         else:
@@ -166,21 +161,21 @@ class VariationETL(ETL):
             reference_sequence_str = reference_sequence
 
         hgvs_nomenclature = refseq_id.split(":")[1] + ':g.' + start_position_str
-        hgvs_synonym = '('+assembly+')'+chromosome+':'+ start_position_str
+        hgvs_synonym = '('+assembly+')' + chromosome + ':' + start_position_str
 
         if variant_type in ['SO:1000002', 'SO:1000008']:  # point mutation/substitution
             hgvs_nomenclature += reference_sequence_str + ">" + variant_sequence_str
             hgvs_synonym += reference_sequence_str + ">" + variant_sequence_str
-        elif variant_type == "SO:0000667": # insertion
+        elif variant_type == "SO:0000667":  # insertion
             hgvs_nomenclature += '_' + end_position_str + 'ins' + variant_sequence_str
             hgvs_synonym += '_' + end_position_str + 'ins' + variant_sequence_str
-        elif variant_type == "SO:0000159": # deletion
+        elif variant_type == "SO:0000159":  # deletion
             hgvs_nomenclature += '_' + end_position_str + 'del'
             hgvs_synonym += '_' + end_position_str + 'del'
-        elif variant_type == "SO:0002007": # MNV
+        elif variant_type == "SO:0002007":  # MNV
             hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
             hgvs_synonym += '_' + end_position_str + 'delins' + variant_sequence_str
-        elif variant_type == "SO:1000032": # DELIN
+        elif variant_type == "SO:1000032":  # DELIN
             hgvs_nomenclature += '_' + end_position_str + 'delins' + variant_sequence_str
             hgvs_synonym += '_' + end_position_str + 'delins' + variant_sequence_str
         else:
@@ -188,9 +183,8 @@ class VariationETL(ETL):
             hgvs_synonym = ''
         return hgvs_nomenclature, hgvs_synonym
 
-
-    def get_generators(self, variant_data, batch_size):
-        """Get Generators"""
+    def get_generators(self, variant_data, batch_size):  # noqa
+        """Get Generators."""
 
         data_providers = []
         release = ""
@@ -212,12 +206,12 @@ class VariationETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(
+                        data_provider,
                         data_provider,
                         data_provider_page,
                         data_provider_page,
@@ -262,9 +256,10 @@ class VariationETL(ETL):
 
                 # not insertion
                 if so_term_id != "SO:0000667" and chromosome_str != "Unmapped_Scaffold_8_D1580_D1567":
-                    genomic_reference_sequence = assemblies[assembly].get_sequence(chromosome_str,
-                            allele_record.get('start'),
-                            allele_record.get('end'))
+                    genomic_reference_sequence = assemblies[assembly].get_sequence(
+                        chromosome_str,
+                        allele_record.get('start'),
+                        allele_record.get('end'))
 
                 if allele_record.get('start') < allele_record.get('end'):
                     start = allele_record.get('start')
@@ -274,7 +269,7 @@ class VariationETL(ETL):
                     end = allele_record.get('start')
 
                 padding_width = 500
-                if so_term_id != "SO:0000667": #not insertion
+                if so_term_id != "SO:0000667":  # not insertion
                     start = start - 1
                     end = end + 1
 
@@ -308,13 +303,14 @@ class VariationETL(ETL):
                                                                         ETL.xref_url_map,
                                                                         prefix,
                                                                         global_id)
-            xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
-                             prefix,
-                             "variant_sequence_of_reference",
-                             "sequence_of_reference_accession_number",
-                             global_id,
-                             cross_ref_complete_url,
-                             cross_ref_primary_id + "variant_sequence_of_reference")
+            xref_map = ETLHelper.get_xref_dict(
+                local_cross_ref_id,
+                prefix,
+                "variant_sequence_of_reference",
+                "sequence_of_reference_accession_number",
+                global_id,
+                cross_ref_complete_url,
+                cross_ref_primary_id + "variant_sequence_of_reference")
 
             xref_map['dataId'] = global_id
             if cross_ref_primary_id is not None:
@@ -330,14 +326,15 @@ class VariationETL(ETL):
                                                              in ['SO:1000002', 'SO:1000008']):
                     self.logger.debug("%s genomicVariantSequence", allele_record.get('alleleId'))
 
-            hgvs_nomenclature, hgvs_synonym = self.get_hgvs_nomenclature(allele_record.get('sequenceOfReferenceAccessionNumber'),
-                    allele_record.get('type'),
-                    allele_record.get('start'),
-                    allele_record.get('end'),
-                    genomic_reference_sequence,
-                    genomic_variant_sequence,
-                    allele_record.get('assembly'),
-                    chromosome_str)
+            hgvs_nomenclature, hgvs_synonym = self.get_hgvs_nomenclature(
+                allele_record.get('sequenceOfReferenceAccessionNumber'),
+                allele_record.get('type'),
+                allele_record.get('start'),
+                allele_record.get('end'),
+                genomic_reference_sequence,
+                genomic_variant_sequence,
+                allele_record.get('assembly'),
+                chromosome_str)
 
             if (genomic_reference_sequence is not None and len(genomic_reference_sequence) > 30000) \
                     or (genomic_variant_sequence is not None and len(genomic_variant_sequence)) > 30000:

@@ -1,4 +1,4 @@
-"""Sequence Targetting Reagent ETL"""
+"""Sequence Targetting Reagent ETL."""
 
 import logging
 import multiprocessing
@@ -11,14 +11,14 @@ from transactors import Neo4jTransactor
 
 
 class SequenceTargetingReagentETL(ETL):
-    """Sequence Targeting Reagent ETL"""
+    """Sequence Targeting Reagent ETL."""
 
     logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
 
     sequence_targeting_reagent_query_template = """
-    
+
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -67,12 +67,12 @@ class SequenceTargetingReagentETL(ETL):
 
             MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
             MATCH (g:Gene {primaryKey:row.geneId})
-            
+
             MERGE (a)-[:TARGETS]-(g)
     """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -126,7 +126,7 @@ class SequenceTargetingReagentETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("STR-{}: ".format(sub_type.get_data_provider()))
 
-    def get_generators(self, sqtr_data, data_provider, batch_size):
+    def get_generators(self, sqtr_data, data_provider, batch_size):  # noqaå
         """Get Generators"""
 
         data_providers = []
@@ -148,22 +148,19 @@ class SequenceTargetingReagentETL(ETL):
 
         load_key = date_produced + data_provider + "_SqTR"
 
-
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, data_provider_page)
 
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict( \
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
+                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(
+                    data_provider,
+                    data_provider,
+                    data_provider_page,
+                    data_provider_page,
+                    data_provider,
+                    cross_ref_complete_url,
+                    data_provider + data_provider_page))
 
                 data_providers.append(data_provider)
                 self.logger.info("data provider: %s", data_provider)
@@ -216,12 +213,8 @@ class SequenceTargetingReagentETL(ETL):
                         continue
                     if 'sequence_targeting_reagent' in pages:
                         page = 'sequence_targeting_reagent'
-                        mod_global_cross_ref_url = self.etlh.get_page_complete_url( \
-                                local_crossref_id,
-                                self.xref_url_map,
-                                prefix,
-                                page)
-
+                        mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_crossref_id, page)
 
             sqtr_dataset = {
                 "primaryId": sqtr_record.get('primaryId'),
@@ -237,8 +230,6 @@ class SequenceTargetingReagentETL(ETL):
                 "dataProvider": data_provider
             }
             sqtrs.append(sqtr_dataset)
-
-
 
             if counter == batch_size:
                 yield [sqtrs, sqtr_secondary_ids, sqtr_synonyms, tgs]

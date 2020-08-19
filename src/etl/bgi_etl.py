@@ -347,35 +347,24 @@ class BGIETL(ETL):
                                 gene_literature_url = ""
                                 display_name = ""
 
-                                cross_ref_complete_url = self.etlh.get_page_complete_url(
-                                    local_cross_ref_id,
-                                    ETL.xref_url_map,
+                                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                                     prefix,
+                                    local_cross_ref_id,
                                     page)
 
                                 if page == 'gene/expression_images':
-                                    cross_ref_complete_url = self.etlh.get_expression_images_url(
-                                        local_cross_ref_id,
-                                        cross_ref_id, prefix)
+                                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix, local_cross_ref_id, page)
                                 elif page == 'gene':
-                                    mod_cross_reference_complete_url = self.etlh.get_page_complete_url(
-                                        local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        page)
+                                    mod_cross_reference_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix, local_cross_ref_id, page)
 
-                                genetic_entity_external_url = self.etlh.get_page_complete_url(
-                                        local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        page)
+                                genetic_entity_external_url = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix, local_cross_ref_id, page)
 
                                 if page == 'gene/references':
-                                    gene_literature_url = self.etlh.get_page_complete_url(
-                                        local_cross_ref_id,
-                                        ETL.xref_url_map,
-                                        prefix,
-                                        page)
+                                    gene_literature_url = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix, local_cross_ref_id, page)
 
                                 if page == 'gene/spell':
                                     display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'

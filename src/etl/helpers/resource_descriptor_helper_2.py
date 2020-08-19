@@ -233,11 +233,6 @@ class ResourceDescriptorHelper2():
                     self.logger.critical('Splitting identifier is not possible.')
                     self.logger.critical('Identifier: %s', identifier)
                     self.missing_keys[key] = 1
-                elif self.missing_keys[key] < 100:
-                    self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
-                    self.logger.critical('Splitting identifier is not possible.')
-                    self.logger.critical('Identifier: %s', identifier)
-                    self.missing_keys[key] += 1
                 else:
                     self.missing_keys[key] += 1
             prefix = identifier_processed = separator = None

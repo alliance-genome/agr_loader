@@ -1,4 +1,4 @@
-"""Phenotype ETL"""
+"""Phenotype ETL."""
 
 import logging
 import uuid
@@ -12,7 +12,7 @@ from transactors import Neo4jTransactor
 
 
 class PhenoTypeETL(ETL):
-    """Phenotype ETL"""
+    """Phenotype ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -23,13 +23,13 @@ class PhenoTypeETL(ETL):
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (allele:Allele {primaryKey:row.primaryId})
-            
+
 
             MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET 
+                ON CREATE SET
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
 
@@ -37,21 +37,21 @@ class PhenoTypeETL(ETL):
 
             MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
             MERGE (pa)-[pad:ASSOCIATION]->(p)
-            
+
              MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-           
+
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            
+
             CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
-            
+
             """
     execute_gene_query_template = """
 
@@ -64,26 +64,26 @@ class PhenoTypeETL(ETL):
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET 
+                ON CREATE SET
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
-            
+
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
-                
+
              MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-           
+
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
              SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            
+
             CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
             """
@@ -99,26 +99,26 @@ class PhenoTypeETL(ETL):
                 ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
             MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET 
+                ON CREATE SET
                     pa.joinType = 'phenotype',
                     pa.dataProvider = row.dataProvider
 
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
                 MERGE (g)-[gpa:ASSOCIATION]->(pa)
                 MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
-            
+
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
-           
+
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
             CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
               SET pubEJ.joinType = 'pub_evidence_code_join'
 
             CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            
+
             CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
     """
@@ -146,6 +146,7 @@ class PhenoTypeETL(ETL):
     """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -158,7 +159,7 @@ class PhenoTypeETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-    
+
     def _process_sub_type(self, sub_type):
 
         self.logger.info("Loading Phenotype Data: %s", sub_type.get_data_provider())
@@ -195,9 +196,8 @@ class PhenoTypeETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("Phenotype-{}: ".format(sub_type.get_data_provider()))
 
-    def get_generators(self, phenotype_data, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, phenotype_data, batch_size):  # noqa
+        """Get Generators."""
         list_to_yield = []
         pge_list_to_yield = []
         date_produced = phenotype_data['metaData']['dateProduced']
@@ -214,10 +214,8 @@ class PhenoTypeETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
-                                                                         ETL.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, data_provider_page)
 
                 data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(
                     data_provider,
@@ -264,19 +262,13 @@ class PhenoTypeETL(ETL):
                     if 'crossReference' in evidence:
                         pub_xref = evidence.get('crossReference')
                         pub_mod_id = pub_xref.get('id')
-                        pub_mod_local_id = pub_mod_id.split(":")[1]
                         if pub_mod_id is not None:
-                            pub_mod_url = self.etlh.get_complete_pub_url(pub_mod_local_id,
-                                                                         pub_mod_id)
+                            pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
 
                 else:
                     pub_mod_id = evidence.get('publicationId')
                     if pub_mod_id is not None:
-                        pub_mod_local_id = pub_mod_id.split(":")[1]
-                        pub_mod_url = self.etlh.get_complete_pub_url(pub_mod_local_id, pub_mod_id)
-
-                if pub_mod_id is None:
-                    pub_mod_id = ""
+                        pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
 
             if pub_med_id is None:
                 pub_med_id = ""

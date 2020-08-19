@@ -574,10 +574,8 @@ class ExpressionETL(ETL):
                         if pages is not None and len(pages) > 0:
                             for page in pages:
                                 if page == 'gene/expression/annotation/detail':
-                                    mod_global_cross_ref_id = self.etlh.get_page_complete_url(
-                                        local_cross_ref_id,
-                                        self.xref_url_map,
-                                        prefix, page)
+                                    mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix, local_cross_ref_id, page)
 
                                     xref = ETLHelper.get_xref_dict(local_cross_ref_id,
                                                                    prefix,

@@ -256,7 +256,7 @@ class MolecularInteractionETL(ETL):
             # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
-                    individual_url = self.etlh.rdh2.return_url(individual, page)
+                    individual_url = self.etlh.rdh2.return_url_from_identifier(individual, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
                     # self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
@@ -288,7 +288,7 @@ class MolecularInteractionETL(ETL):
         page = 'gene/MODinteractions'
 
         individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
-        individual_url = self.etlh.rdh2.return_url(gene_id, page)
+        individual_url = self.etlh.rdh2.return_url_from_identifier(gene_id, page)
 
         # Exception for MGI
         if individual_prefix == 'MGI':

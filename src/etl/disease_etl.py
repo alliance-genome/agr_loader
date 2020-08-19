@@ -302,17 +302,14 @@ class DiseaseETL(ETL):
                     publication = evidence.get('publication')
                     if publication.get('publicationId').startswith('PMID:'):
                         pub_med_id = publication.get('publicationId')
-                        local_pub_med_id = pub_med_id.split(":")[1]
-                        pub_med_url = self.etlh.get_complete_pub_url(local_pub_med_id, pub_med_id)
+                        pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
                         if 'crossReference' in evidence:
                             pub_xref = evidence.get('crossReference')
                             publication_mod_id = pub_xref.get('id')
-                            local_pub_mod_id = publication_mod_id.split(":")[1]
-                            pub_mod_url = self.etlh.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
+                            pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
                     else:
                         publication_mod_id = publication.get('publicationId')
-                        local_pub_mod_id = publication_mod_id.split(":")[1]
-                        pub_mod_url = self.etlh.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
+                        pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
 
                 if 'evidenceCodes' in disease_record['evidence']:
                     for ecode in disease_record['evidence'].get('evidenceCodes'):
@@ -396,10 +393,8 @@ class DiseaseETL(ETL):
                                 if display_name == 'DOID':
                                     display_name = data_provider
 
-                            mod_global_cross_ref_id = self.etlh.get_page_complete_url(
-                                local_crossref_id,
-                                self.xref_url_map, prefix,
-                                page)
+                            mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                                prefix, local_crossref_id, page)
                             passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
                                                                    display_name,
                                                                    mod_global_cross_ref_id,

@@ -174,10 +174,9 @@ class ConstructETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
+                # another key value identical
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, data_provider_page)
 
                 data_provider_cross_ref_set.append(
                     ETLHelper.get_xref_dict(
@@ -239,10 +238,8 @@ class ConstructETL(ETL):
                     if pages is not None and len(pages) > 0:
                         for page in pages:
                             if page == 'construct':
-                                mod_global_cross_ref_id = self.etlh.get_page_complete_url(local_crossref_id,
-                                                                                          self.xref_url_map,
-                                                                                          prefix,
-                                                                                          page)
+                                mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                                    prefix, local_crossref_id, page)
                                 xref = ETLHelper.get_xref_dict(local_crossref_id,
                                                                prefix,
                                                                page,

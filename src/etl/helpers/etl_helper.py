@@ -276,3 +276,12 @@ class ETLHelper():
         else:
             new_url = self.rdh2.return_url_from_key_value(prefix, local_id)
         return new_url
+
+    # wrapper scripts to enable shortened call.
+    def return_url_from_key_value(self, alt_key, value, alt_page=None):
+        """Forward to rdh2."""
+        return self.rdh2.return_url_from_key_value(alt_key, value, alt_page=alt_page)
+
+    def return_url_from_identifier(self, identifier, page=None):
+        """Forward to rdh2."""
+        return self.rdh2.return_url_from_identifier(identifier, page=page)
