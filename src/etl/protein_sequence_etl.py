@@ -69,32 +69,28 @@ class ProteinSequenceETL(ETL):
         self.logger.info("Finished Protein Sequence Load")
 
 
-    def translate_protein(self, cds_sequence, strand, phase):
+    def translate_protein(self, cds_sequence, strand):
 
         self.logger.info(cds_sequence)
 
-        # iterate thru CDS appending seq as we go
-
-
         # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
         if strand == '-':
-            coding_dna = Seq(cds_sequence, IUPAC.unambiguous_dna)
-            reverse_sequence = coding_dna.reverse_complement()
-            if phase == '1':
-                # remove the first base pair when phase is 1 to start translation appropriately.
-                reverse_sequence = coding_dna.reverse_complement()[1:]
-                protein_sequence = reverse_sequence.translate(table=1)
-            elif phase == '2':
-                # remove the first two base pairs when phase is 1 to start translation appropriately.
-                reverse_sequence = coding_dna.reverse_complement()[2:]
-                protein_sequence = reverse_sequence.translate(table=1)
-            else:
-                protein_sequence = reverse_sequence.translate(table=1)
-
+            reverse_sequence = Seq(cds_sequence).reverse_complement()
+            protein_sequence = reverse_sequence.translate(table='Standard', stop_symbol='*', to_stop=False, cds=False, gap=None)
+            # if phase == '1':
+            #     # remove the first base pair when phase is 1 to start translation appropriately.
+            #     reverse_sequence = cds_sequence.reverse_complement()[1:]
+            #     protein_sequence = reverse_sequence.translate(table=1)
+            # elif phase == '2':
+            #     # remove the first two base pairs when phase is 1 to start translation appropriately.
+            #     reverse_sequence = cds_sequence.reverse_complement()[2:]
+            #     protein_sequence = reverse_sequence.translate(table=1)
         else:
-            coding_dna = Seq(cds_sequence, IUPAC.unambiguous_dna)
-            protein_sequence = coding_dna.translate(table=1)
+            protein_sequence = Seq(cds_sequence).translate(table='Standard', stop_symbol='*', to_stop=False, cds=False, gap=None)
 
+        # else:
+        #     coding_dna = Seq(cds_sequence)
+        #     protein_sequence = coding_dna.translate(table=1)
 
         self.logger.info(protein_sequence)
 
@@ -109,7 +105,7 @@ class ProteinSequenceETL(ETL):
         context_info = ContextInfo()
         data_manager = DataFileManager(context_info.config_file_location)
 
-        transcript_position_data = []
+        transcript_data = []
 
         fetch_transcript_query = """
 
@@ -117,11 +113,12 @@ class ProteinSequenceETL(ETL):
             WHERE so.name = 'mRNA'
             RETURN t.primaryKey as transcriptId,
                    gl.assembly as transcriptAssembly,
-                   glt.chromosome as transcriptChromosome
+                   gl.chromosome as transcriptChromosome,
+                   gl.strand as transcriptStrand
 
         """
 
-        fetch_minstart_maxend_per_transcript_query = """
+        fetch_cds_per_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)
             WHERE t.primaryKey = {parameter}
@@ -130,7 +127,6 @@ class ProteinSequenceETL(ETL):
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
                    t.dataProvider as dataProvider,
-                   t.strand as transcriptStrand, 
                    gl.phase as CDSPhase
                    order by gl.start 
         """
@@ -141,38 +137,32 @@ class ProteinSequenceETL(ETL):
             transcript_id = record['transcriptId']
             transcript_assembly = record['transcriptAssembly']
             transcript_chromosome = record['transcriptChromosome']
+            transcript_strand = record['transcriptStrand']
 
-            self.logger.info(record)
             assemblies = {}
-            return_set_cds = Neo4jHelper().run_single_parameter_query(fetch_minstart_maxend_per_transcript_query,
+            return_set_cds = Neo4jHelper().run_single_parameter_query(fetch_cds_per_transcript_query,
                                                                       transcript_id)
+            full_cds_sequence = ''
 
             for cds_record in return_set_cds:
-                self.logger.info(cds_record)
-
                 assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
                 start_position = cds_record["CDSStartPosition"]
                 end_position = cds_record["CDSEndPosition"]
-                strand = cds_record["transcriptStrand"]
-                phase = cds_record["CDSPhase"]
+                # phase = cds_record["CDSPhase"]
                 transcript_id = cds_record["transcriptPrimaryKey"]
                 cds_sequence = assemblies[transcript_assembly].get_sequence(transcript_chromosome,
                                                                            start_position,
                                                                            end_position)
-                self.logger.info(transcript_id)
-                self.logger.info(start_position)
-                self.logger.info(end_position)
 
-                protein_sequence = self.translate_protein(cds_sequence, strand, phase)
+                full_cds_sequence += cds_sequence
 
-                row = {"transcriptId": transcript_id,
-                        "CDSStartPosition": start_position,
-                        "CDSEndPosition": end_position,
-                        "transcriptAssembly": transcript_assembly,
-                        "transcriptChromosome": transcript_chromosome,
-                        "cdsSequence": cds_sequence,
-                        "proteinSequence": protein_sequence
-                }
-                transcript_position_data.append(row)
+            protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
 
-        return [transcript_position_data]
+            data = { "transcriptId": transcript_id,
+                     "CDSSequence": full_cds_sequence,
+                     "proteinSequence": protein_sequence
+            }
+            transcript_data.append(data)
+
+
+        yield [transcript_data]
