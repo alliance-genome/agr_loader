@@ -89,7 +89,9 @@ class TestClass():
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
-                             dict(node='Exon')
+                             dict(node='Exon'),
+                             dict(node='ProteinSequence'),
+                             dict(node='CDSSequence')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
@@ -124,6 +126,9 @@ class TestClass():
                             dict(node='DOTerm', prop='subset'),
                             dict(node='DOTerm', prop='primaryKey'),
                             dict(node='MITerm', prop='primaryKey'),
+                            dict(node='ProteinSequence', prop='primaryKey'),
+                            dict(node='ProteinSequence', prop='proteinSequence'),
+                            dict(node='CDSSequence', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
