@@ -102,3 +102,22 @@ class ETL():
             query_and_file_names.append([query_to_run, file_name])
 
         return query_and_file_names
+
+    def data_providers_process(self, data_provider, data_providers, data_provider_pages, data_provider_cross_ref_set):
+        """Get data providers."""
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, alt_page=data_provider_page)
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
+
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
