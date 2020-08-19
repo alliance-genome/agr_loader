@@ -156,9 +156,6 @@ class ResourceDescriptorHelper2():
             self.key_to_order[db_name] = item['phylogenicOrder']
             self.key_to_shortname[db_name] = item['shortName']
 
-        # pp.pprint(self.key_lookup)
-        # pp.pprint(self.key_to_fullname)
-
     def get_data(self):
         """Return dict."""
         return self.resource_descriptor_dict
