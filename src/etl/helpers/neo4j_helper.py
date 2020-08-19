@@ -65,13 +65,15 @@ class Neo4jHelper():
                                       max_connection_pool_size=-1)
 
         with driver.session() as session:
-            indicies = [":Gene(primaryKey)",
+            indicies = [":CDS(primaryKey)",
+                        ":Gene(primaryKey)",
                         ":Gene(modLocalId)",
                         ":Gene(symbol)",
                         ":Gene(gff3ID)",
                         ":Gene(taxonId)",
                         ":Construct(primaryKey)",
                         ":Transcript(primaryKey)",
+                        ":Transcript(dataProvider)",
                         ":TranscriptLevelConsequence(primaryKey)",
                         ":GeneLevelConsequence(primaryKey)",
                         ":Transcript(gff3ID)",
@@ -118,6 +120,8 @@ class Neo4jHelper():
                         ":MITerm(primaryKey)",
                         ":Phenotype(primaryKey)",
                         ":PhenotypeEntityJoin(primaryKey)",
+                        ":ProteinSequence(primaryKey)",
+                        ":CDSSequence(primaryKey)",
                         ":ExpressionBioEntity(primaryKey)",
                         ":Stage(primaryKey)",
                         ":PublicationJoin(primaryKey)",

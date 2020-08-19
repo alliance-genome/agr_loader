@@ -2,15 +2,15 @@
 
 import logging
 import multiprocessing
-import uuid
-
+import re
+from Bio.Alphabet import IUPAC
 from etl import ETL
-from etl.helpers import ETLHelper, AssemblySequenceHelper
-from files import JSONFile
+from etl.helpers import AssemblySequenceHelper
+from etl.helpers import Neo4jHelper
+from Bio.Seq import Seq
 from transactors import CSVTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from loader_common import ContextInfo
-
 
 class ProteinSequenceETL(ETL):
     """ProteinSequence ETL"""
@@ -19,11 +19,21 @@ class ProteinSequenceETL(ETL):
 
     # Query templates which take params and will be processed later
 
-    fetch_exons_query_template = """
-
-                MATCH (a:Allele {primaryKey: row.alleleId})
-                MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
-
+    add_protein_sequences_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        
+        MATCH (t:Transcript {primaryKey:row.transcriptId})
+        
+        MERGE (p:ProteinSequence {primaryKey:row.transcriptId})
+           ON CREATE SET p.proteinSequence = row.proteinSequence
+        
+        MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
+           ON CREATE SET ts.cdsSequence = row.cdsSequence
+           
+        MERGE (p)-[pt:ASSOCIATION]-(t)
+        MERGE (ts)-[tst:ASSOCIATION]-(t)      
+        
     """
 
     def __init__(self, config):
@@ -31,6 +41,7 @@ class ProteinSequenceETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
+
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
@@ -42,193 +53,124 @@ class ProteinSequenceETL(ETL):
 
     def _process_sub_type(self, sub_type):
 
-        self.logger.info("Loading Protein Sequences: %s", sub_type.get_data_provider())
-        filepath = sub_type.get_filepath()
-        data = JSONFile().get_data(filepath)
-        self.logger.info("Finished Loading Protein Sequences: %s", sub_type.get_data_provider())
-
-        if data is None:
-            self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
-            return
-
-        # This order is the same as the lists yielded from the get_generators function.
-        # A list of tuples.
-
-        commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
-
-        # This needs to be in this format (template, param1, params2) others will be ignored
+        self.logger.info("Starting Protein Sequence Load")
 
         query_template_list = [
-            [self.fetch_exons_query_template, commit_size],
+            [self.add_protein_sequences_query_template, "10000",
+             "protein_sequence.csv"]
         ]
 
-        generators = self.get_generators(data, batch_size)
+        generators = self.get_generators()
+
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, variant_data, batch_size):
+        self.logger.info("Finished Protein Sequence Load")
+
+
+    def translate_protein(self, cds_sequence, strand, phase):
+
+        self.logger.info(cds_sequence)
+
+        # iterate thru CDS appending seq as we go
+
+
+        # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
+        if strand == '-':
+            coding_dna = Seq(cds_sequence, IUPAC.unambiguous_dna)
+            reverse_sequence = coding_dna.reverse_complement()
+            if phase == '1':
+                # remove the first base pair when phase is 1 to start translation appropriately.
+                reverse_sequence = coding_dna.reverse_complement()[1:]
+                protein_sequence = reverse_sequence.translate(table=1)
+            elif phase == '2':
+                # remove the first two base pairs when phase is 1 to start translation appropriately.
+                reverse_sequence = coding_dna.reverse_complement()[2:]
+                protein_sequence = reverse_sequence.translate(table=1)
+            else:
+                protein_sequence = reverse_sequence.translate(table=1)
+
+        else:
+            coding_dna = Seq(cds_sequence, IUPAC.unambiguous_dna)
+            protein_sequence = coding_dna.translate(table=1)
+
+
+        self.logger.info(protein_sequence)
+
+        return protein_sequence
+
+
+    def get_generators(self):
         """Get Generators"""
 
-        variants = []
+        self.logger.info("reached sequence retrieval retrieval")
 
-        assemblies = {}
+        context_info = ContextInfo()
+        data_manager = DataFileManager(context_info.config_file_location)
 
-        for allele_record in variant_data['data']:
-            chromosome = allele_record["chromosome"]
-            if chromosome.startswith("chr"):
-                chromosome_str = chromosome[3:]
-            else:
-                chromosome_str = chromosome
+        transcript_position_data = []
 
-            assembly = allele_record["assembly"]
+        fetch_transcript_query = """
 
-            if assembly not in assemblies:
-                self.logger.info(assembly)
-                context_info = ContextInfo()
-                data_manager = DataFileManager(context_info.config_file_location)
-                assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
+            MATCH (gl:GenomicLocation)-[glt:ASSOCIATION]-(t:Transcript)-[tt:TRANSCRIPT_TYPE]-(so:SOTerm)
+            WHERE so.term_name = 'mRNA'
+            RETURN t.primaryKey as transcriptId,
+                   gl.assembly as transcriptAssembly,
+                   glt.chromosome as transcriptChromosome,
 
-            so_term_id = allele_record.get('type')
-            genomic_reference_sequence = allele_record.get('genomicReferenceSequence')
-            genomic_variant_sequence = allele_record.get('genomicVariantSequence')
+        """
 
-            if genomic_reference_sequence == 'N/A':
-                genomic_reference_sequence = ""
-            if genomic_variant_sequence == 'N/A':
-                genomic_variant_sequence = ""
+        fetch_minstart_maxend_per_transcript_query = """
 
-            padding_left = ""
-            padding_right = ""
-            if allele_record.get('start') != "" and allele_record.get('end') != "":
+            MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)
+            WHERE t.primaryKey = {parameter}
+            AND t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
+            RETURN gl.end AS CDSEndPosition, 
+                   gl.start AS CDSStartPosition, 
+                   t.primaryKey as transcriptPrimaryKey,
+                   t.dataProvider as dataProvider,
+                   t.strand as transcriptStrand, 
+                   gl.phase as CDSPhase
+                   order by gl.start 
+        """
+        return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
 
-                # not insertion
-                if so_term_id != "SO:0000667" and chromosome_str != "Unmapped_Scaffold_8_D1580_D1567":
-                    genomic_reference_sequence = assemblies[assembly].get_sequence(chromosome_str,
-                                                                                   allele_record.get('start'),
-                                                                                   allele_record.get('end'))
+        for record in return_set_t:
 
-                if allele_record.get('start') < allele_record.get('end'):
-                    start = allele_record.get('start')
-                    end = allele_record.get('end')
-                else:
-                    start = allele_record.get('end')
-                    end = allele_record.get('start')
+            transcript_id = record['transcriptId']
+            transcript_assembly = record['transcriptAssembly']
+            transcript_chromosome = record['transcriptChromosome']
 
-                padding_width = 500
-                if so_term_id != "SO:0000667":  # not insertion
-                    start = start - 1
-                    end = end + 1
+            assemblies = {}
+            return_set_cds = Neo4jHelper().run_single_parameter_query(fetch_minstart_maxend_per_transcript_query,
+                                                                      transcript_id)
 
-                left_padding_start = start - padding_width
-                if left_padding_start < 1:
-                    left_padding_start = 1
+            for cds_record in return_set_cds:
 
-                padding_left = assemblies[assembly].get_sequence(chromosome_str,
-                                                                 left_padding_start,
-                                                                 start)
-                right_padding_end = end + padding_width
-                padding_right = assemblies[assembly].get_sequence(chromosome_str,
-                                                                  end,
-                                                                  right_padding_end)
-            counter = counter + 1
-            global_id = allele_record.get('alleleId')
-            mod_global_cross_ref_id = ""
-            cross_references = []
+                assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
+                start_position = cds_record["CDSStartPosition"]
+                end_position = cds_record["CDSEndPosition"]
+                strand = cds_record["transcriptStrand"]
+                phase = cds_record["CDSPhase"]
+                transcript_id = cds_record["transcriptPrimaryKey"]
+                cds_sequence = assemblies[transcript_assembly].get_sequence(transcript_chromosome,
+                                                                           start_position,
+                                                                           end_position)
+                self.logger.info(transcript_id)
+                self.logger.info(start_position)
+                self.logger.info(end_position)
 
-            if self.test_object.using_test_data() is True:
-                is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
-                if is_it_test_entry is False:
-                    counter = counter - 1
-                    continue
+                protein_sequence = self.translate_protein(cds_sequence, strand, phase)
 
-            cross_ref_primary_id = allele_record.get('sequenceOfReferenceAccessionNumber')
-            local_cross_ref_id = cross_ref_primary_id.split(":")[1]
-            prefix = cross_ref_primary_id.split(":")[0]
+                row = {"transcriptId": transcript_id,
+                        "CDSStartPosition": start_position,
+                        "CDSEndPosition": end_position,
+                        "transcriptAssembly": transcript_assembly,
+                        "transcriptChromosome": transcript_chromosome,
+                        "cdsSequence": cds_sequence,
+                        "proteinSequence": protein_sequence
+                }
+                transcript_position_data.append(row)
 
-            cross_ref_complete_url = ETLHelper.get_no_page_complete_url(local_cross_ref_id,
-                                                                        ETL.xref_url_map,
-                                                                        prefix,
-                                                                        global_id)
-            xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
-                                               prefix,
-                                               "variant_sequence_of_reference",
-                                               "sequence_of_reference_accession_number",
-                                               global_id,
-                                               cross_ref_complete_url,
-                                               cross_ref_primary_id + "variant_sequence_of_reference")
-
-            xref_map['dataId'] = global_id
-            if cross_ref_primary_id is not None:
-                cross_references.append(xref_map)
-
-            if genomic_reference_sequence is not None:
-                if len(genomic_reference_sequence) > 1000 and (allele_record.get('type') == 'SO:1000002'
-                                                               or allele_record.get('type') == 'SO:1000008'):
-                    self.logger.debug("%s genomicReferenceSequence", allele_record.get('alleleId'))
-
-            if genomic_variant_sequence is not None:
-                if len(genomic_variant_sequence) > 1000 and (allele_record.get('type')
-                                                             in ['SO:1000002', 'SO:1000008']):
-                    self.logger.debug("%s genomicVariantSequence", allele_record.get('alleleId'))
-
-            hgvs_nomenclature, hgvs_synonym = self.get_hgvs_nomenclature(
-                allele_record.get('sequenceOfReferenceAccessionNumber'),
-                allele_record.get('type'),
-                allele_record.get('start'),
-                allele_record.get('end'),
-                genomic_reference_sequence,
-                genomic_variant_sequence,
-                allele_record.get('assembly'),
-                chromosome_str)
-
-            if (genomic_reference_sequence is not None and len(genomic_reference_sequence) > 30000) \
-                    or (genomic_variant_sequence is not None and len(genomic_variant_sequence)) > 30000:
-                self.logger.debug("%s has too long of a sequence potentionally",
-                                  allele_record.get('alleleId'))
-
-            # TODO: fix typo in MGI Submission for this variant so
-            # that it doesn't list a 40K bp point mutation.
-            if allele_record.get('alleleId') != 'MGI:6113870':
-                variant_dataset = {
-                    "hgvs_nomenclature": hgvs_nomenclature,
-                    "genomicReferenceSequence": genomic_reference_sequence,
-                    "genomicVariantSequence": genomic_variant_sequence,
-                    "paddingLeft": padding_left,
-                    "paddingRight": padding_right,
-                    "alleleId": allele_record.get('alleleId'),
-                    "dataProviders": data_providers,
-                    "dateProduced": date_produced,
-                    "loadKey": load_key,
-                    "release": release,
-                    "modGlobalCrossRefId": mod_global_cross_ref_id,
-                    "dataProvider": data_provider,
-                    "variantHGVSSynonym": hgvs_synonym}
-
-                variant_genomic_location_dataset = {
-                    "variantId": hgvs_nomenclature,
-                    "assembly": allele_record.get('assembly'),
-                    "chromosome": chromosome_str,
-                    "start": allele_record.get('start'),
-                    "end": allele_record.get('end'),
-                    "uuid": str(uuid.uuid4()),
-                    "dataProvider": data_provider}
-
-                variant_so_term = {
-                    "variantId": hgvs_nomenclature,
-                    "soTermId": allele_record.get('type')}
-
-                variant_so_terms.append(variant_so_term)
-                variant_genomic_locations.append(variant_genomic_location_dataset)
-                variants.append(variant_dataset)
-
-            if counter == batch_size:
-                yield [variants, variant_genomic_locations, variant_so_terms, cross_references]
-                variants = []
-                variant_genomic_locations = []
-                variant_so_terms = []
-                cross_references = []
-
-        if counter > 0:
-            yield [variants, variant_genomic_locations, variant_so_terms, cross_references]
+        return [transcript_position_data]

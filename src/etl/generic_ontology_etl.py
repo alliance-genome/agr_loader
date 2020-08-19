@@ -142,7 +142,6 @@ class GenericOntologyETL(ETL):
 
         for line in parsed_line:  # Convert parsed obo term into a schema-friendly AGR dictionary.
 
-
             counter += 1
             o_syns = line.get('synonym')
             ident = line['id'].strip()

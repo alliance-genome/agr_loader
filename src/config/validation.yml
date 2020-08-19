@@ -55,6 +55,9 @@ VEPTRANSCRIPT:
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
+ProteinSequence:
+  type: list
+  allowed: [ProteinSequence]
 ONTOLOGY:
   type: list
   allowed: 

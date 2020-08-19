@@ -45,9 +45,6 @@ class ResourceDescriptorHelper2():
                 self.resource_descriptor_dict[entry]['pages'] = \
                         self.resource_descriptor_dict[entry].pop('pages_temp')
 
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(self.resource_descriptor_dict)
-        # quit()
 
     @staticmethod
     def alter_prefixes_to_match_resource_yaml(entry):

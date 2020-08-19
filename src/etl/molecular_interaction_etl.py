@@ -6,7 +6,6 @@ import csv
 import re
 import sys
 import itertools
-import pprint
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor

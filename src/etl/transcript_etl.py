@@ -18,6 +18,43 @@ class TranscriptETL(ETL):
 
     # Query templates which take params and will be processed later
 
+    cds_query_template = """
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+                MATCH (g:Transcript {gff3ID: row.parentId})
+                MATCH (so:SOTerm {name: row.featureType})
+
+                MERGE (t:CDS {primaryKey:row.gff3ID})
+                    ON CREATE SET t.gff3ID = row.gff3ID,
+                        t.dataProvider = row.dataProvider,
+                        t.name = row.name,
+                        t.synonym = row.synonym        
+
+               CREATE (t)<-[tso:TYPE]-(so)
+               CREATE (g)<-[gt:CDS]-(t)"""
+
+    cds_genomic_locations_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+            MATCH (o:CDS {primaryKey: row.gff3ID})
+            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+            MATCH (a:Assembly {primaryKey: row.assembly})
+
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+
+            CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+              SET gchrm.start = apoc.number.parseInt(row.start),
+                gchrm.end = apoc.number.parseInt(row.end),
+                gchrm.assembly = row.assembly,
+                gchrm.strand = row.strand,
+                gchrm.chromosome = row.chromosomeNumber,
+                gchrm.phase = row.phase
+
+            CREATE (o)-[of:ASSOCIATION]->(gchrm)
+            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     exon_query_template = """
             USING PERIODIC COMMIT %s
@@ -103,7 +140,8 @@ class TranscriptETL(ETL):
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosomeNumber
+                gchrm.chromosome = row.chromosomeNumber,
+                gchrm.phase = row.phase
 
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
@@ -145,7 +183,11 @@ class TranscriptETL(ETL):
             [self.exon_query_template, commit_size,
              "exon_data_" + sub_type.get_data_provider() + ".csv"],
             [self.exon_genomic_locations_template, commit_size,
-             "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
+             "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.cds_query_template, commit_size,
+             "cds_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.cds_genomic_locations_template, commit_size,
+             "cds_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator
@@ -163,6 +205,7 @@ class TranscriptETL(ETL):
             transcript_maps = []
             gene_maps = []
             exon_maps = []
+            cds_maps = []
             counter = 0
             data_provider = ''
             assembly = ''
@@ -171,6 +214,7 @@ class TranscriptETL(ETL):
                 transcript_map = {}
                 gene_map = {}
                 exon_map = {}
+                cds_map = {}
 
                 curie = ''
                 parent = ''
@@ -181,7 +225,7 @@ class TranscriptETL(ETL):
                 transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lnc_RNA',
                                     'tRNA', 'snRNA', 'rRNA', 'antisense_RNA', 'C_gene_segment',
                                     'V_gene_segment', 'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
-                possible_types = ['gene', 'exon','mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
+                possible_types = ['gene', 'exon','CDS','mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
                                   'pre_miRNA', 'snoRNA', 'lnc_RNA', 'tRNA', 'snRNA', 'rRNA',
                                   'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
                                   'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
@@ -256,6 +300,8 @@ class TranscriptETL(ETL):
                                                 counter = counter - 1
                                             continue
                         if feature_type_name in transcript_types:
+                            if curie is None or curie == '':
+                                curie = gff3_id
                             transcript_map.update({'curie' : curie})
                             transcript_map.update({'parentId': parent})
                             transcript_map.update({'gff3ID': gff3_id})
@@ -268,7 +314,9 @@ class TranscriptETL(ETL):
                             transcript_map.update({'assembly': assembly})
                             transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'name': name})
-                            transcript_map.update({'synonym': synonym})
+                            transcript_map.update({'synonym': synonym}),
+                            transcript_map.update({'strand': columns[6]}),
+                            transcript_map.update({'phase': columns[7]})
                             if assembly is None:
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 transcript_map.update({'assembly': assembly})
@@ -292,12 +340,33 @@ class TranscriptETL(ETL):
                             exon_map.update({'assembly': assembly})
                             exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'name': name})
-                            exon_map.update({'synonym': synonym})
+                            exon_map.update({'synonym': synonym}),
+                            exon_map.update({'strand': columns[6]})
                             if assembly is None or assembly == '':
                                 assembly = 'assembly_unlabeled_in_gff3_header'
                                 exon_map.update({'assembly': assembly})
                                 transcript_map.update({'assembly': assembly})
                             exon_maps.append(exon_map)
+                        elif feature_type_name == 'CDS':
+                            cds_map.update({'parentId': parent})
+                            cds_map.update({'gff3ID': str(uuid.uuid4())})
+                            cds_map.update({'genomicLocationUUID': str(uuid.uuid4())})
+                            cds_map.update({'chromosomeNumber': columns[0]})
+                            cds_map.update({'featureType': feature_type_name})
+                            cds_map.update({'start': columns[3]})
+                            cds_map.update({'dataProvider': data_provider})
+                            cds_map.update({'end': columns[4]})
+                            cds_map.update({'assembly': assembly})
+                            cds_map.update({'dataProvider': data_provider})
+                            cds_map.update({'name': name})
+                            cds_map.update({'synonym': synonym})
+                            cds_map.update({'strand': columns[6]})
+                            cds_map.update({'phase': columns[7]})
+                            if assembly is None or assembly == '':
+                                assembly = 'assembly_unlabeled_in_gff3_header'
+                                cds_map.update({'assembly': assembly})
+                                transcript_map.update({'assembly': assembly})
+                            cds_maps.append(cds_map)
                         else:
                             continue
 
@@ -309,10 +378,13 @@ class TranscriptETL(ETL):
                           transcript_maps,
                           transcript_maps,
                           exon_maps,
-                          exon_maps]
+                          exon_maps,
+                          cds_maps,
+                          cds_maps]
                     transcript_maps = []
                     gene_maps = []
                     exon_maps = []
+                    cds_maps = []
 
 
             if counter > 0:
@@ -321,4 +393,6 @@ class TranscriptETL(ETL):
                       transcript_maps,
                       transcript_maps,
                       exon_maps,
-                      exon_maps]
+                      exon_maps,
+                      cds_maps,
+                      cds_maps]

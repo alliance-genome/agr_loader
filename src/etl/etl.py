@@ -12,10 +12,8 @@ from loader_common import ContextInfo
 class ETL():
     """ETL"""
 
-
     xref_url_map = ResourceDescriptorHelper().get_data()
     logger = logging.getLogger(__name__)
-
 
     def __init__(self):
 
@@ -27,12 +25,10 @@ class ETL():
         else:
             self.test_object = TestObject(False)
 
-
     def run_etl(self):
         """Run ETL"""
 
         self._load_and_process_data()
-
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):
@@ -65,7 +61,6 @@ class ETL():
                     return
 
             time.sleep(5)
-
 
     def process_query_params(self, query_list_with_params):
         """Process Query Params"""
