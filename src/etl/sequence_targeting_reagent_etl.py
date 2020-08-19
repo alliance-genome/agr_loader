@@ -147,23 +147,8 @@ class SequenceTargetingReagentETL(ETL):
         data_provider_cross_ref_set = []
 
         load_key = date_produced + data_provider + "_SqTR"
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, data_provider_page)
-
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(
-                    data_provider,
-                    data_provider,
-                    data_provider_page,
-                    data_provider_page,
-                    data_provider,
-                    cross_ref_complete_url,
-                    data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
+        self.data_providers_process(data_provider, data_providers,
+                                    data_provider_pages, data_provider_cross_ref_set)
 
         for sqtr_record in sqtr_data['data']:
             counter = counter + 1
@@ -175,22 +160,8 @@ class SequenceTargetingReagentETL(ETL):
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
-
-            if sqtr_record.get('secondaryIds') is not None:
-                for sid in sqtr_record.get('secondaryIds'):
-                    sqtr_secondary_id_dataset = {
-                        "primaryId": sqtr_record.get('primaryId'),
-                        "secondaryId": sid
-                    }
-                    sqtr_secondary_ids.append(sqtr_secondary_id_dataset)
-
-            if sqtr_record.get('synonyms') is not None:
-                for syn in sqtr_record.get('synonyms'):
-                    syn_dataset = {
-                        "primaryId": sqtr_record.get('primaryId'),
-                        "synonym": syn
-                    }
-                    sqtr_synonyms.append(syn_dataset)
+            self.secondary_process(sqtr_secondary_ids, sqtr_record)
+            self.synonyms_process(sqtr_synonyms, sqtr_record)
 
             if sqtr_record.get('targetGeneIds') is not None:
                 for target_gene_id in sqtr_record.get('targetGeneIds'):

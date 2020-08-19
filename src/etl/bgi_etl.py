@@ -499,19 +499,8 @@ class BGIETL(ETL):
                                               "uuid": str(uuid.uuid4()),
                                               "dataProvider": data_provider})
 
-            if basic_genetic_entity.get('synonyms') is not None:
-                for synonym in basic_genetic_entity.get('synonyms'):
-                    gene_synonym = {
-                        "primary_id": primary_id,
-                        "synonym": synonym.strip()}
-                    synonyms.append(gene_synonym)
-
-            if basic_genetic_entity.get('secondaryIds') is not None:
-                for secondary_id in basic_genetic_entity.get('secondaryIds'):
-                    gene_secondary_id = {
-                        "primary_id": primary_id,
-                        "secondary_id": secondary_id}
-                    secondary_ids.append(gene_secondary_id)
+            self.synonyms_process(synonyms, basic_genetic_entity)
+            self.secondary_process(secondary_ids, basic_genetic_entity)
 
             # We should have the metadata ready to go after the first loop of the generator.
             self.metadata_is_loaded[load_key] = True

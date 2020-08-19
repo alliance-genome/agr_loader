@@ -212,22 +212,8 @@ class PhenoTypeETL(ETL):
 
         load_key = date_produced + data_provider + "_phenotype"
 
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, data_provider_page)
-
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(
-                    data_provider,
-                    data_provider,
-                    data_provider_page,
-                    data_provider_page,
-                    data_provider,
-                    cross_ref_complete_url,
-                    data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.debug("data provider: %s", data_provider)
+        self.data_providers_process(data_provider, data_providers,
+                                    data_provider_pages, data_provider_cross_ref_set)
 
         for pheno in phenotype_data['data']:
             pecj_primary_key = str(uuid.uuid4())

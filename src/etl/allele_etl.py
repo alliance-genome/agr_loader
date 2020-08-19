@@ -217,19 +217,8 @@ class AlleleETL(ETL):
         loadKey = date_produced + data_provider + "_ALLELE"
 
         # TODO: get SGD to fix their files.
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, data_provider_page)
-
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
-                                                                           data_provider_page, data_provider,
-                                                                           cross_ref_complete_url,
-                                                                           data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                logger.info("data provider: " + data_provider)
+        self.data_providers_process(data_provider, data_providers,
+                                    data_provider_pages, data_provider_cross_ref_set)
 
         if 'release' in allele_data['metaData']:
             release = allele_data['metaData']['release']
@@ -403,21 +392,8 @@ class AlleleETL(ETL):
                                 xref['dataId'] = global_id
                                 cross_reference_list.append(xref)
 
-            if 'synonyms' in allele_record:
-                for syn in allele_record.get('synonyms'):
-                    allele_synonym = {
-                        "data_id": allele_record.get('primaryId'),
-                        "synonym": syn.strip()
-                    }
-                    allele_synonyms.append(allele_synonym)
-
-            if 'secondaryIds' in allele_record:
-                for secondary_id in allele_record.get('secondaryIds'):
-                    allele_secondary_id = {
-                        "data_id": allele_record.get('primaryId'),
-                        "secondary_id": secondary_id
-                    }
-                    allele_secondary_ids.append(allele_secondary_id)
+            self.synonyms_process(allele_synonyms, allele_record, primary_key="data_id")
+            self.secondary_process(allele_secondary_ids, allele_record, primary_key="data_id")
 
             if counter == batch_size:
                 yield [alleles_no_construct, alleles_construct_gene, alleles_no_gene, alleles_no_constrcut_no_gene,

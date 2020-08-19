@@ -171,25 +171,8 @@ class ConstructETL(ETL):
         load_key = date_produced + data_provider + "_construct"
 
         # TODO: get SGD to fix their files.
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                # another key value identical
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, data_provider_page)
-
-                data_provider_cross_ref_set.append(
-                    ETLHelper.get_xref_dict(
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
+        self.data_providers_process(data_provider, data_providers,
+                                    data_provider_pages, data_provider_cross_ref_set)
 
         if 'release' in construct_data['metaData']:
             release = construct_data['metaData']['release']
@@ -274,21 +257,8 @@ class ConstructETL(ETL):
                         non_bgi_components.append(non_bgi_component)
                         component_no_gene_details.append(component_detail)
 
-            if 'synonyms' in construct_record:
-                for syn in construct_record.get('synonyms'):
-                    construct_synonym = {
-                        "data_id": construct_record.get('primaryId'),
-                        "synonym": syn.strip()
-                    }
-                    construct_synonyms.append(construct_synonym)
-
-            if 'secondaryIds' in construct_record:
-                for secondary_id in construct_record.get('secondaryIds'):
-                    construct_secondary_id = {
-                        "data_id": construct_record.get('primaryId'),
-                        "secondary_id": secondary_id
-                    }
-                    construct_secondary_ids.append(construct_secondary_id)
+            self.synonyms_process(construct_synonyms, construct_record, primary_key="data_id")
+            self.secondary_process(construct_secondary_ids, construct_record, primary_key="data_id")
 
             if counter == batch_size:
                 yield [constructs,

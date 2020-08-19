@@ -158,65 +158,24 @@ class AffectedGenomicModelETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("AGM-{}: ".format(sub_type.get_data_provider()))
 
-    def agm_secondary_process(self, agm_secondary_ids, agm_record):
-        """Get secondary ids."""
-        if agm_record.get('secondaryIds') is None:
-            return
-        for sid in agm_record.get('secondaryIds'):
-            agm_secondary_id_dataset = {
-                "primaryId": agm_record.get('primaryID'),
-                "secondaryId": sid
-            }
-            agm_secondary_ids.append(agm_secondary_id_dataset)
-
-    def agm_synonyms_process(agm_synonyms, agm_record):
-        """Get synonyms."""
-        if agm_record.get('synonyms') is None:
-            return
-        for syn in agm_record.get('synonyms'):
-            syn_dataset = {
-                "primaryId": agm_record.get('primaryID'),
-                "synonym": syn
-            }
-            agm_synonyms.append(syn_dataset)
-
     def cross_ref_process(self, agm_record):
         """Get cross reference."""
         cross_ref = ""
         if 'crossReference' not in agm_record:
             return cross_ref
-            cross_ref = agm_record.get('crossReference')
-            cross_ref_id = cross_ref.get('id')
-            local_crossref_id = cross_ref_id.split(":")[1]
-            prefix = cross_ref.get('id').split(":")[0]
-            pages = cross_ref.get('pages')
+        cross_ref = agm_record.get('crossReference')
+        cross_ref_id = cross_ref.get('id')
+        local_crossref_id = cross_ref_id.split(":")[1]
+        prefix = cross_ref.get('id').split(":")[0]
+        pages = cross_ref.get('pages')
 
-            # some pages collection have 0 elements
-            if pages is not None and len(pages) > 0:
-                for page in pages:
-                    if page in ['Fish', 'genotype', 'strain']:
-                        cross_ref = self.etlh.rdh2.return_url_from_key_value(
-                            prefix, local_crossref_id, alt_page=page)
+        # some pages collection have 0 elements
+        if pages is not None and len(pages) > 0:
+            for page in pages:
+                if page in ['Fish', 'genotype', 'strain']:
+                    cross_ref = self.etlh.rdh2.return_url_from_key_value(
+                        prefix, local_crossref_id, alt_page=page)
         return cross_ref
-
-    def data_providers_process(self, data_provider, data_providers, data_provider_pages, data_provider_cross_ref_set):
-        """Get data providers."""
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, alt_page=data_provider_page)
-                data_provider_cross_ref_set.append(
-                    ETLHelper.get_xref_dict(
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
 
     def agm_process(self, agms, agm_record, data_provider, data_providers, date_produced):
         """Process agms."""
@@ -319,8 +278,8 @@ class AffectedGenomicModelETL(ETL):
                     counter = counter - 1
                     continue
 
-            self.agm_secondary_process(agm_secondary_ids, agm_record)
-            self.agm_synonyms_process(agm_synonyms, agm_record)
+            self.secondary_process(agm_secondary_ids, agm_record)
+            self.synonyms_process(agm_synonyms, agm_record)
             self.agm_process(agms, agm_record, data_provider, data_providers, date_produced)
             self.genmod_process(components, agm_record)
             self.sqtr_process(sqtrs, agm_record)

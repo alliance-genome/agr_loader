@@ -102,3 +102,48 @@ class ETL():
             query_and_file_names.append([query_to_run, file_name])
 
         return query_and_file_names
+
+    def secondary_process(self, secondarys, data_record, primary_key="primaryId"):
+        """Get secondary ids.
+
+        secondarys: list of dataset items.
+        data_record: record to process.
+        """
+        if data_record.get('secondaryIds') is None:
+            return
+        for sid in data_record.get('secondaryIds'):
+            secondary_id_dataset = {
+                primary_key: data_record.get('primaryID'),
+                "secondaryId": sid
+            }
+            secondarys.append(secondary_id_dataset)
+
+    def synonyms_process(synonyms, data_record, primary_key="primaryId"):
+        """Get synonyms."""
+        if data_record.get('synonyms') is None:
+            return
+        for syn in data_record.get('synonyms'):
+            syn_dataset = {
+                primary_key: data_record.get('primaryID'),
+                "synonym": syn.strip()
+            }
+            synonyms.append(syn_dataset)
+
+    def data_providers_process(self, data_provider, data_providers, data_provider_pages, data_provider_cross_ref_set):
+        """Get data providers."""
+        if data_provider_pages is not None:
+            for data_provider_page in data_provider_pages:
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    data_provider, data_provider, alt_page=data_provider_page)
+                data_provider_cross_ref_set.append(
+                    ETLHelper.get_xref_dict(
+                        data_provider,
+                        data_provider,
+                        data_provider_page,
+                        data_provider_page,
+                        data_provider,
+                        cross_ref_complete_url,
+                        data_provider + data_provider_page))
+
+                data_providers.append(data_provider)
+                self.logger.info("data provider: %s", data_provider)
