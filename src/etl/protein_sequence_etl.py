@@ -114,10 +114,10 @@ class ProteinSequenceETL(ETL):
         fetch_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[glt:ASSOCIATION]-(t:Transcript)-[tt:TRANSCRIPT_TYPE]-(so:SOTerm)
-            WHERE so.term_name = 'mRNA'
+            WHERE so.name = 'mRNA'
             RETURN t.primaryKey as transcriptId,
                    gl.assembly as transcriptAssembly,
-                   glt.chromosome as transcriptChromosome,
+                   glt.chromosome as transcriptChromosome
 
         """
 
@@ -142,11 +142,13 @@ class ProteinSequenceETL(ETL):
             transcript_assembly = record['transcriptAssembly']
             transcript_chromosome = record['transcriptChromosome']
 
+            self.logger.info(record)
             assemblies = {}
             return_set_cds = Neo4jHelper().run_single_parameter_query(fetch_minstart_maxend_per_transcript_query,
                                                                       transcript_id)
 
             for cds_record in return_set_cds:
+                self.logger.info(cds_record)
 
                 assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
                 start_position = cds_record["CDSStartPosition"]
