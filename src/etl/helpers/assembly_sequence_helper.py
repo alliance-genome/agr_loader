@@ -21,10 +21,10 @@ class AssemblySequenceHelper():
 
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
-                self.logger.info(sub_type_config.get_sub_data_type())
+                self.debug.info(sub_type_config.get_sub_data_type())
                 continue
             filepath = sub_type_config.get_filepath()
-            self.logger.info(filepath)
+            self.debug.info(filepath)
             break
 
         if filepath is None:

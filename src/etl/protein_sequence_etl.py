@@ -2,8 +2,6 @@
 
 import logging
 import multiprocessing
-import re
-from Bio.Alphabet import IUPAC
 from etl import ETL
 from etl.helpers import AssemblySequenceHelper
 from etl.helpers import Neo4jHelper
@@ -71,7 +69,6 @@ class ProteinSequenceETL(ETL):
 
     def translate_protein(self, cds_sequence, strand):
 
-        self.logger.info(cds_sequence)
 
         # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
         if strand == '-':
@@ -92,7 +89,6 @@ class ProteinSequenceETL(ETL):
         #     coding_dna = Seq(cds_sequence)
         #     protein_sequence = coding_dna.translate(table=1)
 
-        self.logger.info(protein_sequence)
 
         return protein_sequence
 
