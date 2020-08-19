@@ -1,4 +1,4 @@
-"""GO Anootation ETL"""
+"""GO Anootation ETL."""
 
 import os
 import logging
@@ -11,7 +11,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GOAnnotETL(ETL):
-    """GO Annotation ETL"""
+    """GO Annotation ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -20,12 +20,13 @@ class GOAnnotETL(ETL):
     main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (g:Gene {primaryKey:row.gene_id})
             MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
             CREATE (g)-[:ANNOTATED_TO]->(go) """
 
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -81,8 +82,7 @@ class GOAnnotETL(ETL):
         self.error_messages("GenAnnot-{}: ".format(sub_type.get_data_provider()))
 
     def get_generators(self, file, prefix, batch_size):
-        """Create Generators"""
-
+        """Create Generators."""
         go_annot_list = []
         counter = 0
         reader = csv.reader(file, delimiter='\t')

@@ -9,7 +9,7 @@ import requests
 
 from collections import defaultdict
 from etl import ETL
-from etl.helpers import Neo4jHelper, ETLHelper
+from etl.helpers import Neo4jHelper
 from genedescriptions.config_parser import GenedescConfigParser
 from genedescriptions.descriptions_writer import DescriptionsWriter
 from genedescriptions.gene_description import GeneDescription
@@ -492,8 +492,8 @@ class GeneDescriptionsETL(ETL):
     def upload_files_to_fms(file_path, context_info, data_provider, logger):
         """Upload Files To FMS."""
         with open(file_path + ".json", 'rb') as f_json, \
-             open(file_path + ".txt", 'rb') as f_txt, \
-             open(file_path + ".tsv", 'rb') as f_tsv:
+            open(file_path + ".txt", 'rb') as f_txt, \
+                open(file_path + ".tsv", 'rb') as f_tsv:
             if context_info.env["GENERATE_REPORTS"] is True:
                 file_to_upload = {
                     f"{context_info.env['ALLIANCE_RELEASE']}_GENE-DESCRIPTION-JSON_{data_provider}": f_json,
@@ -517,8 +517,7 @@ class GeneDescriptionsETL(ETL):
             logger.info(response.text)
 
     def save_descriptions_report_files(self, data_provider, json_desc_writer, context_info, gd_data_manager):
-        """Save Descripitons Report Files"""
-
+        """Save Descripitons Report Files."""
         release_version = ".".join(context_info.env["ALLIANCE_RELEASE"].split(".")[0:2])
         json_desc_writer.overall_properties.species = data_provider
         json_desc_writer.overall_properties.release_version = release_version
@@ -555,6 +554,7 @@ class GeneDescriptionsETL(ETL):
 
     @staticmethod
     def add_header_to_file(file_path, header):
+        """Add header to file."""
         with open(file_path, 'r') as original:
             data = original.read()
         with open(file_path, 'w') as modified:

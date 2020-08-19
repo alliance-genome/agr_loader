@@ -1,18 +1,15 @@
-"""Stub ETL"""
+"""Stub ETL."""
 
 import logging
-import uuid
 import multiprocessing
 
 from etl import ETL
-from etl.helpers import ETLHelper
-from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
 
 class StubETL(ETL):
-    """Stub ETL"""
+    """Stub ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -32,6 +29,7 @@ class StubETL(ETL):
             SET n.name = row.name """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -64,7 +62,6 @@ class StubETL(ETL):
         self.error_messages("Stub-{}: ".format(sub_type.get_data_provider()))
 
     def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+        """Get Generators."""
         generators = 1
         return generators
