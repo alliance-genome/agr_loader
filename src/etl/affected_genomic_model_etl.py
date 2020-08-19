@@ -190,7 +190,7 @@ class AffectedGenomicModelETL(ETL):
                 #                                                         self.xref_url_map,
                 #                                                         data_provider,
                 #                                                         data_provider_page)
-                self.logger.critical("Same prefix, value? {}".format(data_provider))
+                self.logger.critical("Same prefix, value? %", data_provider)
                 data_provider_cross_ref_set.append(
                     ETLHelper.get_xref_dict(
                         data_provider,

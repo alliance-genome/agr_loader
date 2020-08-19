@@ -431,11 +431,11 @@ class MolecularInteractionETL(ETL):
         master_crossreference_dictionary = self.populate_crossreference_dictionary()
         self.logger.info('Obtained the following number of cross references from Neo4j:')
         for entry in master_crossreference_dictionary:
-            self.logger.info('{}: {}'.format(entry, len(master_crossreference_dictionary[entry])))
+            self.logger.info('%s: %s', entry, len(master_crossreference_dictionary[entry]))
 
         # Populate our master gene set for filtering Alliance genes.
         master_gene_set = self.populate_genes()
-        self.logger.info('Obtained {} gene primary ids from Neo4j.'.format(len(master_gene_set)))
+        self.logger.info('Obtained %s gene primary ids from Neo4j.', len(master_gene_set))
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0

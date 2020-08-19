@@ -30,19 +30,19 @@ class ETL():
     def error_messages(self, prefix=""):
         """Print out error summary messages."""
         for key in self.etlh.rdh2.missing_pages.keys():
-            self.logger.critical("{}Missing page {} seen {} times".format(prefix, key, self.etlh.rdh2.missing_pages[key]))
+            self.logger.critical("%s Missing page %s seen %s times", prefix, key, self.etlh.rdh2.missing_pages[key])
         self.etlh.rdh2.missing_pages = {}
         for key in self.etlh.rdh2.missing_keys.keys():
-            self.logger.critical("{}Missing key {} seen {} times".format(prefix, key, self.etlh.rdh2.missing_keys[key]))
+            self.logger.critical("%s Missing key %s seen %s times", prefix, key, self.etlh.rdh2.missing_keys[key])
         self.etlh.rdh2.missing_keys = {}
         for key in self.etlh.rdh2.deprecated_mess.keys():
-            self.logger.critical("{}Deprecated {} seen {} times".format(prefix, key, self.etlh.rdh2.deprecated_mess[key]))
+            self.logger.critical("%s Deprecated %s seen %s times", prefix, key, self.etlh.rdh2.deprecated_mess[key])
         self.etlh.rdh2.deprecated_mess = {}
         for key in self.etlh.rdh2.bad_pages.keys():
-            self.logger.critical("{} None matching urls {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_pages[key]))
+            self.logger.critical("%s None matching urls %s seen %s times", prefix, key, self.etlh.rdh2.bad_pages[key])
             self.etlh.rdh2.bad_pages = {}
         for key in self.etlh.rdh2.bad_regex.keys():
-            self.logger.critical("{} None matching regex {} seen {} times".format(prefix, key, self.etlh.rdh2.bad_regex[key]))
+            self.logger.critical("%s None matching regex %s seen %s times", prefix, key, self.etlh.rdh2.bad_regex[key])
         self.etlh.rdh2.bad_regex = {}
 
     def run_etl(self):

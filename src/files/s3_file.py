@@ -1,4 +1,4 @@
-"""S3 File"""
+"""S3 File."""
 
 import logging
 import os
@@ -8,21 +8,20 @@ from loader_common import ContextInfo
 
 
 class S3File():
-    """S3 File"""
+    """S3 File."""
 
     logger = logging.getLogger(__name__)
 
     def __init__(self, filename, savepath):
+        """Initialise object."""
         self.filename = filename
         self.savepath = savepath
 
         self.context_info = ContextInfo()
-        self.download_url = "https://" + self.context_info.env["DOWNLOAD_HOST"] \
-                             + "/" + self.filename
+        self.download_url = "https://" + self.context_info.env["DOWNLOAD_HOST"] + "/" + self.filename
 
     def download(self):
-        """Download"""
-
+        """Download."""
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
             self.logger.info("Making temp file storage: %s", os.path.dirname(os.path.join(self.savepath, self.filename)))
             os.makedirs(os.path.dirname(os.path.join(self.savepath, self.filename)))
@@ -43,8 +42,7 @@ class S3File():
         return os.path.join(self.savepath, self.filename)
 
     def download_new(self):
-        """Download New"""
-
+        """Download New."""
         if not os.path.exists(os.path.dirname(os.path.join(self.savepath, self.filename))):
             self.logger.debug("Making temp file storage: %s", os.path.dirname(os.path.join(self.savepath, self.filename)))
 
@@ -67,12 +65,11 @@ class S3File():
                     attempts += 1
                     time.sleep(2)
             if attempts == 3:
-                raise OSError('Critical error downloading file (attempted 3 times): %s + "/" + %s' \
-                              % (self.savepath, self.filename))
+                raise OSError('Critical error downloading file (attempted 3 times): %s + "/" + %s' % (self.savepath, self.filename))
 
         url = self.download_url
         self.logger.info(url)
-        self.logger.info("Checking for file {}".format(os.path.join(self.savepath, self.filename)))
+        self.logger.info("Checking for file %s", os.path.join(self.savepath, self.filename))
         if os.path.exists(os.path.join(self.savepath, self.filename)):
             self.logger.debug("File: %s/%s already exists, not downloading",
                               self.savepath,
@@ -84,10 +81,9 @@ class S3File():
                           self.filename,
                           self.savepath,
                           self.filename)
-        ret_tuple = urllib.request.urlretrieve(url, os.path.join(self.savepath, self.filename))
-        self.logger.debug("Tuples:-{}".format(ret_tuple))
+        urllib.request.urlretrieve(url, os.path.join(self.savepath, self.filename))
 
         return False
 
     def list_files(self):
-        """List Files"""
+        """List Files."""
