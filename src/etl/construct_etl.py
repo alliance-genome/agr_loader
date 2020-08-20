@@ -173,7 +173,6 @@ class ConstructETL(ETL):
     def get_generators(self, construct_data, data_provider, batch_size):  # noqa
         """Create Generators"""
 
-        data_providers = []
         release = ""
         constructs = []
         construct_synonyms = []
@@ -186,19 +185,10 @@ class ConstructETL(ETL):
         counter = 0
         date_produced = construct_data['metaData']['dateProduced']
 
-        data_provider_object = construct_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        self.logger.info("DataProvider: " + data_provider)
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
         load_key = date_produced + data_provider + "_construct"
 
         # TODO: get SGD to fix their files.
-        self.data_providers_process(data_provider, data_providers,
-                                    data_provider_pages, data_provider_cross_ref_set)
+        self.data_providers_process(construct_data)
 
         if 'release' in construct_data['metaData']:
             release = construct_data['metaData']['release']
@@ -223,7 +213,7 @@ class ConstructETL(ETL):
                 "primaryId": construct_record.get('primaryId'),
                 "globalId": global_id,
                 "localId": local_id,
-                "dataProviders": data_providers,
+                "dataProviders": self.data_providers,
                 "dateProduced": date_produced,
                 "loadKey": load_key,
                 "release": release,

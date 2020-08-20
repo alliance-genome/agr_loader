@@ -291,13 +291,7 @@ class BGIETL(ETL):
         release = None
         counter = 0
 
-        data_provider_object = gene_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        # dataProviderPages = dataProviderCrossRef.get('pages')
-        # data_provider_cross_ref_set = []
-
+        self.data_providers_process(gene_data)
         load_key = date_produced + data_provider + "_BGI"
 
         # If we're not tracking the metadata, create the entry in our tracker.

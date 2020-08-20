@@ -154,7 +154,6 @@ class SequenceTargetingReagentETL(ETL):
     def get_generators(self, sqtr_data, data_provider, batch_size):  # noqa
         """Get Generators"""
 
-        data_providers = []
         sqtrs = []
         sqtr_synonyms = []
         sqtr_secondary_ids = []
@@ -164,16 +163,8 @@ class SequenceTargetingReagentETL(ETL):
         counter = 0
         date_produced = sqtr_data['metaData']['dateProduced']
 
-        data_provider_object = sqtr_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
         load_key = date_produced + data_provider + "_SqTR"
-        self.data_providers_process(data_provider, data_providers,
-                                    data_provider_pages, data_provider_cross_ref_set)
+        self.data_providers_process(sqtr_data)
 
         for sqtr_record in sqtr_data['data']:
             counter = counter + 1
@@ -219,7 +210,7 @@ class SequenceTargetingReagentETL(ETL):
                 "localId": local_id,
                 "soTerm": sqtr_record.get('soTermId'),
                 "taxonId": sqtr_record.get('taxonId'),
-                "dataProviders": data_providers,
+                "dataProviders": self.data_providers,
                 "dateProduced": date_produced,
                 "loadKey": load_key,
                 "modGlobalCrossRefUrl": mod_global_cross_ref_url,

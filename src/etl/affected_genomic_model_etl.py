@@ -176,11 +176,11 @@ class AffectedGenomicModelETL(ETL):
                         prefix, local_crossref_id, alt_page=page)
         return cross_ref
 
-    def agm_process(self, agms, agm_record, data_provider, data_providers, date_produced):
+    def agm_process(self, agms, agm_record, date_produced):
         """Process agms."""
         # TODO: make subtype required in submission file.
         subtype = agm_record.get('subtype')
-        if subtype is None and data_provider == 'WB':
+        if subtype is None and self.data_provider == 'WB':
             subtype = 'strain'
         if subtype is None:
             subtype = 'affected_genomic_model'
@@ -190,7 +190,7 @@ class AffectedGenomicModelETL(ETL):
         short_species_abbreviation = self.etlh.get_short_species_abbreviation(agm_record.get('taxonId'))
         name_text = TextProcessingHelper.cleanhtml(agm_record.get('name'))
         mod_global_cross_ref_url = self.cross_ref_process(agm_record)
-        load_key = date_produced + data_provider + "_agm"
+        load_key = date_produced + self.data_provider + "_agm"
         # TODO: name_text
         agm_dataset = {
                 "primaryId": agm_record.get('primaryID'),
@@ -198,12 +198,12 @@ class AffectedGenomicModelETL(ETL):
                 "globalId": global_id,
                 "localId": local_id,
                 "taxonId": agm_record.get('taxonId'),
-                "dataProviders": data_providers,
+                "dataProviders": self.data_providers,
                 "dateProduced": date_produced,
                 "loadKey": load_key,
                 "subtype": subtype,
                 "modGlobalCrossRefUrl": mod_global_cross_ref_url,
-                "dataProvider": data_provider,
+                "dataProvider": self.data_provider,
                 "nameText": name_text,
                 "nameWithSpecies": agm_record.get('name') + " (" + short_species_abbreviation + ")",
                 "nameTextWithSpecies": name_text + " (" + short_species_abbreviation + ")",
@@ -272,7 +272,6 @@ class AffectedGenomicModelETL(ETL):
 
     def get_generators(self, agm_data, data_provider, batch_size):
         """Get Generators."""
-        data_providers = []
         agms = []
         agm_synonyms = []
         agm_secondary_ids = []
@@ -283,15 +282,7 @@ class AffectedGenomicModelETL(ETL):
         counter = 0
         date_produced = agm_data['metaData']['dateProduced']
 
-        data_provider_object = agm_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
-        self.data_providers_process(data_provider, data_providers,
-                                    data_provider_pages, data_provider_cross_ref_set)
+        self.data_providers_process(agm_data)
 
         for agm_record in agm_data['data']:
             counter = counter + 1
@@ -305,7 +296,7 @@ class AffectedGenomicModelETL(ETL):
 
             self.secondary_process(agm_secondary_ids, agm_record)
             self.synonyms_process(agm_synonyms, agm_record)
-            self.agm_process(agms, agm_record, data_provider, data_providers, date_produced)
+            self.agm_process(agms, agm_record, date_produced)
             self.genmod_process(components, agm_record)
             self.sqtr_process(sqtrs, agm_record)
             self.ppids_process(backgrounds, agm_record)

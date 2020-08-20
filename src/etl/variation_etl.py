@@ -195,16 +195,8 @@ class VariationETL(ETL):
         counter = 0
         date_produced = variant_data['metaData']['dateProduced']
 
-        data_provider_object = variant_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
-        load_key = date_produced + data_provider + "_VARIATION"
-        self.data_providers_process(data_provider, data_providers,
-                                    data_provider_pages, data_provider_cross_ref_set)
+        self.data_providers_process(variant_data)
+        load_key = date_produced + self.data_provider + "_VARIATION"
 
         if 'release' in variant_data['metaData']:
             release = variant_data['metaData']['release']
@@ -339,7 +331,7 @@ class VariationETL(ETL):
                     "loadKey": load_key,
                     "release": release,
                     "modGlobalCrossRefId": mod_global_cross_ref_id,
-                    "dataProvider": data_provider,
+                    "dataProvider": self.data_provider,
                     "variantHGVSSynonym": hgvs_synonym}
 
                 variant_genomic_location_dataset = {
@@ -349,7 +341,7 @@ class VariationETL(ETL):
                     "start": allele_record.get('start'),
                     "end": allele_record.get('end'),
                     "uuid": str(uuid.uuid4()),
-                    "dataProvider": data_provider}
+                    "dataProvider": self.data_provider}
 
                 variant_so_term = {
                     "variantId": hgvs_nomenclature,

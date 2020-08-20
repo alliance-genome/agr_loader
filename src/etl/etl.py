@@ -103,21 +103,38 @@ class ETL():
 
         return query_and_file_names
 
-    def data_providers_process(self, data_provider, data_providers, data_provider_pages, data_provider_cross_ref_set):
-        """Get data providers."""
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                    data_provider, data_provider, alt_page=data_provider_page)
-                data_provider_cross_ref_set.append(
-                    ETLHelper.get_xref_dict(
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
+    def data_providers_process(self, data):
+        """Get data providers.
 
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
+        Creates 4 attributes.
+        data_provider: provider name/symbol
+        data_providers: list of providers
+        data_provider_pages: pages
+        data_provider_cross_ref_set: list of xref dicts
+        """
+        data_provider_object = data['metaData']['dataProvider']
+
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        self.data_provider = data_provider_cross_ref.get('id')
+        self.data_provider_pages = data_provider_cross_ref.get('pages')
+
+        self.data_providers = []
+        self.data_provider_cross_ref_set = []
+
+        if self.data_provider_pages is None:
+            return
+        for data_provider_page in self.data_provider_pages:
+            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                self.data_provider, self.data_provider, alt_page=data_provider_page)
+            self.data_provider_cross_ref_set.append(
+                ETLHelper.get_xref_dict(
+                    self.data_provider,
+                    self.data_provider,
+                    data_provider_page,
+                    data_provider_page,
+                    self.data_provider,
+                    cross_ref_complete_url,
+                    self.data_provider + data_provider_page))
+
+            self.data_providers.append(self.data_provider)
+            self.logger.info("data provider: %s", self.data_provider)

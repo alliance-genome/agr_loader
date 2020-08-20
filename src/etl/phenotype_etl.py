@@ -201,18 +201,12 @@ class PhenoTypeETL(ETL):
         pge_list_to_yield = []
         date_produced = phenotype_data['metaData']['dateProduced']
         data_providers = []
-        data_provider_object = phenotype_data['metaData']['dataProvider']
         counter = 0
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
         pge_key = ''
 
-        load_key = date_produced + data_provider + "_phenotype"
+        load_key = date_produced + self.data_provider + "_phenotype"
 
-        self.data_providers_process(data_provider, data_providers,
-                                    data_provider_pages, data_provider_cross_ref_set)
+        self.data_providers_process(phenotype_data)
 
         for pheno in phenotype_data['data']:
             pecj_primary_key = str(uuid.uuid4())
@@ -280,7 +274,7 @@ class PhenoTypeETL(ETL):
                 "loadKey": load_key,
                 "type": "gene",
                 "dataProviders": data_providers,
-                "dataProvider": data_provider,
+                "dataProvider": self.data_provider,
                 "dateProduced": date_produced,
                 "pubMedId": pub_med_id,
                 "pubMedUrl": pub_med_url,

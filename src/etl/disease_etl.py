@@ -268,10 +268,8 @@ class DiseaseETL(ETL):
         withs = []
         pge_list_to_yield = []
         xrefs = []
-        data_provider_object = disease_data['metaData']['dataProvider']
 
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
+        self.data_providers_process(disease_data)
 
         for disease_record in disease_data['data']:
 
