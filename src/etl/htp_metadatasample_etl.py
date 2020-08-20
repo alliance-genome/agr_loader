@@ -522,10 +522,6 @@ class HTPMetaDatasetSampleETL(ETL):
 
                     expression_entity_unique_key += where_expressed_statement
 
-                    self.logger.info(expression_entity_unique_key)
-                    self.logger.info(where_expressed_statement)
-                    self.logger.info(anatomical_structure_term_id)
-
                     if location.get('anatomicalStructureUberonSlimTermIds') is not None:
 
                         for uberon_structure_term_object in location.get('anatomicalStructureUberonSlimTermIds'):
