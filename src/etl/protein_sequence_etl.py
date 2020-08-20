@@ -105,7 +105,8 @@ class ProteinSequenceETL(ETL):
 
         fetch_transcript_query = """
 
-            MATCH (gl:GenomicLocation)-[glt:ASSOCIATION]-(t:Transcript)-[tt:TRANSCRIPT_TYPE]-(so:SOTerm)
+            MATCH (gl:GenomicLocation)-[glt:ASSOCIATION]-(t:Transcript)-[tt:TRANSCRIPT_TYPE]-(so:SOTerm),
+                    (v:Variant)-[vt:ASSOCIATION]-(t)
             WHERE so.name = 'mRNA'
             RETURN t.primaryKey as transcriptId,
                    gl.assembly as transcriptAssembly,
