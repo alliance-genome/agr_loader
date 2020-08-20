@@ -218,8 +218,8 @@ class AlleleETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def get_generators(self, allele_data, batch_size):  # noqa
-
+    def get_generators(self, allele_data, batch_size):   # noqa
+        """Get genrators."""
         release = ""
         alleles_no_constrcut_no_gene = []
         alleles_construct_gene = []
@@ -263,6 +263,25 @@ class AlleleETL(ETL):
 
             short_species_abbreviation = self.etlh.get_short_species_abbreviation(allele_record.get('taxonId'))
             symbol_text = TextProcessingHelper.cleanhtml(allele_record.get('symbol'))
+            common = {
+                "alleleDescription": description,
+                "associationType": association_type,
+                "symbol": allele_record.get('symbol'),
+                "globalId": global_id,
+                "localId": local_id,
+                "taxonId": allele_record.get('taxonId'),
+                "dataProvider": self.data_provider,
+                "dataProviders": self.data_providers,
+                "dateProduced": date_produced,
+                "loadKey": loadKey,
+                "release": release,
+                "modGlobalCrossRefId": mod_global_cross_ref_id,
+                "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
+                "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
+                "symbolText": symbol_text,
+                "primaryId": allele_record.get('primaryId'),
+                "uuid": str(uuid.uuid4())
+            }
 
             if allele_record.get('alleleObjectRelations') is not None:
                 for relation in allele_record.get('alleleObjectRelations'):
@@ -272,25 +291,6 @@ class AlleleETL(ETL):
                     if relation.get('objectRelation').get('construct') is not None:
                         construct_id = relation.get('objectRelation').get('construct')
 
-                    common = {
-                        "alleleDescription": description,
-                        "associationType": association_type,
-                        "symbol": allele_record.get('symbol'),
-                        "globalId": global_id,
-                        "localId": local_id,
-                        "taxonId": allele_record.get('taxonId'),
-                        "dataProvider": self.data_provider,
-                        "dataProviders": self.data_providers,
-                        "dateProduced": date_produced,
-                        "loadKey": loadKey,
-                        "release": release,
-                        "modGlobalCrossRefId": mod_global_cross_ref_id,
-                        "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
-                        "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
-                        "symbolText": symbol_text,
-                        "primaryId": allele_record.get('primaryId'),
-                        "uuid": str(uuid.uuid4())
-                    }
                     if gene_id != '' and construct_id != '':
                         common["geneId"] = gene_id
                         common["constructId"] = construct_id
@@ -298,36 +298,20 @@ class AlleleETL(ETL):
 
                     elif construct_id != '' and gene_id == '':
                         common["constructId"] = construct_id
+                        common.pop('geneId', None)
                         alleles_no_gene.append(common)
 
                     elif gene_id != '' and construct_id == '':
                         common["geneId"] = gene_id
+                        common.pop('constructId', None)
                         alleles_no_construct.append(common)
 
                     elif gene_id == '' and construct_id == '':
+                        common.pop('geneId', None)
+                        common.pop('constructId', None)
                         alleles_no_constrcut_no_gene.append(common)
-
             else:
-                allele_no_gene_no_construct_dataset = {
-                    "alleleDescription": description,
-                    "associationType": association_type,
-                    "symbol": allele_record.get('symbol'),
-                    "globalId": global_id,
-                    "localId": local_id,
-                    "taxonId": allele_record.get('taxonId'),
-                    "dataProvider": self.data_provider,
-                    "dataProviders": self.data_providers,
-                    "dateProduced": date_produced,
-                    "loadKey": loadKey,
-                    "release": release,
-                    "modGlobalCrossRefId": mod_global_cross_ref_id,
-                    "symbolWithSpecies": allele_record.get('symbol') + " (" + short_species_abbreviation + ")",
-                    "symbolTextWithSpecies": symbol_text + " (" + short_species_abbreviation + ")",
-                    "symbolText": symbol_text,
-                    "primaryId": allele_record.get('primaryId'),
-                    "uuid": str(uuid.uuid4())
-                }
-                alleles_no_constrcut_no_gene.append(allele_no_gene_no_construct_dataset)
+                alleles_no_constrcut_no_gene.append(common)
 
             if 'crossReferences' in allele_record:
 
