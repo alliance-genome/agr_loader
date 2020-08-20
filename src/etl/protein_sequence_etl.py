@@ -154,7 +154,7 @@ class ProteinSequenceETL(ETL):
                 full_cds_sequence += cds_sequence
 
             protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
-
+            self.logger.info(protein_sequence)
             data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
                      "proteinSequence": protein_sequence
