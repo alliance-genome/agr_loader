@@ -442,7 +442,7 @@ class DiseaseETL(ETL):
             self.xrefs_process(disease_record, xrefs)
             pecj_primary_key = self.evidence_process(disease_record, pubs, evidence_code_list_to_yield)
 
-            negation, disease_association_type = self.objectrelation_process(self, disease_record)
+            negation, disease_association_type = self.objectrelation_process(disease_record)
 
             self.withs_process(disease_record, withs)
             self.primgenent_process(disease_record, pge_list_to_yield, pecj_primary_key)
