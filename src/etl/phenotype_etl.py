@@ -195,14 +195,66 @@ class PhenoTypeETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("Phenotype-{}: ".format(sub_type.get_data_provider()))
 
-    def get_generators(self, phenotype_data, batch_size):  # noqa
+    def pub_process(self, evidence, primary_id):
+        """Process pubs.
+
+        return dict of pubs.
+        """
+        if 'publicationId' not in evidence:
+            self.logger.info("%s has no publicationId", primary_id)
+            pub_med_id = ""
+            pub_mod_id = ""
+        else:
+            if evidence.get('publicationId').startswith('PMID:'):
+                pub_med_id = evidence['publicationId']
+                local_pub_med_id = pub_med_id.split(":")[1]
+                pub_med_prefix = pub_med_id.split(":")[0]
+                pub_med_url = self.etlh.get_no_page_complete_url(
+                    local_pub_med_id, pub_med_prefix, primary_id)
+                if 'crossReference' in evidence:
+                    pub_xref = evidence.get('crossReference')
+                    pub_mod_id = pub_xref.get('id')
+                    if pub_mod_id is not None:
+                        pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
+            else:
+                pub_mod_id = evidence.get('publicationId')
+                if pub_mod_id is not None:
+                    pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
+
+        if pub_mod_id is None and pub_med_id is None:
+            self.logger.info("%s is missing pubMed and pubMod id", primary_id)
+
+        if pub_med_id is None:
+            pub_med_id = ""
+
+        if pub_mod_id is None:
+            pub_mod_id = ""
+
+        return {'pub_med_url': pub_med_url,
+                'pub_med_id': pub_med_id,
+                'pub_mod_url': pub_mod_url,
+                'pub_mod_id': pub_mod_id
+                }
+
+    def primgenent_process(self, pheno, pge_list_to_yield, pecj_primary_key):
+        """Process Primary Genetic EntityIDs."""
+        if 'primaryGeneticEntityIDs' not in pheno:
+            return
+        pge_ids = pheno.get('primaryGeneticEntityIDs')
+        for pge in pge_ids:
+            # pge_key = pge_key + pge
+            pge_map = {"pecjPrimaryKey": pecj_primary_key,
+                       "pgeId": pge}
+            pge_list_to_yield.append(pge_map)
+
+    def get_generators(self, phenotype_data, batch_size):
         """Get Generators."""
         list_to_yield = []
         pge_list_to_yield = []
         date_produced = phenotype_data['metaData']['dateProduced']
         data_providers = []
         counter = 0
-        pge_key = ''
+        # pge_key = ''
 
         load_key = date_produced + self.data_provider + "_phenotype"
 
@@ -211,10 +263,6 @@ class PhenoTypeETL(ETL):
         for pheno in phenotype_data['data']:
             pecj_primary_key = str(uuid.uuid4())
             counter = counter + 1
-            pub_med_id = None
-            pub_mod_id = None
-            pub_med_url = None
-            pub_mod_url = None
             primary_id = pheno.get('objectId')
             phenotype_statement = pheno.get('phenotypeStatement')
 
@@ -226,46 +274,11 @@ class PhenoTypeETL(ETL):
 
             evidence = pheno.get('evidence')
 
-            if 'publicationId' in evidence:
-                if evidence.get('publicationId').startswith('PMID:'):
-                    pub_med_id = evidence['publicationId']
-                    local_pub_med_id = pub_med_id.split(":")[1]
-                    pub_med_prefix = pub_med_id.split(":")[0]
-                    pub_med_url = self.etlh.get_no_page_complete_url(
-                        local_pub_med_id, pub_med_prefix, primary_id)
-                    if pub_med_id is None:
-                        pub_med_id = ""
-
-                    if 'crossReference' in evidence:
-                        pub_xref = evidence.get('crossReference')
-                        pub_mod_id = pub_xref.get('id')
-                        if pub_mod_id is not None:
-                            pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
-
-                else:
-                    pub_mod_id = evidence.get('publicationId')
-                    if pub_mod_id is not None:
-                        pub_mod_url = self.etlh.rdh2.return_url_from_identifier(pub_mod_id)
-
-            if pub_med_id is None:
-                pub_med_id = ""
-
-            if pub_mod_id is None:
-                pub_mod_id = ""
+            pubs = self.pub_process(evidence, primary_id)
 
             date_assigned = pheno.get('dateAssigned')
 
-            if pub_mod_id is None and pub_med_id is None:
-                self.logger.info("%s is missing pubMed and pubMod id", primary_id)
-
-            if 'primaryGeneticEntityIDs' in pheno:
-                pge_ids = pheno.get('primaryGeneticEntityIDs')
-                for pge in pge_ids:
-                    pge_key = pge_key + pge
-                    pge_map = {"pecjPrimaryKey": pecj_primary_key,
-                               "pgeId": pge}
-                    pge_list_to_yield.append(pge_map)
-
+            self.primgenent_process(pheno, pge_list_to_yield, pecj_primary_key)
             phenotype = {
                 "primaryId": primary_id,
                 "phenotypeUniqueKey": primary_id + phenotype_statement.strip(),
@@ -276,11 +289,11 @@ class PhenoTypeETL(ETL):
                 "dataProviders": data_providers,
                 "dataProvider": self.data_provider,
                 "dateProduced": date_produced,
-                "pubMedId": pub_med_id,
-                "pubMedUrl": pub_med_url,
-                "pubModId": pub_mod_id,
-                "pubModUrl": pub_mod_url,
-                "pubPrimaryKey": pub_med_id + pub_mod_id,
+                "pubMedId": pubs['pub_med_id'],
+                "pubMedUrl": pubs['pub_med_url'],
+                "pubModId": pubs['pub_mod_id'],
+                "pubModUrl": pubs['pub_mod_url'],
+                "pubPrimaryKey": pubs['pub_med_id'] + pubs['pub_mod_id'],
                 "pecjPrimaryKey": pecj_primary_key
             }
 

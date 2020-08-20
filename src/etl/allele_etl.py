@@ -218,8 +218,30 @@ class AlleleETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def get_generators(self, allele_data, batch_size):   # noqa
-        """Get genrators."""
+    def crossref_process(self, record, global_id, cross_reference_list):
+        """Get xref."""
+        valid_pages = ['allele', 'allele/references', 'transgene', 'construct',
+                       'transgene/references', 'construct/references']
+        if 'crossReferences' not in record:
+            return
+        for crossRef in record['crossReferences']:
+            crossRefId = crossRef.get('id')
+            local_crossref_id = crossRefId.split(":")[1]
+            prefix = crossRef.get('id').split(":")[0]
+            pages = crossRef.get('pages')
+
+            # some pages collection have 0 elements
+            if pages is not None and len(pages) > 0:
+                for page in pages:
+                    if page in valid_pages:
+                        mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(prefix, local_crossref_id, page)
+                        xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
+                                                       mod_global_cross_ref_id, crossRefId + page)
+                        xref['dataId'] = global_id
+                        cross_reference_list.append(xref)
+
+    def get_generators(self, allele_data, batch_size):
+        """Get generators."""
         release = ""
         alleles_no_constrcut_no_gene = []
         alleles_construct_gene = []
@@ -313,25 +335,7 @@ class AlleleETL(ETL):
             else:
                 alleles_no_constrcut_no_gene.append(common)
 
-            if 'crossReferences' in allele_record:
-
-                for crossRef in allele_record['crossReferences']:
-                    crossRefId = crossRef.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix = crossRef.get('id').split(":")[0]
-                    pages = crossRef.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'allele' or page == 'allele/references' or page == 'transgene' or page == 'construct' \
-                                    or page == 'transgene/references' or page == 'construct/references':
-                                mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(prefix, local_crossref_id, page)
-                                xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                               mod_global_cross_ref_id, crossRefId + page)
-                                xref['dataId'] = global_id
-                                cross_reference_list.append(xref)
-
+            self.crossref_process(allele_record, global_id, cross_reference_list)
             self.synonyms_process(allele_synonyms, allele_record)
             self.secondary_process(allele_secondary_ids, allele_record)
 

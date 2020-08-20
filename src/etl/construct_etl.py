@@ -170,9 +170,59 @@ class ConstructETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def get_generators(self, construct_data, data_provider, batch_size):  # noqa
-        """Create Generators"""
+    def xref_process(self, construct_record, cross_reference_list):
+        """Process the xrefs."""
+        global_id = construct_record['primaryId']
+        if 'crossReferences' not in construct_record:
+            return
+        for cross_ref in construct_record.get('crossReferences'):
+            cross_ref_id = cross_ref.get('id')
+            local_crossref_id = cross_ref_id.split(":")[1]
+            prefix = cross_ref.get('id').split(":")[0]
+            pages = cross_ref.get('pages')
 
+            # some pages collection have 0 elements
+            if pages is None or len(pages) == 0:
+                continue
+            for page in pages:
+                if page == 'construct':
+                    mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                        prefix, local_crossref_id, page)
+                    xref = ETLHelper.get_xref_dict(
+                        local_crossref_id,
+                        prefix,
+                        page,
+                        page,
+                        cross_ref_id,
+                        mod_global_cross_ref_id,
+                        cross_ref_id + page)
+                    xref['dataId'] = global_id
+                    cross_reference_list.append(xref)
+
+    def comp_process(self, construct_record, component_details, non_bgi_components, component_no_gene_details):
+        """Process components."""
+        if 'constructComponents' not in construct_record:
+            return
+        for component in construct_record.get('constructComponents'):
+            component_relation = component.get('componentRelation').upper()
+            component_symbol = component.get('componentSymbol')
+            component_id = component.get('componentID')
+
+            component_detail = {
+                "componentRelation": component_relation.upper(),
+                "componentSymbol": component_symbol,
+                "constructID": construct_record.get('primaryId')
+            }
+            if component_id is not None:
+                component_detail["componentID"] = component_id
+                component_details.append(component_detail)
+            else:
+                non_bgi_component = {"componentSymbol": component_symbol}
+                non_bgi_components.append(non_bgi_component)
+                component_no_gene_details.append(component_detail)
+
+    def get_generators(self, construct_data, data_provider, batch_size):
+        """Create Generators."""
         release = ""
         constructs = []
         construct_synonyms = []
@@ -225,56 +275,10 @@ class ConstructETL(ETL):
             }
             constructs.append(construct_dataset)
 
-            if 'crossReferences' in construct_record:
-
-                for cross_ref in construct_record.get('crossReferences'):
-                    cross_ref_id = cross_ref.get('id')
-                    local_crossref_id = cross_ref_id.split(":")[1]
-                    prefix = cross_ref.get('id').split(":")[0]
-                    pages = cross_ref.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'construct':
-                                mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
-                                    prefix, local_crossref_id, page)
-                                xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                               prefix,
-                                                               page,
-                                                               page,
-                                                               cross_ref_id,
-                                                               mod_global_cross_ref_id,
-                                                               cross_ref_id + page)
-                                xref['dataId'] = global_id
-                                cross_reference_list.append(xref)
-
-            if 'constructComponents' in construct_record:
-                for component in construct_record.get('constructComponents'):
-                    component_relation = component.get('componentRelation').upper()
-                    component_symbol = component.get('componentSymbol')
-                    component_id = component.get('componentID')
-
-                    if component_id is not None:
-                        component_detail = {
-                            "componentRelation": component_relation.upper(),
-                            "componentSymbol": component_symbol,
-                            "componentID": component_id,
-                            "constructID": construct_record.get('primaryId')
-                        }
-                        component_details.append(component_detail)
-                    else:
-                        component_detail = {
-                            "componentRelation": component_relation.upper(),
-                            "componentSymbol": component_symbol,
-                            "constructID": construct_record.get('primaryId')
-                        }
-                        non_bgi_component = {"componentSymbol": component_symbol}
-                        non_bgi_components.append(non_bgi_component)
-                        component_no_gene_details.append(component_detail)
-
+            self.xref_process(construct_record, cross_reference_list)
             self.synonyms_process(construct_synonyms, construct_record)
             self.secondary_process(construct_secondary_ids, construct_record)
+            self.comp_process(construct_record, component_details, non_bgi_components, component_no_gene_details)
 
             if counter == batch_size:
                 yield [constructs,

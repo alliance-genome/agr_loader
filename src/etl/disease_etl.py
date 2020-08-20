@@ -256,11 +256,156 @@ class DiseaseETL(ETL):
         self.error_messages("Disease-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Disease Data: %s", sub_type.get_data_provider())
 
-    def get_generators(self, disease_data, batch_size, data_provider):  # noqa
-        """Creating generators. """
+    def process_pages(self, dp, xrefs, pages, disease_unique_key):
+        """Process pages to get xrefs."""
+        annotation_type = dp.get('type')
+        xref = dp.get('crossReference')
+        cross_ref_id = xref.get('id')
+        if ":" in cross_ref_id:
+            local_crossref_id = cross_ref_id.split(":")[1]
+            prefix = cross_ref_id.split(":")[0]
+        else:
+            local_crossref_id = ""
+            prefix = cross_ref_id
 
+        if annotation_type is None:
+            annotation_type = 'curated'
+
+        for page in pages:
+            if (self.data_provider == 'RGD' or self.data_provider == 'HUMAN') and prefix == 'DOID':
+                display_name = 'RGD'
+            elif (self.data_provider == 'RGD' or self.data_provider == 'HUMAN') and prefix == 'OMIM':
+                display_name = 'OMIM'
+            else:
+                display_name = cross_ref_id.split(":")[0]
+                if display_name == 'DOID':
+                    display_name = self.data_provider
+
+            mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                prefix, local_crossref_id, page)
+            passing_xref = ETLHelper.get_xref_dict(
+                local_crossref_id, prefix, page, page,
+                display_name, mod_global_cross_ref_id,
+                cross_ref_id + page + annotation_type)
+            passing_xref['dataId'] = disease_unique_key
+
+            if 'loaded' in annotation_type:
+                passing_xref['loadedDB'] = 'true'
+                passing_xref['curatedDB'] = 'false'
+            else:
+                passing_xref['curatedDB'] = 'true'
+                passing_xref['loadedDB'] = 'false'
+
+            xrefs.append(passing_xref)
+
+    def xrefs_process(self, disease_record, xrefs):
+        """Process the xrefs."""
+        if 'dataProvider' not in disease_record:
+            return
+        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
+            disease_record['objectRelation'].get("associationType").upper()
+        for dp in disease_record['dataProvider']:
+            xref = dp.get('crossReference')
+            pages = xref.get('pages')
+
+            if pages is None or len(pages) == 0:
+                continue
+            self.process_pages(dp, xrefs, pages, disease_unique_key)
+
+    def evidence_process(self, disease_record, pubs, evidence_code_list_to_yield):
+        """Process evidence."""
+        pecj_primary_key = str(uuid.uuid4())
+        if 'evidence' not in disease_record:
+            self.logger.critical("No evidence but creating new pecj_primary_key anyway")
+            return pecj_primary_key
+        evidence = disease_record.get('evidence')
+        if 'publication' in evidence:
+            publication = evidence.get('publication')
+            if publication.get('publicationId').startswith('PMID:'):
+                pubs['pub_med_id'] = publication.get('publicationId')
+                pubs['pub_med_url'] = self.etlh.return_url_from_identifier(pubs['pub_med_id'])
+                if 'crossReference' in evidence:
+                    pub_xref = evidence.get('crossReference')
+                    pubs['publication_mod_id'] = pub_xref.get('id')
+                    pubs['pub_mod_url'] = self.etlh.return_url_from_identifier(pubs['publication_mod_id'])
+            else:
+                pubs['publication_mod_id'] = publication.get('publicationId')
+                pubs['pub_mod_url'] = self.etlh.return_url_from_identifier(pubs['publication_mod_id'])
+
+        if 'evidenceCodes' in disease_record['evidence']:
+            for ecode in disease_record['evidence'].get('evidenceCodes'):
+                ecode_map = {"pecjPrimaryKey": pecj_primary_key,
+                             "ecode": ecode}
+                evidence_code_list_to_yield.append(ecode_map)
+        return pecj_primary_key
+
+    def objectrelation_process(self, disease_record):
+        """Object Relation processing."""
+        negation = ''
+        if 'objectRelation' not in disease_record:
+            self.logger.critical("objectRelation not in record so disease_annotation_type is the last one seen")
+            return negation, None
+
+        disease_association_type = disease_record['objectRelation'].get("associationType").upper()
+        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
+            disease_record['objectRelation'].get("associationType").upper()
+        if 'negation' in disease_record:
+            # this capitalization is purposeful
+            if disease_association_type == 'IS_IMPLICATED_IN':
+                disease_association_type = 'IS_NOT_IMPLICATED_IN'
+            if disease_association_type == 'IS_MODEL_OF':
+                disease_association_type = 'IS_NOT_MODEL_OF'
+            if disease_association_type == 'IS_MARKER_FOR':
+                disease_association_type = 'IS_NOT_MARKER_FOR'
+            negation = 'NOT'
+            disease_unique_key = disease_unique_key + negation
+
+        return negation, disease_association_type
+    # Not used anywhere so commented out for now?
+    #     additional_genetic_components = []
+
+    #     if 'additionalGeneticComponents' in disease_record['objectRelation']:
+    #         for component in disease_record['objectRelation']['additionalGeneticComponents']:
+    #             component_symbol = component.get('componentSymbol')
+    #             component_id = component.get('componentId')
+    #             component_url = component.get('componentUrl') + component_id
+    #             additional_genetic_components.append(
+    #                 {"id": component_id,
+    #                  "componentUrl": component_url,
+    #                  "componentSymbol": component_symbol}
+    #             )
+
+    def withs_process(self, disease_record, withs):
+        """Process withs."""
+        if 'with' not in disease_record:
+            return
+        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
+            disease_record['objectRelation'].get("associationType").upper()
+        with_record = disease_record.get('with')
+        for rec in with_record:
+            disease_unique_key = disease_unique_key + rec
+        for rec in with_record:
+            with_map = {
+                "diseaseUniqueKey": disease_unique_key,
+                "withD": rec
+                }
+            withs.append(with_map)
+
+    def primgenent_process(self, disease_record, pge_list_to_yield, pecj_primary_key):
+        """Primary Genetic Entity ID process."""
+        if 'primaryGeneticEntityIDs' not in disease_record:
+            return
+
+        pge_ids = disease_record.get('primaryGeneticEntityIDs')
+        for pge in pge_ids:
+            # ? pge_key = pge_key + pge
+            pge_map = {"pecjPrimaryKey": pecj_primary_key,
+                       "pgeId": pge}
+            pge_list_to_yield.append(pge_map)
+
+    def get_generators(self, disease_data, batch_size, data_provider):
+        """Create generators."""
         counter = 0
-        disease_association_type = None
         gene_list_to_yield = []
         allele_list_to_yield = []
         agm_list_to_yield = []
@@ -273,11 +418,12 @@ class DiseaseETL(ETL):
 
         for disease_record in disease_data['data']:
 
-            publication_mod_id = ""
-            pub_med_id = ""
-            pub_mod_url = None
-            pub_med_url = None
-            pge_key = ''
+            pubs = {'pub_med_url': None,
+                    'pub_med_id': "",
+                    'pub_mod_url': None,
+                    'publication_mod_id': ""
+                    }
+            # pge_key = ''
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(disease_record.get('objectId'))
@@ -293,120 +439,15 @@ class DiseaseETL(ETL):
             primary_id = disease_record.get('objectId')
             do_id = disease_record.get('DOid')
 
-            if 'evidence' in disease_record:
-                pecj_primary_key = str(uuid.uuid4())
-                evidence = disease_record.get('evidence')
-                if 'publication' in evidence:
-                    publication = evidence.get('publication')
-                    if publication.get('publicationId').startswith('PMID:'):
-                        pub_med_id = publication.get('publicationId')
-                        pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
-                        if 'crossReference' in evidence:
-                            pub_xref = evidence.get('crossReference')
-                            publication_mod_id = pub_xref.get('id')
-                            pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
-                    else:
-                        publication_mod_id = publication.get('publicationId')
-                        pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+            self.refs_process(disease_record, xrefs)
+            pecj_primary_key = self.evidence_process(self, disease_record, pubs, evidence_code_list_to_yield)
 
-                if 'evidenceCodes' in disease_record['evidence']:
-                    for ecode in disease_record['evidence'].get('evidenceCodes'):
-                        ecode_map = {"pecjPrimaryKey": pecj_primary_key,
-                                     "ecode": ecode}
-                        evidence_code_list_to_yield.append(ecode_map)
+            negation, disease_association_type = self.objectrelation_process(self, disease_record)
 
-            negation = ''
-            if 'objectRelation' in disease_record:
-                disease_association_type = disease_record['objectRelation'].get("associationType").upper()
-                if 'negation' in disease_record:
-                    # this capitalization is purposeful
-                    if disease_association_type == 'IS_IMPLICATED_IN':
-                        disease_association_type = 'IS_NOT_IMPLICATED_IN'
-                    if disease_association_type == 'IS_MODEL_OF':
-                        disease_association_type = 'IS_NOT_MODEL_OF'
-                    if disease_association_type == 'IS_MARKER_FOR':
-                        disease_association_type = 'IS_NOT_MARKER_FOR'
-                    negation = 'NOT'
-                    disease_unique_key = disease_unique_key + negation
+            self.withs_process(disease_record, withs)
+            self.primgenent_process(disease_record, pge_list_to_yield, pecj_primary_key)
 
-                additional_genetic_components = []
-
-                if 'additionalGeneticComponents' in disease_record['objectRelation']:
-                    for component in disease_record['objectRelation']['additionalGeneticComponents']:
-                        component_symbol = component.get('componentSymbol')
-                        component_id = component.get('componentId')
-                        component_url = component.get('componentUrl') + component_id
-                        additional_genetic_components.append(
-                                {"id": component_id,
-                                 "componentUrl": component_url,
-                                 "componentSymbol": component_symbol}
-                        )
-
-            if 'with' in disease_record:
-                with_record = disease_record.get('with')
-                for rec in with_record:
-                    disease_unique_key = disease_unique_key + rec
-                for rec in with_record:
-                    with_map = {
-                            "diseaseUniqueKey": disease_unique_key,
-                            "withD": rec
-                        }
-                    withs.append(with_map)
-
-            if 'primaryGeneticEntityIDs' in disease_record:
-
-                pge_ids = disease_record.get('primaryGeneticEntityIDs')
-
-                for pge in pge_ids:
-                    pge_key = pge_key + pge
-                    pge_map = {"pecjPrimaryKey": pecj_primary_key,
-                               "pgeId": pge}
-                    pge_list_to_yield.append(pge_map)
-
-            if 'dataProvider' in disease_record:
-                for dp in disease_record['dataProvider']:
-                    annotation_type = dp.get('type')
-                    xref = dp.get('crossReference')
-                    cross_ref_id = xref.get('id')
-                    pages = xref.get('pages')
-
-                    if ":" in cross_ref_id:
-                        local_crossref_id = cross_ref_id.split(":")[1]
-                        prefix = cross_ref_id.split(":")[0]
-                    else:
-                        local_crossref_id = ""
-                        prefix = cross_ref_id
-
-                    if annotation_type is None:
-                        annotation_type = 'curated'
-
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if (data_provider == 'RGD' or data_provider == 'HUMAN') and prefix == 'DOID':
-                                display_name = 'RGD'
-                            elif (data_provider == 'RGD' or data_provider == 'HUMAN') and prefix == 'OMIM':
-                                display_name = 'OMIM'
-                            else:
-                                display_name = cross_ref_id.split(":")[0]
-                                if display_name == 'DOID':
-                                    display_name = data_provider
-
-                            mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
-                                prefix, local_crossref_id, page)
-                            passing_xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page,
-                                                                   display_name,
-                                                                   mod_global_cross_ref_id,
-                                                                   cross_ref_id + page + annotation_type)
-                            passing_xref['dataId'] = disease_unique_key
-
-                            if 'loaded' in annotation_type:
-                                passing_xref['loadedDB'] = 'true'
-                                passing_xref['curatedDB'] = 'false'
-                            else:
-                                passing_xref['curatedDB'] = 'true'
-                                passing_xref['loadedDB'] = 'false'
-
-                            xrefs.append(passing_xref)
+            self.xrefs_process(disease_record, xrefs)
 
             disease_record = {
                 "diseaseUniqueKey": disease_unique_key,
@@ -416,11 +457,11 @@ class DiseaseETL(ETL):
                 "relationshipType": disease_association_type.upper(),
                 "dataProvider": data_provider,
                 "dateAssigned": disease_record.get("dateAssigned"),
-                "pubPrimaryKey": publication_mod_id + pub_med_id,
-                "pubModId": publication_mod_id,
-                "pubMedId": pub_med_id,
-                "pubMedUrl": pub_med_url,
-                "pubModUrl": pub_mod_url,
+                "pubPrimaryKey": pubs['publication_mod_id'] + pubs['pub_med_id'],
+                "pubModId": pubs['publication_mod_id'],
+                "pubMedId": pubs['pub_med_id'],
+                "pubMedUrl": pubs['pub_med_url'],
+                "pubModUrl": pubs['pub_mod_url'],
                 "negation": negation}
 
             if disease_object_type == 'gene':

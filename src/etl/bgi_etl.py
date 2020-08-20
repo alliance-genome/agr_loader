@@ -275,15 +275,154 @@ class BGIETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def get_generators(self, gene_data, data_provider, batch_size):  # noqa
+    def xref_process(self, basic_genetic_entity, cross_references, urls):  # noqa
+        """Process xrefs."""
+        primary_id = basic_genetic_entity.get('primaryId')
+        global_id = basic_genetic_entity.get('primaryId')
+        local_id = global_id.split(":")[1]
+        taxon_id = basic_genetic_entity.get("taxonId")
+        if 'crossReferences' not in basic_genetic_entity:
+            return
+        for cross_ref in basic_genetic_entity.get('crossReferences'):
+            if ':' not in cross_ref.get('id'):
+                continue
+            cross_ref_id = cross_ref.get('id')
+            local_cross_ref_id = cross_ref_id.split(":")[1]
+            prefix = cross_ref.get('id').split(":")[0]
+            pages = cross_ref.get('pages')
+            global_xref_id = cross_ref.get('id')
+            display_name = global_xref_id
+
+            # some pages collection have 0 elements
+            if pages is not None and len(pages) > 0:
+                for page in pages:
+                    display_name = ""
+
+                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                        prefix, local_cross_ref_id, page)
+
+                    if page == 'gene/expression_images':
+                        cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_cross_ref_id, page)
+                    elif page == 'gene':
+                        urls['mod_cross_reference_complete_url'] = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_cross_ref_id, page)
+
+                    urls['genetic_entity_external_url'] = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_cross_ref_id, page)
+
+                    if page == 'gene/references':
+                        urls['gene_literature_url'] = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_cross_ref_id, page)
+
+                    if page == 'gene/spell':
+                        display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'
+
+                    # TODO: fix generic_cross_reference in SGD, RGD
+
+                    if page == 'generic_cross_reference':
+                        cross_ref_complete_url = self.etlh.get_no_page_complete_url(
+                            local_cross_ref_id, prefix, primary_id)
+
+                    # TODO: fix gene/disease xrefs for SGD once
+                    # resourceDescriptor change in develop
+                    # makes its way to the release branch.
+
+                    if page == 'gene/disease' and taxon_id == 'NCBITaxon:559292':
+                        cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('SGD', local_id, page)
+
+                    xref_map = ETLHelper.get_xref_dict(
+                        local_cross_ref_id,
+                        prefix,
+                        page,
+                        page,
+                        display_name,
+                        cross_ref_complete_url,
+                        global_xref_id + page)
+                    xref_map['dataId'] = primary_id
+                    cross_references.append(xref_map)
+
+            else:
+                # TODO handle in the resourceDescriptor.yaml
+                if prefix == 'PANTHER':
+                    cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
+                    cross_ref_complete_url = self.etlh.get_no_page_complete_url(
+                        local_cross_ref_id, prefix, primary_id)
+                    page = "gene/panther"
+                # TODO handle human generic cross reference to RGD in resourceDescr.
+                elif prefix == 'RGD':
+                    cross_ref_primary_id = cross_ref.get('id')
+                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('RGD', local_cross_ref_id)
+                    page = "generic_cross_reference"
+                else:
+                    cross_ref_primary_id = cross_ref.get('id')
+                    cross_ref_complete_url = self.etlh.get_no_page_complete_url(
+                        local_cross_ref_id, prefix, primary_id)
+                    page = "generic_cross_reference"
+                xref_map = ETLHelper.get_xref_dict(
+                    local_cross_ref_id,
+                    prefix,
+                    page,
+                    page,
+                    display_name,
+                    cross_ref_complete_url,
+                    cross_ref_primary_id + page)
+                xref_map['dataId'] = primary_id
+                cross_references.append(xref_map)
+
+    def locations_process(self, basic_genetic_entity, chromosomes, genomic_locations):
+        """Get chromosome and genomic location info."""
+        primary_id = basic_genetic_entity.get('primaryId')
+
+        if 'genomeLocations' not in basic_genetic_entity:
+            return
+        for genome_location in basic_genetic_entity.get('genomeLocations'):
+            chromosome = genome_location.get('chromosome')
+            if chromosome is not None:
+                if chromosome.startswith("chr"):
+                    chromosome = chromosome[3:]
+
+                if chromosome not in chromosomes:
+                    chromosomes[chromosome] = {"primaryKey": chromosome}
+
+                if 'startPosition' in genome_location:
+                    start = genome_location['startPosition']
+                else:
+                    start = None
+
+                if 'endPosition' in genome_location:
+                    end = genome_location['endPosition']
+                else:
+                    end = None
+
+                if 'strand' in basic_genetic_entity['genomeLocations']:
+                    strand = genome_location['strand']
+                else:
+                    strand = None
+
+            assembly = genome_location.get('assembly')
+
+            if 'strand' in genome_location:
+                strand = genome_location['strand']
+            else:
+                strand = None
+
+            genomic_locations.append({"primaryId": primary_id,
+                                      "chromosome": chromosome,
+                                      "start": start,
+                                      "end": end,
+                                      "strand": strand,
+                                      "assembly": assembly,
+                                      "uuid": str(uuid.uuid4()),
+                                      "dataProvider": self.data_provider})
+
+    def get_generators(self, gene_data, data_provider, batch_size):
         """Create Generators."""
         date_produced = gene_data['metaData']['dateProduced']
         synonyms = []
         secondary_ids = []
         cross_references = []
-        # xref_relations = []
         genomic_locations = []
-        # genomic_locationBins = []
         gene_dataset = []
         gene_metadata = []
         gene_to_so_terms = []
@@ -314,13 +453,13 @@ class BGIETL(ETL):
 
         for gene_record in gene_data['data']:
             counter = counter + 1
+            urls = {'gene_literature_url': "",
+                    'genetic_entity_external_url': "",
+                    'mod_cross_reference_complete_url': ""}
             basic_genetic_entity = gene_record['basicGeneticEntity']
             primary_id = basic_genetic_entity.get('primaryId')
             global_id = basic_genetic_entity.get('primaryId')
             local_id = global_id.split(":")[1]
-            gene_literature_url = ""
-            genetic_entity_external_url = ""
-            mod_cross_reference_complete_url = ""
             taxon_id = basic_genetic_entity.get("taxonId")
             short_species_abbreviation = self.etlh.get_short_species_abbreviation(taxon_id)
 
@@ -333,119 +472,7 @@ class BGIETL(ETL):
                     counter = counter - 1
                     continue
 
-            if 'crossReferences' in basic_genetic_entity:
-                for cross_ref in basic_genetic_entity.get('crossReferences'):
-                    if ':' in cross_ref.get('id'):
-                        cross_ref_id = cross_ref.get('id')
-                        local_cross_ref_id = cross_ref_id.split(":")[1]
-                        prefix = cross_ref.get('id').split(":")[0]
-                        pages = cross_ref.get('pages')
-                        global_xref_id = cross_ref.get('id')
-                        display_name = global_xref_id
-
-                        # some pages collection have 0 elements
-                        if pages is not None and len(pages) > 0:
-                            for page in pages:
-                                mod_cross_reference_complete_url = ""
-                                gene_literature_url = ""
-                                display_name = ""
-
-                                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                                    prefix,
-                                    local_cross_ref_id,
-                                    page)
-
-                                if page == 'gene/expression_images':
-                                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                                        prefix, local_cross_ref_id, page)
-                                elif page == 'gene':
-                                    mod_cross_reference_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                                        prefix, local_cross_ref_id, page)
-
-                                genetic_entity_external_url = self.etlh.rdh2.return_url_from_key_value(
-                                        prefix, local_cross_ref_id, page)
-
-                                if page == 'gene/references':
-                                    gene_literature_url = self.etlh.rdh2.return_url_from_key_value(
-                                        prefix, local_cross_ref_id, page)
-
-                                if page == 'gene/spell':
-                                    display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'
-
-                                # TODO: fix generic_cross_reference in SGD, RGD
-
-                                if page == 'generic_cross_reference':
-                                    cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                        local_cross_ref_id, prefix, primary_id)
-
-                                # TODO: fix gene/disease xrefs for SGD once
-                                # resourceDescriptor change in develop
-                                # makes its way to the release branch.
-
-                                if page == 'gene/disease' and taxon_id == 'NCBITaxon:559292':
-                                    cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('SGD', local_id, page)
-                                    # '/'.join(
-                                    #    ["https://www.yeastgenome.org",
-                                    #     "locus",
-                                    #     local_id,
-                                    #     "disease"])
-
-                                xref_map = ETLHelper.get_xref_dict(local_cross_ref_id,
-                                                                   prefix,
-                                                                   page,
-                                                                   page,
-                                                                   display_name,
-                                                                   cross_ref_complete_url,
-                                                                   global_xref_id + page)
-                                xref_map['dataId'] = primary_id
-                                cross_references.append(xref_map)
-
-                        else:
-                            # TODO handle in the resourceDescriptor.yaml
-                            if prefix == 'PANTHER':
-                                cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
-                                cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                    local_cross_ref_id, prefix, primary_id)
-                                xref_map = ETLHelper.get_xref_dict(
-                                    local_cross_ref_id,
-                                    prefix,
-                                    "gene/panther",
-                                    "gene/panther",
-                                    display_name,
-                                    cross_ref_complete_url,
-                                    cross_ref_primary_id + "gene/panther")
-                                xref_map['dataId'] = primary_id
-                                cross_references.append(xref_map)
-                            # TODO handle human generic cross reference to RGD in resourceDescr.
-                            elif prefix == 'RGD':
-                                cross_ref_primary_id = cross_ref.get('id')
-                                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('RGD', local_cross_ref_id)
-                                xref_map = ETLHelper.get_xref_dict(
-                                    local_cross_ref_id,
-                                    prefix,
-                                    "generic_cross_reference",
-                                    "generic_cross_reference",
-                                    display_name,
-                                    cross_ref_complete_url,
-                                    cross_ref_primary_id + "generic_cross_reference")
-                                xref_map['dataId'] = primary_id
-                                cross_references.append(xref_map)
-
-                            else:
-                                cross_ref_primary_id = cross_ref.get('id')
-                                cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                                    local_cross_ref_id, prefix, primary_id)
-                                xref_map = ETLHelper.get_xref_dict(
-                                    local_cross_ref_id,
-                                    prefix,
-                                    "generic_cross_reference",
-                                    "generic_cross_reference",
-                                    display_name,
-                                    cross_ref_complete_url,
-                                    cross_ref_primary_id + "generic_cross_reference")
-                                xref_map['dataId'] = primary_id
-                                cross_references.append(xref_map)
-
+            self.xref_process(basic_genetic_entity, cross_references, urls)
             # TODO Metadata can be safely removed from this dictionary. Needs to be tested.
 
             gene_to_so_terms.append({
@@ -457,18 +484,18 @@ class BGIETL(ETL):
                 # globallyUniqueSymbolWithSpecies requested by search group
                 "symbolWithSpecies": gene_record.get('symbol') + " (" + short_species_abbreviation + ")",
                 "name": gene_record.get('name'),
-                "geneticEntityExternalUrl": genetic_entity_external_url,
+                "geneticEntityExternalUrl": urls['genetic_entity_external_url'],
                 "description": gene_record.get('description'),
                 "geneSynopsis": gene_record.get('geneSynopsis'),
                 "geneSynopsisUrl": gene_record.get('geneSynopsisUrl'),
                 "taxonId": basic_genetic_entity.get('taxonId'),
-                "geneLiteratureUrl": gene_literature_url,
+                "geneLiteratureUrl": urls['gene_literature_url'],
                 "name_key": gene_record.get('symbol'),
                 "primaryId": primary_id,
                 "category": "gene",
                 "href": None,
                 "uuid": str(uuid.uuid4()),
-                "modCrossRefCompleteUrl": mod_cross_reference_complete_url,
+                "modCrossRefCompleteUrl": urls['mod_cross_reference_complete_url'],
                 "localId": local_id,
                 "modGlobalCrossRefId": global_id,
                 "modGlobalId": global_id,
@@ -477,48 +504,7 @@ class BGIETL(ETL):
                 "dateProduced": date_produced}
 
             gene_dataset.append(gene)
-
-            if 'genomeLocations' in basic_genetic_entity:
-                for genome_location in basic_genetic_entity.get('genomeLocations'):
-                    chromosome = genome_location.get('chromosome')
-                    if chromosome is not None:
-                        if chromosome.startswith("chr"):
-                            chromosome = chromosome[3:]
-
-                        if chromosome not in chromosomes:
-                            chromosomes[chromosome] = {"primaryKey": chromosome}
-
-                        if 'startPosition' in genome_location:
-                            start = genome_location['startPosition']
-                        else:
-                            start = None
-
-                        if 'endPosition' in genome_location:
-                            end = genome_location['endPosition']
-                        else:
-                            end = None
-
-                        if 'strand' in basic_genetic_entity['genomeLocations']:
-                            strand = genome_location['strand']
-                        else:
-                            strand = None
-
-                    assembly = genome_location.get('assembly')
-
-                    if 'strand' in genome_location:
-                        strand = genome_location['strand']
-                    else:
-                        strand = None
-
-                    genomic_locations.append({"primaryId": primary_id,
-                                              "chromosome": chromosome,
-                                              "start": start,
-                                              "end": end,
-                                              "strand": strand,
-                                              "assembly": assembly,
-                                              "uuid": str(uuid.uuid4()),
-                                              "dataProvider": data_provider})
-
+            self.locations_process(basic_genetic_entity, chromosomes, genomic_locations)
             self.synonyms_process(synonyms, basic_genetic_entity)
             self.secondary_process(secondary_ids, basic_genetic_entity)
 
