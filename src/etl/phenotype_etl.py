@@ -200,11 +200,15 @@ class PhenoTypeETL(ETL):
 
         return dict of pubs.
         """
+        pub_med_url = None
+        pub_mod_url = None
         if 'publicationId' not in evidence:
             self.logger.info("%s has no publicationId", primary_id)
             pub_med_id = ""
             pub_mod_id = ""
         else:
+            pub_med_id = None
+            pub_mod_id = None
             if evidence.get('publicationId').startswith('PMID:'):
                 pub_med_id = evidence['publicationId']
                 local_pub_med_id = pub_med_id.split(":")[1]
