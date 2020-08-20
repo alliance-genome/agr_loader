@@ -1288,7 +1288,6 @@ def test_protein_sequence_exists():
 
     query = """  MATCH (t:Transcript)--(p:ProteinSequence)
                    WHERE t.primaryKey = 'ENSEMBL:ENSDART00000114134'
-                   AND p.proteinSequence = 'MAAGFNWFLVLSSVFLCNLVKTFLPSISSFLSKIFHKDADQEMEMRTEIQNMKMELSTISMMDEFARYARLERKINKMTDQLKTLVKSRTAQQAKMKWIVNIAFYILQAALMISLILKYYADPVTVVPSKWIAPLERLVAFPSGVAGGVGITCWLVVCNKVVALILQAVS*'
                  RETURN count(d) as counter
     """
     result = execute_transaction(query)
