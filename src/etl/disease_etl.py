@@ -440,7 +440,7 @@ class DiseaseETL(ETL):
             do_id = disease_record.get('DOid')
 
             self.xrefs_process(disease_record, xrefs)
-            pecj_primary_key = self.evidence_process(self, disease_record, pubs, evidence_code_list_to_yield)
+            pecj_primary_key = self.evidence_process(disease_record, pubs, evidence_code_list_to_yield)
 
             negation, disease_association_type = self.objectrelation_process(self, disease_record)
 
