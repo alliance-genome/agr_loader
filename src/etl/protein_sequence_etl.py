@@ -118,8 +118,7 @@ class ProteinSequenceETL(ETL):
         fetch_cds_per_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)
-            WHERE t.primaryKey = {parameter}
-            AND t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
+            WHERE t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
             RETURN gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
@@ -127,6 +126,10 @@ class ProteinSequenceETL(ETL):
                    gl.phase as CDSPhase
                    order by gl.start 
         """
+
+        return_set_cds = Neo4jHelper().run_single_query(fetch_cds_per_transcript_query)
+
+
         return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
 
         for record in return_set_t:
@@ -137,29 +140,29 @@ class ProteinSequenceETL(ETL):
             transcript_strand = record['transcriptStrand']
 
             assemblies = {}
-            return_set_cds = Neo4jHelper().run_single_parameter_query(fetch_cds_per_transcript_query,
-                                                                      transcript_id)
+
             full_cds_sequence = ''
 
             for cds_record in return_set_cds:
-                assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
-                start_position = cds_record["CDSStartPosition"]
-                end_position = cds_record["CDSEndPosition"]
-                # phase = cds_record["CDSPhase"]
-                transcript_id = cds_record["transcriptPrimaryKey"]
-                cds_sequence = assemblies[transcript_assembly].get_sequence(transcript_chromosome,
+                if transcript_id == cds_record["transcriptPrimaryKey"]:
+                    assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
+                    start_position = cds_record["CDSStartPosition"]
+                    end_position = cds_record["CDSEndPosition"]
+                    # phase = cds_record["CDSPhase"]
+                    transcript_id = cds_record["transcriptPrimaryKey"]
+                    cds_sequence = assemblies[transcript_assembly].get_sequence(transcript_chromosome,
                                                                            start_position,
                                                                            end_position)
 
-                full_cds_sequence += cds_sequence
+                    full_cds_sequence += cds_sequence
 
-            protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
-            self.logger.info(protein_sequence)
-            data = { "transcriptId": transcript_id,
+                protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
+                self.logger.info(protein_sequence)
+                data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
                      "proteinSequence": protein_sequence
-            }
-            transcript_data.append(data)
+                }
+                transcript_data.append(data)
 
 
-        yield [transcript_data]
+            yield [transcript_data]
