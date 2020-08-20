@@ -256,9 +256,8 @@ class PhenoTypeETL(ETL):
         counter = 0
         # pge_key = ''
 
-        load_key = date_produced + self.data_provider + "_phenotype"
-
         self.data_providers_process(phenotype_data)
+        load_key = date_produced + self.data_provider + "_phenotype"
 
         for pheno in phenotype_data['data']:
             pecj_primary_key = str(uuid.uuid4())
