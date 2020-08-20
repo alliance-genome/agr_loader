@@ -43,9 +43,9 @@ class HTPMetaDatasetETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+        MATCH (ds:HTPDataset {primaryKey:row.datasetId})
         
-        MERGE (ct:CategoryTag {primaryKey: row.tag})
+        MERGE (ct:CategoryTag {primaryKey:row.tag})
         
         MERGE (ds)-[:CATEGORY_TAG]-(ct)    
             
