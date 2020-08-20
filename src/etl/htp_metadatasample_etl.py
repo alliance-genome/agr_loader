@@ -315,16 +315,16 @@ class HTPMetaDatasetSampleETL(ETL):
              "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
-             "htp_metadataset_sample_aoterms_substructures_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_ao_substructures_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
-             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_ao_qualifiers_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, commit_size,
-             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_ao_ss_qualifiers_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.cc_term_query_template, commit_size,
-             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_ccterms" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
             "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv"],
@@ -487,13 +487,10 @@ class HTPMetaDatasetSampleETL(ETL):
                     cellular_component_qualifier_term_id = location.get('cellularComponentQualifierTermId')
                     cellular_component_term_id = location.get('cellularComponentTermId')
                     anatomical_structure_term_id = location.get('anatomicalStructureTermId')
-                    anatomical_structure_qualifier_term_id = location.get(
-                        'anatomicalStructureQualifierTermId')
+                    anatomical_structure_qualifier_term_id = location.get('anatomicalStructureQualifierTermId')
                     anatomical_sub_structure_term_id = location.get('anatomicalSubStructureTermId')
-                    anatomical_sub_structure_qualifier_term_id = location.get(
-                        'anatomicalSubStructureQualifierTermId')
+                    anatomical_sub_structure_qualifier_term_id = location.get('anatomicalSubStructureQualifierTermId')
                     where_expressed_statement = location.get('whereExpressedStatement')
-
 
                     expression_unique_key = datasetSampleId
                     expression_entity_unique_key = ''
@@ -522,29 +519,40 @@ class HTPMetaDatasetSampleETL(ETL):
                             expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
 
 
+
                     expression_entity_unique_key += where_expressed_statement
 
+                    self.logger.info(expression_entity_unique_key)
+                    self.logger.info(where_expressed_statement)
+                    self.logger.info(anatomical_structure_term_id)
+
                     if location.get('anatomicalStructureUberonSlimTermIds') is not None:
+
                         for uberon_structure_term_object in location.get('anatomicalStructureUberonSlimTermIds'):
                             structure_uberon_term_id = uberon_structure_term_object.get('uberonTerm')
+
                             if structure_uberon_term_id is not None and structure_uberon_term_id != 'Other':
                                 structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
                                     "aoUberonId": structure_uberon_term_id}
                                 uberon_ao_data.append(structure_uberon_term)
+
                             elif structure_uberon_term_id is not None and structure_uberon_term_id == 'Other':
                                 other_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key}
                                 uberon_ao_other_data.append(other_structure_uberon_term)
 
                     if location.get('anatomicalSubStructureUberonSlimTermIds') is not None:
+
                         for uberon_sub_structure_term_object in location.get('anatomicalSubStructureUberonSlimTermIds'):
                             sub_structure_uberon_term_id = uberon_sub_structure_term_object.get('uberonTerm')
+
                             if sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id != 'Other':
                                 sub_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key,
                                     "aoUberonId": sub_structure_uberon_term_id}
                                 uberon_ao_data.append(sub_structure_uberon_term)
+
                             elif sub_structure_uberon_term_id is not None and sub_structure_uberon_term_id == 'Other':
                                 other_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key}
@@ -553,59 +561,45 @@ class HTPMetaDatasetSampleETL(ETL):
 
                     if cellular_component_term_id is not None:
                         cc_term = {
-                            "ebe_uuid":
-                                expression_entity_unique_key,
-                            "cellularComponentTermId":
-                                cellular_component_term_id
+                            "ebe_uuid": expression_entity_unique_key,
+                            "cellularComponentTermId": cellular_component_term_id
                         }
                         cc_components.append(cc_term)
 
                     if cellular_component_qualifier_term_id is not None:
-                        ccq_term = { "ebe_uuid": expression_entity_unique_key,
-                            "cellularComponentQualifierTermId":
-                            cellular_component_qualifier_term_id
+                        ccq_term = {
+                            "ebe_uuid": expression_entity_unique_key,
+                            "cellularComponentQualifierTermId": cellular_component_qualifier_term_id
                         }
                         ccq_components.append(ccq_term)
 
                     if anatomical_structure_term_id is not None:
                         ao_term = {
-                            "ebe_uuid":
-                                expression_entity_unique_key,
-
-                            "anatomicalStructureTermId":
-                                anatomical_structure_term_id
+                            "ebe_uuid": expression_entity_unique_key,
+                            "anatomicalStructureTermId": anatomical_structure_term_id
                         }
                         ao_terms.append(ao_term)
 
                     if anatomical_structure_qualifier_term_id is not None:
                         ao_qualifier = {
-                                "ebe_uuid":
-                                expression_entity_unique_key,
-
-                                "anatomicalStructureQualifierTermId":
-                                anatomical_structure_qualifier_term_id
+                                "ebe_uuid": expression_entity_unique_key,
+                                "anatomicalStructureQualifierTermId": anatomical_structure_qualifier_term_id
                         }
 
                         ao_qualifiers.append(ao_qualifier)
 
                     if anatomical_sub_structure_term_id is not None:
                         ao_substructure = {
-                                "ebe_uuid":
-                                expression_entity_unique_key,
-
-                                "anatomicalSubStructureTermId":
-                                anatomical_sub_structure_term_id
+                                "ebe_uuid": expression_entity_unique_key,
+                                "anatomicalSubStructureTermId": anatomical_sub_structure_term_id
                         }
 
                         ao_substructures.append(ao_substructure)
 
                     if anatomical_sub_structure_qualifier_term_id is not None:
                         ao_ss_qualifier = {
-                                "ebe_uuid":
-                                expression_entity_unique_key,
-
-                                "anatomicalSubStructureQualifierTermId":
-                                anatomical_sub_structure_qualifier_term_id}
+                                "ebe_uuid":expression_entity_unique_key,
+                                "anatomicalSubStructureQualifierTermId": anatomical_sub_structure_qualifier_term_id}
 
                         ao_ss_qualifiers.append(ao_ss_qualifier)
 
