@@ -327,13 +327,13 @@ class HTPMetaDatasetSampleETL(ETL):
              "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
-            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+            "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
-            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+            "htp_metadataset_sample_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
-            "htp_metadataset_sample_ccterms_" + sub_type.get_data_provider() + ".csv"],
+            "htp_metadataset_sample_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
             "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
@@ -496,7 +496,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
 
                     expression_unique_key = datasetSampleId
-                    expression_entity_unique_key = ""
+                    expression_entity_unique_key = ''
 
                     if anatomical_structure_term_id is not None:
                         expression_unique_key += anatomical_structure_term_id
