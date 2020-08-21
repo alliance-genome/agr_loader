@@ -58,7 +58,8 @@ class ProteinSequenceETL(ETL):
              "protein_sequence.csv"]
         ]
 
-        generators = self.get_generators()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        generators = self.get_generators(batch_size)
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
@@ -93,9 +94,9 @@ class ProteinSequenceETL(ETL):
         return protein_sequence
 
 
-    def get_generators(self):
+    def get_generators(self, batch_size):
         """Get Generators"""
-
+        counter = 0
         self.logger.debug("reached sequence retrieval retrieval")
 
         context_info = ContextInfo()
@@ -133,6 +134,8 @@ class ProteinSequenceETL(ETL):
 
         for record in return_set_t:
 
+            counter =+ 1
+
             self.logger.debug(record)
 
             transcript_id = record['transcriptId']
@@ -160,15 +163,18 @@ class ProteinSequenceETL(ETL):
 
                     full_cds_sequence += cds_sequence
 
-                protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
+            protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
 
-                self.logger.debug(protein_sequence)
+            self.logger.debug(protein_sequence)
 
-                data = { "transcriptId": transcript_id,
+            data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
                      "proteinSequence": protein_sequence
-                }
-                transcript_data.append(data)
+            }
+            transcript_data.append(data)
 
-
+            if counter == batch_size:
+                yield [transcript_data]
+                transcript_data = []
+        if counter > 0:
             yield [transcript_data]
