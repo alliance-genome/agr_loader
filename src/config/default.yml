@@ -85,6 +85,7 @@ INTERACTION-MOL: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 VEPGENE: [FB, WB, ZFIN, RGD, MGI]
+ProteinSequence: [ProteinSequence]
 DB-SUMMARY:
   - 3.0.0
 
