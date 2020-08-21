@@ -115,7 +115,7 @@ class ProteinSequenceETL(ETL):
 
         """
 
-        fetch_cds_per_transcript_query = """
+        fetch_cds_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)
             WHERE t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
@@ -127,13 +127,12 @@ class ProteinSequenceETL(ETL):
                    order by gl.start 
         """
 
-        return_set_cds = Neo4jHelper().run_single_query(fetch_cds_per_transcript_query)
-
-
         return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
+        return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
 
         for record in return_set_t:
 
+            self.logger.info(record)
             transcript_id = record['transcriptId']
             transcript_assembly = record['transcriptAssembly']
             transcript_chromosome = record['transcriptChromosome']
@@ -144,6 +143,9 @@ class ProteinSequenceETL(ETL):
             full_cds_sequence = ''
 
             for cds_record in return_set_cds:
+                self.logger.info(cds_record)
+                self.logger.info(transcript_id)
+                self.logger.info(cds_record["transcriptPrimaryKey"])
                 if transcript_id == cds_record["transcriptPrimaryKey"]:
                     assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
                     start_position = cds_record["CDSStartPosition"]
@@ -157,7 +159,9 @@ class ProteinSequenceETL(ETL):
                     full_cds_sequence += cds_sequence
 
                 protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
+
                 self.logger.info(protein_sequence)
+
                 data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
                      "proteinSequence": protein_sequence

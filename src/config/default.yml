@@ -1,10 +1,10 @@
 schemaVersion: 1.0.1.2
 releaseVersion: 3.1.1
 SPECIES: [Species]
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
-FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+BGI: [ZFIN]
+FASTA: [GRCz11]
 ProteinSequence: [ProteinSequence]
-GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
+GFF: [ZFIN]
 ONTOLOGY:
   - SO
 
