@@ -34,7 +34,7 @@ class Neo4jHelper():
         """Run Single Query"""
 
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+              + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri,
                                      auth=("neo4j", "neo4j"),
                                      max_connection_pool_size=-1)

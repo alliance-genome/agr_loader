@@ -1,15 +1,8 @@
 schemaVersion: 1.0.1.2
 releaseVersion: 3.1.1
-SPECIES: [Species]
-BGI: [ZFIN]
-ALLELE: [ZFIN]
-FASTA: [GRCz11]
-VARIATION: [ZFIN]
-GFF: [ZFIN]
-ONTOLOGY:
-  - SO
-VEPTRANSCRIPT: [ZFIN]
-VEPGENE: [ZFIN]
+FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+ProteinSequence: [ProteinSequence]
+
 
 # Loader configuration values are below.
 # Please modify with caution!

@@ -58,7 +58,7 @@ class ProteinSequenceETL(ETL):
              "protein_sequence.csv"]
         ]
 
-        batch_size = self.data_type_config.get_generator_batch_size()
+        batch_size = 10000
         generators = self.get_generators(batch_size)
 
         query_and_file_list = self.process_query_params(query_template_list)
@@ -69,7 +69,6 @@ class ProteinSequenceETL(ETL):
 
 
     def translate_protein(self, cds_sequence, strand):
-
 
         # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
         if strand == '-':
@@ -96,25 +95,24 @@ class ProteinSequenceETL(ETL):
 
     def get_generators(self, batch_size):
         """Get Generators"""
-        counter = 0
         self.logger.debug("reached sequence retrieval retrieval")
 
-        context_info = ContextInfo()
-        data_manager = DataFileManager(context_info.config_file_location)
-
         transcript_data = []
+        assemblies = {}
 
         fetch_transcript_query = """
 
-            MATCH (gl:GenomicLocation)-[glt:ASSOCIATION]-(t:Transcript)-[tt:TRANSCRIPT_TYPE]-(so:SOTerm),
-                    (v:Variant)-[vt:ASSOCIATION]-(t)
-            WHERE so.name = 'mRNA'
-            RETURN t.primaryKey as transcriptId,
-                   gl.assembly as transcriptAssembly,
-                   gl.chromosome as transcriptChromosome,
-                   gl.strand as transcriptStrand
+                   MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
+                   WHERE t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
+                   RETURN t.primaryKey as transcriptPrimaryKey,
+                          t.dataProvider as dataProvider,
+                          gl.phase as transcriptPhase,
+                          gl.assembly as transcriptAssembly,
+                          gl.chromosome as transcriptChromosome,
+                          gl.strand as transcriptStrand
+                          order by transcriptPrimaryKey 
+               """
 
-        """
 
         fetch_cds_transcript_query = """
 
@@ -124,48 +122,56 @@ class ProteinSequenceETL(ETL):
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
                    t.dataProvider as dataProvider,
-                   gl.phase as CDSPhase
-                   order by gl.start 
+                   gl.phase as CDSPhase,
+                   gl.assembly as CDSAssembly,
+                   gl.chromosome as CDSChromosome,
+                   gl.strand as CDSStrand
+                   order by transcriptPrimaryKey, CDSStartPosition 
         """
 
+        # get all transcripts to iterate through.
         return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
 
+        # get all CDS coordinates for all transcripts.
         return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
+        returned_cds = []
 
-        for record in return_set_t:
+        # Process the query results into a list that can be cycled through many times to pull
+        # CDS group for each transcript.
+        for setcds in return_set_cds:
+            cds = {
+                "CDSChromosome": setcds["CDSChromosome"],
+                "CDSStartPosition": setcds["CDSStartPosition"],
+                "CDSEndPosition": setcds["CDSEndPosition"],
+                "CDSAssembly": setcds["CDSAssembly"],
+                "transcriptPrimaryKey": setcds["transcriptPrimaryKey"]
+            }
+            returned_cds.append(cds)
 
-            counter =+ 1
 
-            self.logger.debug(record)
+        for transcript_record in return_set_t:
 
-            transcript_id = record['transcriptId']
-            transcript_assembly = record['transcriptAssembly']
-            transcript_chromosome = record['transcriptChromosome']
-            transcript_strand = record['transcriptStrand']
-
-            assemblies = {}
+            context_info = ContextInfo()
+            data_manager = DataFileManager(context_info.config_file_location)
+            assembly = transcript_record['transcriptAssembly']
+            assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
+            transcript_id = transcript_record['transcriptPrimaryKey']
 
             full_cds_sequence = ''
+            strand = ''
 
-            for cds_record in return_set_cds:
-                self.logger.debug(cds_record)
-                self.logger.debug(transcript_id)
-                self.logger.debug(cds_record["transcriptPrimaryKey"])
-                if transcript_id == cds_record["transcriptPrimaryKey"]:
-                    assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
-                    start_position = cds_record["CDSStartPosition"]
-                    end_position = cds_record["CDSEndPosition"]
-                    # phase = cds_record["CDSPhase"]
-                    transcript_id = cds_record["transcriptPrimaryKey"]
-                    cds_sequence = assemblies[transcript_assembly].get_sequence(transcript_chromosome,
-                                                                           start_position,
-                                                                           end_position)
-
+            for cds_record in returned_cds:
+                if cds_record['transcriptPrimaryKey'] == transcript_id:
+                    cds_sequence = assemblies[assembly].get_sequence(cds_record["CDSChromosome"],
+                                                                              cds_record["CDSStartPosition"],
+                                                                              cds_record["CDSEndPosition"])
                     full_cds_sequence += cds_sequence
+                    strand = transcript_record['transcriptStrand']
 
-            protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
+            protein_sequence = self.translate_protein(full_cds_sequence, strand)
 
-            self.logger.debug(protein_sequence)
+            self.logger.info(transcript_id)
+            self.logger.info(protein_sequence)
 
             data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
@@ -173,8 +179,4 @@ class ProteinSequenceETL(ETL):
             }
             transcript_data.append(data)
 
-            if counter == batch_size:
-                yield [transcript_data]
-                transcript_data = []
-        if counter > 0:
-            yield [transcript_data]
+        yield [transcript_data]
