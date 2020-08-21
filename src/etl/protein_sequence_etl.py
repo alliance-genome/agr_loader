@@ -96,7 +96,7 @@ class ProteinSequenceETL(ETL):
     def get_generators(self):
         """Get Generators"""
 
-        self.logger.info("reached sequence retrieval retrieval")
+        self.logger.debug("reached sequence retrieval retrieval")
 
         context_info = ContextInfo()
         data_manager = DataFileManager(context_info.config_file_location)
@@ -131,10 +131,9 @@ class ProteinSequenceETL(ETL):
 
         return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
 
-        self.logger.info("here")
         for record in return_set_t:
 
-            self.logger.info(record)
+            self.logger.debug(record)
 
             transcript_id = record['transcriptId']
             transcript_assembly = record['transcriptAssembly']
@@ -146,9 +145,9 @@ class ProteinSequenceETL(ETL):
             full_cds_sequence = ''
 
             for cds_record in return_set_cds:
-                self.logger.info(cds_record)
-                self.logger.info(transcript_id)
-                self.logger.info(cds_record["transcriptPrimaryKey"])
+                self.logger.debug(cds_record)
+                self.logger.debug(transcript_id)
+                self.logger.debug(cds_record["transcriptPrimaryKey"])
                 if transcript_id == cds_record["transcriptPrimaryKey"]:
                     assemblies[transcript_assembly] = AssemblySequenceHelper(transcript_assembly, data_manager)
                     start_position = cds_record["CDSStartPosition"]
@@ -163,7 +162,7 @@ class ProteinSequenceETL(ETL):
 
                 protein_sequence = self.translate_protein(full_cds_sequence, transcript_strand)
 
-                self.logger.info(protein_sequence)
+                self.logger.debug(protein_sequence)
 
                 data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
