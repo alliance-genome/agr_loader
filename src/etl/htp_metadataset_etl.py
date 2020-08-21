@@ -157,6 +157,10 @@ class HTPMetaDatasetETL(ETL):
             dataset = dataset_record.get('datasetId')
             datasetId = dataset.get('primaryId')
 
+            # spoke to RGD and they wish to remove these datasets as they overlap with SGD.
+
+            if (datasetId == 'GEO:GSE18157' or datasetId=='GEO:GSE33497') and dataProvider == 'RGD':
+		continue 
             if 'secondaryIds' in dataset:
                 for secId in dataset.get('secondaryIds'):
                     secid = {
