@@ -34,15 +34,13 @@ class OBOHelper():
             # NU: xrefs = []
             # NU: xref_urls = []
 
-            def_links_unprocessed = []
-            def_links_processed = []
+            # NU: def_links_unprocessed = []
+            # NU: def_links_processed = []
             subset = []
             definition = ""
             namespace = ""
             is_obsolete = "false"
             # NU:ident = key
-            if syns is None:
-                syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
@@ -57,7 +55,7 @@ class OBOHelper():
                     is_obsolete = "true"
                 if "definition" in node["meta"]:
                     definition = node["meta"]["definition"]["val"]
-                    def_links_unprocessed = node["meta"]["definition"]["xrefs"]
+                    # NU: def_links_unprocessed = node["meta"]["definition"]["xrefs"]
                 if "subsets" in node["meta"]:
                     new_subset = node['meta'].get('subsets')
                     if isinstance(new_subset, (list, tuple)):
@@ -90,32 +88,33 @@ class OBOHelper():
             negatively_regulates = all_parents_subont.parents(key, relations=['RO:0002212'])
             positively_regulates = all_parents_subont.parents(key, relations=['RO:0002213'])
 
-            def_links_unprocessed = []
-            def_links = ""
+            # NU: def_links_unprocessed = []
+            # def_links = ""
             if definition is None:
                 definition = ""
-            else:
-                if definition is not None and "\"" in definition:
-                    split_definition = definition.split("\"")
-                    if len(split_definition) > 1:
-                        if len(split_definition) > 2 and "[" in split_definition[2].strip():
-                            def_links = split_definition[2].strip()
-                            def_links_unprocessed.append(def_links.rstrip("]").replace("[", ""))
+            # else:
+            #     if definition is not None and "\"" in definition:
+            #         split_definition = definition.split("\"")
+            #         if len(split_definition) > 1:
+            #             if len(split_definition) > 2 and "[" in split_definition[2].strip():
+            #                 def_links = split_definition[2].strip()
+            #                 def_links_unprocessed.append(def_links.rstrip("]").replace("[", ""))
 
-            for def_link_str in def_links_unprocessed:
-                def_link_str = def_link_str.replace("url:www", "http://www")
-                def_link_str = def_link_str.replace("url:", "")
-                def_link_str = def_link_str.replace("URL:", "")
-                def_link_str = def_link_str.replace("\\:", ":")
+            # NU: def_links_processed not used later, it is commented out.
+            # for def_link_str in def_links_unprocessed:
+            #     def_link_str = def_link_str.replace("url:www", "http://www")
+            #     def_link_str = def_link_str.replace("url:", "")
+            #     def_link_str = def_link_str.replace("URL:", "")
+            #     def_link_str = def_link_str.replace("\\:", ":")
 
-                if "," in def_link_str:
-                    def_links = def_link_str.split(",")
-                    for link in def_links:
-                        if link.strip().startswith("http"):
-                            def_links_processed.append(link)
-                else:
-                    if def_link_str.strip().startswith("http"):
-                        def_links_processed.append(def_link_str)
+            #     if "," in def_link_str:
+            #         def_links = def_link_str.split(",")
+            #         for link in def_links:
+            #             if link.strip().startswith("http"):
+            #                 def_links_processed.append(link)
+            #     else:
+            #         if def_link_str.strip().startswith("http"):
+            #             def_links_processed.append(def_link_str)
 
             # NU: alt_ids = node.get('alt_id')
             # if alt_ids:
