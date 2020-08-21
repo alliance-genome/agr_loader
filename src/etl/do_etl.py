@@ -130,14 +130,12 @@ class DOETL(ETL):
 
             syns = []
 
-            local_id = None
             def_links_unprocessed = []
             def_links_processed = []
             subset = []
             definition = ""
             is_obsolete = "false"
             ident = key
-            prefix = ident.split(":")[0]
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
@@ -161,41 +159,8 @@ class DOETL(ETL):
 
                 if "xrefs" in node["meta"]:
                     o_xrefs = node["meta"].get('xrefs')
-                    # NOTE: think about turning this into a new method
-                    # obo_help.py has the same code.
-                    if o_xrefs is not None:
-                        for xref_id_dict in o_xrefs:
-                            xref_id = xref_id_dict["val"]
-                            if ":" in xref_id:
-                                local_id = xref_id.split(":")[1].strip()
-                                prefix = xref_id.split(":")[0].strip()
-                                complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(
-                                    local_id,
-                                    prefix,
-                                    "ontology_provided_cross_reference",
-                                    "ontology_provided_cross_reference",
-                                    xref_id,
-                                    complete_url,
-                                    xref_id + "ontology_provided_cross_reference")
-                                generated_xref["oid"] = ident
-                                xrefs.append(generated_xref)
-                        else:   # TODO Need to make sure this else is correct
-                            # Nope, will always be ran as there is no break in the above loop.
-                            if ":" in o_xrefs:
-                                local_id = o_xrefs.split(":")[1].strip()
-                                prefix = o_xrefs.split(":")[0].strip()
-                                complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(
-                                    local_id,
-                                    prefix,
-                                    "ontology_provided_cross_reference",
-                                    "ontology_provided_cross_reference",
-                                    o_xrefs,
-                                    complete_url,
-                                    o_xrefs)
-                                generated_xref["oid"] = ident
-                                xrefs.append(generated_xref)
+                    self.ortho_xrefs(o_xrefs, ident, xrefs)
+
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):

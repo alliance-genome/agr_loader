@@ -138,3 +138,41 @@ class ETL():
 
             self.data_providers.append(self.data_provider)
             self.logger.info("data provider: %s", self.data_provider)
+
+    def ortho_xrefs(self, o_xrefs, ident, xrefs):
+        """Geenrate xref for orthos."""
+        if o_xrefs is None:
+            return
+        # turn into a list
+        if type(o_xrefs) != list:
+            self.logger.critical("BOB: o_xrefs is not a list but is a '{}'".format(type(o_xrefs)))
+        for xref_id_dict in o_xrefs:
+            xref_id = xref_id_dict["val"]
+            if ":" in xref_id:
+                local_id = xref_id.split(":")[1].strip()
+                prefix = xref_id.split(":")[0].strip()
+                complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
+                generated_xref = ETLHelper.get_xref_dict(
+                    local_id,
+                    prefix,
+                    "ontology_provided_cross_reference",
+                    "ontology_provided_cross_reference",
+                    xref_id,
+                    complete_url,
+                    xref_id + "ontology_provided_cross_reference")
+                generated_xref["oid"] = ident
+                xrefs.append(generated_xref)
+        if ":" in o_xrefs:  # if o_xrefs is a str with ":" in it.
+            local_id = o_xrefs.split(":")[1].strip()
+            prefix = o_xrefs.split(":")[0].strip()
+            complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
+            generated_xref = ETLHelper.get_xref_dict(
+                local_id,
+                prefix,
+                "ontology_provided_cross_reference",
+                "ontology_provided_cross_reference",
+                o_xrefs,
+                complete_url,
+                o_xrefs)
+            generated_xref["oid"] = ident
+            xrefs.append(generated_xref)
