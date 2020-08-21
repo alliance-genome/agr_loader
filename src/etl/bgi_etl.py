@@ -341,15 +341,12 @@ class BGIETL(ETL):
                         global_xref_id + page)
                     xref_map['dataId'] = primary_id
                     cross_references.append(xref_map)
-
             else:
-                # TODO handle in the resourceDescriptor.yaml
                 if prefix == 'PANTHER':
                     cross_ref_primary_id = cross_ref.get('id') + '_' + primary_id
                     cross_ref_complete_url = self.etlh.get_no_page_complete_url(
                         local_cross_ref_id, prefix, primary_id)
                     page = "gene/panther"
-                # TODO handle human generic cross reference to RGD in resourceDescr.
                 elif prefix == 'RGD':
                     cross_ref_primary_id = cross_ref.get('id')
                     cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value('RGD', local_cross_ref_id)

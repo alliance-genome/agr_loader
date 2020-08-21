@@ -186,6 +186,8 @@ class DiseaseETL(ETL):
         """Initialise object."""
         super().__init__()
         self.data_type_config = config
+        self.disease_unique_key = None
+        self.disease_association_type = None
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -256,7 +258,7 @@ class DiseaseETL(ETL):
         self.error_messages("Disease-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Disease Data: %s", sub_type.get_data_provider())
 
-    def process_pages(self, dp, xrefs, pages, disease_unique_key):
+    def process_pages(self, dp, xrefs, pages):
         """Process pages to get xrefs."""
         annotation_type = dp.get('type')
         xref = dp.get('crossReference')
@@ -287,7 +289,7 @@ class DiseaseETL(ETL):
                 local_crossref_id, prefix, page, page,
                 display_name, mod_global_cross_ref_id,
                 cross_ref_id + page + annotation_type)
-            passing_xref['dataId'] = disease_unique_key
+            passing_xref['dataId'] = self.disease_unique_key
 
             if 'loaded' in annotation_type:
                 passing_xref['loadedDB'] = 'true'
@@ -302,15 +304,14 @@ class DiseaseETL(ETL):
         """Process the xrefs."""
         if 'dataProvider' not in disease_record:
             return
-        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-            disease_record['objectRelation'].get("associationType").upper()
+
         for dp in disease_record['dataProvider']:
             xref = dp.get('crossReference')
             pages = xref.get('pages')
 
             if pages is None or len(pages) == 0:
                 continue
-            self.process_pages(dp, xrefs, pages, disease_unique_key)
+            self.process_pages(dp, xrefs, pages)
 
     def evidence_process(self, disease_record, pubs, evidence_code_list_to_yield):
         """Process evidence."""
@@ -346,21 +347,18 @@ class DiseaseETL(ETL):
             self.logger.critical("objectRelation not in record so disease_annotation_type is the last one seen")
             return negation, None
 
-        disease_association_type = disease_record['objectRelation'].get("associationType").upper()
-        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-            disease_record['objectRelation'].get("associationType").upper()
         if 'negation' in disease_record:
             # this capitalization is purposeful
-            if disease_association_type == 'IS_IMPLICATED_IN':
-                disease_association_type = 'IS_NOT_IMPLICATED_IN'
-            if disease_association_type == 'IS_MODEL_OF':
-                disease_association_type = 'IS_NOT_MODEL_OF'
-            if disease_association_type == 'IS_MARKER_FOR':
-                disease_association_type = 'IS_NOT_MARKER_FOR'
+            if self.disease_association_type == 'IS_IMPLICATED_IN':
+                self.disease_association_type = 'IS_NOT_IMPLICATED_IN'
+            elif self.disease_association_type == 'IS_MODEL_OF':
+                self.disease_association_type = 'IS_NOT_MODEL_OF'
+            elif self.disease_association_type == 'IS_MARKER_FOR':
+                self.disease_association_type = 'IS_NOT_MARKER_FOR'
             negation = 'NOT'
-            disease_unique_key = disease_unique_key + negation
+            self.disease_unique_key = self.disease_unique_key + negation
 
-        return negation, disease_association_type
+        return negation
     # Not used anywhere so commented out for now?
     #     additional_genetic_components = []
 
@@ -379,14 +377,12 @@ class DiseaseETL(ETL):
         """Process withs."""
         if 'with' not in disease_record:
             return
-        disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-            disease_record['objectRelation'].get("associationType").upper()
         with_record = disease_record.get('with')
         for rec in with_record:
-            disease_unique_key = disease_unique_key + rec
+            self.disease_unique_key = self.disease_unique_key + rec
         for rec in with_record:
             with_map = {
-                "diseaseUniqueKey": disease_unique_key,
+                "diseaseUniqueKey": self.disease_unique_key,
                 "withD": rec
                 }
             withs.append(with_map)
@@ -430,9 +426,9 @@ class DiseaseETL(ETL):
                 if is_it_test_entry is False:
                     continue
 
-            disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
+            self.disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
                 disease_record['objectRelation'].get("associationType").upper()
-
+            self.disease_association_type = disease_record['objectRelation'].get("associationType").upper()
             counter = counter + 1
             disease_object_type = disease_record['objectRelation'].get("objectType")
 
@@ -442,7 +438,7 @@ class DiseaseETL(ETL):
             self.xrefs_process(disease_record, xrefs)
             pecj_primary_key = self.evidence_process(disease_record, pubs, evidence_code_list_to_yield)
 
-            negation, disease_association_type = self.objectrelation_process(disease_record)
+            negation = self.objectrelation_process(disease_record)
 
             self.withs_process(disease_record, withs)
             self.primgenent_process(disease_record, pge_list_to_yield, pecj_primary_key)
@@ -450,11 +446,11 @@ class DiseaseETL(ETL):
             self.xrefs_process(disease_record, xrefs)
 
             disease_record = {
-                "diseaseUniqueKey": disease_unique_key,
+                "diseaseUniqueKey": self.disease_unique_key,
                 "doId": do_id,
                 "primaryId": primary_id,
                 "pecjPrimaryKey": pecj_primary_key,
-                "relationshipType": disease_association_type.upper(),
+                "relationshipType": self.disease_association_type,
                 "dataProvider": data_provider,
                 "dateAssigned": disease_record.get("dateAssigned"),
                 "pubPrimaryKey": pubs['publication_mod_id'] + pubs['pub_med_id'],
