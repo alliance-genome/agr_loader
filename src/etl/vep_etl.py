@@ -1,5 +1,6 @@
 """VEP ETL"""
 
+import re
 import logging
 import multiprocessing
 from etl import ETL
@@ -12,7 +13,6 @@ from transactors import Neo4jTransactor
 class VEPETL(ETL):
     """VEP ETL"""
 
-
     logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
@@ -20,7 +20,7 @@ class VEPETL(ETL):
     vep_gene_query_template = """
                USING PERIODIC COMMIT %s
                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-               
+
                    MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
                    MATCH (g:Gene {modLocalId:row.geneId})
 
@@ -28,7 +28,12 @@ class VEPETL(ETL):
                    ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
                        gc.geneId = g.primaryKey,
                        gc.variantId = a.hgvsNomenclature,
-                       gc.impact = row.impact
+                       gc.impact = row.impact,
+                       gc.polyphenPrediction = row.polyphenPrediction,
+                       gc.polyphenScore = row.polyphenScore,
+                       gc.siftPrediction = row.siftPrediction,
+                       gc.siftScore = row.siftScore
+
 
                    MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                    MERGE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
@@ -43,7 +48,8 @@ class VEPETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process = multiprocessing.Process(
+                target=self._process_sub_type, args=(sub_type,))
             process.start()
             thread_pool.append(process)
 
@@ -69,12 +75,17 @@ class VEPETL(ETL):
 
     @staticmethod
     def get_generators(filepath):
-
         """Get Generators"""
 
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
+        pph_prediction = ''
+        pph_score = ''
+        sift_prediction = ''
+        sift_score = ''
+
+        prot_func_regex = re.compile('^([^\(]+)\(([\d\.]+)\)')
 
         for line in data:
             columns = line.split()
@@ -89,12 +100,21 @@ class VEPETL(ETL):
                     value = pair.split("=")[1]
                     if key == 'IMPACT':
                         impact = value
+                    elif key == 'PolyPhen':
+                        m = prot_func_regex.match(value)
+                        pph_prediction = m.group(1)
+                        pph_score = m.group(2)
+                    elif key == 'SIFT':
+                        m = prot_func_regex.match(value)
+                        sift_prediction = m.group(1)
+                        sift_score = m.group(2)
+
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')
             elif columns[3].startswith('RGD:'):
                 gene_id = columns[3].lstrip('RGD:')
             elif columns[3].startswith('FB:'):
-                gene_id = columns[3].replace('FB:','')
+                gene_id = columns[3].replace('FB:', '')
             else:
                 gene_id = columns[3]
 
@@ -102,7 +122,12 @@ class VEPETL(ETL):
                           "geneLevelConsequence": columns[6],
                           "primaryKey": columns[0] + columns[6] + impact + gene_id,
                           "impact": impact,
-                          "geneId":gene_id}
+                          "geneId": gene_id,
+                          "polyphenPrediction": pph_prediction,
+                          "polyphenScore": pph_score,
+                          "siftPrediction": sift_prediction,
+                          "siftScore": sift_score
+                          }
             vep_maps.append(vep_result)
 
         yield [vep_maps]
