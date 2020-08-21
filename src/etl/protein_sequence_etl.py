@@ -128,11 +128,14 @@ class ProteinSequenceETL(ETL):
         """
 
         return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
+
         return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
 
+        self.logger.info("here")
         for record in return_set_t:
 
             self.logger.info(record)
+
             transcript_id = record['transcriptId']
             transcript_assembly = record['transcriptAssembly']
             transcript_chromosome = record['transcriptChromosome']
