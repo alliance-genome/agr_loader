@@ -236,12 +236,12 @@ class DOETL(ETL):
             # TODO: make this a generic section based on the resourceDescriptor.yaml file.
             # need to have MODs add disease pages to their yaml stanzas
 
-            alt_ids = node.get('alt_id')
-            if alt_ids:
-                if not isinstance(alt_ids, (list, tuple)):
-                    alt_ids = [alt_ids]
-            else:
-                alt_ids = []
+            # NU: alt_ids = node.get('alt_id')
+            # if alt_ids:
+            #     if not isinstance(alt_ids, (list, tuple)):
+            #         alt_ids = [alt_ids]
+            # else:
+            #     alt_ids = []
 
             # TODO: Need to add urls to resource Descriptis for SGD and MGI.
             # NOTE: MGI had one but has 'MGI:' at the end of the url not required here.
