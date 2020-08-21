@@ -30,8 +30,9 @@ class OBOHelper():
             node["id"] = key
 
             syns = []
-            xrefs = []
-            xref_urls = []
+            # So code commented out with NU: at start means it is Not Used.
+            # NU: xrefs = []
+            # NU: xref_urls = []
 
             def_links_unprocessed = []
             def_links_processed = []
@@ -39,16 +40,17 @@ class OBOHelper():
             definition = ""
             namespace = ""
             is_obsolete = "false"
-            ident = key
+            # NU:ident = key
             if syns is None:
                 syns = []  # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
                     syns = [s["val"] for s in node["meta"]["synonyms"]]
-                if "xrefs" in node["meta"]:
-                    o_xrefs = node["meta"].get('xrefs')
-                    self.ortho_xrefs(o_xrefs, ident, xref_urls)
+                # NU: leave in call commented out in case it is used at a later time
+                # if "xrefs" in node["meta"]:
+                #     o_xrefs = node["meta"].get('xrefs')
+                #     self.ortho_xrefs(o_xrefs, ident, xref_urls)
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
@@ -76,10 +78,6 @@ class OBOHelper():
                             namespace = bpv.get('val')
                             break
 
-            # Set the synonyms to an empty array if None. Necessary for Neo4j parsing
-            if xrefs is None:
-                xrefs = []
-
             all_parents = ont.parents(key)
             all_parents.append(key)
 
@@ -97,11 +95,6 @@ class OBOHelper():
             if definition is None:
                 definition = ""
             else:
-                # Remove new lines that cause this to split across two lines in the file
-                # definition = definition.replace('\n', ' ')
-
-                # Remove any extra double space that might have been introduces in the last replace
-                # definition = definition.replace('  ', ' ')
                 if definition is not None and "\"" in definition:
                     split_definition = definition.split("\"")
                     if len(split_definition) > 1:
@@ -120,24 +113,16 @@ class OBOHelper():
                     for link in def_links:
                         if link.strip().startswith("http"):
                             def_links_processed.append(link)
-                # elif "." in dl:
-                #     dl = dl.split(".")
-                #     for link in dl:
-                #         if link.strip().startswith("http"):
-                #             def_links_processed.append(link)
                 else:
                     if def_link_str.strip().startswith("http"):
                         def_links_processed.append(def_link_str)
 
-            # TODO: make this a generic section based on hte resourceDescriptor.yaml file.
-            # need to have MODs add disease pages to their yaml stanzas
-
-            alt_ids = node.get('alt_id')
-            if alt_ids:
-                if not isinstance(alt_ids, (list, tuple)):
-                    alt_ids = [alt_ids]
-            else:
-                alt_ids = []
+            # NU: alt_ids = node.get('alt_id')
+            # if alt_ids:
+            #    if not isinstance(alt_ids, (list, tuple)):
+            #        alt_ids = [alt_ids]
+            # else:
+            #    alt_ids = []
 
             dict_to_append = {
 
