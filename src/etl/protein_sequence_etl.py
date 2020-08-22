@@ -138,9 +138,11 @@ class ProteinSequenceETL(ETL):
         # get all CDS coordinates for all transcripts.
         return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
         returned_cds = []
+        returned_ts = []
 
         # Process the query results into a list that can be cycled through many times to pull
         # CDS group for each transcript.
+
         for setcds in return_set_cds:
             cds = {
                 "CDSChromosome": setcds["CDSChromosome"],
@@ -150,9 +152,19 @@ class ProteinSequenceETL(ETL):
                 "transcriptPrimaryKey": setcds["transcriptPrimaryKey"]
             }
             returned_cds.append(cds)
+
+        for tid in return_set_t:
+            ts = {
+                "transcriptPrimaryKey": tid['transcriptPrimaryKey'],
+                "transcriptAssembly": tid['transcriptAssembly'],
+                "transcriptStrand": tid['transcriptStrand']
+
+            }
+            returned_ts.append(ts)
+
         counter = 0
 
-        for transcript_record in return_set_t:
+        for transcript_record in returned_ts:
 
             counter = counter + 1
 
@@ -182,7 +194,11 @@ class ProteinSequenceETL(ETL):
             }
             transcript_data.append(data)
 
+            self.logger.info(counter)
+            self.logger.info(transcript_id)
+
             if counter > batch_size:
+
                 self.logger.info("finished batch " + counter)
 
                 yield [transcript_data]
