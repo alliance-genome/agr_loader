@@ -107,7 +107,6 @@ class ProteinSequenceETL(ETL):
         fetch_transcript_query = """
 
                    MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
-                   WHERE t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
                    RETURN t.primaryKey as transcriptPrimaryKey,
                           t.dataProvider as dataProvider,
                           gl.phase as transcriptPhase,
@@ -120,8 +119,7 @@ class ProteinSequenceETL(ETL):
 
         fetch_cds_transcript_query = """
 
-            MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)
-            WHERE t.dataProvider in ['FB', 'WB', 'ZFIN', 'RGD', 'MGI']
+            MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
             RETURN gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
@@ -163,7 +161,6 @@ class ProteinSequenceETL(ETL):
 
             full_cds_sequence = ''
             strand = ''
-            self.logger.info(transcript_id)
 
             for cds_record in returned_cds:
                 if cds_record['transcriptPrimaryKey'] == transcript_id:
@@ -182,7 +179,9 @@ class ProteinSequenceETL(ETL):
             }
             transcript_data.append(data)
             if counter > batch_size:
+                self.logger.info("finished batch " + counter)
                 yield [transcript_data]
                 transcript_data = []
+                counter = 0 
         if counter > 0:
             yield [transcript_data]
