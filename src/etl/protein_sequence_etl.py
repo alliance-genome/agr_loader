@@ -199,7 +199,7 @@ class ProteinSequenceETL(ETL):
 
             if counter > batch_size:
 
-                self.logger.info("finished batch " + counter)
+                self.logger.info("finished batch ")
 
                 yield [transcript_data]
 
