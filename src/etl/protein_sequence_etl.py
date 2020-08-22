@@ -11,13 +11,11 @@ from data_manager import DataFileManager
 from loader_common import ContextInfo
 from Bio import BiopythonWarning
 import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore', BiopythonWarning)
+
 
 class ProteinSequenceETL(ETL):
-    """ProteinSequence ETL"""
 
-    logger = logging.getLogger(__name__)
+    """ProteinSequence ETL"""
 
     # Query templates which take params and will be processed later
 
@@ -73,6 +71,9 @@ class ProteinSequenceETL(ETL):
 
 
     def translate_protein(self, cds_sequence, strand):
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', BiopythonWarning)
 
         # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
         if strand == '-':
@@ -152,7 +153,9 @@ class ProteinSequenceETL(ETL):
         counter = 0
 
         for transcript_record in return_set_t:
-            counter =+ 1
+
+            counter = counter + 1
+
             context_info = ContextInfo()
             data_manager = DataFileManager(context_info.config_file_location)
             assembly = transcript_record['transcriptAssembly']
@@ -178,10 +181,14 @@ class ProteinSequenceETL(ETL):
                      "proteinSequence": protein_sequence
             }
             transcript_data.append(data)
+
             if counter > batch_size:
                 self.logger.info("finished batch " + counter)
+
                 yield [transcript_data]
+
                 transcript_data = []
-                counter = 0 
+                counter = 0
+
         if counter > 0:
             yield [transcript_data]
