@@ -1,16 +1,17 @@
 schemaVersion: 1.0.1.2
 releaseVersion: 3.1.1
 SPECIES: [Species]
-BGI: [ZFIN]
-ALLELE: [ZFIN]
-FASTA: [GRCz11]
-VARIATION: [ZFIN]
-GFF: [ZFIN]
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+ALLELE: [FB, WB, ZFIN, RGD, MGI]
+FASTA: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
+VARIATION: [FB, WB, ZFIN, RGD, MGI]
+GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
 ONTOLOGY:
   - SO
-VEPTRANSCRIPT: [ZFIN]
-VEPGENE: [ZFIN]
+VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
+VEPGENE: [FB, WB, ZFIN, RGD, MGI]
 ProteinSequence: [ProteinSequence]
+
 
 # Loader configuration values are below.
 # Please modify with caution!

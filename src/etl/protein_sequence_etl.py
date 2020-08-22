@@ -194,9 +194,6 @@ class ProteinSequenceETL(ETL):
             }
             transcript_data.append(data)
 
-            self.logger.info(counter)
-            self.logger.info(transcript_id)
-
             if counter > batch_size:
 
                 self.logger.info("finished batch ")
