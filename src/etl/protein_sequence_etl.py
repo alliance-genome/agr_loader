@@ -9,6 +9,10 @@ from Bio.Seq import Seq
 from transactors import CSVTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from loader_common import ContextInfo
+from Bio import BiopythonWarning
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore', BiopythonWarning)
 
 class ProteinSequenceETL(ETL):
     """ProteinSequence ETL"""
@@ -147,10 +151,10 @@ class ProteinSequenceETL(ETL):
                 "transcriptPrimaryKey": setcds["transcriptPrimaryKey"]
             }
             returned_cds.append(cds)
-
+        counter = 0
 
         for transcript_record in return_set_t:
-
+            counter =+ 1
             context_info = ContextInfo()
             data_manager = DataFileManager(context_info.config_file_location)
             assembly = transcript_record['transcriptAssembly']
@@ -159,6 +163,7 @@ class ProteinSequenceETL(ETL):
 
             full_cds_sequence = ''
             strand = ''
+            self.logger.info(transcript_id)
 
             for cds_record in returned_cds:
                 if cds_record['transcriptPrimaryKey'] == transcript_id:
@@ -176,5 +181,8 @@ class ProteinSequenceETL(ETL):
                      "proteinSequence": protein_sequence
             }
             transcript_data.append(data)
-
-        yield [transcript_data]
+            if counter > batch_size:
+                yield [transcript_data]
+                transcript_data = []
+        if counter > 0:
+            yield [transcript_data]
