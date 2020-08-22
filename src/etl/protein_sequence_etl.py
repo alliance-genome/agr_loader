@@ -121,7 +121,7 @@ class ProteinSequenceETL(ETL):
         fetch_cds_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
-            RETURN gl.end AS CDSEndPosition, 
+            RETURN distinct gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
                    t.dataProvider as dataProvider,
