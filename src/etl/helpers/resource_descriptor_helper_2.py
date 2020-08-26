@@ -200,14 +200,8 @@ class ResourceDescriptorHelper2():
                 resource_descriptor_dict[entry]['pages'] = \
                     resource_descriptor_dict[entry].pop('pages_temp')
 
-<<<<<<< HEAD
-=======
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(self.resource_descriptor_dict)
-        # quit()
         ResourceDescriptorHelper2.resource_descriptor_dict = resource_descriptor_dict
         self._get_alt_keys()
->>>>>>> master
 
     def split_identifier(self, identifier, ignore_error=False):
         """Split Identifier.
