@@ -1,4 +1,4 @@
-"""ECOMAP ETL"""
+"""ECOMAP ETL."""
 
 import logging
 import multiprocessing
@@ -10,8 +10,7 @@ from transactors import Neo4jTransactor
 
 
 class ECOMAPETL(ETL):
-    """ECOMAP ETL"""
-
+    """ECOMAP ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -25,11 +24,10 @@ class ECOMAPETL(ETL):
         MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
             SET e.displaySynonym = row.threeLetterCode"""
 
-
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -40,7 +38,6 @@ class ECOMAPETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-
 
     def _process_sub_type(self, sub_type):
         self.logger.info("Loading ECOMAP Ontology Data: %s", sub_type.get_data_provider())
@@ -63,12 +60,11 @@ class ECOMAPETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+        self.error_messages("Ecomap-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading ECOMAP Data: %s", sub_type.get_data_provider())
 
-
     def get_generators(self, filepath, batch_size):
-        """Create Generator"""
-
+        """Create Generator."""
         data = TXTFile(filepath).get_data()
         eco_maps = []
 
@@ -77,7 +73,7 @@ class ECOMAPETL(ETL):
             if columns[0].startswith('#'):
                 continue
 
-            eco = {"ecoId":columns[1],
+            eco = {"ecoId": columns[1],
                    "threeLetterCode": columns[0]}
             eco_maps.append(eco)
 

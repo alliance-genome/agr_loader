@@ -1,4 +1,4 @@
-"""Gene Disease Orthology ETL"""
+"""Gene Disease Orthology ETL."""
 
 import logging
 import multiprocessing
@@ -11,8 +11,7 @@ from .helpers import Neo4jHelper
 
 
 class GeneDiseaseOrthoETL(ETL):
-    """Gene Disease Orthology ETL"""
-
+    """Gene Disease Orthology ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ class GeneDiseaseOrthoETL(ETL):
     insert_gene_disease_ortho_query_template = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                
+
                 MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
                   (fromGene:Gene {primaryKey:row.fromGeneId}),
@@ -43,21 +42,20 @@ class GeneDiseaseOrthoETL(ETL):
                     SET pubEJ.joinType = 'pub_evidence_code_join',
                          pubEJ.dateProduced = row.dateProduced,
                         pubEJ.dateAssigned = row.dateAssigned
-                        
-                    
+
+
                 MERGE (gene)-[fdag:ASSOCIATION]->(dga)
                 MERGE (dga)-[dadg:ASSOCIATION]->(d)
                 MERGE (dga)-[dapug:EVIDENCE]->(pubEJ)
                 MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
-                
+
                 CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
                 CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)"""
 
-
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         self.create_pub()
@@ -70,7 +68,6 @@ class GeneDiseaseOrthoETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-
 
     def _process_sub_type(self, subtype):
 
@@ -88,28 +85,26 @@ class GeneDiseaseOrthoETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-
+        self.error_messages("GDO-{}: ".format(subtype))
         self.logger.info("Finished Gene Disease Ortho Data")
 
-
     def create_pub(self):
-        """create publication"""
-
+        """Create publication."""
         self.logger.info("made it to the create pub for gene disease ortho")
 
         add_pub_query = """
-        
+
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
               MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
-              
+
               // TODO remove for 3.2.0 - AGR-2343 for details.
               MERGE (syn1:Synonym {primaryKey:"SARS-CoV-2 infection"})
                 SET syn1.name = "SARS-CoV-2 infection"
               MERGE (syn2:Synonym {primaryKey:"SARS-CoV 2 infection"})
                 SET syn2.name = "SARS-CoV 2 infection"
-                
+
                     """
 
         self.logger.info("pub creation started")
@@ -117,10 +112,8 @@ class GeneDiseaseOrthoETL(ETL):
 
         self.logger.info("pub creation finished")
 
-
     def retrieve_gene_disease_ortho(self):
-        """Retrieve Gene Disease Orthology"""
-
+        """Retrieve Gene Disease Orthology."""
         self.logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho_query = """
@@ -154,7 +147,7 @@ class GeneDiseaseOrthoETL(ETL):
                    "relationTypeLower": relation_type.lower(),
                    "doId": record["doId"],
                    "dateProduced": date,
-                   "dateAssigned":date,
+                   "dateAssigned": date,
                    "uuid": record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
                    "pubEvidenceUuid": str(uuid.uuid4())}
             gene_disease_ortho_data.append(row)

@@ -1,9 +1,8 @@
-"""Construct ETL"""
+"""Construct ETL."""
 
 import logging
 import multiprocessing
 import uuid
-from etl.helpers import ResourceDescriptorHelper
 from etl import ETL
 from etl.helpers import ETLHelper
 from etl.helpers import TextProcessingHelper
@@ -13,10 +12,9 @@ from transactors import Neo4jTransactor
 
 
 class ConstructETL(ETL):
-    """Construct ETL"""
+    """Construct ETL."""
 
     logger = logging.getLogger(__name__)
-    xref_url_map = ResourceDescriptorHelper().get_data()
 
     # Query templates which take params and will be processed later
 
@@ -85,14 +83,13 @@ class ConstructETL(ETL):
     non_bgi_component_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})"""
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -109,7 +106,6 @@ class ConstructETL(ETL):
         self.logger.info("Loading Construct Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         data = JSONFile().get_data(filepath)
-        self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
 
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
@@ -145,11 +141,88 @@ class ConstructETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("Construct-{}: ".format(sub_type.get_data_provider()))
+        self.logger.info("Finished Loading Construct Data: %s", sub_type.get_data_provider())
+
+    def secondary_process(self, secondarys, data_record):
+        """Get secondary ids.
+
+        secondarys: list of dataset items.
+        data_record: record to process.
+        """
+        if data_record.get('secondaryIds') is None:
+            return
+        for sid in data_record.get('secondaryIds'):
+            secondary_id_dataset = {
+                "data_id": data_record.get('primaryId'),
+                "secondary_id": sid
+            }
+            secondarys.append(secondary_id_dataset)
+
+    def synonyms_process(self, synonyms, data_record):
+        """Get synonyms."""
+        if data_record.get('synonyms') is None:
+            return
+        for syn in data_record.get('synonyms'):
+            syn_dataset = {
+                "data_id": data_record.get('primaryId'),
+                "synonym": syn.strip()
+            }
+            synonyms.append(syn_dataset)
+
+    def xref_process(self, construct_record, cross_reference_list):
+        """Process the xrefs."""
+        global_id = construct_record['primaryId']
+        if 'crossReferences' not in construct_record:
+            return
+        for cross_ref in construct_record.get('crossReferences'):
+            cross_ref_id = cross_ref.get('id')
+            local_crossref_id = cross_ref_id.split(":")[1]
+            prefix = cross_ref.get('id').split(":")[0]
+            pages = cross_ref.get('pages')
+
+            # some pages collection have 0 elements
+            if pages is None or len(pages) == 0:
+                continue
+            for page in pages:
+                if page == 'construct':
+                    mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+                        prefix, local_crossref_id, page)
+                    xref = ETLHelper.get_xref_dict(
+                        local_crossref_id,
+                        prefix,
+                        page,
+                        page,
+                        cross_ref_id,
+                        mod_global_cross_ref_id,
+                        cross_ref_id + page)
+                    xref['dataId'] = global_id
+                    cross_reference_list.append(xref)
+
+    def comp_process(self, construct_record, component_details, non_bgi_components, component_no_gene_details):
+        """Process components."""
+        if 'constructComponents' not in construct_record:
+            return
+        for component in construct_record.get('constructComponents'):
+            component_relation = component.get('componentRelation').upper()
+            component_symbol = component.get('componentSymbol')
+            component_id = component.get('componentID')
+
+            component_detail = {
+                "componentRelation": component_relation.upper(),
+                "componentSymbol": component_symbol,
+                "constructID": construct_record.get('primaryId')
+            }
+            if component_id is not None:
+                component_detail["componentID"] = component_id
+                component_details.append(component_detail)
+            else:
+                non_bgi_component = {"componentSymbol": component_symbol}
+                non_bgi_components.append(non_bgi_component)
+                component_no_gene_details.append(component_detail)
 
     def get_generators(self, construct_data, data_provider, batch_size):
-        """Create Generators"""
-
-        data_providers = []
+        """Create Generators."""
         release = ""
         constructs = []
         construct_synonyms = []
@@ -162,35 +235,10 @@ class ConstructETL(ETL):
         counter = 0
         date_produced = construct_data['metaData']['dateProduced']
 
-        data_provider_object = construct_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        self.logger.info("DataProvider: " + data_provider)
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
         load_key = date_produced + data_provider + "_construct"
 
         # TODO: get SGD to fix their files.
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
-
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict(data_provider,
-                    data_provider,
-                    data_provider_page,
-                    data_provider_page,
-                    data_provider,
-                    cross_ref_complete_url,
-                    data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
+        self.data_providers_process(construct_data)
 
         if 'release' in construct_data['metaData']:
             release = construct_data['metaData']['release']
@@ -210,13 +258,12 @@ class ConstructETL(ETL):
 
             name_text = TextProcessingHelper.cleanhtml(construct_record.get('name'))
 
-
             construct_dataset = {
                 "symbol": construct_record.get('name'),
                 "primaryId": construct_record.get('primaryId'),
                 "globalId": global_id,
                 "localId": local_id,
-                "dataProviders": data_providers,
+                "dataProviders": self.data_providers,
                 "dateProduced": date_produced,
                 "loadKey": load_key,
                 "release": release,
@@ -228,71 +275,10 @@ class ConstructETL(ETL):
             }
             constructs.append(construct_dataset)
 
-            if 'crossReferences' in construct_record:
-
-                for cross_ref in construct_record.get('crossReferences'):
-                    cross_ref_id = cross_ref.get('id')
-                    local_crossref_id = cross_ref_id.split(":")[1]
-                    prefix = cross_ref.get('id').split(":")[0]
-                    pages = cross_ref.get('pages')
-
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            if page == 'construct':
-                                mod_global_cross_ref_id = ETLHelper.get_page_complete_url(local_crossref_id,
-                                                                                          self.xref_url_map,
-                                                                                          prefix,
-                                                                                          page)
-                                xref = ETLHelper.get_xref_dict(local_crossref_id,
-                                                               prefix,
-                                                               page,
-                                                               page,
-                                                               cross_ref_id,
-                                                               mod_global_cross_ref_id,
-                                                               cross_ref_id + page)
-                                xref['dataId'] = global_id
-                                cross_reference_list.append(xref)
-
-            if 'constructComponents' in construct_record:
-                for component in construct_record.get('constructComponents'):
-                    component_relation = component.get('componentRelation').upper()
-                    component_symbol = component.get('componentSymbol')
-                    component_id = component.get('componentID')
-
-                    if component_id is not None:
-                        component_detail = {
-                            "componentRelation": component_relation.upper(),
-                            "componentSymbol": component_symbol,
-                            "componentID": component_id,
-                            "constructID": construct_record.get('primaryId')
-                        }
-                        component_details.append(component_detail)
-                    else:
-                        component_detail = {
-                            "componentRelation": component_relation.upper(),
-                            "componentSymbol": component_symbol,
-                            "constructID": construct_record.get('primaryId')
-                        }
-                        non_bgi_component = {"componentSymbol": component_symbol}
-                        non_bgi_components.append(non_bgi_component)
-                        component_no_gene_details.append(component_detail)
-
-            if 'synonyms' in construct_record:
-                for syn in construct_record.get('synonyms'):
-                    construct_synonym = {
-                        "data_id": construct_record.get('primaryId'),
-                        "synonym": syn.strip()
-                    }
-                    construct_synonyms.append(construct_synonym)
-
-            if 'secondaryIds' in construct_record:
-                for secondary_id in construct_record.get('secondaryIds'):
-                    construct_secondary_id = {
-                        "data_id": construct_record.get('primaryId'),
-                        "secondary_id": secondary_id
-                    }
-                    construct_secondary_ids.append(construct_secondary_id)
+            self.xref_process(construct_record, cross_reference_list)
+            self.synonyms_process(construct_synonyms, construct_record)
+            self.secondary_process(construct_secondary_ids, construct_record)
+            self.comp_process(construct_record, component_details, non_bgi_components, component_no_gene_details)
 
             if counter == batch_size:
                 yield [constructs,

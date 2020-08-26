@@ -1,4 +1,4 @@
-"""Molecular Interactions XREF ETL"""
+"""Molecular Interactions XREF ETL."""
 
 import logging
 
@@ -8,7 +8,7 @@ from .helpers import ETLHelper
 
 
 class MolInteractionsXrefETL(ETL):
-    """Molecular Interactions XREF ETL"""
+    """Molecular Interactions XREF ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -24,17 +24,18 @@ class MolInteractionsXrefETL(ETL):
     """ + ETLHelper.get_cypher_xref_tuned_text()
 
     xrefs_relationships_query_template = """
-    
+
         USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:InteractionGeneJoin:Association {primaryKey:row.reference_uuid})
             MATCH (c:CrossReference {primaryKey:row.primaryKey})
-            
+
             MERGE (o)-[oc:CROSS_REFERENCE]-(c)
     """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
