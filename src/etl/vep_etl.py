@@ -1,4 +1,4 @@
-"""VEP ETL"""
+"""VEP ETL."""
 
 import logging
 import multiprocessing
@@ -10,8 +10,7 @@ from transactors import Neo4jTransactor
 
 
 class VEPETL(ETL):
-    """VEP ETL"""
-
+    """VEP ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class VEPETL(ETL):
     vep_gene_query_template = """
                USING PERIODIC COMMIT %s
                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-               
+
                    MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
                    MATCH (g:Gene {modLocalId:row.geneId})
 
@@ -36,6 +35,7 @@ class VEPETL(ETL):
                    """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -66,12 +66,11 @@ class VEPETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("VEP-{}: ".format(sub_type.get_data_provider()))
 
     @staticmethod
     def get_generators(filepath):
-
-        """Get Generators"""
-
+        """Get Generators."""
         data = TXTFile(filepath).get_data()
         vep_maps = []
         impact = ''
@@ -94,7 +93,7 @@ class VEPETL(ETL):
             elif columns[3].startswith('RGD:'):
                 gene_id = columns[3].lstrip('RGD:')
             elif columns[3].startswith('FB:'):
-                gene_id = columns[3].replace('FB:','')
+                gene_id = columns[3].replace('FB:', '')
             else:
                 gene_id = columns[3]
 
@@ -102,7 +101,7 @@ class VEPETL(ETL):
                           "geneLevelConsequence": columns[6],
                           "primaryKey": columns[0] + columns[6] + impact + gene_id,
                           "impact": impact,
-                          "geneId":gene_id}
+                          "geneId": gene_id}
             vep_maps.append(vep_result)
 
         yield [vep_maps]

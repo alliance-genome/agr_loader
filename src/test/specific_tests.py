@@ -698,7 +698,7 @@ def test_human_gene_has_rgd_cross_reference():
                WHERE g.primaryKey = 'HGNC:11204'
                      AND cr.crossRefType = 'generic_cross_reference'
                      AND cr.globalCrossRefId = 'RGD:1322513'
-                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'
+                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=RGD:1322513'
                RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:

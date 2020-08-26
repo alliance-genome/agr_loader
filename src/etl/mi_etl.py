@@ -41,28 +41,27 @@ class MIETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-
     @staticmethod
     def add_miterm_url(identifier):
         """Add MI Term URL"""
 
         mi_term_url_dict = {
-            'MI:0465' : 'http://dip.doe-mbi.ucla.edu/',
-            'MI:0469' : 'http://www.ebi.ac.uk/intact',
-            'MI:0471' : 'http://mint.bio.uniroma2.it',
-            'MI:0478' : 'http://flybase.org',
-            'MI:0486' : 'http://www.uniprot.org',
-            'MI:0487' : 'http://www.wormbase.org/',
-            'MI:0670' : 'https://www.imexconsortium.org/',
-            'MI:0903' : 'https://www.ebi.ac.uk/intact/',
-            'MI:0917' : 'http://matrixdb.univ-lyon1.fr/',
-            'MI:0974' : 'http://www.innatedb.ca/',
-            'MI:1222' : 'http://www.mechanobio.info/',
-            'MI:1262' : 'http://ophid.utoronto.ca/',
-            'MI:1263' : 'http://www.molecularconnections.com',
-            'MI:1264' : 'http://www.ntnu.no/home',
-            'MI:1335' : 'http://www.agbase.msstate.edu/hpi/main.html',
-            'MI:0463' : 'https://thebiogrid.org/'
+            'MI:0465': 'http://dip.doe-mbi.ucla.edu/',
+            'MI:0469': 'http://www.ebi.ac.uk/intact',
+            'MI:0471': 'http://mint.bio.uniroma2.it',
+            'MI:0478': 'http://flybase.org',
+            'MI:0486': 'http://www.uniprot.org',
+            'MI:0487': 'http://www.wormbase.org/',
+            'MI:0670': 'https://www.imexconsortium.org/',
+            'MI:0903': 'https://www.ebi.ac.uk/intact/',
+            'MI:0917': 'http://matrixdb.univ-lyon1.fr/',
+            'MI:0974': 'http://www.innatedb.ca/',
+            'MI:1222': 'http://www.mechanobio.info/',
+            'MI:1262': 'http://ophid.utoronto.ca/',
+            'MI:1263': 'http://www.molecularconnections.com',
+            'MI:1264': 'http://www.ntnu.no/home',
+            'MI:1335': 'http://www.agbase.msstate.edu/hpi/main.html',
+            'MI:0463': 'https://thebiogrid.org/'
         }
 
         return mi_term_url_dict.get(identifier)

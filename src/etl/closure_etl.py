@@ -1,4 +1,4 @@
-"""Closure ETL"""
+"""Closure ETL."""
 
 import logging
 import multiprocessing
@@ -10,7 +10,7 @@ from .helpers import Neo4jHelper
 
 
 class ClosureETL(ETL):
-    """Clojure ETL"""
+    """Clojure ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -22,10 +22,11 @@ class ClosureETL(ETL):
             CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
 
     retrieve_isa_partof_closure_query_template = """
-        MATCH (childTerm:%sTerm)-[:PART_OF|IS_A*]->(parentTerm:%sTerm) 
+        MATCH (childTerm:%sTerm)-[:PART_OF|IS_A*]->(parentTerm:%sTerm)
             RETURN DISTINCT childTerm.primaryKey, parentTerm.primaryKey """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -59,11 +60,11 @@ class ClosureETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+        self.error_messages("Closure-{}: ".format(data_provider))
         self.logger.debug("Finished isa_partof Closure for: %s", data_provider)
 
     def get_closure_terms(self, data_provider):
-        """Get Closure Terms"""
-
+        """Get Closure Terms."""
         query = self.retrieve_isa_partof_closure_query_template % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
