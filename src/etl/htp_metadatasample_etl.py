@@ -256,7 +256,7 @@ class HTPMetaDatasetSampleETL(ETL):
             MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
 
 
-    htpdataset_xrefs_template = """
+    htpdatasetsample_xrefs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MATCH (o:HTPDatasetSample {primaryKey:row.datasetId}) """ + ETLHelper.get_cypher_xref_text()
@@ -379,9 +379,8 @@ class HTPMetaDatasetSampleETL(ETL):
 
         if data_provider_pages is not None:
             for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider, self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                        data_provider_cross_ref, local_crossref_id, page)
 
                 data_provider_cross_ref_set.append(
                     ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
