@@ -1,4 +1,4 @@
-"""GO Anootation ETL"""
+"""GO Anootation ETL."""
 
 import os
 import logging
@@ -11,7 +11,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GOAnnotETL(ETL):
-    """GO Annotation ETL"""
+    """GO Annotation ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -20,12 +20,13 @@ class GOAnnotETL(ETL):
     main_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (g:Gene {primaryKey:row.gene_id})
             MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
             CREATE (g)-[:ANNOTATED_TO]->(go) """
 
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -46,6 +47,7 @@ class GOAnnotETL(ETL):
             queries.append(item)
 
         Neo4jTransactor.execute_query_batch(queries)
+        self.error_messages()
 
     def _process_sub_type(self, sub_type, query_tracking_list):
         self.logger.info("Loading GOAnnot Data: %s", sub_type.get_data_provider())
@@ -62,10 +64,10 @@ class GOAnnotETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        generators = self.get_generators(\
-                file,
-                ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
-                batch_size)
+        generators = self.get_generators(
+            file,
+            ETLHelper.go_annot_prefix_lookup(sub_type.get_data_provider()),
+            batch_size)
 
         query_template_list = [
             [self.main_query_template, commit_size,
@@ -77,10 +79,10 @@ class GOAnnotETL(ETL):
 
         for item in query_and_file_list:
             query_tracking_list.append(item)
+        self.error_messages("GenAnnot-{}: ".format(sub_type.get_data_provider()))
 
     def get_generators(self, file, prefix, batch_size):
-        """Create Generators"""
-
+        """Create Generators."""
         go_annot_list = []
         counter = 0
         reader = csv.reader(file, delimiter='\t')

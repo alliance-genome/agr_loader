@@ -16,6 +16,7 @@ class ResourceDescriptorHelper():
     def get_data():
         """Get Data"""
 
+        ResourceDescriptorHelper.logger.critical("ResourceDescriptorHelper get_data called?")
         ResourceDescriptorHelper.logger.info("got to resourcedescriptor")
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
@@ -93,5 +94,5 @@ class ResourceDescriptorHelper():
                                         "primaryKey": resource,
                                         "uuid": str(uuid.uuid4())}
                 ResourceDescriptorHelper.list_of_descriptor_maps_to_load.append(stanza_map)
-
+        ResourceDescriptorHelper.logger.info("got to end of resourcedescriptor")
         return ResourceDescriptorHelper.list_of_descriptor_maps_to_load

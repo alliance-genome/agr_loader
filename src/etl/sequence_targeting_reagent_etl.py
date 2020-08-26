@@ -1,24 +1,23 @@
-"""Sequence Targetting Reagent ETL"""
+"""Sequence Targetting Reagent ETL."""
 
 import logging
 import multiprocessing
 
 from etl import ETL
-from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
 
 class SequenceTargetingReagentETL(ETL):
-    """Sequence Targeting Reagent ETL"""
+    """Sequence Targeting Reagent ETL."""
 
     logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
 
     sequence_targeting_reagent_query_template = """
-    
+
     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
@@ -67,12 +66,12 @@ class SequenceTargetingReagentETL(ETL):
 
             MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
             MATCH (g:Gene {primaryKey:row.geneId})
-            
+
             MERGE (a)-[:TARGETS]-(g)
     """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -124,11 +123,37 @@ class SequenceTargetingReagentETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("STR-{}: ".format(sub_type.get_data_provider()))
 
-    def get_generators(self, sqtr_data, data_provider, batch_size):
+    def secondary_process(self, secondarys, data_record):
+        """Get secondary ids.
+
+        secondarys: list of dataset items.
+        data_record: record to process.
+        """
+        if data_record.get('secondaryIds') is None:
+            return
+        for sid in data_record.get('secondaryIds'):
+            secondary_id_dataset = {
+                "primaryId": data_record.get('primaryId'),
+                "secondaryId": sid
+            }
+            secondarys.append(secondary_id_dataset)
+
+    def synonyms_process(self, synonyms, data_record):
+        """Get synonyms."""
+        if data_record.get('synonyms') is None:
+            return
+        for syn in data_record.get('synonyms'):
+            syn_dataset = {
+                "primaryId": data_record.get('primaryId'),
+                "synonym": syn.strip()
+            }
+            synonyms.append(syn_dataset)
+
+    def get_generators(self, sqtr_data, data_provider, batch_size):  # noqa
         """Get Generators"""
 
-        data_providers = []
         sqtrs = []
         sqtr_synonyms = []
         sqtr_secondary_ids = []
@@ -138,34 +163,8 @@ class SequenceTargetingReagentETL(ETL):
         counter = 0
         date_produced = sqtr_data['metaData']['dateProduced']
 
-        data_provider_object = sqtr_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
         load_key = date_produced + data_provider + "_SqTR"
-
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = ETLHelper.get_page_complete_url(data_provider,
-                                                                         self.xref_url_map,
-                                                                         data_provider,
-                                                                         data_provider_page)
-
-                data_provider_cross_ref_set.append(ETLHelper.get_xref_dict( \
-                        data_provider,
-                        data_provider,
-                        data_provider_page,
-                        data_provider_page,
-                        data_provider,
-                        cross_ref_complete_url,
-                        data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                self.logger.info("data provider: %s", data_provider)
+        self.data_providers_process(sqtr_data)
 
         for sqtr_record in sqtr_data['data']:
             counter = counter + 1
@@ -177,22 +176,8 @@ class SequenceTargetingReagentETL(ETL):
                 if is_it_test_entry is False:
                     counter = counter - 1
                     continue
-
-            if sqtr_record.get('secondaryIds') is not None:
-                for sid in sqtr_record.get('secondaryIds'):
-                    sqtr_secondary_id_dataset = {
-                        "primaryId": sqtr_record.get('primaryId'),
-                        "secondaryId": sid
-                    }
-                    sqtr_secondary_ids.append(sqtr_secondary_id_dataset)
-
-            if sqtr_record.get('synonyms') is not None:
-                for syn in sqtr_record.get('synonyms'):
-                    syn_dataset = {
-                        "primaryId": sqtr_record.get('primaryId'),
-                        "synonym": syn
-                    }
-                    sqtr_synonyms.append(syn_dataset)
+            self.secondary_process(sqtr_secondary_ids, sqtr_record)
+            self.synonyms_process(sqtr_synonyms, sqtr_record)
 
             if sqtr_record.get('targetGeneIds') is not None:
                 for target_gene_id in sqtr_record.get('targetGeneIds'):
@@ -215,12 +200,8 @@ class SequenceTargetingReagentETL(ETL):
                         continue
                     if 'sequence_targeting_reagent' in pages:
                         page = 'sequence_targeting_reagent'
-                        mod_global_cross_ref_url = ETLHelper.get_page_complete_url( \
-                                local_crossref_id,
-                                self.xref_url_map,
-                                prefix,
-                                page)
-
+                        mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_crossref_id, page)
 
             sqtr_dataset = {
                 "primaryId": sqtr_record.get('primaryId'),
@@ -229,15 +210,13 @@ class SequenceTargetingReagentETL(ETL):
                 "localId": local_id,
                 "soTerm": sqtr_record.get('soTermId'),
                 "taxonId": sqtr_record.get('taxonId'),
-                "dataProviders": data_providers,
+                "dataProviders": self.data_providers,
                 "dateProduced": date_produced,
                 "loadKey": load_key,
                 "modGlobalCrossRefUrl": mod_global_cross_ref_url,
                 "dataProvider": data_provider
             }
             sqtrs.append(sqtr_dataset)
-
-
 
             if counter == batch_size:
                 yield [sqtrs, sqtr_secondary_ids, sqtr_synonyms, tgs]
