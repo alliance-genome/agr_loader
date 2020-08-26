@@ -1,4 +1,4 @@
-"""Transcript ETL"""
+"""Transcript ETL."""
 
 import re
 import logging
@@ -11,13 +11,11 @@ from transactors import Neo4jTransactor
 
 
 class TranscriptETL(ETL):
-    """Transcript ETL"""
-
+    """Transcript ETL."""
 
     logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
-
 
     exon_query_template = """
             USING PERIODIC COMMIT %s
@@ -30,7 +28,7 @@ class TranscriptETL(ETL):
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider,
                         t.name = row.name,
-                        t.synonym = row.synonym        
+                        t.synonym = row.synonym
 
                CREATE (t)<-[tso:TYPE]-(so)
                CREATE (g)<-[gt:EXON]-(t)"""
@@ -43,7 +41,7 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
             MATCH (a:Assembly {primaryKey: row.assembly})
 
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
@@ -59,7 +57,7 @@ class TranscriptETL(ETL):
     transcript_alternate_id_query_template = """
             USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            
+
                 MATCH (g:Gene {primaryKey:row.curie})
                   SET g.gff3ID = row.gff3ID"""
 
@@ -74,17 +72,15 @@ class TranscriptETL(ETL):
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider,
                         t.name = row.name,
-                        t.synonym = row.synonym           
-                
+                        t.synonym = row.synonym
+
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
                MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
-
 
     chromosomes_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
-
 
     genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
@@ -92,11 +88,11 @@ class TranscriptETL(ETL):
 
             MATCH (o:Transcript {primaryKey: row.curie})
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-            
+
             MERGE (a:Assembly {primaryKey: row.assembly})
              ON CREATE SET a.dataProvider = row.dataProvider
-            
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
@@ -109,11 +105,10 @@ class TranscriptETL(ETL):
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         thread_pool = []
@@ -124,7 +119,6 @@ class TranscriptETL(ETL):
             thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
-
 
     def _process_sub_type(self, sub_type):
         self.logger.info("Loading Transcript Data: %s", sub_type.get_data_provider())
@@ -154,11 +148,10 @@ class TranscriptETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("Transcript-{}: ".format(sub_type.get_data_provider()))
 
-
-    def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, filepath, batch_size):  # noqa
+        """Get Generators."""
         with open(filepath) as file_handle:
             transcript_maps = []
             gene_maps = []
@@ -181,7 +174,7 @@ class TranscriptETL(ETL):
                 transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lnc_RNA',
                                     'tRNA', 'snRNA', 'rRNA', 'antisense_RNA', 'C_gene_segment',
                                     'V_gene_segment', 'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
-                possible_types = ['gene', 'exon','mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
+                possible_types = ['gene', 'exon', 'mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
                                   'pre_miRNA', 'snoRNA', 'lnc_RNA', 'tRNA', 'snRNA', 'rRNA',
                                   'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
                                   'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
@@ -244,7 +237,7 @@ class TranscriptETL(ETL):
                                         curie = value
 
                                 if self.test_object.using_test_data() is True:
-  
+
                                     is_it_test_entry = self.test_object.check_for_test_id_entry(curie)
 
                                     if is_it_test_entry is False:
@@ -256,7 +249,7 @@ class TranscriptETL(ETL):
                                                 counter = counter - 1
                                             continue
                         if feature_type_name in transcript_types:
-                            transcript_map.update({'curie' : curie})
+                            transcript_map.update({'curie': curie})
                             transcript_map.update({'parentId': parent})
                             transcript_map.update({'gff3ID': gff3_id})
                             transcript_map.update({'genomicLocationUUID': str(uuid.uuid4())})
@@ -305,20 +298,19 @@ class TranscriptETL(ETL):
                     counter = 0
 
                     yield [gene_maps,
-                          transcript_maps,
-                          transcript_maps,
-                          transcript_maps,
-                          exon_maps,
-                          exon_maps]
+                           transcript_maps,
+                           transcript_maps,
+                           transcript_maps,
+                           exon_maps,
+                           exon_maps]
                     transcript_maps = []
                     gene_maps = []
                     exon_maps = []
 
-
             if counter > 0:
                 yield [gene_maps,
-                      transcript_maps,
-                      transcript_maps,
-                      transcript_maps,
-                      exon_maps,
-                      exon_maps]
+                       transcript_maps,
+                       transcript_maps,
+                       transcript_maps,
+                       exon_maps,
+                       exon_maps]

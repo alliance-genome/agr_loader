@@ -1,147 +1,342 @@
-"""Resource Descriptor Helper 2"""
+"""Resource Descriptor Helper 2."""
 
 import logging
-import sys
 import re
 import yaml
 from files import Download
 
 
 class ResourceDescriptorHelper2():
-    """Resource Descriptor Helper 2"""
-
+    """Resource Descriptor Helper 2."""
 
     logger = logging.getLogger(__name__)
+    resource_descriptor_dict = {}
+    #########################
+    # any local caching here.
+    #########################
 
+    # species/db key lookups caches obtained from aliases
+    # i.e. for RGD:- 10116 => RGD, NCBITaxon:10116 => RGD, Rno => RGD , RGD => RGD
+    key_lookup = {}
+
+    # species short cuts
+    key_to_fullname = {}
+    key_to_shortname = {}
+    key_to_order = {}
+    key_to_taxonid = {}
+
+    # report deprecated methids only one
+    deprecated_mess = {}
+
+    # missing pages
+    missing_pages = {}
+
+    # missing keys
+    missing_keys = {}
+
+    # bad_pages
+    # can be deleted eventually being used to check old url whioch werte hardcoded
+    # against new one for yaml.
+    bad_pages = {}
+
+    # identifier does not match the gid_pattern
+    bad_regex = {}
+
+    # DB should not generate a url.
+    no_url = {}
+
+    def get_key(self, alt_key):
+        """Get species/DB main key.
+
+        key_str: str to search for main key
+        Try splitting to see if that helps if main lookup fails.
+        """
+        ret_key = None
+        main_key = alt_key.upper()
+        if main_key not in self.key_lookup:
+            # try split incase RGD:123456 or something passed
+            key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
+            if not key_prefix:
+                mk_key = "{}".format(main_key)
+                if mk_key in self.missing_keys:
+                    self.missing_keys[mk_key] += 1
+                else:
+                    self.missing_keys[mk_key] = 1
+                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
+                    self.logger.critical(mess)
+                    self.logger.info("Available are %s", self.key_lookup.keys())
+                return ret_key
+            if key_prefix not in self.key_lookup:
+                self.logger.debug("%s Found after splitting", alt_key)
+                ret_key = self.key_lookup[key_prefix]
+            else:
+                if main_key in self.missing_keys:
+                    self.missing_keys[main_key] += 1
+                else:
+                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
+                    self.logger.critical(mess)
+                    self.logger.critical("Available are %s", self.key_lookup.keys())
+                    self.missing_keys[main_key] = 1
+        else:
+            ret_key = self.key_lookup[main_key]
+        return ret_key
+
+    def get_short_name(self, alt_key):
+        """Get short name."""
+        name = 'Alliance'
+        try:
+            key = self.get_key(alt_key)
+            name = self.key_to_shortname[key]
+        except KeyError:
+            pass
+        return name
+
+    def get_full_name_from_key(self, alt_key):
+        """Lookup fullname for a given species key.
+
+        If key not found return None and let user deal with it.
+        """
+        key = self.get_key(alt_key)
+        if key in self.key_to_fullname:
+            return self.key_to_fullname[key]
+        return None
+
+    def get_taxon_from_key(self, alt_key):
+        """Get taxon id (number bit only ) from key."""
+        key = self.get_key(alt_key)
+        if key in self.key_to_taxonid:
+            return self.key_to_taxonid[key]
+        return None
+
+    def get_order(self, identifier):
+        """Get order for a key."""
+        order = None
+        try:
+            order = self.key_to_order[self.get_key(identifier)]
+        except KeyError:
+            self.logger.critical("Could not find orddr for identifier %s", identifier)
+        return order
+
+    def _get_alt_keys(self):
+        """Get alternative keys for species.
+
+        These are stored in the resourceDescriptor.yaml file under
+        aliases. The keys for this are not used/stired but are here for reference
+        or may be used at a later point.
+        """
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
+        self.logger.critical("species url is %s", url)
+
+        resource_descriptor_file = Download('tmp',
+                                            url,
+                                            'species.yaml').get_downloaded_data()
+
+        yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
+        for item in yaml_list:
+            db_name = item['primaryDataProvider']['dataProviderShortName'].upper()
+            # Hack human data comes from RGD but we do not want to overwrite RGD
+            # So hardcode test here to HGNC as the key instead.
+            if db_name == 'RGD' and item['fullName'] == 'Homo sapiens':
+                db_name = 'HUMAN'
+                self.key_lookup['HUMAN'] = db_name
+            self.key_lookup[db_name] = db_name
+            self.key_lookup[item['fullName'].upper()] = db_name
+            self.key_to_fullname[db_name] = item['fullName']
+            for name in item['commonNames']:
+                self.key_lookup[name.upper()] = db_name
+            tax_word, tax_id, _ = self.split_identifier(item['taxonId'])
+            self.key_to_taxonid[db_name] = tax_id
+            self.key_lookup[item['taxonId'].upper()] = db_name
+            self.key_lookup[tax_id] = db_name
+            # Sce has 2 taxon id's so hard code the second one not in species file
+            if item['fullName'] == 'Saccharomyces cerevisiae':
+                self.key_lookup['4932'] = db_name
+                self.key_lookup['NCBITAXON:4932'] = db_name
+            self.key_lookup[item['shortName'].upper()] = db_name
+            self.key_to_order[db_name] = item['phylogenicOrder']
+            self.key_to_shortname[db_name] = item['shortName']
+
+    def get_data(self):
+        """Return dict."""
+        return self.resource_descriptor_dict
 
     def __init__(self):
+        """Load the dict from file."""
+        if self.resource_descriptor_dict:
+            self.logger.critical("keys are:- %s", self.resource_descriptor_dict.keys())
+            return
 
-        # TODO This should eventually be tied to the schemas submodule.
         url = 'https://raw.githubusercontent.com/' \
-               + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
+            + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
 
         resource_descriptor_file = Download('tmp',
                                             url,
                                             'resourceDescriptors.yaml').get_downloaded_data()
 
-        self.yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
-
+        yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.
-        self.resource_descriptor_dict = {}
-        for item in self.yaml_list:
-            name = item['db_prefix']
-            self.resource_descriptor_dict[name] = item
-
+        resource_descriptor_dict = {}
+        for item in yaml_list:
+            main_key = item['db_prefix'].upper()
+            resource_descriptor_dict[main_key] = item
+            self.key_lookup[item['db_prefix']] = main_key
+            self.key_lookup[main_key] = main_key
+            self.key_lookup[item['name'].upper()] = main_key
+            if 'aliases' in item:
+                for alt_name in item['aliases']:
+                    self.key_lookup[alt_name.upper()] = main_key
+            if 'ignore_url_generation' in item:
+                self.no_url[main_key] = 1
         # Iterate through this new dictionary and convert page lists to dictionaries.
         # These are keyed by the page name.
-        for entry in self.resource_descriptor_dict:
-            if 'pages' in self.resource_descriptor_dict[entry]:  # If we have a pages list.
-                self.resource_descriptor_dict[entry]['pages_temp'] = dict()
-                for page_item in self.resource_descriptor_dict[entry]['pages']:
+        for entry in resource_descriptor_dict:
+            if 'pages' in resource_descriptor_dict[entry]:  # If we have a pages list.
+                resource_descriptor_dict[entry]['pages_temp'] = dict()
+                for page_item in resource_descriptor_dict[entry]['pages']:
                     page_name = page_item['name']
-                    self.resource_descriptor_dict[entry]['pages_temp'][page_name] = page_item
-                del self.resource_descriptor_dict[entry]['pages'] # Remove the old list.
+                    resource_descriptor_dict[entry]['pages_temp'][page_name] = page_item
+                del resource_descriptor_dict[entry]['pages']  # Remove the old list.
                 # Rename the new dict with the same name as the old list. For clarity.
-                self.resource_descriptor_dict[entry]['pages'] = \
-                        self.resource_descriptor_dict[entry].pop('pages_temp')
+                resource_descriptor_dict[entry]['pages'] = \
+                    resource_descriptor_dict[entry].pop('pages_temp')
 
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(self.resource_descriptor_dict)
         # quit()
+        ResourceDescriptorHelper2.resource_descriptor_dict = resource_descriptor_dict
+        self._get_alt_keys()
 
-    @staticmethod
-    def alter_prefixes_to_match_resource_yaml(entry):
-        """Alter Prefixes To Match Resource YAML"""
+    def split_identifier(self, identifier, ignore_error=False):
+        """Split Identifier.
 
-        # We use database prefixes that are not all uppercase.
-        # TODO
-        # The following line will cause some to fail. This needs to be addressed.
-        entry = entry.upper()
-
-        # Occasionally, prefixes from incoming files do not line up with the Alliance YAML.
-        # The following dictionary translates these entries into the appropriate prefixes.
-        prefix_translation_dictionary = {
-            'WORMBASE' : 'WB',
-            'FLYBASE' : 'FB',
-            'RCSB PDB' : 'RCSB_PDB',
-        }
-
-        prefix = None
-        if prefix_translation_dictionary.get(entry):
-            prefix = prefix_translation_dictionary[entry]
-        else:
-            prefix = entry
-
-        return prefix
-
-
-    def split_identifier(self, identifier):
-        """Split Identifier"""
-
+        Does not throw exception anymore. Check return, if None returned, there was an error
+        """
         prefix = None
         identifier_processed = None
         separator = None
 
         if ':' in identifier:
-            prefix, identifier_processed = identifier.split(':', 1) # Split on the first occurrence
+            prefix, identifier_processed = identifier.split(':', 1)  # Split on the first occurrence
             separator = ':'
         elif '-' in identifier:
             prefix, identifier_processed = identifier.split('-', 1)  # Split on the first occurrence
             separator = '-'
         else:
-            self.logger.info('Fatal Error: Identifier does not contain \':\' or \'-\' characters.')
-            self.logger.info('Splitting identifier is not possible.')
-            self.logger.info('Identifier: %s', identifier)
-            sys.exit(-1)
-
-        prefix = self.alter_prefixes_to_match_resource_yaml(prefix)
+            if not ignore_error:
+                key = "Identifier problem"
+                if key not in self.missing_keys:
+                    self.logger.critical('Identifier does not contain \':\' or \'-\' characters.')
+                    self.logger.critical('Splitting identifier is not possible.')
+                    self.logger.critical('Identifier: %s', identifier)
+                    self.missing_keys[key] = 1
+                else:
+                    self.missing_keys[key] += 1
+            prefix = identifier_processed = separator = None
 
         return prefix, identifier_processed, separator
 
-    def return_url(self, identifier, page):
-        """Return URL"""
+    def missing_key_message(self, alt_key, key, value):
+        """Generate message for missing key."""
+        mk_key = "{}-{}".format(alt_key, key)
+        if mk_key in self.missing_keys:
+            self.missing_keys[mk_key] += 1
+        else:
+            self.missing_keys[mk_key] = 1
+            mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
+            self.logger.critical(mess)
+            self.logger.critical('Identifier: %s', value)
+            self.logger.info("keys are:- %s", self.key_lookup.keys())
 
+    def return_url_from_key_value(self, alt_key, value, alt_page=None):
+        """Return url for a key value pair.
+
+        key:   DB key i.e.             RGD,     MGI,    HGNC etc
+        value: DB value i.e.           1311419, 80863,  33510
+        alt_page:  page to get i.e.    gene,    allele, disease/human
+
+        By default, if alt_page is not set it will use the main one 'default_url'
+        """
+        url = None
+        key = self.get_key(alt_key)
+        if key in self.no_url:
+            return ''
+        if key not in self.key_lookup:
+            self.missing_key_message(alt_key, key, value)
+            return None
+        if 'default_url' not in self.resource_descriptor_dict[key]:
+            mess = "******** '{}' has no 'default_url' **********".format(key)
+            self.logger.critical(mess)
+            self.logger.critical('Identifier: %s', value)
+            return None
+        try:
+            if alt_page:
+                page = alt_page
+                url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
+            else:
+                page = 'default_url'
+                url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
+        except KeyError:
+            mess = "{} does not exist for '{}' in the Resource Descriptor YAML.".format(page, key)
+            key = "{}-{}".format(key, page)
+            if key in self.missing_pages:
+                self.missing_pages[key] += 1
+            else:
+                self.missing_pages[key] = 1
+                self.logger.critical(mess)
+        except AttributeError as e:
+            mess = "***** ERROR!!! key = '{}', value = '{}' page = {} error = '{}'******".format(key, value, page, e)
+            key = "{}-{}".format(key, page)
+            if key in self.missing_pages:
+                self.missing_pages[key] += 1
+            else:
+                self.missing_pages[key] = 1
+                self.logger.critical(mess)
+        return url
+
+    def return_url(self, identifier, page):
+        """Give message and call new one.
+
+        Deprecated so give message but continue by calling new method.
+        """
+        if 'return_url' not in self.deprecated_mess:
+            self.logger.info("return_url is Deprecated please use return_url_from_identifier")
+            self.deprecated_mess['return_url'] = 1
+        else:
+            self.deprecated_mess['return_url'] += 1
+        return self.return_url_from_identifier(identifier, page)
+
+    def return_url_from_identifier(self, identifier, page=None):
+        """Return URL for an identifier."""
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
 
-        complete_url = None
+        key = self.get_key(db_prefix)
+        if not key:
+            return None
+        if key in self.no_url:
+            return None
         try:
-            gid_pattern = self.resource_descriptor_dict[db_prefix]['gid_pattern']
-            default_url = self.resource_descriptor_dict[db_prefix]['default_url']
+            gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
         except KeyError:
-            self.logger.info('Fatal Error: The database prefix \'{}\' '
-                             'cannot be found in the Resource Descriptor YAML.'.format(db_prefix))
-            self.logger.info('Page: %s', page)
-            self.logger.info('Identifier: %s', identifier)
-            sys.exit(-1)
+            if key not in self.missing_keys:
+                self.logger.critical("The database prefix '%s' has no 'gid_pattern'.", db_prefix)
+                self.logger.critical('Page: %s', page)
+                self.logger.critical('Identifier: %s', identifier)
+                self.missing_keys[key] = 1
+            else:
+                self.missing_keys[key] += 1
+            return None
 
         identifier_post_processed = db_prefix + separator + identifier_stripped
 
-        regex_output = re.match(gid_pattern, identifier_post_processed)
+        regex_output = re.match(gid_pattern, identifier_post_processed, re.IGNORECASE)
         if regex_output is None:
-            self.logger.info('Fatal Error: Cross Reference identifier did %s', \
-                             'not match Resource Descriptor YAML file gid pattern.')
-            self.logger.info('Database prefix: %s', db_prefix)
-            self.logger.info('Identifier: %s', identifier_post_processed)
-            self.logger.info('gid pattern: %s', gid_pattern)
-            sys.exit(-1)
-        if page is None and default_url is not None:
-            complete_url = default_url.replace('[%s]', identifier_stripped)
-        elif page is None and default_url is None:
-            self.logger.info('Fatal Error: Cross Reference page is specified %s', \
-                             'as None but the default url is not specified in the YAML.')
-            self.logger.info('Database prefix: %s', db_prefix)
-            self.logger.info('Identifier: %s', identifier_stripped)
-            sys.exit(-1)
-        elif page is not None:
-            try:
-                page_url = self.resource_descriptor_dict[db_prefix]['pages'][page]['url']
-            except KeyError:
-                self.logger.info('Fatal Error: The specified Cross Reference %s', \
-                            'page or database prefix does not appear to exist.')
-                self.logger.info('Database prefix: %s', (db_prefix))
-                self.logger.info('Page: %s', page)
-                self.logger.info('Identifier: %s', identifier_stripped)
-                sys.exit(-1)
-            complete_url = page_url.replace('[%s]', identifier_stripped)
-
-        return complete_url
+            if key not in self.bad_regex:
+                self.logger.critical('Cross Reference identifier did %s',
+                                     'not match Resource Descriptor YAML file gid pattern.')
+                self.logger.critical('Database prefix: %s', db_prefix)
+                self.logger.critical('Identifier: %s', identifier_post_processed)
+                self.logger.critical('gid pattern: %s', gid_pattern)
+                self.bad_regex[key] = 1
+            else:
+                self.bad_regex[key] += 1
+        return self.return_url_from_key_value(db_prefix, identifier_stripped, alt_page=page)

@@ -1,4 +1,4 @@
-"""Expression Ribbon ETL"""
+"""Expression Ribbon ETL."""
 
 import logging
 
@@ -8,8 +8,7 @@ from .helpers import Neo4jHelper
 
 
 class ExpressionRibbonETL(ETL):
-    """Expression Ribbon ETL"""
-
+    """Expression Ribbon ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -23,7 +22,6 @@ class ExpressionRibbonETL(ETL):
 
                    MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
 
-
     insert_gocc_ribbon_terms_query_template = """
                 USING PERIODIC COMMIT %s
                 LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -35,21 +33,19 @@ class ExpressionRibbonETL(ETL):
     # Querys which do not take params and can be used as is
 
     expression_gocc_ribbon_retrieve_query = """
-                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology) 
+                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology)
                 WHERE slimTerm.subset =~ '.*goslim_agr.*'
                 RETURN ebe.primaryKey, slimTerm.primaryKey"""
 
-
     gocc_self_ribbon_ebes_query = """
-        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology) 
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
         WHERE got.subset =~ '.*goslim_agr.*'
         RETURN ebe.primaryKey, got.primaryKey; """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
 
@@ -63,17 +59,14 @@ class ExpressionRibbonETL(ETL):
 
         generators = self.get_ribbon_terms()
 
-
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
         self.logger.info("Finished Expression Ribbon Data")
 
-
     def get_ribbon_terms(self):
-        """get ribbon terms"""
-
+        """Get ribbon terms."""
         self.logger.debug("made it to the gocc ribbon retrieve")
 
         return_set_rt = Neo4jHelper().run_single_query(self.expression_gocc_ribbon_retrieve_query)

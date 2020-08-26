@@ -1,4 +1,4 @@
-"""Orthology ETL"""
+"""Orthology ETL."""
 
 from itertools import permutations
 import logging
@@ -10,13 +10,12 @@ import ijson
 
 from etl import ETL
 from etl.helpers import ETLHelper
-#from files import JSONFile
+# from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
 
 class OrthologyETL(ETL):
-    """Orthology ETL"""
-
+    """Orthology ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -44,15 +43,13 @@ class OrthologyETL(ETL):
             CREATE (g1)-[a1:ASSOCIATION]->(oa)
             CREATE (oa)-[a2:ASSOCIATION]->(g2) """
 
-
     not_matched_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             CREATE (ogj)-[:NOT_MATCHED]->(oa) """
-
 
     matched_algorithm_query_template = """
         USING PERIODIC COMMIT %s
@@ -62,20 +59,18 @@ class OrthologyETL(ETL):
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             CREATE (ogj)-[:MATCHED]->(oa) """
 
-
     not_called_algorithm_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
             MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
             MERGE (oa:OrthoAlgorithm {name:row.algorithm})
             CREATE (ogj)-[:NOT_CALLED]->(oa) """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
 
@@ -118,11 +113,12 @@ class OrthologyETL(ETL):
             Neo4jTransactor().wait_for_queues()
 
         Neo4jTransactor.execute_query_batch(algo_queries)
+        self.error_messages()
 
     def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
         self.logger.info("Loading Orthology Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        #data = JSONFile().get_data(filepath)
+        # data = JSONFile().get_data(filepath)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
@@ -136,18 +132,19 @@ class OrthologyETL(ETL):
 
         for mod_sub_type in sub_types:
             if mod_sub_type != sub_type.get_data_provider():
-                query_template_list.append([self.main_query_template, "100000",\
-                    "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
+                query_template_list.append(
+                    [self.main_query_template, "100000",
+                     "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
 
-        query_template_list.append([self.matched_algorithm_query_template, commit_size,
-                           "orthology_matched_algorithm_data_"\
-                           + sub_type.get_data_provider() + ".csv"])
-        query_template_list.append([self.not_matched_algorithm_query_template, commit_size,
-                           "orthology_not_matched_algorithm_data_"\
-                           + sub_type.get_data_provider() + ".csv"])
-        query_template_list.append([self.not_called_algorithm_query_template, commit_size,
-                           "orthology_not_called_algorithm_data_"\
-                           + sub_type.get_data_provider() + ".csv"])
+        query_template_list.append(
+            [self.matched_algorithm_query_template, commit_size,
+             "orthology_matched_algorithm_data_{}.csv".format(sub_type.get_data_provider())])
+        query_template_list.append(
+            [self.not_matched_algorithm_query_template, commit_size,
+             "orthology_not_matched_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
+        query_template_list.append(
+            [self.not_called_algorithm_query_template, commit_size,
+             "orthology_not_called_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
 
         query_and_file_list = self.process_query_params(query_template_list)
 
@@ -156,12 +153,11 @@ class OrthologyETL(ETL):
         for item in query_and_file_list:
             query_tracking_list.append(item)
 
+        self.error_messages("Ortho-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Orthology Data: %s", sub_type.get_data_provider())
 
-
     def get_randomized_list(self, sub_types):
-        """Get Randomized List"""
-
+        """Get Randomized List."""
         pairs = [perm for perm in permutations(sub_types, 2)]
 
         list_o = []
@@ -190,10 +186,8 @@ class OrthologyETL(ETL):
 
         return list_o
 
-
-    def get_generators(self, datafile, sub_type, sub_types, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, datafile, sub_type, sub_types, batch_size):  # noqa
+        """Get Generators."""
         counter = 0
 
         matched_algorithm_data = []
@@ -220,25 +214,21 @@ class OrthologyETL(ETL):
                 gene_2_species_taxon_id = ortho_record['gene2Species']
 
                 # Prefixed according to AGR prefixes.
-                gene_1_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(\
-                        gene_1,
-                        gene_1_species_taxon_id)
+                gene_1_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(
+                    gene_1, gene_1_species_taxon_id)
 
                 # Prefixed according to AGR prefixes.
-                gene_2_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(\
-                        gene_2,
-                        gene_2_species_taxon_id)
-                gene_2_data_provider = ETLHelper.get_mod_from_taxon(str(gene_2_species_taxon_id))
+                gene_2_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(
+                    gene_2, gene_2_species_taxon_id)
+                gene_2_data_provider = self.etlh.get_mod_from_taxon(str(gene_2_species_taxon_id))
 
                 counter = counter + 1
 
                 ortho_uuid = str(uuid.uuid4())
 
                 if self.test_object.using_test_data() is True:
-                    is_it_test_entry = self.test_object.check_for_test_id_entry(\
-                                          gene_1_agr_primary_id)
-                    is_it_test_entry_2 = self.test_object.check_for_test_id_entry(\
-                                          gene_2_agr_primary_id)
+                    is_it_test_entry = self.test_object.check_for_test_id_entry(gene_1_agr_primary_id)
+                    is_it_test_entry_2 = self.test_object.check_for_test_id_entry(gene_2_agr_primary_id)
                     if is_it_test_entry is False and is_it_test_entry_2 is False:
                         counter = counter - 1
                         continue
