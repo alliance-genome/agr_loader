@@ -1,9 +1,8 @@
-"""VEP Transcript ETL"""
+"""VEP Transcript ETL."""
 
 import logging
 import multiprocessing
 import uuid
-import re
 from etl import ETL
 from files import TXTFile
 
@@ -12,7 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class VEPTranscriptETL(ETL):
-    """VEP Transcript ETL"""
+    """VEP Transcript ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -64,6 +63,7 @@ class VEPTranscriptETL(ETL):
             """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -95,8 +95,10 @@ class VEPTranscriptETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("VEPTran-{}: ".format(sub_type.get_data_provider()))
 
     def return_range_split_values(self, column):
+        """Get range vaues."""
         if "-" in column:
             if column == '-':
                 start = ""
@@ -122,8 +124,7 @@ class VEPTranscriptETL(ETL):
         return start, end, ranger
 
     def get_generators(self, filepath):
-        """Get Generators"""
-
+        """Get Generators."""
         data = TXTFile(filepath).get_data()
         vep_maps = []
 

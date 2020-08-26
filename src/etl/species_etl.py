@@ -1,4 +1,4 @@
-"""Species ETL"""
+"""Species ETL."""
 
 import logging
 import yaml
@@ -9,7 +9,7 @@ from files import Download
 
 
 class SpeciesETL(ETL):
-    """Species ETL"""
+    """Species ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -31,9 +31,9 @@ class SpeciesETL(ETL):
         """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
 
@@ -45,12 +45,10 @@ class SpeciesETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
-
+        self.error_messages("Species: ")
 
     def get_generators(self, filepath):
-        """Get Generators"""
-
-
+        """Get Generators."""
         species_file = Download('tmp', filepath, 'species.yaml').get_downloaded_data()
         yaml_list = yaml.load(species_file, Loader=yaml.SafeLoader)
         species_list = []

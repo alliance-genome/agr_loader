@@ -1,8 +1,6 @@
-"""GEO XREF ETL"""
+"""GEO XREF ETL."""
 
 import json
-import time
-import random
 import logging
 import urllib
 import xmltodict
@@ -10,19 +8,18 @@ from pathlib import Path
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
-from files import Download
 from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GeoXrefETL(ETL):
-    """GEO XREF ETL"""
+    """GEO XREF ETL."""
 
     logger = logging.getLogger(__name__)
 
     geo_xref_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
         """ + ETLHelper.get_cypher_xref_text()
 
@@ -32,19 +29,19 @@ class GeoXrefETL(ETL):
                    RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
 
         for sub_type in self.data_type_config.get_sub_type_objects():
 
-            species_encoded = urllib.parse.quote_plus(\
-                    ETLHelper.species_lookup_by_data_provider(sub_type.get_data_provider()))
+            species_encoded = urllib.parse.quote_plus(
+                self.etlh.species_lookup_by_data_provider(sub_type.get_data_provider()))
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
-            #batch_size = self.data_type_config.get_generator_batch_size()
+            # batch_size = self.data_type_config.get_generator_batch_size()
             batch_size = 100000
 
             generators = self.get_generators(sub_type, batch_size, species_encoded)
@@ -57,10 +54,10 @@ class GeoXrefETL(ETL):
             query_and_file_list = self.process_query_params(query_template_list)
             CSVTransactor.save_file_static(generators, query_and_file_list)
             Neo4jTransactor.execute_query_batch(query_and_file_list)
+            self.error_messages()
 
     def get_generators(self, sub_type, batch_size, species_encoded):
-        """Get Generators"""
-
+        """Get Generators."""
         entrez_ids = []
 
         geo_data_file_contents = Path(sub_type.get_filepath()).read_text()
@@ -84,19 +81,13 @@ class GeoXrefETL(ETL):
             gene_primary_key = record["g.primaryKey"]
             mod_local_id = record["g.modLocalId"]
             global_cross_ref_id = record["cr.globalCrossRefId"]
+            url = self.etlh.rdh2.return_url_from_key_value('GEO', global_cross_ref_id.split(":")[1], 'entrezgene')
             geo_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
                                                "NCBI_Gene",
                                                "gene/other_expression",
                                                "gene/other_expression",
                                                "GEO",
-                                               "https://www.ncbi.nlm.nih.gov/sites/entrez?" \
-                                                       + "Db=geoprofiles"\
-                                                       + "&DbFrom=gene"\
-                                                       + "&Cmd=Link"\
-                                                       + "&LinkName=gene_geoprofiles"\
-                                                       + "&LinkReadableName=GEO%20Profiles"\
-                                                       + "&IdsFromResult="\
-                                                       + global_cross_ref_id.split(":")[1],
+                                               url,
                                                global_cross_ref_id+"gene/other_expression")
 
             geo_xref["genePrimaryKey"] = gene_primary_key

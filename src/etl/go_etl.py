@@ -1,4 +1,4 @@
-"""GO ETL"""
+"""GO ETL."""
 
 import logging
 from ontobio import OntologyFactory
@@ -7,7 +7,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class GOETL(ETL):
-    """GO ETL"""
+    """GO ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class GOETL(ETL):
              g.subset = row.subset,
              g.nameKey = row.name_key,
              g.isObsolete = row.is_obsolete,
-             g.href = row.href 
+             g.href = row.href
             MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
 
     goterm_isas_query_template = """
@@ -49,7 +49,7 @@ class GOETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (g:GOTerm {primaryKey:row.primary_id})
-            
+
             MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
@@ -62,7 +62,6 @@ class GOETL(ETL):
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:REGULATES]->(g2) """
 
-
     goterm_negatively_regulates_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -70,7 +69,6 @@ class GOETL(ETL):
             MATCH (g1:GOTerm {primaryKey:row.primary_id})
             MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2) """
-
 
     goterm_positively_regulates_query_template = """
         USING PERIODIC COMMIT %s
@@ -87,14 +85,13 @@ class GOETL(ETL):
             MATCH (got:GOTerm {primaryKey:row.primary_id})
 
             MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-    
+
             MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
-
     def __init__(self, config):
+        """Initilaise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
 
@@ -119,11 +116,10 @@ class GOETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages()
 
-
-    def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, filepath, batch_size):  # noqa
+        """Get Generators."""
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
 
@@ -146,8 +142,8 @@ class GOETL(ETL):
             if node.get('type') == 'PROPERTY':
                 continue
 
-            ### Switching id to curie form and saving URI in "uri"
-            ### might wildly break things later on???
+            # Switching id to curie form and saving URI in "uri"
+            # might wildly break things later on???
             node["uri"] = node["id"]
             node["id"] = key
 
@@ -250,7 +246,6 @@ class GOETL(ETL):
                     "primary_id2": item
                 }
                 go_positively_regulates_list.append(dictionary)
-
 
             dict_to_append = {
                 'oid': key,
