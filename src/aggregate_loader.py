@@ -8,8 +8,6 @@ import os
 import time
 import coloredlogs
 
-from transactors import Neo4jTransactor, FileTransactor
-
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  AffectedGenomicModelETL, AlleleETL, ClosureETL, ConstructETL,
                  DiseaseETL, ExpressionAtlasETL, ExpressionETL,
