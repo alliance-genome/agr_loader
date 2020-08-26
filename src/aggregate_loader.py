@@ -8,17 +8,6 @@ import os
 import time
 import coloredlogs
 
-<<<<<<< HEAD
-from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, GenericOntologyETL, \
-                ECOMAPETL, AlleleETL, VariationETL, SequenceTargetingReagentETL, \
-                AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
-                ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
-                GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL, \
-                HTPMetaDatasetSampleETL, HTPMetaDatasetETL
-
-from transactors import Neo4jTransactor, FileTransactor
-=======
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  AffectedGenomicModelETL, AlleleETL, ClosureETL, ConstructETL,
                  DiseaseETL, ExpressionAtlasETL, ExpressionETL,
@@ -27,9 +16,10 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
-                 VariationETL, VEPTranscriptETL)
+                 VariationETL, VEPTranscriptETL,
+                HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
 from transactors import FileTransactor, Neo4jTransactor
->>>>>>> master
+
 from data_manager import DataFileManager
 from files import Download
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
