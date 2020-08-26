@@ -251,7 +251,7 @@ def test_disease_for_all_species_exists():
     """
 
     query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
-               WHERE labels(r) = ['Gene'] 
+               WHERE labels(r) = ['Gene']
                      OR labels(r) = ['Feature', 'Allele']
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
@@ -302,8 +302,7 @@ def test_veptranscript_for_all_species_exists():
         assert record["counter"] == 5
 
 
-
-#def test_variant_consequences_for_five_species_exists():
+# def test_variant_consequences_for_five_species_exists():
 #    """Test Variant Consequences for all Five Species Exists"""
 #    query = \
 #     """MATCH (s:Species)--(:Gene)--(feature:Feature)--(v:Variant)--(glc:GeneLevelConsequence)
@@ -883,7 +882,7 @@ def test_point_mutation_hgvs():
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
                WHERE v.primaryKey = 'NC_007124.7:g.50540171C>T'
-                     AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105' 
+                     AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105'
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
@@ -1101,7 +1100,7 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
         assert record["counter"] > 0
 
 # please retain this code for testing purposes.
-#def test_node_count_is_consistently_growing():
+# def test_node_count_is_consistently_growing():
     # this file is generated in node_count_etl and represents the node labels that have fewer
     # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
     # as based on the DB-SUMMARY file produced by the file generator.
@@ -1127,7 +1126,7 @@ def test_orphanet_publication_exists():
 
     query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
                 WHERE g.primaryKey = 'HGNC:869'
-                AND pr.pubModId = 'ORPHA:198' 
+                AND pr.pubModId = 'ORPHA:198'
                 RETURN COUNT(pr) as counter
     """
     result = execute_transaction(query)
@@ -1151,8 +1150,8 @@ def test_omim_publication_exists():
 def test_wb_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'WB:WBGene00022276' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'WB:WBGene00022276'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1163,8 +1162,8 @@ def test_wb_gene_has_variant_tc_consequence_exists():
 def test_zfin_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1175,8 +1174,8 @@ def test_zfin_gene_has_variant_tc_consequence_exists():
 def test_mgi_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'MGI:104554' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'MGI:104554'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1187,8 +1186,8 @@ def test_mgi_gene_has_variant_tc_consequence_exists():
 def test_fb_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'FB:FBgn0031209' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'FB:FBgn0031209'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1200,7 +1199,7 @@ def test_fb_allele_synonym_exists():
     """Test FB allele has synonyms"""
 
     query = """ MATCH (a:Allele)--(s:Synonym)
-                WHERE a.primaryKey = 'FB:FBal0138114' 
+                WHERE a.primaryKey = 'FB:FBal0138114'
                 RETURN count(a) as counter
     """
     result = execute_transaction(query)
@@ -1242,6 +1241,78 @@ def test_codon_consequence_exists():
                     AND tlc.codonReference IS NOT NULL
                     AND tlc.codonVariation IS NOT NULL
                 RETURN count(v) AS counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_level_sift_results_exist():
+    """Test gene level SIFT scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(glc:GeneLevelConsequence)
+                    WHERE glc.siftPrediction IS NOT NULL
+                    AND (
+                        glc.siftScore = ''
+                        OR (
+                            tofloat(glc.siftScore) >=0
+                            AND tofloat(glc.siftScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_level_polyphen_results_exist():
+    """Test gene level PolyPhen scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(glc:GeneLevelConsequence)
+                    WHERE glc.polyphenPrediction IS NOT NULL
+                    AND (
+                        glc.polyphenScore = ''
+                        OR (
+                            tofloat(glc.polyphenScore) >=0
+                            AND tofloat(glc.polyphenScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_transcript_level_sift_results_exist():
+    """Test transcript level SIFT scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(tlc:TranscriptLevelConsequence)
+                    WHERE tlc.siftPrediction IS NOT NULL
+                    AND (
+                        tlc.siftScore = ''
+                        OR (
+                            tofloat(tlc.siftScore) >=0
+                            AND tofloat(tlc.siftScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_transcript_level_polyphen_results_exist():
+    """Test transcript level PolyPhen scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(tlc:TranscriptLevelConsequence)
+                    WHERE tlc.polyphenPrediction IS NOT NULL
+                    AND (
+                        tlc.polyphenScore = ''
+                        OR (
+                            tofloat(tlc.polyphenScore) >=0
+                            AND tofloat(tlc.polyphenScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
