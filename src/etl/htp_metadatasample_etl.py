@@ -364,7 +364,6 @@ class HTPMetaDatasetSampleETL(ETL):
         uberon_ao_other_data = []
         stages = []
         ccq_components = []
-        data_providers = []
         cc_components = []
         biosamples = []
         biosamplesTexts = []
@@ -373,23 +372,6 @@ class HTPMetaDatasetSampleETL(ETL):
         data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
-
-        if data_provider_pages is not None:
-            for data_provider_page in data_provider_pages:
-                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                        data_provider_cross_ref, local_crossref_id, page)
-
-                data_provider_cross_ref_set.append(
-                    ETLHelper.get_xref_dict(data_provider, data_provider, data_provider_page,
-                                            data_provider_page, data_provider,
-                                            cross_ref_complete_url,
-                                            data_provider + data_provider_page))
-
-                data_providers.append(data_provider)
-                logger.info("data provider: " + data_provider)
 
         for datasample_record in htp_datasetsample_data['data']:
 

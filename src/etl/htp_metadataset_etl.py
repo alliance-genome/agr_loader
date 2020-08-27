@@ -200,18 +200,16 @@ class HTPMetaDatasetETL(ETL):
                     pub_mod_url = ""
                     pub_med_url = ""
                     if pid is not None and pid.startswith('PMID:'):
-                        pub_med_id = pub.get('publicationId')
+                        pub_med_id = pid
                         local_pub_med_id = pub_med_id.split(":")[1]
-                        pub_med_url = ETLHelper.get_complete_pub_url(local_pub_med_id, pub_med_id)
+                        pub_med_url = pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id, 'PMID', pub_med_id)
                         if 'crossReference' in pub:
                             pub_xref = pub.get('crossReference')
                             publication_mod_id = pub_xref.get('id')
-                            local_pub_mod_id = publication_mod_id.split(":")[1]
-                            pub_mod_url = ETLHelper.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
+                            pub_mod_url = self.etlh.rdh2.return_url_from_identifier(publication_mod_id)
                     elif pid is not None and not pid.startswith('PMID:'):
                         publication_mod_id = pub.get('publicationId')
-                        local_pub_mod_id = publication_mod_id.split(":")[1]
-                        pub_mod_url = ETLHelper.get_complete_pub_url(local_pub_mod_id, publication_mod_id)
+                        pub_mod_url = self.etlh.rdh2.return_url_from_identifier(publication_mod_id)
 
                     publication = {
                         "datasetId": datasetId,
