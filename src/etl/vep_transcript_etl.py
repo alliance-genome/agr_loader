@@ -3,6 +3,7 @@
 import logging
 import multiprocessing
 import uuid
+import re
 from etl import ETL
 from files import TXTFile
 
