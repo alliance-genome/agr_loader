@@ -191,7 +191,7 @@ class HTPMetaDatasetETL(ETL):
                     }
                     dataset_tags.append(dataset_category_tag)
 
-            publicationNew = dataset_record.get('publication')
+            publicationNew = dataset_record.get('publications')
             if publicationNew is not None:
                 for pub in publicationNew:
                     pid = pub.get('publicationId')

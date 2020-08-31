@@ -286,6 +286,8 @@ class TestObject():
             'FB:FBal0012261', 'FB:FBgn0003559',
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
+            # htp
+            'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366',
         }
 
         self.rgd_test_set = {

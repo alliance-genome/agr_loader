@@ -17,10 +17,10 @@ class HTPMetaDatasetSampleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        //assayType and sampleType will be required in 1.0.1.3
-        //MATCH (o:OBITerm {primaryKey:row.sampleType})
+        
+        MATCH (o:OBITerm {primaryKey:row.sampleType})
         MATCH (s:Species {primaryKey: row.taxonId})
-        //MATCH (a:MMOTerm {primaryKey: row.assayType})
+        MATCH (a:MMOTerm {primaryKey: row.assayType})
     
         MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           ON CREATE SET ds.dateAssigned = row.dateAssigned,
@@ -255,6 +255,14 @@ class HTPMetaDatasetSampleETL(ETL):
 
             MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
 
+    htp_dataset_sample_assemblies_query_template = """
+            USING PERIODIC COMMIT %s
+            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+                MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MATCH (u:Assembly {primaryKey:row.assembly})
+
+                MERGE (ds)-[dsu:ASSEMBLY]-(u) """
 
     htpdatasetsample_xrefs_template = """
         USING PERIODIC COMMIT %s
@@ -339,7 +347,10 @@ class HTPMetaDatasetSampleETL(ETL):
             "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_dataset_sample_agmtext_query_template, commit_size,
-             "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv"]
+             "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv"],
+
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_assemblies_query_template, commit_size,
+             "htp_metadataset_sample_assemblies_" + sub_type.get_data_provider() + ".csv"]
 
         ]
 
@@ -355,6 +366,7 @@ class HTPMetaDatasetSampleETL(ETL):
         htp_datasetsamples = []
         secondaryIds = []
         datasetIds = []
+        assemblies = []
         uberon_ao_data = []
         ao_qualifiers = []
         bio_entities = []
@@ -401,16 +413,19 @@ class HTPMetaDatasetSampleETL(ETL):
 
             datasetSampleId = sampleId + sampleTitle
 
-            if 'datasetId' in datasample_record:
-                datasetIdSet = datasample_record.get('datasetId')
+            if 'datasetIds' in datasample_record:
+                datasetIdSet = datasample_record.get('datasetIds')
                 for datasetID in datasetIdSet:
                     datasetsample = {
                         "datasetSampleId": datasetSampleId,
                         "datasetId": datasetID
                     }
                     datasetIds.append(datasetsample)
+
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
+                        self.logger.info(datasetID)
+                        self.logger.info(datasetSampleId)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
@@ -436,6 +451,14 @@ class HTPMetaDatasetSampleETL(ETL):
                     }
                     biosamplesTexts.append(biosampleText)
 
+            if 'assemblyVersions' in datasample_record:
+                for assembly in datasample_record.get('assemblyVersions'):
+
+                    datasetsample = {
+                            "datasetSampleId": datasetSampleId,
+                            "assembly": assembly
+                        }
+                    assemblies.append(datasetsample)
 
             age = ''
             if 'sampleAge' in datasample_record:
@@ -460,8 +483,8 @@ class HTPMetaDatasetSampleETL(ETL):
                              "sampleAge": age}
                     stages.append(stage)
 
-            if 'sampleLocation' in datasample_record:
-                sampleLocations = datasample_record.get('sampleLocation')
+            if 'sampleLocations' in datasample_record:
+                sampleLocations = datasample_record.get('sampleLocations')
 
                 for location in sampleLocations:
 
@@ -632,7 +655,8 @@ class HTPMetaDatasetSampleETL(ETL):
                        uberon_ao_data,
                        uberon_ao_other_data,
                        biosamples,
-                       biosamplesTexts
+                       biosamplesTexts,
+                       assemblies,
                        ]
                 counter = 0
                 htp_datasetsamples = []
@@ -648,6 +672,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 ccq_components = []
                 cc_components = []
                 biosamples = []
+                assemblies = []
 
 
         if counter > 0:
@@ -665,5 +690,6 @@ class HTPMetaDatasetSampleETL(ETL):
                    uberon_ao_data,
                    uberon_ao_other_data,
                    biosamples,
-                   biosamplesTexts
+                   biosamplesTexts,
+                   assemblies
                    ]
