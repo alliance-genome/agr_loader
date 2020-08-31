@@ -424,8 +424,6 @@ class HTPMetaDatasetSampleETL(ETL):
 
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
-                        self.logger.info(datasetID)
-                        self.logger.info(datasetSampleId)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
