@@ -129,7 +129,7 @@ class VEPTranscriptETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
 
-        prot_func_regex = re.compile('^([^\(]+)\(([\d\.]+)\)')
+        prot_func_regex = re.compile(r'^([^\(]+)\(([\d\.]+)\)')
 
         for line in data:
             impact = ''
