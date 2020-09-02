@@ -225,7 +225,7 @@ class MolecularInteractionETL(ETL):
             entries = [entry]
 
         for individual in entries:
-
+            """These links are for the individual interaction identifiers and link to the respective database."""
             xref_dict = {}
             page = 'gene/interactions'
 
@@ -256,13 +256,10 @@ class MolecularInteractionETL(ETL):
             # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
-                    individual_url = self.etlh.rdh2.return_url_from_identifier(individual, page)
+                    individual_url = self.etlh.rdh2.return_url_from_key_value(individual_prefix, individual_body, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
-                    # self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
                     pass
-                    # self.missed_database_linkouts.add(individual_prefix)
-            # else: self.ignored_database_linkouts.add(individual_prefix)
 
             xref_dict['uuid'] = str(uuid.uuid4())
             xref_dict['globalCrossRefId'] = individual
@@ -283,7 +280,9 @@ class MolecularInteractionETL(ETL):
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
-        """Create an XREF linking back to interaction pages at each MOD for a particular gene."""
+        """Create an XREF linking back to interaction pages at each MOD for a particular gene.
+        These links appear at the top of the molecular interactions table once per gene page.
+        """
         xref_dict = {}
         page = 'gene/MODinteractions'
 
@@ -318,7 +317,7 @@ class MolecularInteractionETL(ETL):
         return xref_dict
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
-        """Resolve Iedntifiers by Row."""
+        """Resolve Identifiers by Row."""
         interactor_a_rows = [0, 2, 4, 22]
         interactor_b_rows = [1, 3, 5, 23]
 
