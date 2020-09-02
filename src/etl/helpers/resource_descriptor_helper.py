@@ -41,7 +41,6 @@ class ResourceDescriptorHelper():
                 default_url_parts = default_url.split("[%s]")
                 default_url_prefix = default_url_parts[0]
                 if len(default_url_parts) > 1:
-                if len(default_url_parts) > 1:
                     default_url_suffix = default_url_parts[1]
 
             if pages is not None:
