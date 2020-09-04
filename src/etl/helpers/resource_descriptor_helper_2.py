@@ -25,7 +25,7 @@ class ResourceDescriptorHelper2():
     key_to_order = {}
     key_to_taxonid = {}
 
-    # report deprecated methids only one
+    # report deprecated methods only one
     deprecated_mess = {}
 
     # missing pages

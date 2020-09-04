@@ -36,7 +36,7 @@ services:
       - UNIT_TESTS=False
       - NEO4J_HOST=neo4j
       - NET=production
-      - ALLIANCE_RELEASE=3.1.1
+      - ALLIANCE_RELEASE=3.2.0
       - FMS_API_URL=https://fms.alliancegenome.org
       - DOWNLOAD_HOST=download.alliancegenome.org
       - API_KEY=${API_KEY}
@@ -63,7 +63,7 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.1.1
+     - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
@@ -91,7 +91,7 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.1.1
+     - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}

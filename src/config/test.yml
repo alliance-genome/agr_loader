@@ -1,5 +1,5 @@
-schemaVersion: 1.0.1.2
-releaseVersion: 3.1.1
+schemaVersion: 1.0.1.3
+releaseVersion: 3.2.0
 SPECIES: [Species]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB]
@@ -15,6 +15,8 @@ VARIATION: [FB, WB, ZFIN, RGD, MGI]
 GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
+HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
+HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
 ONTOLOGY:
   - SO
   - GO
@@ -91,5 +93,3 @@ DB-SUMMARY:
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
-
-
