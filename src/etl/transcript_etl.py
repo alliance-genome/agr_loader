@@ -21,8 +21,8 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID: row.parentId})
-                MATCH (so:SOTerm {name: row.featureType})
+                MATCH (g:Transcript {gff3ID:row.parentId})
+                MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Exon {primaryKey:row.gff3ID})
                     ON CREATE SET t.gff3ID = row.gff3ID,
@@ -65,8 +65,8 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {gff3ID: row.parentId})
-                MATCH (so:SOTerm {name: row.featureType})
+                MATCH (g:Gene {gff3ID:row.parentId})
+                MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
                     ON CREATE SET t.gff3ID = row.gff3ID,
@@ -86,15 +86,15 @@ class TranscriptETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Transcript {primaryKey: row.curie})
-            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+            MATCH (o:Transcript {primaryKey:row.curie})
+            MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
 
-            MERGE (a:Assembly {primaryKey: row.assembly})
+            MERGE (a:Assembly {primaryKey:row.assembly})
              ON CREATE SET a.dataProvider = row.dataProvider
 
             CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+            CREATE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,

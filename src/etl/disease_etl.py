@@ -283,11 +283,11 @@ class DiseaseETL(ETL):
                 if display_name == 'DOID':
                     display_name = self.data_provider
 
-            mod_global_cross_ref_id = self.etlh.rdh2.return_url_from_key_value(
+            mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
                 prefix, local_crossref_id, page)
             passing_xref = ETLHelper.get_xref_dict(
                 local_crossref_id, prefix, page, page,
-                display_name, mod_global_cross_ref_id,
+                display_name, mod_global_cross_ref_url,
                 cross_ref_id + page + annotation_type)
             passing_xref['dataId'] = self.disease_unique_key
 

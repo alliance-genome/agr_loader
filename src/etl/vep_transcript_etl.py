@@ -22,7 +22,7 @@ class VEPTranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.transcriptId})
+                MATCH (g:Transcript {primaryKey:row.transcriptId})
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})

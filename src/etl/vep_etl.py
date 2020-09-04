@@ -22,7 +22,7 @@ class VEPETL(ETL):
                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
                    MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
-                   MATCH (g:Gene {modLocalId:row.geneId})
+                   MATCH (g:Gene {primaryKey:row.geneId})
 
                    MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
                    ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
@@ -113,10 +113,8 @@ class VEPETL(ETL):
 
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')
-            elif columns[3].startswith('RGD:'):
-                gene_id = columns[3].lstrip('RGD:')
-            elif columns[3].startswith('FB:'):
-                gene_id = columns[3].replace('FB:', '')
+            elif columns[3].startswith('ZDB'):
+                gene_id = "ZFIN:" + columns[3]
             else:
                 gene_id = columns[3]
 

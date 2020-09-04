@@ -32,3 +32,5 @@ from .mol_interactions_mod_xref import MolInteractionsModXrefETL
 from .mol_interactions_xref import MolInteractionsXrefETL
 from .node_count_etl import NodeCountETL
 from .species_etl import SpeciesETL
+from .htp_metadataset_etl import HTPMetaDatasetETL
+from .htp_metadatasample_etl import HTPMetaDatasetSampleETL
