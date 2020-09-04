@@ -16,10 +16,8 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
-
                  VariationETL, VEPTranscriptETL, ProteinSequenceETL,
-
-                HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
 
 from transactors import FileTransactor, Neo4jTransactor
 
