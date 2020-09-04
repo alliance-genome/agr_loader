@@ -3,6 +3,7 @@
 import logging
 import multiprocessing
 import uuid
+import re
 from etl import ETL
 from files import TXTFile
 
@@ -21,7 +22,7 @@ class VEPTranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.transcriptId})
+                MATCH (g:Transcript {primaryKey:row.transcriptId})
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
@@ -46,7 +47,11 @@ class VEPTranscriptETL(ETL):
                     gc.codonVariation = row.codonVariation,
                     gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature,
                     gc.hgvsCodingNomenclature = row.hgvsCodingNomenclature,
-                    gc.hgvsVEPGeneNomenclature = row.hgvsVEPGeneNomenclature
+                    gc.hgvsVEPGeneNomenclature = row.hgvsVEPGeneNomenclature,
+                    gc.polyphenPrediction = row.polyphenPrediction,
+                    gc.polyphenScore = row.polyphenScore,
+                    gc.siftPrediction = row.siftPrediction,
+                    gc.siftScore = row.siftScore
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
@@ -67,7 +72,8 @@ class VEPTranscriptETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process = multiprocessing.Process(
+                target=self._process_sub_type, args=(sub_type,))
             process.start()
             thread_pool.append(process)
 
@@ -123,11 +129,18 @@ class VEPTranscriptETL(ETL):
         data = TXTFile(filepath).get_data()
         vep_maps = []
 
+        prot_func_regex = re.compile(r'^([^\(]+)\(([\d\.]+)\)')
+
         for line in data:
             impact = ''
             hgvs_p = ''
             hgvs_c = ''
             hgvs_g = ''
+            pph_prediction = ''
+            pph_score = ''
+            sift_prediction = ''
+            sift_score = ''
+
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
@@ -140,12 +153,21 @@ class VEPTranscriptETL(ETL):
                     value = pair.split("=")[1]
                     if key == 'IMPACT':
                         impact = value
-                    if key == 'HGVSp':
+                    elif key == 'HGVSp':
                         hgvs_p = value
-                    if key == 'HGVSc':
+                    elif key == 'HGVSc':
                         hgvs_c = value
-                    if key == 'HGVSg':
+                    elif key == 'HGVSg':
                         hgvs_g = value
+                    elif key == 'PolyPhen':
+                        m = prot_func_regex.match(value)
+                        pph_prediction = m.group(1)
+                        pph_score = m.group(2)
+                    elif key == 'SIFT':
+                        m = prot_func_regex.match(value)
+                        sift_prediction = m.group(1)
+                        sift_score = m.group(2)
+
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')
             else:
@@ -191,7 +213,11 @@ class VEPTranscriptETL(ETL):
                           "proteinRange": protein_range,
                           "codonReference": codon_reference,
                           "codonVariation": codon_variation,
-                          "codonChange": codon_change
+                          "codonChange": codon_change,
+                          "polyphenPrediction": pph_prediction,
+                          "polyphenScore": pph_score,
+                          "siftPrediction": sift_prediction,
+                          "siftScore": sift_score
                           }
 
             vep_maps.append(vep_result)

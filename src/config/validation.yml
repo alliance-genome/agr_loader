@@ -43,6 +43,12 @@ FASTA:
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+HTPDATASET:
+  type: list
+  allowed: [SGD, FB, WB, ZFIN, RGD, MGI]
+HTPDATASAMPLE:
+  type: list
+  allowed: [SGD, FB, WB, ZFIN, RGD, MGI]
 VEPGENE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]

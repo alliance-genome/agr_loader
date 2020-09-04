@@ -33,3 +33,6 @@ from .mol_interactions_xref import MolInteractionsXrefETL
 from .node_count_etl import NodeCountETL
 from .species_etl import SpeciesETL
 from .protein_sequence_etl import ProteinSequenceETL
+from .htp_metadataset_etl import HTPMetaDatasetETL
+from .htp_metadatasample_etl import HTPMetaDatasetSampleETL
+

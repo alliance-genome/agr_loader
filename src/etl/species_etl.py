@@ -19,14 +19,15 @@ class SpeciesETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MERGE (s:Species {primaryKey: row.taxon_id})
-          ON CREATE SET s.shortName = row.short_name,
-                        s.species = row.short_name,
-                        s.name = row.name,
-                        s.dataProviderFullName = row.data_provider_full_name,
-                        s.dataProviderShortName = row.data_provider_short_name,
-                        s.phylogeneticOrder = apoc.number.parseInt(row.phylogenetic_order),
-                        s.commonNames = row.common_names
+        CREATE (s:Species {primaryKey: row.taxon_id})
+        
+          SET s.shortName = row.short_name,
+              s.species = row.short_name,
+              s.name = row.name,
+              s.dataProviderFullName = row.data_provider_full_name,
+              s.dataProviderShortName = row.data_provider_short_name,
+              s.phylogeneticOrder = apoc.number.parseInt(row.phylogenetic_order),
+              s.commonNames = row.common_names
 
         """
 
@@ -48,7 +49,9 @@ class SpeciesETL(ETL):
         self.error_messages("Species: ")
 
     def get_generators(self, filepath):
+
         """Get Generators."""
+
         species_file = Download('tmp', filepath, 'species.yaml').get_downloaded_data()
         yaml_list = yaml.load(species_file, Loader=yaml.SafeLoader)
         species_list = []

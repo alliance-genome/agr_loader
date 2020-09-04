@@ -10,6 +10,7 @@ class TARFile():
     """TAR File"""
 
     logger = logging.getLogger(__name__)
+
     def __init__(self, path, tarfilename):
         self.path = path
         self.tarfilename = tarfilename

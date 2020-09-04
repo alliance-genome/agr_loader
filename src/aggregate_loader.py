@@ -16,8 +16,13 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
-                 VariationETL, VEPTranscriptETL, ProteinSequenceETL)
+
+                 VariationETL, VEPTranscriptETL, ProteinSequenceETL,
+
+                HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
+
 from transactors import FileTransactor, Neo4jTransactor
+
 from data_manager import DataFileManager
 from files import Download
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
@@ -93,6 +98,8 @@ class AggregateLoader():
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
+        'HTPDATASET': HTPMetaDatasetETL,
+        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
@@ -129,6 +136,8 @@ class AggregateLoader():
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
+        ['HTPDATASET'],
+        ['HTPDATASAMPLE'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],

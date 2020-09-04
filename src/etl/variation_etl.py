@@ -23,7 +23,7 @@ class VariationETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (a:Allele {primaryKey: row.alleleId})
+                MATCH (a:Allele {primaryKey:row.alleleId})
                 MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
 
                 //Create the variant node and set properties. primaryKey is required.

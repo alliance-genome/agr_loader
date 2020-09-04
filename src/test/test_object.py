@@ -54,7 +54,10 @@ class TestObject():
             # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
             'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
             'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2', 'MGI:3618599',
-            'MGI:3693208', 'MGI:109196'}
+            'MGI:3693208', 'MGI:109196',
+            # htp meta data
+            'ArrayExpress:E-AFMX-1', 'ArrayExpress:E-BAIR-4', 'ArrayExpress:E-GEOD-41895', 'ArrayExpress:E-GEOD-56866',
+        }
 
         self.wormbase_id_set = {
             'WB:WBGene00044305', 'WB:WBGene00169423',
@@ -104,6 +107,9 @@ class TestObject():
             # construct
             'WB:WBGene00017738', 'WB:WBCnstr00027061',
             'WB:WBCnstr00004638', 'WB:WBGene00002992',
+            # htp meta data
+            'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
+            'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
         }
 
         self.sgd_id_set = {
@@ -130,6 +136,8 @@ class TestObject():
             'SGD:S000002200',
             # gff ARS object
             'SGD:S000121253',
+            # htp meta data
+            'GEO:GSE3431', 'GEO:GSE45273', 'GEO:GSE3818', 'GEO:GSE11071', 'GEO:GSE81666', 'GEO:GSE81822',
         }
 
         self.zfin_id_set = {
@@ -243,6 +251,9 @@ class TestObject():
             'ENSDART00000010092', 'ZFIN:ZDB-GENE-060929-860',
             'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
             'ENSDART00000111806', 'ZFIN:ZDB-ALT-161017-2', 'ZFIN:ZDB-GENE-040625-66',
+            # htp dataset
+            'ZFIN:ZDB-HTPDSET-200708-3', 'ZFIN:ZDB-HTPDSET-200708-4', 'ZFIN:ZDB-HTPDSET-200708-1',
+            'ZFIN:ZDB-HTPDSET-200708-7', 'ZFIN:ZDB-HTPDSET-200708-8',
         }
 
         self.flybase_id_set = {
@@ -275,6 +286,8 @@ class TestObject():
             'FB:FBal0012261', 'FB:FBgn0003559',
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
+            # htp
+            'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366',
         }
 
         self.rgd_test_set = {
@@ -298,6 +311,8 @@ class TestObject():
             'RGD:1600311', 'RGD:5143979', 'rna31', 'RGD:1310046', 'rna853', 'RGD:1310046', 'RGD:13437613',
             # disease, not
             'RGD:619937',
+            # HTP dataset
+            'GEO:GSE39', 'GEO:GSE95', 'GEO:GSE357',
 
         }
 
