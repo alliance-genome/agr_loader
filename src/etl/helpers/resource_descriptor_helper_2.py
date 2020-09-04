@@ -121,7 +121,7 @@ class ResourceDescriptorHelper2():
         """Get alternative keys for species.
 
         These are stored in the resourceDescriptor.yaml file under
-        aliases. The keys for this are not used/stired but are here for reference
+        aliases. The keys for this are not used/stored but are here for reference
         or may be used at a later point.
         """
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
@@ -333,6 +333,7 @@ class ResourceDescriptorHelper2():
                 self.logger.critical('Database prefix: %s', db_prefix)
                 self.logger.critical('Identifier: %s', identifier_post_processed)
                 self.logger.critical('gid pattern: %s', gid_pattern)
+                self.logger.critical('page: %s', page)
                 self.bad_regex[key] = 1
             else:
                 self.bad_regex[key] += 1
