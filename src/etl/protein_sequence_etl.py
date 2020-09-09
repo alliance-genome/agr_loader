@@ -108,6 +108,7 @@ class ProteinSequenceETL(ETL):
         fetch_transcript_query = """
 
                    MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
+                   WHERE t.primaryKey =~ 'ENS.*'
                    RETURN distinct t.primaryKey as transcriptPrimaryKey,
                           t.dataProvider as dataProvider,
                           gl.phase as transcriptPhase,
@@ -121,6 +122,7 @@ class ProteinSequenceETL(ETL):
         fetch_cds_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
+            WHERE t.primaryKey =~ 'ENS.*'
             RETURN distinct gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
