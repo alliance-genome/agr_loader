@@ -146,39 +146,71 @@ def test_spell_cross_ref_type():
         assert record["counter"] < 1
 
 
-def test_gene_has_automated_description():
-    """Test Gene has Automated Description"""
+def test_genes_have_automated_description():
+    """Test Genes Have Automated Description"""
 
-    query = """MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430'
-               AND g.automatedGeneSynopsis IS NOT NULL
+    query = """MATCH (g:Gene) where g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655', 'FB:FBgn0045035', 'RGD:68337', 
+                                                     'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
+                                                     'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
+                                                     'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
+                                                     'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
+                                                     'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-030131-4430']
+               AND g.automatedGeneSynopsis IS NULL
                RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 0
 
 
-def test_gene_has_all_three_automated_description_components():
-    """Test Gene has All Three Automated Description Components"""
+def test_at_least_one_gene_has_go_description():
+    """Test At Least One Gene Has GO Description"""
 
     query = """MATCH (g:Gene)
-               WHERE g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655',
-                                      'FB:FBgn0045035','RGD:68337', 'RGD:2332',
-                                      'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
-                                      'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
-                                      'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
-                                      'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
-                                      'ZFIN:ZDB-GENE-990415-131']
-               AND (NOT (g.automatedGeneSynopsis =~ '.*xhibits.*'
-                         OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
-                         OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
-                         OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
-                         OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')
-                    OR NOT (g.automatedGeneSynopsis =~ '.*sed to study.*'
-                            OR g.automatedGeneSynopsis =~ '.*mplicated in.*'))
-              RETURN COUNT(g) AS counter"""
+               WHERE (g.automatedGeneSynopsis =~ '.*xhibits.*' OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
+                      OR g.automatedGeneSynopsis =~ '.*ocalizes to.*' 
+                      OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
+                      OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*' 
+                      OR g.automatedGeneSynopsis =~ '.*redicted to localize to.*')
+               RETURN COUNT(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 0
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_disease_description():
+    """Test At Least One Gene Has Disease Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE (g.automatedGeneSynopsis =~ '.*sed to study.*' 
+                      OR g.automatedGeneSynopsis =~ '.*mplicated in.*'
+                      OR g.automatedGeneSynopsis =~ '.*iomarker of.*')
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_expression_description():
+    """Test At Least One Gene Has Expression Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE (g.automatedGeneSynopsis =~ '.*s expressed in.*'
+                      OR g.automatedGeneSynopsis =~ '.*s enriched in.*')
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_orthology_description():
+    """Test At Least One Gene Has Orthology Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE g.automatedGeneSynopsis =~ '.*rthologous to.*'
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
