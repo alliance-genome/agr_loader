@@ -51,7 +51,7 @@ class GeneDescriptionsETL(ETL):
 
     get_all_genes_human_query = """
         MATCH (g:Gene)
-        WHERE g.dataProvider = {parameter} AND g.primaryKey CONTAINS "HGNC:"
+        WHERE g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol"""
 
     get_gene_disease_annot_query = """
@@ -210,8 +210,7 @@ class GeneDescriptionsETL(ETL):
         """Create generators."""
         gene_prefix = ""
         if data_provider == "HUMAN":
-            return_set = Neo4jHelper.run_single_parameter_query(self.get_all_genes_human_query,
-                                                                "RGD")
+            return_set = Neo4jHelper.run_single_query(self.get_all_genes_human_query)
             gene_prefix = "RGD:"
         else:
             return_set = Neo4jHelper.run_single_parameter_query(self.get_all_genes_query,

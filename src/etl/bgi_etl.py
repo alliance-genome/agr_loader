@@ -427,6 +427,12 @@ class BGIETL(ETL):
         release = None
         counter = 0
 
+        # small hack to fix gene descriptions while we discuss what to do here w/re to conversion from using
+        # meta data in the input files to using subType config version.
+
+        if data_provider == 'HUMAN':
+            data_provider = 'RGD'
+
         self.data_providers_process(gene_data)
         load_key = date_produced + data_provider + "_BGI"
 
