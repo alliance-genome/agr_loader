@@ -1357,11 +1357,10 @@ def test_not_disease_annotation_exists_exists():
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
 
-    query = """  MATCH (t:Transcript)--(p:ProteinSequence)
-                   WHERE t.primaryKey = 'ENSEMBL:ENSDART00000114134'
-                   AND p.proteinSequence = 'MAAGFNWFLVLSSVFLCNLVKTFLPSISSFLSKIFHKDADQEMEMRTEIQNMKMELSTISMMDEFARYARLERKINKMTDQLKTLVKSRTAQQAKMKWIVNIAFYILQAALMISLILKYYADPVTVVPSKWIAPLERLVAFPSGVAGGVGITCWLVVCNKVVALILQAVS*'
-                 RETURN count(t) as counter
+    query = """  MATCH (t:Transcript)--(n:ProteinSequence)  
+                 WHERE n.proteinSequence IS NOT NULL 
+                 RETURN count(distinct t.dataProvider) as counter
     """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 0
+        assert record["counter"] > 4
