@@ -1390,7 +1390,7 @@ def test_fb_variant_has_note():
     """Test variant has note"""
 
     query = """ MATCH (v:Variant)-[x:ASSOCIATION]-(n:Note)
-                WHERE v.primaryKey = 'FB:FBal0327455'
+                WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
                 RETURN count(v) as counter
     """
     result = execute_transaction(query)
