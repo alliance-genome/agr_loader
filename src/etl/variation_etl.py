@@ -54,6 +54,19 @@ class VariationETL(ETL):
             MATCH (s:SOTerm {primaryKey:row.soTermId})
             CREATE (o)-[:VARIATION_TYPE]->(s)"""
 
+    pubs_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            MATCH (o:Variant {primaryKey:row.variantId})
+            MERGE (p:Publication {primaryKey:row.publicationId})
+              ON CREATE SET p.pubModId = row.pubModId,
+                 p.pubMedId = row.pubMedId,
+                 p.pubModUrl = row.pubModUrl,
+                 p.pubMedUrl = row.pubMedUrl
+
+           MERGE (o)-[pn:ASSOCIATION]-(p)
+            """
+
     genomic_locations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -76,14 +89,52 @@ class VariationETL(ETL):
             CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
             CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
     """
+    notes_query_template = """
+           USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-    xrefs_query_template = """
+           MATCH (o:Variant {primaryKey:row.variantId})
+
+           CREATE (n:Note {primaryKey:row.noteId})
+                SET n.note = row.note          
+           MERGE (o)-[pn:ASSOCIATION]-(n)
+    """
+    notes_references_query_template = """
+           USING PERIODIC COMMIT %s
+           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+           MATCH (o:Note {primaryKey:row.noteId})
+           MERGE (p:Publication {primaryKey:row.publicationId})
+              ON CREATE SET p.pubModId = row.pubModId,
+                 p.pubMedId = row.pubMedId,
+                 p.pubModUrl = row.pubModUrl,
+                 p.pubMedUrl = row.pubMedUrl
+
+           MERGE (o)-[pn:ASSOCIATION]-(p)
+    """
+
+    variant_xrefs_query_template = """
 
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Variant {primaryKey:row.dataId})
-    """ + ETLHelper.get_cypher_xref_text()
+        MATCH (o:Variant {primaryKey:row.dataId}) 
+
+        MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
+                    ON CREATE SET id.name = row.id,
+                     id.globalCrossRefId = row.globalCrossRefId,
+                     id.localId = row.localId,
+                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                     id.prefix = row.prefix,
+                     id.crossRefType = row.crossRefType,
+                     id.uuid = row.uuid,
+                     id.page = row.page,
+                     id.primaryKey = row.primaryKey,
+                     id.displayName = row.displayName
+
+        MERGE (o)-[gcr:CROSS_REFERENCE]->(id) 
+
+    """
 
     def __init__(self, config):
         """Initialise object."""
@@ -126,8 +177,14 @@ class VariationETL(ETL):
              "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
             [self.so_terms_query_template, commit_size,
              "variant_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query_template, commit_size,
-             "variant_xrefs_" + sub_type.get_data_provider() + ".csv"]
+            [self.notes_query_template, commit_size,
+             "variant_notes_" + sub_type.get_data_provider() + ".csv"],
+            [self.notes_references_query_template, commit_size,
+             "variant_notes_references" + sub_type.get_data_provider() + ".csv"],
+            [self.pubs_query_template, commit_size,
+             "variant_references" + sub_type.get_data_provider() + ".csv"],
+            [self.variant_xrefs_query_template, commit_size,
+             "variant_xrefs_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         generators = self.get_generators(data, batch_size)
@@ -161,7 +218,7 @@ class VariationETL(ETL):
             reference_sequence_str = reference_sequence
 
         hgvs_nomenclature = refseq_id.split(":")[1] + ':g.' + start_position_str
-        hgvs_synonym = '('+assembly+')' + chromosome + ':' + start_position_str
+        hgvs_synonym = '(' + assembly + ')' + chromosome + ':' + start_position_str
 
         if variant_type in ['SO:1000002', 'SO:1000008']:  # point mutation/substitution
             hgvs_nomenclature += reference_sequence_str + ">" + variant_sequence_str
@@ -183,7 +240,7 @@ class VariationETL(ETL):
             hgvs_synonym = ''
         return hgvs_nomenclature, hgvs_synonym
 
-    def get_generators(self, variant_data, batch_size):  # noqa
+    def get_generators(self, variant_data, batch_size):
         """Get Generators."""
 
         data_providers = []
@@ -191,8 +248,12 @@ class VariationETL(ETL):
         variants = []
         variant_genomic_locations = []
         variant_so_terms = []
+        variant_notes = []
+        variant_note_references = []
+        variant_pubs = []
         cross_references = []
         counter = 0
+
         date_produced = variant_data['metaData']['dateProduced']
 
         self.data_providers_process(variant_data)
@@ -203,6 +264,16 @@ class VariationETL(ETL):
 
         assemblies = {}
         for allele_record in variant_data['data']:
+
+            # TODO: fix typo in MGI Submission for this variant so
+            # that it doesn't list a 40K bp point mutation.
+            if allele_record.get('alleleId') == 'MGI:6113870':
+                continue
+
+            counter = counter + 1
+            global_id = allele_record.get('alleleId')
+            mod_global_cross_ref_id = ""
+
             chromosome = allele_record["chromosome"]
             if chromosome.startswith("chr"):
                 chromosome_str = chromosome[3:]
@@ -212,7 +283,6 @@ class VariationETL(ETL):
             assembly = allele_record["assembly"]
 
             if assembly not in assemblies:
-                self.logger.info(assembly)
                 context_info = ContextInfo()
                 data_manager = DataFileManager(context_info.config_file_location)
                 assemblies[assembly] = AssemblySequenceHelper(assembly, data_manager)
@@ -260,10 +330,6 @@ class VariationETL(ETL):
                 padding_right = assemblies[assembly].get_sequence(chromosome_str,
                                                                   end,
                                                                   right_padding_end)
-            counter = counter + 1
-            global_id = allele_record.get('alleleId')
-            mod_global_cross_ref_id = ""
-            cross_references = []
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
@@ -276,19 +342,20 @@ class VariationETL(ETL):
             prefix = cross_ref_primary_id.split(":")[0]
 
             cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                local_cross_ref_id, prefix, global_id)
-            xref_map = ETLHelper.get_xref_dict(
-                local_cross_ref_id,
-                prefix,
-                "variant_sequence_of_reference",
-                "sequence_of_reference_accession_number",
-                global_id,
-                cross_ref_complete_url,
-                cross_ref_primary_id + "variant_sequence_of_reference")
+                            local_cross_ref_id, prefix, global_id)
+            xref_map_acc = ETLHelper.get_xref_dict(
+                            local_cross_ref_id,
+                            prefix,
+                            "variant_sequence_of_reference",
+                            "sequence_of_reference_accession_number",
+                            global_id,
+                            cross_ref_complete_url,
+                            cross_ref_primary_id + "variant_sequence_of_reference")
 
-            xref_map['dataId'] = global_id
+            xref_map_acc['dataId'] = global_id
+
             if cross_ref_primary_id is not None:
-                cross_references.append(xref_map)
+                cross_references.append(xref_map_acc)
 
             if genomic_reference_sequence is not None:
                 if len(genomic_reference_sequence) > 1000 and (allele_record.get('type') == 'SO:1000002'
@@ -310,31 +377,131 @@ class VariationETL(ETL):
                 allele_record.get('assembly'),
                 chromosome_str)
 
+            if 'crossReferences' in allele_record:
+                for cross_ref in allele_record.get('crossReferences'):
+                    cross_ref_id = cross_ref.get('id')
+                    local_cross_ref_id = cross_ref_id.split(":")[1]
+                    prefix = cross_ref.get('id').split(":")[0]
+                    pages = cross_ref.get('pages')
+                    global_xref_id = cross_ref.get('id')
+
+                    # some pages collection have 0 elements
+                    if pages is not None and len(pages) > 0:
+                        for page in pages:
+                            display_name = ""
+
+                            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                                prefix, local_cross_ref_id, page)
+
+                            xref_map = ETLHelper.get_xref_dict(
+                                local_cross_ref_id,
+                                prefix,
+                                page,
+                                page,
+                                display_name,
+                                cross_ref_complete_url,
+                                global_xref_id + page)
+                            xref_map['dataId'] = hgvs_nomenclature
+                            cross_references.append(xref_map)
+
             if (genomic_reference_sequence is not None and len(genomic_reference_sequence) > 30000) \
                     or (genomic_variant_sequence is not None and len(genomic_variant_sequence)) > 30000:
                 self.logger.debug("%s has too long of a sequence potentionally",
                                   allele_record.get('alleleId'))
 
-            # TODO: fix typo in MGI Submission for this variant so
-            # that it doesn't list a 40K bp point mutation.
-            if allele_record.get('alleleId') != 'MGI:6113870':
+            references = allele_record.get('references')
+            if references is not None:
+                for evidence in references:
+                    pub_med_url = None
+                    pub_med_id = ""
+                    pub_mod_url = None
+                    publication_mod_id = ""
 
-                variant_dataset = {
-                    "hgvs_nomenclature": hgvs_nomenclature,
-                    "genomicReferenceSequence": genomic_reference_sequence,
-                    "genomicVariantSequence": genomic_variant_sequence,
-                    "paddingLeft": padding_left,
-                    "paddingRight": padding_right,
-                    "alleleId": allele_record.get('alleleId'),
-                    "dataProviders": data_providers,
-                    "dateProduced": date_produced,
-                    "loadKey": load_key,
-                    "release": release,
-                    "modGlobalCrossRefId": mod_global_cross_ref_id,
-                    "dataProvider": self.data_provider,
-                    "variantHGVSSynonym": hgvs_synonym}
+                    if 'publicationId' in evidence:
+                        publication = evidence.get('publicationId')
+                        # WB has an error in their pubs at the moment, fix/remove 'and' stanza here, when we
+                        # have a new file.
+                        if publication.startswith('PMID:') and publication != 'PMID:':
+                            pub_med_id = publication
+                            pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
+                            if 'crossReference' in evidence:
+                                pub_xref = evidence.get('crossReference')
+                                publication_mod_id = pub_xref.get('id')
+                                pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+                        else:
+                            publication_mod_id = publication
+                            pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
 
-                variant_genomic_location_dataset = {
+                    variant_pub = {
+                        "publicationId": publication_mod_id + pub_med_id,
+                        "pubModId": publication_mod_id,
+                        "pubMedId": pub_med_id,
+                        "pubMedUrl": pub_med_url,
+                        "pubModUrl": pub_mod_url,
+                        "variantId": hgvs_nomenclature
+
+                    }
+                    variant_pubs.append(variant_pub)
+
+            notes = allele_record.get('notes')
+
+            if notes is not None:
+                for note in notes:
+                    vnote = note.get('note')
+                    note_id = str(uuid.uuid4())
+
+                    variant_note_map = {"variantId": hgvs_nomenclature,
+                                            "noteId": note_id,
+                                            "note": vnote}
+
+                    variant_notes.append(variant_note_map)
+
+                    vreferences = note.get('references')
+
+                    for evidence in vreferences:
+                        pub_med_url = None
+                        pub_med_id = ""
+                        pub_mod_url = None
+                        publication_mod_id = ""
+
+                        if 'publicationId' in evidence:
+                            publication = evidence.get('publicationId')
+                            if publication.startswith('PMID:'):
+                                pub_med_id = publication
+                                pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
+                                if 'crossReference' in evidence:
+                                    pub_xref = evidence.get('crossReference')
+                                    publication_mod_id = pub_xref.get('id')
+                                    pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+                            else:
+                                publication_mod_id = publication
+                                pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+
+                            note_pub = {"publicationId": publication_mod_id + pub_med_id,
+                                            "pubModId": publication_mod_id,
+                                            "pubMedId": pub_med_id,
+                                            "pubMedUrl": pub_med_url,
+                                            "pubModUrl": pub_mod_url,
+                                            "noteId": note_id
+                            }
+                            variant_note_references.append(note_pub)
+
+            variant_dataset = {
+                "hgvs_nomenclature": hgvs_nomenclature,
+                "genomicReferenceSequence": genomic_reference_sequence,
+                "genomicVariantSequence": genomic_variant_sequence,
+                "paddingLeft": padding_left,
+                "paddingRight": padding_right,
+                "alleleId": allele_record.get('alleleId'),
+                "dataProviders": data_providers,
+                "dateProduced": date_produced,
+                "loadKey": load_key,
+                "release": release,
+                "modGlobalCrossRefId": mod_global_cross_ref_id,
+                "dataProvider": self.data_provider,
+                "variantHGVSSynonym": hgvs_synonym}
+
+            variant_genomic_location_dataset = {
                     "variantId": hgvs_nomenclature,
                     "assembly": allele_record.get('assembly'),
                     "chromosome": chromosome_str,
@@ -343,20 +510,32 @@ class VariationETL(ETL):
                     "uuid": str(uuid.uuid4()),
                     "dataProvider": self.data_provider}
 
-                variant_so_term = {
+            variant_so_term = {
                     "variantId": hgvs_nomenclature,
                     "soTermId": allele_record.get('type')}
 
-                variant_so_terms.append(variant_so_term)
-                variant_genomic_locations.append(variant_genomic_location_dataset)
-                variants.append(variant_dataset)
+            variant_so_terms.append(variant_so_term)
+            variant_genomic_locations.append(variant_genomic_location_dataset)
+
+            variants.append(variant_dataset)
 
             if counter == batch_size:
-                yield [variants, variant_genomic_locations, variant_so_terms, cross_references]
+                yield [variants,
+                       variant_genomic_locations, variant_so_terms,
+                       variant_notes, variant_note_references, variant_pubs,
+                       cross_references]
                 variants = []
                 variant_genomic_locations = []
                 variant_so_terms = []
+                variant_notes = []
+                variant_note_references = []
+                variant_pubs = []
                 cross_references = []
 
         if counter > 0:
-            yield [variants, variant_genomic_locations, variant_so_terms, cross_references]
+            yield [variants,
+                   variant_genomic_locations, variant_so_terms,
+                    variant_notes, variant_note_references, variant_pubs,
+                   cross_references]
+
+
