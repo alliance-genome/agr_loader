@@ -120,21 +120,7 @@ class VariationETL(ETL):
 
         MATCH (o:Variant {primaryKey:row.dataId}) 
 
-        MERGE (id:CrossReference:Identifier {primaryKey:row.primaryKey})
-                    ON CREATE SET id.name = row.id,
-                     id.globalCrossRefId = row.globalCrossRefId,
-                     id.localId = row.localId,
-                     id.crossRefCompleteUrl = row.crossRefCompleteUrl,
-                     id.prefix = row.prefix,
-                     id.crossRefType = row.crossRefType,
-                     id.uuid = row.uuid,
-                     id.page = row.page,
-                     id.primaryKey = row.primaryKey,
-                     id.displayName = row.displayName
-
-        MERGE (o)-[gcr:CROSS_REFERENCE]->(id) 
-
-    """
+    """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         """Initialise object."""
