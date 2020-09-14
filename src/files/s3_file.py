@@ -69,7 +69,7 @@ class S3File():
 
         url = self.download_url
         self.logger.info(url)
-        self.logger.info("Checking for file %s", os.path.join(self.savepath, self.filename))
+        self.logger.debug("Checking for file %s", os.path.join(self.savepath, self.filename))
         if os.path.exists(os.path.join(self.savepath, self.filename)):
             self.logger.debug("File: %s/%s already exists, not downloading",
                               self.savepath,
