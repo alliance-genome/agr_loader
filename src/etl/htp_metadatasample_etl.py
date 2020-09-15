@@ -612,13 +612,17 @@ class HTPMetaDatasetSampleETL(ETL):
                     }
                     bio_entities.append(bio_entity)
 
+            # TODO: remove when MGI corrects their taxon submission
+            taxonId = datasample_record.get('taxonId')
+            if taxonId == '10090':
+                taxonId = 'NCBITaxon:10090'
 
             htp_dataset_sample = {
 
                 "datasetSampleId": datasetSampleId,
                 "abundance": datasample_record.get('abundance') ,
                 "sampleType": datasample_record.get('sampleType'),
-                "taxonId": datasample_record.get('taxonId'),
+                "taxonId": taxonId,
                 "sex": datasample_record.get('sex'),
                 "assayType": datasample_record.get('assayType'),
                 "notes": datasample_record.get('notes'),
