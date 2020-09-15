@@ -20,7 +20,8 @@ class HTPMetaDatasetETL(ETL):
               ds.summary = row.summary,
               ds.numChannels = row.numChannels,
               ds.subSeries = row.subSeries,
-              ds.title = row.title
+              ds.title = row.title,
+              ds.crossRefCompleteUrl = row.crossRefCompleteUrl
          """
 
     htp_dataset_pub_query_template = """
@@ -188,6 +189,15 @@ class HTPMetaDatasetETL(ETL):
                             xref_map['dataId'] = datasetId
                             cross_reference_list.append(xref_map)
 
+            globalPrimaryIdCrossRefId = datasetId
+            prefix = globalPrimaryIdCrossRefId.split(":")[0]
+            page = 'htp/dataset'
+            local_cross_ref_id = globalPrimaryIdCrossRefId.split(":")[1]
+
+            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                prefix, local_cross_ref_id, page)
+
+
             category_tags = dataset_record.get('categoryTags')
 
             if category_tags is not None:
@@ -235,7 +245,8 @@ class HTPMetaDatasetETL(ETL):
                 "title": dataset_record.get('title'),
                 "summary": dataset_record.get('summary'),
                 "numChannels": dataset_record.get('numChannels'),
-                "subSeries": dataset_record.get('subSeries')
+                "subSeries": dataset_record.get('subSeries'),
+                "crossRefCompleteUrl": cross_ref_complete_url
             }
             htp_datasets.append(htp_dataset)
 
