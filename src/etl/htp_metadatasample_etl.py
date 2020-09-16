@@ -34,8 +34,8 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.sampleAge = row.sampleAge
               
         MERGE (ds)-[dssp:FROM_SPECIES]-(s)
-        //MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
-        //MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
+        MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+        MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
         
           
     """
