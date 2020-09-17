@@ -21,7 +21,7 @@ SQTR:
   allowed: [ZFIN]
 AGM:
   type: list
-  allowed: [ZFIN, MGI, RGD, WB]
+  allowed: [WB, ZFIN, MGI, RGD, WB]
 DAF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]

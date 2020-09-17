@@ -19,8 +19,8 @@ class HTPMetaDatasetSampleETL(ETL):
 
         
         MATCH (o:OBITerm {primaryKey:row.sampleType})
-        MATCH (s:Species {primaryKey: row.taxonId})
-        MATCH (a:MMOTerm {primaryKey: row.assayType})
+        MATCH (s:Species {primaryKey:row.taxonId})
+        MATCH (a:MMOTerm {primaryKey:row.assayType})
     
         MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           ON CREATE SET ds.dateAssigned = row.dateAssigned,
