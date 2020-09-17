@@ -275,7 +275,7 @@ class BGIETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def xref_process(self, basic_genetic_entity, cross_references, urls):  # noqa
+    def xref_process(self, basic_genetic_entity, cross_references, urls):
         """Process xrefs."""
         primary_id = basic_genetic_entity.get('primaryId')
         global_id = basic_genetic_entity.get('primaryId')
@@ -484,7 +484,6 @@ class BGIETL(ETL):
 
             gene = {
                 "symbol": gene_record.get('symbol'),
-                # globallyUniqueSymbolWithSpecies requested by search group
                 "symbolWithSpecies": gene_record.get('symbol') + " (" + short_species_abbreviation + ")",
                 "name": gene_record.get('name'),
                 "geneticEntityExternalUrl": urls['genetic_entity_external_url'],
@@ -515,7 +514,7 @@ class BGIETL(ETL):
             self.metadata_is_loaded[load_key] = True
 
             # Establishes the number of genes to yield (return) at a time.
-            if counter == batch_size:  # only sending unique chromosomes, hense empty list here.
+            if counter == batch_size:
                 counter = 0
                 yield [gene_metadata,
                        gene_dataset,
@@ -535,7 +534,6 @@ class BGIETL(ETL):
                 genomic_locations = []
                 cross_references = []
                 gene_to_so_terms = []
-                # xref_relations = []
 
         if counter > 0:
             yield [gene_metadata,

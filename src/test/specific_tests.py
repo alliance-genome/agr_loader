@@ -1396,3 +1396,38 @@ def test_protein_sequence_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 4
+
+
+def test_fb_variant_has_note():
+    """Test variant has note"""
+
+    query = """ MATCH (v:Variant)-[x:ASSOCIATION]-(n:Note)
+                WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
+                RETURN count(v) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_fb_variant_has_note_with_pub():
+    """Test variant has note"""
+
+    query = """ MATCH (v:Variant)-[x:ASSOCIATION]-(n:Note)--(p:Publication)
+                WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
+                RETURN count(v) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_correct_number_of_species_have_variant_transcript_exon_relations():
+    """Test correct number of species have variant-transcript-exon relations"""
+
+    query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant) 
+                RETURN COUNT(DISTINCT t.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 5

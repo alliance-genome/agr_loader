@@ -114,6 +114,7 @@ class Neo4jHelper():
                         ":SecondaryId(primaryKey)",
                         ":Chromosome(primaryKey)",
                         ":OrthoAlgorithm(name)",
+                        ":Note(primaryKey)",
                         ":Gene(modGlobalId)",
                         ":Gene(localId)",
                         ":HTPDataset(primaryKey)",

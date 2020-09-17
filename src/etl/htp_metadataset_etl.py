@@ -19,7 +19,9 @@ class HTPMetaDatasetETL(ETL):
           SET ds.dateAssigned = row.dateAssigned,
               ds.summary = row.summary,
               ds.numChannels = row.numChannels,
-              ds.subSeries = row.subSeries
+              ds.subSeries = row.subSeries,
+              ds.title = row.title,
+              ds.crossRefCompleteUrl = row.crossRefCompleteUrl
          """
 
     htp_dataset_pub_query_template = """
@@ -68,7 +70,7 @@ class HTPMetaDatasetETL(ETL):
     htpdataset_xrefs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:HTPDataset {primaryKey:row.datasetId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -121,20 +123,16 @@ class HTPMetaDatasetETL(ETL):
 
     def get_generators(self, htp_dataset_data, batch_size):
         dataset_tags = []
-        data_providers = []
         htp_datasets = []
         publications = []
         secondaryIds = []
         cross_reference_list = []
         counter = 0
-        date_produced = htp_dataset_data['metaData']['dateProduced']
 
         data_provider_object = htp_dataset_data['metaData']['dataProvider']
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
         data_provider = data_provider_cross_ref.get('id')
-        data_provider_pages = data_provider_cross_ref.get('pages')
-        data_provider_cross_ref_set = []
 
 
         for dataset_record in htp_dataset_data['data']:
@@ -163,23 +161,42 @@ class HTPMetaDatasetETL(ETL):
                     counter = counter - 1
                     continue
 
-            if 'crossReference' in dataset:
-                crossRefO = dataset.get('crossReference')
-                if crossRefO is not None:
-                    crossRefId = crossRefO.get('id')
-                    local_crossref_id = crossRefId.split(":")[1]
-                    prefix =crossRefId.split(":")[0]
-                    pages = crossRefO.get('pages')
+            cross_refs = dataset.get('crossReferences')
+            if cross_refs is not None:
+                for cross_ref in cross_refs:
+                    cross_ref_id = cross_ref.get('id')
+                    local_cross_ref_id = cross_ref_id.split(":")[1]
+                    prefix = cross_ref.get('id').split(":")[0]
+                    pages = cross_ref.get('pages')
+                    global_xref_id = cross_ref.get('id')
 
                     # some pages collection have 0 elements
                     if pages is not None and len(pages) > 0:
                         for page in pages:
-                            mod_global_cross_ref_url = self.etlh.rdh2.return_url_from_key_value(
-                        prefix, local_crossref_id, page)
-                            xref = ETLHelper.get_xref_dict(local_crossref_id, prefix, page, page, crossRefId,
-                                                               mod_global_cross_ref_url, crossRefId + page)
-                            xref['dataId'] = datasetId
-                            cross_reference_list.append(xref)
+                            display_name = ""
+
+                            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                                prefix, local_cross_ref_id, page)
+
+                            xref_map = ETLHelper.get_xref_dict(
+                                local_cross_ref_id,
+                                prefix,
+                                page,
+                                page,
+                                display_name,
+                                cross_ref_complete_url,
+                                global_xref_id + page)
+                            xref_map['dataId'] = datasetId
+                            cross_reference_list.append(xref_map)
+
+            globalPrimaryIdCrossRefId = datasetId
+            prefix = globalPrimaryIdCrossRefId.split(":")[0]
+            page = 'htp/dataset'
+            local_cross_ref_id = globalPrimaryIdCrossRefId.split(":")[1]
+
+            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                prefix, local_cross_ref_id, page)
+
 
             category_tags = dataset_record.get('categoryTags')
 
@@ -228,7 +245,8 @@ class HTPMetaDatasetETL(ETL):
                 "title": dataset_record.get('title'),
                 "summary": dataset_record.get('summary'),
                 "numChannels": dataset_record.get('numChannels'),
-                "subSeries": dataset_record.get('subSeries')
+                "subSeries": dataset_record.get('subSeries'),
+                "crossRefCompleteUrl": cross_ref_complete_url
             }
             htp_datasets.append(htp_dataset)
 
