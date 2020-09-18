@@ -21,7 +21,7 @@ class GenePhenoCrossReferenceETL(ETL):
 
     gene_pheno_query_template = """
                    MATCH (g:Gene)-[gp:HAS_PHENOTYPE]-(p:Phenotype)
-                   RETURN g.primaryKey, g.dataProvider"""
+                   RETURN distinct g.primaryKey, g.dataProvider"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -50,13 +50,13 @@ class GenePhenoCrossReferenceETL(ETL):
         """Get Generators."""
 
         gene_pheno_data_list = []
-        return_set = Neo4jHelper.run_single_parameter_query(self.gene_pheno_query_template)
+        return_set = Neo4jHelper.run_single_query(self.gene_pheno_query_template)
 
         for record in return_set:
             global_cross_ref_id = record["g.primaryKey"]
             data_provider = record["g.dataProvider"]
             id_prefix = global_cross_ref_id.split(":")[0]
-            if data_provider != 'MGI':
+            if data_provider == 'MGI':
                 page = 'gene/phenotypes_impc'
                 url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
                 self.logger.info(url)
@@ -67,6 +67,8 @@ class GenePhenoCrossReferenceETL(ETL):
                                                           id_prefix,
                                                           url,
                                                           global_cross_ref_id+page)
+            elif data_provider == 'HUMAN':
+                continue
             else:
                 page = 'gene/phenotypes'
                 url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
