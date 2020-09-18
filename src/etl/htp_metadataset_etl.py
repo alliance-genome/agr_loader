@@ -21,7 +21,7 @@ class HTPMetaDatasetETL(ETL):
               ds.numChannels = row.numChannels,
               ds.subSeries = row.subSeries,
               ds.title = row.title,
-              ds.crossRefCompleteUrl = row.crossRefCompleteUrl
+              ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
               ds.dataProvider = row.dataProvider
          """
 
