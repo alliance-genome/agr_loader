@@ -22,6 +22,7 @@ class HTPMetaDatasetETL(ETL):
               ds.subSeries = row.subSeries,
               ds.title = row.title,
               ds.crossRefCompleteUrl = row.crossRefCompleteUrl
+              ds.dataProvider = row.dataProvider
          """
 
     htp_dataset_pub_query_template = """
@@ -246,7 +247,8 @@ class HTPMetaDatasetETL(ETL):
                 "summary": dataset_record.get('summary'),
                 "numChannels": dataset_record.get('numChannels'),
                 "subSeries": dataset_record.get('subSeries'),
-                "crossRefCompleteUrl": cross_ref_complete_url
+                "crossRefCompleteUrl": cross_ref_complete_url,
+                "dataProvider": data_provider
             }
             htp_datasets.append(htp_dataset)
 

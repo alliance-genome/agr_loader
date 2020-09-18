@@ -1432,3 +1432,14 @@ def test_correct_number_of_species_have_variant_transcript_exon_relations():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 5
+
+
+def test_correct_number_of_species_datasetsample_relations():
+    """test_correct_number_of_species_datasetsample_relations"""
+
+    query = """ MATCH (hd:HTPDataset)--(hds:HTDatasetSample) 
+                RETURN COUNT(DISTINCT hd.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4

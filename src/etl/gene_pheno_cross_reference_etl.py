@@ -59,7 +59,6 @@ class GenePhenoCrossReferenceETL(ETL):
             if data_provider == 'MGI':
                 page = 'gene/phenotypes_impc'
                 url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
-                self.logger.info(url)
                 gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
                                                           id_prefix,
                                                           page,
@@ -67,12 +66,11 @@ class GenePhenoCrossReferenceETL(ETL):
                                                           id_prefix,
                                                           url,
                                                           global_cross_ref_id+page)
-            elif data_provider == 'HUMAN':
+            elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
                 continue
             else:
                 page = 'gene/phenotypes'
                 url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
-                self.logger.info(url)
                 gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
                                                           id_prefix,
                                                           page,
