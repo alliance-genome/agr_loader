@@ -1,11 +1,9 @@
 """BIOGRID ORCS XREF ETL."""
 
-import json
 import logging
-import urllib
-import xmltodict
-import glob, csv, os
-from pathlib import Path
+import glob
+import csv
+import os
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
@@ -39,10 +37,8 @@ class BiogridOrcsXrefETL(ETL):
         entrez_ids = self.populate_entrez_ids_from_files()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        # batch_size = self.data_type_config.get_generator_batch_size()
-        batch_size = 100000
 
-        generators = self.get_generators(batch_size, entrez_ids)
+        generators = self.get_generators(entrez_ids)
 
         query_template_list = [
             [self.biogrid_orcs_xref_query_template, commit_size, "biogrid_orcs_xref_data.csv"],
@@ -70,7 +66,7 @@ class BiogridOrcsXrefETL(ETL):
                         entrez_ids.append("NCBI_Gene:" + row[1])
         return entrez_ids
 
-    def get_generators(self, batch_size, entrez_ids):
+    def get_generators(self, entrez_ids):
         """Get Generators."""
 
         biogrid_orcs_data_list = []
