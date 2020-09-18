@@ -1389,8 +1389,9 @@ def test_not_disease_annotation_exists_exists():
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
 
-    query = """  MATCH (t:Transcript)--(n:ProteinSequence)  
+    query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)  
                  WHERE n.proteinSequence IS NOT NULL 
+                 and n.proteinSequence <> ''
                  RETURN count(distinct t.dataProvider) as counter
     """
     result = execute_transaction(query)

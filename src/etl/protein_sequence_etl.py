@@ -10,6 +10,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 from data_manager import DataFileManager
 from loader_common import ContextInfo
 from Bio import BiopythonWarning
+import Bio
 import warnings
 
 
@@ -25,7 +26,7 @@ class ProteinSequenceETL(ETL):
         
         MATCH (t:Transcript {primaryKey:row.transcriptId})
         
-        MERGE (p:ProteinSequence {primaryKey:row.transcriptId})
+        MERGE (p:TranscriptProteinSequence {primaryKey:row.transcriptId})
            ON CREATE SET p.proteinSequence = row.proteinSequence
         
         MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
@@ -75,26 +76,26 @@ class ProteinSequenceETL(ETL):
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', BiopythonWarning)
 
-        # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
-        if strand == '-':
-            reverse_sequence = Seq(cds_sequence).reverse_complement()
-            protein_sequence = reverse_sequence.translate(table='Standard', stop_symbol='*', to_stop=False, cds=False, gap=None)
-            # if phase == '1':
-            #     # remove the first base pair when phase is 1 to start translation appropriately.
-            #     reverse_sequence = cds_sequence.reverse_complement()[1:]
-            #     protein_sequence = reverse_sequence.translate(table=1)
-            # elif phase == '2':
-            #     # remove the first two base pairs when phase is 1 to start translation appropriately.
-            #     reverse_sequence = cds_sequence.reverse_complement()[2:]
-            #     protein_sequence = reverse_sequence.translate(table=1)
-        else:
-            protein_sequence = Seq(cds_sequence).translate(table='Standard', stop_symbol='*', to_stop=False, cds=False, gap=None)
+        seq_object = Seq(cds_sequence)
+        try:
 
-        # else:
-        #     coding_dna = Seq(cds_sequence)
-        #     protein_sequence = coding_dna.translate(table=1)
+            # if the strand of the transcript is '-', we have to reverse complement the sequence before translating.
+            if strand == '-':
+                seq_object = seq_object.reverse_complement()
+                protein_sequence = seq_object.translate(table='Standard', to_stop=False, cds=True)
+                # if phase == '1':
+                #     # remove the first base pair when phase is 1 to start translation appropriately.
+                #     reverse_sequence = cds_sequence.reverse_complement()[1:]
+                #     protein_sequence = reverse_sequence.translate(table=1)
+                # elif phase == '2':
+                #     # remove the first two base pairs when phase is 1 to start translation appropriately.
+                #     reverse_sequence = cds_sequence.reverse_complement()[2:]
+                #     protein_sequence = reverse_sequence.translate(table=1)
+            else:
+                protein_sequence = seq_object.translate(table='Standard', to_stop=False, cds=True)
 
-
+        except Bio.Data.CodonTable.TranslationError:
+            protein_sequence = seq_object.translate(table='Standard', to_stop=False, cds=False)
         return protein_sequence
 
 
@@ -108,7 +109,7 @@ class ProteinSequenceETL(ETL):
         fetch_transcript_query = """
 
                    MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
-                   WHERE t.primaryKey =~ 'ENS.*'
+                   WHERE NOT (t.primaryKey =~ 'RefSeq.*')
                    RETURN distinct t.primaryKey as transcriptPrimaryKey,
                           t.dataProvider as dataProvider,
                           gl.phase as transcriptPhase,
@@ -122,7 +123,7 @@ class ProteinSequenceETL(ETL):
         fetch_cds_transcript_query = """
 
             MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
-            WHERE t.primaryKey =~ 'ENS.*'
+            WHERE NOT (t.primaryKey =~ 'RefSeq.*')
             RETURN distinct gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
@@ -180,6 +181,7 @@ class ProteinSequenceETL(ETL):
             strand = ''
 
             for cds_record in returned_cds:
+
                 if cds_record['transcriptPrimaryKey'] == transcript_id:
                     cds_sequence = assemblies[assembly].get_sequence(cds_record["CDSChromosome"],
                                                                               cds_record["CDSStartPosition"],
@@ -187,19 +189,16 @@ class ProteinSequenceETL(ETL):
                     full_cds_sequence += cds_sequence
                     strand = transcript_record['transcriptStrand']
 
-            protein_sequence = self.translate_protein(full_cds_sequence, strand)
+            if full_cds_sequence != '':
+                protein_sequence = self.translate_protein(full_cds_sequence, strand)
 
-
-            data = { "transcriptId": transcript_id,
+                data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,
                      "proteinSequence": protein_sequence
-            }
-            transcript_data.append(data)
+                }
+                transcript_data.append(data)
 
             if counter > batch_size:
-
-                self.logger.info("finished batch ")
-
                 yield [transcript_data]
 
                 transcript_data = []

@@ -52,6 +52,7 @@ ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
+GENEPHENOCROSSREFERENCE: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 Closure:
   - GO
   - SO

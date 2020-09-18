@@ -17,7 +17,7 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
                  VariationETL, VEPTranscriptETL, ProteinSequenceETL,
-                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL)
 
 from transactors import FileTransactor, Neo4jTransactor
 
@@ -104,7 +104,8 @@ class AggregateLoader():
         'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
         'DB-SUMMARY': NodeCountETL,
-        'ProteinSequence': ProteinSequenceETL
+        'ProteinSequence': ProteinSequenceETL,
+        'GENEPHENOCROSSREFERENCE': GenePhenoCrossReferenceETL
     }
 
     # This is the order in which data types are loaded.
@@ -142,6 +143,7 @@ class AggregateLoader():
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
         ['ProteinSequence'],
+        ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]
 

@@ -94,7 +94,8 @@ class TestClass():
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
                              dict(node='Exon'),
-                             dict(node='ProteinSequence'),
+                             dict(node='TranscriptProteinSequence'),
+                             dict(node='VariantProteinSequence'),
                              dict(node='CDSSequence')
                              ],
 
@@ -130,8 +131,10 @@ class TestClass():
                             dict(node='DOTerm', prop='subset'),
                             dict(node='DOTerm', prop='primaryKey'),
                             dict(node='MITerm', prop='primaryKey'),
-                            dict(node='ProteinSequence', prop='primaryKey'),
-                            dict(node='ProteinSequence', prop='proteinSequence'),
+                            dict(node='TranscriptProteinSequence', prop='primaryKey'),
+                            dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            dict(node='VariantProteinSequence', prop='primaryKey'),
+                            dict(node='VariantProteinSequence', prop='proteinSequence'),
                             dict(node='CDSSequence', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
