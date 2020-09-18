@@ -443,34 +443,34 @@ class VariationETL(ETL):
                     variant_notes.append(variant_note_map)
 
                     vreferences = note.get('references')
+                    if vreferences is not None:
+                        for evidence in vreferences:
+                            pub_med_url = None
+                            pub_med_id = ""
+                            pub_mod_url = None
+                            publication_mod_id = ""
 
-                    for evidence in vreferences:
-                        pub_med_url = None
-                        pub_med_id = ""
-                        pub_mod_url = None
-                        publication_mod_id = ""
-
-                        if 'publicationId' in evidence:
-                            publication = evidence.get('publicationId')
-                            if publication.startswith('PMID:'):
-                                pub_med_id = publication
-                                pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
-                                if 'crossReference' in evidence:
-                                    pub_xref = evidence.get('crossReference')
-                                    publication_mod_id = pub_xref.get('id')
+                            if 'publicationId' in evidence:
+                                publication = evidence.get('publicationId')
+                                if publication.startswith('PMID:'):
+                                    pub_med_id = publication
+                                    pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
+                                    if 'crossReference' in evidence:
+                                        pub_xref = evidence.get('crossReference')
+                                        publication_mod_id = pub_xref.get('id')
+                                        pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+                                else:
+                                    publication_mod_id = publication
                                     pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
-                            else:
-                                publication_mod_id = publication
-                                pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
 
-                            note_pub = {"publicationId": publication_mod_id + pub_med_id,
+                                note_pub = {"publicationId": publication_mod_id + pub_med_id,
                                             "pubModId": publication_mod_id,
                                             "pubMedId": pub_med_id,
                                             "pubMedUrl": pub_med_url,
                                             "pubModUrl": pub_mod_url,
                                             "noteId": note_id
-                            }
-                            variant_note_references.append(note_pub)
+                                }
+                                variant_note_references.append(note_pub)
 
             variant_dataset = {
                 "hgvs_nomenclature": hgvs_nomenclature,
