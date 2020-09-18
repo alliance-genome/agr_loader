@@ -1408,3 +1408,14 @@ def test_fb_variant_has_note_with_pub():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_correct_number_of_species_have_variant_transcript_exon_relations():
+    """Test correct number of species have variant-transcript-exon relations"""
+
+    query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant) 
+                RETURN COUNT(DISTINCT t.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 5
