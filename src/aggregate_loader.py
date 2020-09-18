@@ -9,15 +9,15 @@ import time
 import coloredlogs
 
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
-                 AffectedGenomicModelETL, AlleleETL, ClosureETL, ConstructETL,
-                 DiseaseETL, ExpressionAtlasETL, ExpressionETL,
-                 ExpressionRibbonETL, ExpressionRibbonOtherETL,
+                 AffectedGenomicModelETL, AlleleETL, BiogridOrcsXrefETL,
+                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL, 
+                 ExpressionETL, ExpressionRibbonETL, ExpressionRibbonOtherETL,
                  GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
                  GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
                  VariationETL, VEPTranscriptETL,
-                HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
 from transactors import FileTransactor, Neo4jTransactor
 
 from data_manager import DataFileManager
@@ -95,6 +95,7 @@ class AggregateLoader():
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
+        'BIOGRID-ORCS': BiogridOrcsXrefETL,
         'HTPDATASET': HTPMetaDatasetETL,
         'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
@@ -133,6 +134,7 @@ class AggregateLoader():
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
+        ['BIOGRID-ORCS'],  # Locks Genes
         ['HTPDATASET'],
         ['HTPDATASAMPLE'],
         ['INTERACTION-MOL'],
