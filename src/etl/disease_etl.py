@@ -330,7 +330,6 @@ class DiseaseETL(ETL):
                     pub_xref = publication.get('crossReference')
                     pubs['publication_mod_id'] = pub_xref.get('id')
                     pubs['pub_mod_url'] = self.etlh.return_url_from_identifier(pubs['publication_mod_id'])
-                    self.logger.info(self.etlh.return_url_from_identifier(pubs['publication_mod_id']))
             else:
                 pubs['publication_mod_id'] = publication.get('publicationId')
                 pubs['pub_mod_url'] = self.etlh.return_url_from_identifier(pubs['publication_mod_id'])

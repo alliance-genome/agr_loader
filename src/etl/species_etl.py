@@ -36,7 +36,7 @@ class SpeciesETL(ETL):
         
         MATCH (s:Species {primaryKey:row.taxonId})
         MERGE (sy:Synonym:Identifier {primaryKey:row.synonym})
-          SET syn.name = row.synonym
+          SET sy.name = row.synonym
           
         MERGE (s)-[ss:ALSO_KNOWN_AS]->(sy)
         

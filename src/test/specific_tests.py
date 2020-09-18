@@ -1443,3 +1443,15 @@ def test_correct_number_of_species_datasetsample_relations():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 4
+
+
+def test_correct_number_of_species_phenotype_xrefs_relations():
+    """test_correct_number_of_species_phenotype_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:Gene)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'gene/phenotypes' 
+            RETURN DISTINCT g.dataProvider """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 6
