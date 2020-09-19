@@ -85,6 +85,8 @@ class AggregateLoader():
         'VARIATION': VariationETL,
         'SQTR': SequenceTargetingReagentETL,
         'AGM': AffectedGenomicModelETL,
+        'HTPDATASET': HTPMetaDatasetETL,
+        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'PHENOTYPE': PhenoTypeETL,
         'GFF': TranscriptETL,
         'GO': GOETL,
@@ -97,8 +99,6 @@ class AggregateLoader():
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
         'BIOGRID-ORCS': BiogridOrcsXrefETL,
-        'HTPDATASET': HTPMetaDatasetETL,
-        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
@@ -125,6 +125,8 @@ class AggregateLoader():
         ['VARIATION'],
         ['SQTR'],
         ['AGM'],
+        ['HTPDATASET'],
+        ['HTPDATASAMPLE'],
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
@@ -137,8 +139,6 @@ class AggregateLoader():
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
         ['BIOGRID-ORCS'],  # Locks Genes
-        ['HTPDATASET'],
-        ['HTPDATASAMPLE'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],
