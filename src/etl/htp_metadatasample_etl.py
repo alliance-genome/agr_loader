@@ -107,7 +107,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
         MATCH (dss:HTPDatasetSample {primaryKey: row.datasetSampleId})
 
-        MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondaryId})
+        MERGE (sec:SecondaryId {primaryKey:row.secondaryId})
                 ON CREATE SET sec.name = row.secondaryId
 
         MERGE (dss)<-[aka:ALSO_KNOWN_AS]-(sec)
@@ -261,7 +261,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
                 MATCH (u:Assembly {primaryKey:row.assembly})
 
-                MERGE (ds)-[dsu:ASSEMBLY]-(u) """
+                CREATE (ds)<-[dsu:ASSEMBLY]-(u) """
 
     htpdatasetsample_xrefs_template = """
         USING PERIODIC COMMIT %s
@@ -380,22 +380,16 @@ class HTPMetaDatasetSampleETL(ETL):
         biosamplesTexts = []
         counter = 0
 
-        data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-
         for datasample_record in htp_datasetsample_data['data']:
 
             counter = counter + 1
 
-            sampleIds = ''
-            biosampleId = ''
-            biosampleText = ''
             sampleTitle = ''
             sampleId = ''
+            biosampleId = ''
+            biosampleText = {}
 
-
-            if 'sampleTitle' in sampleIds:
+            if 'sampleTitle' in datasample_record:
                 sampleTitle = datasample_record.get('sampleTitle')
 
             if 'sampleId' in datasample_record:
@@ -404,17 +398,6 @@ class HTPMetaDatasetSampleETL(ETL):
 
             datasetSampleId = sampleId + sampleTitle
 
-            if 'sampleId' in datasample_record:
-                sampleIdObj = datasample_record.get('sampleId')
-
-                if 'secondaryIds' in sampleIdObj:
-                    for secId in sampleIdObj.get('secondaryIds'):
-                        secid = {
-                            "datasetSampleId": datasetSampleId,
-                            "secondaryId": secId
-                        }
-                        secondaryIds.append(secid)
-
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
                 for datasetID in datasetIdSet:
@@ -422,13 +405,13 @@ class HTPMetaDatasetSampleETL(ETL):
                         "datasetSampleId": datasetSampleId,
                         "datasetId": datasetID
                     }
-                    datasetIDs.append(datasetsample)
 
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
+                    datasetIDs.append(datasetsample)
 
             if 'genomicInformation' in datasample_record:
                 genomicInformation = datasample_record.get('genomicInformation')
@@ -454,11 +437,11 @@ class HTPMetaDatasetSampleETL(ETL):
             if 'assemblyVersions' in datasample_record:
                 for assembly in datasample_record.get('assemblyVersions'):
 
-                    datasetsample = {
+                    assembly_datasample = {
                             "datasetSampleId": datasetSampleId,
                             "assembly": assembly
                         }
-                    assemblies.append(datasetsample)
+                    assemblies.append(assembly_datasample)
 
             age = ''
             if 'sampleAge' in datasample_record:
@@ -521,7 +504,6 @@ class HTPMetaDatasetSampleETL(ETL):
                         if anatomical_sub_structure_qualifier_term_id is not None:
                             expression_unique_key += anatomical_sub_structure_qualifier_term_id
                             expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
-
 
 
                     expression_entity_unique_key += where_expressed_statement
@@ -617,9 +599,6 @@ class HTPMetaDatasetSampleETL(ETL):
             # TODO: remove when WB corrects their taxon submission
             taxonId = datasample_record.get('taxonId')
 
-            if taxonId == '6239':
-                taxonId = 'NCBITaxon:6239'
-
             htp_dataset_sample = {
 
                 "datasetSampleId": datasetSampleId,
@@ -670,6 +649,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 ccq_components = []
                 cc_components = []
                 biosamples = []
+                biosamplesTexts =[]
                 assemblies = []
 
 
