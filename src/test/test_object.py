@@ -137,8 +137,7 @@ class TestObject():
             # gff ARS object
             'SGD:S000121253',
             # htp meta data
-            'GEO:GSE3431', 'GEO:GSE45273', 'GEO:GSE3818', 'GEO:GSE11071', 'GEO:GSE81666', 'GEO:GSE81822',
-            'GEO:GSE13446',
+            'GEO:GSE3431', 'GEO:GSE34286', 'GEO:GSE34330', 'GEO:GSE34787',
         }
 
         self.zfin_id_set = {

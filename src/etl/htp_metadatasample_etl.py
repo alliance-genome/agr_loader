@@ -17,9 +17,9 @@ class HTPMetaDatasetSampleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
         
-        MATCH (o:OBITerm {primaryKey:row.sampleType})
-        MATCH (s:Species {primaryKey:row.taxonId})
-        MATCH (a:MMOTerm {primaryKey:row.assayType})
+        //MATCH (o:OBITerm {primaryKey:row.sampleType})
+        //MATCH (s:Species {primaryKey:row.taxonId})
+        //MATCH (a:MMOTerm {primaryKey:row.assayType})
     
         CREATE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           SET ds.dateAssigned = row.dateAssigned,
