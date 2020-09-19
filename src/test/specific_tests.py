@@ -1451,7 +1451,7 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
     query = """ 
             MATCH (g:Gene)--(cr:CrossReference) 
             WHERE cr.crossRefType = 'gene/phenotypes' 
-            RETURN DISTINCT g.dataProvider """
+            RETURN count(DISTINCT g.dataProvider) as counter """
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 6

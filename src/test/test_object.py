@@ -138,6 +138,7 @@ class TestObject():
             'SGD:S000121253',
             # htp meta data
             'GEO:GSE3431', 'GEO:GSE45273', 'GEO:GSE3818', 'GEO:GSE11071', 'GEO:GSE81666', 'GEO:GSE81822',
+            'GEO:GSE13446',
         }
 
         self.zfin_id_set = {
@@ -252,8 +253,8 @@ class TestObject():
             'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
             'ENSDART00000111806', 'ZFIN:ZDB-ALT-161017-2', 'ZFIN:ZDB-GENE-040625-66',
             # htp dataset
-            'ZFIN:ZDB-HTPDSET-200708-3', 'ZFIN:ZDB-HTPDSET-200708-4', 'ZFIN:ZDB-HTPDSET-200708-1',
-            'ZFIN:ZDB-HTPDSET-200708-7', 'ZFIN:ZDB-HTPDSET-200708-8',
+            'ZFIN:ZDB-HTPDSET-200812-3', 'ZFIN:ZDB-HTPDSET-200812-4', 'ZFIN:ZDB-HTPDSET-200812-1',
+            'ZFIN:ZDB-HTPDSET-200812-7', 'ZFIN:ZDB-HTPDSET-200812-8',
         }
 
         self.flybase_id_set = {

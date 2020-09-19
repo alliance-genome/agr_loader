@@ -24,7 +24,7 @@ class SpeciesETL(ETL):
           SET s.shortName = row.shortName,
               s.species = row.shortName,
               s.name = row.name,
-              s.dataProviderFullName = row.dataProviderFullMame,
+              s.dataProviderFullName = row.dataProviderFullName,
               s.dataProviderShortName = row.dataProviderShortName,
               s.phylogeneticOrder = apoc.number.parseInt(row.phylogeneticOrder),
               s.commonNames = row.commonNames
