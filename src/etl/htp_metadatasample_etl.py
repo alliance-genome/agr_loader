@@ -21,8 +21,8 @@ class HTPMetaDatasetSampleETL(ETL):
         MATCH (s:Species {primaryKey:row.taxonId})
         MATCH (a:MMOTerm {primaryKey:row.assayType})
     
-        CREATE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
-          SET ds.dateAssigned = row.dateAssigned,
+        MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+          ON CREATE SET ds.dateAssigned = row.dateAssigned,
               ds.abundance = row.abundance,
               ds.sex = row.sex,
               ds.notes = row.notes,
@@ -32,9 +32,9 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.title = row.sampleTitle,
               ds.sampleAge = row.sampleAge
               
-        CREATE (ds)-[dssp:FROM_SPECIES]->(s)
-        CREATE (ds)<-[dsat:ASSAY_TYPE]-(a)
-        CREATE (ds)<-[dsst:SAMPLE_TYPE]-(o)
+        MERGE (ds)-[dssp:FROM_SPECIES]-(s)
+        MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+        MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
         
           
     """
@@ -380,10 +380,10 @@ class HTPMetaDatasetSampleETL(ETL):
         biosamplesTexts = []
         counter = 0
 
+
         for datasample_record in htp_datasetsample_data['data']:
 
             counter = counter + 1
-
             sampleTitle = ''
             sampleId = ''
             biosampleId = ''
@@ -401,16 +401,16 @@ class HTPMetaDatasetSampleETL(ETL):
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
                 for datasetID in datasetIdSet:
-                    datasetsample = {
-                        "datasetSampleId": datasetSampleId,
-                        "datasetId": datasetID
-                    }
 
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
+                    datasetsample = {
+                        "datasetSampleId": datasetSampleId,
+                        "datasetId": datasetID
+                    }
                     datasetIDs.append(datasetsample)
 
             if 'genomicInformation' in datasample_record:
