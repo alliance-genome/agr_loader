@@ -37,6 +37,9 @@ GAF:
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+BIOGRID-ORCS:
+  type: list
+  allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
   allowed: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
