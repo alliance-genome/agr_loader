@@ -144,7 +144,7 @@ class AggregateLoader():
         ['GeneDescriptions'],
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
-        # ['ProteinSequence'],
+        #['ProteinSequence'],
         ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]

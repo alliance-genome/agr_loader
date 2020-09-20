@@ -26,14 +26,14 @@ class ProteinSequenceETL(ETL):
         
         MATCH (t:Transcript {primaryKey:row.transcriptId})
         
-        MERGE (p:TranscriptProteinSequence {primaryKey:row.transcriptId})
-           ON CREATE SET p.proteinSequence = row.proteinSequence
+        CREATE (p:TranscriptProteinSequence {primaryKey:row.transcriptId})
+           SET p.proteinSequence = row.proteinSequence
         
-        MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
-           ON CREATE SET ts.cdsSequence = row.cdsSequence
+        CREATE (ts:CDSSequence {primaryKey:row.transcriptId})
+           SET ts.cdsSequence = row.cdsSequence
            
-        MERGE (p)-[pt:ASSOCIATION]-(t)
-        MERGE (ts)-[tst:ASSOCIATION]-(t)      
+        CREATE (p)-[pt:ASSOCIATION]->(t)
+        CREATE (ts)-[tst:ASSOCIATION]->(t)      
         
     """
 
