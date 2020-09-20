@@ -108,8 +108,10 @@ class ProteinSequenceETL(ETL):
 
         fetch_transcript_query = """
 
-                   MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
+                   MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant), 
+                        (t)-[ts:TRANSCRIPT_TYPE]-(so:SOTerm)
                    WHERE NOT (t.primaryKey =~ 'RefSeq.*')
+                   AND so.name = 'mRNA'
                    RETURN distinct t.primaryKey as transcriptPrimaryKey,
                           t.dataProvider as dataProvider,
                           gl.phase as transcriptPhase,
@@ -122,8 +124,9 @@ class ProteinSequenceETL(ETL):
 
         fetch_cds_transcript_query = """
 
-            MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant)
-            WHERE NOT (t.primaryKey =~ 'RefSeq.*')
+            MATCH (gl:GenomicLocation)-[gle:ASSOCIATION]-(e:CDS)-[et:CDS]-(t:Transcript)-[tv:ASSOCIATION]-(v:Variant),
+                                    (t)-[ts:TRANSCRIPT_TYPE]-(so:SOTerm)
+            WHERE NOT (t.primaryKey =~ 'RefSeq.*') AND so.name = 'mRNA' 
             RETURN distinct gl.end AS CDSEndPosition, 
                    gl.start AS CDSStartPosition, 
                    t.primaryKey as transcriptPrimaryKey,
@@ -190,6 +193,7 @@ class ProteinSequenceETL(ETL):
 
             if full_cds_sequence != '' and len(full_cds_sequence) % 3 == 0:
                 protein_sequence = self.translate_protein(full_cds_sequence, strand)
+                self.logger.info(protein_sequence)
 
                 data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,

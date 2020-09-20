@@ -105,7 +105,7 @@ class AggregateLoader():
         'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
         'DB-SUMMARY': NodeCountETL,
-        'ProteinSequence': ProteinSequenceETL,
+        #'ProteinSequence': ProteinSequenceETL,
         'GENEPHENOCROSSREFERENCE': GenePhenoCrossReferenceETL
     }
 
@@ -144,7 +144,7 @@ class AggregateLoader():
         ['GeneDescriptions'],
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
-        ['ProteinSequence'],
+        # ['ProteinSequence'],
         ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]
