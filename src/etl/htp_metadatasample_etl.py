@@ -298,7 +298,7 @@ class HTPMetaDatasetSampleETL(ETL):
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
+        batch_size = 25000
 
 
         # This needs to be in this format (template, param1, params2) others will be ignored

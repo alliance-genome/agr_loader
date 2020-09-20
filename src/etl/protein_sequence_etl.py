@@ -170,7 +170,6 @@ class ProteinSequenceETL(ETL):
         for transcript_record in returned_ts:
 
             counter = counter + 1
-
             context_info = ContextInfo()
             data_manager = DataFileManager(context_info.config_file_location)
             assembly = transcript_record['transcriptAssembly']
@@ -189,7 +188,7 @@ class ProteinSequenceETL(ETL):
                     full_cds_sequence += cds_sequence
                     strand = transcript_record['transcriptStrand']
 
-            if full_cds_sequence != '':
+            if full_cds_sequence != '' and len(full_cds_sequence) % 3 == 0:
                 protein_sequence = self.translate_protein(full_cds_sequence, strand)
 
                 data = { "transcriptId": transcript_id,
