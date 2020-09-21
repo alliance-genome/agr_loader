@@ -1385,7 +1385,7 @@ def test_not_disease_annotation_exists_exists():
     for record in result:
         assert record["counter"] > 0
 
-#
+
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
 
@@ -1454,4 +1454,4 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
             RETURN count(DISTINCT g.dataProvider) as counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 3
+        assert record["counter"] > 4

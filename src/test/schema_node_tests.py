@@ -94,9 +94,9 @@ class TestClass():
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
                              dict(node='Exon'),
-                             #dict(node='TranscriptProteinSequence'),
-                             #dict(node='VariantProteinSequence'),
-                             #dict(node='CDSSequence')
+                             dict(node='TranscriptProteinSequence'),
+                             dict(node='VariantProteinSequence'),
+                             dict(node='CDSSequence')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
