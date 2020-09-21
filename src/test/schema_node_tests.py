@@ -291,7 +291,7 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
-                             dict(node='CrossReference', prop='primaryKey'),
+                             #dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),
