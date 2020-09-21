@@ -1442,7 +1442,7 @@ def test_correct_number_of_species_datasetsample_relations():
     """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 5
+        assert record["counter"] > 4
 
 
 def test_correct_number_of_species_phenotype_xrefs_relations():
@@ -1454,4 +1454,4 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
             RETURN count(DISTINCT g.dataProvider) as counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 6
+        assert record["counter"] > 3
