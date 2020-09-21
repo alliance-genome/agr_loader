@@ -53,7 +53,7 @@ class DiseaseETL(ETL):
             // PUBLICATIONS FOR FEATURE
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubf.pubModId = row.pubModId,
+                SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
@@ -93,7 +93,7 @@ class DiseaseETL(ETL):
             // PUBLICATIONS FOR FEATURE
 
             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubf.pubModId = row.pubModId,
+                SET pubf.pubModId = row.pubModId,
                  pubf.pubMedId = row.pubMedId,
                  pubf.pubModUrl = row.pubModUrl,
                  pubf.pubMedUrl = row.pubMedUrl
@@ -130,7 +130,7 @@ class DiseaseETL(ETL):
             // PUBLICATIONS FOR GENE
 
             MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubg.pubModId = row.pubModId,
+                SET pubg.pubModId = row.pubModId,
                     pubg.pubMedId = row.pubMedId,
                     pubg.pubModUrl = row.pubModUrl,
                     pubg.pubMedUrl = row.pubMedUrl
@@ -321,12 +321,13 @@ class DiseaseETL(ETL):
             return pecj_primary_key
         evidence = disease_record.get('evidence')
         if 'publication' in evidence:
+            pecj_primary_key = str(uuid.uuid4())
             publication = evidence.get('publication')
             if publication.get('publicationId').startswith('PMID:'):
                 pubs['pub_med_id'] = publication.get('publicationId')
                 pubs['pub_med_url'] = self.etlh.return_url_from_identifier(pubs['pub_med_id'])
-                if 'crossReference' in evidence:
-                    pub_xref = evidence.get('crossReference')
+                if 'crossReference' in publication:
+                    pub_xref = publication.get('crossReference')
                     pubs['publication_mod_id'] = pub_xref.get('id')
                     pubs['pub_mod_url'] = self.etlh.return_url_from_identifier(pubs['publication_mod_id'])
             else:

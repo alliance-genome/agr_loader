@@ -93,7 +93,10 @@ class TestClass():
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
-                             dict(node='Exon')
+                             dict(node='Exon'),
+                             #dict(node='TranscriptProteinSequence'),
+                             #dict(node='VariantProteinSequence'),
+                             #dict(node='CDSSequence')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
@@ -128,6 +131,11 @@ class TestClass():
                             dict(node='DOTerm', prop='subset'),
                             dict(node='DOTerm', prop='primaryKey'),
                             dict(node='MITerm', prop='primaryKey'),
+                            #dict(node='TranscriptProteinSequence', prop='primaryKey'),
+                            #dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            #dict(node='VariantProteinSequence', prop='primaryKey'),
+                            #dict(node='VariantProteinSequence', prop='proteinSequence'),
+                            #dict(node='CDSSequence', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
@@ -283,7 +291,7 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
-                             dict(node='CrossReference', prop='primaryKey'),
+                             #dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),

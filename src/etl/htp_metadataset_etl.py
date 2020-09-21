@@ -10,60 +10,60 @@ logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetETL(ETL):
-
     htp_dataset_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         CREATE (ds:HTPDataset {primaryKey:row.datasetId})
           SET ds.dateAssigned = row.dateAssigned,
               ds.summary = row.summary,
               ds.numChannels = row.numChannels,
               ds.subSeries = row.subSeries,
               ds.title = row.title,
-              ds.crossRefCompleteUrl = row.crossRefCompleteUrl
+              ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
+              ds.dataProvider = row.dataProvider
          """
 
     htp_dataset_pub_query_template = """
-        
+
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (ds:HTPDataset {primaryKey: row.datasetId})
-        
-        MERGE (p:Publication {primaryKey: row.pubPrimaryKey})
+
+        MERGE (p:Publication {primaryKey:row.pubPrimaryKey})
             ON CREATE SET p.pubModId = row.pubModId,
                           p.pubMedId = row.pubMedId,
                           p.pubModUrl = row.pubModUrl,
                           p.pubMedUrl = row.pubMedUrl
-                          
+
         MERGE (p)-[:ASSOCIATION]-(ds)
-    
+
     """
 
     htp_category_tags_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (ds:HTPDataset {primaryKey:row.datasetId})
-        
+
         MERGE (ct:CategoryTag {primaryKey:row.tag})
-        
+
         MERGE (ds)-[:CATEGORY_TAG]-(ct)    
-            
+
     """
 
     htp_secondaryIds_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
-        
+        MATCH (ds:HTPDataset {primaryKey:row.datasetId})
+
         MERGE (s:SecondaryId:Identifier {primaryKey:row.secondaryId})
                 ON CREATE SET s.name = row.secondaryId
-                
+
         MERGE (ds)-[aka:ALSO_KNOWN_AS]-(s)
-   
+
 
     """
 
@@ -106,11 +106,16 @@ class HTPMetaDatasetETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-             [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,"htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,"htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,"htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,"htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,
+             "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,
+             "htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
+             "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size,
+             "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
+             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
 
         ]
 
@@ -134,18 +139,12 @@ class HTPMetaDatasetETL(ETL):
         data_provider_cross_ref = data_provider_object.get('crossReference')
         data_provider = data_provider_cross_ref.get('id')
 
-
         for dataset_record in htp_dataset_data['data']:
 
             counter = counter + 1
 
             dataset = dataset_record.get('datasetId')
             datasetId = dataset.get('primaryId')
-
-            # spoke to RGD and they wish to remove these datasets as they overlap with SGD.
-
-            if (datasetId == 'GEO:GSE18157' or datasetId=='GEO:GSE33497') and data_provider == 'RGD':
-                continue
             if 'secondaryIds' in dataset:
                 for secId in dataset.get('secondaryIds'):
                     secid = {
@@ -153,7 +152,6 @@ class HTPMetaDatasetETL(ETL):
                         "secondaryId": secId
                     }
                     secondaryIds.append(secid)
-
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(datasetId)
@@ -238,7 +236,6 @@ class HTPMetaDatasetETL(ETL):
                     }
                     publications.append(publication)
 
-
             htp_dataset = {
                 "datasetId": datasetId,
                 "dateAssigned": dataset_record.get('dateAssigned'),
@@ -246,7 +243,8 @@ class HTPMetaDatasetETL(ETL):
                 "summary": dataset_record.get('summary'),
                 "numChannels": dataset_record.get('numChannels'),
                 "subSeries": dataset_record.get('subSeries'),
-                "crossRefCompleteUrl": cross_ref_complete_url
+                "crossRefCompleteUrl": cross_ref_complete_url,
+                "dataProvider": data_provider
             }
             htp_datasets.append(htp_dataset)
 
@@ -270,5 +268,6 @@ class HTPMetaDatasetETL(ETL):
                    publications,
                    cross_reference_list,
                    secondaryIds
-             ]
+                   ]
+
 

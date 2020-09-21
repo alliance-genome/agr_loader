@@ -1385,6 +1385,19 @@ def test_not_disease_annotation_exists_exists():
     for record in result:
         assert record["counter"] > 0
 
+#
+# def test_protein_sequence_exists():
+#     """Test_protein_sequence_exists"""
+#
+#     query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
+#                  WHERE n.proteinSequence IS NOT NULL
+#                  and n.proteinSequence <> ''
+#                  RETURN count(distinct t.dataProvider) as counter
+#     """
+#     result = execute_transaction(query)
+#     for record in result:
+#         assert record["counter"] > 4
+
 
 def test_fb_variant_has_note():
     """Test variant has note"""
@@ -1419,3 +1432,26 @@ def test_correct_number_of_species_have_variant_transcript_exon_relations():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 5
+
+
+def test_correct_number_of_species_datasetsample_relations():
+    """test_correct_number_of_species_datasetsample_relations"""
+
+    query = """ MATCH (hd:HTPDataset)--(hds:HTPDatasetSample) 
+                RETURN COUNT(DISTINCT hd.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4
+
+
+def test_correct_number_of_species_phenotype_xrefs_relations():
+    """test_correct_number_of_species_phenotype_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:Gene)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'gene/phenotypes' 
+            RETURN count(DISTINCT g.dataProvider) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 3

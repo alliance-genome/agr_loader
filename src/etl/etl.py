@@ -15,6 +15,7 @@ class ETL():
     logger = logging.getLogger(__name__)
     etlh = ETLHelper()
 
+
     def __init__(self):
         """Initialise objects."""
         context_info = ContextInfo()
@@ -48,7 +49,9 @@ class ETL():
     def run_etl(self):
         """Run ETL."""
         self._load_and_process_data()
+
         self.error_messages("ETL main:")
+
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):

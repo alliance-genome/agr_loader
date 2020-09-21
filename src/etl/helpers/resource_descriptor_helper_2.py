@@ -200,9 +200,6 @@ class ResourceDescriptorHelper2():
                 resource_descriptor_dict[entry]['pages'] = \
                     resource_descriptor_dict[entry].pop('pages_temp')
 
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(self.resource_descriptor_dict)
-        # quit()
         ResourceDescriptorHelper2.resource_descriptor_dict = resource_descriptor_dict
         self._get_alt_keys()
 

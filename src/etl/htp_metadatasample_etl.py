@@ -16,11 +16,10 @@ class HTPMetaDatasetSampleETL(ETL):
     
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
         
         MATCH (o:OBITerm {primaryKey:row.sampleType})
-        MATCH (s:Species {primaryKey: row.taxonId})
-        MATCH (a:MMOTerm {primaryKey: row.assayType})
+        MATCH (s:Species {primaryKey:row.taxonId})
+        MATCH (a:MMOTerm {primaryKey:row.assayType})
     
         MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           ON CREATE SET ds.dateAssigned = row.dateAssigned,
@@ -28,7 +27,7 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.sex = row.sex,
               ds.notes = row.notes,
               ds.dateAssigned = row.dateAssigned,
-              //ds.biosampleText = row.biosampleText,
+              ds.biosampleText = row.biosampleText,
               ds.sequencingFormat = row.sequencingFormat,
               ds.title = row.sampleTitle,
               ds.sampleAge = row.sampleAge
@@ -108,7 +107,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
         MATCH (dss:HTPDatasetSample {primaryKey: row.datasetSampleId})
 
-        MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondaryId})
+        MERGE (sec:SecondaryId {primaryKey:row.secondaryId})
                 ON CREATE SET sec.name = row.secondaryId
 
         MERGE (dss)<-[aka:ALSO_KNOWN_AS]-(sec)
@@ -262,7 +261,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
                 MATCH (u:Assembly {primaryKey:row.assembly})
 
-                MERGE (ds)-[dsu:ASSEMBLY]-(u) """
+                CREATE (ds)<-[dsu:ASSEMBLY]-(u) """
 
     htpdatasetsample_xrefs_template = """
         USING PERIODIC COMMIT %s
@@ -299,7 +298,7 @@ class HTPMetaDatasetSampleETL(ETL):
         # A list of tuples.
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_generator_batch_size()
+        batch_size = 25000
 
 
         # This needs to be in this format (template, param1, params2) others will be ignored
@@ -365,7 +364,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
         htp_datasetsamples = []
         secondaryIds = []
-        datasetIds = []
+        datasetIDs = []
         assemblies = []
         uberon_ao_data = []
         ao_qualifiers = []
@@ -381,52 +380,38 @@ class HTPMetaDatasetSampleETL(ETL):
         biosamplesTexts = []
         counter = 0
 
-        data_provider_object = htp_datasetsample_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
 
         for datasample_record in htp_datasetsample_data['data']:
 
             counter = counter + 1
-
-            sampleIds = ''
-            biosampleId = ''
-            biosampleText = ''
-            sampleId = ''
             sampleTitle = ''
-            biosamplesTexts = ''
+            sampleId = ''
+            biosampleId = ''
+            biosampleText = {}
+
+            if 'sampleTitle' in datasample_record:
+                sampleTitle = datasample_record.get('sampleTitle')
 
             if 'sampleId' in datasample_record:
                 sampleIdObj = datasample_record.get('sampleId')
                 sampleId = sampleIdObj.get('primaryId')
-
-                if 'secondaryIds' in sampleIdObj:
-                    for secId in sampleIdObj.get('secondaryIds'):
-                        secid = {
-                            "datasetSampleId": sampleId,
-                            "secondaryId": secId
-                        }
-                        secondaryIds.append(secid)
-
-            if 'sampleTitle' in sampleIds:
-                sampleTitle = datasample_record.get('sampleTitle')
 
             datasetSampleId = sampleId + sampleTitle
 
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
                 for datasetID in datasetIdSet:
-                    datasetsample = {
-                        "datasetSampleId": datasetSampleId,
-                        "datasetId": datasetID
-                    }
-                    datasetIds.append(datasetsample)
 
                     if self.test_object.using_test_data() is True:
                         is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
                         if is_it_test_entry is False:
                             counter = counter - 1
                             continue
+                    datasetsample = {
+                        "datasetSampleId": datasetSampleId,
+                        "datasetId": datasetID
+                    }
+                    datasetIDs.append(datasetsample)
 
             if 'genomicInformation' in datasample_record:
                 genomicInformation = datasample_record.get('genomicInformation')
@@ -452,16 +437,16 @@ class HTPMetaDatasetSampleETL(ETL):
             if 'assemblyVersions' in datasample_record:
                 for assembly in datasample_record.get('assemblyVersions'):
 
-                    datasetsample = {
+                    assembly_datasample = {
                             "datasetSampleId": datasetSampleId,
                             "assembly": assembly
                         }
-                    assemblies.append(datasetsample)
+                    assemblies.append(assembly_datasample)
 
             age = ''
             if 'sampleAge' in datasample_record:
                 sampleAge = datasample_record.get('sampleAge')
-                stageId = ""
+                stageId = ''
                 if 'age' in sampleAge:
                     age = sampleAge.get('age')
                     stageId = stageId + age
@@ -519,7 +504,6 @@ class HTPMetaDatasetSampleETL(ETL):
                         if anatomical_sub_structure_qualifier_term_id is not None:
                             expression_unique_key += anatomical_sub_structure_qualifier_term_id
                             expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
-
 
 
                     expression_entity_unique_key += where_expressed_statement
@@ -612,10 +596,8 @@ class HTPMetaDatasetSampleETL(ETL):
                     }
                     bio_entities.append(bio_entity)
 
-            # TODO: remove when MGI corrects their taxon submission
+            # TODO: remove when WB corrects their taxon submission
             taxonId = datasample_record.get('taxonId')
-            if taxonId == '10090':
-                taxonId = 'NCBITaxon:10090'
 
             htp_dataset_sample = {
 
@@ -633,20 +615,13 @@ class HTPMetaDatasetSampleETL(ETL):
 
             }
 
-
             htp_datasetsamples.append(htp_dataset_sample)
-
-            #
-            # if self.test_object.using_test_data() is True:
-            #     is_it_test_entry = self.test_object.check_for_test_id_entry(datasetID)
-            #     if is_it_test_entry is True:
-            #         self.logger.info(htp_dataset_sample)
 
             if counter == batch_size:
                 yield [htp_datasetsamples,
                        bio_entities,
                        secondaryIds,
-                       datasetIds,
+                       datasetIDs,
                        stages,
                        ao_terms,
                        ao_substructures,
@@ -658,11 +633,11 @@ class HTPMetaDatasetSampleETL(ETL):
                        uberon_ao_other_data,
                        biosamples,
                        biosamplesTexts,
-                       assemblies,
+                       assemblies
                        ]
                 counter = 0
                 htp_datasetsamples = []
-                datasetIds = []
+                datasetIDs = []
                 uberon_ao_data = []
                 ao_qualifiers = []
                 bio_entities = []
@@ -674,6 +649,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 ccq_components = []
                 cc_components = []
                 biosamples = []
+                biosamplesTexts =[]
                 assemblies = []
 
 
@@ -681,7 +657,7 @@ class HTPMetaDatasetSampleETL(ETL):
             yield [htp_datasetsamples,
                    bio_entities,
                    secondaryIds,
-                   datasetIds,
+                   datasetIDs,
                    stages,
                    ao_terms,
                    ao_substructures,

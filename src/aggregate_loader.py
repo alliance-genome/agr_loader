@@ -16,8 +16,9 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
-                 VariationETL, VEPTranscriptETL,
-                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL)
+                 VariationETL, VEPTranscriptETL, ProteinSequenceETL,
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL)
+
 from transactors import FileTransactor, Neo4jTransactor
 
 from data_manager import DataFileManager
@@ -84,6 +85,8 @@ class AggregateLoader():
         'VARIATION': VariationETL,
         'SQTR': SequenceTargetingReagentETL,
         'AGM': AffectedGenomicModelETL,
+        'HTPDATASET': HTPMetaDatasetETL,
+        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'PHENOTYPE': PhenoTypeETL,
         'GFF': TranscriptETL,
         'GO': GOETL,
@@ -96,15 +99,14 @@ class AggregateLoader():
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
         'BIOGRID-ORCS': BiogridOrcsXrefETL,
-        'HTPDATASET': HTPMetaDatasetETL,
-        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
         'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
-        'DB-SUMMARY': NodeCountETL
-
+        'DB-SUMMARY': NodeCountETL,
+        #'ProteinSequence': ProteinSequenceETL,
+        'GENEPHENOCROSSREFERENCE': GenePhenoCrossReferenceETL
     }
 
     # This is the order in which data types are loaded.
@@ -123,6 +125,8 @@ class AggregateLoader():
         ['VARIATION'],
         ['SQTR'],
         ['AGM'],
+        ['HTPDATASET'],
+        ['HTPDATASAMPLE'],
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
@@ -135,13 +139,13 @@ class AggregateLoader():
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
         ['BIOGRID-ORCS'],  # Locks Genes
-        ['HTPDATASET'],
-        ['HTPDATASAMPLE'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
+        #['ProteinSequence'],
+        ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]
 

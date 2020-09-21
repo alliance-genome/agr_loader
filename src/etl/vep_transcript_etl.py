@@ -56,6 +56,11 @@ class VEPTranscriptETL(ETL):
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
+                
+                CREATE (p:VariantProteinSequence {primaryKey:row.hgvsNomenclature})
+                  SET p.proteinSequence = row.variantProteinSequence
+                
+                CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.hgvsVEPGeneNomenclature})
                         SET syn.name = row.hgvsVEPGeneNomenclature
@@ -140,6 +145,7 @@ class VEPTranscriptETL(ETL):
             pph_score = ''
             sift_prediction = ''
             sift_score = ''
+            variant_protein_sequnece = ''
 
             columns = line.split()
             if columns[0].startswith('#'):
@@ -167,6 +173,9 @@ class VEPTranscriptETL(ETL):
                         m = prot_func_regex.match(value)
                         sift_prediction = m.group(1)
                         sift_score = m.group(2)
+                    elif key == 'VarSeq':
+                        variant_protein_sequnece = value
+
 
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')
@@ -217,7 +226,8 @@ class VEPTranscriptETL(ETL):
                           "polyphenPrediction": pph_prediction,
                           "polyphenScore": pph_score,
                           "siftPrediction": sift_prediction,
-                          "siftScore": sift_score
+                          "siftScore": sift_score,
+                          "variantProteinSequence": variant_protein_sequnece
                           }
 
             vep_maps.append(vep_result)

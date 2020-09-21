@@ -240,7 +240,7 @@ class PhenoTypeETL(ETL):
                 'pub_mod_id': pub_mod_id
                 }
 
-    def primgenent_process(self, pheno, pge_list_to_yield, pecj_primary_key):
+    def primary_genetic_entity_process(self, pheno, pge_list_to_yield, pecj_primary_key):
         """Process Primary Genetic EntityIDs."""
         if 'primaryGeneticEntityIDs' not in pheno:
             return
@@ -255,6 +255,7 @@ class PhenoTypeETL(ETL):
         """Get Generators."""
         list_to_yield = []
         pge_list_to_yield = []
+        calculated_cross_references = []
         date_produced = phenotype_data['metaData']['dateProduced']
         data_providers = []
         counter = 0
@@ -281,7 +282,7 @@ class PhenoTypeETL(ETL):
 
             date_assigned = pheno.get('dateAssigned')
 
-            self.primgenent_process(pheno, pge_list_to_yield, pecj_primary_key)
+            self.primary_genetic_entity_process(pheno, pge_list_to_yield, pecj_primary_key)
             phenotype = {
                 "primaryId": primary_id,
                 "phenotypeUniqueKey": primary_id + phenotype_statement.strip(),

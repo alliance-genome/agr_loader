@@ -298,6 +298,11 @@ class BGIETL(ETL):
                 for page in pages:
                     display_name = ""
 
+                    # TODO remove when MGI updates resourceDescriptor to remove plural.
+
+                    if page == 'gene/phenotype':
+                        page = 'gene/phenotypes'
+
                     cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                         prefix, local_cross_ref_id, page)
 
