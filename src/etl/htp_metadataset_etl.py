@@ -70,7 +70,7 @@ class HTPMetaDatasetETL(ETL):
     htpdataset_xrefs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_preferred_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -126,6 +126,35 @@ class HTPMetaDatasetETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
+    def get_cross_references (self, cross_refs, cross_reference_list, datasetId, preferred):
+        if cross_refs is not None:
+            for cross_ref in cross_refs:
+                cross_ref_id = cross_ref.get('id')
+                local_cross_ref_id = cross_ref_id.split(":")[1]
+                prefix = cross_ref.get('id').split(":")[0]
+                pages = cross_ref.get('pages')
+                global_xref_id = cross_ref.get('id')
+
+                # some pages collection have 0 elements
+                if pages is not None and len(pages) > 0:
+                    for page in pages:
+                        display_name = ""
+
+                        cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, local_cross_ref_id, page)
+
+                        xref_map = ETLHelper.get_xref_dict(
+                            local_cross_ref_id,
+                            prefix,
+                            page,
+                            page,
+                            display_name,
+                            cross_ref_complete_url,
+                            global_xref_id + page)
+                        xref_map['dataId'] = datasetId
+                        xref_map['preferred'] = preferred
+                        cross_reference_list.append(xref_map)
+
     def get_generators(self, htp_dataset_data, batch_size):
         dataset_tags = []
         htp_datasets = []
@@ -160,32 +189,15 @@ class HTPMetaDatasetETL(ETL):
                     continue
 
             cross_refs = dataset.get('crossReferences')
+
             if cross_refs is not None:
-                for cross_ref in cross_refs:
-                    cross_ref_id = cross_ref.get('id')
-                    local_cross_ref_id = cross_ref_id.split(":")[1]
-                    prefix = cross_ref.get('id').split(":")[0]
-                    pages = cross_ref.get('pages')
-                    global_xref_id = cross_ref.get('id')
+                self.get_cross_references(cross_refs, cross_reference_list, datasetId)
 
-                    # some pages collection have 0 elements
-                    if pages is not None and len(pages) > 0:
-                        for page in pages:
-                            display_name = ""
+            preferred_cross_reference = dataset.get('preferredCrossReference')
 
-                            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                                prefix, local_cross_ref_id, page)
+            self.get_cross_references(preferred_cross_reference, cross_reference_list, datasetId, 'true')
 
-                            xref_map = ETLHelper.get_xref_dict(
-                                local_cross_ref_id,
-                                prefix,
-                                page,
-                                page,
-                                display_name,
-                                cross_ref_complete_url,
-                                global_xref_id + page)
-                            xref_map['dataId'] = datasetId
-                            cross_reference_list.append(xref_map)
+            self.get_cross_references(cross_refs, cross_reference_list, datasetId, 'false')
 
             globalPrimaryIdCrossRefId = datasetId
             prefix = globalPrimaryIdCrossRefId.split(":")[0]
