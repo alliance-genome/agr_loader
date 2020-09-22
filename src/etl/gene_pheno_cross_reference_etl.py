@@ -33,8 +33,8 @@ class GenePhenoCrossReferenceETL(ETL):
         for sub_type in self.data_type_config.get_sub_type_objects():
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
-
-            generators = self.get_generators()
+            batch_size = self.data_type_config.get_generator_batch_size()
+            generators = self.get_generators(batch_size)
 
             query_template_list = [
                 [self.pheno_xref_query_template, commit_size,
@@ -46,13 +46,15 @@ class GenePhenoCrossReferenceETL(ETL):
             Neo4jTransactor.execute_query_batch(query_and_file_list)
             self.error_messages()
 
-    def get_generators(self):
+    def get_generators(self, batch_size):
         """Get Generators."""
 
         gene_pheno_data_list = []
         return_set = Neo4jHelper.run_single_query(self.gene_pheno_query_template)
+        counter = 0
 
         for record in return_set:
+            counter = counter + 1
             global_cross_ref_id = record["g.primaryKey"]
             data_provider = record["g.dataProvider"]
             id_prefix = global_cross_ref_id.split(":")[0]
@@ -83,4 +85,9 @@ class GenePhenoCrossReferenceETL(ETL):
 
             gene_pheno_data_list.append(gene_pheno_xref)
 
-        yield [gene_pheno_data_list]
+            if counter == batch_size:
+                yield [gene_pheno_data_list]
+                gene_pheno_data_list = []
+
+        if counter > 0:
+            yield [gene_pheno_data_list]
