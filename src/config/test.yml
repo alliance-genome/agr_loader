@@ -96,3 +96,4 @@ DB-SUMMARY:
 
 FileTransactorThreads: 10
 Neo4jTransactorThreads: 7
+reads: 7
