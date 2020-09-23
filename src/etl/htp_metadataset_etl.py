@@ -181,7 +181,7 @@ class HTPMetaDatasetETL(ETL):
             datasetId = dataset.get('primaryId')
 
             # remove for now to reduce duplication between RGD and SGD for 3.2.  TODO: fix next release.
-            if datasetId == 'GEO:GSE18157' and data_provider == 'RGD':
+            if (datasetId == 'GEO:GSE18157' or datasetId == 'GEO:GSE33497') and data_provider == 'RGD':
                 continue
             if 'secondaryIds' in dataset:
                 for secId in dataset.get('secondaryIds'):
