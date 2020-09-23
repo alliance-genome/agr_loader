@@ -94,9 +94,9 @@ class TestClass():
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
                              dict(node='Exon'),
-                             #dict(node='TranscriptProteinSequence'),
-                             #dict(node='VariantProteinSequence'),
-                             #dict(node='CDSSequence')
+                             dict(node='TranscriptProteinSequence'),
+                             dict(node='VariantProteinSequence'),
+                             dict(node='CDSSequence')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
@@ -131,11 +131,11 @@ class TestClass():
                             dict(node='DOTerm', prop='subset'),
                             dict(node='DOTerm', prop='primaryKey'),
                             dict(node='MITerm', prop='primaryKey'),
-                            #dict(node='TranscriptProteinSequence', prop='primaryKey'),
-                            #dict(node='TranscriptProteinSequence', prop='proteinSequence'),
-                            #dict(node='VariantProteinSequence', prop='primaryKey'),
-                            #dict(node='VariantProteinSequence', prop='proteinSequence'),
-                            #dict(node='CDSSequence', prop='primaryKey'),
+                            dict(node='TranscriptProteinSequence', prop='primaryKey'),
+                            dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            dict(node='VariantProteinSequence', prop='primaryKey'),
+                            dict(node='VariantProteinSequence', prop='proteinSequence'),
+                            dict(node='CDSSequence', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
@@ -307,9 +307,8 @@ class TestClass():
                              dict(node='Variant', prop='hgvsNomenclature'),
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
-                             #dict(node='HTPDataset', prop='primaryKey'),
-                             dict(node='HTPDatasetSample', prop='primaryKey'),
-                             #dict(node='CategoryTag', prop='primaryKey')
+                             dict(node='HTPDataset', prop='primaryKey'),
+                             dict(node='HTPDatasetSample', prop='primaryKey')
                              ]
     }
 

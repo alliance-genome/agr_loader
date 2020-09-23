@@ -5,6 +5,7 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,7 @@ class HTPMetaDatasetETL(ETL):
     htpdataset_xrefs_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_preferred_xref_text()
 
     def __init__(self, config):
         super().__init__()
@@ -126,42 +127,13 @@ class HTPMetaDatasetETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_generators(self, htp_dataset_data, batch_size):
-        dataset_tags = []
-        htp_datasets = []
-        publications = []
-        secondaryIds = []
-        cross_reference_list = []
-        counter = 0
+    def get_cross_references (self, cross_refs, cross_reference_list, datasetId, preferred):
 
-        data_provider_object = htp_dataset_data['metaData']['dataProvider']
-
-        data_provider_cross_ref = data_provider_object.get('crossReference')
-        data_provider = data_provider_cross_ref.get('id')
-
-        for dataset_record in htp_dataset_data['data']:
-
-            counter = counter + 1
-
-            dataset = dataset_record.get('datasetId')
-            datasetId = dataset.get('primaryId')
-            if 'secondaryIds' in dataset:
-                for secId in dataset.get('secondaryIds'):
-                    secid = {
-                        "datasetId": datasetId,
-                        "secondaryId": secId
-                    }
-                    secondaryIds.append(secid)
-
-            if self.test_object.using_test_data() is True:
-                is_it_test_entry = self.test_object.check_for_test_id_entry(datasetId)
-                if is_it_test_entry is False:
-                    counter = counter - 1
+        if cross_refs is not None:
+            for cross_ref in cross_refs:
+                if isinstance(cross_ref, str):
                     continue
-
-            cross_refs = dataset.get('crossReferences')
-            if cross_refs is not None:
-                for cross_ref in cross_refs:
+                else:
                     cross_ref_id = cross_ref.get('id')
                     local_cross_ref_id = cross_ref_id.split(":")[1]
                     prefix = cross_ref.get('id').split(":")[0]
@@ -185,7 +157,53 @@ class HTPMetaDatasetETL(ETL):
                                 cross_ref_complete_url,
                                 global_xref_id + page)
                             xref_map['dataId'] = datasetId
+                            xref_map['preferred'] = preferred
                             cross_reference_list.append(xref_map)
+
+    def get_generators(self, htp_dataset_data, batch_size):
+        dataset_tags = []
+        htp_datasets = []
+        publications = []
+        secondaryIds = []
+        cross_reference_list = []
+        counter = 0
+
+        data_provider_object = htp_dataset_data['metaData']['dataProvider']
+
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        data_provider = data_provider_cross_ref.get('id')
+
+        for dataset_record in htp_dataset_data['data']:
+
+            counter = counter + 1
+
+            dataset = dataset_record.get('datasetId')
+            datasetId = dataset.get('primaryId')
+
+            # remove for now to reduce duplication between RGD and SGD for 3.2.  TODO: fix next release.
+            if (datasetId == 'GEO:GSE18157' or datasetId == 'GEO:GSE33497') and data_provider == 'RGD':
+                continue
+            if 'secondaryIds' in dataset:
+                for secId in dataset.get('secondaryIds'):
+                    secid = {
+                        "datasetId": datasetId,
+                        "secondaryId": secId
+                    }
+                    secondaryIds.append(secid)
+
+            if self.test_object.using_test_data() is True:
+                is_it_test_entry = self.test_object.check_for_test_id_entry(datasetId)
+                if is_it_test_entry is False:
+                    counter = counter - 1
+                    continue
+
+            cross_refs = dataset.get('crossReferences')
+
+            self.get_cross_references(cross_refs, cross_reference_list, datasetId, 'true')
+
+            preferred_cross_ref = dataset.get('preferredCrossReference')
+
+            self.get_cross_references(preferred_cross_ref , cross_reference_list, datasetId, 'false')
 
             globalPrimaryIdCrossRefId = datasetId
             prefix = globalPrimaryIdCrossRefId.split(":")[0]

@@ -193,7 +193,6 @@ class ProteinSequenceETL(ETL):
 
             if full_cds_sequence != '' and len(full_cds_sequence) % 3 == 0:
                 protein_sequence = self.translate_protein(full_cds_sequence, strand)
-                self.logger.info(protein_sequence)
 
                 data = { "transcriptId": transcript_id,
                      "CDSSequence": full_cds_sequence,

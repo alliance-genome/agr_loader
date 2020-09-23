@@ -16,8 +16,18 @@ class GenePhenoCrossReferenceETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
-        """ + ETLHelper.get_cypher_xref_text()
+        MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+        """ + ETLHelper.get_cypher_xref_tuned_text()
+
+    pheno_xref_relations_template = """
+         USING PERIODIC COMMIT %s
+         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+         
+         MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+         MATCH (id:CrossReference {primaryKey:row.primaryKey})
+          
+         MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
+        """
 
     gene_pheno_query_template = """
                    MATCH (g:Gene)-[gp:HAS_PHENOTYPE]-(p:Phenotype)
@@ -33,12 +43,14 @@ class GenePhenoCrossReferenceETL(ETL):
         for sub_type in self.data_type_config.get_sub_type_objects():
 
             commit_size = self.data_type_config.get_neo4j_commit_size()
-
-            generators = self.get_generators()
+            batch_size = self.data_type_config.get_generator_batch_size()
+            generators = self.get_generators(batch_size)
 
             query_template_list = [
                 [self.pheno_xref_query_template, commit_size,
                  "pheno_xref_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.pheno_xref_relations_template, commit_size,
+                 "pheno_xref_relations_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             query_and_file_list = self.process_query_params(query_template_list)
@@ -46,13 +58,15 @@ class GenePhenoCrossReferenceETL(ETL):
             Neo4jTransactor.execute_query_batch(query_and_file_list)
             self.error_messages()
 
-    def get_generators(self):
+    def get_generators(self, batch_size):
         """Get Generators."""
 
         gene_pheno_data_list = []
         return_set = Neo4jHelper.run_single_query(self.gene_pheno_query_template)
+        counter = 0
 
         for record in return_set:
+            counter = counter + 1
             global_cross_ref_id = record["g.primaryKey"]
             data_provider = record["g.dataProvider"]
             id_prefix = global_cross_ref_id.split(":")[0]
@@ -63,7 +77,7 @@ class GenePhenoCrossReferenceETL(ETL):
                                                           id_prefix,
                                                           page,
                                                           page,
-                                                          id_prefix,
+                                                          "IMPC",
                                                           url,
                                                           global_cross_ref_id+page)
             elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
@@ -83,4 +97,9 @@ class GenePhenoCrossReferenceETL(ETL):
 
             gene_pheno_data_list.append(gene_pheno_xref)
 
-        yield [gene_pheno_data_list]
+            if counter == batch_size:
+                yield [gene_pheno_data_list,gene_pheno_data_list]
+                gene_pheno_data_list = []
+
+        if counter > 0:
+            yield [gene_pheno_data_list,gene_pheno_data_list]

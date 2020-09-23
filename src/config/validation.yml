@@ -168,7 +168,7 @@ DB-SUMMARY:
   allowed: [2.3.0, 3.0.0]
 GENEPHENOCROSSREFERENCE:
   type: list
-  allowed: [FB, SGD, WB, ZFIN]
+  allowed: [FB, SGD, WB, ZFIN, MGI, RGD]
 FileTransactorThreads:
   type: integer
   required: True

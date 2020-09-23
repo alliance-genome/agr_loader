@@ -1385,18 +1385,18 @@ def test_not_disease_annotation_exists_exists():
     for record in result:
         assert record["counter"] > 0
 
-#
-# def test_protein_sequence_exists():
-#     """Test_protein_sequence_exists"""
-#
-#     query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
-#                  WHERE n.proteinSequence IS NOT NULL
-#                  and n.proteinSequence <> ''
-#                  RETURN count(distinct t.dataProvider) as counter
-#     """
-#     result = execute_transaction(query)
-#     for record in result:
-#         assert record["counter"] > 4
+
+def test_protein_sequence_exists():
+    """Test_protein_sequence_exists"""
+
+    query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
+                 WHERE n.proteinSequence IS NOT NULL
+                 and n.proteinSequence <> ''
+                 RETURN count(distinct t.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4
 
 
 def test_fb_variant_has_note():
@@ -1454,4 +1454,4 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
             RETURN count(DISTINCT g.dataProvider) as counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 3
+        assert record["counter"] > 4
