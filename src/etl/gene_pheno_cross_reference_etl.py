@@ -16,8 +16,18 @@ class GenePhenoCrossReferenceETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
-        """ + ETLHelper.get_cypher_xref_text()
+        MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+        """ + ETLHelper.get_cypher_xref_tuned_text()
+
+    pheno_xref_relations_template = """
+         USING PERIODIC COMMIT %s
+         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+         
+         MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+         MATCH (id:CrossReference {primaryKey:row.primaryKey})
+          
+         MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
+        """
 
     gene_pheno_query_template = """
                    MATCH (g:Gene)-[gp:HAS_PHENOTYPE]-(p:Phenotype)
@@ -39,6 +49,8 @@ class GenePhenoCrossReferenceETL(ETL):
             query_template_list = [
                 [self.pheno_xref_query_template, commit_size,
                  "pheno_xref_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.pheno_xref_relations_template, commit_size,
+                 "pheno_xref_relations_data_" + sub_type.get_data_provider() + ".csv"],
             ]
 
             query_and_file_list = self.process_query_params(query_template_list)
@@ -65,7 +77,7 @@ class GenePhenoCrossReferenceETL(ETL):
                                                           id_prefix,
                                                           page,
                                                           page,
-                                                          id_prefix,
+                                                          "IMPC",
                                                           url,
                                                           global_cross_ref_id+page)
             elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
@@ -86,8 +98,8 @@ class GenePhenoCrossReferenceETL(ETL):
             gene_pheno_data_list.append(gene_pheno_xref)
 
             if counter == batch_size:
-                yield [gene_pheno_data_list]
+                yield [gene_pheno_data_list,gene_pheno_data_list]
                 gene_pheno_data_list = []
 
         if counter > 0:
-            yield [gene_pheno_data_list]
+            yield [gene_pheno_data_list,gene_pheno_data_list]
