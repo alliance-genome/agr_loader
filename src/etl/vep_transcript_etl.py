@@ -57,8 +57,10 @@ class VEPTranscriptETL(ETL):
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
                 
-                CREATE (p:VariantProteinSequence {primaryKey:row.hgvsNomenclature})
+                CREATE (p:VariantProteinSequence {primaryKey:row.variantProteinSequenceKey})
                   SET p.proteinSequence = row.variantProteinSequence
+                  SET p.variantId = row.hgvsNomenclature
+                  SET p.transcriptId = row.transcriptId
                 
                 CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
@@ -199,7 +201,9 @@ class VEPTranscriptETL(ETL):
                 columns[11]
             )
 
-            vep_result = {"hgvsNomenclature": columns[0],
+            transcript_id = columns[4]
+            hgvsNomenclature = columns[0]
+            vep_result = {"hgvsNomenclature": hgvsNomenclature,
                           "transcriptLevelConsequence": columns[6],
                           "primaryKey": str(uuid.uuid4()),
                           "impact": impact,
@@ -207,7 +211,7 @@ class VEPTranscriptETL(ETL):
                           "hgvsCodingNomenclature": hgvs_c,
                           "hgvsVEPGeneNomenclature": hgvs_g,
                           "gene": gene_id,
-                          "transcriptId": columns[4],
+                          "transcriptId": transcript_id,
                           "aminoAcidReference": amino_acid_reference,
                           "aminoAcidVariation": amino_acid_variation,
                           "aminoAcidChange": amino_acid_change,
@@ -227,7 +231,8 @@ class VEPTranscriptETL(ETL):
                           "polyphenScore": pph_score,
                           "siftPrediction": sift_prediction,
                           "siftScore": sift_score,
-                          "variantProteinSequence": variant_protein_sequnece
+                          "variantProteinSequence": variant_protein_sequnece,
+                          "variantProteinSequenceKey": transcript_id+hgvsNomenclature
                           }
 
             vep_maps.append(vep_result)

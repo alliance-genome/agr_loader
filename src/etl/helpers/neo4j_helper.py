@@ -136,6 +136,8 @@ class Neo4jHelper():
                         ":Variant(primaryKey)",
                         ":Variant(hgvsNomenclature)",
                         ":VariantProteinSequence(primaryKey)",
+                        ":VariantProteinSequence(transcriptId)",
+                        ":VariantProteinSequence(variantId)",
                         ":SequenceTargetingReagent(primaryKey)",
                         ":ECOTerm(primaryKey)",
                         ":ZFATerm(primaryKey)",

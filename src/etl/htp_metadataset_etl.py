@@ -145,7 +145,6 @@ class HTPMetaDatasetETL(ETL):
                     continue
                 else:
                     cross_ref_id = cross_ref.get('id')
-                    self.logger.info(cross_ref_id)
                     local_cross_ref_id = cross_ref_id.split(":")[1]
                     prefix = cross_ref.get('id').split(":")[0]
                     pages = cross_ref.get('pages')
