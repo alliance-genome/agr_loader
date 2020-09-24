@@ -43,12 +43,18 @@ class HTPMetaDatasetETL(ETL):
     """
 
     htp_category_tags_query_template = """
+     USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        MERGE (ct:CategoryTag {primaryKey:row.tag})
+    
+    """
+    htp_category_tags_relations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
         MATCH (ds:HTPDataset {primaryKey:row.datasetId})
 
-        MERGE (ct:CategoryTag {primaryKey:row.tag})
+        MATCH (ct:CategoryTag {primaryKey:row.tag})
 
         MERGE (ds)-[:CATEGORY_TAG]-(ct)    
 
@@ -109,7 +115,9 @@ class HTPMetaDatasetETL(ETL):
         query_list = [
             [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,
              "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,
+             [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,
+            "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_category_tags_relations_query_template, commit_size,
              "htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
              "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
@@ -199,11 +207,14 @@ class HTPMetaDatasetETL(ETL):
 
             cross_refs = dataset.get('crossReferences')
 
-            self.get_cross_references(cross_refs, cross_reference_list, datasetId, 'true')
+            self.get_cross_references(cross_refs, cross_reference_list, datasetId, 'false')
+
+            preferred_cross_refs = []
 
             preferred_cross_ref = dataset.get('preferredCrossReference')
+            preferred_cross_refs.append(preferred_cross_ref)
 
-            self.get_cross_references(preferred_cross_ref , cross_reference_list, datasetId, 'false')
+            self.get_cross_references(preferred_cross_refs , cross_reference_list, datasetId, 'true')
 
             globalPrimaryIdCrossRefId = datasetId
             prefix = globalPrimaryIdCrossRefId.split(":")[0]
@@ -269,6 +280,7 @@ class HTPMetaDatasetETL(ETL):
             if counter == batch_size:
                 yield [htp_datasets,
                        dataset_tags,
+                       dataset_tags,
                        publications,
                        cross_reference_list,
                        secondaryIds
@@ -282,6 +294,7 @@ class HTPMetaDatasetETL(ETL):
 
         if counter > 0:
             yield [htp_datasets,
+                   dataset_tags,
                    dataset_tags,
                    publications,
                    cross_reference_list,

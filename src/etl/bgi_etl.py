@@ -323,6 +323,9 @@ class BGIETL(ETL):
                     if page == 'gene/spell':
                         display_name = 'Serial Patterns of Expression Levels Locator (SPELL)'
 
+                    if page == 'gene/phenotypes_impc':
+                        display_name = 'IMPC'
+
                     # TODO: fix generic_cross_reference in SGD, RGD
 
                     if page == 'generic_cross_reference':

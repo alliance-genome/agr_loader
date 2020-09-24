@@ -1455,3 +1455,32 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 4
+
+
+def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'true'
+            AND cr.primaryKey = 'SGD:GSE3431' 
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'false'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
