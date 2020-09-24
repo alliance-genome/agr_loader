@@ -1486,3 +1486,17 @@ def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
         assert record["counter"] == 1
 
 
+def test_mgi_reference_url_creation():
+    """test_mgi_reference_url_creation"""
+
+    query = """ 
+            MATCH (a:Allele)--(v:Variant)--(p:Publication)
+            where a.primaryKey = 'MGI:5449877'
+            and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5449877'
+            RETURN count(DISTINCT v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+
