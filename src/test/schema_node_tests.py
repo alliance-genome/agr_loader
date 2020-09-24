@@ -281,7 +281,6 @@ class TestClass():
                                dict(node='PublicationJoin', prop='primaryKey'),
                                dict(node='HTPDataset', prop='primaryKey'),
                                dict(node='HTPDatasetSample', prop='primaryKey'),
-                               dict(node='CategoryTag', prop='primaryKey'),
                                ],
 
         'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
