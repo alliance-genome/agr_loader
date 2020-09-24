@@ -446,19 +446,19 @@ class VariationETL(ETL):
 
                     vreferences = note.get('references')
                     if vreferences is not None:
-                        for evidence in vreferences:
+                        for vevidence in vreferences:
                             pub_med_url = None
                             pub_med_id = ""
                             pub_mod_url = None
                             publication_mod_id = ""
 
-                            if 'publicationId' in evidence:
-                                publication = evidence.get('publicationId')
+                            if 'publicationId' in vevidence:
+                                publication = vevidence.get('publicationId')
                                 if publication.startswith('PMID:'):
                                     pub_med_id = publication
                                     pub_med_url = self.etlh.return_url_from_identifier(pub_med_id)
-                                    if 'crossReference' in evidence:
-                                        pub_xref = evidence.get('crossReference')
+                                    if 'crossReference' in vevidence:
+                                        pub_xref = vevidence.get('crossReference')
                                         publication_mod_id = pub_xref.get('id')
                                         pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
                                 else:
