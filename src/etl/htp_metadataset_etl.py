@@ -176,6 +176,7 @@ class HTPMetaDatasetETL(ETL):
         publications = []
         secondaryIds = []
         cross_reference_list = []
+        tags = []
         counter = 0
 
         data_provider_object = htp_dataset_data['metaData']['dataProvider']
@@ -241,6 +242,7 @@ class HTPMetaDatasetETL(ETL):
 
             if category_tags is not None:
                 for tag in category_tags :
+
                     dataset_category_tag = {
                         "datasetId": datasetId,
                         "tag": tag

@@ -82,4 +82,10 @@ class ECOMAPETL(ETL):
                    "threeLetterCode": "TAS"}
             eco_maps.append(eco)
 
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0005613",
+                   "threeLetterCode": "IAGP"}
+
+            eco_maps.append(eco)
+
         yield [eco_maps]
