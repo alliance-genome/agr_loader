@@ -116,9 +116,9 @@ class HTPMetaDatasetETL(ETL):
             [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,
              "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
              [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,
-            "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
+            "htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_category_tags_relations_query_template, commit_size,
-             "htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
              "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size,
@@ -141,8 +141,11 @@ class HTPMetaDatasetETL(ETL):
             for cross_ref in cross_refs:
                 if isinstance(cross_ref, str):
                     continue
+                elif cross_ref == '' or cross_ref is None:
+                    continue
                 else:
                     cross_ref_id = cross_ref.get('id')
+                    self.logger.info(cross_ref_id)
                     local_cross_ref_id = cross_ref_id.split(":")[1]
                     prefix = cross_ref.get('id').split(":")[0]
                     pages = cross_ref.get('pages')
@@ -213,17 +216,17 @@ class HTPMetaDatasetETL(ETL):
 
             preferred_cross_ref = dataset.get('preferredCrossReference')
             preferred_cross_refs.append(preferred_cross_ref)
-
-            self.get_cross_references(preferred_cross_refs , cross_reference_list, datasetId, 'true')
-
-            globalPrimaryIdCrossRefId = datasetId
-            prefix = globalPrimaryIdCrossRefId.split(":")[0]
+            prefix = preferred_cross_ref.get('id').split(":")[0]
             page = 'htp/dataset'
-            local_cross_ref_id = globalPrimaryIdCrossRefId.split(":")[1]
+            local_cross_ref_id = preferred_cross_ref.get('id').split(":")[1]
 
+            # tiny bit of denormalization to make search easier:  make the preferred cross reference node's URL
+            # also the short-cut URL on the htpdataset node
             cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                 prefix, local_cross_ref_id, page)
 
+            # all other cross references are secondary cross references.
+            self.get_cross_references(preferred_cross_refs , cross_reference_list, datasetId, 'true')
 
             category_tags = dataset_record.get('categoryTags')
 

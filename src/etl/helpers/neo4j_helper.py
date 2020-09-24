@@ -75,7 +75,7 @@ class Neo4jHelper():
                         ":Transcript(primaryKey)",
                         ":Transcript(dataProvider)",
                         ":TranscriptLevelConsequence(primaryKey)",
-                        "TranscriptProteinSequence(primaryKey)",
+                        ":TranscriptProteinSequence(primaryKey)",
                         ":GeneLevelConsequence(primaryKey)",
                         ":Transcript(gff3ID)",
                         ":CDS(gff3ID)",

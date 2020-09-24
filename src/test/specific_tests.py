@@ -1464,7 +1464,7 @@ def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
             MATCH (g:HTPDataset)--(cr:CrossReference) 
             WHERE cr.crossRefType = 'htp/dataset' 
             AND cr.preferred = 'true'
-            AND cr.primaryKey = 'SGD:GSE3431' 
+            AND cr.globalCrossRefId = 'SGD:GSE3431' 
             RETURN count(DISTINCT cr) as counter """
     result = execute_transaction(query)
     for record in result:
@@ -1478,6 +1478,8 @@ def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
             MATCH (g:HTPDataset)--(cr:CrossReference) 
             WHERE cr.crossRefType = 'htp/dataset' 
             AND cr.preferred = 'false'
+            AND g.primaryKey = 'GEO:GSE3431'
+            and cr.globalCrossRefId = 'GEO:GSE3431'
             RETURN count(DISTINCT cr) as counter """
     result = execute_transaction(query)
     for record in result:
