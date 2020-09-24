@@ -214,15 +214,25 @@ class HTPMetaDatasetETL(ETL):
             preferred_cross_refs = []
 
             preferred_cross_ref = dataset.get('preferredCrossReference')
-            preferred_cross_refs.append(preferred_cross_ref)
-            prefix = preferred_cross_ref.get('id').split(":")[0]
-            page = 'htp/dataset'
-            local_cross_ref_id = preferred_cross_ref.get('id').split(":")[1]
+            if preferred_cross_ref is not None and preferred_cross_ref != '':
+                preferred_cross_refs.append(preferred_cross_ref)
+                prefix = preferred_cross_ref.get('id').split(":")[0]
+                page = 'htp/dataset'
+                local_cross_ref_id = preferred_cross_ref.get('id').split(":")[1]
 
-            # tiny bit of denormalization to make search easier:  make the preferred cross reference node's URL
-            # also the short-cut URL on the htpdataset node
-            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
-                prefix, local_cross_ref_id, page)
+                # tiny bit of denormalization to make search easier:  make the preferred cross reference node's URL
+                # also the short-cut URL on the htpdataset node
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    prefix, local_cross_ref_id, page)
+            else:
+                self.logger.info("preferred cross ref does not exist" + " " + datasetId + " " + data_provider)
+                prefix = datasetId.split(":")[0]
+                page = 'htp/dataset'
+                local_cross_ref_id = datasetId.split(":")[1]
+
+                # if no preferred cross reference, default to creating this from the datasetId.
+                cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                    prefix, local_cross_ref_id, page)
 
             # all other cross references are secondary cross references.
             self.get_cross_references(preferred_cross_refs , cross_reference_list, datasetId, 'true')
