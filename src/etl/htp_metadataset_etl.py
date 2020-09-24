@@ -226,7 +226,6 @@ class HTPMetaDatasetETL(ETL):
                 cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                     prefix, local_cross_ref_id, page)
             else:
-                self.logger.info("preferred cross ref does not exist" + " " + datasetId + " " + data_provider)
                 prefix = datasetId.split(":")[0]
                 page = 'htp/dataset'
                 local_cross_ref_id = datasetId.split(":")[1]
@@ -262,12 +261,18 @@ class HTPMetaDatasetETL(ETL):
                         local_pub_med_id = pub_med_id.split(":")[1]
                         pub_med_url = pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id, 'PMID', pub_med_id)
                         if 'crossReference' in pub:
+                            page = 'reference'
+                            prefix = publication_mod_id.split(":")[0]
                             pub_xref = pub.get('crossReference')
                             publication_mod_id = pub_xref.get('id')
-                            pub_mod_url = self.etlh.rdh2.return_url_from_identifier(publication_mod_id)
+                            pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
+                                prefix, publication_mod_id.split(":")[1], page)
                     elif pid is not None and not pid.startswith('PMID:'):
+                        page = 'reference'
                         publication_mod_id = pub.get('publicationId')
-                        pub_mod_url = self.etlh.rdh2.return_url_from_identifier(publication_mod_id)
+                        prefix = publication_mod_id.split(":")[0]
+                        pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
+                            prefix, publication_mod_id.split(":")[1], page)
 
                     publication = {
                         "datasetId": datasetId,
