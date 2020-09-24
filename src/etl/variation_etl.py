@@ -402,6 +402,7 @@ class VariationETL(ETL):
                     pub_med_id = ""
                     pub_mod_url = None
                     publication_mod_id = ""
+                    page = 'reference'
 
                     if 'publicationId' in evidence:
                         publication = evidence.get('publicationId')
@@ -413,10 +414,11 @@ class VariationETL(ETL):
                             if 'crossReference' in evidence:
                                 pub_xref = evidence.get('crossReference')
                                 publication_mod_id = pub_xref.get('id')
-                                pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+                                pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix, local_cross_ref_id, page)
+
                         else:
                             publication_mod_id = publication
-                            pub_mod_url = self.etlh.return_url_from_identifier(publication_mod_id)
+                            pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix, local_cross_ref_id, page)
 
                     variant_pub = {
                         "publicationId": publication_mod_id + pub_med_id,
