@@ -183,7 +183,7 @@ class VEPTranscriptETL(ETL):
                         sift_score = m.group(2)
                     elif key == 'VarSeq':
                         variant_protein_sequnece = value
-                    elif  key == 'WtSeq':
+                    elif key == 'WtSeq':
                         transcript_wt_sequence = value
 
 
@@ -242,7 +242,7 @@ class VEPTranscriptETL(ETL):
                           "variantProteinSequence": variant_protein_sequnece,
                           "variantProteinSequenceKey": transcript_id+hgvsNomenclature,
                           "transcriptWtSequence": transcript_wt_sequence,
-                          "transcriptWtSequenceKey": transcript_id+"Protein"
+                          "transcriptProteinSequenceKey": transcript_id+"Protein"
                           }
 
             vep_maps.append(vep_result)
