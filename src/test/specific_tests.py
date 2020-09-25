@@ -1491,8 +1491,8 @@ def test_mgi_reference_url_creation():
 
     query = """ 
             MATCH (a:Allele)--(v:Variant)--(p:Publication)
-            where a.primaryKey = 'MGI:5449877'
-            and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5449877'
+            where a.primaryKey = 'MGI:5806340'
+            and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5806759'
             RETURN count(DISTINCT v) as counter """
     result = execute_transaction(query)
     for record in result:

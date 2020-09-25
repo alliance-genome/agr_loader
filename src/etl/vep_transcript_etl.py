@@ -61,6 +61,11 @@ class VEPTranscriptETL(ETL):
                   SET p.proteinSequence = row.variantProteinSequence
                   SET p.variantId = row.hgvsNomenclature
                   SET p.transcriptId = row.transcriptId
+                  
+                MERGE (pt:TranscriptProteinSequence {primaryKey:row.transcriptProteinSequenceKey})
+                  ON CREATE SET p.proteinSequence = row.transcriptProteinSequence
+                  
+                MERGE (g)-[gp:PROTEIN_SEQUENCE]->(pt)
                 
                 CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
@@ -148,6 +153,7 @@ class VEPTranscriptETL(ETL):
             sift_prediction = ''
             sift_score = ''
             variant_protein_sequnece = ''
+            transcript_wt_sequence = ''
 
             columns = line.split()
             if columns[0].startswith('#'):
@@ -177,6 +183,8 @@ class VEPTranscriptETL(ETL):
                         sift_score = m.group(2)
                     elif key == 'VarSeq':
                         variant_protein_sequnece = value
+                    elif  key == 'WtSeq':
+                        transcript_wt_sequence = value
 
 
             if columns[3].startswith('Gene:'):
@@ -232,7 +240,9 @@ class VEPTranscriptETL(ETL):
                           "siftPrediction": sift_prediction,
                           "siftScore": sift_score,
                           "variantProteinSequence": variant_protein_sequnece,
-                          "variantProteinSequenceKey": transcript_id+hgvsNomenclature
+                          "variantProteinSequenceKey": transcript_id+hgvsNomenclature,
+                          "transcriptWtSequence": transcript_wt_sequence,
+                          "transcriptWtSequenceKey": transcript_id+"Protein"
                           }
 
             vep_maps.append(vep_result)
