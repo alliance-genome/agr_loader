@@ -62,10 +62,6 @@ class VEPTranscriptETL(ETL):
                   SET p.variantId = row.hgvsNomenclature
                   SET p.transcriptId = row.transcriptId
                   
-                MERGE (pt:TranscriptProteinSequence {primaryKey:row.transcriptProteinSequenceKey})
-                  ON CREATE SET p.proteinSequence = row.transcriptProteinSequence
-                  
-                MERGE (g)-[gp:PROTEIN_SEQUENCE]->(pt)
                 
                 CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
