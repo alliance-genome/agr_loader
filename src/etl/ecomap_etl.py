@@ -108,7 +108,4 @@ class ECOMAPETL(ETL):
 
             eco_maps.append(eco)
 
-
-            eco_maps.append(eco)
-
         yield [eco_maps]
