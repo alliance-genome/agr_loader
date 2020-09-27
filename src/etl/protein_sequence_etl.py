@@ -26,15 +26,17 @@ class ProteinSequenceETL(ETL):
         
         MATCH (t:Transcript {primaryKey:row.transcriptId})
         
-        CREATE (p:TranscriptProteinSequence {primaryKey:row.transcriptId})
-           SET p.proteinSequence = row.proteinSequence
+        MERGE (p:TranscriptProteinSequence {primaryKey:row.tpId})
+           ON CREATE SET p.proteinSequence = row.proteinSequence,
+            p.transcriptId = row.transcriptId
         
-        CREATE (ts:CDSSequence {primaryKey:row.transcriptId})
-           SET ts.cdsSequence = row.cdsSequence
+        MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
+           ON CREATE SET ts.cdsSequence = row.CDSSequence,
+            ts.transcriptId = row.transcriptId
            
-        CREATE (p)-[pt:ASSOCIATION]->(t)
-        CREATE (ts)-[tst:ASSOCIATION]->(t)      
-        
+        MERGE (p)-[pt:ASSOCIATION]->(t)
+        MERGE (ts)-[tst:ASSOCIATION]->(t)      
+
     """
 
     def __init__(self, config):
@@ -193,10 +195,11 @@ class ProteinSequenceETL(ETL):
 
             if full_cds_sequence != '' and len(full_cds_sequence) % 3 == 0:
                 protein_sequence = self.translate_protein(full_cds_sequence, strand)
-
-                data = { "transcriptId": transcript_id,
-                     "CDSSequence": full_cds_sequence,
-                     "proteinSequence": protein_sequence
+                data = {"transcriptId": transcript_id,
+                        "CDSSequence": full_cds_sequence,
+                        "CDSKey": transcript_id+"CDS",
+                        "tpId": transcript_id+"Protein",
+                        "proteinSequence": protein_sequence
                 }
                 transcript_data.append(data)
 

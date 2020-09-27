@@ -46,7 +46,7 @@ class TestObject():
             'MGI:109151', 'MGI:106679', 'MGI:103223', 'MGI:104554', 'MGI:104993', 'MGI:5316784',
             'MGI:5566856', 'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
             # allele
-            'MGI:88070', 'MGI:88070',
+            'MGI:88070', 'MGI:104993',
             # transcript -- keys here are not curies because GFF
             # doesn't follow our strict rules for identifiers.
             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256

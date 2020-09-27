@@ -1455,3 +1455,48 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 4
+
+
+def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'true'
+            AND cr.globalCrossRefId = 'SGD:GSE3431' 
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'false'
+            AND g.primaryKey = 'GEO:GSE3431'
+            and cr.globalCrossRefId = 'GEO:GSE3431'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_mgi_reference_url_creation():
+    """test_mgi_reference_url_creation"""
+
+    query = """ 
+            MATCH (a:Allele)--(v:Variant)--(p:Publication)
+            where a.primaryKey = 'MGI:5806340'
+            and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5806759'
+            RETURN count(DISTINCT v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+

@@ -244,34 +244,34 @@ class ResourceDescriptorHelper2():
             self.logger.critical('Identifier: %s', value)
             self.logger.info("keys are:- %s", self.key_lookup.keys())
 
-    def return_url_from_key_value(self, alt_key, value, alt_page=None):
+    def return_url_from_key_value(self, prefix, local_id, alt_page=None):
         """Return url for a key value pair.
 
-        key:   DB key i.e.             RGD,     MGI,    HGNC etc
-        value: DB value i.e.           1311419, 80863,  33510
+        prefix:   DB key i.e.             RGD,     MGI,    HGNC etc
+        local_id: DB value i.e.           1311419, 80863,  33510
         alt_page:  page to get i.e.    gene,    allele, disease/human
 
         By default, if alt_page is not set it will use the main one 'default_url'
         """
         url = None
-        key = self.get_key(alt_key)
+        key = self.get_key(prefix)
         if key in self.no_url:
             return ''
         if key not in self.key_lookup:
-            self.missing_key_message(alt_key, key, value)
+            self.missing_key_message(prefix, key, local_id)
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "******** '{}' has no 'default_url' **********".format(key)
             self.logger.critical(mess)
-            self.logger.critical('Identifier: %s', value)
+            self.logger.critical('Identifier: %s', local_id)
             return None
         try:
             if alt_page:
                 page = alt_page
-                url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', value.strip())
+                url = self.resource_descriptor_dict[key]['pages'][alt_page]['url'].replace('[%s]', local_id.strip())
             else:
                 page = 'default_url'
-                url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', value.strip())
+                url = self.resource_descriptor_dict[key]['default_url'].replace('[%s]', local_id.strip())
         except KeyError:
             mess = "{} does not exist for '{}' in the Resource Descriptor YAML.".format(page, key)
             key = "{}-{}".format(key, page)
@@ -281,7 +281,7 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] = 1
                 self.logger.critical(mess)
         except AttributeError as e:
-            mess = "***** ERROR!!! key = '{}', value = '{}' page = {} error = '{}'******".format(key, value, page, e)
+            mess = "***** ERROR!!! key = '{}', value = '{}' page = {} error = '{}'******".format(key, local_id, page, e)
             key = "{}-{}".format(key, page)
             if key in self.missing_pages:
                 self.missing_pages[key] += 1

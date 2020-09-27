@@ -77,4 +77,35 @@ class ECOMAPETL(ETL):
                    "threeLetterCode": columns[0]}
             eco_maps.append(eco)
 
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0000033",
+                   "threeLetterCode": "TAS"}
+            eco_maps.append(eco)
+
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0005613",
+                   "threeLetterCode": "IAGP"}
+            eco_maps.append(eco)
+
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0005612",
+                   "threeLetterCode": "IPM"}
+            eco_maps.append(eco)
+
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0005611",
+                   "threeLetterCode": "IED"}
+
+            eco_maps.append(eco)
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0007013",
+                   "threeLetterCode": "CEA"}
+
+            eco_maps.append(eco)
+            # per WG direction, hard code this translation.
+            eco = {"ecoId": "ECO:0007014",
+                   "threeLetterCode": "CEC"}
+
+            eco_maps.append(eco)
+
         yield [eco_maps]

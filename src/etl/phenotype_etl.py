@@ -44,12 +44,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
 
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-             SET pubEJ.joinType = 'pub_evidence_code_join'
+           MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
             """
     execute_gene_query_template = """
@@ -78,12 +78,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
 
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-             SET pubEJ.joinType = 'pub_evidence_code_join'
+           MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
             """
 
@@ -113,12 +113,12 @@ class PhenoTypeETL(ETL):
                  pubf.pubMedUrl = row.pubMedUrl
 
                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            CREATE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-              SET pubEJ.joinType = 'pub_evidence_code_join'
+            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+              ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            CREATE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            CREATE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
     """
 

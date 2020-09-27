@@ -281,7 +281,6 @@ class TestClass():
                                dict(node='PublicationJoin', prop='primaryKey'),
                                dict(node='HTPDataset', prop='primaryKey'),
                                dict(node='HTPDatasetSample', prop='primaryKey'),
-                               dict(node='CategoryTag', prop='primaryKey'),
                                ],
 
         'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
@@ -291,7 +290,7 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
-                             #dict(node='CrossReference', prop='primaryKey'),
+                             dict(node='CrossReference', prop='primaryKey'),
                              dict(node='CrossReference', prop='uuid'),
                              dict(node='DOTerm', prop='primaryKey'),
                              dict(node='SOTerm', prop='primaryKey'),
@@ -308,7 +307,8 @@ class TestClass():
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
                              dict(node='HTPDataset', prop='primaryKey'),
-                             dict(node='HTPDatasetSample', prop='primaryKey')
+                             dict(node='HTPDatasetSample', prop='primaryKey'),
+                             dict(node='CategoryTag', prop='primaryKey')
                              ]
     }
 
