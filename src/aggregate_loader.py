@@ -17,7 +17,8 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  NodeCountETL, OrthologyETL, PhenoTypeETL,
                  SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
                  VariationETL, VEPTranscriptETL, ProteinSequenceETL,
-                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL)
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
+                 CategoryTagETL)
 
 from transactors import FileTransactor, Neo4jTransactor
 
@@ -74,6 +75,7 @@ class AggregateLoader():
     # The value (right) is hard-coded by a developer as the name of an ETL class.
     etl_dispatch = {
         'SPECIES': SpeciesETL,
+        'HTP': CategoryTagETL,
         'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'BGI': BGIETL,
@@ -115,6 +117,7 @@ class AggregateLoader():
     # After GO, DO, MI, there will be a pause, etc.
     etl_groups = [
         ['SPECIES'],
+        ['HTP'],
         ['DOID', 'MI'],
         ['GO'],
         ['ONTOLOGY'],

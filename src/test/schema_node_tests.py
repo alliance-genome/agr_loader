@@ -307,8 +307,8 @@ class TestClass():
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
                              dict(node='ExpressionBioEntity', prop='primaryKey'),
                              dict(node='HTPDataset', prop='primaryKey'),
-                             dict(node='HTPDatasetSample', prop='primaryKey'),
-                             dict(node='CategoryTag', prop='primaryKey')
+                             dict(node='HTPDatasetSample', prop='primaryKey')#,
+                             #dict(node='CategoryTag', prop='primaryKey')
                              ]
     }
 

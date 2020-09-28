@@ -120,7 +120,7 @@ class Neo4jHelper():
                         ":Gene(localId)",
                         ":HTPDataset(primaryKey)",
                         ":HTPDatasetSample(primaryKey)",
-                        #":CategoryTag(primaryKey)",
+                        ":CategoryTag(primaryKey)",
                         ":Load(primaryKey)",
                         ":Feature(primaryKey)",
                         ":Allele(primaryKey)",

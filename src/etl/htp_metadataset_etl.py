@@ -42,12 +42,6 @@ class HTPMetaDatasetETL(ETL):
 
     """
 
-    htp_category_tags_query_template = """
-     USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        MERGE (ct:CategoryTag {primaryKey:row.tag})
-    
-    """
     htp_category_tags_relations_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -115,8 +109,6 @@ class HTPMetaDatasetETL(ETL):
         query_list = [
             [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,
              "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
-             [HTPMetaDatasetETL.htp_category_tags_query_template, commit_size,
-            "htp_metadataset_tags_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_category_tags_relations_query_template, commit_size,
              "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
@@ -299,7 +291,6 @@ class HTPMetaDatasetETL(ETL):
             if counter == batch_size:
                 yield [htp_datasets,
                        dataset_tags,
-                       dataset_tags,
                        publications,
                        cross_reference_list,
                        secondaryIds
@@ -313,7 +304,6 @@ class HTPMetaDatasetETL(ETL):
 
         if counter > 0:
             yield [htp_datasets,
-                   dataset_tags,
                    dataset_tags,
                    publications,
                    cross_reference_list,

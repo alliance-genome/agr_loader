@@ -37,4 +37,5 @@ from .protein_sequence_etl import ProteinSequenceETL
 from .htp_metadataset_etl import HTPMetaDatasetETL
 from .htp_metadatasample_etl import HTPMetaDatasetSampleETL
 from .gene_pheno_cross_reference_etl import GenePhenoCrossReferenceETL
+from .category_tag_etl import CategoryTagETL
 

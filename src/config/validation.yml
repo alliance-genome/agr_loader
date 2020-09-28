@@ -169,9 +169,13 @@ DB-SUMMARY:
 GENEPHENOCROSSREFERENCE:
   type: list
   allowed: [FB, SGD, WB, ZFIN, MGI, RGD]
+HTP:
+  type: list
+  allowed: [TAGS]
 FileTransactorThreads:
   type: integer
   required: True
 Neo4jTransactorThreads:
   type: integer
   required: True
+
