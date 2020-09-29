@@ -157,7 +157,7 @@ class HTPMetaDatasetETL(ETL):
                                 page,
                                 display_name,
                                 cross_ref_complete_url,
-                                global_xref_id + page)
+                                global_xref_id + page + preferred)
                             xref_map['dataId'] = datasetId
                             xref_map['preferred'] = preferred
                             cross_reference_list.append(xref_map)

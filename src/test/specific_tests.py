@@ -1499,4 +1499,66 @@ def test_mgi_reference_url_creation():
         assert record["counter"] > 0
 
 
+def test_iagp_name_exists():
+    """test_IAGP_name_exists"""
+
+    query = """ 
+            MATCH (e:ECOTerm) where e.displaySynonym = 'IAGP'
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_display_name_for_impc_is_correct():
+    """test_display_name_for_impc_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference) where cr.displayName = 'IMPC'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_htp_xref_has_preferred_attribute_true_is_correct():
+    """test_htp_xref_has_preferred_attribute_true_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference)--(htp:HTPDataset) 
+            WHERE htp.primaryKey = 'ArrayExpress:E-GEOD-56866'
+            AND cr.globalCrossRefId = 'MGI:E-GEOD-56866'
+            AND cr.preferred = 'true'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_genome_location_for_exon_has_strand():
+    """test_genome_location_for_exon_has_strand"""
+
+    query = """ 
+            MATCH (e:Exon)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_location_for_transcript_has_strand():
+    """test_genome_location_for_transcript_has_strand"""
+
+    query = """ 
+            MATCH (t:Transcript)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT t) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+
+
 
