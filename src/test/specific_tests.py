@@ -1521,5 +1521,19 @@ def test_display_name_for_impc_is_correct():
         assert record["counter"] > 0
 
 
+def test_htp_xref_has_preferred_attribute_true_is_correct():
+    """test_htp_xref_has_preferred_attribute_true_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference)--(htp:HTPDataset) 
+            WHERE htp.primaryKey = 'ArrayExpress:E-GEOD-56866'
+            AND cr.globalCrossRefId = 'MGI:E-GEOD-56866'
+            AND cr.preferred = 'true'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
 
 
