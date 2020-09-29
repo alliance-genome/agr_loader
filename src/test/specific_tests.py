@@ -1535,5 +1535,30 @@ def test_htp_xref_has_preferred_attribute_true_is_correct():
         assert record["counter"] > 0
 
 
+def test_genome_location_for_exon_has_strand():
+    """test_genome_location_for_exon_has_strand"""
+
+    query = """ 
+            MATCH (e:Exon)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_location_for_transcript_has_strand():
+    """test_genome_location_for_transcript_has_strand"""
+
+    query = """ 
+            MATCH (t:Transcript)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT t) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+
 
 
