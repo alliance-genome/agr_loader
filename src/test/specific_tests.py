@@ -1499,4 +1499,27 @@ def test_mgi_reference_url_creation():
         assert record["counter"] > 0
 
 
+def test_iagp_name_exists():
+    """test_IAGP_name_exists"""
+
+    query = """ 
+            MATCH (e:ECOTerm) where e.displaySynonym = 'IAGP'
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_display_name_for_impc_is_correct():
+    """test_display_name_for_impc_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference) where cr.displayName = 'IMPC'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+
 
