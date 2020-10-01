@@ -290,6 +290,8 @@ class TestObject():
             # htp
             'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366', 'GEO:GSE13446', 'GEO:GSE15254',
             'GEO:GSE15710',
+            # interactions
+            'FB:FBgn0063493', 'FB:FBgn0063492',
         }
 
         self.rgd_test_set = {
