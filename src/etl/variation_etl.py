@@ -405,6 +405,7 @@ class VariationETL(ETL):
 
                     if 'publicationId' in evidence:
                         publication = evidence.get('publicationId')
+                        prefix = publication.split(":")[0]
                         # WB has an error in their pubs at the moment, fix/remove 'and' stanza here, when we
                         # have a new file.
                         if publication.startswith('PMID:') and publication != 'PMID:':
