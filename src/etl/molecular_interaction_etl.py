@@ -418,10 +418,11 @@ class MolecularInteractionETL(ETL):
     def publication_search(self, row_entry):
         found_match = False
         publication_url = None
+        publication = None
         list_of_possible_pub_parameters = [
             (r'pubmed:\d+', 'pubmed', 'PMID'),
             ('^(DOI\:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
-            (r'^flybase:FBrf\d+', 'FBrf', 'fbrf')
+            (r'^flybase:FBrf\d+', 'flybase', 'FB')
         ]
 
         for check in list_of_possible_pub_parameters:
