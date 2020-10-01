@@ -527,8 +527,6 @@ class MolecularInteractionETL(ETL):
                 except IndexError:
                     pass  # Default to unspecified, see above.
 
-                # TODO Replace this publication work with a service.
-                # Re-think publication implementation in Neo4j.
                 if row[8] != '-':
                     found_match, publication_url, publication = self.publication_search(row[8])
                     if found_match is False:
