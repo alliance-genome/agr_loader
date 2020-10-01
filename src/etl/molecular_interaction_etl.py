@@ -524,6 +524,11 @@ class MolecularInteractionETL(ETL):
                             publication = publication_re.group(0)
                             publication = publication.replace('DOI', 'doi')
                             publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
+                        else:
+                            publication_re = re.search(r'^flybase:FBrf\d+', row[8])
+                            publication = publication_re.group(0)
+                            publication = publication.replace('FBrf', 'fbrf')
+                            publication_url = self.etlh.rdh2.return_url_from_identifier(publication, 'reference')
                     else:
                         unresolved_publication_count += 1
                         continue
