@@ -1564,7 +1564,8 @@ def test_all_pheno_xrefs_have_display_names():
 
     query = """ 
             MATCH (t:Gene)--(cr:CrossReference) 
-            WHERE cr.displayName == '' or cr.displayName IS NULL
+            WHERE (cr.displayName = '' or cr.displayName IS NULL)
+            AND cr.crossRefType = 'gene/phenotypes'
             RETURN count(DISTINCT cr) as counter """
     result = execute_transaction(query)
     for record in result:
