@@ -415,6 +415,29 @@ class MolecularInteractionETL(ETL):
 
         return None
 
+    def publication_search(self, row_entry):
+        found_match = False
+        publication_url = None
+        publication = None
+        list_of_possible_pub_parameters = [
+            (r'pubmed:\d+', 'pubmed', 'PMID'),
+            ('^(DOI\:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
+            (r'^flybase:FBrf\d+', 'flybase', 'FB')
+        ]
+
+        for check in list_of_possible_pub_parameters:
+            publication_re = re.search(check[0], row_entry)
+            if publication_re is not None:
+                publication = publication_re.group(0)  # matching bit
+                publication = publication.replace(check[1], check[2])
+                publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
+                found_match = True
+                break
+            else:
+                continue
+
+        return found_match, publication_url, publication
+
     def get_generators(self, filepath, batch_size):  # noqa
         """Get Generators."""
         list_to_yield = []
@@ -504,27 +527,9 @@ class MolecularInteractionETL(ETL):
                 except IndexError:
                     pass  # Default to unspecified, see above.
 
-                # TODO Replace this publication work with a service.
-                # Re-think publication implementation in Neo4j.
-                publication = None
-                publication_url = None
-
                 if row[8] != '-':
-                    # Check for pubmed publication.
-                    publication_re = re.search(r'pubmed:\d+', row[8])
-                    if publication_re is not None:
-                        publication = publication_re.group(0)  # matching bit
-                        publication = publication.replace('pubmed', 'PMID')
-                        publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
-                    elif publication_re is None:
-                        # If we can't find a pubmed publication, check for DOI.
-                        publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
-                        # e.g. DOI:10.1101/2020.03.31.019216
-                        if publication_re is not None:
-                            publication = publication_re.group(0)
-                            publication = publication.replace('DOI', 'doi')
-                            publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
-                    else:
+                    found_match, publication_url, publication = self.publication_search(row[8])
+                    if found_match is False:
                         unresolved_publication_count += 1
                         continue
                 else:
