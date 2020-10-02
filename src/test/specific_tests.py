@@ -1572,5 +1572,18 @@ def test_all_pheno_xrefs_have_display_names():
         assert record["counter"] < 1
 
 
+def test_fb_papers_have_urls():
+    """test_papers_have_urls"""
+
+    query = """ 
+            MATCH (p:Publication) 
+            WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
+            AND p.pubModId is not null
+            AND p.pubModId <> ''
+            RETURN count(DISTINCT p) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
 
 

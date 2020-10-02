@@ -254,11 +254,12 @@ class HTPMetaDatasetETL(ETL):
                         pub_med_url = pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id, 'PMID', pub_med_id)
                         if 'crossReference' in pub:
                             page = 'reference'
-                            prefix = publication_mod_id.split(":")[0]
                             pub_xref = pub.get('crossReference')
                             publication_mod_id = pub_xref.get('id')
+                            prefix = publication_mod_id.split(":")[0]
                             pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
                                 prefix, publication_mod_id.split(":")[1], page)
+                            self.logger.info(pub_mod_url)
                     elif pid is not None and not pid.startswith('PMID:'):
                         page = 'reference'
                         publication_mod_id = pub.get('publicationId')
