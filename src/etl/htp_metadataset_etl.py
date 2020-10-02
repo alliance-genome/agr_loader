@@ -259,7 +259,7 @@ class HTPMetaDatasetETL(ETL):
                             prefix = publication_mod_id.split(":")[0]
                             pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
                                 prefix, publication_mod_id.split(":")[1], page)
-                            self.logger.info(pub_mod_url)
+                            self.logger.debug(pub_mod_url)
                     elif pid is not None and not pid.startswith('PMID:'):
                         page = 'reference'
                         publication_mod_id = pub.get('publicationId')
