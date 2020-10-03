@@ -1559,6 +1559,43 @@ def test_genome_location_for_transcript_has_strand():
         assert record["counter"] < 1
 
 
+def test_all_pheno_xrefs_have_display_names():
+    """test_all_pheno_xrefs_have_display_names"""
+
+    query = """ 
+            MATCH (t:Gene)--(cr:CrossReference) 
+            WHERE (cr.displayName = '' or cr.displayName IS NULL)
+            AND cr.crossRefType = 'gene/phenotypes'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
 
 
+def test_papers_have_urls():
+    """test_papers_have_urls"""
+
+    query = """ 
+            MATCH (p:Publication) 
+            WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
+            AND p.pubModId is not null
+            AND p.pubModId <> ''
+            RETURN count(DISTINCT p) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_papers_have_mod_urls():
+    """test_papers_have_mod_urls"""
+
+    query = """ 
+            MATCH (p:Publication)--(n)
+            WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
+            AND p.pubModId is not null
+            AND p.pubModId <> ''
+            RETURN count(DISTINCT labels(n)) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
 

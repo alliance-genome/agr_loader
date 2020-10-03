@@ -275,7 +275,7 @@ class BGIETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def xref_process(self, basic_genetic_entity, cross_references, urls):
+    def xref_process(self, basic_genetic_entity, cross_references, urls, data_provider):
         """Process xrefs."""
         primary_id = basic_genetic_entity.get('primaryId')
         global_id = basic_genetic_entity.get('primaryId')
@@ -303,6 +303,8 @@ class BGIETL(ETL):
                     if page == 'gene/phenotype':
                         page = 'gene/phenotypes'
 
+                    if page == 'gene/phenotypes':
+                        display_name = data_provider
                     cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
                         prefix, local_cross_ref_id, page)
 
@@ -483,7 +485,7 @@ class BGIETL(ETL):
                     counter = counter - 1
                     continue
 
-            self.xref_process(basic_genetic_entity, cross_references, urls)
+            self.xref_process(basic_genetic_entity, cross_references, urls, data_provider)
             # TODO Metadata can be safely removed from this dictionary. Needs to be tested.
 
             gene_to_so_terms.append({
