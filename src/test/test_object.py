@@ -141,6 +141,8 @@ class TestObject():
             'SGD:S000121253',
             # htp meta data
             'GEO:GSE3431', 'GEO:GSE34286', 'GEO:GSE34330', 'GEO:GSE34787',
+            # allele
+            'SGD:S000283439', 'SGD:S000000316',
         }
 
         self.zfin_id_set = {
