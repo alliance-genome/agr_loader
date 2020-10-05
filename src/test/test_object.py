@@ -102,6 +102,7 @@ class TestObject():
             'WB:WBTransgene00004658', 'WB:WBTransgene00019002',
             'WB:WBStrain00004846', 'WB:WBStrain00007215',
             'WB:WBVar00275424', 'WB:WBGene00000149',
+            'WB:WBStrain00035599',
             # disease 'not'
             'WB:WBGene00005643',
             # construct
@@ -110,6 +111,8 @@ class TestObject():
             # htp meta data
             'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
             'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
+            # AGM
+            'WB:WBVar00090963', 'WB:WBStrain00023353', 'WB:WBGene00004323'
         }
 
         self.sgd_id_set = {
