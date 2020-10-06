@@ -1611,3 +1611,14 @@ def test_wb_has_agm():
     for record in result:
         assert record["counter"] == 1
 
+
+def test_wb_has_agm_with_disease():
+    """test_wb_has_agm_with_disease"""
+
+    query = """ 
+            MATCH (a:AffectedGenomicModel)--(dej:DiseaseEntityJoin)
+            WHERE a.primaryKey = 'WB:WBGenotype00000021'
+            RETURN count(a) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0

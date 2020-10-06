@@ -113,6 +113,8 @@ class TestObject():
             'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
             # AGM
             'WB:WBVar00090963', 'WB:WBStrain00023353', 'WB:WBGene00004323', 'WB:WBGenotype00000017',
+            'WB:WBGenotype00000021',
+
         }
 
         self.sgd_id_set = {
