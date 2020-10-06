@@ -1623,14 +1623,3 @@ def test_wb_has_agm_with_disease():
     for record in result:
         assert record["counter"] > 0
 
-
-def test_sgd_allele_has_phenotype():
-    """test_sgd_allele_has_phenotype"""
-
-    query = """ 
-            MATCH (a:Allele)--(p:Phenotype)
-            WHERE a.primaryKey = 'SGD:S000297411'
-            RETURN count(a) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
