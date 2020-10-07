@@ -102,6 +102,7 @@ class TestObject():
             'WB:WBTransgene00004658', 'WB:WBTransgene00019002',
             'WB:WBStrain00004846', 'WB:WBStrain00007215',
             'WB:WBVar00275424', 'WB:WBGene00000149',
+            'WB:WBStrain00035599',
             # disease 'not'
             'WB:WBGene00005643',
             # construct
@@ -110,6 +111,10 @@ class TestObject():
             # htp meta data
             'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
             'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
+            # AGM
+            'WB:WBVar00090963', 'WB:WBStrain00023353', 'WB:WBGene00004323', 'WB:WBGenotype00000017',
+            'WB:WBGenotype00000021',
+
         }
 
         self.sgd_id_set = {
@@ -138,6 +143,9 @@ class TestObject():
             'SGD:S000121253',
             # htp meta data
             'GEO:GSE3431', 'GEO:GSE34286', 'GEO:GSE34330', 'GEO:GSE34787',
+            # allele
+            'SGD:S000283439', 'SGD:S000000316', 'SGD:S000005770', 'SGD:S000277574',
+            'SGD:S000000383', 'SGD:S000297409', 'SGD:S000006064', 'SGD:S000297411',
         }
 
         self.zfin_id_set = {

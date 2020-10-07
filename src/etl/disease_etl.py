@@ -388,7 +388,7 @@ class DiseaseETL(ETL):
                 }
             withs.append(with_map)
 
-    def primgenent_process(self, disease_record, pge_list_to_yield, pecj_primary_key):
+    def primary_genetic_entity_process(self, disease_record, pge_list_to_yield, pecj_primary_key):
         """Primary Genetic Entity ID process."""
         if 'primaryGeneticEntityIDs' not in disease_record:
             return
@@ -442,7 +442,7 @@ class DiseaseETL(ETL):
             negation = self.objectrelation_process(disease_record)
 
             self.withs_process(disease_record, withs)
-            self.primgenent_process(disease_record, pge_list_to_yield, pecj_primary_key)
+            self.primary_genetic_entity_process(disease_record, pge_list_to_yield, pecj_primary_key)
 
             self.xrefs_process(disease_record, xrefs)
 

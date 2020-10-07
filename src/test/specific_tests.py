@@ -1599,3 +1599,27 @@ def test_papers_have_mod_urls():
     for record in result:
         assert record["counter"] < 1
 
+
+def test_wb_has_agm():
+    """test_wb_has_agm"""
+
+    query = """ 
+            MATCH (a:AffectedGenomicModel)
+            WHERE a.primaryKey = 'WB:WBStrain00023353'
+            RETURN count(a) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_wb_has_agm_with_disease():
+    """test_wb_has_agm_with_disease"""
+
+    query = """ 
+            MATCH (a:AffectedGenomicModel)--(dej:DiseaseEntityJoin)
+            WHERE a.primaryKey = 'WB:WBGenotype00000021'
+            RETURN count(a) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
