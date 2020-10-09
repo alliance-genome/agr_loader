@@ -103,7 +103,7 @@ class VariationETL(ETL):
            USING PERIODIC COMMIT %s
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-           MATCH (o:Note {primaryKey:row.note})
+           MATCH (o:Note {primaryKey:row.noteId})
            MERGE (p:Publication {primaryKey:row.publicationId})
               ON CREATE SET p.pubModId = row.pubModId,
                  p.pubMedId = row.pubMedId,

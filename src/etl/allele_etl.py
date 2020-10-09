@@ -240,7 +240,7 @@ class AlleleETL(ETL):
                         xref['dataId'] = global_id
                         cross_reference_list.append(xref)
 
-    def get_generators(self, allele_data, batch_size):  # noqa
+    def get_generators(self, allele_data, batch_size):
         """Get generators."""
         release = ""
         alleles_no_constrcut_no_gene = []
