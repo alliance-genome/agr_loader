@@ -218,7 +218,7 @@ class AlleleETL(ETL):
             }
             synonyms.append(syn_dataset)
 
-    def crossref_process(self, record, global_id, cross_reference_list):
+    def xref_process(self, record, global_id, cross_reference_list):
         """Get xref."""
         valid_pages = ['allele', 'allele/references', 'transgene', 'construct',
                        'transgene/references', 'construct/references']
@@ -354,7 +354,7 @@ class AlleleETL(ETL):
                 }
                 alleles_no_constrcut_no_gene.append(common)
 
-            self.crossref_process(allele_record, global_id, cross_reference_list)
+            self.xref_process(allele_record, global_id, cross_reference_list)
             self.synonyms_process(allele_synonyms, allele_record)
             self.secondary_process(allele_secondary_ids, allele_record)
 

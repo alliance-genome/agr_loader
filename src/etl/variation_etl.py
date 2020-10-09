@@ -95,7 +95,7 @@ class VariationETL(ETL):
 
            MATCH (o:Variant {primaryKey:row.variantId})
 
-           CREATE (n:Note {primaryKey:row.noteId})
+           MERGE (n:Note {primaryKey:row.note})
                 SET n.note = row.note          
            MERGE (o)-[pn:ASSOCIATION]-(n)
     """
@@ -103,7 +103,7 @@ class VariationETL(ETL):
            USING PERIODIC COMMIT %s
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-           MATCH (o:Note {primaryKey:row.noteId})
+           MATCH (o:Note {primaryKey:row.note})
            MERGE (p:Publication {primaryKey:row.publicationId})
               ON CREATE SET p.pubModId = row.pubModId,
                  p.pubMedId = row.pubMedId,
@@ -443,10 +443,8 @@ class VariationETL(ETL):
             if notes is not None:
                 for note in notes:
                     vnote = note.get('note')
-                    note_id = str(uuid.uuid4())
 
                     variant_note_map = {"variantId": hgvs_nomenclature,
-                                            "noteId": note_id,
                                             "note": vnote}
 
                     variant_notes.append(variant_note_map)
@@ -485,7 +483,7 @@ class VariationETL(ETL):
                                             "pubMedId": pub_med_id,
                                             "pubMedUrl": pub_med_url,
                                             "pubModUrl": pub_mod_url,
-                                            "noteId": note_id
+                                            "noteId": vnote
                                 }
                                 variant_note_references.append(note_pub)
 
