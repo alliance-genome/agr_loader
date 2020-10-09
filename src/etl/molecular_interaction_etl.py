@@ -232,17 +232,30 @@ class MolecularInteractionETL(ETL):
             individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(individual)
             # Capitalize the prefix to match the YAML
             # and change the prefix if necessary to match the YAML.
-            xref_dict['prefix'] = individual_prefix
+
             xref_dict['localId'] = individual_body
+            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['id'] = individual
+            xref_dict['displayName'] = individual_body
+            xref_dict['primaryKey'] = individual
+            xref_dict['crossRefType'] = 'interaction'
+            xref_dict['page'] = page
+            xref_dict['reference_uuid'] = None  # For association interactions (later).
 
             # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
             # TODO Regex to check for FBig in additional_row?
             if individual.startswith('flybase:FBrf'):
+
+                # primaryKey needs to be individual_body as opposed to individual.
+                xref_dict['primaryKey'] = individual_body
+
                 if '|' in additional_row:
                     individual = additional_row.split('|')[0]
                 else:
                     individual = additional_row
+
+                individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(individual)
 
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
@@ -253,6 +266,13 @@ class MolecularInteractionETL(ETL):
                     self.logger.critical('PSI-MITAB row entry: %s', additional_row)
                     sys.exit(-1)
 
+                # Change our prefix.
+                individual_prefix = 'FB'
+
+            # Special case for dealing with WormBase.
+            if individual_prefix.startswith('wormbase'):
+                individual_prefix = 'WB'
+
             # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
@@ -261,21 +281,8 @@ class MolecularInteractionETL(ETL):
                 except KeyError:
                     pass
 
-            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['prefix'] = individual_prefix
             xref_dict['globalCrossRefId'] = individual
-            xref_dict['id'] = individual  # Used for name.
-            xref_dict['displayName'] = individual_body
-            xref_dict['primaryKey'] = individual
-            xref_dict['crossRefType'] = 'interaction'
-            xref_dict['page'] = page
-            xref_dict['reference_uuid'] = None  # For association interactions (later).
-
-            # Special case for FlyBase as "individual" is not unique in their case.
-            # Individual_body needs to be used instead.
-
-            if individual.startswith('flybase'):
-                xref_dict['primaryKey'] = individual_body
-            xref_main_list.append(xref_dict)
 
         return xref_main_list
 
