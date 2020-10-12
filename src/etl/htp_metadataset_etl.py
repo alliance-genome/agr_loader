@@ -38,8 +38,16 @@ class HTPMetaDatasetETL(ETL):
                           p.pubModUrl = row.pubModUrl,
                           p.pubMedUrl = row.pubMedUrl
 
-        MERGE (p)-[:ASSOCIATION]-(ds)
 
+    """
+
+    htp_pub_relation_template = """
+    
+     MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+     MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
+     
+    MERGE (p)-[:ASSOCIATION]-(ds)
+    
     """
 
     htp_category_tags_relations_query_template = """
@@ -113,6 +121,8 @@ class HTPMetaDatasetETL(ETL):
              "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
              "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_pub_relation_template, commit_size,
+             "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size,
              "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
@@ -293,6 +303,7 @@ class HTPMetaDatasetETL(ETL):
                 yield [htp_datasets,
                        dataset_tags,
                        publications,
+                       publications,
                        cross_reference_list,
                        secondaryIds
                        ]
@@ -306,6 +317,7 @@ class HTPMetaDatasetETL(ETL):
         if counter > 0:
             yield [htp_datasets,
                    dataset_tags,
+                   publications,
                    publications,
                    cross_reference_list,
                    secondaryIds
