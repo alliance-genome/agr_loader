@@ -284,6 +284,8 @@ class MolecularInteractionETL(ETL):
             xref_dict['prefix'] = individual_prefix
             xref_dict['globalCrossRefId'] = individual
 
+            xref_main_list.append(xref_dict)
+
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
