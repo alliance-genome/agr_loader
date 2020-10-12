@@ -43,10 +43,13 @@ class HTPMetaDatasetETL(ETL):
 
     htp_pub_relation_template = """
     
-     MATCH (ds:HTPDataset {primaryKey: row.datasetId})
-     MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    
+        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+        MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
      
-    MERGE (p)-[:ASSOCIATION]-(ds)
+        MERGE (p)-[:ASSOCIATION]-(ds)
     
     """
 
