@@ -283,7 +283,8 @@ class TestObject():
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899',
             'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202', 'FB:FBal0104420',
-            'FB:FBal0000017', 'FB:FBal0000017',
+            'FB:FBal0000017', 'FB:FBal0000017', 'FB:FBal0343829', 'FB:FBgn0027932',
+            'FB:FBal0343830',
             # vep transcripts
             'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590',
             'FB:FBgn0031209', 'FBgn0031209', 'FBtr0113008', 'FB:FBtr0113008',

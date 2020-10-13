@@ -1623,3 +1623,15 @@ def test_wb_has_agm_with_disease():
     for record in result:
         assert record["counter"] > 0
 
+
+def test_fb_variant_has_a_single_note():
+    """test_fb_variant_has_a_single_note"""
+
+    query = """ 
+            MATCH (a:Variant)--(n:Note)
+            WHERE a.hgvsNomenclature = 'NT_033779.5:g.8419681_8431132del'
+            RETURN count(n) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 2
+

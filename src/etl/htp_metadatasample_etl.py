@@ -30,7 +30,8 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.biosampleText = row.biosampleText,
               ds.sequencingFormat = row.sequencingFormat,
               ds.title = row.sampleTitle,
-              ds.sampleAge = row.sampleAge
+              ds.sampleAge = row.sampleAge,
+              ds.sampleId = row.sampleId
               
         MERGE (ds)-[dssp:FROM_SPECIES]-(s)
         MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
@@ -611,8 +612,8 @@ class HTPMetaDatasetSampleETL(ETL):
                 "dateAssigned": datasample_record.get('dateAssigned'),
                 "sequencingFormat": datasample_record.get('sequencingFormat'),
                 "sampleTitle": sampleTitle,
-                "sampleAge": age
-
+                "sampleAge": age,
+                "sampleId": sampleId
             }
 
             htp_datasetsamples.append(htp_dataset_sample)
