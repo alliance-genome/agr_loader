@@ -389,6 +389,7 @@ class HTPMetaDatasetSampleETL(ETL):
             sampleId = ''
             biosampleId = ''
             biosampleText = {}
+            uuid = str(uuid.uuid4())
 
             if 'sampleTitle' in datasample_record:
                 sampleTitle = datasample_record.get('sampleTitle')
@@ -397,7 +398,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 sampleIdObj = datasample_record.get('sampleId')
                 sampleId = sampleIdObj.get('primaryId')
 
-            datasetSampleId = sampleId + sampleTitle
+            datasetSampleId = uuid
 
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
@@ -601,7 +602,7 @@ class HTPMetaDatasetSampleETL(ETL):
             taxonId = datasample_record.get('taxonId')
 
             htp_dataset_sample = {
-
+                "uuid": uuid,
                 "datasetSampleId": datasetSampleId,
                 "abundance": datasample_record.get('abundance') ,
                 "sampleType": datasample_record.get('sampleType'),
