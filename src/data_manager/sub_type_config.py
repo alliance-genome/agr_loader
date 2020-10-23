@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import jsonref
 import jsonschema
 
-from files import S3File, TARFile, Download
+from files import S3File, TARFile, ZIPFile, Download
 
 
 class SubTypeConfig():
@@ -73,6 +73,10 @@ class SubTypeConfig():
                         self.logger.debug("Extracting all files: %s", self.file_to_download)
                         tar_object = TARFile(download_dir, self.file_to_download)
                         tar_object.extract_all()
+                    elif self.file_to_download.endswith('.gz'):
+                        self.logger.debug("Extracting all files: %s", self.file_to_download)
+                        zip_object = ZIPFile(download_dir, self.file_to_download)
+                        zip_object.extract_all()
                         # Check whether the file exists locally.
                 if self.filepath is not None:
                     try:
