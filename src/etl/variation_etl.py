@@ -95,7 +95,7 @@ class VariationETL(ETL):
 
            MATCH (o:Variant {primaryKey:row.variantId})
 
-           CREATE (n:Note {primaryKey:row.noteId})
+           MERGE (n:Note {primaryKey:row.note})
                 SET n.note = row.note          
            MERGE (o)-[pn:ASSOCIATION]-(n)
     """
@@ -405,6 +405,7 @@ class VariationETL(ETL):
 
                     if 'publicationId' in evidence:
                         publication = evidence.get('publicationId')
+                        prefix = publication.split(":")[0]
                         # WB has an error in their pubs at the moment, fix/remove 'and' stanza here, when we
                         # have a new file.
                         if publication.startswith('PMID:') and publication != 'PMID:':
@@ -414,6 +415,7 @@ class VariationETL(ETL):
                                 page = 'reference'
                                 pub_xref = evidence.get('crossReference')
                                 publication_mod_id = pub_xref.get('id')
+                                prefix = publication_mod_id.split(":")[0]
                                 pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
                                                                                        publication_mod_id.split(":")[1],
                                                                                        page)
@@ -441,10 +443,8 @@ class VariationETL(ETL):
             if notes is not None:
                 for note in notes:
                     vnote = note.get('note')
-                    note_id = str(uuid.uuid4())
 
                     variant_note_map = {"variantId": hgvs_nomenclature,
-                                            "noteId": note_id,
                                             "note": vnote}
 
                     variant_notes.append(variant_note_map)
@@ -456,7 +456,6 @@ class VariationETL(ETL):
                             pub_med_id = ""
                             pub_mod_url = None
                             publication_mod_id = ""
-                            page = 'reference'
 
                             if 'publicationId' in vevidence:
                                 publication = vevidence.get('publicationId')
@@ -467,13 +466,14 @@ class VariationETL(ETL):
                                         page = 'reference'
                                         pub_xref = vevidence.get('crossReference')
                                         publication_mod_id = pub_xref.get('id')
+                                        prefix = publication_mod_id.split(":")[0]
                                         pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
                                                                                    publication_mod_id.split(":")[1],
                                                                                    page)
                                 else:
-
                                     page = 'reference'
                                     publication_mod_id = publication
+                                    prefix = publication_mod_id.split(":")[0]
                                     pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
                                                                                    publication_mod_id.split(":")[1],
                                                                                    page)
@@ -483,7 +483,7 @@ class VariationETL(ETL):
                                             "pubMedId": pub_med_id,
                                             "pubMedUrl": pub_med_url,
                                             "pubModUrl": pub_mod_url,
-                                            "noteId": note_id
+                                            "noteId": vnote
                                 }
                                 variant_note_references.append(note_pub)
 

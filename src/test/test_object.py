@@ -102,6 +102,7 @@ class TestObject():
             'WB:WBTransgene00004658', 'WB:WBTransgene00019002',
             'WB:WBStrain00004846', 'WB:WBStrain00007215',
             'WB:WBVar00275424', 'WB:WBGene00000149',
+            'WB:WBStrain00035599',
             # disease 'not'
             'WB:WBGene00005643',
             # construct
@@ -110,6 +111,10 @@ class TestObject():
             # htp meta data
             'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
             'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
+            # AGM
+            'WB:WBVar00090963', 'WB:WBStrain00023353', 'WB:WBGene00004323', 'WB:WBGenotype00000017',
+            'WB:WBGenotype00000021',
+
         }
 
         self.sgd_id_set = {
@@ -138,6 +143,9 @@ class TestObject():
             'SGD:S000121253',
             # htp meta data
             'GEO:GSE3431', 'GEO:GSE34286', 'GEO:GSE34330', 'GEO:GSE34787',
+            # allele
+            'SGD:S000283439', 'SGD:S000000316', 'SGD:S000005770', 'SGD:S000277574',
+            'SGD:S000000383', 'SGD:S000297409', 'SGD:S000006064', 'SGD:S000297411',
         }
 
         self.zfin_id_set = {
@@ -275,7 +283,8 @@ class TestObject():
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899',
             'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202', 'FB:FBal0104420',
-            'FB:FBal0000017', 'FB:FBal0000017',
+            'FB:FBal0000017', 'FB:FBal0000017', 'FB:FBal0343829', 'FB:FBgn0027932',
+            'FB:FBal0343830',
             # vep transcripts
             'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590',
             'FB:FBgn0031209', 'FBgn0031209', 'FBtr0113008', 'FB:FBtr0113008',
@@ -290,6 +299,8 @@ class TestObject():
             # htp
             'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366', 'GEO:GSE13446', 'GEO:GSE15254',
             'GEO:GSE15710',
+            # interactions
+            'FB:FBgn0063493', 'FB:FBgn0063492',
         }
 
         self.rgd_test_set = {

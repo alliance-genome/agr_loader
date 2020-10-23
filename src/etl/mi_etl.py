@@ -60,7 +60,7 @@ class MIETL(ETL):
             'MI:1262': 'http://ophid.utoronto.ca/',
             'MI:1263': 'http://www.molecularconnections.com',
             'MI:1264': 'http://www.ntnu.no/home',
-            'MI:1335': 'http://www.agbase.msstate.edu/hpi/main.html',
+            'MI:1335': 'http://hpidb.igbb.msstate.edu/index.html',
             'MI:0463': 'https://thebiogrid.org/'
         }
 

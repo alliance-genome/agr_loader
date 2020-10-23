@@ -38,8 +38,19 @@ class HTPMetaDatasetETL(ETL):
                           p.pubModUrl = row.pubModUrl,
                           p.pubMedUrl = row.pubMedUrl
 
-        MERGE (p)-[:ASSOCIATION]-(ds)
 
+    """
+
+    htp_pub_relation_template = """
+    
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+    
+        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+        MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
+     
+        MERGE (p)-[:ASSOCIATION]-(ds)
+    
     """
 
     htp_category_tags_relations_query_template = """
@@ -113,6 +124,8 @@ class HTPMetaDatasetETL(ETL):
              "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
              "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetETL.htp_pub_relation_template, commit_size,
+             "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size,
              "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
             [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
@@ -157,7 +170,7 @@ class HTPMetaDatasetETL(ETL):
                                 page,
                                 display_name,
                                 cross_ref_complete_url,
-                                global_xref_id + page)
+                                global_xref_id + page + preferred)
                             xref_map['dataId'] = datasetId
                             xref_map['preferred'] = preferred
                             cross_reference_list.append(xref_map)
@@ -254,11 +267,12 @@ class HTPMetaDatasetETL(ETL):
                         pub_med_url = pub_med_url = self.etlh.get_no_page_complete_url(local_pub_med_id, 'PMID', pub_med_id)
                         if 'crossReference' in pub:
                             page = 'reference'
-                            prefix = publication_mod_id.split(":")[0]
                             pub_xref = pub.get('crossReference')
                             publication_mod_id = pub_xref.get('id')
+                            prefix = publication_mod_id.split(":")[0]
                             pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
                                 prefix, publication_mod_id.split(":")[1], page)
+                            self.logger.debug(pub_mod_url)
                     elif pid is not None and not pid.startswith('PMID:'):
                         page = 'reference'
                         publication_mod_id = pub.get('publicationId')
@@ -292,6 +306,7 @@ class HTPMetaDatasetETL(ETL):
                 yield [htp_datasets,
                        dataset_tags,
                        publications,
+                       publications,
                        cross_reference_list,
                        secondaryIds
                        ]
@@ -305,6 +320,7 @@ class HTPMetaDatasetETL(ETL):
         if counter > 0:
             yield [htp_datasets,
                    dataset_tags,
+                   publications,
                    publications,
                    cross_reference_list,
                    secondaryIds
