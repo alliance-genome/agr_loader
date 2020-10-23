@@ -4,7 +4,8 @@ import logging
 import os
 import zipfile
 
-class ZIPFile():
+
+class ZIPFile(object):
     """ZIP File"""
 
     logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ class ZIPFile():
         self.zipfilename = zipfilename
 
     def extract_all(self):
-        """Extrall All"""
+        """Extract All"""
 
         self.logger.debug("Extracting file(s) from %s/%s ...",
                           self.path,

@@ -1,9 +1,6 @@
 """XML File"""
 
 import logging
-
-
-
 import xml.etree.ElementTree as ElementTree
 
 

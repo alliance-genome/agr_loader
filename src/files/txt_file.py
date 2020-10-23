@@ -3,7 +3,8 @@
 import logging
 import codecs
 
-class TXTFile():
+
+class TXTFile(object):
     """Text File"""
 
     logger = logging.getLogger(__name__)

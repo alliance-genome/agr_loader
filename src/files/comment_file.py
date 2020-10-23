@@ -1,6 +1,4 @@
-"""Comment File"""
-
-class CommentFile():
+class CommentFile(object):
     """Comment File"""
 
     def __init__(self, file_handle, commentstring="#"):
