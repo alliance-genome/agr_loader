@@ -15,7 +15,7 @@ CONSTRUCT:
   allowed: [FB, SGD, WB, ZFIN, RGD]
 ALLELE:
   type: list
-  allowed: [FB, WB, ZFIN, RGD, MGI]
+  allowed: [FB, WB, ZFIN, RGD, MGI, SGD]
 SQTR:
   type: list
   allowed: [ZFIN]
@@ -37,12 +37,21 @@ GAF:
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+BIOGRID-ORCS:
+  type: list
+  allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
   allowed: [R627, GRCm38, GRCz11, Rnor60, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+HTPDATASET:
+  type: list
+  allowed: [SGD, FB, WB, ZFIN, RGD, MGI]
+HTPDATASAMPLE:
+  type: list
+  allowed: [SGD, FB, WB, ZFIN, RGD, MGI]
 VEPGENE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -55,6 +64,9 @@ VEPTRANSCRIPT:
 VARIATION:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
+ProteinSequence:
+  type: list
+  allowed: [ProteinSequence]
 ONTOLOGY:
   type: list
   allowed: 
@@ -154,9 +166,16 @@ GFF:
 DB-SUMMARY:
   type: list
   allowed: [2.3.0, 3.0.0]
+GENEPHENOCROSSREFERENCE:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, MGI, RGD]
+HTP:
+  type: list
+  allowed: [TAGS]
 FileTransactorThreads:
   type: integer
   required: True
 Neo4jTransactorThreads:
   type: integer
   required: True
+

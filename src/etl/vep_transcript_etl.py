@@ -1,4 +1,4 @@
-"""VEP Transcript ETL"""
+"""VEP Transcript ETL."""
 
 import logging
 import multiprocessing
@@ -10,8 +10,9 @@ from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
+
 class VEPTranscriptETL(ETL):
-    """VEP Transcript ETL"""
+    """VEP Transcript ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class VEPTranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.transcriptId})
+                MATCH (g:Transcript {primaryKey:row.transcriptId})
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
@@ -44,21 +45,34 @@ class VEPTranscriptETL(ETL):
                     gc.codonChange = row.codonChange,
                     gc.codonReference = row.codonReference,
                     gc.codonVariation = row.codonVariation,
-                    gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature,  
-                    gc.hgvsCodingNomenclature = row.hgvsCodingNomenclature, 
-                    gc.hgvsVEPGeneNomenclature = row.hgvsVEPGeneNomenclature            
+                    gc.hgvsProteinNomenclature = row.hgvsProteinNomenclature,
+                    gc.hgvsCodingNomenclature = row.hgvsCodingNomenclature,
+                    gc.hgvsVEPGeneNomenclature = row.hgvsVEPGeneNomenclature,
+                    gc.polyphenPrediction = row.polyphenPrediction,
+                    gc.polyphenScore = row.polyphenScore,
+                    gc.siftPrediction = row.siftPrediction,
+                    gc.siftScore = row.siftScore
 
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
+                
+                CREATE (p:VariantProteinSequence {primaryKey:row.variantProteinSequenceKey})
+                  SET p.proteinSequence = row.variantProteinSequence
+                  SET p.variantId = row.hgvsNomenclature
+                  SET p.transcriptId = row.transcriptId
+                  
+                
+                CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.hgvsVEPGeneNomenclature})
                         SET syn.name = row.hgvsVEPGeneNomenclature
-                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) 
-            
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+
             """
 
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -66,7 +80,8 @@ class VEPTranscriptETL(ETL):
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+            process = multiprocessing.Process(
+                target=self._process_sub_type, args=(sub_type,))
             process.start()
             thread_pool.append(process)
 
@@ -89,8 +104,10 @@ class VEPTranscriptETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("VEPTran-{}: ".format(sub_type.get_data_provider()))
 
     def return_range_split_values(self, column):
+        """Get range vaues."""
         if "-" in column:
             if column == '-':
                 start = ""
@@ -110,22 +127,30 @@ class VEPTranscriptETL(ETL):
                 end = column.split("/")[1]
                 ranger = column
         else:
-                start = column
-                end = column
-                ranger = column
+            start = column
+            end = column
+            ranger = column
         return start, end, ranger
 
     def get_generators(self, filepath):
-        """Get Generators"""
-
+        """Get Generators."""
         data = TXTFile(filepath).get_data()
         vep_maps = []
+
+        prot_func_regex = re.compile(r'^([^\(]+)\(([\d\.]+)\)')
 
         for line in data:
             impact = ''
             hgvs_p = ''
             hgvs_c = ''
             hgvs_g = ''
+            pph_prediction = ''
+            pph_score = ''
+            sift_prediction = ''
+            sift_score = ''
+            variant_protein_sequnece = ''
+            transcript_wt_sequence = ''
+
             columns = line.split()
             if columns[0].startswith('#'):
                 continue
@@ -138,17 +163,30 @@ class VEPTranscriptETL(ETL):
                     value = pair.split("=")[1]
                     if key == 'IMPACT':
                         impact = value
-                    if key == 'HGVSp':
+                    elif key == 'HGVSp':
                         hgvs_p = value
-                    if key == 'HGVSc':
+                    elif key == 'HGVSc':
                         hgvs_c = value
-                    if key == 'HGVSg':
+                    elif key == 'HGVSg':
                         hgvs_g = value
+                    elif key == 'PolyPhen':
+                        m = prot_func_regex.match(value)
+                        pph_prediction = m.group(1)
+                        pph_score = m.group(2)
+                    elif key == 'SIFT':
+                        m = prot_func_regex.match(value)
+                        sift_prediction = m.group(1)
+                        sift_score = m.group(2)
+                    elif key == 'VarSeq':
+                        variant_protein_sequnece = value
+                    elif key == 'WtSeq':
+                        transcript_wt_sequence = value
+
+
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')
             else:
                 gene_id = columns[3]
-
 
             cdna_start_position, cdna_end_position, cdna_range = self.return_range_split_values(
                 columns[7]
@@ -167,30 +205,40 @@ class VEPTranscriptETL(ETL):
                 columns[11]
             )
 
-            vep_result = {"hgvsNomenclature": columns[0],
-                              "transcriptLevelConsequence": columns[6],
-                              "primaryKey": str(uuid.uuid4()),
-                              "impact": impact,
-                              "hgvsProteinNomenclature": hgvs_p,
-                              "hgvsCodingNomenclature": hgvs_c,
-                              "hgvsVEPGeneNomenclature": hgvs_g,
-                              "gene": gene_id,
-                              "transcriptId": columns[4],
-                              "aminoAcidReference": amino_acid_reference,
-                              "aminoAcidVariation": amino_acid_variation,
-                              "aminoAcidChange": amino_acid_change,
-                              "cdnaStartPosition": cdna_start_position,
-                              "cdnaEndPosition": cdna_end_position,
-                              "cdnaRange": cdna_range,
-                              "cdsStartPosition": cds_start_position,
-                              "cdsEndPosition": cds_end_position,
-                              "cdsRange": cds_range,
-                              "proteinStartPosition":protein_start_position,
-                              "proteinEndPosition":protein_end_position,
-                              "proteinRange": protein_range,
-                              "codonReference": codon_reference,
-                              "codonVariation": codon_variation,
-                              "codonChange": codon_change
+            transcript_id = columns[4]
+            hgvsNomenclature = columns[0]
+            vep_result = {"hgvsNomenclature": hgvsNomenclature,
+                          "transcriptLevelConsequence": columns[6],
+                          "primaryKey": str(uuid.uuid4()),
+                          "impact": impact,
+                          "hgvsProteinNomenclature": hgvs_p,
+                          "hgvsCodingNomenclature": hgvs_c,
+                          "hgvsVEPGeneNomenclature": hgvs_g,
+                          "gene": gene_id,
+                          "transcriptId": transcript_id,
+                          "aminoAcidReference": amino_acid_reference,
+                          "aminoAcidVariation": amino_acid_variation,
+                          "aminoAcidChange": amino_acid_change,
+                          "cdnaStartPosition": cdna_start_position,
+                          "cdnaEndPosition": cdna_end_position,
+                          "cdnaRange": cdna_range,
+                          "cdsStartPosition": cds_start_position,
+                          "cdsEndPosition": cds_end_position,
+                          "cdsRange": cds_range,
+                          "proteinStartPosition": protein_start_position,
+                          "proteinEndPosition": protein_end_position,
+                          "proteinRange": protein_range,
+                          "codonReference": codon_reference,
+                          "codonVariation": codon_variation,
+                          "codonChange": codon_change,
+                          "polyphenPrediction": pph_prediction,
+                          "polyphenScore": pph_score,
+                          "siftPrediction": sift_prediction,
+                          "siftScore": sift_score,
+                          "variantProteinSequence": variant_protein_sequnece,
+                          "variantProteinSequenceKey": transcript_id+hgvsNomenclature,
+                          "transcriptWtSequence": transcript_wt_sequence,
+                          "transcriptProteinSequenceKey": transcript_id+"Protein"
                           }
 
             vep_maps.append(vep_result)

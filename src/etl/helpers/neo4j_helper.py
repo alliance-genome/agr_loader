@@ -34,7 +34,7 @@ class Neo4jHelper():
         """Run Single Query"""
 
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+              + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri,
                                      auth=("neo4j", "neo4j"),
                                      max_connection_pool_size=-1)
@@ -65,16 +65,20 @@ class Neo4jHelper():
                                       max_connection_pool_size=-1)
 
         with driver.session() as session:
-            indicies = [":Gene(primaryKey)",
+            indicies = [":CDS(primaryKey)",
+                        ":Gene(primaryKey)",
                         ":Gene(modLocalId)",
                         ":Gene(symbol)",
                         ":Gene(gff3ID)",
                         ":Gene(taxonId)",
                         ":Construct(primaryKey)",
                         ":Transcript(primaryKey)",
+                        ":Transcript(dataProvider)",
                         ":TranscriptLevelConsequence(primaryKey)",
+                        ":TranscriptProteinSequence(primaryKey)",
                         ":GeneLevelConsequence(primaryKey)",
                         ":Transcript(gff3ID)",
+                        ":CDS(gff3ID)",
                         ":GOTerm(primaryKey)",
                         ":Genotype(primaryKey)",
                         ":AffectedGenomicModel(primaryKey)",
@@ -93,6 +97,7 @@ class Neo4jHelper():
                         ":Species(primaryKey)",
                         ":Entity(primaryKey)",
                         ":Exon(primaryKey)",
+                        ":Exon(gff3ID)",
                         ":Synonym(primaryKey)",
                         ":Identifier(primaryKey)",
                         ":Association(primaryKey)",
@@ -110,20 +115,29 @@ class Neo4jHelper():
                         ":SecondaryId(primaryKey)",
                         ":Chromosome(primaryKey)",
                         ":OrthoAlgorithm(name)",
+                        ":Note(primaryKey)",
                         ":Gene(modGlobalId)",
                         ":Gene(localId)",
+                        ":HTPDataset(primaryKey)",
+                        ":HTPDatasetSample(primaryKey)",
+                        ":CategoryTag(primaryKey)",
                         ":Load(primaryKey)",
                         ":Feature(primaryKey)",
                         ":Allele(primaryKey)",
                         ":MITerm(primaryKey)",
                         ":Phenotype(primaryKey)",
                         ":PhenotypeEntityJoin(primaryKey)",
+                        ":ProteinSequence(primaryKey)",
+                        ":CDSSequence(primaryKey)",
                         ":ExpressionBioEntity(primaryKey)",
                         ":Stage(primaryKey)",
                         ":PublicationJoin(primaryKey)",
                         ":PhenotypePublicationJoin(primaryKey)",
                         ":Variant(primaryKey)",
                         ":Variant(hgvsNomenclature)",
+                        ":VariantProteinSequence(primaryKey)",
+                        ":VariantProteinSequence(transcriptId)",
+                        ":VariantProteinSequence(variantId)",
                         ":SequenceTargetingReagent(primaryKey)",
                         ":ECOTerm(primaryKey)",
                         ":ZFATerm(primaryKey)",

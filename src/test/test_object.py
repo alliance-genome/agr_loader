@@ -46,7 +46,7 @@ class TestObject():
             'MGI:109151', 'MGI:106679', 'MGI:103223', 'MGI:104554', 'MGI:104993', 'MGI:5316784',
             'MGI:5566856', 'MGI:3776030', 'MGI:1857423', 'MGI:5806340',
             # allele
-            'MGI:88070', 'MGI:88070',
+            'MGI:88070', 'MGI:104993',
             # transcript -- keys here are not curies because GFF
             # doesn't follow our strict rules for identifiers.
             # gene: ID=MGI_C57BL6J_3588256 curie=MGI:3588256
@@ -54,7 +54,10 @@ class TestObject():
             # curie=NCBI_Gene:NM_001033977.2 Parent=MGI_C57BL6J_3588256
             'MGI:3774845', 'MGI_C57BL6J_3774845', 'MGI:3588256', 'MGI_C57BL6J_3588256_transcript_1',
             'MGI_C57BL6J_3588256', 'NCBI_Gene:NM_001033977.2', 'MGI:3618599',
-            'MGI:3693208', 'MGI:109196'}
+            'MGI:3693208', 'MGI:109196',
+            # htp meta data
+            'ArrayExpress:E-AFMX-1', 'ArrayExpress:E-BAIR-4', 'ArrayExpress:E-GEOD-41895', 'ArrayExpress:E-GEOD-56866',
+        }
 
         self.wormbase_id_set = {
             'WB:WBGene00044305', 'WB:WBGene00169423',
@@ -99,9 +102,20 @@ class TestObject():
             'WB:WBTransgene00004658', 'WB:WBTransgene00019002',
             'WB:WBStrain00004846', 'WB:WBStrain00007215',
             'WB:WBVar00275424', 'WB:WBGene00000149',
+            'WB:WBStrain00035599',
+            # disease 'not'
+            'WB:WBGene00005643',
             # construct
             'WB:WBGene00017738', 'WB:WBCnstr00027061',
-            'WB:WBCnstr00004638', 'WB:WBGene00002992'}
+            'WB:WBCnstr00004638', 'WB:WBGene00002992',
+            # htp meta data
+            'WB:RNASeq_Study.ERP000948', 'WB:RNASeq_Study.SRP005562', 'WB:RNASeq_Study.SRP017908',
+            'WB:RNASeq_Study.SRP030526', 'WB:RNASeq_Study.SRP035479',
+            # AGM
+            'WB:WBVar00090963', 'WB:WBStrain00023353', 'WB:WBGene00004323', 'WB:WBGenotype00000017',
+            'WB:WBGenotype00000021',
+
+        }
 
         self.sgd_id_set = {
             'SGD:S000003256', 'SGD:S000003513', 'SGD:S000000119',
@@ -126,7 +140,13 @@ class TestObject():
             # expression
             'SGD:S000002200',
             # gff ARS object
-            'SGD:S000121253', }
+            'SGD:S000121253',
+            # htp meta data
+            'GEO:GSE3431', 'GEO:GSE34286', 'GEO:GSE34330', 'GEO:GSE34787',
+            # allele
+            'SGD:S000283439', 'SGD:S000000316', 'SGD:S000005770', 'SGD:S000277574',
+            'SGD:S000000383', 'SGD:S000297409', 'SGD:S000006064', 'SGD:S000297411',
+        }
 
         self.zfin_id_set = {
             'ZFIN:ZDB-GENE-990415-72', 'ZFIN:ZDB-GENE-030131-3445',
@@ -239,6 +259,9 @@ class TestObject():
             'ENSDART00000010092', 'ZFIN:ZDB-GENE-060929-860',
             'ZFIN:ZDB-ALT-160601-1763', 'ENSEMBL:ENSDART00000111806',
             'ENSDART00000111806', 'ZFIN:ZDB-ALT-161017-2', 'ZFIN:ZDB-GENE-040625-66',
+            # htp dataset
+            'ZFIN:ZDB-HTPDSET-200812-3', 'ZFIN:ZDB-HTPDSET-200812-4', 'ZFIN:ZDB-HTPDSET-200812-1',
+            'ZFIN:ZDB-HTPDSET-200812-7', 'ZFIN:ZDB-HTPDSET-200812-8',
         }
 
         self.flybase_id_set = {
@@ -260,6 +283,8 @@ class TestObject():
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899',
             'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202', 'FB:FBal0104420',
+            'FB:FBal0000017', 'FB:FBal0000017', 'FB:FBal0343829', 'FB:FBgn0027932',
+            'FB:FBal0343830',
             # vep transcripts
             'FB:FBgn0002121', 'FBgm0002121', 'FB:FBtr0306590', 'FBtr0306590',
             'FB:FBgn0031209', 'FBgn0031209', 'FBtr0113008', 'FB:FBtr0113008',
@@ -271,6 +296,11 @@ class TestObject():
             'FB:FBal0012261', 'FB:FBgn0003559',
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
+            # htp
+            'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366', 'GEO:GSE13446', 'GEO:GSE15254',
+            'GEO:GSE15710',
+            # interactions
+            'FB:FBgn0063493', 'FB:FBgn0063492',
         }
 
         self.rgd_test_set = {
@@ -292,9 +322,12 @@ class TestObject():
             # variant consequences
             'RGD:1310046', 'RGD:69305', 'RGD:1589755', 'RGD:1307511', 'RGD:3889', 'RGD:13437613',
             'RGD:1600311', 'RGD:5143979', 'rna31', 'RGD:1310046', 'rna853', 'RGD:1310046', 'RGD:13437613',
+            # disease, not
+            'RGD:619937',
+            # HTP dataset
+            'GEO:GSE39', 'GEO:GSE95', 'GEO:GSE357',
 
-
-             }
+        }
 
         self.human_test_set = {
             'HGNC:17889', 'HGNC:25818', 'HGNC:3686', 'HGNC:7881', 'HGNC:6709',

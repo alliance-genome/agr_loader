@@ -1,4 +1,4 @@
-"""DO ETL"""
+"""DO ETL."""
 
 import logging
 import re
@@ -11,8 +11,7 @@ from transactors import Neo4jTransactor
 
 
 class DOETL(ETL):
-    """DO ETL"""
-
+    """DO ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -41,21 +40,19 @@ class DOETL(ETL):
              doterm.zfinLink = row.zfin_link,
              doterm.flybaseLink = row.flybase_link,
              doterm.wormbaseLink = row.wormbase_link,
-             doterm.sgdLink = row.sgd_link 
-             
-            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
+             doterm.sgdLink = row.sgd_link
 
+            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
 
     doterm_synonyms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (d:DOTerm {primaryKey:row.primary_id})
-            
+
             MERGE (syn:Synonym:Identifier {primaryKey:row.synonym})
                 SET syn.name = row.synonym
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
-
 
     doterm_isas_query_template = """
         USING PERIODIC COMMIT %s
@@ -65,13 +62,11 @@ class DOETL(ETL):
             MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
             MERGE (d1)-[aka:IS_A]->(d2) """
 
-
     xrefs_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
             MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
-
 
     doterm_alt_ids_query_template = """
         USING PERIODIC COMMIT %s
@@ -80,14 +75,13 @@ class DOETL(ETL):
             MATCH (d:DOTerm {primaryKey:row.primary_id})
 
             MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-    
+
             MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
-
     def __init__(self, config):
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
-
 
     def _load_and_process_data(self):
         filepath = self.data_type_config.get_single_filepath()
@@ -108,10 +102,10 @@ class DOETL(ETL):
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages("DO-?: ")
 
-    def get_generators(self, filepath, batch_size):
-        """Get Generators"""
-
+    def get_generators(self, filepath, batch_size):  # noqa TODO:Needs splitting up really
+        """Get Generators."""
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
 
@@ -136,14 +130,12 @@ class DOETL(ETL):
 
             syns = []
 
-            local_id = None
             def_links_unprocessed = []
             def_links_processed = []
             subset = []
             definition = ""
             is_obsolete = "false"
             ident = key
-            prefix = ident.split(":")[0]
 
             if "meta" in node:
                 if "synonyms" in node["meta"]:
@@ -167,36 +159,8 @@ class DOETL(ETL):
 
                 if "xrefs" in node["meta"]:
                     o_xrefs = node["meta"].get('xrefs')
-                    if o_xrefs is not None:
-                        for xref_id_dict in o_xrefs:
-                            xref_id = xref_id_dict["val"]
-                            if ":" in xref_id:
-                                local_id = xref_id.split(":")[1].strip()
-                                prefix = xref_id.split(":")[0].strip()
-                                complete_url = ETLHelper.get_complete_url_ont(local_id, xref_id)
-                                generated_xref = ETLHelper.get_xref_dict(local_id, 
-                                    prefix,
-                                    "ontology_provided_cross_reference",
-                                    "ontology_provided_cross_reference",
-                                    xref_id,
-                                    complete_url,
-                                    xref_id + "ontology_provided_cross_reference")
-                                generated_xref["oid"] = ident
-                                xrefs.append(generated_xref)
-                        else: #TODO Need to make sure this else is correct
-                            if ":" in o_xrefs:
-                                local_id = o_xrefs.split(":")[1].strip()
-                                prefix = o_xrefs.split(":")[0].strip()
-                                complete_url = ETLHelper.get_complete_url_ont(local_id, o_xrefs)
-                                generated_xref = ETLHelper.get_xref_dict(local_id,
-                                        prefix,
-                                        "ontology_provided_cross_reference",
-                                        "ontology_provided_cross_reference",
-                                        o_xrefs,
-                                        complete_url,
-                                        o_xrefs)
-                                generated_xref["oid"] = ident
-                                xrefs.append(generated_xref)
+                    self.ortho_xrefs(o_xrefs, ident, xrefs)
+
                 if node["meta"].get('is_obsolete'):
                     is_obsolete = "true"
                 elif node["meta"].get('deprecated'):
@@ -272,14 +236,15 @@ class DOETL(ETL):
             # TODO: make this a generic section based on the resourceDescriptor.yaml file.
             # need to have MODs add disease pages to their yaml stanzas
 
+            # NU: alt_ids = node.get('alt_id')
+            # if alt_ids:
+            #     if not isinstance(alt_ids, (list, tuple)):
+            #         alt_ids = [alt_ids]
+            # else:
+            #     alt_ids = []
 
-            alt_ids = node.get('alt_id')
-            if alt_ids:
-                if not isinstance(alt_ids, (list, tuple)):
-                    alt_ids = [alt_ids]
-            else:
-                alt_ids = []
-
+            # TODO: Need to add urls to resource Descriptis for SGD and MGI.
+            # NOTE: MGI had one but has 'MGI:' at the end of the url not required here.
             dict_to_append = {
                 'oid': node['id'],
                 'name': node.get('label'),
@@ -288,20 +253,14 @@ class DOETL(ETL):
                 'defLinksProcessed': def_links_processed,
                 'is_obsolete': is_obsolete,
                 'subset': subset,
-                'oUrl': "http://www.disease-ontology.org/?id=" + node['id'],
-                'rgd_link': 'http://rgd.mcw.edu'
-                            + '/rgdweb/ontology/annot.html?species=All&x=1&acc_id='
-                            + node['id'] + '#annot',
-                'rat_only_rgd_link': 'http://rgd.mcw.edu'
-                                     + '/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id='
-                                     + node['id'] + '#annot',
-                'human_only_rgd_link': 'http://rgd.mcw.edu'
-                                       + '/rgdweb/ontology/annot.html?species=Human&x=1&acc_id='
-                                       + node['id'] + '#annot',
+                'oUrl': self.etlh.rdh2.return_url_from_key_value('DOID', node['id']),
+                'rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/all'),
+                'rat_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/rat'),
+                'human_only_rgd_link': self.etlh.rdh2.return_url_from_key_value('RGD', node['id'], 'disease/human'),
                 'mgi_link': 'http://www.informatics.jax.org/disease/' + node['id'],
-                'zfin_link': 'https://zfin.org/' + node['id'],
-                'flybase_link': 'http://flybase.org/cgi-bin/cvreport.html?id=' + node['id'],
-                'wormbase_link': 'http://www.wormbase.org/resources/disease/' + node['id'],
+                'zfin_link': self.etlh.rdh2.return_url_from_key_value('ZFIN', node['id'], 'disease'),
+                'flybase_link': self.etlh.rdh2.return_url_from_key_value('FB', node['id'], 'disease'),
+                'wormbase_link': self.etlh.rdh2.return_url_from_key_value('WB', node['id'], 'disease'),
                 'sgd_link': 'https://yeastgenome.org/disease/' + node['id']
             }
 

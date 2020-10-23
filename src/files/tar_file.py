@@ -46,9 +46,9 @@ class TARFile(object):
                 self.logger.info('Skipping GFF file extraction for %s', member.name)
                 continue
             if os.path.exists(os.path.join(self.path, member.name)):
-                self.logger.info('%s/%s already exists, not extracting.', self.path, member.name)
+                self.logger.debug('%s/%s already exists, not extracting.', self.path, member.name)
             else:
-                self.logger.info("Extracting (%s->%s/%s)", member.name, self.path, member.name)
+                self.logger.debug("Extracting (%s->%s/%s)", member.name, self.path, member.name)
                 members_to_extract.append(member)
                 extract = True
 

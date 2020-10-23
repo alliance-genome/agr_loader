@@ -34,6 +34,7 @@ unit_tests:
 bash:
 	docker-compose up agr_loader bash
 
+# reload targets do remove and re-download files to the local docker volume.
 reload: 
 	docker-compose up -d neo4j
 	docker-compose down -v
@@ -44,7 +45,24 @@ reload:
 
 reload_test: 
 	docker-compose up -d neo4j
-	docker-compose down -v
+	docker-compose down
+	docker-compose up -d neo4j
+	sleep 10
+	docker build -t agrdocker/agr_loader_run:latest .
+	docker-compose up agr_loader_test
+
+# rebuild targets do not remove and re-download files to the local docker volume.
+rebuild:
+	docker-compose up -d neo4j
+	docker-compose down
+	docker-compose up -d neo4j
+	sleep 10
+	docker build -t agrdocker/agr_loader_run:latest .
+	docker-compose up agr_loader
+
+rebuild_test:
+	docker-compose up -d neo4j
+	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
 	docker build -t agrdocker/agr_loader_run:latest .

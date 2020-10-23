@@ -24,7 +24,6 @@ class Neo4jTransactor():
     def _get_name():
         return "Neo4jTransactor %s" % multiprocessing.current_process().name
 
-
     def start_threads(self, thread_count):
         """Start Threads"""
 
@@ -37,7 +36,6 @@ class Neo4jTransactor():
             process.start()
             self.thread_pool.append(process)
 
-
     def shutdown(self):
         """Shutdown"""
 
@@ -45,7 +43,6 @@ class Neo4jTransactor():
         for thread in self.thread_pool:
             thread.terminate()
         self.logger.info("Finished Shutting down Neo4jTransactor threads")
-
 
     @staticmethod
     def execute_query_batch(query_batch):

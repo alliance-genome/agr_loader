@@ -146,39 +146,71 @@ def test_spell_cross_ref_type():
         assert record["counter"] < 1
 
 
-def test_gene_has_automated_description():
-    """Test Gene has Automated Description"""
+def test_genes_have_automated_description():
+    """Test Genes Have Automated Description"""
 
-    query = """MATCH (g:Gene) where g.primaryKey = 'ZFIN:ZDB-GENE-030131-4430'
-               AND g.automatedGeneSynopsis IS NOT NULL
+    query = """MATCH (g:Gene) where g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655', 'FB:FBgn0045035', 'RGD:68337', 
+                                                     'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
+                                                     'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
+                                                     'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
+                                                     'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
+                                                     'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-030131-4430']
+               AND g.automatedGeneSynopsis IS NULL
                RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 1
+        assert record["counter"] == 0
 
 
-def test_gene_has_all_three_automated_description_components():
-    """Test Gene has All Three Automated Description Components"""
+def test_at_least_one_gene_has_go_description():
+    """Test At Least One Gene Has GO Description"""
 
     query = """MATCH (g:Gene)
-               WHERE g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655',
-                                      'FB:FBgn0045035','RGD:68337', 'RGD:2332',
-                                      'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
-                                      'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
-                                      'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
-                                      'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
-                                      'ZFIN:ZDB-GENE-990415-131']
-               AND (NOT (g.automatedGeneSynopsis =~ '.*xhibits.*'
-                         OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
-                         OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
-                         OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
-                         OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*')
-                    OR NOT (g.automatedGeneSynopsis =~ '.*sed to study.*'
-                            OR g.automatedGeneSynopsis =~ '.*mplicated in.*'))
-              RETURN COUNT(g) AS counter"""
+               WHERE (g.automatedGeneSynopsis =~ '.*xhibits.*' OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
+                      OR g.automatedGeneSynopsis =~ '.*ocalizes to.*' 
+                      OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
+                      OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*' 
+                      OR g.automatedGeneSynopsis =~ '.*redicted to localize to.*')
+               RETURN COUNT(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 0
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_disease_description():
+    """Test At Least One Gene Has Disease Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE (g.automatedGeneSynopsis =~ '.*sed to study.*' 
+                      OR g.automatedGeneSynopsis =~ '.*mplicated in.*'
+                      OR g.automatedGeneSynopsis =~ '.*iomarker of.*')
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_expression_description():
+    """Test At Least One Gene Has Expression Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE (g.automatedGeneSynopsis =~ '.*s expressed in.*'
+                      OR g.automatedGeneSynopsis =~ '.*s enriched in.*')
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_at_least_one_gene_has_orthology_description():
+    """Test At Least One Gene Has Orthology Description"""
+
+    query = """MATCH (g:Gene)
+               WHERE g.automatedGeneSynopsis =~ '.*rthologous to.*'
+               RETURN COUNT(g) AS counter"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -251,7 +283,7 @@ def test_disease_for_all_species_exists():
     """
 
     query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
-               WHERE labels(r) = ['Gene'] 
+               WHERE labels(r) = ['Gene']
                      OR labels(r) = ['Feature', 'Allele']
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
@@ -302,8 +334,7 @@ def test_veptranscript_for_all_species_exists():
         assert record["counter"] == 5
 
 
-
-#def test_variant_consequences_for_five_species_exists():
+# def test_variant_consequences_for_five_species_exists():
 #    """Test Variant Consequences for all Five Species Exists"""
 #    query = \
 #     """MATCH (s:Species)--(:Gene)--(feature:Feature)--(v:Variant)--(glc:GeneLevelConsequence)
@@ -698,7 +729,7 @@ def test_human_gene_has_rgd_cross_reference():
                WHERE g.primaryKey = 'HGNC:11204'
                      AND cr.crossRefType = 'generic_cross_reference'
                      AND cr.globalCrossRefId = 'RGD:1322513'
-                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=1322513'
+                     AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=RGD:1322513'
                RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
@@ -883,7 +914,7 @@ def test_point_mutation_hgvs():
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
                WHERE v.primaryKey = 'NC_007124.7:g.50540171C>T'
-                     AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105' 
+                     AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105'
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
@@ -1101,7 +1132,7 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
         assert record["counter"] > 0
 
 # please retain this code for testing purposes.
-#def test_node_count_is_consistently_growing():
+# def test_node_count_is_consistently_growing():
     # this file is generated in node_count_etl and represents the node labels that have fewer
     # nodes in this run of the loader (assuming this isn't a test run), than in the production copy of the datastore
     # as based on the DB-SUMMARY file produced by the file generator.
@@ -1127,7 +1158,7 @@ def test_orphanet_publication_exists():
 
     query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
                 WHERE g.primaryKey = 'HGNC:869'
-                AND pr.pubModId = 'ORPHA:198' 
+                AND pr.pubModId = 'ORPHA:198'
                 RETURN COUNT(pr) as counter
     """
     result = execute_transaction(query)
@@ -1151,8 +1182,8 @@ def test_omim_publication_exists():
 def test_wb_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'WB:WBGene00022276' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'WB:WBGene00022276'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1163,8 +1194,8 @@ def test_wb_gene_has_variant_tc_consequence_exists():
 def test_zfin_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1175,8 +1206,8 @@ def test_zfin_gene_has_variant_tc_consequence_exists():
 def test_mgi_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'MGI:104554' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'MGI:104554'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1187,8 +1218,8 @@ def test_mgi_gene_has_variant_tc_consequence_exists():
 def test_fb_gene_has_variant_tc_consequence_exists():
     """Test WB gene has variant and transcript level consequences"""
 
-    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence) 
-                WHERE g.primaryKey = 'FB:FBgn0031209' 
+    query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
+                WHERE g.primaryKey = 'FB:FBgn0031209'
                 RETURN count(g) as counter
     """
     result = execute_transaction(query)
@@ -1200,7 +1231,7 @@ def test_fb_allele_synonym_exists():
     """Test FB allele has synonyms"""
 
     query = """ MATCH (a:Allele)--(s:Synonym)
-                WHERE a.primaryKey = 'FB:FBal0138114' 
+                WHERE a.primaryKey = 'FB:FBal0138114'
                 RETURN count(a) as counter
     """
     result = execute_transaction(query)
@@ -1247,6 +1278,78 @@ def test_codon_consequence_exists():
         assert record["counter"] > 0
 
 
+def test_gene_level_sift_results_exist():
+    """Test gene level SIFT scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(glc:GeneLevelConsequence)
+                    WHERE glc.siftPrediction IS NOT NULL
+                    AND (
+                        glc.siftScore = ''
+                        OR (
+                            tofloat(glc.siftScore) >=0
+                            AND tofloat(glc.siftScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_gene_level_polyphen_results_exist():
+    """Test gene level PolyPhen scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(glc:GeneLevelConsequence)
+                    WHERE glc.polyphenPrediction IS NOT NULL
+                    AND (
+                        glc.polyphenScore = ''
+                        OR (
+                            tofloat(glc.polyphenScore) >=0
+                            AND tofloat(glc.polyphenScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_transcript_level_sift_results_exist():
+    """Test transcript level SIFT scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(tlc:TranscriptLevelConsequence)
+                    WHERE tlc.siftPrediction IS NOT NULL
+                    AND (
+                        tlc.siftScore = ''
+                        OR (
+                            tofloat(tlc.siftScore) >=0
+                            AND tofloat(tlc.siftScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_transcript_level_polyphen_results_exist():
+    """Test transcript level PolyPhen scores and predictions exist"""
+
+    query = """ MATCH (v:Variant)-[:ASSOCIATION]->(tlc:TranscriptLevelConsequence)
+                    WHERE tlc.polyphenPrediction IS NOT NULL
+                    AND (
+                        tlc.polyphenScore = ''
+                        OR (
+                            tofloat(tlc.polyphenScore) >=0
+                            AND tofloat(tlc.polyphenScore) <= 1
+                        )
+                    )
+                RETURN count(v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
 def test_tc_consequence_is_null_vs_dash():
     """Test FB variant has codon start/end """
 
@@ -1270,3 +1373,265 @@ def test_manual_sars2_synonym_exists():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] > 0
+
+
+def test_not_disease_annotation_exists_exists():
+    """Test_not_disease_annotation_exists_exists"""
+
+    query = """ MATCH (d:DOTerm)-[x:IS_NOT_MARKER_FOR]-(g:Gene)
+                RETURN count(d) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_protein_sequence_exists():
+    """Test_protein_sequence_exists"""
+
+    query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
+                 WHERE n.proteinSequence IS NOT NULL
+                 and n.proteinSequence <> ''
+                 RETURN count(distinct t.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4
+
+
+def test_fb_variant_has_note():
+    """Test variant has note"""
+
+    query = """ MATCH (v:Variant)-[x:ASSOCIATION]-(n:Note)
+                WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
+                RETURN count(v) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_fb_variant_has_note_with_pub():
+    """Test variant has note"""
+
+    query = """ MATCH (v:Variant)-[x:ASSOCIATION]-(n:Note)--(p:Publication)
+                WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
+                RETURN count(v) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_correct_number_of_species_have_variant_transcript_exon_relations():
+    """Test correct number of species have variant-transcript-exon relations"""
+
+    query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant) 
+                RETURN COUNT(DISTINCT t.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 5
+
+
+def test_correct_number_of_species_datasetsample_relations():
+    """test_correct_number_of_species_datasetsample_relations"""
+
+    query = """ MATCH (hd:HTPDataset)--(hds:HTPDatasetSample) 
+                RETURN COUNT(DISTINCT hd.dataProvider) as counter
+    """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4
+
+
+def test_correct_number_of_species_phenotype_xrefs_relations():
+    """test_correct_number_of_species_phenotype_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:Gene)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'gene/phenotypes' 
+            RETURN count(DISTINCT g.dataProvider) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 4
+
+
+def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'true'
+            AND cr.globalCrossRefId = 'SGD:GSE3431' 
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
+    """test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations"""
+
+    query = """ 
+            MATCH (g:HTPDataset)--(cr:CrossReference) 
+            WHERE cr.crossRefType = 'htp/dataset' 
+            AND cr.preferred = 'false'
+            AND g.primaryKey = 'GEO:GSE3431'
+            and cr.globalCrossRefId = 'GEO:GSE3431'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_mgi_reference_url_creation():
+    """test_mgi_reference_url_creation"""
+
+    query = """ 
+            MATCH (a:Allele)--(v:Variant)--(p:Publication)
+            where a.primaryKey = 'MGI:5806340'
+            and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5806759'
+            RETURN count(DISTINCT v) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_iagp_name_exists():
+    """test_IAGP_name_exists"""
+
+    query = """ 
+            MATCH (e:ECOTerm) where e.displaySynonym = 'IAGP'
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_display_name_for_impc_is_correct():
+    """test_display_name_for_impc_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference) where cr.displayName = 'IMPC'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_htp_xref_has_preferred_attribute_true_is_correct():
+    """test_htp_xref_has_preferred_attribute_true_is_correct"""
+
+    query = """ 
+            MATCH (cr:CrossReference)--(htp:HTPDataset) 
+            WHERE htp.primaryKey = 'ArrayExpress:E-GEOD-56866'
+            AND cr.globalCrossRefId = 'MGI:E-GEOD-56866'
+            AND cr.preferred = 'true'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_genome_location_for_exon_has_strand():
+    """test_genome_location_for_exon_has_strand"""
+
+    query = """ 
+            MATCH (e:Exon)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT e) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_genome_location_for_transcript_has_strand():
+    """test_genome_location_for_transcript_has_strand"""
+
+    query = """ 
+            MATCH (t:Transcript)--(gl:GenomicLocation) 
+            WHERE not exists (gl.strand)
+            RETURN count(DISTINCT t) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_all_pheno_xrefs_have_display_names():
+    """test_all_pheno_xrefs_have_display_names"""
+
+    query = """ 
+            MATCH (t:Gene)--(cr:CrossReference) 
+            WHERE (cr.displayName = '' or cr.displayName IS NULL)
+            AND cr.crossRefType = 'gene/phenotypes'
+            RETURN count(DISTINCT cr) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_papers_have_urls():
+    """test_papers_have_urls"""
+
+    query = """ 
+            MATCH (p:Publication) 
+            WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
+            AND p.pubModId is not null
+            AND p.pubModId <> ''
+            RETURN count(DISTINCT p) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_papers_have_mod_urls():
+    """test_papers_have_mod_urls"""
+
+    query = """ 
+            MATCH (p:Publication)--(n)
+            WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
+            AND p.pubModId is not null
+            AND p.pubModId <> ''
+            RETURN count(DISTINCT labels(n)) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 1
+
+
+def test_wb_has_agm():
+    """test_wb_has_agm"""
+
+    query = """ 
+            MATCH (a:AffectedGenomicModel)
+            WHERE a.primaryKey = 'WB:WBStrain00023353'
+            RETURN count(a) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 1
+
+
+def test_wb_has_agm_with_disease():
+    """test_wb_has_agm_with_disease"""
+
+    query = """ 
+            MATCH (a:AffectedGenomicModel)--(dej:DiseaseEntityJoin)
+            WHERE a.primaryKey = 'WB:WBGenotype00000021'
+            RETURN count(a) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 0
+
+
+def test_fb_variant_has_a_single_note():
+    """test_fb_variant_has_a_single_note"""
+
+    query = """ 
+            MATCH (a:Variant)--(n:Note)
+            WHERE a.hgvsNomenclature = 'NT_033779.5:g.8419681_8431132del'
+            RETURN count(n) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] < 2
+

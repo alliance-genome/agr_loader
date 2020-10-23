@@ -1,28 +1,34 @@
 #!/usr/bin/env python
-"""This is the main entry-point for running the ETL pipeline"""
+"""This is the main entry-point for running the ETL pipeline."""
 
-import logging
-import os
-import multiprocessing
-import time
 import argparse
+import logging
+import multiprocessing
+import os
+import time
 import coloredlogs
 
-from etl import ETL, MIETL, DOETL, BGIETL, ConstructETL, ExpressionAtlasETL, GenericOntologyETL, \
-                ECOMAPETL, AlleleETL, VariationETL, SequenceTargetingReagentETL, \
-                AffectedGenomicModelETL, TranscriptETL, GOETL, ExpressionETL, ExpressionRibbonETL, \
-                ExpressionRibbonOtherETL, DiseaseETL, PhenoTypeETL, OrthologyETL, ClosureETL, \
-                GOAnnotETL, GeoXrefETL, GeneDiseaseOrthoETL, MolecularInteractionETL, \
-                GeneDescriptionsETL, VEPETL, VEPTranscriptETL, Neo4jHelper, NodeCountETL, SpeciesETL
+from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
+                 AffectedGenomicModelETL, AlleleETL, BiogridOrcsXrefETL,
+                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL, 
+                 ExpressionETL, ExpressionRibbonETL, ExpressionRibbonOtherETL,
+                 GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
+                 GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
+                 NodeCountETL, OrthologyETL, PhenoTypeETL,
+                 SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
+                 VariationETL, VEPTranscriptETL, ProteinSequenceETL,
+                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
+                 CategoryTagETL)
 
-from transactors import Neo4jTransactor, FileTransactor
+from transactors import FileTransactor, Neo4jTransactor
+
 from data_manager import DataFileManager
+from files import Download
 from loader_common import ContextInfo  # Must be the last timeport othersize program fails
 
 
 def main():
-    """ Entry point to ETL program"""
-
+    """Entry point to ETL program."""
     parser = argparse.ArgumentParser(
         description='Load data into the Neo4j database for the Alliance of Genome Resources.'
     )
@@ -62,13 +68,14 @@ def main():
 
 
 class AggregateLoader():
-    """This runs all the individiual ETL pipelines"""
+    """This runs all the individiual ETL pipelines."""
 
     # This is the list of ETLs used for loading data.
     # The key (left) is derived from a value in the config YAML file.
     # The value (right) is hard-coded by a developer as the name of an ETL class.
     etl_dispatch = {
         'SPECIES': SpeciesETL,
+        'HTP': CategoryTagETL,
         'MI': MIETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'DOID': DOETL,  # Special case. Grouped under "Ontology" but has a unique ETL.
         'BGI': BGIETL,
@@ -80,6 +87,8 @@ class AggregateLoader():
         'VARIATION': VariationETL,
         'SQTR': SequenceTargetingReagentETL,
         'AGM': AffectedGenomicModelETL,
+        'HTPDATASET': HTPMetaDatasetETL,
+        'HTPDATASAMPLE': HTPMetaDatasetSampleETL,
         'PHENOTYPE': PhenoTypeETL,
         'GFF': TranscriptETL,
         'GO': GOETL,
@@ -91,13 +100,15 @@ class AggregateLoader():
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
+        'BIOGRID-ORCS': BiogridOrcsXrefETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
         'VEPGENE': VEPETL,
         'VEPTRANSCRIPT': VEPTranscriptETL,
-        'DB-SUMMARY': NodeCountETL
-
+        'DB-SUMMARY': NodeCountETL,
+        'ProteinSequence': ProteinSequenceETL,
+        'GENEPHENOCROSSREFERENCE': GenePhenoCrossReferenceETL
     }
 
     # This is the order in which data types are loaded.
@@ -106,6 +117,7 @@ class AggregateLoader():
     # After GO, DO, MI, there will be a pause, etc.
     etl_groups = [
         ['SPECIES'],
+        ['HTP'],
         ['DOID', 'MI'],
         ['GO'],
         ['ONTOLOGY'],
@@ -116,6 +128,8 @@ class AggregateLoader():
         ['VARIATION'],
         ['SQTR'],
         ['AGM'],
+        ['HTPDATASET'],
+        ['HTPDATASAMPLE'],
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
@@ -127,23 +141,45 @@ class AggregateLoader():
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
+        ['BIOGRID-ORCS'],  # Locks Genes
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
+        ['ProteinSequence'],
+        ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]
 
     def __init__(self, args, logger, context_info):
+        """Initialise object."""
         self.args = args
         self.logger = logger
         self.context_info = context_info
         self.start_time = time.time()
+        context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+        if self.schema_branch != 'master':
+            self.logger.warning("*******WARNING: Using branch %s for schema.", self.schema_branch)
+
+        # Lets delete the old files and down load new ones. They are small.
+        for name in ['tmp/species.yaml', 'tmp/resourceDescriptors.yaml']:
+            if os.path.exists(name):
+                self.logger.warning("*********WARNING: removing old %s file.", name)
+                os.remove(name)
+        self.logger.info("Getting files initially")
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/resourceDescriptors.yaml'
+        url = url.replace('SCHEMA_BRANCH', self.schema_branch)
+        Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/ingest/species/species.yaml'
+        url = url.replace('SCHEMA_BRANCH', self.schema_branch)
+        Download('tmp', url, 'species.yaml').get_downloaded_data()
+        self.logger.info("Finished getting files initially")
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
-        """This function runs each of the ETL in parallel"""
+        """Run each of the ETLs in parallel."""
         etl_time_tracker_list = []
         for etl_group in cls.etl_groups:
             etl_group_start_time = time.time()
@@ -168,14 +204,14 @@ class AggregateLoader():
             etl_time_message = ("Finished ETL group: %s, Elapsed time: %s"
                                 % (etl_group,
                                    time.strftime("%H:%M:%S", time.gmtime(etl_elapsed_time))))
+
             logger.info(etl_time_message)
             etl_time_tracker_list.append(etl_time_message)
 
         return etl_time_tracker_list
 
     def run_loader(self):
-        """Main function for running loader"""
-
+        """Run the loader."""
         if self.args.verbose:
             self.logger.warn('DEBUG mode enabled!')
             time.sleep(3)
@@ -213,8 +249,7 @@ class AggregateLoader():
         for time_item in etl_time_tracker_list:
             self.logger.info(time_item)
 
-        self.logger.info('Loader finished. Elapsed time: %s'
-                         % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+        self.logger.info('Loader finished. Elapsed time: %s' % time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
 
 if __name__ == '__main__':

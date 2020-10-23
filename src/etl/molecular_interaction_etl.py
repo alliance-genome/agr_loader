@@ -1,4 +1,4 @@
-"""Molecular Interactoin ETL"""
+"""Molecular Interaction ETL."""
 
 import logging
 import uuid
@@ -6,15 +6,14 @@ import csv
 import re
 import sys
 import itertools
-import pprint
 
 from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
-from .helpers import ResourceDescriptorHelper2, Neo4jHelper, ETLHelper
+from etl.helpers import Neo4jHelper, ETLHelper
 
 
 class MolecularInteractionETL(ETL):
-    """Molecular Interaction ETL"""
+    """Molecular Interaction ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -86,11 +85,12 @@ class MolecularInteractionETL(ETL):
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
+        """Initiaslise object."""
         super().__init__()
         self.data_type_config = config
 
         # Initialize an instance of ResourceDescriptor for processing external links.
-        self.resource_descriptor_dict = ResourceDescriptorHelper2()
+        # self.resource_descriptor_dict = ResourceDescriptorHelper2()
         self.missed_database_linkouts = set()
         self.successful_database_linkouts = set()
         self.ignored_database_linkouts = set()
@@ -119,8 +119,7 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def populate_genes():
-        """Populate Genes"""
-
+        """Populate Genes."""
         master_gene_set = set()
 
         query = "MATCH (g:Gene) RETURN g.primaryKey"
@@ -134,20 +133,21 @@ class MolecularInteractionETL(ETL):
 
     @staticmethod
     def query_crossreferences(crossref_prefix):
-        """Query Cross References"""
-
+        """Query Cross References."""
         query = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
                    WHERE cr.prefix = {parameter}
                    RETURN g.primaryKey, cr.globalCrossRefId"""
         return Neo4jHelper().run_single_parameter_query(query, crossref_prefix)
 
     def populate_crossreference_dictionary(self):
-        """ We're populating a rather large dictionary to use for looking up Alliance genes by
-            their crossreferences.
-            Edit the list below if you'd like to add more crossreferences to the dictionary.
-            The key of the dictionary is the crossreference and the value is the Alliance
-            gene to which it resolves."""
+        """Populate the crossreference dictionary.
 
+        We're populating a rather large dictionary to use for looking up Alliance genes by
+        their crossreferences.
+        Edit the list below if you'd like to add more crossreferences to the dictionary.
+        The key of the dictionary is the crossreference and the value is the Alliance
+        gene to which it resolves.
+        """
         master_crossreference_dictionary = dict()
 
         # If additional crossreferences need to be used to find interactors, they can be added here.
@@ -176,13 +176,10 @@ class MolecularInteractionETL(ETL):
                 # Append the gene if the crossref dict entry exists.
                 # Otherwise, create a list and append the entry.
                 if cross_ref_record.lower() in master_crossreference_dictionary[key]:
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()].append(record['g.primaryKey'])
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
                 else:
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()] = []
-                    master_crossreference_dictionary[key]\
-                            [cross_ref_record.lower()].append(record['g.primaryKey'])
+                    master_crossreference_dictionary[key][cross_ref_record.lower()] = []
+                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
 
                 # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
 
@@ -190,7 +187,6 @@ class MolecularInteractionETL(ETL):
 
     def process_interaction_identifier(self, entry, additional_row):
         """Create cross references for all the external identifiers."""
-
         xref_main_list = []
         entries = None
 
@@ -229,25 +225,37 @@ class MolecularInteractionETL(ETL):
             entries = [entry]
 
         for individual in entries:
-
+            """These links are for the individual interaction identifiers and link to the respective database."""
             xref_dict = {}
             page = 'gene/interactions'
 
-            individual_prefix, individual_body, _ \
-                    = self.resource_descriptor_dict.split_identifier(individual)
+            individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(individual)
             # Capitalize the prefix to match the YAML
             # and change the prefix if necessary to match the YAML.
-            xref_dict['prefix'] = individual_prefix
+
             xref_dict['localId'] = individual_body
+            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['id'] = individual
+            xref_dict['displayName'] = individual_body
+            xref_dict['primaryKey'] = individual
+            xref_dict['crossRefType'] = 'interaction'
+            xref_dict['page'] = page
+            xref_dict['reference_uuid'] = None  # For association interactions (later).
 
             # Special case for dealing with FlyBase.
             # The identifier link needs to use row 25 from the psi-mitab file.
             # TODO Regex to check for FBig in additional_row?
             if individual.startswith('flybase:FBrf'):
+
+                # primaryKey needs to be individual_body as opposed to individual.
+                xref_dict['primaryKey'] = individual_body
+
                 if '|' in additional_row:
                     individual = additional_row.split('|')[0]
                 else:
                     individual = additional_row
+
+                individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(individual)
 
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
@@ -258,44 +266,37 @@ class MolecularInteractionETL(ETL):
                     self.logger.critical('PSI-MITAB row entry: %s', additional_row)
                     sys.exit(-1)
 
+                # Change our prefix.
+                individual_prefix = 'FB'
+
+            # Special case for dealing with WormBase.
+            if individual_prefix.startswith('wormbase'):
+                individual_prefix = 'WB'
+
             # TODO Optimize and re-add this error tracking.
             if not individual.startswith(tuple(ignored_identifier_database_list)):
                 try:
-                    individual_url = self.resource_descriptor_dict.return_url(individual, page)
+                    individual_url = self.etlh.rdh2.return_url_from_key_value(individual_prefix, individual_body, page)
                     xref_dict['crossRefCompleteUrl'] = individual_url
-                    # self.successful_database_linkouts.add(individual_prefix)
                 except KeyError:
                     pass
-                    # self.missed_database_linkouts.add(individual_prefix)
-            # else: self.ignored_database_linkouts.add(individual_prefix)
 
-            xref_dict['uuid'] = str(uuid.uuid4())
+            xref_dict['prefix'] = individual_prefix
             xref_dict['globalCrossRefId'] = individual
-            xref_dict['id'] = individual # Used for name.
-            xref_dict['displayName'] = individual_body
-            xref_dict['primaryKey'] = individual
-            xref_dict['crossRefType'] = 'interaction'
-            xref_dict['page'] = page
-            xref_dict['reference_uuid'] = None # For association interactions (later).
 
-            # Special case for FlyBase as "individual" is not unique in their case.
-            # Individual_body needs to be used instead.
-
-            if individual.startswith('flybase'):
-                xref_dict['primaryKey'] = individual_body
             xref_main_list.append(xref_dict)
 
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
-        """Create an XREF linking back to interaction pages at each MOD for a particular gene."""
-
+        """Create an XREF linking back to interaction pages at each MOD for a particular gene.
+        These links appear at the top of the molecular interactions table once per gene page.
+        """
         xref_dict = {}
         page = 'gene/MODinteractions'
 
-        individual_prefix, individual_body, _ \
-               = self.resource_descriptor_dict.split_identifier(gene_id)
-        individual_url = self.resource_descriptor_dict.return_url(gene_id, page)
+        individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
+        individual_url = self.etlh.rdh2.return_url_from_identifier(gene_id, page)
 
         # Exception for MGI
         if individual_prefix == 'MGI':
@@ -325,8 +326,7 @@ class MolecularInteractionETL(ETL):
         return xref_dict
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
-        """Resolve Iedntifiers by Row"""
-
+        """Resolve Identifiers by Row."""
         interactor_a_rows = [0, 2, 4, 22]
         interactor_b_rows = [1, 3, 5, 23]
 
@@ -344,7 +344,7 @@ class MolecularInteractionETL(ETL):
                                                                 master_crossreference_dictionary)
                 if interactor_a_resolved is not None:
                     break
-            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+            except IndexError:  # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
 
         for row_entry in interactor_b_rows:
@@ -355,14 +355,13 @@ class MolecularInteractionETL(ETL):
                                                                 master_crossreference_dictionary)
                 if interactor_b_resolved is not None:
                     break
-            except IndexError: # Biogrid has less rows than other files, continue on IndexErrors.
+            except IndexError:  # Biogrid has less rows than other files, continue on IndexErrors.
                 continue
 
         return interactor_a_resolved, interactor_b_resolved
 
-    def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):
-        """Resolve Identifier"""
-
+    def resolve_identifier(self, row_entry, master_gene_set, master_crossreference_dictionary):  # noqa
+        """Resolve Identifier."""
         list_of_crossref_regex_to_search = [
             'uniprotkb:[\\w\\d_-]*$',
             'ensembl:[\\w\\d_-]*$',
@@ -417,8 +416,7 @@ class MolecularInteractionETL(ETL):
                             if identifier.lower() in \
                                      master_crossreference_dictionary[crossreference_type]:
                                 # Return the corresponding Alliance gene(s).
-                                return master_crossreference_dictionary[crossreference_type]\
-                                                                       [identifier.lower()]
+                                return master_crossreference_dictionary[crossreference_type][identifier.lower()]
         # If we can't resolve any of the crossReferences, return None
 
         # print('Could not resolve identifiers.')
@@ -426,9 +424,31 @@ class MolecularInteractionETL(ETL):
 
         return None
 
-    def get_generators(self, filepath, batch_size):
-        """Get Generators"""
+    def publication_search(self, row_entry):
+        found_match = False
+        publication_url = None
+        publication = None
+        list_of_possible_pub_parameters = [
+            (r'pubmed:\d+', 'pubmed', 'PMID'),
+            ('^(DOI\:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
+            (r'^flybase:FBrf\d+', 'flybase', 'FB')
+        ]
 
+        for check in list_of_possible_pub_parameters:
+            publication_re = re.search(check[0], row_entry)
+            if publication_re is not None:
+                publication = publication_re.group(0)  # matching bit
+                publication = publication.replace(check[1], check[2])
+                publication_url = self.etlh.rdh2.return_url_from_identifier(publication)
+                found_match = True
+                break
+            else:
+                continue
+
+        return found_match, publication_url, publication
+
+    def get_generators(self, filepath, batch_size):  # noqa
+        """Get Generators."""
         list_to_yield = []
         xref_list_to_yield = []
         mod_xref_list_to_yield = []
@@ -442,11 +462,11 @@ class MolecularInteractionETL(ETL):
         master_crossreference_dictionary = self.populate_crossreference_dictionary()
         self.logger.info('Obtained the following number of cross references from Neo4j:')
         for entry in master_crossreference_dictionary:
-            self.logger.info('{}: {}'.format(entry, len(master_crossreference_dictionary[entry])))
+            self.logger.info('%s: %s', entry, len(master_crossreference_dictionary[entry]))
 
         # Populate our master gene set for filtering Alliance genes.
         master_gene_set = self.populate_genes()
-        self.logger.info('Obtained {} gene primary ids from Neo4j.'.format(len(master_gene_set)))
+        self.logger.info('Obtained %s gene primary ids from Neo4j.', len(master_gene_set))
 
         resolved_a_b_count = 0
         unresolved_a_b_count = 0
@@ -457,9 +477,7 @@ class MolecularInteractionETL(ETL):
         # unresolved_entries = []
         # unresolved_crossref_set = set()
 
-
         self.logger.info('Attempting to open %s', filepath)
-
         with open(filepath, 'r', encoding='utf-8') as tsvin:
             tsvin = csv.reader(tsvin, delimiter='\t')
             counter = 0
@@ -487,7 +505,7 @@ class MolecularInteractionETL(ETL):
                     taxon_id_2_re = re.search(r'\d+', taxon_id_2)
                     taxon_id_2_to_load = 'NCBITaxon:' + taxon_id_2_re.group(0)
                 else:
-                    taxon_id_2_to_load = taxon_id_1_to_load # self interaction
+                    taxon_id_2_to_load = taxon_id_1_to_load  # self interaction
 
                 try:
                     # Interactor ID for the UI table
@@ -502,44 +520,25 @@ class MolecularInteractionETL(ETL):
 
                 # database_linkout_set.add(source_database)
 
-                aggregation_database = 'MI:0670' # IMEx
+                aggregation_database = 'MI:0670'  # IMEx
 
-                if source_database == 'MI:0478': # FlyBase
+                if source_database == 'MI:0478':  # FlyBase
                     aggregation_database = 'MI:0478'
-                elif source_database == 'MI:0487': # WormBase
+                elif source_database == 'MI:0487':  # WormBase
                     aggregation_database = 'MI:0487'
-                elif source_database == 'MI:0463': # BioGRID
+                elif source_database == 'MI:0463':  # BioGRID
                     aggregation_database = 'MI:0463'
 
-                detection_method = 'MI:0686' # Default to unspecified.
+                detection_method = 'MI:0686'  # Default to unspecified.
                 try:
                     # grab the MI identifier between two quotes ""
                     detection_method = re.findall(r'"([^"]*)"', row[6])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
-
-                # TODO Replace this publication work with a service.
-                # Re-think publication implementation in Neo4j.
-                publication = None
-                publication_url = None
+                    pass  # Default to unspecified, see above.
 
                 if row[8] != '-':
-                    # Check for pubmed publication.
-                    publication_re = re.search(r'pubmed:\d+', row[8])
-                    if publication_re is not None:
-                        publication = publication_re.group(0)
-                        publication = publication.replace('pubmed', 'PMID')
-                        publication_url = 'https://www.ncbi.nlm.nih.gov/' \
-                                           + 'pubmed/{}'.format(publication[5:])
-                    elif publication_re is None:
-                        # If we can't find a pubmed publication, check for DOI.
-                        publication_re = re.search(r'^(DOI\:)?\d{2}\.\d{4}.*$', row[8])
-                        # e.g. DOI:10.1101/2020.03.31.019216
-                        if publication_re is not None:
-                            publication = publication_re.group(0)
-                            publication = publication.replace('DOI', 'doi')
-                            publication_url = 'https://doi.org/{}'.format(publication)
-                    else:
+                    found_match, publication_url, publication = self.publication_search(row[8])
+                    if found_match is False:
                         unresolved_publication_count += 1
                         continue
                 else:
@@ -547,29 +546,29 @@ class MolecularInteractionETL(ETL):
                     continue
 
                 # Other hardcoded values to be used for now.
-                interactor_a_role = 'MI:0499' # Default to unspecified.
-                interactor_b_role = 'MI:0499' # Default to unspecified.
-                interactor_a_type = 'MI:0499' # Default to unspecified.
-                interactor_b_type = 'MI:0499' # Default to unspecified.
+                interactor_a_role = 'MI:0499'  # Default to unspecified.
+                interactor_b_role = 'MI:0499'  # Default to unspecified.
+                interactor_a_type = 'MI:0499'  # Default to unspecified.
+                interactor_b_type = 'MI:0499'  # Default to unspecified.
 
                 try:
                     interactor_a_role = re.findall(r'"([^"]*)"', row[18])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
                 try:
                     interactor_b_role = re.findall(r'"([^"]*)"', row[19])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 try:
                     interactor_a_type = re.findall(r'"([^"]*)"', row[20])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 try:
                     interactor_b_type = re.findall(r'"([^"]*)"', row[21])[0]
                 except IndexError:
-                    pass # Default to unspecified, see above.
+                    pass  # Default to unspecified, see above.
 
                 interaction_type = None
                 interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
@@ -577,11 +576,10 @@ class MolecularInteractionETL(ETL):
                 interactor_a_resolved = None
                 interactor_b_resolved = None
 
-                interactor_a_resolved, \
-                interactor_b_resolved = self.resolve_identifiers_by_row(\
-                        row,
-                        master_gene_set,
-                        master_crossreference_dictionary)
+                interactor_a_resolved, interactor_b_resolved = self.resolve_identifiers_by_row(
+                    row,
+                    master_gene_set,
+                    master_crossreference_dictionary)
 
                 if interactor_a_resolved is None or interactor_b_resolved is None:
                     unresolved_a_b_count += 1  # Tracking unresolved identifiers.
@@ -593,24 +591,24 @@ class MolecularInteractionETL(ETL):
                     # if interactor_b_resolved is None:
                     #     unresolved_crossref_set.add(row[1])
 
-                    continue # Skip this entry.
+                    continue  # Skip this entry.
 
                 mol_int_dataset = {
-                    'interactor_A' : None,
-                    'interactor_B' : None,
-                    'interactor_A_type' : interactor_a_type,
-                    'interactor_B_type' : interactor_b_type,
-                    'interactor_A_role' : interactor_a_role,
-                    'interactor_B_role' : interactor_b_role,
-                    'interaction_type' : interaction_type,
-                    'taxon_id_1' : taxon_id_1_to_load,
-                    'taxon_id_2' : taxon_id_2_to_load,
-                    'detection_method' : detection_method,
-                    'pub_med_id' : publication,
-                    'pub_med_url' : publication_url,
-                    'uuid' : None,
-                    'source_database' : source_database,
-                    'aggregation_database' :  aggregation_database
+                    'interactor_A': None,
+                    'interactor_B': None,
+                    'interactor_A_type': interactor_a_type,
+                    'interactor_B_type': interactor_b_type,
+                    'interactor_A_role': interactor_a_role,
+                    'interactor_B_role': interactor_b_role,
+                    'interaction_type': interaction_type,
+                    'taxon_id_1': taxon_id_1_to_load,
+                    'taxon_id_2': taxon_id_2_to_load,
+                    'detection_method': detection_method,
+                    'pub_med_id': publication,
+                    'pub_med_url': publication_url,
+                    'uuid': None,
+                    'source_database': source_database,
+                    'aggregation_database':  aggregation_database
                 }
 
                 # Remove possible duplicates from interactor lists.
@@ -618,7 +616,7 @@ class MolecularInteractionETL(ETL):
                 interactor_b_resolved_no_dupes = list(set(interactor_b_resolved))
 
                 # Get every possible combination of interactor A x interactor B
-                #(if multiple ids resulted from resolving the identifier.)
+                # (if multiple ids resulted from resolving the identifier.)
                 int_combos = list(itertools.product(interactor_a_resolved_no_dupes,
                                                     interactor_b_resolved_no_dupes))
 
@@ -628,7 +626,7 @@ class MolecularInteractionETL(ETL):
                                                 interactor_A=x,
                                                 interactor_B=y,
                                                 uuid=str(uuid.uuid4())) for x, y in int_combos]
-                #Tracking successfully loaded identifiers.
+                # Tracking successfully loaded identifiers.
                 total_interactions_loaded_count += len(list_of_mol_int_dataset)
                 # Tracking successfully resolved identifiers.
                 resolved_a_b_count += 1
@@ -637,9 +635,9 @@ class MolecularInteractionETL(ETL):
                 new_identifier_linkout_list = []
                 for dataset_entry in list_of_mol_int_dataset:
                     for identifier_linkout in identifier_linkout_list:
-                        new_identifier_linkout_list.append(\
-                                dict(identifier_linkout,
-                                     reference_uuid=dataset_entry['uuid']))
+                        new_identifier_linkout_list.append(
+                            dict(identifier_linkout,
+                                 reference_uuid=dataset_entry['uuid']))
 
                 # Create dictionaries for xrefs from Alliance genes
                 # to MOD interaction sections of gene reports.

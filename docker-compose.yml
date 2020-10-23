@@ -36,7 +36,7 @@ services:
       - UNIT_TESTS=False
       - NEO4J_HOST=neo4j
       - NET=production
-      - ALLIANCE_RELEASE=3.1.1
+      - ALLIANCE_RELEASE=3.2.0
       - FMS_API_URL=https://fms.alliancegenome.org
       - DOWNLOAD_HOST=download.alliancegenome.org
       - API_KEY=${API_KEY}
@@ -63,16 +63,17 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.1.1
+     - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
+     - TEST_SCHEMA_BRANCH=${TEST_SCHEMA_BRANCH:-master}
     entrypoint:
       - python3
       - -u 
       - src/aggregate_loader.py
       - -c 
-      - test.yml
+      - ${TEST_CONFIG_OVERIDE:-test.yml}
 
   agr_loader_test_unit_tests:
     image: agrdocker/agr_loader_run:latest
@@ -90,7 +91,7 @@ services:
      - UNIT_TESTS=False
      - NEO4J_HOST=neo4j
      - NET=production
-     - ALLIANCE_RELEASE=3.1.1
+     - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
      - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
@@ -104,3 +105,4 @@ networks:
 
 volumes:
   agr_data_share:
+

@@ -38,7 +38,8 @@ class TestClass():
                                      dict(relationship='TRANSCRIPT'),
                                      dict(relationship='IS_MODEL_OF'),
                                      dict(relationship='IS_IMPLICATED_IN'),
-                                     dict(relationship='IS_MARKER_FOR')
+                                     dict(relationship='IS_MARKER_FOR'),
+                                     dict(relationship='IS_NOT_MARKER_FOR'),
                                      ],
 
         'test_node_exists': [dict(node='Ontology'),
@@ -56,6 +57,9 @@ class TestClass():
                              dict(node='Entity'),
                              dict(node='Chromosome'),
                              dict(node='DiseaseEntityJoin'),
+                             dict(node='HTPDataset'),
+                             dict(node='HTPDatasetSample'),
+                             dict(node='CategoryTag'),
                              dict(node='Association'),
                              dict(node='Publication'),
                              dict(node='Allele'),
@@ -89,7 +93,10 @@ class TestClass():
                              dict(node='PublicationJoin'),
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
-                             dict(node='Exon')
+                             dict(node='Exon'),
+                             dict(node='TranscriptProteinSequence'),
+                             dict(node='VariantProteinSequence'),
+                             dict(node='CDSSequence')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
@@ -124,6 +131,11 @@ class TestClass():
                             dict(node='DOTerm', prop='subset'),
                             dict(node='DOTerm', prop='primaryKey'),
                             dict(node='MITerm', prop='primaryKey'),
+                            dict(node='TranscriptProteinSequence', prop='primaryKey'),
+                            dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            dict(node='VariantProteinSequence', prop='primaryKey'),
+                            dict(node='VariantProteinSequence', prop='proteinSequence'),
+                            dict(node='CDSSequence', prop='primaryKey'),
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
@@ -266,7 +278,9 @@ class TestClass():
                                dict(node='Assembly', prop='primaryKey'),
                                dict(node='GenomicLocation', prop='chromosome'),
                                dict(node='GenomicLocation', prop='assembly'),
-                               dict(node='PublicationJoin', prop='primaryKey')
+                               dict(node='PublicationJoin', prop='primaryKey'),
+                               dict(node='HTPDataset', prop='primaryKey'),
+                               dict(node='HTPDatasetSample', prop='primaryKey'),
                                ],
 
         'test_prop_unique': [dict(node='Publication', prop='primaryKey'),
@@ -291,7 +305,10 @@ class TestClass():
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
                              dict(node='Variant', prop='hgvsNomenclature'),
                              dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
-                             dict(node='ExpressionBioEntity', prop='primaryKey')
+                             dict(node='ExpressionBioEntity', prop='primaryKey'),
+                             dict(node='HTPDataset', prop='primaryKey'),
+                             dict(node='HTPDatasetSample', prop='primaryKey'),
+                             dict(node='CategoryTag', prop='primaryKey'),
                              ]
     }
 

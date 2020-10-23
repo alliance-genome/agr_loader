@@ -1,25 +1,26 @@
-"""ETL"""
+"""ETL."""
 
 import logging
 import sys
 import time
 
 from test import TestObject
-from etl.helpers import ResourceDescriptorHelper
+from etl.helpers import ETLHelper
 from loader_common import ContextInfo
 
 
 class ETL():
-    """ETL"""
+    """ETL."""
 
-
-    xref_url_map = ResourceDescriptorHelper().get_data()
     logger = logging.getLogger(__name__)
+    etlh = ETLHelper()
 
 
     def __init__(self):
-
+        """Initialise objects."""
         context_info = ContextInfo()
+        self.schema_branch = context_info.env["TEST_SCHEMA_BRANCH"]
+
         if context_info.env["TEST_SET"]:
             self.logger.warning("WARNING: Test data load enabled.")
             time.sleep(1)
@@ -27,17 +28,34 @@ class ETL():
         else:
             self.test_object = TestObject(False)
 
+    def error_messages(self, prefix=""):
+        """Print out error summary messages."""
+        for key in self.etlh.rdh2.missing_pages.keys():
+            self.logger.critical("%s Missing page %s seen %s times", prefix, key, self.etlh.rdh2.missing_pages[key])
+        self.etlh.rdh2.missing_pages = {}
+        for key in self.etlh.rdh2.missing_keys.keys():
+            self.logger.critical("%s Missing key %s seen %s times", prefix, key, self.etlh.rdh2.missing_keys[key])
+        self.etlh.rdh2.missing_keys = {}
+        for key in self.etlh.rdh2.deprecated_mess.keys():
+            self.logger.critical("%s Deprecated %s seen %s times", prefix, key, self.etlh.rdh2.deprecated_mess[key])
+        self.etlh.rdh2.deprecated_mess = {}
+        for key in self.etlh.rdh2.bad_pages.keys():
+            self.logger.critical("%s None matching urls %s seen %s times", prefix, key, self.etlh.rdh2.bad_pages[key])
+            self.etlh.rdh2.bad_pages = {}
+        for key in self.etlh.rdh2.bad_regex.keys():
+            self.logger.critical("%s None matching regex %s seen %s times", prefix, key, self.etlh.rdh2.bad_regex[key])
+        self.etlh.rdh2.bad_regex = {}
 
     def run_etl(self):
-        """Run ETL"""
-
+        """Run ETL."""
         self._load_and_process_data()
+
+        self.error_messages("ETL main:")
 
 
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):
-        """Wait for Threads"""
-
+        """Wait for Threads."""
         ETL.logger.debug("Waiting for Threads to finish: %s", len(thread_pool))
 
         while len(thread_pool) > 0:
@@ -66,10 +84,8 @@ class ETL():
 
             time.sleep(5)
 
-
     def process_query_params(self, query_list_with_params):
-        """Process Query Params"""
-
+        """Process Query Params."""
         # generators = list of yielded lists from parser
         # query_list_with_parms = list of queries, each with batch size and CSV file name.
         query_and_file_names = []
@@ -89,3 +105,77 @@ class ETL():
             query_and_file_names.append([query_to_run, file_name])
 
         return query_and_file_names
+
+    def data_providers_process(self, data):
+        """Get data providers.
+
+        Creates 4 attributes.
+        data_provider: provider name/symbol
+        data_providers: list of providers
+        data_provider_pages: pages
+        data_provider_cross_ref_set: list of xref dicts
+        """
+        data_provider_object = data['metaData']['dataProvider']
+
+        data_provider_cross_ref = data_provider_object.get('crossReference')
+        self.data_provider = data_provider_cross_ref.get('id')
+        self.data_provider_pages = data_provider_cross_ref.get('pages')
+
+        self.data_providers = []
+        self.data_provider_cross_ref_set = []
+
+        if self.data_provider_pages is None:
+            return
+        for data_provider_page in self.data_provider_pages:
+            cross_ref_complete_url = self.etlh.rdh2.return_url_from_key_value(
+                self.data_provider, self.data_provider, alt_page=data_provider_page)
+            self.data_provider_cross_ref_set.append(
+                ETLHelper.get_xref_dict(
+                    self.data_provider,
+                    self.data_provider,
+                    data_provider_page,
+                    data_provider_page,
+                    self.data_provider,
+                    cross_ref_complete_url,
+                    self.data_provider + data_provider_page))
+
+            self.data_providers.append(self.data_provider)
+            self.logger.info("data provider: %s", self.data_provider)
+
+    def ortho_xrefs(self, o_xrefs, ident, xrefs):
+        """Geenrate xref for orthos."""
+        if o_xrefs is None:
+            return
+        # turn into a list
+        if type(o_xrefs) != list:
+            self.logger.critical("BOB: o_xrefs is not a list but is a '{}'".format(type(o_xrefs)))
+        for xref_id_dict in o_xrefs:
+            xref_id = xref_id_dict["val"]
+            if ":" in xref_id:
+                local_id = xref_id.split(":")[1].strip()
+                prefix = xref_id.split(":")[0].strip()
+                complete_url = self.etlh.get_complete_url_ont(local_id, xref_id)
+                generated_xref = ETLHelper.get_xref_dict(
+                    local_id,
+                    prefix,
+                    "ontology_provided_cross_reference",
+                    "ontology_provided_cross_reference",
+                    xref_id,
+                    complete_url,
+                    xref_id + "ontology_provided_cross_reference")
+                generated_xref["oid"] = ident
+                xrefs.append(generated_xref)
+        if ":" in o_xrefs:  # if o_xrefs is a str with ":" in it.
+            local_id = o_xrefs.split(":")[1].strip()
+            prefix = o_xrefs.split(":")[0].strip()
+            complete_url = self.etlh.get_complete_url_ont(local_id, o_xrefs)
+            generated_xref = ETLHelper.get_xref_dict(
+                local_id,
+                prefix,
+                "ontology_provided_cross_reference",
+                "ontology_provided_cross_reference",
+                o_xrefs,
+                complete_url,
+                o_xrefs)
+            generated_xref["oid"] = ident
+            xrefs.append(generated_xref)
