@@ -1,15 +1,14 @@
 """Download."""
 
 import logging
-
-
 import os
 import urllib.request
 from urllib.error import HTTPError, URLError
 
 
-class Download():
-    """Download."""
+class Download(object):
+    """Download"""
+
 
     logger = logging.getLogger(__name__)
 

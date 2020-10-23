@@ -15,7 +15,7 @@ CONSTRUCT:
   allowed: [FB, SGD, WB, ZFIN, RGD]
 ALLELE:
   type: list
-  allowed: [FB, WB, ZFIN, RGD, MGI]
+  allowed: [FB, WB, ZFIN, RGD, MGI, SGD]
 SQTR:
   type: list
   allowed: [ZFIN]

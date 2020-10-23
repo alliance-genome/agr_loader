@@ -7,7 +7,7 @@ import os
 import jsonschema as js
 
 
-class JSONFile():
+class JSONFile(object):
     """JSON File"""
 
     logger = logging.getLogger(__name__)

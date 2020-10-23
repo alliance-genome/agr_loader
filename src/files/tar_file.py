@@ -6,7 +6,7 @@ import tarfile
 import time
 
 
-class TARFile():
+class TARFile(object):
     """TAR File"""
 
     logger = logging.getLogger(__name__)

@@ -10,7 +10,8 @@ from urllib.parse import urljoin
 import jsonref
 import jsonschema
 
-from files import S3File, TARFile, ZIPFile, Download
+
+from files import S3File, TARFile, Download, GZIPFile
 
 
 class SubTypeConfig():
@@ -65,12 +66,12 @@ class SubTypeConfig():
                                                download_filename)
                     self.already_downloaded = download_object.is_data_downloaded()
                 else:
-                    self.logger.debug("Downloading JSON File: %s", self.file_to_download)
+                    self.logger.debug("Downloading file: %s", self.file_to_download)
                     self.already_downloaded = S3File(self.file_to_download,
                                                      download_dir).download_new()
                     self.logger.debug("File already downloaded: %s", self.already_downloaded)
                     if self.file_to_download.endswith('tar.gz'):
-                        self.logger.debug("Extracting all files: %s", self.file_to_download)
+                        self.logger.debug("Found .tar.gz. Extracting all files: %s", self.file_to_download)
                         tar_object = TARFile(download_dir, self.file_to_download)
                         tar_object.extract_all()
                     elif self.file_to_download.endswith('.gz'):
@@ -78,6 +79,10 @@ class SubTypeConfig():
                         zip_object = ZIPFile(download_dir, self.file_to_download)
                         zip_object.extract_all()
                         # Check whether the file exists locally.
+                    elif self.file_to_download.endswith('gz'):
+                        self.logger.debug("Found .gz. Extracting all files: %s", self.file_to_download)
+                        gzip_object = GZIPFile(download_dir, self.file_to_download)
+                        gzip_object.extract()
                 if self.filepath is not None:
                     try:
                         os.path.isfile(self.filepath)
@@ -93,7 +98,7 @@ class SubTypeConfig():
             else:
                 self.logger.debug("File Path already downloaded: %s", (self.filepath))
         else:
-            self.logger.debug("File Path is None not downloading")
+            self.logger.debug("File Path is None, not downloading")
 
     def validate(self):
         """validation of filepath"""

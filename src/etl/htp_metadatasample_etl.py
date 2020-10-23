@@ -5,6 +5,7 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.biosampleText = row.biosampleText,
               ds.sequencingFormat = row.sequencingFormat,
               ds.title = row.sampleTitle,
-              ds.sampleAge = row.sampleAge
+              ds.sampleAge = row.sampleAge,
+              ds.sampleId = row.sampleId
               
         MERGE (ds)-[dssp:FROM_SPECIES]-(s)
         MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
@@ -388,6 +390,7 @@ class HTPMetaDatasetSampleETL(ETL):
             sampleId = ''
             biosampleId = ''
             biosampleText = {}
+            datasetSampleId = str(uuid.uuid4())
 
             if 'sampleTitle' in datasample_record:
                 sampleTitle = datasample_record.get('sampleTitle')
@@ -396,7 +399,6 @@ class HTPMetaDatasetSampleETL(ETL):
                 sampleIdObj = datasample_record.get('sampleId')
                 sampleId = sampleIdObj.get('primaryId')
 
-            datasetSampleId = sampleId + sampleTitle
 
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
@@ -600,7 +602,6 @@ class HTPMetaDatasetSampleETL(ETL):
             taxonId = datasample_record.get('taxonId')
 
             htp_dataset_sample = {
-
                 "datasetSampleId": datasetSampleId,
                 "abundance": datasample_record.get('abundance') ,
                 "sampleType": datasample_record.get('sampleType'),
@@ -611,8 +612,8 @@ class HTPMetaDatasetSampleETL(ETL):
                 "dateAssigned": datasample_record.get('dateAssigned'),
                 "sequencingFormat": datasample_record.get('sequencingFormat'),
                 "sampleTitle": sampleTitle,
-                "sampleAge": age
-
+                "sampleAge": age,
+                "sampleId": sampleId
             }
 
             htp_datasetsamples.append(htp_dataset_sample)

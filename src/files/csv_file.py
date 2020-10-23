@@ -6,7 +6,7 @@ import csv
 
 from .comment_file import CommentFile
 
-class CSVFile():
+class CSVFile(object):
     """CSV file download"""
 
     logger = logging.getLogger(__name__)
