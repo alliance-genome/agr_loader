@@ -26,21 +26,9 @@ class DataTypeConfig():
     def get_data(self):
         """Download data and put in tmp folder"""
 
-        download_dir = 'tmp'
-
         # Create our subtype objects.
         for downloadable_item in self.submission_system_data:
-            self.logger.debug("downloadable_item")
-            if downloadable_item[2] is not None:
-                full_path_to_send = os.path.join(download_dir, downloadable_item[2])
-            else:
-                full_path_to_send = None  # If we don't have a path.
-
-            sub_type = SubTypeConfig(
-                self.data_type,
-                downloadable_item[0],
-                downloadable_item[1],
-                full_path_to_send)
+            sub_type = SubTypeConfig(self.data_type, downloadable_item[0], downloadable_item[1], downloadable_item[2])
 
             self.list_of_subtype_objects.append(sub_type)
 

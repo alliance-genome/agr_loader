@@ -40,7 +40,6 @@ ETL pipeline for Alliance of Genome Resources
 - local_submission_system.json is a file consumed in addition to the submission system data (from the submission system API) that is used to customize non-submission system files like ontology files.
 
 ## ENV Variables
-- DOWNLOAD_HOST - the s3 bucket from which files are pulled.
 - ALLIANCE_RELEASE - the release version that this code acts on.
 - FMS_API_URL - the host from which this code pulls its available file paths from (submission system host).  Note: the submission system host is reliant on the ferret file grabber.  That pipeline is responsible for ontologie files and GAF files being up to date.  And, the submission system requires a snapshot to be taken to fetch 'latest' files.  
 - TEST_SCHEMA_BRANCH - If set that branch of the agr_schema wil be used instead of master

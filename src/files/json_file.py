@@ -25,51 +25,7 @@ class JSONFile(object):
             data = json.load(file_handle)
             self.logger.debug("JSON data extracted %s", filename)
 
-        #self.validate_json(data, filename, jsonType)
         return data
-
-    def validate_json(self, data, filename, json_type):
-        """Validate JSON"""
-
-        self.logger.debug("Validating %s JSON.", json_type)
-
-        schema_file_name = None
-        if json_type == 'disease':
-            schema_file_name = 'schemas/disease/diseaseMetaDataDefinition.json'
-        elif json_type == 'BGI':
-            schema_file_name = 'schemas/gene/geneMetaData.json'
-        elif json_type == 'orthology':
-            schema_file_name = 'schemas/orthology/orthologyMetaData.json'
-        elif json_type == 'allele':
-            schema_file_name = 'schemas/allele/alleleMetaData.json'
-        elif json_type == 'phenotype':
-            schema_file_name = 'schemas/phenotype/phenotypeMetaDataDefinition.json'
-        elif json_type == 'expression':
-            schema_file_name = 'schemas/expression/wildtypeExpressionMetaDataDefinition.json'
-        elif json_type == 'constructs':
-            schema_file_name = 'schemas/construct/constructMetaDataDefinition.json'
-
-        with open(schema_file_name) as schema_file:
-            schema = json.load(schema_file)
-
-        # Defining a resolver for relative paths and schema issues,
-        # see https://github.com/Julian/jsonschema/issues/313
-        #     and https://github.com/Julian/jsonschema/issues/274
-        s_schema_dir = os.path.dirname(os.path.abspath(schema_file_name))
-        o_resolver = js.RefResolver(base_uri='file://' + s_schema_dir + '/', referrer=schema)
-
-        try:
-            js.validate(data, schema, format_checker=js.FormatChecker(), resolver=o_resolver)
-            self.logger.debug("'%s' successfully validated against '%s'",
-                              filename, schema_file_name)
-        except js.ValidationError as error:
-            self.logger.info(error.message)
-            self.logger.info(error)
-            raise SystemExit("FATAL ERROR in JSON validation.")
-        except js.SchemaError as error:
-            self.logger.info(error.message)
-            self.logger.info(error)
-            raise SystemExit("FATAL ERROR in JSON validation.")
 
     @staticmethod
     def remove_bom_inplace(path):
