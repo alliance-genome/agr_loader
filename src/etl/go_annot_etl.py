@@ -52,7 +52,6 @@ class GOAnnotETL(ETL):
     def _process_sub_type(self, sub_type, query_tracking_list):
         self.logger.info("Loading GOAnnot Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
-        filepath = os.path.join('tmp/', filepath)
         self.logger.info("goannot path: %s", filepath)
         file = open(filepath, "r")
 
