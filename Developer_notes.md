@@ -2,7 +2,7 @@
 This tests the methods and no neo4j database is needed. Can be used for quickly
 testing methods.
 
-docker build -t agrdocker/agr_loader_run:latest .
+docker build -t agrdocker/agr_loader_run:build .
 docker run --rm agrdocker/agr_loader_run pytest src/test/unit_tests.py
 
 # Alt config files

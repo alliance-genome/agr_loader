@@ -1,4 +1,4 @@
-FROM agrdocker/agr_base_linux_env:latest
+FROM agrdocker/agr_base_linux_env:build
 
 WORKDIR /usr/src/app
 
