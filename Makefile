@@ -1,5 +1,5 @@
 build: pull
-	docker build -t agrdocker/agr_loader_run:build .
+	docker build -t agrdocker/agr_loader_run:latest .
 
 buildenv: build
 
@@ -40,7 +40,7 @@ reload:
 	docker-compose down -v
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:build .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader
 
 reload_test: 
@@ -48,7 +48,7 @@ reload_test:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:build .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader_test
 
 # rebuild targets do not remove and re-download files to the local docker volume.
@@ -57,7 +57,7 @@ rebuild:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:build .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader
 
 rebuild_test:
@@ -65,5 +65,5 @@ rebuild_test:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t agrdocker/agr_loader_run:build .
+	docker build -t agrdocker/agr_loader_run:latest .
 	docker-compose up agr_loader_test
