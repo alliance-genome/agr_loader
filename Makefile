@@ -10,8 +10,8 @@ stopdb:
 	docker-compose stop neo4j
 
 pull:
-	docker pull agrdocker/agr_neo4j_env:latest
-	docker pull agrdocker/agr_base_linux_env:latest
+	docker pull agrdocker/agr_neo4j_env:build
+	docker pull agrdocker/agr_base_linux_env:build
 
 removedb:
 	docker-compose down -v

@@ -127,9 +127,7 @@ class ResourceDescriptorHelper2():
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
         self.logger.critical("species url is %s", url)
 
-        resource_descriptor_file = Download('tmp',
-                                            url,
-                                            'species.yaml').get_downloaded_data()
+        resource_descriptor_file = Download('tmp', url, 'species.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for item in yaml_list:
@@ -166,12 +164,9 @@ class ResourceDescriptorHelper2():
             self.logger.critical("keys are:- %s", self.resource_descriptor_dict.keys())
             return
 
-        url = 'https://raw.githubusercontent.com/' \
-            + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
 
-        resource_descriptor_file = Download('tmp',
-                                            url,
-                                            'resourceDescriptors.yaml').get_downloaded_data()
+        resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         # Convert the list into a more useful lookup dictionary keyed by db_prefix.

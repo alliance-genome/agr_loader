@@ -3,7 +3,7 @@ version: "3.2"
 services:
   neo4j:
     container_name: neo4j
-    image: agrdocker/agr_neo4j_env:latest
+    image: agrdocker/agr_neo4j_env:build
     volumes:
       - type: volume
         source: agr_data_share
@@ -38,7 +38,6 @@ services:
       - NET=production
       - ALLIANCE_RELEASE=3.2.0
       - FMS_API_URL=https://fms.alliancegenome.org
-      - DOWNLOAD_HOST=download.alliancegenome.org
       - API_KEY=${API_KEY}
     entrypoint:
       - python3
@@ -65,7 +64,6 @@ services:
      - NET=production
      - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
-     - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
      - TEST_SCHEMA_BRANCH=${TEST_SCHEMA_BRANCH:-master}
     entrypoint:
@@ -93,7 +91,6 @@ services:
      - NET=production
      - ALLIANCE_RELEASE=3.2.0
      - FMS_API_URL=https://fms.alliancegenome.org
-     - DOWNLOAD_HOST=download.alliancegenome.org
      - API_KEY=${API_KEY}
     entrypoint:
       - pytest

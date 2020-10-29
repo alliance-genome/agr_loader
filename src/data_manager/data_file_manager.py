@@ -11,6 +11,7 @@ from cerberus import Validator
 
 from files import JSONFile
 from loader_common import Singleton, ContextInfo
+from urllib.parse import urlparse
 from .data_type_config import DataTypeConfig
 
 
@@ -57,12 +58,9 @@ class DataFileManager(metaclass=Singleton):
             sys.exit(-1)
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
-        self.logger.debug(self.submission_system_data)
 
         for data_file in self.non_submission_system_data['snapShot']['dataFiles']:
             self.submission_system_data['snapShot']['dataFiles'].append(data_file)
-
-        self.logger.debug(self.submission_system_data)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}
@@ -152,9 +150,7 @@ class DataFileManager(metaclass=Singleton):
                                  if item['dataType'].get('name') == data_type
                                  and item['dataSubType'].get('name') == sub_type)
         except StopIteration:
-            self.logger.debug('dataType: %s subType: %s not found in submission system data.',
-                              data_type,
-                              sub_type)
+            self.logger.debug('dataType: %s subType: %s not found in submission system data.', data_type, sub_type)
             self.logger.debug('Creating entry with \'None\' path and extracted path.')
             returned_dict = {
                 'dataType': data_type,
@@ -185,23 +181,23 @@ class DataFileManager(metaclass=Singleton):
                 self.transformed_submission_system_data[entry] = []  # Create our empty list.
                 for sub_entry in self.config_data[entry]:
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
-                    path = submission_system_dict.get('s3Path')
-                    self.logger.debug(sub_entry)
-                    self.logger.debug(path)
+                    path = submission_system_dict.get('s3Url')
+                    self.logger.debug("Sub Entry: " + sub_entry)
+                    self.logger.debug("submission_system_dict.get: %s", submission_system_dict)
                     temp_extracted_file = submission_system_dict.get('tempExtractedFile')
-                    self.logger.debug(temp_extracted_file)
                     if temp_extracted_file is None or temp_extracted_file == '':
-                        temp_extracted_file = submission_system_dict.get('s3Path')
+                        temp_extracted_file = urlparse(submission_system_dict.get('s3Url')).path[1:]
+                        if temp_extracted_file is not None and len(temp_extracted_file) > 0 and temp_extracted_file.endswith('gz'):
+                            temp_extracted_file = os.path.splitext(temp_extracted_file)[0]
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'ONTOLOGY':
-                        self.logger.info(sub_entry)
                         self.transformed_submission_system_data[sub_entry] = []
-                        self.transformed_submission_system_data[sub_entry]\
-                                .append([sub_entry, path, temp_extracted_file])
+                        self.transformed_submission_system_data[sub_entry].append([sub_entry, path, temp_extracted_file])
                     else:
-                        self.transformed_submission_system_data[entry]\
-                                .append([sub_entry, path, temp_extracted_file])
+                        if temp_extracted_file is not None and path is not None:
+                            self.logger.debug([sub_entry, path, temp_extracted_file])
+                            self.transformed_submission_system_data[entry].append([sub_entry, path, temp_extracted_file])
             else:
                 self.logger.debug("Ignoring entry: %s", entry)
 

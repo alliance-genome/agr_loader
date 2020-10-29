@@ -98,9 +98,7 @@ class MolecularInteractionETL(ETL):
 
     def _load_and_process_data(self):
 
-        # filepath = self.data_type_config.get_single_filepath()
-        # Temporary fix for 3.0 release.
-        filepath = 'tmp/alliance_molecular_interactions.tsv'
+        filepath = self.data_type_config.get_single_filepath()
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()

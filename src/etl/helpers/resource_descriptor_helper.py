@@ -21,11 +21,8 @@ class ResourceDescriptorHelper():
         if len(ResourceDescriptorHelper.list_of_descriptor_maps_to_load) > 0:
             return ResourceDescriptorHelper.list_of_descriptor_maps_to_load
 
-        url = 'https://raw.githubusercontent.com/'\
-                + 'alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
-        resource_descriptor_file = Download('tmp',
-                                            url,
-                                            'resourceDescriptors.yaml').get_downloaded_data()
+        url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/resourceDescriptors.yaml'
+        resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for stanza in yaml_list:
