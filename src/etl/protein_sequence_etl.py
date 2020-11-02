@@ -35,7 +35,7 @@ class ProteinSequenceETL(ETL):
             ts.transcriptId = row.transcriptId
            
         MERGE (p)-[pt:ASSOCIATION]->(t)
-        MERGE (ts)-[tst:ASSOCIATION]->(t)      
+        MERGE (ts)-[tst:ASSOCIATION]->(t)
 
     """
 
