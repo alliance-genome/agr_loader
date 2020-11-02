@@ -1,7 +1,8 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
+TAG=latest
 
 build: pull
-	docker build --build-arg REG=${REG} -t ${REG}/agr_loader_run:latest .
+	docker build --build-arg REG=${REG} -t ${REG}/agr_loader_run:${TAG} .
 
 buildenv: build
 
@@ -12,8 +13,8 @@ stopdb:
 	docker-compose stop neo4j
 
 pull:
-	docker pull ${REG}/agr_neo4j_env:latest
-	docker pull ${REG}/agr_base_linux_env:latest
+	docker pull ${REG}/agr_neo4j_env:${TAG}
+	docker pull ${REG}/agr_base_linux_env:${TAG}
 
 removedb:
 	docker-compose down -v
@@ -42,7 +43,7 @@ reload:
 	docker-compose down -v
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:latest .
+	docker build -t ${REG}/agr_loader_run:${TAG} .
 	docker-compose up agr_loader
 
 reload_test: 
@@ -50,7 +51,7 @@ reload_test:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:latest .
+	docker build -t ${REG}/agr_loader_run:${TAG} .
 	docker-compose up agr_loader_test
 
 # rebuild targets do not remove and re-download files to the local docker volume.
@@ -59,7 +60,7 @@ rebuild:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:latest .
+	docker build -t ${REG}/agr_loader_run:${TAG} .
 	docker-compose up agr_loader
 
 rebuild_test:
@@ -67,5 +68,5 @@ rebuild_test:
 	docker-compose down
 	docker-compose up -d neo4j
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:latest .
+	docker build -t ${REG}/agr_loader_run:${TAG} .
 	docker-compose up agr_loader_test
