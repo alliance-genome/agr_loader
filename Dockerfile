@@ -2,7 +2,7 @@ FROM 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_base_linux_env:build
 
 ARG ALLIANCE_RELEASE=latest
 ARG REG=agrdocker
-FROM ${REG}/agr_base_linux_env:${ALLIANCE_RELEASE}
+FROM 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_base_linux_env:4.0.0
 
 WORKDIR /usr/src/app
 
