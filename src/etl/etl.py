@@ -9,12 +9,11 @@ from etl.helpers import ETLHelper
 from loader_common import ContextInfo
 
 
-class ETL():
+class ETL:
     """ETL."""
 
     logger = logging.getLogger(__name__)
     etlh = ETLHelper()
-
 
     def __init__(self):
         """Initialise objects."""

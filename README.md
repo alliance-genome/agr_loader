@@ -7,6 +7,7 @@ ETL pipeline for Alliance of Genome Resources
 ## Requirements
 - Docker
 - Docker-compose
+- AWS access keys (project is agr_aws).  Please contact Stuart Myasato or Olin Blodgett for permission on the AWS project.  (below are instructions for getting a login token and pulling the base images after you have access keys).
 
 ## Installation
 - Build the local image with `make build`.
@@ -44,3 +45,23 @@ ETL pipeline for Alliance of Genome Resources
 - FMS_API_URL - the host from which this code pulls its available file paths from (submission system host).  Note: the submission system host is reliant on the ferret file grabber.  That pipeline is responsible for ontologie files and GAF files being up to date.  And, the submission system requires a snapshot to be taken to fetch 'latest' files.  
 - TEST_SCHEMA_BRANCH - If set that branch of the agr_schema wil be used instead of master
 - If the site is built with docker-compose, these will be set automatically to the 'dev' versions of all these variables.
+
+## Generating login credentials (must repeat every 12 hours to access base linux image and neo4j env image)
+- make sure you have AWS-CLI installed locally
+- create a ~/.aws/config file with the following content:
+`[default]
+region=us-east-1`
+- create a ~/.aws/credentials file with the following content (swap aws_access_key_id and aws_secret_access_key with your appropriate values.  You may need to regenerate your aws_secret_access_key to obtain these values).
+`[default]
+aws_access_key_id =
+aws_secret_access_key = `
+-  To test that your credentials are working correctly, run `aws ecr get-login-password should spit out a token` and verify a token is produced.
+- Touch .docker/config.json
+- Run this command to push the credentials generated into config.json:
+`aws ecr get-login-password | docker login --username AWS --password-stdin 100225593120.dkr.ecr.us-east-1.amazonaws.com`
+- Verify that you can pull the neo4j env image:
+`docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_neo4j_env:4.0.0`
+- Proceed with the appropriate make commands as usual.
+- Reminder: this process needs to be repeated every time you get an error like this (usually ~ every 12 hours):
+`Error response from daemon: pull access denied for 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_neo4j_env, repository does not exist or may require 'docker login': denied: Your authorization token has expired. Reauthenticate and try again.`
+
