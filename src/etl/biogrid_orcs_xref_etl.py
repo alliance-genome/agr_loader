@@ -4,6 +4,7 @@ import logging
 import glob
 import csv
 import os
+import tarfile
 
 from etl import ETL
 from etl.helpers import ETLHelper, Neo4jHelper
@@ -56,8 +57,10 @@ class BiogridOrcsXrefETL(ETL):
         for sub_type in self.data_type_config.get_sub_type_objects():
             filepath = sub_type.get_filepath()
             filedir = os.path.split(filepath)[0] + "/"
+            tar = tarfile.open(filepath)
+            tar.extractall(filedir)
+            tar.close()
 
-            os.system('tar -xvf ' + filepath + ' -C ' + filedir + ' >/dev/null')
             for filename in glob.glob(filedir+"BIOGRID-ORCS-SCREEN*.screen.tab.txt"):
                 self.logger.debug("processing %s", filename)
                 with open(filename, 'r', encoding='utf-8') as filename_in:
