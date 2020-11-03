@@ -199,8 +199,6 @@ class ProteinSequenceETL(ETL):
                         "tpId": transcript_id+"Protein",
                         "proteinSequence": protein_sequence
                 }
-                self.logger.info(protein_sequence)
-                self.logger.info(data)
                 transcript_data.append(data)
 
             if counter > batch_size:
