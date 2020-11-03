@@ -40,9 +40,6 @@ class DataFileManager(metaclass=Singleton):
         self.file_transactor_threads = self.config_data['FileTransactorThreads']
         self.neo4j_transactor_threads = self.config_data['Neo4jTransactorThreads']
 
-        # Loading a JSON blurb from a file as a placeholder for submission system query.
-        other_file_meta_data = os.path.abspath('src/config/local_submission.json')
-        self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
@@ -58,9 +55,6 @@ class DataFileManager(metaclass=Singleton):
             sys.exit(-1)
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
-
-        for data_file in self.non_submission_system_data['snapShot']['dataFiles']:
-            self.submission_system_data['snapShot']['dataFiles'].append(data_file)
 
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}

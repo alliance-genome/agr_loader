@@ -159,9 +159,7 @@ class GeneDescriptionsETL(ETL):
             self.logger.info("Generating gene descriptions for %s", prvdr)
             data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
-            go_annot_path = "file://" + os.path.join(os.getcwd(),
-                                                     "tmp",
-                                                     go_annot_sub_dict[prvdr].get_filepath())
+            go_annot_path = "file://" + go_annot_sub_dict[prvdr].get_filepath()
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=os.path.join(os.getcwd(),
