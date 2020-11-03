@@ -213,28 +213,17 @@ class BGIETL(ETL):
         # gene_metadata, gene_dataset, secondary_ids, genomic_locations, cross_references, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.gene_metadata_query_template, commit_size,
-             "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_query_template, commit_size,
-             "gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_load_relations_query_template, commit_size,
-             "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_species_relations_query_template, commit_size,
-             "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query_template, commit_size,
-             "gene_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_query_template, commit_size,
-             "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_secondary_ids_query_template, commit_size,
-             "gene_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query_template, commit_size,
-             "gene_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query_template, commit_size,
-             "gene_cross_references_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_relationships_query_template, commit_size,
-             "gene_cross_references_relationships_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_synonyms_query_template, 600000,
-             "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
+            [self.gene_metadata_query_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
+            [self.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.basic_gene_load_relations_query_template, commit_size, "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
+            [self.basic_gene_species_relations_query_template, commit_size, "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
+            [self.so_terms_query_template, commit_size, "gene_so_terms_" + sub_type.get_data_provider() + ".csv"],
+            [self.chromosomes_query_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
+            [self.gene_secondary_ids_query_template, commit_size, "gene_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
+            [self.genomic_locations_query_template, commit_size, "gene_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
+            [self.xrefs_query_template, commit_size, "gene_cross_references_" + sub_type.get_data_provider() + ".csv"],
+            [self.xrefs_relationships_query_template, commit_size, "gene_cross_references_relationships_" + sub_type.get_data_provider() + ".csv"],
+            [self.gene_synonyms_query_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
         ]
 
         # Obtain the generator

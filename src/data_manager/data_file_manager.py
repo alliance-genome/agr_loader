@@ -195,9 +195,7 @@ class DataFileManager(metaclass=Singleton):
                         self.altered_submission_data[sub_entry] = []
                         self.altered_submission_data[sub_entry].append([sub_entry, path, temp_extracted_file])
                     else:
-                        if temp_extracted_file is not None and path is not None:
-                            self.logger.debug([sub_entry, path, temp_extracted_file])
-                            self.altered_submission_data[entry].append([sub_entry, path, temp_extracted_file])
+                        self.altered_submission_data[entry].append([sub_entry, path, temp_extracted_file])
             else:
                 self.logger.debug("Ignoring entry: %s", entry)
 

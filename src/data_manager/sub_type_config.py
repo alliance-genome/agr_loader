@@ -30,7 +30,7 @@ class SubTypeConfig():
     def get_filepath(self):
         """Get local_file_location"""
 
-        return "tmp/" + self.local_file_location
+        return "tmp/" + str(self.local_file_location)
 
     def get_sub_data_type(self):
         """Get sub data type"""
@@ -54,8 +54,8 @@ class SubTypeConfig():
         # Some of this algorithm is temporary.
         # e.g. Files from the submission system will arrive without the need for unzipping, etc.
         download_dir = 'tmp'
-
-        if self.local_file_location is not None and self.file_url.startswith('http'):
+        self.logger.debug("URL: " + str(self.file_url))
+        if self.local_file_location is not None and self.file_url is not None and  self.file_url.startswith('http'):
             Download(download_dir, self.file_url, self.local_file_location).download_file()
         else:
             self.logger.debug("File Path is None or not HTTP, not downloading")
