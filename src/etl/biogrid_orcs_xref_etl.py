@@ -53,17 +53,20 @@ class BiogridOrcsXrefETL(ETL):
         """Files are species-independent, so can generate entrez_ids just once instead of in get_generators"""
         entrez_ids = []
 
-        # hide files elsewhere, since there's nearly 1000 of them, taking up 1.6Gb
-        os.system('mkdir tmp/biogrid-orcs')
-        os.system('mv -f tmp/BIOGRID-ORCS-SCREEN*.screen.tab.txt tmp/biogrid-orcs')
-        for filename in glob.glob("tmp/biogrid-orcs/BIOGRID-ORCS-SCREEN*.screen.tab.txt"):
-            self.logger.debug("processing %s", filename)
-            with open(filename, 'r', encoding='utf-8') as filename_in:
-                csv_reader = csv.reader(filename_in, delimiter='\t', quoting=csv.QUOTE_NONE)
-                next(csv_reader, None)	# Skip the headers
-                for row in csv_reader:
-                    if row[2] == 'ENTREZ_GENE':
-                        entrez_ids.append("NCBI_Gene:" + row[1])
+        for sub_type in self.data_type_config.get_sub_type_objects():
+            filepath = sub_type.get_filepath()
+            filedir = os.path.split(filepath)[0] + "/"
+
+            os.system('tar -xvf ' + filepath + ' -C ' + filedir + ' >/dev/null')
+            for filename in glob.glob(filedir+"BIOGRID-ORCS-SCREEN*.screen.tab.txt"):
+                self.logger.debug("processing %s", filename)
+                with open(filename, 'r', encoding='utf-8') as filename_in:
+                    csv_reader = csv.reader(filename_in, delimiter='\t', quoting=csv.QUOTE_NONE)
+                    next(csv_reader, None)	# Skip the headers
+                    for row in csv_reader:
+                        if row[2] == 'ENTREZ_GENE':
+                            entrez_ids.append("NCBI_Gene:" + row[1])
+
         return entrez_ids
 
     def get_generators(self, entrez_ids):
