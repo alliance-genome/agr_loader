@@ -16,6 +16,8 @@ import warnings
 
 class ProteinSequenceETL(ETL):
 
+    logger = logging.getLogger(__name__)
+
     """ProteinSequence ETL"""
 
     # Query templates which take params and will be processed later
@@ -46,11 +48,10 @@ class ProteinSequenceETL(ETL):
     def _load_and_process_data(self):
 
         thread_pool = []
-
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            process.start()
-            thread_pool.append(process)
+        sub_type = "ProteinSequence"
+        process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+        process.start()
+        thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
@@ -103,7 +104,6 @@ class ProteinSequenceETL(ETL):
 
     def get_generators(self, batch_size):
         """Get Generators"""
-        self.logger.debug("reached sequence retrieval retrieval")
 
         transcript_data = []
         assemblies = {}
@@ -142,7 +142,6 @@ class ProteinSequenceETL(ETL):
 
         # get all transcripts to iterate through.
         return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
-
         # get all CDS coordinates for all transcripts.
         return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
         returned_cds = []
@@ -173,7 +172,6 @@ class ProteinSequenceETL(ETL):
         counter = 0
 
         for transcript_record in returned_ts:
-
             counter = counter + 1
             context_info = ContextInfo()
             data_manager = DataFileManager(context_info.config_file_location)
@@ -201,6 +199,8 @@ class ProteinSequenceETL(ETL):
                         "tpId": transcript_id+"Protein",
                         "proteinSequence": protein_sequence
                 }
+                self.logger.info(protein_sequence)
+                self.logger.info(data)
                 transcript_data.append(data)
 
             if counter > batch_size:

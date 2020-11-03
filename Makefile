@@ -29,7 +29,6 @@ run_test_travis:
 
 run_test: build
 	docker-compose run agr_loader_test
-	docker-compose run agr_loader_test_unit_tests
 
 unit_tests:
 	docker-compose run agr_loader_test_unit_tests

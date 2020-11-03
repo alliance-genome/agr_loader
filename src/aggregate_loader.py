@@ -168,14 +168,14 @@ class AggregateLoader():
             if os.path.exists(name):
                 self.logger.warning("*********WARNING: removing old %s file.", name)
                 os.remove(name)
-        self.logger.info("Getting files initially")
+        self.logger.debug("Getting files initially")
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/resourceDescriptors.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
         Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/ingest/species/species.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
         Download('tmp', url, 'species.yaml').get_downloaded_data()
-        self.logger.info("Finished getting files initially")
+        self.logger.debug("Finished getting files initially")
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):

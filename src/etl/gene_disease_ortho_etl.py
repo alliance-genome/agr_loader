@@ -62,10 +62,10 @@ class GeneDiseaseOrthoETL(ETL):
 
         thread_pool = []
 
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            process.start()
-            thread_pool.append(process)
+        sub_type = "GeneDiseaseOrtho"
+        process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
+        process.start()
+        thread_pool.append(process)
 
         ETL.wait_for_threads(thread_pool)
 
