@@ -47,9 +47,9 @@ class GenePhenoCrossReferenceETL(ETL):
 
         query_template_list = [
                 [self.pheno_xref_query_template, commit_size,
-                 "pheno_xref_data_" + sub_type.get_data_provider() + ".csv"],
+                 "pheno_xref_data_" + ".csv"],
                 [self.pheno_xref_relations_template, commit_size,
-                 "pheno_xref_relations_data_" + sub_type.get_data_provider() + ".csv"],
+                 "pheno_xref_relations_data_" + ".csv"],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)
