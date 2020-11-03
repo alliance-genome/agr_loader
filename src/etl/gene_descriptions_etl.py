@@ -162,10 +162,7 @@ class GeneDescriptionsETL(ETL):
             go_annot_path = "file://" + go_annot_sub_dict[prvdr].get_filepath()
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
-                associations_cache_path=os.path.join(os.getcwd(),
-                                                     "tmp",
-                                                     "gd_cache",
-                                                     "go_annot_" + prvdr + ".gaf"),
+                associations_cache_path=go_annot_sub_dict[prvdr].get_filepath(),
                 config=gd_config_mod_specific)
             gd_data_manager.set_associations(associations_type=DataType.DO,
                                              associations=self.get_disease_annotations_from_db(
