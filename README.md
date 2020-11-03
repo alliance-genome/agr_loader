@@ -48,6 +48,7 @@ ETL pipeline for Alliance of Genome Resources
 
 ## Generating login credentials (must repeat every 12 hours to access base linux image and neo4j env image)
 - make sure you have AWS-CLI installed locally
+- make sure you have AWS login credentials for the agr_aws account, with the permission group - AWS group for ECR access.
 - create a ~/.aws/config file with the following content:
 `[default]
 region=us-east-1`
