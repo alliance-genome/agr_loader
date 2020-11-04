@@ -10,7 +10,6 @@ from .sub_type_config import SubTypeConfig
 
 class DataTypeConfig():
     """Data Type Config"""
-
     logger = logging.getLogger(__name__)
 
     def __init__(self, data_type, submission_system_data):
@@ -25,7 +24,6 @@ class DataTypeConfig():
 
     def get_data(self):
         """Download data and put in tmp folder"""
-
         # Create our subtype objects.
         for downloadable_item in self.submission_system_data:
             sub_type = SubTypeConfig(self.data_type, downloadable_item[0], downloadable_item[1], downloadable_item[2])

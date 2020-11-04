@@ -27,10 +27,11 @@ from generators.header import create_header
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA'}
 
 
+logger = logging.getLogger(__name__)
+
+
 class GeneDescriptionsETL(ETL):
     """Gene Descriptions ETL."""
-
-    logger = logging.getLogger(__name__)
 
     # Query templates which take params and will be processed later
 
@@ -159,15 +160,11 @@ class GeneDescriptionsETL(ETL):
             self.logger.info("Generating gene descriptions for %s", prvdr)
             data_provider = prvdr if prvdr != "HUMAN" else "RGD"
             json_desc_writer = DescriptionsWriter()
-            go_annot_path = "file://" + os.path.join(os.getcwd(),
-                                                     "tmp",
-                                                     go_annot_sub_dict[prvdr].file_to_download)
+            go_annot_path = "file://" + os.path.join(os.getcwd(), go_annot_sub_dict[prvdr].get_filepath())
+            go_annot_cache_path = os.path.join(os.getcwd(), "tmp", "gd_cache", prvdr + ".gaf")
             gd_data_manager.load_associations_from_file(
                 associations_type=DataType.GO, associations_url=go_annot_path,
-                associations_cache_path=os.path.join(os.getcwd(),
-                                                     "tmp",
-                                                     "gd_cache",
-                                                     "go_annot_" + prvdr + ".gaf"),
+                associations_cache_path=go_annot_cache_path,
                 config=gd_config_mod_specific)
             gd_data_manager.set_associations(associations_type=DataType.DO,
                                              associations=self.get_disease_annotations_from_db(

@@ -40,23 +40,22 @@ class GenePhenoCrossReferenceETL(ETL):
 
     def _load_and_process_data(self):
 
-        for sub_type in self.data_type_config.get_sub_type_objects():
+        sub_type = "GENEPHENOCROSSREFERENCE"
+        commit_size = self.data_type_config.get_neo4j_commit_size()
+        batch_size = self.data_type_config.get_generator_batch_size()
+        generators = self.get_generators(batch_size)
 
-            commit_size = self.data_type_config.get_neo4j_commit_size()
-            batch_size = self.data_type_config.get_generator_batch_size()
-            generators = self.get_generators(batch_size)
-
-            query_template_list = [
+        query_template_list = [
                 [self.pheno_xref_query_template, commit_size,
-                 "pheno_xref_data_" + sub_type.get_data_provider() + ".csv"],
+                 "pheno_xref_data_" + ".csv"],
                 [self.pheno_xref_relations_template, commit_size,
-                 "pheno_xref_relations_data_" + sub_type.get_data_provider() + ".csv"],
-            ]
+                 "pheno_xref_relations_data_" + ".csv"],
+        ]
 
-            query_and_file_list = self.process_query_params(query_template_list)
-            CSVTransactor.save_file_static(generators, query_and_file_list)
-            Neo4jTransactor.execute_query_batch(query_and_file_list)
-            self.error_messages()
+        query_and_file_list = self.process_query_params(query_template_list)
+        CSVTransactor.save_file_static(generators, query_and_file_list)
+        Neo4jTransactor.execute_query_batch(query_and_file_list)
+        self.error_messages()
 
     def get_generators(self, batch_size):
         """Get Generators."""

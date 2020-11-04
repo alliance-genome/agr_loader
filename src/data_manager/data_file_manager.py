@@ -40,9 +40,6 @@ class DataFileManager(metaclass=Singleton):
         self.file_transactor_threads = self.config_data['FileTransactorThreads']
         self.neo4j_transactor_threads = self.config_data['Neo4jTransactorThreads']
 
-        # Loading a JSON blurb from a file as a placeholder for submission system query.
-        other_file_meta_data = os.path.abspath('src/config/local_submission.json')
-        self.non_submission_system_data = JSONFile().get_data(other_file_meta_data)
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
 
@@ -59,14 +56,11 @@ class DataFileManager(metaclass=Singleton):
 
         self.submission_system_data = json.loads(submission_data.data.decode('UTF-8'))
 
-        for data_file in self.non_submission_system_data['snapShot']['dataFiles']:
-            self.submission_system_data['snapShot']['dataFiles'].append(data_file)
-
         # List used for MOD and data type objects.
         self.master_data_dictionary = {}
 
         # Dictionary for transformed submission system data.
-        self.transformed_submission_system_data = {}
+        self.altered_submission_data = {}
 
         # process config file during initialization
         self.process_config()
@@ -93,9 +87,9 @@ class DataFileManager(metaclass=Singleton):
             The smaller SubTypeConfig objects are created in the DataTypeConfig functions,
             see data_type_config.py."""
 
-        for config_entry in self.transformed_submission_system_data:
+        for config_entry in self.altered_submission_data:
             # Skip string entries (e.g. schemaVersion, releaseVersion).
-            if isinstance(self.transformed_submission_system_data[config_entry], str):
+            if isinstance(self.altered_submission_data[config_entry], str):
                 continue
 
             self.logger.debug('Processing DataType: %s', config_entry)
@@ -103,9 +97,8 @@ class DataFileManager(metaclass=Singleton):
             # Create our data type object and add it to our master dictionary filed
             # under the config_entry.
             # e.g. Create BGI DataTypeConfig object and file it under BGI in the dictionary.
-            self.master_data_dictionary[config_entry] = DataTypeConfig( \
-                    config_entry,
-                    self.transformed_submission_system_data[config_entry])
+            self.master_data_dictionary[config_entry] = DataTypeConfig(config_entry,
+                                                                       self.altered_submission_data[config_entry])
 
     def download_and_validate(self):
         """download an vlidatae config file"""
@@ -167,8 +160,8 @@ class DataFileManager(metaclass=Singleton):
         # system data against our config file.
         ontologies_to_transform = ('GO', 'DOID', 'MI', 'ECOMAP')  # These have non-generic loaders.
 
-        self.transformed_submission_system_data['releaseVersion'] \
-                = self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
+        self.altered_submission_data['releaseVersion'] = \
+            self.submission_system_data['snapShot']['releaseVersion']['releaseVersion']
 
         config_values_to_ignore = [
             'releaseVersion',  # Manually assigned above.
@@ -178,7 +171,7 @@ class DataFileManager(metaclass=Singleton):
         for entry in self.config_data.keys():  # Iterate through our config file.
             self.logger.debug("Entry: %s", entry)
             if entry not in config_values_to_ignore:  # Skip these entries.
-                self.transformed_submission_system_data[entry] = []  # Create our empty list.
+                self.altered_submission_data[entry] = []  # Create our empty list.
                 for sub_entry in self.config_data[entry]:
                     submission_system_dict = self._search_submission_data(entry, sub_entry)
                     path = submission_system_dict.get('s3Url')
@@ -187,18 +180,17 @@ class DataFileManager(metaclass=Singleton):
                     temp_extracted_file = submission_system_dict.get('tempExtractedFile')
                     if temp_extracted_file is None or temp_extracted_file == '':
                         temp_extracted_file = urlparse(submission_system_dict.get('s3Url')).path[1:]
-                        if temp_extracted_file is not None and len(temp_extracted_file) > 0 and temp_extracted_file.endswith('gz'):
+                        if temp_extracted_file is not None and len(temp_extracted_file) > 0 \
+                                and temp_extracted_file.endswith('gz'):
                             temp_extracted_file = os.path.splitext(temp_extracted_file)[0]
 
                     # Special case for storing ontologies with non-generic loaders.
                     if sub_entry in ontologies_to_transform and entry == 'ONTOLOGY':
-                        self.transformed_submission_system_data[sub_entry] = []
-                        self.transformed_submission_system_data[sub_entry].append([sub_entry, path, temp_extracted_file])
+                        self.altered_submission_data[sub_entry] = []
+                        self.altered_submission_data[sub_entry].append([sub_entry, path, temp_extracted_file])
                     else:
-                        if temp_extracted_file is not None and path is not None:
-                            self.logger.debug([sub_entry, path, temp_extracted_file])
-                            self.transformed_submission_system_data[entry].append([sub_entry, path, temp_extracted_file])
+                        self.altered_submission_data[entry].append([sub_entry, path, temp_extracted_file])
             else:
                 self.logger.debug("Ignoring entry: %s", entry)
 
-        self.logger.debug("Loaded Types: %s", self.transformed_submission_system_data)
+        self.logger.debug("Loaded Types: %s", self.altered_submission_data)
