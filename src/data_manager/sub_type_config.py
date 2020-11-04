@@ -50,14 +50,9 @@ class SubTypeConfig():
     def get_data(self):
         """get data"""
 
-        # Grab the data (TODO validate).
-        # Some of this algorithm is temporary.
-        # e.g. Files from the submission system will arrive without the need for unzipping, etc.
         download_dir = 'tmp'
         self.logger.debug("URL: " + str(self.file_url))
-        if self.local_file_location is not None and self.file_url is not None and  self.file_url.startswith('http'):
+        if self.local_file_location is not None and self.file_url is not None and self.file_url.startswith('http'):
             Download(download_dir, self.file_url, self.local_file_location).download_file()
-        else:
-            self.logger.debug("File Path is None or not HTTP, not downloading")
-            self.logger.debug("Not sure but doesn't happen? URL doesn't start with http -------------------------------------------------------")
+
 
