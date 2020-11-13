@@ -105,6 +105,7 @@ class MIETL(ETL):
     def get_generators(self, filepath):
         """Create Genrators"""
 
+        OBOHelper.add_metadata_to_neo(filepath)
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)
 

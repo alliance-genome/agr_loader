@@ -5,6 +5,7 @@ import logging
 
 from itertools import islice, chain, tee
 from etl import ETL
+from etl.helpers import OBOHelper
 from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -48,6 +49,8 @@ class SOETL(ETL):
 
     def get_generators(self, filepath):
         """Get Generators."""
+
+        OBOHelper.add_metadata_to_neo(filepath)
         data = TXTFile(filepath).get_data()
         so_list = []
         for current_line, next_line in self.get_current_next(data):

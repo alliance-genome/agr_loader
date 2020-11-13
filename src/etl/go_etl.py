@@ -3,6 +3,7 @@
 import logging
 from ontobio import OntologyFactory
 from etl import ETL
+from etl.helpers import OBOHelper
 from transactors import CSVTransactor, Neo4jTransactor
 
 
@@ -120,6 +121,8 @@ class GOETL(ETL):
 
     def get_generators(self, filepath, batch_size):  # noqa
         """Get Generators."""
+
+        OBOHelper.add_metadata_to_neo(filepath)
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
 
