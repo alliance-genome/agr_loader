@@ -65,4 +65,3 @@ aws_secret_access_key = `
 - Proceed with the appropriate make commands as usual.
 - Reminder: this process needs to be repeated every time you get an error like this (usually ~ every 12 hours):
 `Error response from daemon: pull access denied for 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_neo4j_env, repository does not exist or may require 'docker login': denied: Your authorization token has expired. Reauthenticate and try again.`
-
