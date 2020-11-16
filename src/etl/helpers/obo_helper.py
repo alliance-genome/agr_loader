@@ -1,16 +1,50 @@
 """OBO Helper."""
 
 import logging
+import json
+from collections import defaultdict
 
 from ontobio import OntologyFactory
 from .etl_helper import ETLHelper
-
+from .neo4j_helper import Neo4jHelper
 
 class OBOHelper():
     """OBO Helper."""
 
     logger = logging.getLogger(__name__)
     etlh = ETLHelper()
+
+    @staticmethod
+    def add_metadata_to_neo(filepath):
+        """Gets header information and places it adds node into Neo"""
+
+        header = OBOHelper.get_header(filepath)
+        header["primaryKey"] = header["ontology"]
+        fields = []
+        for k in header:
+            fields.append(k + ": " + json.dumps(header[k]))
+        Neo4jHelper().run_single_query("CREATE (o:OntologyFileMetadata {" + ",".join(fields) + "})")
+
+    @staticmethod
+    def get_header(filepath):
+        """Retrieve header information into dictionary"""
+
+        header = defaultdict(list)
+        with open(filepath, 'r') as f:
+            for line in f:
+                if not line.strip() or line[0] is "#":
+                    break
+                [k, v] = line.rstrip().split(": ", 1)
+                camel_k = ''.join(x.capitalize() or '-' for x in k.split('-'))
+                camel_k = camel_k[0].lower() + camel_k[1:]
+                header[camel_k].append(str(v.replace('\"',"'")))
+
+        for k in header:
+            v = header[k]
+            if len(v) == 1:
+                header[k] = v[0]
+
+        return header
 
     def get_data(self, filepath):  # noqa
         """Get Data."""

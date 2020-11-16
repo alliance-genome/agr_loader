@@ -126,6 +126,8 @@ class GenericOntologyETL(ETL):
 
     def get_generators(self, filepath, batch_size):  # noqa
         """Get Generators."""
+
+        OBOHelper.add_metadata_to_neo(filepath)
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)
 

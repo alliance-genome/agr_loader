@@ -6,6 +6,7 @@ from ontobio import OntologyFactory
 
 from etl import ETL
 from etl.helpers import ETLHelper
+from etl.helpers import OBOHelper
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
@@ -108,6 +109,7 @@ class DOETL(ETL):
         """Get Generators."""
         ont = OntologyFactory().create(filepath)
         parsed_line = ont.graph.copy().node
+        OBOHelper.add_metadata_to_neo(filepath)
 
         do_term_list = []
         do_isas_list = []

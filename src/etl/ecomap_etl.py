@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 
 from etl import ETL
+from etl.helpers import OBOHelper
 from files import TXTFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -66,6 +67,8 @@ class ECOMAPETL(ETL):
     def get_generators(self, filepath, batch_size):
         """Create Generator."""
         data = TXTFile(filepath).get_data()
+        OBOHelper.add_metadata_to_neo(filepath)
+
         eco_maps = []
 
         for line in data:
