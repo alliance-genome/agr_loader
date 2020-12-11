@@ -19,6 +19,7 @@ from .biogrid_orcs_xref_etl import BiogridOrcsXrefETL
 from .expression_ribbon_etl import ExpressionRibbonETL
 from .gene_disease_ortho_etl import GeneDiseaseOrthoETL
 from .closure_etl import ClosureETL
+from .genetic_interaction_etl import GeneticInteractionETL
 from .molecular_interaction_etl import MolecularInteractionETL
 from .gene_descriptions_etl import GeneDescriptionsETL
 from .expression_ribbon_other_etl import ExpressionRibbonOtherETL

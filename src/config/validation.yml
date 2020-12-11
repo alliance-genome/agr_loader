@@ -145,6 +145,9 @@ Closure:
     - OBI
     - BTO
     - CHEBI
+INTERACTION-GEN:
+  type: list
+  allowed: [COMBINED]
 INTERACTION-MOL:
   type: list
   allowed: [COMBINED]
