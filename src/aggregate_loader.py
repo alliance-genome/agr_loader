@@ -10,14 +10,14 @@ import coloredlogs
 
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  AffectedGenomicModelETL, AlleleETL, BiogridOrcsXrefETL,
-                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL, 
+                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL,
                  ExpressionETL, ExpressionRibbonETL, ExpressionRibbonOtherETL,
                  GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
-                 GeoXrefETL, GOAnnotETL, GeneticInteractionETL, 
-                 MolecularInteractionETL, Neo4jHelper, NodeCountETL, 
+                 GeoXrefETL, GOAnnotETL, GeneticInteractionETL,
+                 MolecularInteractionETL, Neo4jHelper, NodeCountETL,
                  OrthologyETL, PhenoTypeETL, SequenceTargetingReagentETL,
-                 SpeciesETL, TranscriptETL, VariationETL, VEPTranscriptETL, 
-                 ProteinSequenceETL, HTPMetaDatasetSampleETL, 
+                 SpeciesETL, TranscriptETL, VariationETL, VEPTranscriptETL,
+                 ProteinSequenceETL, HTPMetaDatasetSampleETL,
                  HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
                  CategoryTagETL)
 
