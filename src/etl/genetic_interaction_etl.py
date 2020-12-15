@@ -396,7 +396,7 @@ class GeneticInteractionETL(ETL):
                     phenotype_statements.append(master_wbphenotype_dict[individual_body])
             else:
                 term_list = []
-                regex_output = re.findall('\((.*?)\)', entry)
+                regex_output = re.findall(r'\((.*?)\)', entry)
                 if len(regex_output) > 0:
                     for regex_match in regex_output:
                         term_list.append(regex_match)
@@ -511,7 +511,7 @@ class GeneticInteractionETL(ETL):
         publication = None
         list_of_possible_pub_parameters = [
             (r'pubmed:\d+', 'pubmed', 'PMID'),
-            ('^(DOI:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
+            (r'^(DOI:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
             (r'^flybase:FBrf\d+', 'flybase', 'FB')
         ]
 

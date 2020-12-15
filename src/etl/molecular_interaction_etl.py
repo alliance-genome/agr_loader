@@ -428,7 +428,7 @@ class MolecularInteractionETL(ETL):
         publication = None
         list_of_possible_pub_parameters = [
             (r'pubmed:\d+', 'pubmed', 'PMID'),
-            ('^(DOI:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
+            (r'^(DOI:)?\d{2}\.\d{4}.*$', 'DOI', 'doi'),
             (r'^flybase:FBrf\d+', 'flybase', 'FB')
         ]
 
