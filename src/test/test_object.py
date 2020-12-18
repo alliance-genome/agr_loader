@@ -73,6 +73,9 @@ class TestObject():
             'WB:WBGene00012650', 'WB:Gene00006649',
             'WB:WBGene00008117', 'WB:WBGene00004876',
             'WB:WBGene00003883', 'WB:WBGene00006508',
+            # genetic interactions,
+            'WB:WBVar00000002', 'WB:WBVar00000014',
+            'WB:WBVar00143949', 'WB:WBVar00000038',
             # phenotype and disease objects
             'WBVar:WBVar00000012', 'WBVar:WBVar00000013',
             'WB:WBVar00000001', 'WB:WBVar00242490',
@@ -280,6 +283,9 @@ class TestObject():
             'FB:FBgn0283499', 'FB:FBgn0025790', 'FB:FBgn0002906',
             # gene descriptions
             'FB:FBgn0027655', 'FB:FBgn0045035', 'FB:FBgn0024238',
+            # genetic interactions,
+            'FB:FBgn0000012', 'FB:FBgn0003399',
+            'FB:FBgn0000043', 'FB:FBgn0013343',
             # variants
             'FB:FBgn0016977', 'FB:FBal0327455', 'FB:FBgn0011224', 'FB:FBal0226899',
             'FB:FBal0179527', 'FB:FBgn0002121', 'FB:FBal0349202', 'FB:FBal0104420',

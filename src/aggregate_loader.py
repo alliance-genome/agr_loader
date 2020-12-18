@@ -10,14 +10,15 @@ import coloredlogs
 
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  AffectedGenomicModelETL, AlleleETL, BiogridOrcsXrefETL,
-                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL, 
+                 ClosureETL, ConstructETL, DiseaseETL, ExpressionAtlasETL,
                  ExpressionETL, ExpressionRibbonETL, ExpressionRibbonOtherETL,
                  GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
-                 GeoXrefETL, GOAnnotETL, MolecularInteractionETL, Neo4jHelper,
-                 NodeCountETL, OrthologyETL, PhenoTypeETL,
-                 SequenceTargetingReagentETL, SpeciesETL, TranscriptETL,
-                 VariationETL, VEPTranscriptETL, ProteinSequenceETL,
-                 HTPMetaDatasetSampleETL, HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
+                 GeoXrefETL, GOAnnotETL, GeneticInteractionETL,
+                 MolecularInteractionETL, Neo4jHelper, NodeCountETL,
+                 OrthologyETL, PhenoTypeETL, SequenceTargetingReagentETL,
+                 SpeciesETL, TranscriptETL, VariationETL, VEPTranscriptETL,
+                 ProteinSequenceETL, HTPMetaDatasetSampleETL,
+                 HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
                  CategoryTagETL)
 
 from transactors import FileTransactor, Neo4jTransactor
@@ -102,6 +103,7 @@ class AggregateLoader():
         'GEOXREF': GeoXrefETL,
         'BIOGRID-ORCS': BiogridOrcsXrefETL,
         'GeneDiseaseOrtho': GeneDiseaseOrthoETL,
+        'INTERACTION-GEN': GeneticInteractionETL,
         'INTERACTION-MOL': MolecularInteractionETL,
         'GeneDescriptions': GeneDescriptionsETL,
         'VEPGENE': VEPETL,
@@ -142,6 +144,7 @@ class AggregateLoader():
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
         ['BIOGRID-ORCS'],  # Locks Genes
+        ['INTERACTION-GEN'],
         ['INTERACTION-MOL'],
         ['Closure'],
         ['GeneDescriptions'],

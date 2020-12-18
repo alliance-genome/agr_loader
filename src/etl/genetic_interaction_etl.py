@@ -1,4 +1,4 @@
-"""Molecular Interaction ETL."""
+"""Genetic Interaction ETL."""
 
 import logging
 import uuid
@@ -11,9 +11,19 @@ from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 from etl.helpers import Neo4jHelper, ETLHelper
 
+# Test loading this requires:
+# SPECIES: [Species]
+# BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+# CONSTRUCT: [ZFIN, WB, FB]
+# ALLELE: [FB, WB, ZFIN, RGD, MGI, SGD]
+# PHENOTYPE: [WB]
+# ONTOLOGY: [MI, WBPhenotype]
+# INTERACTION-GEN: [COMBINED]
 
-class MolecularInteractionETL(ETL):
-    """Molecular Interaction ETL."""
+
+
+class GeneticInteractionETL(ETL):
+    """Genetic Interaction ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -25,9 +35,7 @@ class MolecularInteractionETL(ETL):
         MATCH (g1:Gene {primaryKey:row.interactor_A})
         MATCH (g2:Gene {primaryKey:row.interactor_B})
 
-        MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
         MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
-        MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
         MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
         MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
         MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
@@ -40,7 +48,7 @@ class MolecularInteractionETL(ETL):
         //Create the Association node to be used for the object.
         CREATE (oa:Association {primaryKey:row.uuid})
             SET oa :InteractionGeneJoin
-            SET oa.joinType = 'molecular_interaction'
+            SET oa.joinType = 'genetic_interaction'
         CREATE (g1)-[a1:ASSOCIATION]->(oa)
         CREATE (oa)-[a2:ASSOCIATION]->(g2)
 
@@ -50,14 +58,8 @@ class MolecularInteractionETL(ETL):
             pn.pubMedId = row.pub_med_id
         CREATE (oa)-[ev:EVIDENCE]->(pn)
 
-        //Link detection method to the MI ontology.
-        CREATE (oa)-[dm:DETECTION_METHOD]->(mi)
-
         //Link source database to the MI ontology.
         CREATE (oa)-[sd:SOURCE_DATABASE]->(sdb)
-
-        //Link aggregation database to the MI ontology.
-        CREATE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
 
         //Link interactor roles and types to the MI ontology.
         CREATE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
@@ -78,11 +80,39 @@ class MolecularInteractionETL(ETL):
         """ + ETLHelper.get_cypher_xref_text()
 
     mod_xref_query_template = """
-
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+        MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+
+    allele_A_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (oa:Association {primaryKey:row.reference_uuid})
+        MATCH (a:Allele {primaryKey:row.allele_A})
+        CREATE (oa)-[p:INTERACTOR_A_GENETIC_PERTURBATION]->(a);
+    """
+
+    allele_B_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (oa:Association {primaryKey:row.reference_uuid})
+        MATCH (a:Allele {primaryKey:row.allele_B})
+        CREATE (oa)-[p:INTERACTOR_B_GENETIC_PERTURBATION]->(a);
+    """
+
+    phenotype_trait_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (oa:Association {primaryKey:row.reference_uuid})
+        MERGE (pn:Phenotype {primaryKey:row.phenotype_statement})
+            ON CREATE SET pn.phenotypeStatement = row.phenotype_statement,
+            pn.primaryKey = row.phenotype_statement
+        CREATE (oa)-[p:PHENOTYPE_TRAIT]->(pn);
+    """
 
     def __init__(self, config):
         """Initiaslise object."""
@@ -106,9 +136,12 @@ class MolecularInteractionETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size, "mol_int_data.csv"],
-            [self.xref_query_template, commit_size, "mol_int_xref.csv"],
-            [self.mod_xref_query_template, commit_size, "mol_int_mod_xref.csv"]
+            [self.main_query_template, commit_size, "gen_int_data.csv"],
+            [self.xref_query_template, commit_size, "gen_int_xref.csv"],
+            [self.mod_xref_query_template, commit_size, "gen_int_mod_xref.csv"],
+            [self.allele_A_query_template, commit_size, "gen_int_allele_A.csv"],
+            [self.allele_B_query_template, commit_size, "gen_int_allele_B.csv"],
+            [self.phenotype_trait_query_template, commit_size, "gen_int_phenotype_trait.csv"]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)
@@ -128,6 +161,16 @@ class MolecularInteractionETL(ETL):
             master_gene_set.add(record['g.primaryKey'])
 
         return master_gene_set
+
+    @staticmethod
+    def populate_wbphenotypes():
+        """Populate WBPhenotypes."""
+        master_wbphenotype_dict = dict()
+        query = "MATCH (p:WBPhenotypeTerm) RETURN p.primaryKey, p.nameKey"
+        result = Neo4jHelper().run_single_query(query)
+        for record in result:
+            master_wbphenotype_dict[record['p.primaryKey']] = record['p.nameKey']
+        return master_wbphenotype_dict
 
     @staticmethod
     def query_crossreferences(crossref_prefix):
@@ -258,7 +301,7 @@ class MolecularInteractionETL(ETL):
                 regex_check = re.match('^flybase:FBig\\d{10}$', individual)
                 if regex_check is None:
                     self.logger.critical(
-                        """Fatal Error: During special handling of FlyBase molecular interaction
+                        """Fatal Error: During special handling of FlyBase genetic interaction
                            links, an FBig ID was not found.""")
                     self.logger.critical('Failed identifier: %s', individual)
                     self.logger.critical('PSI-MITAB row entry: %s', additional_row)
@@ -288,7 +331,7 @@ class MolecularInteractionETL(ETL):
 
     def add_mod_interaction_links(self, gene_id):
         """Create an XREF linking back to interaction pages at each MOD for a particular gene.
-        These links appear at the top of the molecular interactions table once per gene page.
+        These links appear at the top of the genetic interactions table once per gene page.
         """
         xref_dict = {}
         page = 'gene/MODinteractions'
@@ -322,6 +365,50 @@ class MolecularInteractionETL(ETL):
         self.successful_mod_interaction_xrefs.append(gene_id)
 
         return xref_dict
+
+    def get_wb_allele_from_genetic_perturbation(self, input_perturbation):
+        individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(input_perturbation)
+        allele = None
+        if individual_prefix.startswith('wormbase'):
+            individual_prefix = 'WB'
+            if individual_body.startswith('WBVar'):
+                allele = individual_prefix  + ':' + individual_body
+        return allele
+
+
+    def get_phenotype_statement_from_phenotype_source(self, input_phenotype, master_wbphenotype_dict):
+        if input_phenotype == '-':
+            return None, None
+        if '|' in input_phenotype:
+            entries = input_phenotype.split('|')
+        else:
+            entries = [input_phenotype]
+        type_to_term_dict = {}
+        type_to_term_dict['wild type'] = 'complete rescue'
+        type_to_term_dict['partial rescue'] = 'partial rescue'
+        type_to_term_dict['undetermined'] = 'undetermined extent of rescue'
+        phenotype_statements = []
+        bad_type_set = set()
+        for entry in entries:
+            individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(entry)
+            if individual_prefix.startswith('wormbase'):
+                if individual_body in master_wbphenotype_dict: 
+                    phenotype_statements.append(master_wbphenotype_dict[individual_body])
+            else:
+                term_list = []
+                regex_output = re.findall(r'\((.*?)\)', entry)
+                if len(regex_output) > 0:
+                    for regex_match in regex_output:
+                        term_list.append(regex_match)
+                regex_output = re.findall(':type:(.*)', entry)
+                if len(regex_output) > 0:
+                    if regex_output[0] in type_to_term_dict:
+                        term_list.append(type_to_term_dict[regex_output[0]])
+                    else:
+                        bad_type_set.add(regex_output[0])
+                phenotype_statement = ", ".join(term_list)
+                phenotype_statements.append(phenotype_statement)
+        return phenotype_statements, bad_type_set
 
     def resolve_identifiers_by_row(self, row, master_gene_set, master_crossreference_dictionary):
         """Resolve Identifiers by Row."""
@@ -416,10 +503,6 @@ class MolecularInteractionETL(ETL):
                                 # Return the corresponding Alliance gene(s).
                                 return master_crossreference_dictionary[crossreference_type][identifier.lower()]
         # If we can't resolve any of the crossReferences, return None
-
-        # print('Could not resolve identifiers.')
-        # print(row_entries)
-
         return None
 
     def publication_search(self, row_entry):
@@ -450,6 +533,9 @@ class MolecularInteractionETL(ETL):
         list_to_yield = []
         xref_list_to_yield = []
         mod_xref_list_to_yield = []
+        allele_A_list_to_yield = []
+        allele_B_list_to_yield = []
+        phenotype_trait_list_to_yield = []
 
         # TODO Taxon species needs to be pulled out into a standalone
         # module to be used by other scripts.
@@ -466,14 +552,20 @@ class MolecularInteractionETL(ETL):
         master_gene_set = self.populate_genes()
         self.logger.info('Obtained %s gene primary ids from Neo4j.', len(master_gene_set))
 
+        # Populate our master wbphenotype dict for mapping wbphenotype IDs to phenotypeStatements
+        master_wbphenotype_dict = self.populate_wbphenotypes()
+        self.logger.info('Obtained %s wbphenotype primary ids from Neo4j.', len(master_wbphenotype_dict))
+
         resolved_a_b_count = 0
         unresolved_a_b_count = 0
         total_interactions_loaded_count = 0
         unresolved_publication_count = 0
+        bad_type_set = set()
 
         # Used for debugging.
         # unresolved_entries = []
         # unresolved_crossref_set = set()
+        # unresolved_publication_entries = []
 
         self.logger.info('Attempting to open %s', filepath)
         with open(filepath, 'r', encoding='utf-8') as tsvin:
@@ -518,29 +610,15 @@ class MolecularInteractionETL(ETL):
 
                 # database_linkout_set.add(source_database)
 
-                aggregation_database = 'MI:0670'  # IMEx
-
-                if source_database == 'MI:0478':  # FlyBase
-                    aggregation_database = 'MI:0478'
-                elif source_database == 'MI:0487':  # WormBase
-                    aggregation_database = 'MI:0487'
-                elif source_database == 'MI:0463':  # BioGRID
-                    aggregation_database = 'MI:0463'
-
-                detection_method = 'MI:0686'  # Default to unspecified.
-                try:
-                    # grab the MI identifier between two quotes ""
-                    detection_method = re.findall(r'"([^"]*)"', row[6])[0]
-                except IndexError:
-                    pass  # Default to unspecified, see above.
-
                 if row[8] != '-':
                     found_match, publication_url, publication = self.publication_search(row[8])
                     if found_match is False:
                         unresolved_publication_count += 1
+                        # unresolved_publication_entries.append(row[0] + "\t" + row[1] + "\t" + row[8])	# for debugging
                         continue
                 else:
                     unresolved_publication_count += 1
+                    # unresolved_publication_entries.append(row[0] + "\t" + row[1] + "\t" + row[8])	# for debugging
                     continue
 
                 # Other hardcoded values to be used for now.
@@ -568,8 +646,11 @@ class MolecularInteractionETL(ETL):
                 except IndexError:
                     pass  # Default to unspecified, see above.
 
-                interaction_type = None
-                interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
+                interaction_type = 'MI:0208'    # Default to genetic interaction.
+                try:
+                    interaction_type = re.findall(r'"([^"]*)"', row[11])[0]
+                except IndexError:
+                    pass  # Default to genetic interaction
 
                 interactor_a_resolved = None
                 interactor_b_resolved = None
@@ -581,17 +662,9 @@ class MolecularInteractionETL(ETL):
 
                 if interactor_a_resolved is None or interactor_b_resolved is None:
                     unresolved_a_b_count += 1  # Tracking unresolved identifiers.
-
-                    # Uncomment the line below for debugging.
-                    # unresolved_entries.append([row[0], interactor_a_resolved, row[1], interactor_b_resolved, row[8]])
-                    # if interactor_a_resolved is None:
-                    #     unresolved_crossref_set.add(row[0])
-                    # if interactor_b_resolved is None:
-                    #     unresolved_crossref_set.add(row[1])
-
                     continue  # Skip this entry.
 
-                mol_int_dataset = {
+                gen_int_dataset = {
                     'interactor_A': None,
                     'interactor_B': None,
                     'interactor_A_type': interactor_a_type,
@@ -601,12 +674,10 @@ class MolecularInteractionETL(ETL):
                     'interaction_type': interaction_type,
                     'taxon_id_1': taxon_id_1_to_load,
                     'taxon_id_2': taxon_id_2_to_load,
-                    'detection_method': detection_method,
                     'pub_med_id': publication,
                     'pub_med_url': publication_url,
                     'uuid': None,
-                    'source_database': source_database,
-                    'aggregation_database':  aggregation_database
+                    'source_database': source_database
                 }
 
                 # Remove possible duplicates from interactor lists.
@@ -620,22 +691,35 @@ class MolecularInteractionETL(ETL):
 
                 # Update the dictionary with every possible combination of
                 # interactor A x interactor B.
-                list_of_mol_int_dataset = [dict(mol_int_dataset,
+                list_of_gen_int_dataset = [dict(gen_int_dataset,
                                                 interactor_A=x,
                                                 interactor_B=y,
                                                 uuid=str(uuid.uuid4())) for x, y in int_combos]
                 # Tracking successfully loaded identifiers.
-                total_interactions_loaded_count += len(list_of_mol_int_dataset)
+                total_interactions_loaded_count += len(list_of_gen_int_dataset)
                 # Tracking successfully resolved identifiers.
                 resolved_a_b_count += 1
                 # We need to also create new crossreference dicts for every
                 # new possible interaction combination.
                 new_identifier_linkout_list = []
-                for dataset_entry in list_of_mol_int_dataset:
+                for dataset_entry in list_of_gen_int_dataset:
                     for identifier_linkout in identifier_linkout_list:
                         new_identifier_linkout_list.append(
                             dict(identifier_linkout,
                                  reference_uuid=dataset_entry['uuid']))
+
+                for dataset_entry in list_of_gen_int_dataset:
+                    allele = self.get_wb_allele_from_genetic_perturbation(row[25])
+                    if allele:
+                        allele_A_list_to_yield.append(
+                            dict(allele_A=allele,
+                                 reference_uuid=dataset_entry['uuid']))
+                    allele = self.get_wb_allele_from_genetic_perturbation(row[26])
+                    if allele:
+                        allele_B_list_to_yield.append(
+                            dict(allele_B=allele,
+                                 reference_uuid=dataset_entry['uuid']))
+                    
 
                 # Create dictionaries for xrefs from Alliance genes
                 # to MOD interaction sections of gene reports.
@@ -650,9 +734,30 @@ class MolecularInteractionETL(ETL):
                             mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
                             mod_xref_list_to_yield.append(mod_xref_dataset)
 
+                # for FlyBase genes always create crossref for interactions 
+                # link to both interactor genes (A is already covered above)
+                for primary_gene_to_link in interactor_b_resolved_no_dupes:
+                    # Check whether we've made this xref previously by looking in a list.
+                    if primary_gene_to_link.startswith('FB:FBgn'):
+                        if primary_gene_to_link not in self.successful_mod_interaction_xrefs:
+                            mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
+                            mod_xref_list_to_yield.append(mod_xref_dataset)
+
+                phenotype_statements, individual_bad_type_set = self.get_phenotype_statement_from_phenotype_source(row[27], master_wbphenotype_dict)
+                if phenotype_statements is not None:
+                    for phenotype_statement in phenotype_statements:
+                        for dataset_entry in list_of_gen_int_dataset:
+                            phenotype_trait_list_to_yield.append(
+                                dict(phenotype_statement=phenotype_statement,
+                                     reference_uuid=dataset_entry['uuid']))
+
+                if individual_bad_type_set is not None:
+                    for bad_type in individual_bad_type_set:
+                        bad_type_set.add(bad_type)
+
                 # Establishes the number of entries to yield (return) at a time.
                 xref_list_to_yield.extend(new_identifier_linkout_list)
-                list_to_yield.extend(list_of_mol_int_dataset)
+                list_to_yield.extend(list_of_gen_int_dataset)
 
                 if counter == batch_size:
                     counter = 0
@@ -662,15 +767,19 @@ class MolecularInteractionETL(ETL):
                     mod_xref_list_to_yield = []
 
             if counter > 0:
-                yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield
+                yield list_to_yield, xref_list_to_yield, mod_xref_list_to_yield, allele_A_list_to_yield, allele_B_list_to_yield, phenotype_trait_list_to_yield
 
         # TODO Clean up the set output.
+        # self.logger.info('A set of unresolved entries:')
         # for entry in unresolved_entries:
         #     self.logger.info(*entry)
 
         # self.logger.info('A set of unique unresolvable cross references:')
         # for unique_entry in unresolved_crossref_set:
         #     self.logger.info(unique_entry)
+
+        for bad_type in bad_type_set:
+            self.logger.info('bad type value in phenotypeStatement creation %s.', bad_type)
 
         self.logger.info('Resolved identifiers for %s PSI-MITAB interactions.',
                          resolved_a_b_count)
@@ -683,6 +792,9 @@ class MolecularInteractionETL(ETL):
 
         self.logger.info('Could not resolve [and subsequently will not load] '
                          '{} interactions due to missing publications.'.format(unresolved_publication_count))
+        # for debugging
+        # for entry in unresolved_publication_entries:
+        #     self.logger.info(entry)
 
         self.logger.info('Could not resolve [and subsequently will not load] %s interactions due to unresolved'
                          ' identifiers.',
