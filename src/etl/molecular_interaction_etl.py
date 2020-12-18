@@ -291,7 +291,7 @@ class MolecularInteractionETL(ETL):
         These links appear at the top of the molecular interactions table once per gene page.
         """
         xref_dict = {}
-        page = 'gene/MODinteractions'
+        page = 'gene/MODinteractions_molecular'
 
         individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
         individual_url = self.etlh.rdh2.return_url_from_identifier(gene_id, page)
