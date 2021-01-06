@@ -31,6 +31,9 @@ run_test: build
 	docker-compose run agr_loader_test
 	docker-compose run agr_loader_test_unit_tests
 
+quick_unit_test: build
+	docker run --rm ${REG}/agr_loader_run pytest src/test/unit_tests.py
+
 unit_tests:
 	docker-compose run agr_loader_test_unit_tests
 
