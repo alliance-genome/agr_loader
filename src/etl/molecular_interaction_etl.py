@@ -40,6 +40,7 @@ class MolecularInteractionETL(ETL):
         //Create the Association node to be used for the object.
         CREATE (oa:Association {primaryKey:row.uuid})
             SET oa :InteractionGeneJoin
+            SET oa :InteractionMolecularGeneJoin
             SET oa.joinType = 'molecular_interaction'
         CREATE (g1)-[a1:ASSOCIATION]->(oa)
         CREATE (oa)-[a2:ASSOCIATION]->(g2)
@@ -291,7 +292,7 @@ class MolecularInteractionETL(ETL):
         These links appear at the top of the molecular interactions table once per gene page.
         """
         xref_dict = {}
-        page = 'gene/MODinteractions'
+        page = 'gene/MODinteractions_molecular'
 
         individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
         individual_url = self.etlh.rdh2.return_url_from_identifier(gene_id, page)
