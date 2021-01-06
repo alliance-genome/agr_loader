@@ -48,6 +48,7 @@ class GeneticInteractionETL(ETL):
         //Create the Association node to be used for the object.
         CREATE (oa:Association {primaryKey:row.uuid})
             SET oa :InteractionGeneJoin
+            SET oa :InteractionGeneticGeneJoin
             SET oa.joinType = 'genetic_interaction'
         CREATE (g1)-[a1:ASSOCIATION]->(oa)
         CREATE (oa)-[a2:ASSOCIATION]->(g2)
