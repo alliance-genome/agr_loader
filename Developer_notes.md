@@ -16,6 +16,9 @@ i.e.
 
 export TEST_CONFIG_OVERIDE=sub_loads/interactions_only.yml
 
-# To start an interactive container to look at data etc...
-docker  run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True agrdocker/agr_loader_run bash
+# Interactive debugging
+To start an interactive container to look at data etc...
+```bash
+make run_loader_bash
+```
 

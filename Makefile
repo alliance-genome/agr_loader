@@ -83,3 +83,6 @@ rebuild_test:
 	sleep 10
 	docker build -t ${REG}/agr_loader_run:${TAG} .
 	REG=${REG} docker-compose up agr_loader_test
+
+run_loader_bash:
+	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run bash
