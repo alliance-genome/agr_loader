@@ -524,7 +524,6 @@ class GeneDescriptionsETL(ETL):
         file_name = self.cur_date + "_" + data_provider
         file_path = os.path.join("tmp", file_name)
         json_desc_writer.write_json(file_path=file_path + ".json",
-                                    pretty=True,
                                     include_single_gene_stats=True,
                                     data_manager=gd_data_manager)
         json_desc_writer.write_plain_text(file_path=file_path + ".txt")
