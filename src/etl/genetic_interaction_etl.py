@@ -267,6 +267,10 @@ class GeneticInteractionETL(ETL):
             entries = [entry]
 
         for individual in entries:
+            # source file has some empty objects that shouldn't be cross-referenced
+            if individual == '-':
+                continue
+
             """These links are for the individual interaction identifiers and link to the respective database."""
             xref_dict = {}
             page = 'gene/interactions'
