@@ -11,6 +11,12 @@ from etl import ETL
 from transactors import CSVTransactor, Neo4jTransactor
 from etl.helpers import Neo4jHelper, ETLHelper
 
+# Test loading this requires:
+# BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+# ONTOLOGY: [MI]
+# INTERACTION-MOL: [COMBINED]
+
+
 
 class MolecularInteractionETL(ETL):
     """Molecular Interaction ETL."""
