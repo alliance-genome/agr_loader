@@ -107,6 +107,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "an"
+                postfix: ""
         - aspect: F
           group: EXPERIMENTAL
           qualifier: "contributes_to"
@@ -117,6 +121,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "contributes as a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "contributes as an"
+                postfix: ""
         - aspect: F
           group: EXPERIMENTAL
           qualifier: "colocalizes_with"
@@ -125,7 +133,11 @@ go_sentences_options:
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "contributes as a"
+                prefix: "colocalizes with a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "colocalizes with an"
                 postfix: ""
         - aspect: F
           group: HIGH_THROUGHPUT_EXPERIMENTAL
@@ -137,6 +149,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "an"
+                postfix: ""
         - aspect: F
           group: HIGH_THROUGHPUT_EXPERIMENTAL
           qualifier: "contributes_to"
@@ -146,6 +162,10 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "an"
                 postfix: ""
         - aspect: F
           group: HIGH_THROUGHPUT_EXPERIMENTAL
@@ -157,6 +177,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "colocalizes with a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "colocalizes with an"
+                postfix: ""
         - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: ""
@@ -166,6 +190,10 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to be a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to be an"
                 postfix: ""
         - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
@@ -177,6 +205,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "predicted to contribute as a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to contribute as an"
+                postfix: ""
         - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "colocalizes_with"
@@ -187,6 +219,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "predicted to colocalize with a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to colocalize with an"
+                postfix: ""
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: ""
@@ -196,6 +232,10 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to be a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to be an"
                 postfix: ""
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
@@ -207,6 +247,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "predicted to contribute as a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to contribute as an"
+                postfix: ""
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "colocalizes_with"
@@ -216,6 +260,10 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to colocalize with a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to colocalize with an"
                 postfix: ""
         - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
@@ -227,6 +275,10 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "predicted to be a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to be an"
+                postfix: ""
         - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "contributes_to"
@@ -236,6 +288,10 @@ go_sentences_options:
               - id: 1
                 match_regex: "structural constituent"
                 prefix: "predicted to contribute as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to contribute as an"
                 postfix: ""
         - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
@@ -247,6 +303,152 @@ go_sentences_options:
                 match_regex: "structural constituent"
                 prefix: "predicted to colocalize with a"
                 postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "predicted to colocalize with an"
+                postfix: ""
+        # new qualifiers in GAF 2.2
+        - aspect: F
+          group: EXPERIMENTAL
+          qualifier: "enables"
+          prefix: "enables"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is an"
+                postfix: ""
+        - aspect: F
+          group: EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "contributes as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "contributes as an"
+                postfix: ""
+        - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "enables"
+          prefix: "enables"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is an"
+                postfix: ""
+        - aspect: F
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "contributes_to"
+          prefix: "contributes to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "contributes as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "contributes as an"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "enables"
+          prefix: "is predicted to enable"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to be a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is predicted to be an"
+                postfix: ""
+        - aspect: F
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "is predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to contribute as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is an"
+                postfix: "is predicted to contribute as an"
+        - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "enables"
+          prefix: "is predicted to enable"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to be a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is predicted to be an"
+                postfix: ""
+        - aspect: F
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "contributes_to"
+          prefix: "is predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to contribute as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is predicted to contribute as an"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "enables"
+          prefix: "is predicted to enable"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to be a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is predicted to be an"
+                postfix: ""
+        - aspect: F
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "contributes_to"
+          prefix: "is predicted to contribute to"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "structural constituent"
+                prefix: "is predicted to contribute as a"
+                postfix: ""
+              - id: 2
+                match_regex: "^extracellular matrix structural constituent"
+                prefix: "is predicted to contribute as an"
+                postfix: ""
+
         - aspect: P
           group: EXPERIMENTAL
           qualifier: ""
@@ -307,6 +509,189 @@ go_sentences_options:
           prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
+
+        # new qualifiers in GAF 2.2
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "involved_in"
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "involved_in"
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "involved_in"
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "involved_in"
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "involved_in"
+          prefix: "involved in"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "acts_upstream_of_positive_effect"
+          prefix: "acts upstream of with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "acts_upstream_of_positive_effect"
+          prefix: "acts upstream of with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "acts_upstream_of_positive_effect"
+          prefix: "acts upstream of with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "acts_upstream_of_positive_effect"
+          prefix: "acts upstream of with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "acts_upstream_of_positive_effect"
+          prefix: "acts upstream of with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "acts_upstream_of_negative_effect"
+          prefix: "acts upstream of with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "acts_upstream_of_negative_effect"
+          prefix: "acts upstream of with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "acts_upstream_of_negative_effect"
+          prefix: "acts upstream of with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "acts_upstream_of_negative_effect"
+          prefix: "acts upstream of with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "acts_upstream_of_negative_effect"
+          prefix: "acts upstream of with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within"
+          prefix: "acts upstream of or within"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within"
+          prefix: "acts upstream of or within"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "acts_upstream_of_or_within"
+          prefix: "acts upstream of or within"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "acts_upstream_of_or_within"
+          prefix: "acts upstream of or within"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "acts_upstream_of_or_within"
+          prefix: "acts upstream of or within"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within_negative_effect"
+          prefix: "acts upstream of or within with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within_negative_effect"
+          prefix: "acts upstream of or within with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "acts_upstream_of_or_within_negative_effect"
+          prefix: "acts upstream of or within with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "acts_upstream_of_or_within_negative_effect"
+          prefix: "acts upstream of or within with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "acts_upstream_of_or_within_negative_effect"
+          prefix: "acts upstream of or within with a negative effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within_positive_effect"
+          prefix: "acts upstream of or within with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "acts_upstream_of_or_within_positive_effect"
+          prefix: "acts upstream of or within with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "acts_upstream_of_or_within_positive_effect"
+          prefix: "acts upstream of or within with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "acts_upstream_of_or_within_positive_effect"
+          prefix: "acts upstream of or within with a positive effect on"
+          postfix: ""
+          special_cases:
+        - aspect: P
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "acts_upstream_of_or_within_positive_effect"
+          prefix: "acts upstream of or within with a positive effect on"
+          postfix: ""
+          special_cases:
+
         - aspect: C
           group: EXPERIMENTAL
           qualifier: ""
@@ -405,6 +790,148 @@ go_sentences_options:
           special_cases:
               - id: 1
                 match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+
+        # new qualifiers in GAF 2.2
+        - aspect: C
+          group: EXPERIMENTAL
+          qualifier: "located_in"
+          prefix: "located in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: EXPERIMENTAL
+          qualifier: "part_of"
+          prefix: "part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "located_in"
+          prefix: "located in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "part_of"
+          prefix: "part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "located_in"
+          prefix: "predicted to be located in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "part_of"
+          prefix: "predicted to be part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "located_in"
+          prefix: "predicted to be located in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "part_of"
+          prefix: "predicted to be part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "located_in"
+          prefix: "predicted to be located in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "part_of"
+          prefix: "predicted to be part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
                 prefix: "predicted to be"
                 postfix: ""
 

@@ -48,6 +48,7 @@ class GeneticInteractionETL(ETL):
         //Create the Association node to be used for the object.
         CREATE (oa:Association {primaryKey:row.uuid})
             SET oa :InteractionGeneJoin
+            SET oa :InteractionGeneticGeneJoin
             SET oa.joinType = 'genetic_interaction'
         CREATE (g1)-[a1:ASSOCIATION]->(oa)
         CREATE (oa)-[a2:ASSOCIATION]->(g2)
@@ -266,6 +267,10 @@ class GeneticInteractionETL(ETL):
             entries = [entry]
 
         for individual in entries:
+            # source file has some empty objects that shouldn't be cross-referenced
+            if individual == '-':
+                continue
+
             """These links are for the individual interaction identifiers and link to the respective database."""
             xref_dict = {}
             page = 'gene/interactions'
@@ -334,7 +339,7 @@ class GeneticInteractionETL(ETL):
         These links appear at the top of the genetic interactions table once per gene page.
         """
         xref_dict = {}
-        page = 'gene/MODinteractions'
+        page = 'gene/MODinteractions_genetic'
 
         individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(gene_id)
         individual_url = self.etlh.rdh2.return_url_from_identifier(gene_id, page)
