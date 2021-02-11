@@ -1,5 +1,7 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
-TAG=latest
+ALLIANCE_RELEASE=4.0.0
+DOCKER_PULL_TAG=build
+DOCKER_BUILD_TAG=latest
 
 registry-docker-login:
 ifneq ($(shell echo ${REG} | egrep "ecr\..+\.amazonaws\.com"),)
@@ -12,25 +14,25 @@ endif
 endif
 
 build: pull
-	docker build --build-arg REG=${REG} -t ${REG}/agr_loader_run:${TAG} .
+	docker build --build-arg REG=${REG} --build-arg DOCKER_PULL_TAG=${DOCKER_PULL_TAG} -t ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} .
 
 buildenv: build
 
 startdb:
-	REG=${REG} docker-compose up -d neo4j
+	REG=${REG} DOCKER_PULL_TAG=${DOCKER_PULL_TAG} docker-compose up -d neo4j
 
 stopdb:
 	docker-compose stop neo4j
 
 pull: registry-docker-login
-	docker pull ${REG}/agr_neo4j_env:${TAG}
-	docker pull ${REG}/agr_base_linux_env:${TAG}
+	docker pull ${REG}/agr_neo4j_env:${DOCKER_PULL_TAG}
+	docker pull ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 removedb:
 	docker-compose down -v
 
 run: build
-	REG=${REG} docker-compose up agr_loader
+	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose up agr_loader
 
 run_test_travis:  
 	build
@@ -38,17 +40,17 @@ run_test_travis:
 	REG=${REG} docker-compose run agr_loader_test_unit_tests
 
 run_test: build
-	REG=${REG} docker-compose run agr_loader_test
-	REG=${REG} docker-compose run agr_loader_test_unit_tests
+	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test
+	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test_unit_tests
 
 quick_unit_test: build
-	docker run --rm ${REG}/agr_loader_run pytest src/test/unit_tests.py
+	docker run --rm ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} pytest src/test/unit_tests.py
 
 unit_tests:
-	REG=${REG} docker-compose run agr_loader_test_unit_tests
+	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test_unit_tests
 
 bash:
-	REG=${REG} docker-compose up agr_loader bash
+	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose up agr_loader bash
 
 # reload targets do remove and re-download files to the local docker volume.
 reload: 
@@ -84,4 +86,4 @@ rebuild_test:
 	REG=${REG} docker-compose up agr_loader_test
 
 run_loader_bash:
-	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run bash
+	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} bash
