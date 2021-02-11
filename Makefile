@@ -1,18 +1,28 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
 TAG=latest
 
+registry-docker-login:
+ifneq ($(shell echo ${REG} | egrep "ecr\..+\.amazonaws\.com"),)
+	@$(eval DOCKER_LOGIN_CMD=aws)
+ifneq (${AWS_PROFILE},)
+	@$(eval DOCKER_LOGIN_CMD=${DOCKER_LOGIN_CMD} --profile ${AWS_PROFILE})
+endif
+	@$(eval DOCKER_LOGIN_CMD=${DOCKER_LOGIN_CMD} ecr get-login-password | docker login -u AWS --password-stdin https://${REG})
+	${DOCKER_LOGIN_CMD}
+endif
+
 build: pull
 	docker build --build-arg REG=${REG} -t ${REG}/agr_loader_run:${TAG} .
 
 buildenv: build
 
 startdb:
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 
 stopdb:
 	docker-compose stop neo4j
 
-pull:
+pull: registry-docker-login
 	docker pull ${REG}/agr_neo4j_env:${TAG}
 	docker pull ${REG}/agr_base_linux_env:${TAG}
 
@@ -20,53 +30,59 @@ removedb:
 	docker-compose down -v
 
 run: build
-	docker-compose up agr_loader
+	REG=${REG} docker-compose up agr_loader
 
 run_test_travis:  
 	build
-	docker-compose run agr_loader_travis
-	docker-compose run agr_loader_test_unit_tests
+	REG=${REG} docker-compose run agr_loader_travis
+	REG=${REG} docker-compose run agr_loader_test_unit_tests
 
 run_test: build
-	docker-compose run agr_loader_test
-	docker-compose run agr_loader_test_unit_tests
+	REG=${REG} docker-compose run agr_loader_test
+	REG=${REG} docker-compose run agr_loader_test_unit_tests
+
+quick_unit_test: build
+	docker run --rm ${REG}/agr_loader_run pytest src/test/unit_tests.py
 
 unit_tests:
-	docker-compose run agr_loader_test_unit_tests
+	REG=${REG} docker-compose run agr_loader_test_unit_tests
 
 bash:
-	docker-compose up agr_loader bash
+	REG=${REG} docker-compose up agr_loader bash
 
 # reload targets do remove and re-download files to the local docker volume.
 reload: 
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	docker-compose down -v
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	sleep 10
 	docker build -t ${REG}/agr_loader_run:${TAG} .
-	docker-compose up agr_loader
+	REG=${REG} docker-compose up agr_loader
 
 reload_test: 
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	docker-compose down
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	sleep 10
 	docker build -t ${REG}/agr_loader_run:${TAG} .
-	docker-compose up agr_loader_test
+	REG=${REG} docker-compose up agr_loader_test
 
 # rebuild targets do not remove and re-download files to the local docker volume.
 rebuild:
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	docker-compose down
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	sleep 10
 	docker build -t ${REG}/agr_loader_run:${TAG} .
-	docker-compose up agr_loader
+	REG=${REG} docker-compose up agr_loader
 
 rebuild_test:
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	docker-compose down
-	docker-compose up -d neo4j
+	REG=${REG} docker-compose up -d neo4j
 	sleep 10
 	docker build -t ${REG}/agr_loader_run:${TAG} .
-	docker-compose up agr_loader_test
+	REG=${REG} docker-compose up agr_loader_test
+
+run_loader_bash:
+	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run bash
