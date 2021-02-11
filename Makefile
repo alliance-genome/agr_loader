@@ -34,11 +34,6 @@ removedb:
 run: build
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose up agr_loader
 
-run_test_travis:  
-	build
-	REG=${REG} docker-compose run agr_loader_travis
-	REG=${REG} docker-compose run agr_loader_test_unit_tests
-
 run_test: build
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test_unit_tests
