@@ -52,36 +52,35 @@ bash:
 
 # reload targets do remove and re-download files to the local docker volume.
 reload: 
-	REG=${REG} docker-compose up -d neo4j
-	docker-compose down -v
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
+	@${MAKE} --no-print-directory removedb
+	@${MAKE} --no-print-directory startdb
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:${TAG} .
-	REG=${REG} docker-compose up agr_loader
+	@${MAKE} --no-print-directory run
 
 reload_test: 
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	docker-compose down
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:${TAG} .
+	@${MAKE} --no-print-directory build
 	REG=${REG} docker-compose up agr_loader_test
 
 # rebuild targets do not remove and re-download files to the local docker volume.
 rebuild:
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	docker-compose down
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:${TAG} .
+	@${MAKE} --no-print-directory build
 	REG=${REG} docker-compose up agr_loader
 
 rebuild_test:
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	docker-compose down
-	REG=${REG} docker-compose up -d neo4j
+	@${MAKE} --no-print-directory startdb
 	sleep 10
-	docker build -t ${REG}/agr_loader_run:${TAG} .
+	@${MAKE} --no-print-directory build
 	REG=${REG} docker-compose up agr_loader_test
 
 run_loader_bash:
