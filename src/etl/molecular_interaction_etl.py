@@ -440,7 +440,7 @@ class MolecularInteractionETL(ETL):
         ]
 
         for check in list_of_possible_pub_parameters:
-            publication_re = re.search(check[0], row_entry)
+            publication_re = re.search(check[0], row_entry, re.IGNORECASE)
             if publication_re is not None:
                 publication = publication_re.group(0)  # matching bit
                 publication = publication.replace(check[1], check[2])
