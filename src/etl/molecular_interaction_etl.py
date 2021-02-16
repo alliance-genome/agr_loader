@@ -17,7 +17,6 @@ from etl.helpers import Neo4jHelper, ETLHelper
 # INTERACTION-MOL: [COMBINED]
 
 
-
 class MolecularInteractionETL(ETL):
     """Molecular Interaction ETL."""
 
