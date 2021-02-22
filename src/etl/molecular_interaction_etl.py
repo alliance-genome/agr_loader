@@ -194,35 +194,6 @@ class MolecularInteractionETL(ETL):
         xref_main_list = []
         entries = None
 
-        # Identifier types on this list DO NOT receive a
-        # cross_ref_complete_url field for external linking.
-        ignored_identifier_database_list = [
-            # The following entries are not currently required.
-            'brenda',
-            'bmrb',
-            'cell ontology',
-            'chebi',
-            'chembl compound',
-            'efo',
-            'flannotator',
-            'intenz',
-            'interpro',
-            'mpidb',
-            'omim',
-            'pdbj',
-            'pmc',
-            'pride',
-            'prints',
-            'proteomexchange',
-            'psi-mi',
-            'pubmed',
-            'go',
-            'reactome',
-            'refseq',
-            'tissue list',
-            'uniprotkb'
-        ]
-
         if '|' in entry:
             entries = entry.split('|')
         else:
@@ -278,18 +249,17 @@ class MolecularInteractionETL(ETL):
                 individual_prefix = 'WB'
 
             # TODO Optimize and re-add this error tracking.
-            if not individual.startswith(tuple(ignored_identifier_database_list)):
-                try:
-                    individual_url = self.etlh.rdh2.return_url_from_key_value(individual_prefix, individual_body, page)
-                    xref_dict['crossRefCompleteUrl'] = individual_url
-                except KeyError:
-                    pass
-
+            try:
+                individual_url = self.etlh.rdh2.return_url_from_key_value(individual_prefix, individual_body, page)
+                xref_dict['crossRefCompleteUrl'] = individual_url
+            except KeyError:
+                pass
+            
             xref_dict['prefix'] = individual_prefix
             xref_dict['globalCrossRefId'] = individual
-
+            
             xref_main_list.append(xref_dict)
-
+            
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
