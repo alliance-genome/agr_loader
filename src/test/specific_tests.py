@@ -113,13 +113,10 @@ def test_xref_complete_url_is_formatted():
     """Test XREF Complete URL is Formatted"""
 
     query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
-               AND cr.crossRefType <> 'interaction'
-               AND (cr.crossRefType <> 'homepage' AND cr.displayName = 'OMIM')
-               AND cr.crossRefType <> 'ontology_provided_cross_reference'
                RETURN count(cr) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] < 1
+        assert record["counter"] < 10
 
 
 def test_spell_display_name():

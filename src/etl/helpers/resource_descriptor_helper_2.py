@@ -235,8 +235,8 @@ class ResourceDescriptorHelper2():
         else:
             self.missing_keys[mk_key] = 1
             mess = "The database prefix '{}' '{}' cannot be found in the Resource Descriptor YAML.".format(alt_key, key)
-            self.logger.critical(mess)
-            self.logger.critical('Identifier: %s', value)
+            self.logger.warning(mess)
+            self.logger.warning('Identifier: %s', value)
             self.logger.info("keys are:- %s", self.key_lookup.keys())
 
     def return_url_from_key_value(self, prefix, local_id, alt_page=None):
@@ -257,8 +257,8 @@ class ResourceDescriptorHelper2():
             return None
         if 'default_url' not in self.resource_descriptor_dict[key]:
             mess = "******** '{}' has no 'default_url' **********".format(key)
-            self.logger.critical(mess)
-            self.logger.critical('Identifier: %s', local_id)
+            self.logger.warning(mess)
+            self.logger.warning('Identifier: %s', local_id)
             return None
         try:
             if alt_page:
@@ -274,7 +274,7 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] += 1
             else:
                 self.missing_pages[key] = 1
-                self.logger.critical(mess)
+                self.logger.warning(mess)
         except AttributeError as e:
             mess = "***** ERROR!!! key = '{}', value = '{}' page = {} error = '{}'******".format(key, local_id, page, e)
             key = "{}-{}".format(key, page)
@@ -282,7 +282,7 @@ class ResourceDescriptorHelper2():
                 self.missing_pages[key] += 1
             else:
                 self.missing_pages[key] = 1
-                self.logger.critical(mess)
+                self.logger.warning(mess)
         return url
 
     def return_url(self, identifier, page):
@@ -310,9 +310,9 @@ class ResourceDescriptorHelper2():
             gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
         except KeyError:
             if key not in self.missing_keys:
-                self.logger.critical("The database prefix '%s' has no 'gid_pattern'.", db_prefix)
-                self.logger.critical('Page: %s', page)
-                self.logger.critical('Identifier: %s', identifier)
+                self.logger.warning("The database prefix '%s' has no 'gid_pattern'.", db_prefix)
+                self.logger.warning('Page: %s', page)
+                self.logger.warning('Identifier: %s', identifier)
                 self.missing_keys[key] = 1
             else:
                 self.missing_keys[key] += 1
@@ -323,12 +323,12 @@ class ResourceDescriptorHelper2():
         regex_output = re.match(gid_pattern, identifier_post_processed, re.IGNORECASE)
         if regex_output is None:
             if key not in self.bad_regex:
-                self.logger.critical('Cross Reference identifier did %s',
+                self.logger.warning('Cross Reference identifier did %s',
                                      'not match Resource Descriptor YAML file gid pattern.')
-                self.logger.critical('Database prefix: %s', db_prefix)
-                self.logger.critical('Identifier: %s', identifier_post_processed)
-                self.logger.critical('gid pattern: %s', gid_pattern)
-                self.logger.critical('page: %s', page)
+                self.logger.warning('Database prefix: %s', db_prefix)
+                self.logger.warning('Identifier: %s', identifier_post_processed)
+                self.logger.warning('gid pattern: %s', gid_pattern)
+                self.logger.warning('page: %s', page)
                 self.bad_regex[key] = 1
             else:
                 self.bad_regex[key] += 1
