@@ -167,6 +167,7 @@ class GeneDescriptionsETL(ETL):
                 associations_type=DataType.GO, associations_url=go_annot_path,
                 associations_cache_path=go_annot_cache_path,
                 config=gd_config_mod_specific)
+            self.logger.info(f"Loaded {str(len(list(gd_data_manager.go_associations.associations_by_subj.keys())))} associations")
             gd_data_manager.set_associations(associations_type=DataType.DO,
                                              associations=self.get_disease_annotations_from_db(
                                                  data_provider=data_provider,
@@ -215,13 +216,10 @@ class GeneDescriptionsETL(ETL):
                                                                 data_provider)
         descriptions = []
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
+        if gd_data_manager.go_associations and len(list(gd_data_manager.go_associations.associations_by_subj.keys())) > 0 and list(gd_data_manager.go_associations.associations_by_subj.keys())[0].startswith(data_provider + ":" + data_provider + ":"):
+            gene_prefix = data_provider + ":" + gene_prefix
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            if gd_data_manager.go_associations and len(list(
-                    gd_data_manager.go_associations.associations_by_subj.keys())) > 0 and list(
-                    gd_data_manager.go_associations.associations_by_subj.keys())[0].startswith(
-                    data_provider + ":" + data_provider + ":"):
-                gene_prefix = data_provider + ":" + gene_prefix
             gene_go = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"],
                                         gene_name=gene.name,
