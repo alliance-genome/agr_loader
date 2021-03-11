@@ -216,11 +216,12 @@ class GeneDescriptionsETL(ETL):
                                                                 data_provider)
         descriptions = []
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
+        gene_prefix_go = gene_prefix
         if gd_data_manager.go_associations and len(list(gd_data_manager.go_associations.associations_by_subj.keys())) > 0 and list(gd_data_manager.go_associations.associations_by_subj.keys())[0].startswith(data_provider + ":" + data_provider + ":"):
-            gene_prefix = data_provider + ":" + gene_prefix
+            gene_prefix_go = data_provider + ":" + gene_prefix_go
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            gene_go = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
+            gene_go = Gene(id=gene_prefix_go + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"],
                                         gene_name=gene.name,
                                         add_gene_name=False,
