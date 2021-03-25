@@ -174,10 +174,10 @@ class AggregateLoader():
         self.logger.debug("Getting files initially")
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/resourceDescriptors.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
-        Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
+        Download('tmp', url, 'resourceDescriptors.yaml').download_file()
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/ingest/species/species.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
-        Download('tmp', url, 'species.yaml').get_downloaded_data()
+        Download('tmp', url, 'species.yaml').download_file()
         self.logger.debug("Finished getting files initially")
 
     @classmethod
