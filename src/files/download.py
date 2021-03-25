@@ -13,7 +13,7 @@ class Download(object):
     logger = logging.getLogger(__name__)
 
     def __init__(self, savepath, url_to_retieve, filename_to_save):
-        """Initilaise object."""
+        """Initialise object."""
         self.savepath = savepath
         self.url_to_retrieve = url_to_retieve
         self.filename_to_save = filename_to_save
@@ -39,9 +39,9 @@ class Download(object):
             os.makedirs(os.path.dirname(self.full_filepath))
 
         if os.path.exists(self.full_filepath):
-            self.logger.info("File: %s already exists not downloading", self.full_filepath)
+            self.logger.info("File: %s already exists, not downloading", self.full_filepath)
         else:
-            self.logger.info("File: %s does NOT exists downloading", self.full_filepath)
+            self.logger.info("File: %s does NOT exist, downloading", self.full_filepath)
             retries = 10
             while retries > 0:
                 retries -= 1

@@ -166,7 +166,7 @@ class AggregateLoader():
         if self.schema_branch != 'master':
             self.logger.warning("*******WARNING: Using branch %s for schema.", self.schema_branch)
 
-        # Lets delete the old files and down load new ones. They are small.
+        # Lets delete the old files and download new ones. They are small.
         for name in ['tmp/species.yaml', 'tmp/resourceDescriptors.yaml']:
             if os.path.exists(name):
                 self.logger.warning("*********WARNING: removing old %s file.", name)
@@ -225,13 +225,13 @@ class AggregateLoader():
         file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())
 
         data_manager.download_and_validate()
-        self.logger.debug("finished downloading now doing thread")
+        self.logger.debug("finished downloading, now doing thread")
 
         file_transactor.check_for_thread_errors()
-        self.logger.debug("finished threads waiting for queues")
+        self.logger.debug("finished threads, waiting for queues")
 
         file_transactor.wait_for_queues()
-        self.logger.debug("finished queues waiting for shutdown")
+        self.logger.debug("finished queues, waiting for shutdown")
         file_transactor.shutdown()
 
         neo_transactor = Neo4jTransactor()
