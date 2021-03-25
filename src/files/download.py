@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 import urllib.request
 from urllib.error import HTTPError, URLError
 from .gzip_file import GZIPFile
@@ -41,9 +42,9 @@ class Download(object):
             self.logger.info("File: %s already exists not downloading", self.full_filepath)
         else:
             self.logger.info("File: %s does NOT exists downloading", self.full_filepath)
-            count = 0
-            while count < 10:
-                count = count + 1
+            retries = 10
+            while retries > 0:
+                retries -= 1
                 try:
                     self.logger.debug("Downloading data file %s from: %s", self.filename_to_save, self.url_to_retrieve)
                     if self.url_to_retrieve.endswith('gz'):
@@ -53,5 +54,13 @@ class Download(object):
                         urllib.request.urlretrieve(self.url_to_retrieve, self.full_filepath)
                 except (HTTPError, URLError) as error:
                     self.logger.error(error.reason)
-                    continue
+                    if retries > 0:
+                        self.logger.warn("Downloading data file from %s failed. Retrying %s more times.", self.url_to_retrieve, retries)
+                        # Wait certain amount of time before retrying (connectivity issues
+                        # can automatically resolve, but only after some time)
+                        time.sleep(6)
+                        continue
+                    else:
+                        self.logger.error("Downloading data file from %s failed.", self.url_to_retrieve)
+                        raise
                 break
