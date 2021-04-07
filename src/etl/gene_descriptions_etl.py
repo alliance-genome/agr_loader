@@ -135,9 +135,7 @@ class GeneDescriptionsETL(ETL):
         # create gene descriptions data manager and load common data
         context_info = ContextInfo()
         data_manager = DataFileManager(context_info.config_file_location)
-        # go_onto_config = data_manager.get_config('GO')
         go_annot_config = data_manager.get_config('GAF')
-        # do_onto_config = data_manager.get_config('DOID')
         go_annot_sub_dict = {sub.get_data_provider(): sub for sub in go_annot_config.get_sub_type_objects()}
         this_dir = os.path.split(__file__)[0]
         gd_config = GenedescConfigParser(os.path.join(this_dir,
@@ -216,19 +214,15 @@ class GeneDescriptionsETL(ETL):
                                                                 data_provider)
         descriptions = []
         best_orthologs = self.get_best_orthologs_from_db(data_provider=data_provider)
-        gene_prefix_go = gene_prefix
-        if gd_data_manager.go_associations and len(list(gd_data_manager.go_associations.associations_by_subj.keys())) > 0 and list(gd_data_manager.go_associations.associations_by_subj.keys())[0].startswith(data_provider + ":" + data_provider + ":"):
-            gene_prefix_go = data_provider + ":" + gene_prefix_go
         for record in return_set:
             gene = Gene(id=gene_prefix + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
-            gene_go = Gene(id=gene_prefix_go + record["g.primaryKey"], name=record["g.symbol"], dead=False, pseudo=False)
             gene_desc = GeneDescription(gene_id=record["g.primaryKey"],
                                         gene_name=gene.name,
                                         add_gene_name=False,
                                         config=gd_config)
             set_gene_ontology_module(dm=gd_data_manager,
                                      conf_parser=gd_config,
-                                     gene_desc=gene_desc, gene=gene_go)
+                                     gene_desc=gene_desc, gene=gene)
             set_expression_module(df=gd_data_manager,
                                   conf_parser=gd_config,
                                   gene_desc=gene_desc,
