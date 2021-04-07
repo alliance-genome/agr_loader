@@ -166,7 +166,7 @@ class AggregateLoader():
         if self.schema_branch != 'master':
             self.logger.warning("*******WARNING: Using branch %s for schema.", self.schema_branch)
 
-        # Lets delete the old files and down load new ones. They are small.
+        # Lets delete the old files and download new ones. They are small.
         for name in ['tmp/species.yaml', 'tmp/resourceDescriptors.yaml']:
             if os.path.exists(name):
                 self.logger.warning("*********WARNING: removing old %s file.", name)
@@ -174,10 +174,10 @@ class AggregateLoader():
         self.logger.debug("Getting files initially")
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/resourceDescriptors.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
-        Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
+        Download('tmp', url, 'resourceDescriptors.yaml').download_file()
         url = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/SCHEMA_BRANCH/ingest/species/species.yaml'
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
-        Download('tmp', url, 'species.yaml').get_downloaded_data()
+        Download('tmp', url, 'species.yaml').download_file()
         self.logger.debug("Finished getting files initially")
 
     @classmethod
@@ -225,13 +225,13 @@ class AggregateLoader():
         file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())
 
         data_manager.download_and_validate()
-        self.logger.debug("finished downloading now doing thread")
+        self.logger.debug("finished downloading, now doing thread")
 
         file_transactor.check_for_thread_errors()
-        self.logger.debug("finished threads waiting for queues")
+        self.logger.debug("finished threads, waiting for queues")
 
         file_transactor.wait_for_queues()
-        self.logger.debug("finished queues waiting for shutdown")
+        self.logger.debug("finished queues, waiting for shutdown")
         file_transactor.shutdown()
 
         neo_transactor = Neo4jTransactor()
