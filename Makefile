@@ -64,7 +64,7 @@ reload_test:
 	@${MAKE} --no-print-directory startdb
 	sleep 10
 	@${MAKE} --no-print-directory build
-	REG=${REG} docker-compose up agr_loader_test
+	@${MAKE} --no-print-directory run_test
 
 # rebuild targets do not remove and re-download files to the local docker volume.
 rebuild:

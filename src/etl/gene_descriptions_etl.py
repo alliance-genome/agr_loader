@@ -125,6 +125,16 @@ class GeneDescriptionsETL(ETL):
                'EXP' AS relType,
                'A' AS aspect"""
 
+    alzheimer_related_genes = """
+        MATCH (DOTerm:Ontology {primaryKey:'DOID:10652'})<-[:IS_A_PART_OF_CLOSURE]-(d:DOTerm:Ontology)-[:IMPLICATED_VIA_ORTHOLOGY|BIOMARKER_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->(dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d) 
+        MATCH (dga)-[:FROM_ORTHOLOGOUS_GENE]-(orthGene:Gene) 
+        WHERE orthGene.taxonId = 'NCBITaxon:9606' 
+        RETURN g
+        UNION
+        MATCH (g:Gene)-[:IS_IMPLICATED_IN|IS_MARKER_FOR|IS_MODEL_OF]-(d:DOTerm:Ontology)-[:IS_A_PART_OF_CLOSURE]->(DOTerm:Ontology {primaryKey:'DOID:10652'})
+        RETURN g;
+    """
+
     def __init__(self, config):
         """Initialise object."""
         super().__init__()
@@ -142,6 +152,10 @@ class GeneDescriptionsETL(ETL):
                                                       os.pardir,
                                                       os.pardir,
                                                       "gene_descriptions.yml"))
+        alzheimer_gd_config = copy.deepcopy(gd_config)
+        alzheimer_gd_config.config["do_exp_sentences_options"]["do_not_trim_branch_at"] = ["DOID:10652"]
+        alzheimer_gd_config.config["do_biomarker_sentences_options"]["do_not_trim_branch_at"] = ["DOID:10652"]
+        alzheimer_gd_config.config["do_via_orth_sentences_options"]["do_not_trim_branch_at"] = ["DOID:10652"]
         gd_data_manager = DataManager(do_relations=None, go_relations=["subClassOf", "BFO:0000050"])
         gd_data_manager.set_ontology(ontology_type=DataType.GO,
                                      ontology=self.get_ontology(data_type=DataType.GO),
@@ -149,12 +163,16 @@ class GeneDescriptionsETL(ETL):
         gd_data_manager.set_ontology(ontology_type=DataType.DO,
                                      ontology=self.get_ontology(data_type=DataType.DO),
                                      config=gd_config)
+        alzheimer_genes_set = set(Neo4jHelper.run_single_query(self.alzheimer_related_genes))
         # generate descriptions for each MOD
         for prvdr in [sub_type.get_data_provider().upper()
                       for sub_type in self.data_type_config.get_sub_type_objects()]:
             gd_config_mod_specific = copy.deepcopy(gd_config)
+            alzheimer_gd_config_mod_specific = copy.deepcopy(alzheimer_gd_config)
             if prvdr == "WB":
                 gd_config_mod_specific.config["expression_sentences_options"][
+                    "remove_children_if_parent_is_present"] = True
+                alzheimer_gd_config_mod_specific.config["expression_sentences_options"][
                     "remove_children_if_parent_is_present"] = True
             self.logger.info("Generating gene descriptions for %s", prvdr)
             data_provider = prvdr if prvdr != "HUMAN" else "RGD"
@@ -187,7 +205,9 @@ class GeneDescriptionsETL(ETL):
             generators = self.get_generators(prvdr,
                                              gd_data_manager,
                                              gd_config_mod_specific,
-                                             json_desc_writer)
+                                             json_desc_writer,
+                                             alzheimer_gd_config_mod_specific,
+                                             alzheimer_genes_set)
             query_template_list = [
                 [self.gene_descriptions_query_template, commit_size,
                  "genedescriptions_data_" + prvdr + ".csv"]
@@ -203,7 +223,8 @@ class GeneDescriptionsETL(ETL):
                                                 context_info=context_info,
                                                 gd_data_manager=gd_data_manager)
 
-    def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer):
+    def get_generators(self, data_provider, gd_data_manager, gd_config, json_desc_writer, alzheimer_gd_config,
+                       alzheimer_genes_set):
         """Create generators."""
         gene_prefix = ""
         if data_provider == "HUMAN":
@@ -220,6 +241,8 @@ class GeneDescriptionsETL(ETL):
                                         gene_name=gene.name,
                                         add_gene_name=False,
                                         config=gd_config)
+            alzheimer_gene_desc = GeneDescription(gene_id=record["g.primaryKey"], gene_name=gene.name,
+                                                  add_gene_name=False, config=alzheimer_gd_config)
             set_gene_ontology_module(dm=gd_data_manager,
                                      conf_parser=gd_config,
                                      gene_desc=gene_desc, gene=gene)
@@ -239,10 +262,24 @@ class GeneDescriptionsETL(ETL):
                                                     gene_desc=gene_desc,
                                                     config=gd_config)
 
+            if gene.id in alzheimer_genes_set:
+                set_disease_module(df=gd_data_manager, conf_parser=alzheimer_gd_config, gene_desc=alzheimer_gene_desc,
+                                   gene=gene, human=data_provider == "HUMAN")
+                if gene.id in best_orthologs:
+                    set_alliance_human_orthology_module(orthologs=best_orthologs[gene.id][0],
+                                                        excluded_orthologs=best_orthologs[gene.id][1],
+                                                        gene_desc=alzheimer_gene_desc,
+                                                        config=alzheimer_gd_config)
+                set_gene_ontology_module(dm=gd_data_manager, conf_parser=alzheimer_gd_config,
+                                         gene_desc=alzheimer_gene_desc, gene=gene)
+                set_expression_module(df=gd_data_manager, conf_parser=alzheimer_gd_config,
+                                      gene_desc=alzheimer_gene_desc, gene=gene)
+
             if gene_desc.description:
                 descriptions.append({
                     "genePrimaryKey": gene_desc.gene_id,
-                    "geneDescription": gene_desc.description
+                    "geneDescription": gene_desc.description,
+                    "alzheimerDescription": alzheimer_gene_desc.description
                 })
             json_desc_writer.add_gene_desc(gene_desc)
         yield [descriptions]
