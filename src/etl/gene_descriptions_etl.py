@@ -42,7 +42,8 @@ class GeneDescriptionsETL(ETL):
 
         MATCH (o:Gene)
         WHERE o.primaryKey = row.genePrimaryKey
-        SET o.automatedGeneSynopsis = row.geneDescription"""
+        SET o.automatedGeneSynopsis = row.geneDescription
+        SET o.alzheimerAutomatedGeneSynopsis = row.alzheimerDescription"""
 
     # Querys which do not take params and can be used as is
 
