@@ -38,6 +38,9 @@ run_test: build
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test_unit_tests
 
+run_test_sub_load: build
+	REG=${REG} TEST_CONFIG_OVERIDE=${TEST_CONFIG_OVERIDE} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test
+
 quick_unit_test: build
 	docker run --rm ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} pytest src/test/unit_tests.py
 

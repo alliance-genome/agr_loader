@@ -15,6 +15,10 @@ TEST_CONFIG_OVERIDE is not set so should not be a problem for anyone else.
 i.e.
 
 export TEST_CONFIG_OVERIDE=sub_loads/interactions_only.yml
+then start the load
+```bash 
+make run_test_sub_load
+```
 
 # Interactive debugging
 To start an interactive container to look at data etc...
