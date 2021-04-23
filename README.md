@@ -36,9 +36,13 @@ ETL pipeline for Alliance of Genome Resources
 - note: reload_test will not re-download the file bolus. 
 
 ## Config
-- There are 3 loader configurations that come with the system (in src/config): default.yml, develop.yml, test.yml. Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database). test.yml will be used while running the load using the test data set.  default.yml is the configuration used on all the shared systems and on production.  develop.yml is used for the full data set on a development system.  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.
-- When adding a new data load, be sure to add to validation.yml as well so the system knows the expected data types and subtypes.
-- local_submission_system.json is a file consumed in addition to the submission system data (from the submission system API) that is used to customize non-submission system files like ontology files.
+- There are 3 loader configuration files that come with the system (in [`src/config`](./src/config)). Each is set up to work on a particular environment (and differs in the default number of threads for both downloading files and the number of threads used to load the database):
+  - [test.yml](./src/config/test.yml) will be used while running the load using the test data set.
+  - [default.yml](./src/config/default.yml) is the configuration used on all the shared systems and on production.
+  - [develop.yml](./src/config/develop.yml) is used for the full data set on a development system.  
+  Each can be modified to remove or add the data types (ie: Allele, BGI, Expression, etc...) and subtypes (ie: ZFIN, SGD, RGD, etc...) as needed for development purposes.
+- When adding a new data load, be sure to add to [validation.yml](./src/config/validation.yml) as well so the system knows the expected data types and subtypes.
+- [local_submission_system.json](./src/config/local_submission_system.json) is a file consumed in addition to the submission system data (from the submission system API) that is used to customize non-submission system files like ontology files.
 
 ## ENV Variables
 - ALLIANCE_RELEASE - the release version that this code acts on.
@@ -48,9 +52,10 @@ ETL pipeline for Alliance of Genome Resources
 
 ## Accessing AWS (ECR) stored docker images
 AWS ECR uses an token-based authentication system, for which tokens automatically expire after 12 hours. This means frequent authentication is required to access base linux and neo4j env image. To enable this:
-- make sure you have AWS-CLI installed locally
+- optionally install AWS-CLI locally. Alternatively you can also use the amazon-provided docker image (this is used in the makefile).
+  To use the docker images for all steps below, replace the `aws` part of all commands with `docker run --rm -it -v ~/.aws:/root/.aws amazon/aws-cli`.
 - make sure you have AWS login credentials for the agr_aws account, with the permission group - AWS group for ECR access.
-- Upon setup, run `aws configure` (which will generate or append/update `~/.aws/config` and `~/.aws/credentials`) and provide the following detail when asked for:
+- Upon setup, run `aws configure` (which will generate or append/update `~/.aws/config` and `~/.aws/credentials`) and provide the following details when asked for:
   * AWS Access Key ID: provide your personal access key ID
   * AWS Secret Access Key: provide your personal Secret Access Key (only accessible on access key creation, you may need to regenerate a new access key if you did not store it).
   * Default region name: `us-east-1`
