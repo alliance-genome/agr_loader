@@ -101,7 +101,7 @@ class DataFileManager(metaclass=Singleton):
                                                                        self.altered_submission_data[config_entry])
 
     def download_and_validate(self):
-        """download an vlidatae config file"""
+        """download and validate config file"""
 
         self.logger.debug('Beginning download and validation.')
         for entry in self.master_data_dictionary:
