@@ -12,7 +12,7 @@ BGI:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
 ALLELE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI, SGD]
