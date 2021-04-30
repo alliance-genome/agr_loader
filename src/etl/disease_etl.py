@@ -27,6 +27,18 @@ class DiseaseETL(ETL):
             MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
+    execute_exp_condition_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MERGE (ec:ExperimentalCondition {primaryKey:row.primaryId})
+                ON CREATE SET ec.conditionClassId     = row.conditionClassId,
+                              ec.anatomicalOntologyId = row.anatomicalOntologyId,
+                              ec.chemicalOntologyId   = row.chemicalOntologyId,
+                              ec.geneOntologyId       = row.geneOntologyId,
+                              ec.NCBITaxonID          = row.NCBITaxonID
+    """
+
     execute_agms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -233,6 +245,8 @@ class DiseaseETL(ETL):
              "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_gene_query_template, commit_size,
              "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_exp_condition_query_template, commit_size,
+             "disease_exp_condition_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_agms_query_template, commit_size,
              "disease_agms_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_pges_gene_query_template, commit_size,
@@ -374,6 +388,38 @@ class DiseaseETL(ETL):
     #                  "componentSymbol": component_symbol}
     #             )
 
+    def conditionrelations_process(self, exp_conditions, disease_record):
+        """condition relations processing."""
+
+        if 'conditionRelations' not in disease_record:
+            # No condition relation annotation to parse
+            return
+
+        for relation in disease_record['conditionRelations']:
+            for condition in relation['conditions']:
+                # Store unique conditions
+                # Unique condition key: conditionClassId + (anatomicalOntologyId | chemicalOntologyId | geneOntologyId | NCBITaxonID)
+                unique_key = condition.get('conditionClassId') \
+                              + str( condition.get('conditionId') or '' ) \
+                              + str( condition.get('anatomicalOntologyId') or '' ) \
+                              + str( condition.get('chemicalOntologyId') or '' ) \
+                              + str( condition.get('geneOntologyId') or '' ) \
+                              + str( condition.get('NCBITaxonID') or '' )
+
+                if unique_key not in exp_conditions:
+                    condition_dataset = {
+                        "primaryId": unique_key,
+                        "conditionClassId":     condition.get('conditionClassId'),
+                        'anatomicalOntologyId': condition.get('anatomicalOntologyId'),
+                        'chemicalOntologyId':   condition.get('chemicalOntologyId'),
+                        'geneOntologyId':       condition.get('geneOntologyId'),
+                        'NCBITaxonID':          condition.get('NCBITaxonID')
+                    }
+
+                    exp_conditions[unique_key] = condition_dataset
+
+                #TODO: store an array of relations between conditions and DAF object
+
     def withs_process(self, disease_record, withs):
         """Process withs."""
         if 'with' not in disease_record:
@@ -405,6 +451,7 @@ class DiseaseETL(ETL):
         counter = 0
         gene_list_to_yield = []
         allele_list_to_yield = []
+        exp_condition_dict = dict()
         agm_list_to_yield = []
         evidence_code_list_to_yield = []
         withs = []
@@ -426,6 +473,8 @@ class DiseaseETL(ETL):
                 is_it_test_entry = self.test_object.check_for_test_id_entry(disease_record.get('objectId'))
                 if is_it_test_entry is False:
                     continue
+
+            self.conditionrelations_process(exp_condition_dict, disease_record)
 
             self.disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
                 disease_record['objectRelation'].get("associationType").upper()
@@ -471,6 +520,7 @@ class DiseaseETL(ETL):
             if counter == batch_size:
                 yield [allele_list_to_yield,
                        gene_list_to_yield,
+                       exp_condition_dict.values(),
                        agm_list_to_yield,
                        pge_list_to_yield,
                        pge_list_to_yield,
@@ -481,6 +531,7 @@ class DiseaseETL(ETL):
                 agm_list_to_yield = []
                 allele_list_to_yield = []
                 gene_list_to_yield = []
+                exp_condition_dict = dict()
                 evidence_code_list_to_yield = []
                 pge_list_to_yield = []
                 xrefs = []
@@ -490,6 +541,7 @@ class DiseaseETL(ETL):
         if counter > 0:
             yield [allele_list_to_yield,
                    gene_list_to_yield,
+                   exp_condition_dict.values(),
                    agm_list_to_yield,
                    pge_list_to_yield,
                    pge_list_to_yield,
