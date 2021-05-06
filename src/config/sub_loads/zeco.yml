@@ -1,0 +1,12 @@
+schemaVersion: 1.0.1.4
+releaseVersion: 4.1.0
+SPECIES: [Species]
+
+ONTOLOGY:
+  - WBLS
+  - ZECO
+# Loader configuration values are below.
+# Please modify with caution!
+
+FileTransactorThreads: 10
+Neo4jTransactorThreads: 7

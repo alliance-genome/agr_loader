@@ -1,5 +1,5 @@
 schemaVersion: 1.0.1.4
-releaseVersion: 4.0.0
+releaseVersion: 4.1.0
 SPECIES: [Species]
 HTP: [TAGS]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
@@ -49,6 +49,7 @@ ONTOLOGY:
   - OBI
   - BTO
   - CHEBI
+  - ZECO
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
@@ -83,6 +84,7 @@ Closure:
   - OBI
   - BTO
   - CHEBI
+  - ZECO
 INTERACTION-MOL: [COMBINED]
 INTERACTION-GEN: [COMBINED]
 GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
