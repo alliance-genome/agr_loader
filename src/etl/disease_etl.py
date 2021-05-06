@@ -31,7 +31,7 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MERGE (ec:ExperimentalCondition {primaryKey:row.primaryId})
+        MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
                 ON CREATE SET ec.conditionClassId     = row.conditionClassId,
                               ec.anatomicalOntologyId = row.anatomicalOntologyId,
                               ec.chemicalOntologyId   = row.chemicalOntologyId,
@@ -408,7 +408,7 @@ class DiseaseETL(ETL):
 
                 if unique_key not in exp_conditions:
                     condition_dataset = {
-                        "primaryId": unique_key,
+                        "ecUniqueKey": unique_key,
                         "conditionClassId":     condition.get('conditionClassId'),
                         'anatomicalOntologyId': condition.get('anatomicalOntologyId'),
                         'chemicalOntologyId':   condition.get('chemicalOntologyId'),
