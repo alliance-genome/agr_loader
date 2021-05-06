@@ -3,8 +3,8 @@ releaseVersion: 4.1.0
 SPECIES: [Species]
 
 ONTOLOGY:
+  - WBLS
   - ZECO
-
 # Loader configuration values are below.
 # Please modify with caution!
 
