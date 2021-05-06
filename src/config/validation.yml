@@ -99,6 +99,7 @@ ONTOLOGY:
     - OBI
     - BTO
     - CHEBI
+    - ZECO
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -145,6 +146,7 @@ Closure:
     - OBI
     - BTO
     - CHEBI
+    - ZECO
 INTERACTION-GEN:
   type: list
   allowed: [COMBINED]
