@@ -59,11 +59,10 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            SET rel.uuid = row.diseaseUniqueKey
-            REMOVE rel.noOp
+            //Intentional MERGEing (preventing duplicates), please leave as is
 
-            //This is an intentional MERGE, please leave as is
+            CALL apoc.merge.relationship(d, row.relationshipType, {uuid: row.diseaseUniqueKey}, {}, agm) yield rel
+            REMOVE rel.noOp
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
