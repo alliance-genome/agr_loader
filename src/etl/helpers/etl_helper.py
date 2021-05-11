@@ -2,7 +2,9 @@
 
 import uuid
 import logging
+import json
 from .resource_descriptor_helper_2 import ResourceDescriptorHelper2
+from .neo4j_helper import Neo4jHelper
 
 
 class ETLHelper():
@@ -30,6 +32,7 @@ class ETLHelper():
                          id.preferred = row.preferred
 
                     MERGE (o)-[gcr:CROSS_REFERENCE]->(id) """
+
     @staticmethod
     def get_cypher_xref_text():
         """Get Cypher XREF Text."""
@@ -66,8 +69,7 @@ class ETLHelper():
 
     @staticmethod
     def get_publication_object_cypher_text():
-        """Get Cypher Publication Text"""
-
+        """Get Cypher Publication Text."""
         return """
              MERGE (pub:Publication {primaryKey:row.pubPrimaryKey})
                 ON CREATE SET pub.pubModId = row.pubModId,
@@ -315,3 +317,28 @@ class ETLHelper():
     def return_url_from_identifier(self, identifier, page=None):
         """Forward to rdh2."""
         return self.rdh2.return_url_from_identifier(identifier, page=page)
+
+    def load_release_info(data, sub_type, logger):
+        """Grab and store release info.
+
+        If data is missing then release will be "NotSpecified" in the database
+        and "date_produced" will be None, so BAD ones can be looked up that way.
+        """
+        metaData = {'release': "NotSpecified",
+                    'provider': sub_type.get_sub_data_type(),
+                    'date_produced': None,
+                    'type': sub_type.data_type
+                    }
+        try:
+            # get data provider given and as a sanity check make sure it matches the sub_type one
+            if data['metaData']['dataProvider']['crossReference']['id'] != metaData['provider']:
+                logger.critical("Data Provider {} Does not match {}")
+            metaData['date_produced'] = data['metaData']['dateProduced']
+            metaData['release'] = data['metaData']['release']
+        except KeyError:
+            pass
+        # logger.critical(metaData)
+        fields = []
+        for k in metaData:
+            fields.append(k + ": " + json.dumps(metaData[k]))
+        Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")

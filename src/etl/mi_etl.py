@@ -1,4 +1,4 @@
-"""Molecular Interaction ETL"""
+"""Molecular Interaction ETL."""
 
 import logging
 
@@ -9,7 +9,7 @@ from transactors import CSVTransactor, Neo4jTransactor
 
 
 class MIETL(ETL):
-    """MI ETL"""
+    """MI ETL."""
 
     logger = logging.getLogger(__name__)
 
@@ -28,10 +28,12 @@ class MIETL(ETL):
     """
 
     def __init__(self, config):
+        """Initialise."""
         super().__init__()
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        """Load and process data."""
         filepath = self.data_type_config.get_single_filepath()
         generators = self.get_generators(filepath)
 
@@ -43,8 +45,7 @@ class MIETL(ETL):
 
     @staticmethod
     def add_miterm_url(identifier):
-        """Add MI Term URL"""
-
+        """Add MI Term URL."""
         mi_term_url_dict = {
             'MI:0465': 'http://dip.doe-mbi.ucla.edu/',
             'MI:0469': 'http://www.ebi.ac.uk/intact',
@@ -68,8 +69,7 @@ class MIETL(ETL):
 
     @staticmethod
     def adjust_database_names(name):
-        """Adjust database names"""
-
+        """Adjust database names."""
         mi_database_name_dict = {
             'flybase': 'FlyBase',
             'wormbase': 'WormBase',
@@ -95,16 +95,14 @@ class MIETL(ETL):
 
     @staticmethod
     def add_definition(term):
-        """Add definition"""
-
+        """Add definition."""
         try:
             return term['annotation']['definition'][0]
         except KeyError:
             return None
 
     def get_generators(self, filepath):
-        """Create Genrators"""
-
+        """Create Genrators."""
         OBOHelper.add_metadata_to_neo(filepath)
         o_data = TXTFile(filepath).get_data()
         parsed_line = OBOHelper.parse_obo(o_data)

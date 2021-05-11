@@ -22,10 +22,10 @@ class GenePhenoCrossReferenceETL(ETL):
     pheno_xref_relations_template = """
          USING PERIODIC COMMIT %s
          LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-         
+
          MATCH (o:Gene {primaryKey:row.genePrimaryKey})
          MATCH (id:CrossReference {primaryKey:row.primaryKey})
-          
+
          MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
         """
 
@@ -39,8 +39,7 @@ class GenePhenoCrossReferenceETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-
-        sub_type = "GENEPHENOCROSSREFERENCE"
+        """Load and process data."""
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()
         generators = self.get_generators(batch_size)
@@ -59,7 +58,6 @@ class GenePhenoCrossReferenceETL(ETL):
 
     def get_generators(self, batch_size):
         """Get Generators."""
-
         gene_pheno_data_list = []
         return_set = Neo4jHelper.run_single_query(self.gene_pheno_query_template)
         counter = 0
@@ -97,8 +95,8 @@ class GenePhenoCrossReferenceETL(ETL):
             gene_pheno_data_list.append(gene_pheno_xref)
 
             if counter == batch_size:
-                yield [gene_pheno_data_list,gene_pheno_data_list]
+                yield [gene_pheno_data_list, gene_pheno_data_list]
                 gene_pheno_data_list = []
 
         if counter > 0:
-            yield [gene_pheno_data_list,gene_pheno_data_list]
+            yield [gene_pheno_data_list, gene_pheno_data_list]

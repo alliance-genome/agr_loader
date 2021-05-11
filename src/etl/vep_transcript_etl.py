@@ -56,13 +56,13 @@ class VEPTranscriptETL(ETL):
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
-                
+
                 CREATE (p:VariantProteinSequence {primaryKey:row.variantProteinSequenceKey})
                   SET p.proteinSequence = row.variantProteinSequence
                   SET p.variantId = row.hgvsNomenclature
                   SET p.transcriptId = row.transcriptId
-                  
-                
+
+
                 CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.hgvsVEPGeneNomenclature})
@@ -132,7 +132,7 @@ class VEPTranscriptETL(ETL):
             ranger = column
         return start, end, ranger
 
-    def get_generators(self, filepath):
+    def get_generators(self, filepath):  # noqa Needs simplyfying
         """Get Generators."""
         data = TXTFile(filepath).get_data()
         vep_maps = []
@@ -181,7 +181,6 @@ class VEPTranscriptETL(ETL):
                         variant_protein_sequnece = value
                     elif key == 'WtSeq':
                         transcript_wt_sequence = value
-
 
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')

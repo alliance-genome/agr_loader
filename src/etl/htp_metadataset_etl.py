@@ -1,3 +1,4 @@
+"""HTP DataSet."""
 import logging
 import multiprocessing
 
@@ -5,12 +6,13 @@ from etl import ETL
 from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
-import json
 
 logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetETL(ETL):
+    """HTP Meta Dataset."""
+
     htp_dataset_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -42,15 +44,15 @@ class HTPMetaDatasetETL(ETL):
     """
 
     htp_pub_relation_template = """
-    
+
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-    
+
         MATCH (ds:HTPDataset {primaryKey: row.datasetId})
         MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
-     
+
         MERGE (p)-[:ASSOCIATION]-(ds)
-    
+
     """
 
     htp_category_tags_relations_query_template = """
@@ -61,7 +63,7 @@ class HTPMetaDatasetETL(ETL):
 
         MATCH (ct:CategoryTag {primaryKey:row.tag})
 
-        MERGE (ds)-[:CATEGORY_TAG]-(ct)    
+        MERGE (ds)-[:CATEGORY_TAG]-(ct)
 
     """
 
@@ -85,10 +87,12 @@ class HTPMetaDatasetETL(ETL):
             MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_preferred_xref_text()
 
     def __init__(self, config):
+        """Initialise."""
         super().__init__()
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        """Load and process data."""
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
@@ -99,7 +103,7 @@ class HTPMetaDatasetETL(ETL):
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-
+        """Process sub type."""
         logger.info("Loading HTP metadata Data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         logger.info(filepath)
@@ -140,8 +144,8 @@ class HTPMetaDatasetETL(ETL):
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
-    def get_cross_references (self, cross_refs, cross_reference_list, datasetId, preferred):
-
+    def get_cross_references(self, cross_refs, cross_reference_list, datasetId, preferred):
+        """Get cress references."""
         if cross_refs is not None:
             for cross_ref in cross_refs:
                 if isinstance(cross_ref, str):
@@ -175,13 +179,12 @@ class HTPMetaDatasetETL(ETL):
                             xref_map['preferred'] = preferred
                             cross_reference_list.append(xref_map)
 
-    def get_generators(self, htp_dataset_data, batch_size):
+    def get_generators(self, htp_dataset_data, batch_size):  # noqa Need to simplyfy
         dataset_tags = []
         htp_datasets = []
         publications = []
         secondaryIds = []
         cross_reference_list = []
-        tags = []
         counter = 0
 
         data_provider_object = htp_dataset_data['metaData']['dataProvider']
@@ -240,12 +243,12 @@ class HTPMetaDatasetETL(ETL):
                     prefix, local_cross_ref_id, page)
 
             # all other cross references are secondary cross references.
-            self.get_cross_references(preferred_cross_refs , cross_reference_list, datasetId, 'true')
+            self.get_cross_references(preferred_cross_refs, cross_reference_list, datasetId, 'true')
 
             category_tags = dataset_record.get('categoryTags')
 
             if category_tags is not None:
-                for tag in category_tags :
+                for tag in category_tags:
 
                     dataset_category_tag = {
                         "datasetId": datasetId,
@@ -325,5 +328,3 @@ class HTPMetaDatasetETL(ETL):
                    cross_reference_list,
                    secondaryIds
                    ]
-
-
