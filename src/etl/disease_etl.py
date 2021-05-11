@@ -401,12 +401,14 @@ class DiseaseETL(ETL):
     #                  "componentSymbol": component_symbol}
     #             )
 
-    def conditionrelations_process(self, exp_conditions, condition_relations, disease_record):
+    def conditionrelations_process(self, exp_conditions, disease_record):
         """condition relations processing."""
+
+        condition_relations = []
 
         if 'conditionRelations' not in disease_record:
             # No condition relation annotation to parse
-            return
+            return condition_relations
 
         for relation in disease_record['conditionRelations']:
             for condition in relation['conditions']:
@@ -436,10 +438,12 @@ class DiseaseETL(ETL):
                     'ecUniqueKey': unique_key,
                     'conditionRelationType': relation.get('conditionRelationType'),
                     'conditionQuantity': condition.get('conditionQuantity'),
-                    'diseaseUniqueKey': self.disease_unique_key,
+                    # diseaseUniqueKey to be appended after fn completion, as the combination
+                    #  of all conditions defines a unique object (and thus diseaseUniqueKey)
                 }
 
                 condition_relations.append(relation_dataset)
+        return condition_relations
 
     def withs_process(self, disease_record, withs):
         """Process withs."""
@@ -496,12 +500,33 @@ class DiseaseETL(ETL):
                 if is_it_test_entry is False:
                     continue
 
-            self.disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                disease_record['objectRelation'].get("associationType").upper()
-
-            self.conditionrelations_process(exp_condition_dict, cond_rels_to_yield, disease_record)
-
             self.disease_association_type = disease_record['objectRelation'].get("associationType").upper()
+
+            record_cond_relations = self.conditionrelations_process(exp_condition_dict, disease_record)
+
+            # disease_unique_key formatted to represent (readably):
+            #  object `a` under conditions `b` has relation `c` to disease `d`
+            # Including a combination of unique condition keys in the disease_unique_key,
+            #  in order to create unique DiseaseEntityJoin nodes per condition combo
+            #  (to which the appropriate evidence papers can be linked).
+
+            #object `a`
+            self.disease_unique_key = disease_record.get('objectId')
+
+            #conditions `b` (sorted, to ensure consistent diseaseUniqueKey!)
+            for cond_rel in sorted(record_cond_relations, key=lambda rel: rel["ecUniqueKey"]):
+                self.disease_unique_key += cond_rel["ecUniqueKey"]
+
+            #relation `c` to disease `d`
+            self.disease_unique_key += self.disease_association_type + disease_record.get('DOid')
+
+            #Add this disease_unique_key to every experimental condition relation
+            for cond_rel in record_cond_relations:
+                cond_rel["diseaseUniqueKey"] = self.disease_unique_key
+
+            # and extend the cond_rels_to_yield with these (now completed) relations
+            cond_rels_to_yield.extend(record_cond_relations)
+
             counter = counter + 1
             disease_object_type = disease_record['objectRelation'].get("objectType")
 
