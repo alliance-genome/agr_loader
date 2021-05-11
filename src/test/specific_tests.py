@@ -1632,3 +1632,22 @@ def test_fb_variant_has_a_single_note():
     for record in result:
         assert record["counter"] < 2
 
+
+def test_ontology_metadata():
+    """Test we have some ontology meta data."""
+    query = """
+            MATCH (node:OntologyFileMetadata) 
+            RETURN count(node) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+    
+
+def test_mod_release_metadata():
+    """Test we have some ontology meta data."""
+    query = """
+            MATCH (node:ModFileMetadata) 
+            RETURN count(node) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
