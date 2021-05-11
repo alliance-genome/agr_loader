@@ -318,27 +318,30 @@ class ETLHelper():
         """Forward to rdh2."""
         return self.rdh2.return_url_from_identifier(identifier, page=page)
 
+    @staticmethod
     def load_release_info(data, sub_type, logger):
         """Grab and store release info.
 
         If data is missing then release will be "NotSpecified" in the database
         and "date_produced" will be None, so BAD ones can be looked up that way.
         """
-        metaData = {'release': "NotSpecified",
+        metadata = {'release': "NotSpecified",
                     'provider': sub_type.get_sub_data_type(),
                     'date_produced': None,
-                    'type': sub_type.data_type
-                    }
+                    'type': sub_type.data_type}
         try:
             # get data provider given and as a sanity check make sure it matches the sub_type one
-            if data['metaData']['dataProvider']['crossReference']['id'] != metaData['provider']:
-                logger.critical("Data Provider {} Does not match {}")
-            metaData['date_produced'] = data['metaData']['dateProduced']
-            metaData['release'] = data['metaData']['release']
-        except KeyError:
+            if data['metaData']['dataProvider']['crossReference']['id'] != metadata['provider']:
+                mess = "Data Provider {} Does not match {}".\
+                    format(data['metaData']['dataProvider']['crossReference']['id'],
+                           metadata['provider'])
+                logger.critical(mess)
+            metadata['date_produced'] = data['metaData']['dateProduced']
+            metadata['release'] = data['metaData']['release']
+        except (KeyError, TypeError):
             pass
-        # logger.critical(metaData)
+
         fields = []
-        for k in metaData:
-            fields.append(k + ": " + json.dumps(metaData[k]))
+        for k in metadata:
+            fields.append(k + ": " + json.dumps(metadata[k]))
         Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")
