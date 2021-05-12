@@ -49,6 +49,7 @@ class DiseaseETL(ETL):
 
         MERGE (dfa)-[rel:ASSOCIATION]-(ec)
             ON CREATE SET rel.conditionRelationType = row.conditionRelationType,
+                          rel.isModifier = row.isModifier,
                           rel.conditionQuantity = row.conditionQuantity
     """
 
@@ -436,9 +437,14 @@ class DiseaseETL(ETL):
                     exp_conditions[unique_key] = condition_dataset
 
                 # Store the relation between condition and disease_record
+                is_modifier = False
+                if relation.get('conditionRelationType') != "has_condition":
+                    is_modifier = True
+
                 relation_dataset = {
                     'ecUniqueKey': unique_key,
                     'conditionRelationType': relation.get('conditionRelationType'),
+                    'isModifier': is_modifier,
                     'conditionQuantity': condition.get('conditionQuantity'),
                     # diseaseUniqueKey to be appended after fn completion, as the combination
                     #  of all conditions defines a unique object (and thus diseaseUniqueKey)
