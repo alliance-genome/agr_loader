@@ -219,6 +219,9 @@ class AggregateLoader():
             self.logger.warn('DEBUG mode enabled!')
             time.sleep(3)
 
+        load_rel = "CREATE (o:AllianceSoftwareVersion {version: '" + self.context_info.env['ALLIANCE_RELEASE'] + "'})"
+        Neo4jHelper().run_single_query(load_rel)
+
         data_manager = DataFileManager(self.context_info.config_file_location)
         file_transactor = FileTransactor()
 
