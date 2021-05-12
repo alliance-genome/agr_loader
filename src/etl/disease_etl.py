@@ -36,7 +36,8 @@ class DiseaseETL(ETL):
                               ec.anatomicalOntologyId = row.anatomicalOntologyId,
                               ec.chemicalOntologyId   = row.chemicalOntologyId,
                               ec.geneOntologyId       = row.geneOntologyId,
-                              ec.NCBITaxonID          = row.NCBITaxonID
+                              ec.NCBITaxonID          = row.NCBITaxonID,
+                              ec.conditionStatement   = row.conditionStatement
     """
 
     execute_exp_condition_relations_query_template = """
@@ -428,7 +429,8 @@ class DiseaseETL(ETL):
                         'anatomicalOntologyId': condition.get('anatomicalOntologyId'),
                         'chemicalOntologyId':   condition.get('chemicalOntologyId'),
                         'geneOntologyId':       condition.get('geneOntologyId'),
-                        'NCBITaxonID':          condition.get('NCBITaxonID')
+                        'NCBITaxonID':          condition.get('NCBITaxonID'),
+                        'conditionStatement':   condition.get('conditionStatement')
                     }
 
                     exp_conditions[unique_key] = condition_dataset
