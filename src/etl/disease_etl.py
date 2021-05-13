@@ -437,13 +437,14 @@ class DiseaseETL(ETL):
                     exp_conditions[unique_key] = condition_dataset
 
                 # Store the relation between condition and disease_record
+                relation_type = relation.get('conditionRelationType')
                 is_modifier = False
-                if relation.get('conditionRelationType') != "has_condition":
+                if relation_type == "ameliorates" or relation_type == "exacerbates":
                     is_modifier = True
 
                 relation_dataset = {
                     'ecUniqueKey': unique_key,
-                    'conditionRelationType': relation.get('conditionRelationType'),
+                    'conditionRelationType': relation_type,
                     'isModifier': is_modifier,
                     'conditionQuantity': condition.get('conditionQuantity'),
                     # diseaseUniqueKey to be appended after fn completion, as the combination
