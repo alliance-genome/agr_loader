@@ -194,3 +194,10 @@ class DataFileManager(metaclass=Singleton):
                 self.logger.debug("Ignoring entry: %s", entry)
 
         self.logger.debug("Loaded Types: %s", self.altered_submission_data)
+
+    def get_release_info(self):
+        """Get release information."""
+        rel_info = self.submission_system_data['snapShot']['releaseVersion']
+        del rel_info['id']
+        rel_info['snapShotDate'] = self.submission_system_data['snapShot']['snapShotDate']
+        return rel_info

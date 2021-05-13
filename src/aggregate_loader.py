@@ -7,6 +7,7 @@ import multiprocessing
 import os
 import time
 import coloredlogs
+import json
 
 from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  AffectedGenomicModelETL, AlleleETL, BiogridOrcsXrefETL,
@@ -219,12 +220,20 @@ class AggregateLoader():
             self.logger.warn('DEBUG mode enabled!')
             time.sleep(3)
 
-        load_rel = "CREATE (o:AllianceSoftwareVersion {version: '" + self.context_info.env['ALLIANCE_RELEASE'] + "'})"
-        Neo4jHelper().run_single_query(load_rel)
 
         data_manager = DataFileManager(self.context_info.config_file_location)
-        file_transactor = FileTransactor()
 
+        metadata = data_manager.get_release_info()
+        fields = []
+        for k in metadata:
+            if 'Date' in k:
+                fields.append(k + ': datetime("' + metadata[k] + '")')
+            else:
+                fields.append(k + ": " + json.dumps(metadata[k]))
+        load_rel = "CREATE (o:AllianceSoftwareVersion {" + ",".join(fields) +"})"
+        Neo4jHelper().run_single_query(load_rel)
+
+        file_transactor = FileTransactor()
         file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())
 
         data_manager.download_and_validate()

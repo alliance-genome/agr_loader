@@ -1,11 +1,12 @@
 """Transcript ETL."""
-
+import datetime
 import re
 import logging
 import multiprocessing
 import uuid
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
@@ -204,6 +205,8 @@ class TranscriptETL(ETL):
             counter = 0
             data_provider = ''
             assembly = ''
+            date_produced = None
+            dumped_release_date = False
             for line in file_handle:
                 counter = counter + 1
                 transcript_map = {}
@@ -239,9 +242,20 @@ class TranscriptETL(ETL):
                             data_provider = 'WB'
                         if data_provider == 'RAT':
                             data_provider = 'RGD'
+                    elif line.startswith('#!date-produced'):
+                        reg = re.compile(r'^#!date-produced (.*)')
+                        match = reg.match(line)
+                        if match:
+                            date_produced = match.group(1)
+                    if data_provider and date_produced and not dumped_release_date:
+                        dumped_release_date = True
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='GFF', date_produced=date_produced)
                 elif line.startswith('##FASTA'):
                     break
                 elif line.startswith('#'):
+                    if data_provider and date_produced and not dumped_release_date:
+                        dumped_release_date = True
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='GFF', date_produced=date_produced)
                     continue
                 else:
                     columns = re.split(r'\t', line)
@@ -391,3 +405,4 @@ class TranscriptETL(ETL):
                        exon_maps,
                        cds_maps,
                        cds_maps]
+
