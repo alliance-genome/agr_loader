@@ -254,12 +254,12 @@ class MolecularInteractionETL(ETL):
                 xref_dict['crossRefCompleteUrl'] = individual_url
             except KeyError:
                 pass
-            
+
             xref_dict['prefix'] = individual_prefix
             xref_dict['globalCrossRefId'] = individual
-            
+
             xref_main_list.append(xref_dict)
-            
+
         return xref_main_list
 
     def add_mod_interaction_links(self, gene_id):
@@ -464,6 +464,11 @@ class MolecularInteractionETL(ETL):
 
                 # Skip commented rows.
                 if row[0].startswith('#'):
+                    reg = re.compile(r'# File generated \(UTC\): (.*)')
+                    match = reg.match(row[0])
+                    if match:
+                        date_produced = match.group(1)
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider='COMBINED', sub_type='INTERACTION-', date_produced=date_produced)
                     continue
 
                 taxon_id_1 = row[9]

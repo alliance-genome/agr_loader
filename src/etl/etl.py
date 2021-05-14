@@ -51,7 +51,6 @@ class ETL:
 
         self.error_messages("ETL main:")
 
-
     @staticmethod
     def wait_for_threads(thread_pool, queue=None):
         """Wait for Threads."""
@@ -147,7 +146,7 @@ class ETL:
             return
         # turn into a list
         if type(o_xrefs) != list:
-            self.logger.critical("BOB: o_xrefs is not a list but is a '{}'".format(type(o_xrefs)))
+            self.logger.critical("o_xrefs is not a list but is a '{}'".format(type(o_xrefs)))
         for xref_id_dict in o_xrefs:
             xref_id = xref_id_dict["val"]
             if ":" in xref_id:

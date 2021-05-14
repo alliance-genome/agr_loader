@@ -21,7 +21,6 @@ from etl.helpers import Neo4jHelper, ETLHelper
 # INTERACTION-GEN: [COMBINED]
 
 
-
 class GeneticInteractionETL(ETL):
     """Genetic Interaction ETL."""
 
@@ -232,7 +231,6 @@ class GeneticInteractionETL(ETL):
         xref_main_list = []
         entries = None
 
-
         if '|' in entry:
             entries = entry.split('|')
         else:
@@ -348,9 +346,8 @@ class GeneticInteractionETL(ETL):
         if individual_prefix.startswith('wormbase'):
             individual_prefix = 'WB'
             if individual_body.startswith('WBVar'):
-                allele = individual_prefix  + ':' + individual_body
+                allele = individual_prefix + ':' + individual_body
         return allele
-
 
     def get_phenotype_statement_from_phenotype_source(self, input_phenotype, master_wbphenotype_dict):
         if input_phenotype == '-':
@@ -368,7 +365,7 @@ class GeneticInteractionETL(ETL):
         for entry in entries:
             individual_prefix, individual_body, _ = self.etlh.rdh2.split_identifier(entry)
             if individual_prefix.startswith('wormbase'):
-                if individual_body in master_wbphenotype_dict: 
+                if individual_body in master_wbphenotype_dict:
                     phenotype_statements.append(master_wbphenotype_dict[individual_body])
             else:
                 term_list = []
@@ -556,6 +553,11 @@ class GeneticInteractionETL(ETL):
 
                 # Skip commented rows.
                 if row[0].startswith('#'):
+                    reg = re.compile(r'# File generated \(UTC\): (.*)')
+                    match = reg.match(row[0])
+                    if match:
+                        date_produced = match.group(1)
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider='COMBINED', sub_type='INTERACTION-GEN', date_produced=date_produced)
                     continue
 
                 taxon_id_1 = row[9]
@@ -695,7 +697,6 @@ class GeneticInteractionETL(ETL):
                         allele_B_list_to_yield.append(
                             dict(allele_B=allele,
                                  reference_uuid=dataset_entry['uuid']))
-                    
 
                 # Create dictionaries for xrefs from Alliance genes
                 # to MOD interaction sections of gene reports.
@@ -710,7 +711,7 @@ class GeneticInteractionETL(ETL):
                             mod_xref_dataset = self.add_mod_interaction_links(primary_gene_to_link)
                             mod_xref_list_to_yield.append(mod_xref_dataset)
 
-                # for FlyBase genes always create crossref for interactions 
+                # for FlyBase genes always create crossref for interactions
                 # link to both interactor genes (A is already covered above)
                 for primary_gene_to_link in interactor_b_resolved_no_dupes:
                     # Check whether we've made this xref previously by looking in a list.

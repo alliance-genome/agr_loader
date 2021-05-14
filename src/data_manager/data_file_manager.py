@@ -9,7 +9,6 @@ import urllib3
 
 from cerberus import Validator
 
-from files import JSONFile
 from loader_common import Singleton, ContextInfo
 from urllib.parse import urlparse
 from .data_type_config import DataTypeConfig

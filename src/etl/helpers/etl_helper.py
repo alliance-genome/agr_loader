@@ -348,20 +348,20 @@ class ETLHelper():
     @staticmethod
     def check_date_format(dateString):
         """Convert to datetime object.
-        
+
         Possibles for now:-
           2021-01-26 14:22:24             '%Y-%m-%d %H:%M:%S'
           2020-08-26                      '%Y-%m-%d'
           02/03/2021                      '%Y/%m/%d'
           Mon Feb 22 10:47:31 2021        '%a %b %d %H:%M:%S %Y'
-          Sat Jan 23 03:02:06 CST 2021    
+          Sat Jan 23 03:02:06 CST 2021
           2021-01-12T12:04:02+00:00
         """
         dtFormat = (r'%Y-%m-%d',
                     r'%Y-%m-%d %H:%M:%S',
                     r'%d/%m/%Y',
                     r'%Y/%m/%d',
-                    r'%a %b %d %H:%M:%S %Y') #you can add extra formats needed
+                    r'%a %b %d %H:%M:%S %Y')  # you can add extra formats needed
         dateString = dateString.replace(' CST', '')
         try:
             return datetime.datetime.fromisoformat(dateString).strftime(ETLHelper.default_date_format)
@@ -377,15 +377,14 @@ class ETLHelper():
             except ValueError:
                 pass
             print("Could not convert " + dateString)
-            print('\nNo valid date format found. Try again:')
-            print("Date must be seperated by either [/ - , . \] (eg: 2012/12/31 --> ): ")
+            print('No valid date format found. Try again:')
             return "Could not convert " + dateString
 
     @staticmethod
     def load_release_info_from_args(logger=None, release='NotSpecified', provider=None, sub_type='GFF', date_produced=None):
         """Add releasde info form args."""
         metadata = {'release': release,
-                    'provider': provider,
+                    'mod': provider,
                     'type': sub_type,
                     'date_produced': date_produced}
 

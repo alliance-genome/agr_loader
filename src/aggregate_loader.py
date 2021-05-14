@@ -220,7 +220,6 @@ class AggregateLoader():
             self.logger.warn('DEBUG mode enabled!')
             time.sleep(3)
 
-
         data_manager = DataFileManager(self.context_info.config_file_location)
 
         metadata = data_manager.get_release_info()
@@ -230,7 +229,7 @@ class AggregateLoader():
                 fields.append(k + ': datetime("' + metadata[k] + '")')
             else:
                 fields.append(k + ": " + json.dumps(metadata[k]))
-        load_rel = "CREATE (o:AllianceSoftwareVersion {" + ",".join(fields) +"})"
+        load_rel = "CREATE (o:AllianceReleaseInfo {" + ",".join(fields) + "})"
         Neo4jHelper().run_single_query(load_rel)
 
         file_transactor = FileTransactor()
