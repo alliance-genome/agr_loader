@@ -1660,4 +1660,4 @@ def test_alliance_release_metadata():
             RETURN count(node) as counter """
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] > 1
+        assert record["counter"] >= 1
