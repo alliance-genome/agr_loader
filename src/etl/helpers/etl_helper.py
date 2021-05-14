@@ -340,7 +340,8 @@ class ETLHelper():
         fields = []
         for k in metadata:
             if k == 'date_produced':
-                fields.append(k + ': datetime("' + metadata[k] + '")')
+                if metadata[k]:
+                    fields.append(k + ': datetime("' + metadata[k] + '")')
             else:
                 fields.append(k + ": " + json.dumps(metadata[k]))
         Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")

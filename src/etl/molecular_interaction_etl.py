@@ -468,7 +468,7 @@ class MolecularInteractionETL(ETL):
                     match = reg.match(row[0])
                     if match:
                         date_produced = match.group(1)
-                        ETLHelper.load_release_info_from_args(logger=self.logger, provider='COMBINED', sub_type='INTERACTION-', date_produced=date_produced)
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider='COMBINED', sub_type='INTERACTION-MOL', date_produced=date_produced)
                     continue
 
                 taxon_id_1 = row[9]
