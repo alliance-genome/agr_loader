@@ -41,7 +41,7 @@ def test_isobsolete_false():
 
 
 def test_currated_disease_associations_have_date_assigned():
-    """Test Currated Disaese Associiations Have Date Assigned"""
+    """Test Currated Disease Associations Have Date Assigned"""
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
@@ -665,7 +665,7 @@ def test_worm_gene_has_human_alzheimers_via_ortho():
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
-    """Test Worm Gene has Rat Alzhimers Via Orhtology"""
+    """Test Worm Gene has Rat Alzheimers Via Orhtology"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
