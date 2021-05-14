@@ -59,6 +59,7 @@ class TestClass():
                             dict(node1='Chromosome', node2='Gene'),
                             dict(node1='DiseaseEntityJoin:Association', node2='Gene'),
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'),
+                            dict(node1='DiseaseEntityJoin:Association', node2='ExperimentalCondition'),
                             dict(node1='PublicationJoin:Association', node2='Publication'),
                             dict(node1='PublicationJoin:Association', node2='ECOTerm'),
                             dict(node1='PublicationJoin:Association',

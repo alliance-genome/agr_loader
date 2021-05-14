@@ -40,6 +40,7 @@ class TestClass():
                                      dict(relationship='IS_IMPLICATED_IN'),
                                      dict(relationship='IS_MARKER_FOR'),
                                      dict(relationship='IS_NOT_MARKER_FOR'),
+                                     dict(relationship='ASSOCIATION'),
                                      ],
 
         'test_node_exists': [dict(node='Ontology'),
@@ -96,7 +97,8 @@ class TestClass():
                              dict(node='Exon'),
                              dict(node='TranscriptProteinSequence'),
                              dict(node='VariantProteinSequence'),
-                             dict(node='CDSSequence')
+                             dict(node='CDSSequence'),
+                             dict(node='ExperimentalCondition')
                              ],
 
         'test_prop_exist': [dict(node='Construct', prop='primaryKey'),
@@ -160,6 +162,13 @@ class TestClass():
                             dict(node='DiseaseEntityJoin', prop='primaryKey'),
                             dict(node='DiseaseEntityJoin', prop='joinType'),
                             dict(node='DiseaseEntityJoin', prop='sortOrder'),
+                            dict(node='ExperimentalCondition', prop='primaryKey'),
+                            dict(node='ExperimentalCondition', prop='conditionClassId'),
+                            dict(node='ExperimentalCondition', prop='anatomicalOntologyId'),
+                            dict(node='ExperimentalCondition', prop='chemicalOntologyId'),
+                            dict(node='ExperimentalCondition', prop='geneOntologyId'),
+                            dict(node='ExperimentalCondition', prop='NCBITaxonID'),
+                            dict(node='ExperimentalCondition', prop='conditionStatement'),
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                             dict(node='InteractionGeneJoin', prop='joinType'),
                             dict(node='Association', prop='joinType'),
@@ -256,6 +265,8 @@ class TestClass():
                                dict(node='DiseaseEntityJoin', prop='primaryKey'),
                                dict(node='DiseaseEntityJoin', prop='joinType'),
                                dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                               dict(node='ExperimentalCondition', prop='primaryKey'),
+                               dict(node='ExperimentalCondition', prop='conditionClassId'),
                                dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                                dict(node='Phenotype', prop='phenotypeStatement'),
                                dict(node='Association', prop='joinType'),
@@ -287,6 +298,7 @@ class TestClass():
                              dict(node='Association', prop='primaryKey'),
                              dict(node='Variant', prop='primaryKey'),
                              dict(node='DiseaseEntityJoin', prop='primaryKey'),
+                             dict(node='ExperimentalCondition', prop='primaryKey'),
                              dict(node='PhenotypeEntityJoin', prop='primaryKey'),
                              dict(node='Entity', prop='primaryKey'),
                              dict(node='Species', prop='primaryKey'),
