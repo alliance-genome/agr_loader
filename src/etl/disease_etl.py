@@ -386,7 +386,6 @@ class DiseaseETL(ETL):
             elif self.disease_association_type == 'IS_MARKER_FOR':
                 self.disease_association_type = 'IS_NOT_MARKER_FOR'
             negation = 'NOT'
-            self.disease_unique_key = self.disease_unique_key + negation
 
         return negation
     # Not used anywhere so commented out for now?
@@ -510,24 +509,28 @@ class DiseaseETL(ETL):
                     continue
 
             self.disease_association_type = disease_record['objectRelation'].get("associationType").upper()
+            negation = self.objectrelation_process(disease_record)
 
             record_cond_relations = self.conditionrelations_process(exp_condition_dict, disease_record)
 
             # disease_unique_key formatted to represent (readably):
-            #  object `a` under conditions `b` has relation `c` to disease `d`
-            # Including a combination of unique condition keys in the disease_unique_key,
-            #  in order to create unique DiseaseEntityJoin nodes per condition combo
-            #  (to which the appropriate evidence papers can be linked).
+            #  object `a` under conditions `b` has association `c` to disease `d`, with (optional) related entities `e`
 
             #object `a`
             self.disease_unique_key = disease_record.get('objectId')
 
             #conditions `b` (sorted, to ensure consistent diseaseUniqueKey!)
+            # Combination of unique condition keys must be included in the disease_unique_key
+            # in order to create unique DiseaseEntityJoin nodes per condition combo
+            # (to which the appropriate evidence papers can be linked).
             for cond_rel in sorted(record_cond_relations, key=lambda rel: rel["ecUniqueKey"]):
                 self.disease_unique_key += cond_rel["ecUniqueKey"]
 
-            #relation `c` to disease `d`
+            #association `c` to disease `d`
             self.disease_unique_key += self.disease_association_type + disease_record.get('DOid')
+
+            #with (optional) related entities `e`
+            self.withs_process(disease_record, withs)
 
             #Add this disease_unique_key to every experimental condition relation
             for cond_rel in record_cond_relations:
@@ -545,9 +548,6 @@ class DiseaseETL(ETL):
             self.xrefs_process(disease_record, xrefs)
             pecj_primary_key = self.evidence_process(disease_record, pubs, evidence_code_list_to_yield)
 
-            negation = self.objectrelation_process(disease_record)
-
-            self.withs_process(disease_record, withs)
             self.primary_genetic_entity_process(disease_record, pge_list_to_yield, pecj_primary_key)
 
             self.xrefs_process(disease_record, xrefs)
