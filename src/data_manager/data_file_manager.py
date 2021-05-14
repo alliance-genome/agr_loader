@@ -9,7 +9,6 @@ import urllib3
 
 from cerberus import Validator
 
-from files import JSONFile
 from loader_common import Singleton, ContextInfo
 from urllib.parse import urlparse
 from .data_type_config import DataTypeConfig
@@ -194,3 +193,10 @@ class DataFileManager(metaclass=Singleton):
                 self.logger.debug("Ignoring entry: %s", entry)
 
         self.logger.debug("Loaded Types: %s", self.altered_submission_data)
+
+    def get_release_info(self):
+        """Get release information."""
+        rel_info = self.submission_system_data['snapShot']['releaseVersion']
+        del rel_info['id']
+        rel_info['snapShotDate'] = self.submission_system_data['snapShot']['snapShotDate']
+        return rel_info

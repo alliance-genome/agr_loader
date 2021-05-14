@@ -5,6 +5,7 @@ import multiprocessing
 import uuid
 import re
 from etl import ETL
+from etl.helpers import ETLHelper
 from files import TXTFile
 
 from transactors import CSVTransactor
@@ -56,13 +57,13 @@ class VEPTranscriptETL(ETL):
                 CREATE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
                 CREATE (g)-[gv:ASSOCIATION {primaryKey:row.primaryKey}]->(a)
-                
+
                 CREATE (p:VariantProteinSequence {primaryKey:row.variantProteinSequenceKey})
                   SET p.proteinSequence = row.variantProteinSequence
                   SET p.variantId = row.hgvsNomenclature
                   SET p.transcriptId = row.transcriptId
-                  
-                
+
+
                 CREATE (a)-[ps:PROTEIN_SEQUENCE]->(p)
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.hgvsVEPGeneNomenclature})
@@ -99,7 +100,7 @@ class VEPTranscriptETL(ETL):
         ]
 
         # Obtain the generator
-        generators = self.get_generators(filepath)
+        generators = self.get_generators(filepath, sub_type.get_data_provider())
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
@@ -132,7 +133,7 @@ class VEPTranscriptETL(ETL):
             ranger = column
         return start, end, ranger
 
-    def get_generators(self, filepath):
+    def get_generators(self, filepath, data_provider):  # noqa Needs simplyfying
         """Get Generators."""
         data = TXTFile(filepath).get_data()
         vep_maps = []
@@ -152,7 +153,13 @@ class VEPTranscriptETL(ETL):
             transcript_wt_sequence = ''
 
             columns = line.split()
-            if columns[0].startswith('#'):
+            if line.startswith('#'):
+                self.logger.warning(line)
+                reg = re.compile(r'## Output produced at (.*)')
+                match = reg.match(line)
+                if match:
+                    date_produced = match.group(1)
+                    ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='VEPTRANSCRIPT', date_produced=date_produced)
                 continue
 
             notes = columns[13]
@@ -181,7 +188,6 @@ class VEPTranscriptETL(ETL):
                         variant_protein_sequnece = value
                     elif key == 'WtSeq':
                         transcript_wt_sequence = value
-
 
             if columns[3].startswith('Gene:'):
                 gene_id = columns[3].lstrip('Gene:')

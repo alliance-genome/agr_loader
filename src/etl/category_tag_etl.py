@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -50,9 +51,10 @@ class CategoryTagETL(ETL):
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
-        batch_size = self.data_type_config.get_neo4j_commit_size()
+        # batch_size = self.data_type_config.get_neo4j_commit_size()
         data_provider = sub_type.get_data_provider()
         self.logger.info("subtype: " + data_provider)
 
@@ -75,8 +77,8 @@ class CategoryTagETL(ETL):
         for tag in data['data']:
 
             tag_object = {"tag": tag.get('Category'),
-                    "name": tag.get('Category'),
-                    "definition": tag.get('Definition')}
+                          "name": tag.get('Category'),
+                          "definition": tag.get('Definition')}
             tag_maps.append(tag_object)
 
         yield [tag_maps]

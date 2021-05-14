@@ -1,6 +1,5 @@
 """GO Anootation ETL."""
 
-import os
 import logging
 import csv
 import multiprocessing

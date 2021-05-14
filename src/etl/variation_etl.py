@@ -96,7 +96,7 @@ class VariationETL(ETL):
            MATCH (o:Variant {primaryKey:row.variantId})
 
            MERGE (n:Note {primaryKey:row.note})
-                SET n.note = row.note          
+                SET n.note = row.note
            MERGE (o)-[pn:ASSOCIATION]-(n)
     """
     notes_references_query_template = """
@@ -118,7 +118,7 @@ class VariationETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        MATCH (o:Variant {primaryKey:row.dataId}) 
+        MATCH (o:Variant {primaryKey:row.dataId})
 
     """ + ETLHelper.get_cypher_xref_text()
 
@@ -147,6 +147,7 @@ class VariationETL(ETL):
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
@@ -226,9 +227,8 @@ class VariationETL(ETL):
             hgvs_synonym = ''
         return hgvs_nomenclature, hgvs_synonym
 
-    def get_generators(self, variant_data, batch_size):
+    def get_generators(self, variant_data, batch_size):  # noqa Need to siumplyfy
         """Get Generators."""
-
         data_providers = []
         release = ""
         variants = []
@@ -445,7 +445,7 @@ class VariationETL(ETL):
                     vnote = note.get('note')
 
                     variant_note_map = {"variantId": hgvs_nomenclature,
-                                            "note": vnote}
+                                        "note": vnote}
 
                     variant_notes.append(variant_note_map)
 
@@ -467,24 +467,25 @@ class VariationETL(ETL):
                                         pub_xref = vevidence.get('crossReference')
                                         publication_mod_id = pub_xref.get('id')
                                         prefix = publication_mod_id.split(":")[0]
-                                        pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
-                                                                                   publication_mod_id.split(":")[1],
-                                                                                   page)
+                                        pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
+                                            prefix,
+                                            publication_mod_id.split(":")[1],
+                                            page)
                                 else:
                                     page = 'reference'
                                     publication_mod_id = publication
                                     prefix = publication_mod_id.split(":")[0]
-                                    pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
-                                                                                   publication_mod_id.split(":")[1],
-                                                                                   page)
+                                    pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
+                                        prefix,
+                                        publication_mod_id.split(":")[1],
+                                        page)
 
                                 note_pub = {"publicationId": publication_mod_id + pub_med_id,
                                             "pubModId": publication_mod_id,
                                             "pubMedId": pub_med_id,
                                             "pubMedUrl": pub_med_url,
                                             "pubModUrl": pub_mod_url,
-                                            "noteId": vnote
-                                }
+                                            "noteId": vnote}
                                 variant_note_references.append(note_pub)
 
             variant_dataset = {
@@ -536,7 +537,5 @@ class VariationETL(ETL):
         if counter > 0:
             yield [variants,
                    variant_genomic_locations, variant_so_terms,
-                    variant_notes, variant_note_references, variant_pubs,
+                   variant_notes, variant_note_references, variant_pubs,
                    cross_references]
-
-

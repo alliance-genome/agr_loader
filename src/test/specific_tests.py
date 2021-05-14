@@ -146,7 +146,7 @@ def test_spell_cross_ref_type():
 def test_genes_have_automated_description():
     """Test Genes Have Automated Description"""
 
-    query = """MATCH (g:Gene) where g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655', 'FB:FBgn0045035', 'RGD:68337', 
+    query = """MATCH (g:Gene) where g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655', 'FB:FBgn0045035', 'RGD:68337',
                                                      'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
                                                      'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
                                                      'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
@@ -164,9 +164,9 @@ def test_at_least_one_gene_has_go_description():
 
     query = """MATCH (g:Gene)
                WHERE (g.automatedGeneSynopsis =~ '.*xhibits.*' OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
-                      OR g.automatedGeneSynopsis =~ '.*ocalizes to.*' 
+                      OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
                       OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
-                      OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*' 
+                      OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*'
                       OR g.automatedGeneSynopsis =~ '.*redicted to localize to.*')
                RETURN COUNT(g) AS counter"""
     result = execute_transaction(query)
@@ -178,7 +178,7 @@ def test_at_least_one_gene_has_disease_description():
     """Test At Least One Gene Has Disease Description"""
 
     query = """MATCH (g:Gene)
-               WHERE (g.automatedGeneSynopsis =~ '.*sed to study.*' 
+               WHERE (g.automatedGeneSynopsis =~ '.*sed to study.*'
                       OR g.automatedGeneSynopsis =~ '.*mplicated in.*'
                       OR g.automatedGeneSynopsis =~ '.*iomarker of.*')
                RETURN COUNT(g) AS counter"""
@@ -1423,7 +1423,7 @@ def test_fb_variant_has_note_with_pub():
 def test_correct_number_of_species_have_variant_transcript_exon_relations():
     """Test correct number of species have variant-transcript-exon relations"""
 
-    query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant) 
+    query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant)
                 RETURN COUNT(DISTINCT t.dataProvider) as counter
     """
     result = execute_transaction(query)
@@ -1434,7 +1434,7 @@ def test_correct_number_of_species_have_variant_transcript_exon_relations():
 def test_correct_number_of_species_datasetsample_relations():
     """test_correct_number_of_species_datasetsample_relations"""
 
-    query = """ MATCH (hd:HTPDataset)--(hds:HTPDatasetSample) 
+    query = """ MATCH (hd:HTPDataset)--(hds:HTPDatasetSample)
                 RETURN COUNT(DISTINCT hd.dataProvider) as counter
     """
     result = execute_transaction(query)
@@ -1445,9 +1445,9 @@ def test_correct_number_of_species_datasetsample_relations():
 def test_correct_number_of_species_phenotype_xrefs_relations():
     """test_correct_number_of_species_phenotype_xrefs_relations"""
 
-    query = """ 
-            MATCH (g:Gene)--(cr:CrossReference) 
-            WHERE cr.crossRefType = 'gene/phenotypes' 
+    query = """
+            MATCH (g:Gene)--(cr:CrossReference)
+            WHERE cr.crossRefType = 'gene/phenotypes'
             RETURN count(DISTINCT g.dataProvider) as counter """
     result = execute_transaction(query)
     for record in result:
@@ -1457,11 +1457,11 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
 def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
     """test_htp_dataset_has_correct_number_of_preferred_xrefs_relations"""
 
-    query = """ 
-            MATCH (g:HTPDataset)--(cr:CrossReference) 
-            WHERE cr.crossRefType = 'htp/dataset' 
+    query = """
+            MATCH (g:HTPDataset)--(cr:CrossReference)
+            WHERE cr.crossRefType = 'htp/dataset'
             AND cr.preferred = 'true'
-            AND cr.globalCrossRefId = 'SGD:GSE3431' 
+            AND cr.globalCrossRefId = 'SGD:GSE3431'
             RETURN count(DISTINCT cr) as counter """
     result = execute_transaction(query)
     for record in result:
@@ -1471,9 +1471,9 @@ def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
 def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
     """test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations"""
 
-    query = """ 
-            MATCH (g:HTPDataset)--(cr:CrossReference) 
-            WHERE cr.crossRefType = 'htp/dataset' 
+    query = """
+            MATCH (g:HTPDataset)--(cr:CrossReference)
+            WHERE cr.crossRefType = 'htp/dataset'
             AND cr.preferred = 'false'
             AND g.primaryKey = 'GEO:GSE3431'
             and cr.globalCrossRefId = 'GEO:GSE3431'
@@ -1486,7 +1486,7 @@ def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
 def test_mgi_reference_url_creation():
     """test_mgi_reference_url_creation"""
 
-    query = """ 
+    query = """
             MATCH (a:Allele)--(v:Variant)--(p:Publication)
             where a.primaryKey = 'MGI:5806340'
             and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5806759'
@@ -1499,7 +1499,7 @@ def test_mgi_reference_url_creation():
 def test_iagp_name_exists():
     """test_IAGP_name_exists"""
 
-    query = """ 
+    query = """
             MATCH (e:ECOTerm) where e.displaySynonym = 'IAGP'
             RETURN count(DISTINCT e) as counter """
     result = execute_transaction(query)
@@ -1510,7 +1510,7 @@ def test_iagp_name_exists():
 def test_display_name_for_impc_is_correct():
     """test_display_name_for_impc_is_correct"""
 
-    query = """ 
+    query = """
             MATCH (cr:CrossReference) where cr.displayName = 'IMPC'
             RETURN count(DISTINCT cr) as counter """
     result = execute_transaction(query)
@@ -1521,8 +1521,8 @@ def test_display_name_for_impc_is_correct():
 def test_htp_xref_has_preferred_attribute_true_is_correct():
     """test_htp_xref_has_preferred_attribute_true_is_correct"""
 
-    query = """ 
-            MATCH (cr:CrossReference)--(htp:HTPDataset) 
+    query = """
+            MATCH (cr:CrossReference)--(htp:HTPDataset)
             WHERE htp.primaryKey = 'ArrayExpress:E-GEOD-56866'
             AND cr.globalCrossRefId = 'MGI:E-GEOD-56866'
             AND cr.preferred = 'true'
@@ -1535,8 +1535,8 @@ def test_htp_xref_has_preferred_attribute_true_is_correct():
 def test_genome_location_for_exon_has_strand():
     """test_genome_location_for_exon_has_strand"""
 
-    query = """ 
-            MATCH (e:Exon)--(gl:GenomicLocation) 
+    query = """
+            MATCH (e:Exon)--(gl:GenomicLocation)
             WHERE not exists (gl.strand)
             RETURN count(DISTINCT e) as counter """
     result = execute_transaction(query)
@@ -1547,8 +1547,8 @@ def test_genome_location_for_exon_has_strand():
 def test_genome_location_for_transcript_has_strand():
     """test_genome_location_for_transcript_has_strand"""
 
-    query = """ 
-            MATCH (t:Transcript)--(gl:GenomicLocation) 
+    query = """
+            MATCH (t:Transcript)--(gl:GenomicLocation)
             WHERE not exists (gl.strand)
             RETURN count(DISTINCT t) as counter """
     result = execute_transaction(query)
@@ -1559,8 +1559,8 @@ def test_genome_location_for_transcript_has_strand():
 def test_all_pheno_xrefs_have_display_names():
     """test_all_pheno_xrefs_have_display_names"""
 
-    query = """ 
-            MATCH (t:Gene)--(cr:CrossReference) 
+    query = """
+            MATCH (t:Gene)--(cr:CrossReference)
             WHERE (cr.displayName = '' or cr.displayName IS NULL)
             AND cr.crossRefType = 'gene/phenotypes'
             RETURN count(DISTINCT cr) as counter """
@@ -1572,8 +1572,8 @@ def test_all_pheno_xrefs_have_display_names():
 def test_papers_have_urls():
     """test_papers_have_urls"""
 
-    query = """ 
-            MATCH (p:Publication) 
+    query = """
+            MATCH (p:Publication)
             WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
             AND p.pubModId is not null
             AND p.pubModId <> ''
@@ -1586,7 +1586,7 @@ def test_papers_have_urls():
 def test_papers_have_mod_urls():
     """test_papers_have_mod_urls"""
 
-    query = """ 
+    query = """
             MATCH (p:Publication)--(n)
             WHERE (p.pubModUrl IS NULL or p.pubModUrl = '')
             AND p.pubModId is not null
@@ -1600,7 +1600,7 @@ def test_papers_have_mod_urls():
 def test_wb_has_agm():
     """test_wb_has_agm"""
 
-    query = """ 
+    query = """
             MATCH (a:AffectedGenomicModel)
             WHERE a.primaryKey = 'WB:WBStrain00023353'
             RETURN count(a) as counter """
@@ -1612,7 +1612,7 @@ def test_wb_has_agm():
 def test_wb_has_agm_with_disease():
     """test_wb_has_agm_with_disease"""
 
-    query = """ 
+    query = """
             MATCH (a:AffectedGenomicModel)--(dej:DiseaseEntityJoin)
             WHERE a.primaryKey = 'WB:WBGenotype00000021'
             RETURN count(a) as counter """
@@ -1624,7 +1624,7 @@ def test_wb_has_agm_with_disease():
 def test_fb_variant_has_a_single_note():
     """test_fb_variant_has_a_single_note"""
 
-    query = """ 
+    query = """
             MATCH (a:Variant)--(n:Note)
             WHERE a.hgvsNomenclature = 'NT_033779.5:g.8419681_8431132del'
             RETURN count(n) as counter """
@@ -1632,3 +1632,32 @@ def test_fb_variant_has_a_single_note():
     for record in result:
         assert record["counter"] < 2
 
+
+def test_ontology_metadata():
+    """Test we have some ontology meta data."""
+    query = """
+            MATCH (node:OntologyFileMetadata)
+            RETURN count(node) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+
+
+def test_mod_release_metadata():
+    """Test we have some mod meta data."""
+    query = """
+            MATCH (node:ModFileMetadata)
+            RETURN count(node) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] > 1
+
+
+def test_alliance_release_metadata():
+    """Test we have some aliiance release data."""
+    query = """
+            MATCH (node:AllianceReleaseInfo)
+            RETURN count(node) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] >= 1

@@ -1,3 +1,4 @@
+"""HTP Meta Dataset Sample."""
 import logging
 import multiprocessing
 
@@ -11,17 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 class HTPMetaDatasetSampleETL(ETL):
-
+    """HTP Meta Data."""
 
     htp_dataset_sample_query_template = """
-    
+
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
+
         MATCH (o:OBITerm {primaryKey:row.sampleType})
         MATCH (s:Species {primaryKey:row.taxonId})
         MATCH (a:MMOTerm {primaryKey:row.assayType})
-    
+
         MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
           ON CREATE SET ds.dateAssigned = row.dateAssigned,
               ds.abundance = row.abundance,
@@ -33,35 +34,35 @@ class HTPMetaDatasetSampleETL(ETL):
               ds.title = row.sampleTitle,
               ds.sampleAge = row.sampleAge,
               ds.sampleId = row.sampleId
-              
+
         MERGE (ds)-[dssp:FROM_SPECIES]-(s)
         MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
         MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
-        
-          
+
+
     """
 
     htp_dataset_sample_agm_query_template = """
         USING PERIODIC COMMIT %s
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-           
+
         MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
         MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
 
         MERGE (agm)-[agmds:ASSOCIATION]-(ds)
-    
+
     """
 
     htp_dataset_sample_agmtext_query_template = """
-    
+
         USING PERIODIC COMMIT %s
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-    
+
         MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
         MERGE (agm:AffectedGenomicModel {primaryKey:row.biosampleText})
 
         MERGE (agm)-[agmds:ASSOCIATION]-(ds)
-    
+
     """
 
     htp_bio_entity_expression_query_template = """
@@ -70,12 +71,12 @@ class HTPMetaDatasetSampleETL(ETL):
            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
        MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
-       
+
        MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
-       
+
        MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(e)
-            
+
     """
 
     htp_stages_query_template = """
@@ -85,11 +86,10 @@ class HTPMetaDatasetSampleETL(ETL):
 
        MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
        MATCH (st:Stage {primaryKey:row.stageName})
-               
-       MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
-       
-    """
 
+       MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
+
+    """
 
     htp_dataset_join_query_template = """
 
@@ -98,9 +98,9 @@ class HTPMetaDatasetSampleETL(ETL):
 
        MATCH (ds:HTPDataset {primaryKey:row.datasetId})
        MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
-       
+
        MERGE (ds)-[dsdss:ASSOCIATION]-(dss)
-    
+
     """
 
     htp_secondaryIds_query_template = """
@@ -124,9 +124,9 @@ class HTPMetaDatasetSampleETL(ETL):
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otasst)
                     AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
-    
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+
     """
 
     ao_qualifiers_query_template = """
@@ -136,10 +136,10 @@ class HTPMetaDatasetSampleETL(ETL):
             MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otasst)
                     AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
-    
-    
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+
+
     """
 
     ao_ss_qualifiers_query_template = """
@@ -149,8 +149,8 @@ class HTPMetaDatasetSampleETL(ETL):
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
                 WHERE NOT 'UBERONTerm' in LABELS(otasst)
                     AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
 
 
     """
@@ -161,8 +161,8 @@ class HTPMetaDatasetSampleETL(ETL):
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureTermId})
                 WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
     """
 
     cc_term_query_template = """
@@ -171,8 +171,8 @@ class HTPMetaDatasetSampleETL(ETL):
 
             MATCH (otasst:Ontology {primaryKey:row.cellularComponentTermId})
                 WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst) 
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
     """
 
     eas_substructure_query_template = """
@@ -181,7 +181,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
             MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
                 WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})       
+            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
             MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
 
     eas_qualified_query_template = """
@@ -226,15 +226,15 @@ class HTPMetaDatasetSampleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})  
-            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})     
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
             MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
 
     uberon_stage_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})  
+            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
             MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
 
             MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
@@ -243,8 +243,8 @@ class HTPMetaDatasetSampleETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid}) 
-            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'}) 
+            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
             MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
 
     uberon_stage_other_query_template = """
@@ -271,10 +271,12 @@ class HTPMetaDatasetSampleETL(ETL):
             MATCH (o:HTPDatasetSample {primaryKey:row.datasetId}) """ + ETLHelper.get_cypher_xref_text()
 
     def __init__(self, config):
+        """Initialise."""
         super().__init__()
         self.data_type_config = config
 
     def _load_and_process_data(self):
+        """Load and process data."""
         thread_pool = []
 
         for sub_type in self.data_type_config.get_sub_type_objects():
@@ -285,16 +287,18 @@ class HTPMetaDatasetSampleETL(ETL):
         ETL.wait_for_threads(thread_pool)
 
     def _process_sub_type(self, sub_type):
-
+        """Process sub type."""
         logger.info("Loading HTP metadata sample data: %s" % sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         logger.info(filepath)
         data = JSONFile().get_data(filepath)
+
         logger.info("Finished Loading HTP metadata sample data: %s" % sub_type.get_data_provider())
 
         if data is None:
             logger.warn("No Data found for %s skipping" % sub_type.get_data_provider())
             return
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
@@ -302,17 +306,16 @@ class HTPMetaDatasetSampleETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = 25000
 
-
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
             [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, commit_size,
              "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
-              "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, commit_size,
-            "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
              "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
@@ -336,16 +339,16 @@ class HTPMetaDatasetSampleETL(ETL):
              "htp_metadataset_sample_ccterms" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
-            "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
-            "htp_metadataset_sample_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
-            "htp_metadataset_sample_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
-            "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
+             "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
 
             [HTPMetaDatasetSampleETL.htp_dataset_sample_agmtext_query_template, commit_size,
              "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv"],
@@ -363,7 +366,7 @@ class HTPMetaDatasetSampleETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
 
     def get_generators(self, htp_datasetsample_data, batch_size):
-
+        """Get the generator."""
         htp_datasetsamples = []
         secondaryIds = []
         datasetIDs = []
@@ -382,7 +385,6 @@ class HTPMetaDatasetSampleETL(ETL):
         biosamplesTexts = []
         counter = 0
 
-
         for datasample_record in htp_datasetsample_data['data']:
 
             counter = counter + 1
@@ -398,7 +400,6 @@ class HTPMetaDatasetSampleETL(ETL):
             if 'sampleId' in datasample_record:
                 sampleIdObj = datasample_record.get('sampleId')
                 sampleId = sampleIdObj.get('primaryId')
-
 
             if 'datasetIds' in datasample_record:
                 datasetIdSet = datasample_record.get('datasetIds')
@@ -507,7 +508,6 @@ class HTPMetaDatasetSampleETL(ETL):
                             expression_unique_key += anatomical_sub_structure_qualifier_term_id
                             expression_entity_unique_key += anatomical_sub_structure_qualifier_term_id
 
-
                     expression_entity_unique_key += where_expressed_statement
 
                     if location.get('anatomicalStructureUberonSlimTermIds') is not None:
@@ -541,7 +541,6 @@ class HTPMetaDatasetSampleETL(ETL):
                                 other_structure_uberon_term = {
                                     "ebe_uuid": expression_entity_unique_key}
                                 uberon_ao_other_data.append(other_structure_uberon_term)
-
 
                     if cellular_component_term_id is not None:
                         cc_term = {
@@ -582,14 +581,13 @@ class HTPMetaDatasetSampleETL(ETL):
 
                     if anatomical_sub_structure_qualifier_term_id is not None:
                         ao_ss_qualifier = {
-                                "ebe_uuid":expression_entity_unique_key,
+                                "ebe_uuid": expression_entity_unique_key,
                                 "anatomicalSubStructureQualifierTermId": anatomical_sub_structure_qualifier_term_id}
 
                         ao_ss_qualifiers.append(ao_ss_qualifier)
 
                     if where_expressed_statement is None:
                         where_expressed_statement = ""
-
 
                     bio_entity = {
                         "ebe_uuid": expression_entity_unique_key,
@@ -603,7 +601,7 @@ class HTPMetaDatasetSampleETL(ETL):
 
             htp_dataset_sample = {
                 "datasetSampleId": datasetSampleId,
-                "abundance": datasample_record.get('abundance') ,
+                "abundance": datasample_record.get('abundance'),
                 "sampleType": datasample_record.get('sampleType'),
                 "taxonId": taxonId,
                 "sex": datasample_record.get('sex'),
@@ -650,9 +648,8 @@ class HTPMetaDatasetSampleETL(ETL):
                 ccq_components = []
                 cc_components = []
                 biosamples = []
-                biosamplesTexts =[]
+                biosamplesTexts = []
                 assemblies = []
-
 
         if counter > 0:
             yield [htp_datasetsamples,

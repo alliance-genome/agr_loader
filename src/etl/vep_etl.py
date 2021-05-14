@@ -4,6 +4,7 @@ import re
 import logging
 import multiprocessing
 from etl import ETL
+from etl.helpers import ETLHelper
 from files import TXTFile
 
 from transactors import CSVTransactor
@@ -68,15 +69,14 @@ class VEPETL(ETL):
         ]
 
         # Obtain the generator
-        generators = self.get_generators(filepath)
+        generators = self.get_generators(filepath, sub_type.get_data_provider())
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("VEP-{}: ".format(sub_type.get_data_provider()))
 
-    @staticmethod
-    def get_generators(filepath):
+    def get_generators(self, filepath, data_provider):
         """Get Generators"""
 
         data = TXTFile(filepath).get_data()
@@ -90,10 +90,17 @@ class VEPETL(ETL):
         prot_func_regex = re.compile(r'^([^\(]+)\(([\d\.]+)\)')
 
         for line in data:
-            columns = line.split()
-            if columns[0].startswith('#'):
+            if line.startswith('#'):
+                self.logger.warning(line)
+                reg = re.compile(r'## Output produced at (.*)')
+                match = reg.match(line)
+                if match:
+                    date_produced = match.group(1)               
+                    ## Output produced at 2021-02-24 01:51:49
+                    ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='VEPGENE', date_produced=date_produced)
                 continue
 
+            columns = line.split()
             notes = columns[13]
             kvpairs = notes.split(";")
             if kvpairs is not None:
