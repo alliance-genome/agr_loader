@@ -110,6 +110,7 @@ class ConstructETL(ETL):
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.

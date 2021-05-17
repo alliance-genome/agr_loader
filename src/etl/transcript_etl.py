@@ -1,11 +1,12 @@
 """Transcript ETL."""
-
+import datetime
 import re
 import logging
 import multiprocessing
 import uuid
 
 from etl import ETL
+from etl.helpers import ETLHelper
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
 
@@ -28,7 +29,7 @@ class TranscriptETL(ETL):
                     ON CREATE SET t.gff3ID = row.gff3ID,
                         t.dataProvider = row.dataProvider,
                         t.name = row.name,
-                        t.synonym = row.synonym        
+                        t.synonym = row.synonym
 
                CREATE (t)<-[tso:TYPE]-(so)
                CREATE (g)<-[gt:CDS]-(t)"""
@@ -41,7 +42,7 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
             MATCH (a:Assembly {primaryKey: row.assembly})
 
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)                
+            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
 
             CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
               SET gchrm.start = apoc.number.parseInt(row.start),
@@ -54,7 +55,6 @@ class TranscriptETL(ETL):
             CREATE (o)-[of:ASSOCIATION]->(gchrm)
             CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
-
 
     exon_query_template = """
             USING PERIODIC COMMIT %s
@@ -205,6 +205,8 @@ class TranscriptETL(ETL):
             counter = 0
             data_provider = ''
             assembly = ''
+            date_produced = None
+            dumped_release_date = False
             for line in file_handle:
                 counter = counter + 1
                 transcript_map = {}
@@ -221,8 +223,7 @@ class TranscriptETL(ETL):
                 transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lnc_RNA',
                                     'tRNA', 'snRNA', 'rRNA', 'antisense_RNA', 'C_gene_segment',
                                     'V_gene_segment', 'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
-                possible_types = ['gene', 'exon','CDS','mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
-
+                possible_types = ['gene', 'exon', 'CDS', 'mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
                                   'pre_miRNA', 'snoRNA', 'lnc_RNA', 'tRNA', 'snRNA', 'rRNA',
                                   'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
                                   'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
@@ -241,9 +242,20 @@ class TranscriptETL(ETL):
                             data_provider = 'WB'
                         if data_provider == 'RAT':
                             data_provider = 'RGD'
+                    elif line.startswith('#!date-produced'):
+                        reg = re.compile(r'^#!date-produced (.*)')
+                        match = reg.match(line)
+                        if match:
+                            date_produced = match.group(1)
+                    if data_provider and date_produced and not dumped_release_date:
+                        dumped_release_date = True
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='GFF', date_produced=date_produced)
                 elif line.startswith('##FASTA'):
                     break
                 elif line.startswith('#'):
+                    if data_provider and date_produced and not dumped_release_date:
+                        dumped_release_date = True
+                        ETLHelper.load_release_info_from_args(logger=self.logger, provider=data_provider, sub_type='GFF', date_produced=date_produced)
                     continue
                 else:
                     columns = re.split(r'\t', line)
@@ -299,7 +311,7 @@ class TranscriptETL(ETL):
                         if feature_type_name in transcript_types:
                             if curie is None or curie == '':
                                 curie = gff3_id
-                            transcript_map.update({'curie' : curie})
+                            transcript_map.update({'curie': curie})
 
                             transcript_map.update({'parentId': parent})
                             transcript_map.update({'gff3ID': gff3_id})
@@ -372,13 +384,13 @@ class TranscriptETL(ETL):
                     counter = 0
 
                     yield [gene_maps,
-                          transcript_maps,
-                          transcript_maps,
-                          transcript_maps,
-                          exon_maps,
-                          exon_maps,
-                          cds_maps,
-                          cds_maps]
+                           transcript_maps,
+                           transcript_maps,
+                           transcript_maps,
+                           exon_maps,
+                           exon_maps,
+                           cds_maps,
+                           cds_maps]
                     transcript_maps = []
                     gene_maps = []
                     exon_maps = []
@@ -386,11 +398,11 @@ class TranscriptETL(ETL):
 
             if counter > 0:
                 yield [gene_maps,
-                      transcript_maps,
-                      transcript_maps,
-                      transcript_maps,
-                      exon_maps,
-                      exon_maps,
-                      cds_maps,
-                      cds_maps]
+                       transcript_maps,
+                       transcript_maps,
+                       transcript_maps,
+                       exon_maps,
+                       exon_maps,
+                       cds_maps,
+                       cds_maps]
 

@@ -10,7 +10,7 @@ urllib3==1.24.2
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.2.0#egg=genedescriptions
 git+https://github.com/alliance-genome/agr_file_generator.git@8b47011
-ontobio==1.20.0
+git+https://github.com/valearna/ontobio
 boto3
 coloredlogs
 verboselogs

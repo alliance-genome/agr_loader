@@ -248,6 +248,7 @@ class DiseaseETL(ETL):
         if data is None:
             self.logger.warning("No Data found for %s skipping", sub_type.get_data_provider())
             return
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         commit_size = self.data_type_config.get_neo4j_commit_size()
         batch_size = self.data_type_config.get_generator_batch_size()

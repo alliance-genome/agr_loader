@@ -203,6 +203,7 @@ class BGIETL(ETL):
             sys.exit()
 
         data = JSONFile().get_data(filepath)
+        ETLHelper.load_release_info(data, sub_type, self.logger)
 
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.

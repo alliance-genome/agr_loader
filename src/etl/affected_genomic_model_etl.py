@@ -4,7 +4,7 @@ import logging
 import multiprocessing
 
 from etl import ETL
-from etl.helpers import TextProcessingHelper
+from etl.helpers import TextProcessingHelper, ETLHelper
 from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -120,6 +120,7 @@ class AffectedGenomicModelETL(ETL):
         filepath = sub_type.get_filepath()
         self.logger.info(filepath)
         data = JSONFile().get_data(filepath)
+        ETLHelper.load_release_info(data, sub_type, self.logger)
         self.logger.info("Finished Loading Sequence Targeting Reagent Data: %s",
                          sub_type.get_data_provider())
 
