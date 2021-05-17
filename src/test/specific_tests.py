@@ -1632,3 +1632,14 @@ def test_fb_variant_has_a_single_note():
     for record in result:
         assert record["counter"] < 2
 
+def test_correct_model_experimental_condition_parsing():
+    """test correct model experimental condition parsing (ZFIN example)"""
+    query = """
+            MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842ZECO:0000119ZECO:0000122IS_MODEL_OFDOID:9452"}),
+                  (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
+                  (dfa)--(ec:ExperimentalCondition),
+                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["ec_count"] == 2
+        assert record["pubj_count"] == 1
