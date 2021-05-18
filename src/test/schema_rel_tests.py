@@ -61,6 +61,7 @@ class TestClass():
                             dict(node1='DiseaseEntityJoin:Association', node2='Ontology:DOTerm'),
                             dict(node1='DiseaseEntityJoin:Association', node2='ExperimentalCondition'),
                             dict(node1='ExperimentalCondition', node2='Ontology:ZECOTerm'),
+                            dict(node1='ExperimentalCondition', node2='Ontology:CHEBITerm'),
                             dict(node1='PublicationJoin:Association', node2='Publication'),
                             dict(node1='PublicationJoin:Association', node2='ECOTerm'),
                             dict(node1='PublicationJoin:Association',
