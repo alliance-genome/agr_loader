@@ -31,13 +31,17 @@ class DiseaseETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
+        MATCH (zeco:Ontology:ZECOTerm {primaryKey:row.conditionClassId})
+
         MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
-                ON CREATE SET ec.conditionClassId     = row.conditionClassId,
-                              ec.anatomicalOntologyId = row.anatomicalOntologyId,
-                              ec.chemicalOntologyId   = row.chemicalOntologyId,
-                              ec.geneOntologyId       = row.geneOntologyId,
-                              ec.NCBITaxonID          = row.NCBITaxonID,
-                              ec.conditionStatement   = row.conditionStatement
+            ON CREATE SET ec.conditionClassId     = row.conditionClassId,
+                          ec.anatomicalOntologyId = row.anatomicalOntologyId,
+                          ec.chemicalOntologyId   = row.chemicalOntologyId,
+                          ec.geneOntologyId       = row.geneOntologyId,
+                          ec.NCBITaxonID          = row.NCBITaxonID,
+                          ec.conditionStatement   = row.conditionStatement
+
+        MERGE (ec)-[:ASSOCIATION]-(zeco)
     """
 
     execute_exp_condition_relations_query_template = """
