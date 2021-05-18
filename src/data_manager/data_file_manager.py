@@ -137,6 +137,16 @@ class DataFileManager(metaclass=Singleton):
 
     def _search_submission_data(self, data_type, sub_type):
 
+        # This function gets executed and sort-of fails for every non-data entry (like 'schemaVersion')
+        # which are found in the config but not in the config_values_to_ignore array (query_submission_system fn)
+        # TODO: implement solution. Options:
+        # 1. Reorganize config file to define all datatypes inside a "data" (or similarly named) dictionary
+        #     rather than as root-level key-value pairs. This enables iteration through this dictionary and voids the need for hardcoded exclusion lists.
+        #     This is the preferred option (mluypaert).
+        # 2. Extending config_values_to_ignore to include more keys.
+        #     Using a hard-coded exclusion list is a hacky and error prone solution, as every time the config gets extended
+        #     with new data types or configs, this exclusion list potentially need to be updated as well.
+        #     This should be discouraged (mluypaert).
         try:
             returned_dict = next(item for item in self.submission_system_data['snapShot']['dataFiles']
                                  if item['dataType'].get('name') == data_type

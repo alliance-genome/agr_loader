@@ -41,7 +41,7 @@ def test_isobsolete_false():
 
 
 def test_currated_disease_associations_have_date_assigned():
-    """Test Currated Disaese Associiations Have Date Assigned"""
+    """Test Currated Disease Associations Have Date Assigned"""
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
@@ -665,7 +665,7 @@ def test_worm_gene_has_human_alzheimers_via_ortho():
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
-    """Test Worm Gene has Rat Alzhimers Via Orhtology"""
+    """Test Worm Gene has Rat Alzheimers Via Orhtology"""
 
     query = """MATCH (gene:Gene)--(d:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(ortho:Gene),
                      (d)--(do:DOTerm)
@@ -1004,7 +1004,7 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
     """Test SGD Gene has DEJ with Many Ortholous Genes"""
 
     query = """MATCH (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene)
-               WHERE dej.primaryKey = 'SGD:S000005844DOID:14501IS_IMPLICATED_INHGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998'
+               WHERE dej.primaryKey = 'SGD:S000005844IS_IMPLICATED_INDOID:14501HGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998'
                RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
@@ -1661,3 +1661,16 @@ def test_alliance_release_metadata():
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] >= 1
+
+
+def test_correct_model_experimental_condition_parsing():
+    """test correct model experimental condition parsing (ZFIN example)"""
+    query = """
+            MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842ZECO:0000119ZECO:0000122IS_MODEL_OFDOID:9452"}),
+                  (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
+                  (dfa)--(ec:ExperimentalCondition),
+                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["ec_count"] == 2
+        assert record["pubj_count"] == 1

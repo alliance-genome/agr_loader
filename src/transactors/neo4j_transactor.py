@@ -130,6 +130,7 @@ class Neo4jTransactor():
                     #self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
                     # TODO Extract and print NODE information from error message.
                     # Would be helpful for troubleshooting.
+                    #TODO: write mechanism to prevent infinite retries on failure (can currently occur)
                     self.logger.warning(\
                             "%s: Query Conflict, putting data back in Queue to run later. %s",
                             self._get_name(),

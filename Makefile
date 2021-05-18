@@ -51,6 +51,11 @@ bash:
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose up agr_loader bash
 
 # reload targets do remove and re-download files to the local docker volume.
+reloaddb: 
+	@${MAKE} --no-print-directory stopdb
+	@${MAKE} --no-print-directory removedb
+	@${MAKE} --no-print-directory startdb
+
 reload: 
 	@${MAKE} --no-print-directory startdb
 	@${MAKE} --no-print-directory removedb

@@ -27,6 +27,40 @@ class DiseaseETL(ETL):
             MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
         """ + ETLHelper.get_cypher_xref_text_annotation_level()
 
+    execute_exp_condition_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (zeco:Ontology:ZECOTerm {primaryKey:row.conditionClassId})
+
+        MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
+            ON CREATE SET ec.conditionClassId     = row.conditionClassId,
+                          ec.anatomicalOntologyId = row.anatomicalOntologyId,
+                          ec.chemicalOntologyId   = row.chemicalOntologyId,
+                          ec.geneOntologyId       = row.geneOntologyId,
+                          ec.NCBITaxonID          = row.NCBITaxonID,
+                          ec.conditionStatement   = row.conditionStatement
+
+        MERGE (ec)-[:ASSOCIATION]-(zeco)
+
+        WITH ec, row.chemicalOntologyId AS chemicalOntologyId
+        MATCH (chebi :Ontology:CHEBITerm {primaryKey: chemicalOntologyId})
+        MERGE (ec)-[:ASSOCIATION]-(chebi)
+    """
+
+    execute_exp_condition_relations_query_template = """
+        USING PERIODIC COMMIT %s
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+
+        MATCH (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+        MATCH (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
+
+        MERGE (dfa)-[rel:ASSOCIATION]-(ec)
+            ON CREATE SET rel.conditionRelationType = row.conditionRelationType,
+                          rel.isModifier = row.isModifier,
+                          rel.conditionQuantity = row.conditionQuantity
+    """
+
     execute_agms_query_template = """
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
@@ -35,11 +69,10 @@ class DiseaseETL(ETL):
             MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
             MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, agm) yield rel
-            SET rel.uuid = row.diseaseUniqueKey
-            REMOVE rel.noOp
+            //Intentional MERGEing (preventing duplicates), please leave as is
 
-            //This is an intentional MERGE, please leave as is
+            CALL apoc.merge.relationship(d, row.relationshipType, {uuid: row.diseaseUniqueKey}, {}, agm) yield rel
+            REMOVE rel.noOp
 
             MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
                 ON CREATE SET dfa.dataProvider = row.dataProvider,
@@ -234,8 +267,12 @@ class DiseaseETL(ETL):
              "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_gene_query_template, commit_size,
              "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_exp_condition_query_template, commit_size,
+             "disease_exp_condition_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_agms_query_template, commit_size,
              "disease_agms_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.execute_exp_condition_relations_query_template, commit_size,
+             "disease_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_pges_gene_query_template, commit_size,
              "disease_pges_gene_data_" + sub_type.get_data_provider() + ".csv"],
             [self.execute_pges_allele_query_template, commit_size,
@@ -358,7 +395,6 @@ class DiseaseETL(ETL):
             elif self.disease_association_type == 'IS_MARKER_FOR':
                 self.disease_association_type = 'IS_NOT_MARKER_FOR'
             negation = 'NOT'
-            self.disease_unique_key = self.disease_unique_key + negation
 
         return negation
     # Not used anywhere so commented out for now?
@@ -374,6 +410,57 @@ class DiseaseETL(ETL):
     #                  "componentUrl": component_url,
     #                  "componentSymbol": component_symbol}
     #             )
+
+    def conditionrelations_process(self, exp_conditions, disease_record):
+        """condition relations processing."""
+
+        condition_relations = []
+
+        if 'conditionRelations' not in disease_record:
+            # No condition relation annotation to parse
+            return condition_relations
+
+        for relation in disease_record['conditionRelations']:
+            for condition in relation['conditions']:
+                # Store unique conditions
+                # Unique condition key: conditionClassId + (anatomicalOntologyId | chemicalOntologyId | geneOntologyId | NCBITaxonID)
+                unique_key = condition.get('conditionClassId') \
+                              + str( condition.get('conditionId') or '' ) \
+                              + str( condition.get('anatomicalOntologyId') or '' ) \
+                              + str( condition.get('chemicalOntologyId') or '' ) \
+                              + str( condition.get('geneOntologyId') or '' ) \
+                              + str( condition.get('NCBITaxonID') or '' )
+
+                if unique_key not in exp_conditions:
+                    condition_dataset = {
+                        "ecUniqueKey": unique_key,
+                        "conditionClassId":     condition.get('conditionClassId'),
+                        'anatomicalOntologyId': condition.get('anatomicalOntologyId'),
+                        'chemicalOntologyId':   condition.get('chemicalOntologyId'),
+                        'geneOntologyId':       condition.get('geneOntologyId'),
+                        'NCBITaxonID':          condition.get('NCBITaxonID'),
+                        'conditionStatement':   condition.get('conditionStatement')
+                    }
+
+                    exp_conditions[unique_key] = condition_dataset
+
+                # Store the relation between condition and disease_record
+                relation_type = relation.get('conditionRelationType')
+                is_modifier = False
+                if relation_type == "ameliorates" or relation_type == "exacerbates":
+                    is_modifier = True
+
+                relation_dataset = {
+                    'ecUniqueKey': unique_key,
+                    'conditionRelationType': relation_type,
+                    'isModifier': is_modifier,
+                    'conditionQuantity': condition.get('conditionQuantity'),
+                    # diseaseUniqueKey to be appended after fn completion, as the combination
+                    #  of all conditions defines a unique object (and thus diseaseUniqueKey)
+                }
+
+                condition_relations.append(relation_dataset)
+        return condition_relations
 
     def withs_process(self, disease_record, withs):
         """Process withs."""
@@ -406,7 +493,9 @@ class DiseaseETL(ETL):
         counter = 0
         gene_list_to_yield = []
         allele_list_to_yield = []
+        exp_condition_dict = dict()
         agm_list_to_yield = []
+        cond_rels_to_yield = []
         evidence_code_list_to_yield = []
         withs = []
         pge_list_to_yield = []
@@ -428,9 +517,37 @@ class DiseaseETL(ETL):
                 if is_it_test_entry is False:
                     continue
 
-            self.disease_unique_key = disease_record.get('objectId') + disease_record.get('DOid') + \
-                disease_record['objectRelation'].get("associationType").upper()
             self.disease_association_type = disease_record['objectRelation'].get("associationType").upper()
+            negation = self.objectrelation_process(disease_record)
+
+            record_cond_relations = self.conditionrelations_process(exp_condition_dict, disease_record)
+
+            # disease_unique_key formatted to represent (readably):
+            #  object `a` under conditions `b` has association `c` to disease `d`, with (optional) related entities `e`
+
+            #object `a`
+            self.disease_unique_key = disease_record.get('objectId')
+
+            #conditions `b` (sorted, to ensure consistent diseaseUniqueKey!)
+            # Combination of unique condition keys must be included in the disease_unique_key
+            # in order to create unique DiseaseEntityJoin nodes per condition combo
+            # (to which the appropriate evidence papers can be linked).
+            for cond_rel in sorted(record_cond_relations, key=lambda rel: rel["ecUniqueKey"]):
+                self.disease_unique_key += cond_rel["ecUniqueKey"]
+
+            #association `c` to disease `d`
+            self.disease_unique_key += self.disease_association_type + disease_record.get('DOid')
+
+            #with (optional) related entities `e`
+            self.withs_process(disease_record, withs)
+
+            #Add this disease_unique_key to every experimental condition relation
+            for cond_rel in record_cond_relations:
+                cond_rel["diseaseUniqueKey"] = self.disease_unique_key
+
+            # and extend the cond_rels_to_yield with these (now completed) relations
+            cond_rels_to_yield.extend(record_cond_relations)
+
             counter = counter + 1
             disease_object_type = disease_record['objectRelation'].get("objectType")
 
@@ -440,9 +557,6 @@ class DiseaseETL(ETL):
             self.xrefs_process(disease_record, xrefs)
             pecj_primary_key = self.evidence_process(disease_record, pubs, evidence_code_list_to_yield)
 
-            negation = self.objectrelation_process(disease_record)
-
-            self.withs_process(disease_record, withs)
             self.primary_genetic_entity_process(disease_record, pge_list_to_yield, pecj_primary_key)
 
             self.xrefs_process(disease_record, xrefs)
@@ -472,7 +586,9 @@ class DiseaseETL(ETL):
             if counter == batch_size:
                 yield [allele_list_to_yield,
                        gene_list_to_yield,
+                       exp_condition_dict.values(),
                        agm_list_to_yield,
+                       cond_rels_to_yield,
                        pge_list_to_yield,
                        pge_list_to_yield,
                        pge_list_to_yield,
@@ -482,6 +598,8 @@ class DiseaseETL(ETL):
                 agm_list_to_yield = []
                 allele_list_to_yield = []
                 gene_list_to_yield = []
+                exp_condition_dict = dict()
+                cond_rels_to_yield = []
                 evidence_code_list_to_yield = []
                 pge_list_to_yield = []
                 xrefs = []
@@ -491,7 +609,9 @@ class DiseaseETL(ETL):
         if counter > 0:
             yield [allele_list_to_yield,
                    gene_list_to_yield,
+                   exp_condition_dict.values(),
                    agm_list_to_yield,
+                   cond_rels_to_yield,
                    pge_list_to_yield,
                    pge_list_to_yield,
                    pge_list_to_yield,
