@@ -42,6 +42,10 @@ class DiseaseETL(ETL):
                           ec.conditionStatement   = row.conditionStatement
 
         MERGE (ec)-[:ASSOCIATION]-(zeco)
+
+        WITH ec, row.chemicalOntologyId AS chemicalOntologyId
+        MATCH (chebi :Ontology:CHEBITerm {primaryKey: chemicalOntologyId})
+        MERGE (ec)-[:ASSOCIATION]-(chebi)
     """
 
     execute_exp_condition_relations_query_template = """
