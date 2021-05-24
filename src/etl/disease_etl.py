@@ -55,10 +55,8 @@ class DiseaseETL(ETL):
         MATCH (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
         MATCH (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
 
-        MERGE (dfa)-[rel:ASSOCIATION]-(ec)
-            ON CREATE SET rel.conditionRelationType = row.conditionRelationType,
-                          rel.isModifier = row.isModifier,
-                          rel.conditionQuantity = row.conditionQuantity
+        CALL apoc.merge.relationship(dfa, row.relationshipType, null, {conditionQuantity: row.conditionQuantity}, ec) yield rel
+        REMOVE rel.noOp
     """
 
     execute_agms_query_template = """
@@ -445,15 +443,9 @@ class DiseaseETL(ETL):
                     exp_conditions[unique_key] = condition_dataset
 
                 # Store the relation between condition and disease_record
-                relation_type = relation.get('conditionRelationType')
-                is_modifier = False
-                if relation_type == "ameliorates" or relation_type == "exacerbates":
-                    is_modifier = True
-
                 relation_dataset = {
                     'ecUniqueKey': unique_key,
-                    'conditionRelationType': relation_type,
-                    'isModifier': is_modifier,
+                    'relationshipType': relation.get('conditionRelationType').upper(),
                     'conditionQuantity': condition.get('conditionQuantity'),
                     # diseaseUniqueKey to be appended after fn completion, as the combination
                     #  of all conditions defines a unique object (and thus diseaseUniqueKey)
