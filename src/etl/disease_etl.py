@@ -413,6 +413,7 @@ class DiseaseETL(ETL):
         gene_list_to_yield = []
         allele_list_to_yield = []
         agm_list_to_yield = []
+        self.exp_cond_helper.reset()
         evidence_code_list_to_yield = []
         withs = []
         pge_list_to_yield = []
