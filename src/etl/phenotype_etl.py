@@ -5,6 +5,7 @@ import uuid
 import multiprocessing
 
 from etl import ETL
+from etl.helpers import ExperimentalConditionHelper
 from files import JSONFile
 from transactors import CSVTransactor
 from transactors import Neo4jTransactor
@@ -149,6 +150,8 @@ class PhenoTypeETL(ETL):
         super().__init__()
         self.data_type_config = config
 
+        self.exp_cond_helper = ExperimentalConditionHelper("PhenotypeEntityJoin")
+
     def _load_and_process_data(self):
         thread_pool = []
 
@@ -181,6 +184,10 @@ class PhenoTypeETL(ETL):
                  "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_agm_query_template, commit_size,
                  "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.exp_cond_helper.execute_exp_condition_query_template, commit_size,
+                 "phenotype_exp_condition_node_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.exp_cond_helper.execute_exp_condition_relations_query_template, commit_size,
+                 "phenotype_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_pges_allele_query_template, commit_size,
                  "phenotype_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
                 [self.execute_pges_agm_query_template, commit_size,
@@ -254,6 +261,7 @@ class PhenoTypeETL(ETL):
     def get_generators(self, phenotype_data, batch_size):
         """Get Generators."""
         list_to_yield = []
+        self.exp_cond_helper.reset()
         pge_list_to_yield = []
         calculated_cross_references = []
         date_produced = phenotype_data['metaData']['dateProduced']
@@ -282,10 +290,30 @@ class PhenoTypeETL(ETL):
 
             date_assigned = pheno.get('dateAssigned')
 
+            ec_unique_key_concat = self.exp_cond_helper.conditionrelations_process(pheno)
+
+            # phenotype_unique_key formatted to represent (readably):
+            #  object `a` under conditions `b` is associated with phenotype `c`
+
+            #object `a`
+            phenotype_unique_key = primary_id
+
+            #conditions `b`
+            # Combination of unique condition keys must be included in the phenotype_unique_key
+            # in order to create unique PhenotypeEntityJoin nodes per condition combo.
+            phenotype_unique_key += ec_unique_key_concat
+
+            #phenotype `c`
+            phenotype_unique_key += phenotype_statement.strip()
+
+            #Add this disease_unique_key to every experimental condition relation
+            # and commit the result
+            self.exp_cond_helper.complete_and_commit_record_cond_rels(phenotype_unique_key)
+
             self.primary_genetic_entity_process(pheno, pge_list_to_yield, pecj_primary_key)
             phenotype = {
                 "primaryId": primary_id,
-                "phenotypeUniqueKey": primary_id + phenotype_statement.strip(),
+                "phenotypeUniqueKey": phenotype_unique_key,
                 "phenotypeStatement": phenotype_statement.strip(),
                 "dateAssigned": date_assigned,
                 "loadKey": load_key,
@@ -304,10 +332,24 @@ class PhenoTypeETL(ETL):
             list_to_yield.append(phenotype)
 
             if counter == batch_size:
-                yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, pge_list_to_yield]
+                yield [ list_to_yield,
+                        list_to_yield,
+                        list_to_yield,
+                        self.exp_cond_helper.get_cond_nodes(),
+                        self.exp_cond_helper.get_cond_rels(),
+                        pge_list_to_yield,
+                        pge_list_to_yield ]
+
                 list_to_yield = []
+                self.exp_cond_helper.reset()
                 pge_list_to_yield = []
                 counter = 0
 
         if counter > 0:
-            yield [list_to_yield, list_to_yield, list_to_yield, pge_list_to_yield, pge_list_to_yield]
+            yield [ list_to_yield,
+                    list_to_yield,
+                    list_to_yield,
+                    self.exp_cond_helper.get_cond_nodes(),
+                    self.exp_cond_helper.get_cond_rels(),
+                    pge_list_to_yield,
+                    pge_list_to_yield ]
