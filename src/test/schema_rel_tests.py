@@ -75,6 +75,7 @@ class TestClass():
                             dict(node1='PhenotypeEntityJoin:Association', node2='Phenotype'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='Gene'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='Allele'),
+                            dict(node1='PhenotypeEntityJoin:Association', node2='ExperimentalCondition'),
                             dict(node1='Gene', node2='ExpressionBioEntity'),
                             dict(node1='Gene', node2='BioEntityGeneExpressionJoin'),
                             dict(node1='BioEntityGeneExpressionJoin', node2='Stage'),

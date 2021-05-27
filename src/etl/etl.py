@@ -141,7 +141,7 @@ class ETL:
             self.logger.info("data provider: %s", self.data_provider)
 
     def ortho_xrefs(self, o_xrefs, ident, xrefs):
-        """Geenrate xref for orthos."""
+        """Generate xref for orthos."""
         if o_xrefs is None:
             return
         # turn into a list
