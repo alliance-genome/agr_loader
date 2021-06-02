@@ -326,7 +326,7 @@ def test_vepgene_for_all_species_exists():
         assert record["counter"] == 5
 
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
-               RETURN distinct s.species) AS species_abbr"""
+               RETURN distinct s.species AS species_abbr"""
     result = execute_transaction(query)
     for record in result:
         assert record["species_abbr"] in species_list
