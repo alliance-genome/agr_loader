@@ -318,7 +318,8 @@ def test_vepgene_for_all_species_exists():
     Rno, Mmu, Dre, Cel, Dme
     So make future ones too do.
     """
-    species_list = ('Rno', 'Mmu', 'Dre', 'Cel', 'Dme')
+    species = {'Rno':0 , 'Mmu':0 , 'Dre':0 , 'Cel':0, 'Dme':0)
+
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
@@ -329,7 +330,9 @@ def test_vepgene_for_all_species_exists():
                RETURN distinct s.species AS species_abbr"""
     result = execute_transaction(query)
     for record in result:
-        assert record["species_abbr"] in species_list
+        species[record["species_abbr"]] += 1
+    for key in species.keys():
+        assert species[key] == 1
 
 
 def test_veptranscript_for_all_species_exists():
