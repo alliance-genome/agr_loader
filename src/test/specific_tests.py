@@ -318,7 +318,7 @@ def test_vepgene_for_all_species_exists():
     Rno, Mmu, Dre, Cel, Dme
     So make future ones too do.
     """
-    species = {'Rno':0 , 'Mmu':0 , 'Dre':0 , 'Cel':0, 'Dme':0)
+    species = {'Rno': 0, 'Mmu': 0, 'Dre': 0, 'Cel': 0, 'Dme': 0}
 
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
                RETURN count(distinct s) AS counter"""
