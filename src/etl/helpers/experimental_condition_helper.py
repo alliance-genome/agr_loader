@@ -59,7 +59,8 @@ class ExperimentalConditionHelper():
         for relation in entity_record['conditionRelations']:
             for condition in relation['conditions']:
                 # Store unique conditions
-                # Unique condition key: conditionClassId + (anatomicalOntologyId | chemicalOntologyId | geneOntologyId | NCBITaxonID)
+                # Unique condition key: conditionStatement + conditionClassId
+                #     + (anatomicalOntologyId | chemicalOntologyId | geneOntologyId | NCBITaxonID)
                 unique_key = str( condition.get('conditionStatement') or '' ) \
                               + condition.get('conditionClassId') \
                               + str( condition.get('conditionId') or '' ) \
