@@ -312,13 +312,24 @@ def test_molint_for_all_species_exists():
 
 
 def test_vepgene_for_all_species_exists():
-    """Test Molecular Interaction for all Species Exists"""
+    """Test Molecular Interaction for all Species Exists
 
+    Current build has:-
+    Rno, Mmu, Dre, Cel, Dme
+    So make future ones too do.
+    """
+    species_list = ('Rno', 'Mmu', 'Dre', 'Cel', 'Dme')
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
         assert record["counter"] == 5
+
+    query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
+               RETURN distinct s.species) AS species_abbr"""
+    result = execute_transaction(query)
+    for record in result:
+        assert record["species_abbr"] in species_list
 
 
 def test_veptranscript_for_all_species_exists():
