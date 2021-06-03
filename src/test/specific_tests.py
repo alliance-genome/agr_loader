@@ -331,8 +331,10 @@ def test_vepgene_for_all_species_exists():
     result = execute_transaction(query)
     for record in result:
         species[record["species_abbr"]] += 1
+    # strange test to put into a string first (i know)
+    # but we want to see which species are failing.
     for key in species.keys():
-        assert species[key] == 1
+        assert "{} {}".format(key, species[key]) == "{} 1".format(key)
 
 
 def test_veptranscript_for_all_species_exists():
