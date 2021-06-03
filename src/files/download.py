@@ -40,10 +40,8 @@ class Download(object):
             self.logger.debug("Making temp file storage: %s", os.path.dirname(self.full_filepath))
             os.makedirs(os.path.dirname(self.full_filepath))
 
-        if os.path.exists(self.full_filepath):
-            self.logger.info("File: %s already exists, not downloading", self.full_filepath)
-        else:
-            self.logger.info("File: %s does NOT exist, downloading", self.full_filepath)
+        if not os.path.exists(self.full_filepath) or self.context_info.env["REDOWNLOAD_FROM_FMS"] is True:
+            self.logger.info("File: %s does not exist or redownload set to true, downloading", self.full_filepath)
             retries = 10
             while retries > 0:
                 retries -= 1
@@ -66,3 +64,5 @@ class Download(object):
                         self.logger.error("Downloading data file from %s failed.", self.url_to_retrieve)
                         raise
                 break
+        elif os.path.exists(self.full_filepath):
+            self.logger.info("File: %s already exists, not downloading", self.full_filepath)
