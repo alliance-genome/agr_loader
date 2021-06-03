@@ -57,4 +57,8 @@ class ContextInfo(metaclass=Singleton):
         elif env_var_value in ["false", "False"]:
             return_value = False
 
+        print(env_var_value)
+        print(type(env_var_value))
+        print(return_value)
+        print(type(return_value))
         return return_value
