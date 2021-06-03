@@ -40,7 +40,7 @@ class Download(object):
             self.logger.debug("Making temp file storage: %s", os.path.dirname(self.full_filepath))
             os.makedirs(os.path.dirname(self.full_filepath))
 
-        if os.path.exists(self.full_filepath) and self.context_info.env["REDOWNLOAD_FROM_FMS"] is False:
+        if os.path.exists(self.full_filepath):
             self.logger.info("File: %s already exists, not downloading", self.full_filepath)
         else:
             self.logger.info("File: %s does NOT exist, downloading", self.full_filepath)
