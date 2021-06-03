@@ -6,7 +6,7 @@ import time
 import urllib.request
 from urllib.error import HTTPError, URLError
 from .gzip_file import GZIPFile
-from ..loader_common import ContextInfo
+from .loader_common import ContextInfo
 
 class Download(object):
     """Download"""
