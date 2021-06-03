@@ -33,10 +33,7 @@ class ContextInfo(metaclass=Singleton):
         # Look for ENV variables to replace default variables from config file.
         for key in self.env.keys():
             try:
-                logger.warning('key: {}'.format(key))
                 self.env[key] = self._parse_environ_var(os.environ[key])
-                logger.warning('key: {}, value: {}'.format(key, self.env[key]))
-                logger.warning('value_type: {}'.format(type(self.env[key])))
             except KeyError:
                 # If we don't find an ENV variable,
                 # keep the value from the config file if is not none.
