@@ -36,8 +36,8 @@ class DataFileManager(metaclass=Singleton):
         self.validation_schema = yaml.load(validation_schema_file, Loader=yaml.SafeLoader)
 
         # Assign values for thread counts.
-        self.file_transactor_threads = context_info.env["FILE_TRANSACTOR_THREADS"]
-        self.neo4j_transactor_threads = context_info.env["NEO4J_TRANSACTOR_THREADS"]
+        self.file_transactor_threads = int(context_info.env["FILE_TRANSACTOR_THREADS"])
+        self.neo4j_transactor_threads = int(context_info.env["NEO4J_TRANSACTOR_THREADS"])
 
         urllib3.disable_warnings()
         http = urllib3.PoolManager()
