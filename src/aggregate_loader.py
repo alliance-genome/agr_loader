@@ -180,6 +180,8 @@ class AggregateLoader():
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
         Download('tmp', url, 'species.yaml').download_file()
         self.logger.debug("Finished getting files initially")
+        print(context_info.env["REDOWNLOAD_FROM_FMS"])
+        print(type(context_info.env["REDOWNLOAD_FROM_FMS"]))
         if context_info.env["REDOWNLOAD_FROM_FMS"] is True:
             self.logger.warning('REDOWNLOAD_FROM_FMS set to True, re-downloading all FMS files.')
 
