@@ -12,3 +12,6 @@ AWS_SECRET_KEY: ""
 API_KEY: ""
 FILE_TRANSACTOR_THREADS: 10
 NEO4J_TRANSACTOR_THREADS: 7
+
+# If existing files should be ignored and new files should be redownloaded from the FMS.
+REDOWNLOAD_FROM_FMS: False
