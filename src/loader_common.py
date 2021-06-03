@@ -29,6 +29,7 @@ class ContextInfo(metaclass=Singleton):
         # set default context info here
         config_file = open('src/default_env_vars.yml')
         self.env = yaml.load(config_file, Loader=yaml.FullLoader)
+        logger.info('Loading ContextInfo variables.')
 
         # Look for ENV variables to replace default variables from config file.
         for key in self.env.keys():
@@ -45,6 +46,7 @@ class ContextInfo(metaclass=Singleton):
                 else:
                     logger.error("required variable %s not set and no default value provided", key)
                     raise NoDefaultValueError
+            logger.info('{} -> {}'.format(key, self.env[key]))
 
     @staticmethod
     def _parse_environ_var(env_var_value):
