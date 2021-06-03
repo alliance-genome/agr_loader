@@ -184,6 +184,7 @@ class AggregateLoader():
         print(type(context_info.env["REDOWNLOAD_FROM_FMS"]))
         if context_info.env["REDOWNLOAD_FROM_FMS"] is True:
             self.logger.warning('REDOWNLOAD_FROM_FMS set to True, re-downloading all FMS files.')
+        quit()
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
