@@ -21,7 +21,7 @@ class NoDefaultValueError(Exception):
 
 
 class ContextInfo(metaclass=Singleton):
-    """Gets Configuration informatoin from files and from ENV variables"""
+    """Gets Configuration information from files and from ENV variables"""
 
     logger = logging.getLogger(__name__)
 

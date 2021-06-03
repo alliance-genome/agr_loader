@@ -70,7 +70,7 @@ def main():
 
 
 class AggregateLoader():
-    """This runs all the individiual ETL pipelines."""
+    """This runs all the individual ETL pipelines."""
 
     # This is the list of ETLs used for loading data.
     # The key (left) is derived from a value in the config YAML file.
