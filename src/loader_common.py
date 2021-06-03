@@ -3,6 +3,7 @@
 import logging
 import os
 import yaml
+from distutils import util
 
 
 class Singleton(type):
@@ -33,7 +34,6 @@ class ContextInfo(metaclass=Singleton):
         # Look for ENV variables to replace default variables from config file.
         for key in self.env.keys():
             try:
-                logger.info('key: {}'.format(key))
                 self.env[key] = self._parse_environ_var(os.environ[key])
             except KeyError:
                 # If we don't find an ENV variable,
@@ -53,13 +53,8 @@ class ContextInfo(metaclass=Singleton):
         """Determines if ENV variable is true or not"""
 
         return_value = env_var_value
-        if return_value == 'true' or return_value == 'True':
-            return_value = True
-        if return_value == 'false' or return_value == 'False':
-            return_value = False
 
-        print('env_var: {}'.format(env_var_value))
-        print('env_var type: {}'.format(type(env_var_value)))
-        print('return: {}'.format(return_value))
-        print('return type: {}'.format(type(return_value)))
+        if env_var_value in ['true', 'false', 'True', 'False']:
+            return_value = bool(util.strtobool(env_var_value))
+
         return return_value
