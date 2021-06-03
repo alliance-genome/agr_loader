@@ -17,7 +17,7 @@ class Singleton(type):
 
 
 class NoDefaultValueError(Exception):
-    """No Defualt Value Error"""
+    """No Default Value Error"""
 
 
 class ContextInfo(metaclass=Singleton):
@@ -46,6 +46,8 @@ class ContextInfo(metaclass=Singleton):
                 else:
                     logger.error("required variable %s not set and no default value provided", key)
                     raise NoDefaultValueError
+
+        for key in self.env.keys(): # Print everything when finished.
             logger.info('{} -> {}'.format(key, self.env[key]))
 
     @staticmethod
