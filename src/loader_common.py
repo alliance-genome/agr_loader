@@ -52,9 +52,9 @@ class ContextInfo(metaclass=Singleton):
         """Determines if ENV variable is true or not"""
 
         return_value = env_var_value
-        if return_value == 'true' or return_value == 'True':
+        if return_value in ['true', 'True']:
             return_value = True
-        if return_value == 'false' or return_value == 'False':
+        if return_value in ['false', 'False']:
             return_value = False
 
         return return_value
