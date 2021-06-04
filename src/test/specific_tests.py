@@ -328,7 +328,7 @@ def test_vepgene_for_all_species_exists():
 
     for key in species.keys():
         assert species[key] == 1, "Species {} has no matches".format(key)
-        
+
         # assert "{} {}".format(key, species[key]) == "{} 1".format(key)
 
 
