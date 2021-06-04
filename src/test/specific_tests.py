@@ -100,13 +100,17 @@ def test_zfin_gene_has_expression_link():
 
 def test_mods_have_gene_expression_atlas_link():
     """Test MODs have Gene Expression Atlass Links"""
+    species = {"Rno": 0, "Hsa": 0, "Mmu": 0, "Sce": 0, "Dre": 0, "Cel": 0, "Dme": 0}
 
-    query = """MATCH (g:Gene)-[]-(c:CrossReference)
+    query = """MATCH (s:Species)--(g:Gene)-[]-(c:CrossReference)
                WHERE c.crossRefType = 'gene/expression-atlas'
-               RETURN count(distinct(g.taxonId)) AS counter"""
+               RETURN distinct(s.species) as species_abbr"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        species[record["species_abbr"]] += 1
+
+    for key in species.keys():
+        assert species[key] == 1, "Species {} has no matches for XRef gene/expression-atlas".format(key)
 
 
 def test_xref_complete_url_is_formatted():
