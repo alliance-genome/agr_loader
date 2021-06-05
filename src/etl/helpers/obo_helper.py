@@ -25,7 +25,7 @@ class OBOHelper():
         for k in header:
             fields.append(k + ": " + json.dumps(header[k]))
         if not header["date"]:
-            OBOHelper.logger.warning("PRoblem with getting date from : {}".format(fields))
+            OBOHelper.logger.warning("Problem with getting date for : {}".format(header["ontology"]))
         Neo4jHelper().run_single_query("CREATE (o:OntologyFileMetadata {" + ",".join(fields) + "})")
 
     @staticmethod
