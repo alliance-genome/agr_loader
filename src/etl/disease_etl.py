@@ -386,7 +386,8 @@ class DiseaseETL(ETL):
         if 'with' not in disease_record:
             return
         with_record = disease_record.get('with')
-        for rec in with_record:
+        # Sorted to ensure consistent key creation!
+        for rec in sorted(with_record):
             self.disease_unique_key = self.disease_unique_key + rec
         for rec in with_record:
             with_map = {
