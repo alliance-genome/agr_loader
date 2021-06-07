@@ -1681,7 +1681,7 @@ def test_alliance_release_metadata():
 def test_correct_model_experimental_condition_parsing():
     """test correct model experimental condition parsing (ZFIN example)"""
     query = """
-            MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842ZECO:0000119ZECO:0000122IS_MODEL_OFDOID:9452"}),
+            MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842high cholesterolZECO:0000119high fatZECO:0000122IS_MODEL_OFDOID:9452"}),
                   (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
                   (dfa)--(ec:ExperimentalCondition),
                   (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
