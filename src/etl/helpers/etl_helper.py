@@ -14,7 +14,7 @@ class ETLHelper():
     logger = logging.getLogger(__name__)
     rdh2 = ResourceDescriptorHelper2()
     rdh2.get_data()
-    default_date_format = '%Y-%m-%dT%H:%M:%S'
+    default_date_format = r'%Y-%m-%dT%H:%M:%SZ'
 
     @staticmethod
     def get_cypher_preferred_xref_text():
@@ -328,26 +328,22 @@ class ETLHelper():
         and "date_produced" will be None, so BAD ones can be looked up that way.
         """
         metadata = {'release': "NotSpecified",
-                    'mod': sub_type.get_data_provider(),
+                    'dataSubType': sub_type.get_data_provider(),
                     'date_produced': None,
-                    'type': sub_type.data_type}
+                    'dataType': sub_type.data_type}
         try:
-            metadata['date_produced'] = data['metaData']['dateProduced']
+            metadata['date_produced'] = ETLHelper.check_date_format(data['metaData']['dateProduced'])
             metadata['release'] = data['metaData']['release']
         except (KeyError, TypeError):
             pass
 
         fields = []
         for k in metadata:
-            if k == 'date_produced':
-                if metadata[k]:
-                    fields.append(k + ': datetime("' + metadata[k] + '")')
-            else:
-                fields.append(k + ": " + json.dumps(metadata[k]))
+            fields.append(k + ": " + json.dumps(metadata[k]))
         Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")
 
     @staticmethod
-    def check_date_format(dateString):
+    def check_date_format(dateString, logger=None):
         """Convert to datetime object.
 
         Possibles for now:-
@@ -362,7 +358,11 @@ class ETLHelper():
                     r'%Y-%m-%d %H:%M:%S',
                     r'%d/%m/%Y',
                     r'%Y/%m/%d',
-                    r'%a %b %d %H:%M:%S %Y')  # you can add extra formats needed
+                    r'%a %b %d %H:%M:%S %Y',
+                    r"%d:%m:%Y %H:%M")  # you can add extra formats needed
+
+        if not dateString:
+            return None
         dateString = dateString.replace(' CST', '')
         try:
             return datetime.datetime.fromisoformat(dateString).strftime(ETLHelper.default_date_format)
@@ -377,9 +377,10 @@ class ETLHelper():
                         pass
             except ValueError:
                 pass
-            print("Could not convert " + dateString)
-            print('No valid date format found. Try again:')
-            return "Could not convert " + dateString
+            if logger:
+                logger.warning("Could not convert " + dateString)
+                logger.warning('No valid date format found. Try again:')
+            return None
 
     @staticmethod
     def load_release_info_from_args(logger=None, release='NotSpecified', provider=None, sub_type='GFF', date_produced=None):
@@ -396,10 +397,6 @@ class ETLHelper():
 
         fields = []
         for k in metadata:
-            if date_produced and k == 'date_produced' and not metadata[k].startswith('Could'):
-                logger.warning(metadata[k])
-                fields.append(k + ': datetime("' + metadata[k] + '")')
-            else:
-                fields.append(k + ": " + json.dumps(metadata[k]))
+            fields.append(k + ": " + json.dumps(metadata[k]))
         logger.warning(",".join(fields))
         Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")

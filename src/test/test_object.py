@@ -141,7 +141,7 @@ class TestObject():
             'SGD:S000006068', 'SGD:S000005269', 'SGD:S000007324',
             'SGD:S000004241', 'SGD:S000002536',
             # expression
-            'SGD:S000002200',
+            'SGD:S000002200', 'SGD:S000002136',
             # gff ARS object
             'SGD:S000121253',
             # htp meta data

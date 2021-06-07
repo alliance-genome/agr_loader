@@ -100,13 +100,17 @@ def test_zfin_gene_has_expression_link():
 
 def test_mods_have_gene_expression_atlas_link():
     """Test MODs have Gene Expression Atlass Links"""
+    species = {"Rno": 0, "Hsa": 0, "Mmu": 0, "Sce": 0, "Dre": 0, "Cel": 0, "Dme": 0}
 
-    query = """MATCH (g:Gene)-[]-(c:CrossReference)
+    query = """MATCH (s:Species)--(g:Gene)-[]-(c:CrossReference)
                WHERE c.crossRefType = 'gene/expression-atlas'
-               RETURN count(distinct(g.taxonId)) AS counter"""
+               RETURN distinct(s.species) as species_abbr"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 7
+        species[record["species_abbr"]] += 1
+
+    for key in species.keys():
+        assert species[key] == 1, "Species {} has no matches for XRef gene/expression-atlas".format(key)
 
 
 def test_xref_complete_url_is_formatted():
@@ -312,13 +316,24 @@ def test_molint_for_all_species_exists():
 
 
 def test_vepgene_for_all_species_exists():
-    """Test Molecular Interaction for all Species Exists"""
+    """Test Molecular Interaction for all Species Exists
+
+    Current build has:-
+    Rno, Mmu, Dre, Cel, Dme
+    So make future ones too do.
+    """
+    species = {'Rno': 0, 'Mmu': 0, 'Dre': 0, 'Cel': 0, 'Dme': 0}
 
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
-               RETURN count(distinct s) AS counter"""
+               RETURN distinct s.species AS species_abbr"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 5
+        species[record["species_abbr"]] += 1
+
+    for key in species.keys():
+        assert species[key] == 1, "Species {} has no matches".format(key)
+
+        # assert "{} {}".format(key, species[key]) == "{} 1".format(key)
 
 
 def test_veptranscript_for_all_species_exists():
@@ -1004,7 +1019,7 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
     """Test SGD Gene has DEJ with Many Ortholous Genes"""
 
     query = """MATCH (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene)
-               WHERE dej.primaryKey = 'SGD:S000005844IS_IMPLICATED_INDOID:14501HGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998'
+               WHERE dej.primaryKey = 'SGD:S000005844IS_IMPLICATED_INDOID:14501HGNC:10996HGNC:10998HGNC:16496HGNC:16526HGNC:29567HGNC:3570HGNC:3571'
                RETURN count(g) AS counter"""
     result = execute_transaction(query)
     for record in result:
