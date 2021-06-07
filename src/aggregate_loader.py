@@ -225,10 +225,7 @@ class AggregateLoader():
         metadata = data_manager.get_release_info()
         fields = []
         for k in metadata:
-            if 'Date' in k:
-                fields.append(k + ': datetime("' + metadata[k] + '")')
-            else:
-                fields.append(k + ": " + json.dumps(metadata[k]))
+            fields.append(k + ": " + json.dumps(metadata[k]))
         load_rel = "CREATE (o:AllianceReleaseInfo {" + ",".join(fields) + "})"
         Neo4jHelper().run_single_query(load_rel)
 
