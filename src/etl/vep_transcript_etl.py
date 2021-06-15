@@ -27,7 +27,7 @@ class VEPTranscriptETL(ETL):
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
-                SET gc.molecularConsequences = row.molecularConsequences,
+                SET gc.molecularConsequences = apoc.convert.fromJsonList(row.molecularConsequences),
                     gc.transcriptId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
                     gc.impact = row.impact,
