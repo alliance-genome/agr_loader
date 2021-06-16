@@ -950,8 +950,8 @@ def test_deletion_hgvs():
     """Test Deletion HGVS"""
 
     query = """MATCH (a:Allele:Feature)--(v:Variant)
-               WHERE v.primaryKey = 'NC_007116.7:g.72118557_72118563del'
-                     AND a.primaryKey='ZFIN:ZDB-ALT-170321-11'
+               WHERE v.primaryKey = 'NC_003284.9:g.5113285_5115215del'
+                     AND a.primaryKey='WB:WBVar00275424'
                RETURN count(v) AS counter"""
     result = execute_transaction(query)
     for record in result:
