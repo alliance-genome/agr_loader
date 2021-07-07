@@ -823,6 +823,20 @@ go_sentences_options:
                 prefix: "is"
                 postfix: ""
         - aspect: C
+          group: EXPERIMENTAL
+          qualifier: "is_active_in"
+          prefix: "is active in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
           group: HIGH_THROUGHPUT_EXPERIMENTAL
           qualifier: "located_in"
           prefix: "located in"
@@ -851,6 +865,20 @@ go_sentences_options:
                 prefix: "is"
                 postfix: ""
         - aspect: C
+          group: HIGH_THROUGHPUT_EXPERIMENTAL
+          qualifier: "is_active_in"
+          prefix: "is active in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "is"
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "is"
+                postfix: ""
+        - aspect: C
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "located_in"
           prefix: "predicted to be located in"
@@ -868,6 +896,20 @@ go_sentences_options:
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "part_of"
           prefix: "predicted to be part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
+          qualifier: "is_active_in"
+          prefix: "predicted to be active in"
           postfix: ""
           special_cases:
               - id: 1
@@ -907,6 +949,20 @@ go_sentences_options:
                 prefix: "predicted to be"
                 postfix: ""
         - aspect: C
+          group: INFERRED_BY_CURATORS_AND_AUTHORS
+          qualifier: "is_active_in"
+          prefix: "predicted to be active in"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "located_in"
           prefix: "predicted to be located in"
@@ -924,6 +980,20 @@ go_sentences_options:
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "part_of"
           prefix: "predicted to be part of"
+          postfix: ""
+          special_cases:
+              - id: 1
+                match_regex: "intracellular$"
+                prefix: "predicted to be "
+                postfix: ""
+              - id: 2
+                match_regex: ".*component of.*"
+                prefix: "predicted to be"
+                postfix: ""
+        - aspect: C
+          group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
+          qualifier: "is_active_in"
+          prefix: "predicted to be active in"
           postfix: ""
           special_cases:
               - id: 1
