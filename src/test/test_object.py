@@ -178,7 +178,7 @@ class TestObject():
             'ZDB-GENE-040426-1746', 'ZDB-GENE-040426-2185', 'ZDB-GENE-040426-2185',
             'ENSEMBL:ENSDART00000138978'
             # allele for synonym
-            'ZFIN:ZDB-ALT-980413-591',
+            'ZFIN:ZDB-ALT-980413-591', 'ZFIN:ZDB-ALT-161003-16981', 'ZFIN:ZDB-ALT-161003-14296',
             # disease specific test objects
             'ZFIN:ZDB-GENE-030131-5607', 'ZFIN:ZDB-GENE-050517-20',
             'ZFIN:ZDB-GENE-990415-122', 'ZFIN:ZDB-GENE-980526-41',
