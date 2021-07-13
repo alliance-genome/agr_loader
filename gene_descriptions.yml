@@ -526,19 +526,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "involved_in"
-          prefix: "involved in"
+          prefix: "predicted to be involved in"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "involved_in"
-          prefix: "involved in"
+          prefix: "predicted to be involved in"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "involved_in"
-          prefix: "involved in"
+          prefix: "predicted to be involved in"
           postfix: ""
           special_cases:
         - aspect: P
@@ -556,19 +556,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "acts_upstream_of_positive_effect"
-          prefix: "acts upstream of with a positive effect on"
+          prefix: "predicted to act upstream of with a positive effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "acts_upstream_of_positive_effect"
-          prefix: "acts upstream of with a positive effect on"
+          prefix: "predicted to act upstream of with a positive effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "acts_upstream_of_positive_effect"
-          prefix: "acts upstream of with a positive effect on"
+          prefix: "predicted to act upstream of with a positive effect on"
           postfix: ""
           special_cases:
         - aspect: P
@@ -586,19 +586,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "acts_upstream_of_negative_effect"
-          prefix: "acts upstream of with a negative effect on"
+          prefix: "predicted to act upstream of with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "acts_upstream_of_negative_effect"
-          prefix: "acts upstream of with a negative effect on"
+          prefix: "predicted to act upstream of with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "acts_upstream_of_negative_effect"
-          prefix: "acts upstream of with a negative effect on"
+          prefix: "predicted to act upstream of with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
@@ -616,19 +616,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "acts_upstream_of_or_within"
-          prefix: "acts upstream of or within"
+          prefix: "predicted to act upstream of or within"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "acts_upstream_of_or_within"
-          prefix: "acts upstream of or within"
+          prefix: "predicted to act upstream of or within"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "acts_upstream_of_or_within"
-          prefix: "acts upstream of or within"
+          prefix: "predicted to act upstream of or within"
           postfix: ""
           special_cases:
         - aspect: P
@@ -646,19 +646,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "acts_upstream_of_or_within_negative_effect"
-          prefix: "acts upstream of or within with a negative effect on"
+          prefix: "predicted to act upstream of or within with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "acts_upstream_of_or_within_negative_effect"
-          prefix: "acts upstream of or within with a negative effect on"
+          prefix: "predicted to act upstream of or within with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "acts_upstream_of_or_within_negative_effect"
-          prefix: "acts upstream of or within with a negative effect on"
+          prefix: "predicted to act upstream of or within with a negative effect on"
           postfix: ""
           special_cases:
         - aspect: P
@@ -676,19 +676,19 @@ go_sentences_options:
         - aspect: P
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "acts_upstream_of_or_within_positive_effect"
-          prefix: "acts upstream of or within with a positive effect on"
+          prefix: "predicted to act upstream of or within with a positive effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "acts_upstream_of_or_within_positive_effect"
-          prefix: "acts upstream of or within with a positive effect on"
+          prefix: "predicted to act upstream of or within with a positive effect on"
           postfix: ""
           special_cases:
         - aspect: P
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "acts_upstream_of_or_within_positive_effect"
-          prefix: "acts upstream of or within with a positive effect on"
+          prefix: "predicted to act upstream of or within with a positive effect on"
           postfix: ""
           special_cases:
 
