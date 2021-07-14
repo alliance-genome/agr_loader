@@ -316,11 +316,11 @@ go_sentences_options:
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is a"
+                prefix: "a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is an"
+                prefix: "an"
                 postfix: ""
         - aspect: F
           group: EXPERIMENTAL
@@ -344,11 +344,11 @@ go_sentences_options:
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is a"
+                prefix: "a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is an"
+                prefix: "an"
                 postfix: ""
         - aspect: F
           group: HIGH_THROUGHPUT_EXPERIMENTAL
@@ -367,86 +367,86 @@ go_sentences_options:
         - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "enables"
-          prefix: "is predicted to enable"
+          prefix: "predicted to enable"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to be a"
+                prefix: "predicted to be a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is predicted to be an"
+                prefix: "predicted to be an"
                 postfix: ""
         - aspect: F
           group: PHYLOGENETIC_ANALYSIS_AND_SEQUENCE_BASED_ANALYSIS
           qualifier: "contributes_to"
-          prefix: "is predicted to contribute to"
+          prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to contribute as a"
+                prefix: "predicted to contribute as a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is an"
-                postfix: "is predicted to contribute as an"
+                prefix: "an"
+                postfix: "predicted to contribute as an"
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "enables"
-          prefix: "is predicted to enable"
+          prefix: "predicted to enable"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to be a"
+                prefix: "predicted to be a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is predicted to be an"
+                prefix: "predicted to be an"
                 postfix: ""
         - aspect: F
           group: INFERRED_BY_CURATORS_AND_AUTHORS
           qualifier: "contributes_to"
-          prefix: "is predicted to contribute to"
+          prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to contribute as a"
+                prefix: "predicted to contribute as a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is predicted to contribute as an"
+                prefix: "predicted to contribute as an"
                 postfix: ""
         - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "enables"
-          prefix: "is predicted to enable"
+          prefix: "predicted to enable"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to be a"
+                prefix: "predicted to be a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is predicted to be an"
+                prefix: "predicted to be an"
                 postfix: ""
         - aspect: F
           group: ELECTRONIC_AND_COMPUTATIONAL_ANALYSIS
           qualifier: "contributes_to"
-          prefix: "is predicted to contribute to"
+          prefix: "predicted to contribute to"
           postfix: ""
           special_cases:
               - id: 1
                 match_regex: "structural constituent"
-                prefix: "is predicted to contribute as a"
+                prefix: "predicted to contribute as a"
                 postfix: ""
               - id: 2
                 match_regex: "^extracellular matrix structural constituent"
-                prefix: "is predicted to contribute as an"
+                prefix: "predicted to contribute as an"
                 postfix: ""
 
         - aspect: P
