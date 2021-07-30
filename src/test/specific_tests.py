@@ -1204,7 +1204,7 @@ def test_wb_gene_has_variant_tc_consequence_exists():
 
 
 def test_zfin_gene_has_variant_tc_consequence_exists():
-    """Test WB gene has variant and transcript level consequences"""
+    """Test ZFIN gene has variant and transcript level consequences"""
 
     query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
                 WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825'
@@ -1216,7 +1216,7 @@ def test_zfin_gene_has_variant_tc_consequence_exists():
 
 
 def test_mgi_gene_has_variant_tc_consequence_exists():
-    """Test WB gene has variant and transcript level consequences"""
+    """Test MGI gene has variant and transcript level consequences"""
 
     query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
                 WHERE g.primaryKey = 'MGI:104554'
@@ -1228,7 +1228,7 @@ def test_mgi_gene_has_variant_tc_consequence_exists():
 
 
 def test_fb_gene_has_variant_tc_consequence_exists():
-    """Test WB gene has variant and transcript level consequences"""
+    """Test FB gene has variant and transcript level consequences"""
 
     query = """ MATCH (g:Gene)--(a:Allele)--(v:Variant)--(tc:TranscriptLevelConsequence)
                 WHERE g.primaryKey = 'FB:FBgn0031209'
