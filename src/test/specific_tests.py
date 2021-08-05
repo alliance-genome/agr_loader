@@ -1689,3 +1689,17 @@ def test_correct_model_experimental_condition_parsing():
     for record in result:
         assert record["ec_count"] == 2
         assert record["pubj_count"] == 1
+
+def test_gff_so_terms_exist():
+    """Test that feature types in transcript loader match loaded SO names"""
+    query = """
+            MATCH (s:SOTerm) where s.name in ['gene', 'exon',
+              'CDS', 'mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
+              'pre_miRNA', 'snoRNA', 'lncRNA', 'tRNA', 'snRNA', 'rRNA',
+              'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
+              'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
+            RETURN count(s) as counter """
+    result = execute_transaction(query)
+    for record in result:
+        assert record["counter"] == 20
+
