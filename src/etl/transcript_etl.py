@@ -220,11 +220,11 @@ class TranscriptETL(ETL):
                 synonym = ''
                 name = ''
 
-                transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lnc_RNA',
+                transcript_types = ['mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA', 'pre_miRNA', 'snoRNA', 'lncRNA',
                                     'tRNA', 'snRNA', 'rRNA', 'antisense_RNA', 'C_gene_segment',
                                     'V_gene_segment', 'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
                 possible_types = ['gene', 'exon', 'CDS', 'mRNA', 'ncRNA', 'piRNA', 'lincRNA', 'miRNA',
-                                  'pre_miRNA', 'snoRNA', 'lnc_RNA', 'tRNA', 'snRNA', 'rRNA',
+                                  'pre_miRNA', 'snoRNA', 'lncRNA', 'tRNA', 'snRNA', 'rRNA',
                                   'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
                                   'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
                 gene_id = ''
@@ -260,6 +260,8 @@ class TranscriptETL(ETL):
                 else:
                     columns = re.split(r'\t', line)
                     feature_type_name = columns[2].strip()
+                    if feature_type_name == 'lnc_RNA':
+                        feature_type_name = 'lncRNA'
                     if feature_type_name in possible_types:
                         column8 = columns[8]
                         notes = "_".join(column8.split())
