@@ -27,7 +27,7 @@ class VEPTranscriptETL(ETL):
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
 
                 CREATE (gc:TranscriptLevelConsequence {primaryKey:row.primaryKey})
-                SET gc.transcriptLevelConsequence = row.transcriptLevelConsequence,
+                SET gc.molecularConsequences = apoc.convert.fromJsonList(row.molecularConsequences),
                     gc.transcriptId = g.primaryKey,
                     gc.variantId = a.hgvsNomenclature,
                     gc.impact = row.impact,
@@ -214,7 +214,7 @@ class VEPTranscriptETL(ETL):
             transcript_id = columns[4]
             hgvsNomenclature = columns[0]
             vep_result = {"hgvsNomenclature": hgvsNomenclature,
-                          "transcriptLevelConsequence": columns[6],
+                          "molecularConsequences": columns[6].split(","),
                           "primaryKey": str(uuid.uuid4()),
                           "impact": impact,
                           "hgvsProteinNomenclature": hgvs_p,
