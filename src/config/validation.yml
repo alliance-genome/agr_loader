@@ -177,10 +177,4 @@ GENEPHENOCROSSREFERENCE:
 HTP:
   type: list
   allowed: [TAGS]
-FileTransactorThreads:
-  type: integer
-  required: True
-Neo4jTransactorThreads:
-  type: integer
-  required: True
 

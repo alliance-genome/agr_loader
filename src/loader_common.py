@@ -17,11 +17,11 @@ class Singleton(type):
 
 
 class NoDefaultValueError(Exception):
-    """No Defualt Value Error"""
+    """No Default Value Error"""
 
 
 class ContextInfo(metaclass=Singleton):
-    """Gets Configuration informatoin from files and from ENV variables"""
+    """Gets Configuration information from files and from ENV variables"""
 
     logger = logging.getLogger(__name__)
 
@@ -46,14 +46,15 @@ class ContextInfo(metaclass=Singleton):
                     logger.error("required variable %s not set and no default value provided", key)
                     raise NoDefaultValueError
 
+
     @staticmethod
     def _parse_environ_var(env_var_value):
         """Determines if ENV variable is true or not"""
 
         return_value = env_var_value
-        if env_var_value in ["true", "True"]:
+        if return_value in ['true', 'True']:
             return_value = True
-        elif env_var_value in ["false", "False"]:
+        if return_value in ['false', 'False']:
             return_value = False
 
         return return_value

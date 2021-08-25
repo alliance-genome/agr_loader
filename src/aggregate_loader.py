@@ -70,7 +70,7 @@ def main():
 
 
 class AggregateLoader():
-    """This runs all the individiual ETL pipelines."""
+    """This runs all the individual ETL pipelines."""
 
     # This is the list of ETLs used for loading data.
     # The key (left) is derived from a value in the config YAML file.
@@ -180,6 +180,8 @@ class AggregateLoader():
         url = url.replace('SCHEMA_BRANCH', self.schema_branch)
         Download('tmp', url, 'species.yaml').download_file()
         self.logger.debug("Finished getting files initially")
+        if context_info.env["REDOWNLOAD_FROM_FMS"] is True:
+            self.logger.warning('REDOWNLOAD_FROM_FMS set to True, re-downloading all FMS files.')
 
     @classmethod
     def run_etl_groups(cls, logger, data_manager, neo_transactor):
