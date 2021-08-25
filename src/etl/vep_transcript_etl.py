@@ -171,7 +171,7 @@ class VEPTranscriptETL(ETL):
                     if key == 'IMPACT':
                         impact = value
                     elif key == 'HGVSp':
-                        hgvs_p = value
+                        hgvs_p = value.replace("%3D", "=")
                     elif key == 'HGVSc':
                         hgvs_c = value
                     elif key == 'HGVSg':
