@@ -80,40 +80,17 @@ class ECOMAPETL(ETL):
                    "threeLetterCode": columns[0]}
             eco_maps.append(eco)
 
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0000033",
-                   "threeLetterCode": "TAS"}
-            eco_maps.append(eco)
+        # per WG direction, hard code the following translations
+        hardcoded_eco_maps = [
+            {"ecoId": "ECO:0000033", "threeLetterCode": "TAS"},
+            {"ecoId": "ECO:0005613", "threeLetterCode": "IAGP"},
+            {"ecoId": "ECO:0007191", "threeLetterCode": "IAGP"},
+            {"ecoId": "ECO:0005612", "threeLetterCode": "IPM"},
+            {"ecoId": "ECO:0005611", "threeLetterCode": "IED"},
+            {"ecoId": "ECO:0007013", "threeLetterCode": "CEA"},
+            {"ecoId": "ECO:0007014", "threeLetterCode": "CEC"}
+        ]
 
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0005613",
-                   "threeLetterCode": "IAGP"}
-            eco_maps.append(eco)
-
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0007191",
-                   "threeLetterCode": "IAGP"}
-            eco_maps.append(eco)
-
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0005612",
-                   "threeLetterCode": "IPM"}
-            eco_maps.append(eco)
-
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0005611",
-                   "threeLetterCode": "IED"}
-
-            eco_maps.append(eco)
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0007013",
-                   "threeLetterCode": "CEA"}
-
-            eco_maps.append(eco)
-            # per WG direction, hard code this translation.
-            eco = {"ecoId": "ECO:0007014",
-                   "threeLetterCode": "CEC"}
-
-            eco_maps.append(eco)
+        eco_maps.extend(hardcoded_eco_maps)
 
         yield [eco_maps]
