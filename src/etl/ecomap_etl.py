@@ -26,7 +26,7 @@ class ECOMAPETL(ETL):
             SET e.displaySynonym = row.threeLetterCode"""
 
     def __init__(self, config):
-        """Initilaise object."""
+        """Initialize object."""
         super().__init__()
         self.data_type_config = config
 
