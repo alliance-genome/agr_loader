@@ -45,41 +45,45 @@ class ResourceDescriptorHelper2():
     # DB should not generate a url.
     no_url = {}
 
-    def get_key(self, alt_key):
+    def get_key(self, alt_key, identifier=None):
         """Get species/DB main key.
 
         key_str: str to search for main key
         Try splitting to see if that helps if main lookup fails.
+        If that also fails, try identifier lookup based on gid_pattern.
         """
         ret_key = None
         main_key = alt_key.upper()
-        if main_key not in self.key_lookup:
-            # try split incase RGD:123456 or something passed
-            key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
-            if not key_prefix:
-                mk_key = "{}".format(main_key)
-                if mk_key in self.missing_keys:
-                    self.missing_keys[mk_key] += 1
-                else:
-                    self.missing_keys[mk_key] = 1
-                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
-                    self.logger.critical(mess)
-                    self.logger.info("Available are %s", self.key_lookup.keys())
-                return ret_key
-            if key_prefix not in self.key_lookup:
-                self.logger.debug("%s Found after splitting", alt_key)
-                ret_key = self.key_lookup[key_prefix]
-            else:
-                if main_key in self.missing_keys:
-                    self.missing_keys[main_key] += 1
-                else:
-                    mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
-                    self.logger.critical(mess)
-                    self.logger.critical("Available are %s", self.key_lookup.keys())
-                    self.missing_keys[main_key] = 1
-        else:
+        if main_key in self.key_lookup:
             ret_key = self.key_lookup[main_key]
-        return ret_key
+            return ret_key
+
+        # try split incase RGD:123456 or something passed
+        key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
+        if key_prefix and key_prefix in self.key_lookup:
+            self.logger.debug("%s Found after splitting", alt_key)
+            ret_key = self.key_lookup[key_prefix]
+            return ret_key
+
+        #Try finding the correct match by matching the full identifier to the gid_pattern
+        if identifier:
+            for key in self.resource_descriptor_dict:
+                gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
+
+                if re.match(gid_pattern, identifier, re.IGNORECASE):
+                    ret_key = self.key_lookup[key]
+                    return ret_key
+
+        #No options left, report failure to find a match
+        if main_key in self.missing_keys:
+            self.missing_keys[main_key] += 1
+        else:
+            self.missing_keys[main_key] = 1
+            mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
+            self.logger.critical(mess)
+            self.logger.info("Available are %s", self.key_lookup.keys())
+
+        return None
 
     def get_short_name(self, alt_key):
         """Get short name."""
@@ -169,7 +173,7 @@ class ResourceDescriptorHelper2():
         resource_descriptor_file = Download('tmp', url, 'resourceDescriptors.yaml').get_downloaded_data()
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
-        # Convert the list into a more useful lookup dictionary keyed by db_prefix.
+        # Convert the list into a more useful lookup dictionary keyed by db_prefix and aliases.
         resource_descriptor_dict = {}
         for item in yaml_list:
             main_key = item['db_prefix'].upper()
@@ -301,7 +305,7 @@ class ResourceDescriptorHelper2():
         """Return URL for an identifier."""
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
 
-        key = self.get_key(db_prefix)
+        key = self.get_key(db_prefix, identifier)
         if not key:
             return None
         if key in self.no_url:
