@@ -68,7 +68,10 @@ class ResourceDescriptorHelper2():
         #Try finding the correct match by matching the full identifier to the gid_pattern
         if identifier:
             for key in self.resource_descriptor_dict:
-                gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
+                try:
+                    gid_pattern = self.resource_descriptor_dict[key]['gid_pattern']
+                except KeyError:
+                    continue
 
                 if re.match(gid_pattern, identifier, re.IGNORECASE):
                     ret_key = self.key_lookup[key]
