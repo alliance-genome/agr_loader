@@ -61,8 +61,9 @@ class ResourceDescriptorHelper2():
         # try split incase RGD:123456 or something passed
         key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
         if key_prefix and key_prefix in self.key_lookup:
-            self.logger.debug("%s Found after splitting", alt_key)
             ret_key = self.key_lookup[key_prefix]
+            mess = "Database key for {} found after splitting (matching key {}).".format(alt_key, ret_key)
+            self.logger.debug(mess)
             return ret_key
 
         #Try finding the correct match by matching the full identifier to the gid_pattern
@@ -74,7 +75,9 @@ class ResourceDescriptorHelper2():
                     continue
 
                 if re.match(gid_pattern, identifier, re.IGNORECASE):
-                    ret_key = self.key_lookup[key]
+                    ret_key = key
+                    mess = "Database key for {} found after matching identifier {} to gid_pattern (matching key {}).".format(alt_key, identifier, ret_key)
+                    self.logger.debug(mess)
                     return ret_key
 
         #No options left, report failure to find a match
@@ -82,7 +85,7 @@ class ResourceDescriptorHelper2():
             self.missing_keys[main_key] += 1
         else:
             self.missing_keys[main_key] = 1
-            mess = "The database key '{}' --> '{}' cannot be found in the lookup.".format(alt_key, main_key)
+            mess = "The database key '{}' --> '{}' cannot be found in the lookup (identifier {}).".format(alt_key, main_key, identifier)
             self.logger.critical(mess)
             self.logger.info("Available are %s", self.key_lookup.keys())
 
@@ -330,8 +333,7 @@ class ResourceDescriptorHelper2():
         regex_output = re.match(gid_pattern, identifier_post_processed, re.IGNORECASE)
         if regex_output is None:
             if key not in self.bad_regex:
-                self.logger.warning('Cross Reference identifier did %s',
-                                     'not match Resource Descriptor YAML file gid pattern.')
+                self.logger.warning('Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
                 self.logger.warning('Database prefix: %s', db_prefix)
                 self.logger.warning('Identifier: %s', identifier_post_processed)
                 self.logger.warning('gid pattern: %s', gid_pattern)
