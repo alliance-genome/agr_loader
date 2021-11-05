@@ -62,7 +62,7 @@ class ResourceDescriptorHelper2():
         key_prefix, _, _ = self.split_identifier(main_key, ignore_error=True)
         if key_prefix and key_prefix in self.key_lookup:
             ret_key = self.key_lookup[key_prefix]
-            mess = "Database key for {} found after splitting (matching key {}).".format(alt_key, ret_key)
+            mess = "Database key for '{}' found after splitting (matching key '{}').".format(alt_key, ret_key)
             self.logger.debug(mess)
             return ret_key
 
@@ -76,7 +76,7 @@ class ResourceDescriptorHelper2():
 
                 if re.match(gid_pattern, identifier, re.IGNORECASE):
                     ret_key = key
-                    mess = "Database key for {} found after matching identifier {} to gid_pattern (matching key {}).".format(alt_key, identifier, ret_key)
+                    mess = "Database key for '{}' found after matching identifier '{}' to gid_pattern (matching key '{}').".format(alt_key, identifier, ret_key)
                     self.logger.debug(mess)
                     return ret_key
 
