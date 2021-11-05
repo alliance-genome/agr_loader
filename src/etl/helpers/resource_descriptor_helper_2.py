@@ -341,4 +341,4 @@ class ResourceDescriptorHelper2():
                 self.bad_regex[key] = 1
             else:
                 self.bad_regex[key] += 1
-        return self.return_url_from_key_value(db_prefix, identifier_stripped, alt_page=page)
+        return self.return_url_from_key_value(key, identifier_stripped, alt_page=page)
