@@ -90,7 +90,7 @@ class GOETL(ETL):
             MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec) """
 
     def __init__(self, config):
-        """Initilaise object."""
+        """Initialize object."""
         super().__init__()
         self.data_type_config = config
 

@@ -29,7 +29,7 @@ class ExpressionRibbonOtherETL(ETL):
                 MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm) """
 
     def __init__(self, config):
-        """Initilaise object."""
+        """Initialize object."""
         super().__init__()
         self.data_type_config = config
 

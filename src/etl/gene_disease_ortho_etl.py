@@ -53,7 +53,7 @@ class GeneDiseaseOrthoETL(ETL):
                 CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)"""
 
     def __init__(self, config):
-        """Initilaise object."""
+        """Initialize object."""
         super().__init__()
         self.data_type_config = config
 
