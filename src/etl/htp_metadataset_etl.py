@@ -17,14 +17,14 @@ class HTPMetaDatasetETL(ETL):
         USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-        CREATE (ds:HTPDataset {primaryKey:row.datasetId})
-          SET ds.dateAssigned = row.dateAssigned,
-              ds.summary = row.summary,
-              ds.numChannels = row.numChannels,
-              ds.subSeries = row.subSeries,
-              ds.title = row.title,
-              ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
-              ds.dataProvider = row.dataProvider
+        MERGE (ds:HTPDataset {primaryKey:row.datasetId})
+          ON CREATE SET ds.dateAssigned = row.dateAssigned,
+                        ds.summary = row.summary,
+                        ds.numChannels = row.numChannels,
+                        ds.subSeries = row.subSeries,
+                        ds.title = row.title,
+                        ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                        ds.dataProvider = row.dataProvider
          """
 
     htp_dataset_pub_query_template = """
