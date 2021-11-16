@@ -303,8 +303,7 @@ class TestObject():
             # gff transcripts
             'FB:FBtr0307588', 'FB:FBgn0052821',
             # htp
-            'GEO:GSE145222', 'GEO:GSM4308629', 'GEO:GSE145199', 'GEO:GSM4308366', 'GEO:GSE13446', 'GEO:GSE15254',
-            'GEO:GSE15710',
+            'FB:FBlc0003325', 'FB:FBlc0003347', 'FB:FBlc0003498', 'FB:FBlc0000236',
             # interactions
             'FB:FBgn0063493', 'FB:FBgn0063492',
         }
