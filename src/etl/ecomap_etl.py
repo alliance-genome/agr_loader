@@ -76,7 +76,7 @@ class ECOMAPETL(ETL):
             if columns[0].startswith('#'):
                 continue
 
-            eco = {"ecoId": columns[2],
+            eco = {"ecoId": columns[1],
                    "threeLetterCode": columns[0]}
             eco_maps.append(eco)
 
