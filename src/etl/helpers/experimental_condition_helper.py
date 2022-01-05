@@ -22,6 +22,7 @@ class ExperimentalConditionHelper():
 
             MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
                 ON CREATE SET ec.conditionClassId     = row.conditionClassId,
+                            ec.conditionId          = row.conditionId,
                             ec.anatomicalOntologyId = row.anatomicalOntologyId,
                             ec.chemicalOntologyId   = row.chemicalOntologyId,
                             ec.geneOntologyId       = row.geneOntologyId,
@@ -59,7 +60,7 @@ class ExperimentalConditionHelper():
         for relation in entity_record['conditionRelations']:
             for condition in relation['conditions']:
                 # Store unique conditions
-                # Unique condition key: conditionStatement + conditionClassId
+                # Unique condition key: conditionStatement + conditionClassId + conditionId
                 #     + (anatomicalOntologyId | chemicalOntologyId | geneOntologyId | NCBITaxonID)
                 unique_key = str( condition.get('conditionStatement') or '' ) \
                               + condition.get('conditionClassId') \
@@ -73,6 +74,7 @@ class ExperimentalConditionHelper():
                     condition_dataset = {
                         "ecUniqueKey": unique_key,
                         "conditionClassId":     condition.get('conditionClassId'),
+                        "conditionId":          condition.get('conditionId'),
                         'anatomicalOntologyId': condition.get('anatomicalOntologyId'),
                         'chemicalOntologyId':   condition.get('chemicalOntologyId'),
                         'geneOntologyId':       condition.get('geneOntologyId'),
