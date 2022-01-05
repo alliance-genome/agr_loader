@@ -167,6 +167,7 @@ class TestClass():
                             dict(node='DiseaseEntityJoin', prop='sortOrder'),
                             dict(node='ExperimentalCondition', prop='primaryKey'),
                             dict(node='ExperimentalCondition', prop='conditionClassId'),
+                            dict(node='ExperimentalCondition', prop='conditionId'),
                             dict(node='ExperimentalCondition', prop='anatomicalOntologyId'),
                             dict(node='ExperimentalCondition', prop='chemicalOntologyId'),
                             dict(node='ExperimentalCondition', prop='geneOntologyId'),
