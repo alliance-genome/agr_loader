@@ -277,10 +277,14 @@ class VariationETL(ETL):
             genomic_reference_sequence = allele_record.get('genomicReferenceSequence')
             genomic_variant_sequence = allele_record.get('genomicVariantSequence')
 
-            if genomic_reference_sequence == 'N/A':
-                genomic_reference_sequence = ""
-            if genomic_variant_sequence == 'N/A':
-                genomic_variant_sequence = ""
+            if genomic_reference_sequence is not None:
+                genomic_reference_sequence = ''.join(genomic_reference_sequence.split())
+                if genomic_reference_sequence == 'N/A':
+                    genomic_reference_sequence = ""
+            if genomic_variant_sequence is not None:
+                genomic_variant_sequence = ''.join(genomic_variant_sequence.split())
+                if genomic_variant_sequence == 'N/A':
+                    genomic_variant_sequence = ""
 
             padding_left = ""
             padding_right = ""

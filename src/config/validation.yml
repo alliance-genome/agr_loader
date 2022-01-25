@@ -1,7 +1,7 @@
 schemaVersion:
   regex: ^(\d(\.\d){3})$
   required: True
-releaseVersion: 
+releaseVersion:
   regex: ^(\d(\.\d){2})$
   required: True
 SPECIES:
@@ -42,7 +42,7 @@ BIOGRID-ORCS:
   allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
-  allowed: [R627, GRCm39, GRCz11, Rnor60, WBcel235]
+  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235]
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -52,9 +52,6 @@ HTPDATASET:
 HTPDATASAMPLE:
   type: list
   allowed: [SGD, FB, WB, ZFIN, RGD, MGI]
-VEPGENE:
-  type: list
-  allowed: [FB, WB, ZFIN, RGD, MGI]
 VEPGENE:
   type: list
   allowed: [FB, WB, ZFIN, RGD, MGI]
@@ -69,11 +66,11 @@ ProteinSequence:
   allowed: [ProteinSequence]
 ONTOLOGY:
   type: list
-  allowed: 
+  allowed:
     - GO
     - SO
     - DOID
-    - MI 
+    - MI
     - ZFA
     - ZFS
     - WBBT
@@ -117,15 +114,15 @@ GeneDiseaseOrtho:
   allowed: [GeneDiseaseOrtho]
 Closure:
   type: list
-  allowed: 
-    - GO 
-    - SO 
+  allowed:
+    - GO
+    - SO
     - DOID
-    - MI 
-    - ZFA 
-    - ZFS 
-    - WBBT 
-    - CL 
+    - MI
+    - ZFA
+    - ZFS
+    - WBBT
+    - CL
     - FBCV
     - FBBT
     - MMUSDV
@@ -177,4 +174,3 @@ GENEPHENOCROSSREFERENCE:
 HTP:
   type: list
   allowed: [TAGS]
-
