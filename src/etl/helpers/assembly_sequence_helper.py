@@ -19,6 +19,7 @@ class AssemblySequenceHelper():
             sub_type = 'R627'
         fasta_config = data_manager.get_config('FASTA')
 
+        filepath = None
         for sub_type_config in fasta_config.get_sub_type_objects():
             if not sub_type == sub_type_config.get_sub_data_type():
                 self.logger.debug(sub_type_config.get_sub_data_type())
