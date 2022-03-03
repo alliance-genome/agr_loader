@@ -273,15 +273,15 @@ class OrthologyETL(ETL):
 
                     # Establishes the number of entries to yield (return) at a time.
                     if counter == batch_size:
-                        list_to_yeild = []
+                        list_to_yield = []
                         for mod_sub_type in sub_types:
                             if mod_sub_type != sub_type:
-                                list_to_yeild.append(list_of_mod_lists[mod_sub_type])
-                        list_to_yeild.append(matched_algorithm_data)
-                        list_to_yeild.append(unmatched_algorithm_data)
-                        list_to_yeild.append(not_called_algorithm_data)
+                                list_to_yield.append(list_of_mod_lists[mod_sub_type])
+                        list_to_yield.append(matched_algorithm_data)
+                        list_to_yield.append(unmatched_algorithm_data)
+                        list_to_yield.append(not_called_algorithm_data)
 
-                        yield list_to_yeild
+                        yield list_to_yield
 
                         for mod_sub_type in sub_types:
                             if mod_sub_type != sub_type:
@@ -292,12 +292,12 @@ class OrthologyETL(ETL):
                         counter = 0
 
             if counter > 0:
-                list_to_yeild = []
+                list_to_yield = []
                 for mod_sub_type in sub_types:
                     if mod_sub_type != sub_type:
-                        list_to_yeild.append(list_of_mod_lists[mod_sub_type])
-                list_to_yeild.append(matched_algorithm_data)
-                list_to_yeild.append(unmatched_algorithm_data)
-                list_to_yeild.append(not_called_algorithm_data)
+                        list_to_yield.append(list_of_mod_lists[mod_sub_type])
+                list_to_yield.append(matched_algorithm_data)
+                list_to_yield.append(unmatched_algorithm_data)
+                list_to_yield.append(not_called_algorithm_data)
 
-                yield list_to_yeild
+                yield list_to_yield

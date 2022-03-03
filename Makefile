@@ -1,5 +1,5 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
-ALLIANCE_RELEASE=4.1.0
+ALLIANCE_RELEASE=5.1.0
 DOCKER_PULL_TAG=build
 DOCKER_BUILD_TAG=latest
 
@@ -47,8 +47,8 @@ quick_unit_test: build
 unit_tests:
 	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose run agr_loader_test_unit_tests
 
-bash:
-	REG=${REG} DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} ALLIANCE_RELEASE=${ALLIANCE_RELEASE} docker-compose up agr_loader bash
+run_loader_bash:
+	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} bash
 
 # reload targets do remove and re-download files to the local docker volume.
 reloaddb: 
@@ -87,6 +87,3 @@ rebuild_test:
 	sleep 10
 	@${MAKE} --no-print-directory build
 	REG=${REG} docker-compose up agr_loader_test
-
-run_loader_bash:
-	docker run --rm -it --volume agr_loader_agr_data_share:/usr/src/app/tmp -e TEST_SET=True ${REG}/agr_loader_run:${DOCKER_BUILD_TAG} bash

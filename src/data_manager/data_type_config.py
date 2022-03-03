@@ -44,7 +44,7 @@ class DataTypeConfig():
         return self.generator_batch_size
 
     def check_for_single(self):
-        """Determin if list of subtypes is only one"""
+        """Determine if list of subtypes is only one"""
 
         if len(self.list_of_subtype_objects) > 1:
             self.logger.critical('Called for single item in object containing multiple children.')

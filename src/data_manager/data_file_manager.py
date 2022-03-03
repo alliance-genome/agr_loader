@@ -35,6 +35,13 @@ class DataFileManager(metaclass=Singleton):
         validation_schema_file = open(validation_yaml_file_loc, 'r')
         self.validation_schema = yaml.load(validation_schema_file, Loader=yaml.SafeLoader)
 
+        # Load local data.
+        local_data_file_loc = os.path.abspath('src/config/local_data.yml')
+        self.logger.info('Loading local data file: %s', local_data_file_loc)
+        local_data_file = open(local_data_file_loc, 'r')
+        self.local_data = yaml.load(local_data_file, Loader=yaml.SafeLoader)
+        self.logger.debug("Local Data: %s", self.local_data)
+
         # Assign values for thread counts.
         self.file_transactor_threads = int(context_info.env["FILE_TRANSACTOR_THREADS"])
         self.neo4j_transactor_threads = int(context_info.env["NEO4J_TRANSACTOR_THREADS"])
@@ -175,7 +182,8 @@ class DataFileManager(metaclass=Singleton):
         config_values_to_ignore = [
             'releaseVersion',  # Manually assigned above.
             'FileTransactorThreads',
-            'Neo4jTransactorThreads']
+            'Neo4jTransactorThreads',
+            'schemaVersion']
 
         for entry in self.config_data.keys():  # Iterate through our config file.
             self.logger.debug("Entry: %s", entry)
@@ -201,6 +209,23 @@ class DataFileManager(metaclass=Singleton):
                         self.altered_submission_data[entry].append([sub_entry, path, temp_extracted_file])
             else:
                 self.logger.debug("Ignoring entry: %s", entry)
+
+        if self.local_data:
+            self.logger.warning('Local data file is not empty, attempting to load local data.')
+            self.logger.warning('FMS data will be overwritten.')
+            for entry in self.altered_submission_data: # For all our current data items from the FMS.
+                if entry in self.local_data: # If we have the same datatype in our local data, e.g. ORTHO.
+                    for subdata in self.local_data[entry].keys(): # Loops through all the local subtypes in ORTHO, e.g. FB
+                        for list_item_to_remove in self.altered_submission_data[entry]: # For all the subtypes in our current data items.
+                            # If we find FB under ORTHO in the current data items (and we have it locally as well).
+                            if list_item_to_remove[0] == subdata:
+                                # Remove it.
+                                self.altered_submission_data[entry].remove(list_item_to_remove)
+                                # Add the local version instead.
+                                path = self.local_data[entry][subdata]['s3url']
+                                temp_extracted_file = self.local_data[entry][subdata]['local']
+                                self.altered_submission_data[entry].append([subdata, path, temp_extracted_file])
+                                self.logger.warning('Overwriting FMS data with local data for %s: %s.', entry, subdata)
 
         self.logger.debug("Loaded Types: %s", self.altered_submission_data)
 
