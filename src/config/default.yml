@@ -1,5 +1,5 @@
 schemaVersion: 1.0.1.4
-releaseVersion: 4.1.0
+releaseVersion: 5.1.0
 SPECIES: [Species]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB, MGI]
@@ -16,8 +16,6 @@ VARIATION: [FB, WB, ZFIN, RGD, MGI]
 GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
-HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
-HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
 ONTOLOGY:
   - SO
   - GO
