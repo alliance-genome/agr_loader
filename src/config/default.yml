@@ -1,5 +1,5 @@
 schemaVersion: 1.0.1.4
-releaseVersion: 5.1.0
+releaseVersion: 4.1.0
 SPECIES: [Species]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB, MGI]
