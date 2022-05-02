@@ -1,6 +1,7 @@
-schemaVersion: 1.0.1.4
-releaseVersion: 4.1.0
+schemaVersion: 1.0.1.5
+releaseVersion: 5.2.0
 SPECIES: [Species]
+HTP: [TAGS]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB, MGI]
 ALLELE: [FB, WB, ZFIN, RGD, MGI, SGD]

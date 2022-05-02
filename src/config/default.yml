@@ -1,6 +1,7 @@
-schemaVersion: 1.0.1.4
-releaseVersion: 5.1.0
+schemaVersion: 1.0.1.5
+releaseVersion: 5.2.0
 SPECIES: [Species]
+HTP: [TAGS]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
 CONSTRUCT: [ZFIN, WB, FB, MGI]
 ALLELE: [FB, WB, ZFIN, RGD, MGI, SGD]
@@ -16,6 +17,8 @@ VARIATION: [FB, WB, ZFIN, RGD, MGI]
 GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
 AGM: [ZFIN, MGI, RGD, WB]
 SQTR: [ZFIN]
+HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
+HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
 ONTOLOGY:
   - SO
   - GO
