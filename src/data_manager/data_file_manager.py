@@ -212,7 +212,7 @@ class DataFileManager(metaclass=Singleton):
 
         if self.local_data:
             self.logger.warning('Local data file is not empty, attempting to load local data.')
-            self.logger.warning('FMS data will be overwritten.')
+            self.logger.warning('All local data will take precedence over FMS data.')
             for entry in self.altered_submission_data: # For all our current data items from the FMS.
                 if entry in self.local_data: # If we have the same datatype in our local data, e.g. ORTHO.
                     for subdata in self.local_data[entry].keys(): # Loops through all the local subtypes in ORTHO, e.g. FB
