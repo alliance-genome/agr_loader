@@ -1,0 +1,32 @@
+# Use this file for declaring local data to be loaded.
+# These data take precedence over datatype / subtype loaded from the FMS.
+# See examples below for data formatting.
+
+# ORTHO: 
+#   FB:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_FB_v9_test.json.gz
+#     local: 5.1.0/BGI/FB/orthology_FB_v9_test.json
+
+#   SGD:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_SGD_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_SGD_v9_test.json
+
+#   HUMAN:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_Human_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_Human_v9_test.json
+
+#   MGI:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_MGI_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_MGI_v9_test.json 
+
+#   RGD:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_RGD_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_RGD_v9_test.json
+
+#   WB:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_WB_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_WB_v9_test.json
+
+#   ZFIN:
+#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_ZFIN_v9_test.json.gz
+#     local: 5.1.0/BGI/SGD/orthology_ZFIN_v9_test.json

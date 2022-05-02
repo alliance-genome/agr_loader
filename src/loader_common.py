@@ -39,13 +39,13 @@ class ContextInfo(metaclass=Singleton):
                 # keep the value from the config file if is not none.
                 # Raise exception otherwise
                 if self.env[key] != "none":
-                    logger.warning("variable %s not set. Using default value %s",
+                    logger.warning("Variable %s not set. Using default value %s.",
                                    key,
                                    str(self.env[key]))
                 else:
-                    logger.error("required variable %s not set and no default value provided", key)
+                    logger.error("Required variable %s is not set and no default value was provided.", key)
                     raise NoDefaultValueError
-
+        logger.warning('Alliance Release set to %s', self.env['ALLIANCE_RELEASE'])
 
     @staticmethod
     def _parse_environ_var(env_var_value):

@@ -1,17 +1,8 @@
 """Gets the subtypes config"""
 
 import logging
-import os
-import json
-import sys
-
-from pathlib import Path
 from urllib.parse import urljoin
-import jsonref
-import jsonschema
-
-
-from files import TARFile, Download, GZIPFile
+from files import Download
 
 
 class SubTypeConfig():
