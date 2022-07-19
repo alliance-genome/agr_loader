@@ -245,7 +245,9 @@ class ETLHelper():
             4932: 'SGD:',
             7227: 'FB:',
             9606: '',  # No HGNC prefix
-            2697049: ''  # No SARS-CoV-2 prefix
+            2697049: '',  # No SARS-CoV-2 prefix
+            8364: 'Xenbase:', # X. tropicalis
+            8355: 'Xenbase:' # X. laevis
         }
 
         new_identifier = species_dict[taxon_id] + identifier
