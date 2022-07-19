@@ -1,24 +1,8 @@
-schemaVersion: 1.0.1.5
-releaseVersion: 5.2.0
+schemaVersion: 1.0.1.6
+releaseVersion: 5.2.1
 SPECIES: [Species]
-HTP: [TAGS]
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
-CONSTRUCT: [ZFIN, WB, FB, MGI]
-ALLELE: [FB, WB, ZFIN, RGD, MGI, SGD]
-EXPRESSION: [FB, SGD, WB, ZFIN, RGD, MGI]
-PHENOTYPE: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-DAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GAF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-GEOXREF: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-BIOGRID-ORCS: [FB, MGI, HUMAN]
-FASTA: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235]
-GENEEEXPRESSIONATLASSITEMAP: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VARIATION: [FB, WB, ZFIN, RGD, MGI]
+BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT, SARS-CoV-2]
 GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
-AGM: [ZFIN, MGI, RGD, WB]
-SQTR: [ZFIN]
-HTPDATASET: [SGD, FB, WB, ZFIN, RGD, MGI]
-HTPDATASAMPLE: [SGD, FB, WB, ZFIN, RGD, MGI]
 ONTOLOGY:
   - SO
   - GO
@@ -49,46 +33,8 @@ ONTOLOGY:
   - OBI
   - BTO
   - CHEBI
-ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ExpressionRibbon: [ExpressionRibbon]
-ExpressionRibbonOther: [ExpressionRibbonOther]
-GeneDiseaseOrtho: [GeneDiseaseOrtho]
-Closure:
-  - GO
-  - SO
-  - DOID
-  - MI
-  - ZFA
-  - ZFS
-  - WBBT
-  - CL
-  - FBBT
-  - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
-  - ECO
-  - UBERON
-  - PATO
-  - APO
-  - DPO
-  - FYPO
-  - WBPhenotype
-  - MP
-  - HP
-  - OBI
-  - BTO
-  - CHEBI
-INTERACTION-MOL: [COMBINED]
-INTERACTION-GEN: [COMBINED]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
-VEPGENE: [FB, WB, ZFIN, RGD, MGI]
-ProteinSequence: [ProteinSequence]
-GENEPHENOCROSSREFERENCE: [FB, SGD, WB, ZFIN, RGD, MGI]
-DB-SUMMARY:
-  - 3.0.0
+  - ZECO
+  - XBED
+  - XSMO
+  - XPO
+  - XAO

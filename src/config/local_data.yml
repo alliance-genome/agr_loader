@@ -11,22 +11,20 @@
 #     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_SGD_v9_test.json.gz
 #     local: 5.1.0/BGI/SGD/orthology_SGD_v9_test.json
 
-#   HUMAN:
-#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_Human_v9_test.json.gz
-#     local: 5.1.0/BGI/SGD/orthology_Human_v9_test.json
+BGI:
+  XBXL:
+    s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json.gz
+    local: 5.2.1/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json
 
-#   MGI:
-#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_MGI_v9_test.json.gz
-#     local: 5.1.0/BGI/SGD/orthology_MGI_v9_test.json 
+  XBXT:
+    s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json.gz
+    local: 5.2.1/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json
 
-#   RGD:
-#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_RGD_v9_test.json.gz
-#     local: 5.1.0/BGI/SGD/orthology_RGD_v9_test.json
+GFF:
+  XBXL:
+    s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXL/GFF_XBXL_0.gff.gz
+    local: 5.2.1/GFF/XBXL/GFF_XBXL.gff
 
-#   WB:
-#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_WB_v9_test.json.gz
-#     local: 5.1.0/BGI/SGD/orthology_WB_v9_test.json
-
-#   ZFIN:
-#     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_ZFIN_v9_test.json.gz
-#     local: 5.1.0/BGI/SGD/orthology_ZFIN_v9_test.json
+  XBXT:
+    s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXT/GFF_XBXT_0.gff.gz
+    local: 5.2.1/GFF/XBXT/GFF_XBXT.gff

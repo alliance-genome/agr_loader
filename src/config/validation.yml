@@ -9,7 +9,7 @@ SPECIES:
   allowed: [Species]
 BGI:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT, SARS-CoV-2]
 CONSTRUCT:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -97,6 +97,10 @@ ONTOLOGY:
     - BTO
     - CHEBI
     - ZECO
+    - XBED
+    - XSMO
+    - XAO
+    - XPO
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -164,7 +168,7 @@ ECOMAP:
   allowed: [ECOMAP]
 GFF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT]
 DB-SUMMARY:
   type: list
   allowed: [2.3.0, 3.0.0]
