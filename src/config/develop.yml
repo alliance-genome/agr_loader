@@ -1,39 +1,22 @@
 schemaVersion: 1.0.1.6
 releaseVersion: 5.2.1
 SPECIES: [Species]
-BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT, SARS-CoV-2]
-GFF: [FB, WB, ZFIN, MGI, RGD, SGD]
+BGI: [FB, WB, XBXL, XBXT]
+GFF: [FB, WB, XBXL, XBXT]
 ONTOLOGY:
   - SO
   - GO
   - DOID
   - MI
-  - ZFA
-  - ZFS
   - WBBT
   - CL
   - FBBT
   - FBCV
-  - MMUSDV
-  - BSPO
-  - MMO
-  - WBLS
-  - EMAPA
-  - MA
   - ECO
   - UBERON
   - ECOMAP
-  - PATO
-  - APO
-  - DPO
-  - FYPO
   - WBPhenotype
-  - MP
-  - HP
-  - OBI
-  - BTO
   - CHEBI
-  - ZECO
   - XBED
   - XSMO
   - XPO
