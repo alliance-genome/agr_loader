@@ -11,20 +11,29 @@
 #     s3url: https://diopt-test.s3.amazonaws.com/orthology/orthology_SGD_v9_test.json.gz
 #     local: 5.1.0/BGI/SGD/orthology_SGD_v9_test.json
 
-BGI:
-  XBXL:
-    s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json.gz
-    local: 5.2.1/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json
+# BGI:
+#   XBXL:
+#     s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json.gz
+#     local: 5.3.0/BGI/XBXL/1.0.1.6_BGI_XBXL_0.json
 
-  XBXT:
-    s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json.gz
-    local: 5.2.1/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json
+#   XBXT:
+#     s3url: https://download.alliancegenome.org/5.2.1/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json.gz
+#     local: 5.3.0/BGI/XBXT/1.0.1.6_BGI_XBXT_0.json
 
-GFF:
-  XBXL:
-    s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXL/GFF_XBXL_0.gff.gz
-    local: 5.2.1/GFF/XBXL/GFF_XBXL.gff
+# GFF:
+#   XBXL:
+#     s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXL/GFF_XBXL_0.gff.gz
+#     local: 5.3.0/GFF/XBXL/GFF_XBXL.gff
 
-  XBXT:
-    s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXT/GFF_XBXT_0.gff.gz
-    local: 5.2.1/GFF/XBXT/GFF_XBXT.gff
+#   XBXT:
+#     s3url: https://download.alliancegenome.org/5.2.1/GFF/XBXT/GFF_XBXT_0.gff.gz
+#     local: 5.3.0/GFF/XBXT/GFF_XBXT.gff
+
+# EXPRESSION:
+#   XBXL:
+#     s3url: https://download.alliancegenome.org/5.3.0/EXPRESSION/XBXL/1.0.1.6_EXPRESSION_XBXL_0.json.gz
+#     local: 5.3.0/EXPRESSION/XBXL/1.0.1.6_EXPRESSION_XBXL_0.json
+
+#   XBXT:
+#     s3url: https://download.alliancegenome.org/5.3.0/EXPRESSION/XBXT/1.0.1.6_EXPRESSION_XBXT_0.json.gz
+#     local: 5.3.0/EXPRESSION/XBXT/1.0.1.6_EXPRESSION_XBXT_0.json
