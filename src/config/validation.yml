@@ -33,7 +33,7 @@ EXPRESSION:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT]
 GAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XB, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
