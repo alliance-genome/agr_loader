@@ -23,7 +23,6 @@ class ResourceDescriptorHelper2():
     key_to_fullname = {}
     key_to_order = {}
 
-    taxon_to_species = {}
     taxon_to_shortname = {}
     taxon_to_mod = {}
 
@@ -140,7 +139,6 @@ class ResourceDescriptorHelper2():
             # Special treatment for yeast
             # Sce has 2 taxon id's so hard code the second one not in species file
             if item['fullName'] == 'Saccharomyces cerevisiae':
-                self.taxon_to_species['4932'] = species
                 self.taxon_to_shortname['4932'] = item['shortName']
                 self.taxon_to_mod['4932'] = mod
 
