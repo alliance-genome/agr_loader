@@ -33,7 +33,7 @@ EXPRESSION:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT]
 GAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Xenbase, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XB, HUMAN]
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -106,7 +106,7 @@ ExpressionAtlas:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, Xenbase, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XB, HUMAN]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
