@@ -366,7 +366,7 @@ def test_expression_for_non_human_species_exists():
              RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 6
+        assert record["counter"] == 7
 
 
 def test_cellular_component_relationship_for_expression_exists():

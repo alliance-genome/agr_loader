@@ -65,7 +65,7 @@ reload:
 
 reload_test: 
 	@${MAKE} --no-print-directory startdb
-	docker-compose down
+	@${MAKE} --no-print-directory removedb
 	@${MAKE} --no-print-directory startdb
 	sleep 10
 	@${MAKE} --no-print-directory build

@@ -534,8 +534,12 @@ class GeneDescriptionsETL(ETL):
                  "have been trimmed to an ancestor term in the ontology, in order to balance readability with the " \
                  "amount of information in the description. The complete set of annotations to any gene in this file " \
                  "may be found in the relevant data tables on the Alliance gene page."
-        species = self.etlh.species_lookup_by_data_provider(data_provider)
-        taxon_id = self.etlh.get_taxon_from_mod(data_provider)
+        # TODO Unfortunately we can no longer lookup species by data provider as Xenbase now provides multiple species.
+        # TODO The function below will need to be modified in order to lookup species and/or taxon id.
+        # species = self.etlh.species_lookup_by_data_provider(data_provider)
+        # taxon_id = self.etlh.get_taxon_from_mod(data_provider)
+        taxon_id = 1234
+        species = 'Tempus species'
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
                                data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
                                                                                             taxon_id)

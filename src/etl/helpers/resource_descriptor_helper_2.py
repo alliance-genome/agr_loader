@@ -21,9 +21,11 @@ class ResourceDescriptorHelper2():
 
     # species short cuts
     key_to_fullname = {}
-    key_to_shortname = {}
     key_to_order = {}
-    key_to_taxonid = {}
+
+    taxon_to_species = {}
+    taxon_to_shortname = {}
+    taxon_to_mod = {}
 
     # report deprecated methods only one
     deprecated_mess = {}
@@ -91,41 +93,28 @@ class ResourceDescriptorHelper2():
 
         return None
 
-    def get_short_name(self, alt_key):
+    def get_short_name_from_taxon(self, key):
         """Get short name."""
         name = 'Alliance'
         try:
-            key = self.get_key(alt_key)
-            name = self.key_to_shortname[key]
+            name = self.taxon_to_shortname[key]
         except KeyError:
             pass
         return name
 
-    def get_full_name_from_key(self, alt_key):
-        """Lookup fullname for a given species key.
+    def get_mod_from_taxon(self,key):
+        """Get mod from taxon id."""
+        mod = None
+        if key in self.taxon_to_mod:
+            mod = self.taxon_to_mod[key]
+        return mod
 
-        If key not found return None and let user deal with it.
-        """
-        key = self.get_key(alt_key)
-        if key in self.key_to_fullname:
-            return self.key_to_fullname[key]
-        return None
-
-    def get_taxon_from_key(self, alt_key):
+    def get_species_from_taxon(self, key):
         """Get taxon id (number bit only ) from key."""
-        key = self.get_key(alt_key)
-        if key in self.key_to_taxonid:
-            return self.key_to_taxonid[key]
-        return None
-
-    def get_order(self, identifier):
-        """Get order for a key."""
-        order = None
-        try:
-            order = self.key_to_order[self.get_key(identifier)]
-        except KeyError:
-            self.logger.critical("Could not find orddr for identifier %s", identifier)
-        return order
+        taxon_id = None
+        if key in self.taxon_to_species:
+            taxon_id = self.taxon_to_species[key]
+        return taxon_id
 
     def _get_alt_keys(self):
         """Get alternative keys for species.
@@ -141,28 +130,26 @@ class ResourceDescriptorHelper2():
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for item in yaml_list:
-            db_name = item['primaryDataProvider']['dataProviderShortName'].upper()
+            mod = item['primaryDataProvider']['dataProviderShortName'].upper()
             # Hack human data comes from RGD but we do not want to overwrite RGD
             # So hardcode test here to HGNC as the key instead.
-            if db_name == 'RGD' and item['fullName'] == 'Homo sapiens':
-                db_name = 'HUMAN'
-                self.key_lookup['HUMAN'] = db_name
-            self.key_lookup[db_name] = db_name
-            self.key_lookup[item['fullName'].upper()] = db_name
-            self.key_to_fullname[db_name] = item['fullName']
-            for name in item['commonNames']:
-                self.key_lookup[name.upper()] = db_name
+            if mod == 'RGD' and item['fullName'] == 'Homo sapiens':
+                mod = 'HUMAN'
+
             tax_word, tax_id, _ = self.split_identifier(item['taxonId'])
-            self.key_to_taxonid[db_name] = tax_id
-            self.key_lookup[item['taxonId'].upper()] = db_name
-            self.key_lookup[tax_id] = db_name
+
+            # Populate taxon to short name
+            self.taxon_to_shortname[tax_id] = item['shortName']
+
+            # Populate taxon to mod
+            self.taxon_to_mod[tax_id] = mod
+
+            # Special treatment for yeast
             # Sce has 2 taxon id's so hard code the second one not in species file
             if item['fullName'] == 'Saccharomyces cerevisiae':
-                self.key_lookup['4932'] = db_name
-                self.key_lookup['NCBITAXON:4932'] = db_name
-            self.key_lookup[item['shortName'].upper()] = db_name
-            self.key_to_order[db_name] = item['phylogenicOrder']
-            self.key_to_shortname[db_name] = item['shortName']
+                self.taxon_to_species['4932'] = species
+                self.taxon_to_shortname['4932'] = item['shortName']
+                self.taxon_to_mod['4932'] = mod
 
     def get_data(self):
         """Return dict."""

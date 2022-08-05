@@ -151,50 +151,6 @@ class ETLHelper():
 
         return cross_reference
 
-    def get_species_order(self, taxon_id):
-        """Get Species Order."""
-        order = None
-        try:
-            order = self.rdh2.get_order(taxon_id)
-        except KeyError:
-            self.logger.critical("Could not find order for taxon_id '%s'", taxon_id)
-        return order
-
-    def species_name_lookup(self, alt_key):
-        """Lookup species name using some key.
-
-        alt_key: can be things like Taxon_id, (i.e. NCBITaxon:9606 or 9606)
-                 any case mod name (i.e. Rgd, RGD),
-                 common names (i.e. rat, rno)
-        """
-        species_name = None
-        try:
-            species_name = self.rdh2.get_full_name_from_key(alt_key)
-        except KeyError:
-            self.logger.critical("Could not find species name for %s", alt_key)
-
-        return species_name
-
-    def species_lookup_by_taxonid(self, taxon_id):
-        """Species Lookup by Taxon ID."""
-        return self.species_name_lookup(taxon_id)
-
-    def species_lookup_by_data_provider(self, provider):
-        """Species Lookup by Data Provider."""
-        return self.species_name_lookup(provider)
-
-    def data_provider_lookup(self, species):
-        """Lookup Data Provider."""
-        mod = 'Alliance'
-        if species == 'Homo sapiens':
-            mod = 'RGD'
-        else:
-            try:
-                mod = self.rdh2.get_key(species)
-            except KeyError:
-                self.logger.critical("Using default %s as %s not found", mod, species)
-        return mod
-
     def get_complete_url_ont(self, local_id, global_id, key=None):
         """Get Complete 'ont'."""
         page = None
@@ -258,7 +214,7 @@ class ETLHelper():
         """Get short Species Abbreviation."""
         short_species_abbreviation = 'Alliance'
         try:
-            short_species_abbreviation = self.rdh2.get_short_name(taxon_id)
+            short_species_abbreviation = self.rdh2.get_short_name_from_taxon(taxon_id)
         except KeyError:
             self.logger.critical("Problem looking up short species name for %s", taxon_id)
 
@@ -273,11 +229,7 @@ class ETLHelper():
 
     def get_mod_from_taxon(self, taxon_id):
         """Get MOD from Taxon."""
-        return self.rdh2.get_key(taxon_id)
-
-    def get_taxon_from_mod(self, mod):
-        """Get Taxon From MOD."""
-        return self.rdh2.get_taxon_from_key(mod)
+        return self.rdh2.get_mod_from_taxon(taxon_id)
 
     def get_page_complete_url(self, local_id, xref_url_map, prefix, page):
         """Get Page Complete URL."""
