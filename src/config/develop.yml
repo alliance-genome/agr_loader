@@ -1,5 +1,3 @@
-schemaVersion: 1.0.1.6
-releaseVersion: 5.3.0
 SPECIES: [Species]
 HTP: [TAGS]
 BGI: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT, SARS-CoV-2]
