@@ -55,7 +55,7 @@ ONTOLOGY:
   - XPO
   - XAO
 ExpressionAtlas: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
-ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, Xenbase, HUMAN]
+ORTHO: [FB, SGD, WB, ZFIN, RGD, MGI, XB, HUMAN]
 ExpressionRibbon: [ExpressionRibbon]
 ExpressionRibbonOther: [ExpressionRibbonOther]
 GeneDiseaseOrtho: [GeneDiseaseOrtho]
