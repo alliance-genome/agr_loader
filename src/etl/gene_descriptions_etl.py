@@ -538,7 +538,7 @@ class GeneDescriptionsETL(ETL):
         # TODO The function below will need to be modified in order to lookup species and/or taxon id.
         # species = self.etlh.species_lookup_by_data_provider(data_provider)
         # taxon_id = self.etlh.get_taxon_from_mod(data_provider)
-        taxon_id = 1234
+        taxon_id = '1234'
         species = 'Tempus species'
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
                                data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
