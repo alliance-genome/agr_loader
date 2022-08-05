@@ -27,7 +27,7 @@ EXPRESSION:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT]
 GAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, XB, MGI, HUMAN]
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -142,6 +142,10 @@ Closure:
     - BTO
     - CHEBI
     - ZECO
+    - XBED
+    - XSMO
+    - XPO
+    - XAO
 INTERACTION-GEN:
   type: list
   allowed: [COMBINED]
