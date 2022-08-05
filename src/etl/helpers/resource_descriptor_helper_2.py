@@ -109,13 +109,6 @@ class ResourceDescriptorHelper2():
             mod = self.taxon_to_mod[key]
         return mod
 
-    def get_species_from_taxon(self, key):
-        """Get taxon id (number bit only ) from key."""
-        taxon_id = None
-        if key in self.taxon_to_species:
-            taxon_id = self.taxon_to_species[key]
-        return taxon_id
-
     def _get_alt_keys(self):
         """Get alternative keys for species.
 
