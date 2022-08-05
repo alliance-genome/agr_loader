@@ -20,6 +20,10 @@ class TestClass():
                    'Cel': 'Caenorhabditis elegans',
                    'worm': 'Caenorhabditis elegans',
                    'Dme': 'Drosophila melanogaster',
+                   'Xtr': 'Xenopus tropicalis',
+                   'Xla': 'Xenopus laevis',
+                   'NCBITaxon:8364': 'Xenopus tropicalis',
+                   'NCBITaxon:8355': 'Xenopus laevis',
                    'bad': None}  # Bad lookup returns None
 
         for key in lookups.keys():
@@ -34,6 +38,8 @@ class TestClass():
                    'Cel': 60,
                    'worm': 60,
                    'Dme': 50,
+                   'Xtr': 45,
+                   'Xla': 46,
                    'bad': None}  # Bad lookup returns None
 
         for key in lookups.keys():
@@ -48,6 +54,8 @@ class TestClass():
                    'Dme': 'FB',
                    'Saccharomyces cerevisiae': 'SGD',
                    'Homo sapiens': 'RGD',  # Wierd one
+                   'Xenopus tropicalis': 'XB',
+                   'Xenopus laevis': 'XB',
                    'bad': None}  # Bad lookup returns None
 
         for key in lookups.keys():
@@ -64,6 +72,7 @@ class TestClass():
         lookups = [{'key': 'RGD', 'value': '123456', 'page': None, 'result': 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=RGD:123456'},
                    {'key': 'RGD', 'value': '234567', 'page': 'allele', 'result': 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=RGD:234567'},
                    {'key': 'FB', 'value': 'something', 'page': None, 'result': 'https://flybase.org/reports/something.html'},
+                   {'key': 'Xenbase', 'value': 'something', 'page': None, 'result': 'https://www.xenbase.org/entry/something'},
                    {'key': 'FB', 'value': 'FBsomething', 'page': 'badpage', 'result': None},
                    {'key': 'BADKEY', 'value': 'something', 'page': None, 'result': None}]
 
