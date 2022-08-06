@@ -18,7 +18,7 @@ class TestClass():
             '10116': 'Rno',
             '8364': 'Xtr',
             '8355': 'Xla',
-            'bad': 'Alliance'}  # Bad lookup returns 'Alliance''
+            'bad': 'Alliance'}  # Bad lookup returns 'Alliance'
 
         for key in lookups.keys():
             name = self.etlh.get_short_species_abbreviation(key)

@@ -95,10 +95,10 @@ class ResourceDescriptorHelper2():
     def get_short_name_from_taxon(self, key):
         """Get short name."""
         name = 'Alliance'
+        tax_id = key
         # Split off the ID if the key has taxon in it.
         if 'taxon' in key.lower():
             tax_word, tax_id, _ = self.split_identifier(key)
-
         try:
             name = self.taxon_to_shortname[tax_id]
         except KeyError:
@@ -108,8 +108,14 @@ class ResourceDescriptorHelper2():
     def get_mod_from_taxon(self,key):
         """Get mod from taxon id."""
         mod = None
+        tax_id = key
+        
+        # Split off the ID if the key has taxon in it.
+        if 'taxon' in key.lower():
+            tax_word, tax_id, _ = self.split_identifier(key)
+
         if key in self.taxon_to_mod:
-            mod = self.taxon_to_mod[key]
+            mod = self.taxon_to_mod[tax_id]
         return mod
 
     def _get_alt_keys(self):
