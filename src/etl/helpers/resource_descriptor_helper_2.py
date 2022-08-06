@@ -95,8 +95,12 @@ class ResourceDescriptorHelper2():
     def get_short_name_from_taxon(self, key):
         """Get short name."""
         name = 'Alliance'
+        # Split off the ID if the key has taxon in it.
+        if 'taxon' in key.lower():
+            tax_word, tax_id, _ = self.split_identifier(key)
+
         try:
-            name = self.taxon_to_shortname[key]
+            name = self.taxon_to_shortname[tax_id]
         except KeyError:
             pass
         return name
