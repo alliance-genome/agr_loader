@@ -1,5 +1,5 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
-ALLIANCE_RELEASE=5.2.0
+ALLIANCE_RELEASE=0.0.0
 DOCKER_PULL_TAG=build
 DOCKER_BUILD_TAG=latest
 
@@ -65,7 +65,7 @@ reload:
 
 reload_test: 
 	@${MAKE} --no-print-directory startdb
-	docker-compose down
+	@${MAKE} --no-print-directory removedb
 	@${MAKE} --no-print-directory startdb
 	sleep 10
 	@${MAKE} --no-print-directory build

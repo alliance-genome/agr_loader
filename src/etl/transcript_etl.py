@@ -259,7 +259,12 @@ class TranscriptETL(ETL):
                     continue
                 else:
                     columns = re.split(r'\t', line)
-                    feature_type_name = columns[2].strip()
+                    try:
+                        feature_type_name = columns[2].strip()
+                    except IndexError as e:
+                        self.logger.error("Error: %s", e)
+                        self.logger.error("Invalid line: %s", line)
+                        exit(-1)
                     if feature_type_name == 'lnc_RNA':
                         feature_type_name = 'lncRNA'
                     if feature_type_name in possible_types:

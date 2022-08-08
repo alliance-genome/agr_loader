@@ -117,6 +117,10 @@ class ETL:
 
         data_provider_cross_ref = data_provider_object.get('crossReference')
         self.data_provider = data_provider_cross_ref.get('id')
+        # Temporary Xenbase fix. 
+        # Please remove when Xenbase has updated their BGI metadata ID to "Xenbase" instead of "XB".
+        if self.data_provider == "XB":
+            self.data_provider = "Xenbase"
         self.data_provider_pages = data_provider_cross_ref.get('pages')
 
         self.data_providers = []
