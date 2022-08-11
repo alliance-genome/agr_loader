@@ -358,6 +358,15 @@ class TestObject():
             'RefSeq:YP_009724391', 'RefSeq:YP_009724392', 'RefSeq:YP_009724395'
         }
 
+        self.xenbase_test_set = {
+            # bgi
+            'Xenbase:XB-GENE-25874658', 'Xenbase:XB-GENE-25874556', 'Xenbase:XB-GENE-1016257',
+            'Xenbase:XB-GENE-492505', 'Xenbase:XB-GENE-17346370', 'Xenbase:XB-GENE-1000007',
+            # orthology
+            'Xenbase:XB-GENE-994391', 'Xenbase:XB-GENE-1018909', 'Xenbase:XB-GENE-940436',
+            'Xenbase:XB-GENE-479538', 'Xenbase:XB-GENE-5995297', 'Xenbase:XB-GENE-5863531'
+        }
+
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,
                         "ZFIN": self.zfin_id_set,
@@ -365,7 +374,8 @@ class TestObject():
                         "SGD": self.sgd_id_set,
                         "FlyBase": self.flybase_id_set,
                         "Human": self.human_test_set,
-                        'SARS-CoV-2': self.sars_cov_2_test_set}
+                        'SARS-CoV-2': self.sars_cov_2_test_set,
+                        'Xenbase': self.xenbase_test_set}
 
         self.test_id_set = self.zfin_id_set.union(self.mgi_id_set
                                                   .union(self.wormbase_id_set)
@@ -373,7 +383,8 @@ class TestObject():
                                                   .union(self.sgd_id_set)
                                                   .union(self.rgd_test_set)
                                                   .union(self.human_test_set)
-                                                  .union(self.sars_cov_2_test_set))
+                                                  .union(self.sars_cov_2_test_set)
+                                                  .union(self.xenbase_test_set))
 
     def using_test_data(self):
         """Using Test Data"""

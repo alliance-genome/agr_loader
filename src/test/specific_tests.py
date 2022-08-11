@@ -226,7 +226,7 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
 
 
 def test_zdb_alt_160129_6_has_at_least_one_disease():
-    """Test ZDB ALT 160129 6 Has at Lease One Disease"""
+    """Test ZDB ALT 160129 6 Has at Least One Disease"""
 
     query = """MATCH (d:DOTerm)-[]-(a:Allele)
                WHERE a.dataProvider = 'ZFIN'
@@ -366,7 +366,7 @@ def test_expression_for_non_human_species_exists():
              RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 6
+        assert record["counter"] == 7
 
 
 def test_cellular_component_relationship_for_expression_exists():

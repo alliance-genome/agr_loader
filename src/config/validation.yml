@@ -1,15 +1,9 @@
-schemaVersion:
-  regex: ^(\d(\.\d){3})$
-  required: True
-releaseVersion:
-  regex: ^(\d(\.\d){2})$
-  required: True
 SPECIES:
   type: list
   allowed: [Species]
 BGI:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, SARS-CoV-2]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT, SARS-CoV-2]
 CONSTRUCT:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
@@ -30,10 +24,10 @@ PHENOTYPE:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 EXPRESSION:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT]
 GAF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, XB, MGI, HUMAN]
 GEOXREF:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -42,7 +36,7 @@ BIOGRID-ORCS:
   allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
-  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235]
+  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235, XT9.1,  XL9.2]
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
@@ -97,12 +91,16 @@ ONTOLOGY:
     - BTO
     - CHEBI
     - ZECO
+    - XBED
+    - XSMO
+    - XAO
+    - XPO
 ExpressionAtlas:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 ORTHO:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XB, HUMAN]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]
@@ -144,6 +142,10 @@ Closure:
     - BTO
     - CHEBI
     - ZECO
+    - XBED
+    - XSMO
+    - XPO
+    - XAO
 INTERACTION-GEN:
   type: list
   allowed: [COMBINED]
@@ -164,7 +166,7 @@ ECOMAP:
   allowed: [ECOMAP]
 GFF:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT]
 DB-SUMMARY:
   type: list
   allowed: [2.3.0, 3.0.0]
