@@ -36,7 +36,7 @@ BIOGRID-ORCS:
   allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
-  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235]
+  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235, XT9.1,  XL9.2]
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
