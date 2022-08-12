@@ -160,7 +160,7 @@ INTERACTION-MOD-XREF:
   allowed: [COMBINED]
 GeneDescriptions:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT]
 ECOMAP:
   type: list
   allowed: [ECOMAP]
