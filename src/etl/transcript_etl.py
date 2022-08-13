@@ -277,11 +277,8 @@ class TranscriptETL(ETL):
                                     key = pair.split("=")[0]
                                     value = pair.split("=")[1]
                                     if key == 'ID':
-                                        if data_provider == 'WB':
-                                            if ":" in value:
-                                                gff3_id = value.split(":")[1]
-                                            else:
-                                                gff3_id = value
+                                        if data_provider == 'WB' and ':' in value:
+                                            gff3_id = value.split(":")[1]
                                         else:
                                             gff3_id = value
                                     if key == 'gene_id':
