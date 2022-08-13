@@ -22,7 +22,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID: row.parentId})
+                MATCH (g:Transcript {gff3ID: row.parentId, dataProvider: row.dataProvider})
                 MATCH (so:SOTerm {name: row.featureType})
 
                 MERGE (t:CDS {primaryKey:row.gff3ID})
@@ -60,7 +60,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.parentId})
+                MATCH (g:Transcript {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Exon {primaryKey:row.gff3ID})
@@ -317,7 +317,7 @@ class TranscriptETL(ETL):
                                             continue
                         if feature_type_name in transcript_types:
                             if curie is None or curie == '':
-                                curie = gff3_id
+                                curie = dataProvider + ':' + gff3_id
                             transcript_map.update({'curie': curie})
 
                             transcript_map.update({'parentId': parent})
@@ -412,4 +412,3 @@ class TranscriptETL(ETL):
                        exon_maps,
                        cds_maps,
                        cds_maps]
-
