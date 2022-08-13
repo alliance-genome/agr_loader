@@ -314,7 +314,7 @@ class TranscriptETL(ETL):
                                             continue
                         if feature_type_name in transcript_types:
                             if curie is None or curie == '':
-                                curie = dataProvider + ':' + gff3_id
+                                curie = data_provider + ':' + gff3_id
                             transcript_map.update({'curie': curie})
 
                             transcript_map.update({'parentId': parent})
