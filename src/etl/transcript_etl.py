@@ -104,7 +104,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {gff3ID:row.parentId})
+                MATCH (g:Gene {gff3ID:row.parentId}, dataProvider:row.dataProvider)
                 MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
@@ -326,7 +326,6 @@ class TranscriptETL(ETL):
                             transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'end': columns[4]})
                             transcript_map.update({'assembly': assembly})
-                            transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'name': name})
                             transcript_map.update({'synonym': synonym}),
                             transcript_map.update({'strand': columns[6]}),
@@ -352,7 +351,6 @@ class TranscriptETL(ETL):
                             exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'end': columns[4]})
                             exon_map.update({'assembly': assembly})
-                            exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'name': name})
                             exon_map.update({'synonym': synonym}),
                             exon_map.update({'strand': columns[6]})
@@ -371,7 +369,6 @@ class TranscriptETL(ETL):
                             cds_map.update({'dataProvider': data_provider})
                             cds_map.update({'end': columns[4]})
                             cds_map.update({'assembly': assembly})
-                            cds_map.update({'dataProvider': data_provider})
                             cds_map.update({'name': name})
                             cds_map.update({'synonym': synonym})
                             cds_map.update({'strand': columns[6]})
