@@ -104,7 +104,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {gff3ID:row.parentId}, dataProvider:row.dataProvider)
+                MATCH (g:Gene {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
