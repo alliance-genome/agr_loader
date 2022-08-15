@@ -22,7 +22,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID: row.parentId})
+                MATCH (g:Transcript {gff3ID: row.parentId, dataProvider: row.dataProvider})
                 MATCH (so:SOTerm {name: row.featureType})
 
                 MERGE (t:CDS {primaryKey:row.gff3ID})
@@ -60,7 +60,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Transcript {gff3ID:row.parentId})
+                MATCH (g:Transcript {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Exon {primaryKey:row.gff3ID})
@@ -104,7 +104,7 @@ class TranscriptETL(ETL):
             USING PERIODIC COMMIT %s
             LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
 
-                MATCH (g:Gene {gff3ID:row.parentId})
+                MATCH (g:Gene {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
 
                 MERGE (t:Transcript {primaryKey:row.curie})
@@ -277,11 +277,8 @@ class TranscriptETL(ETL):
                                     key = pair.split("=")[0]
                                     value = pair.split("=")[1]
                                     if key == 'ID':
-                                        if data_provider == 'WB':
-                                            if ":" in value:
-                                                gff3_id = value.split(":")[1]
-                                            else:
-                                                gff3_id = value
+                                        if data_provider == 'WB' and ':' in value:
+                                            gff3_id = value.split(":")[1]
                                         else:
                                             gff3_id = value
                                     if key == 'gene_id':
@@ -317,7 +314,7 @@ class TranscriptETL(ETL):
                                             continue
                         if feature_type_name in transcript_types:
                             if curie is None or curie == '':
-                                curie = gff3_id
+                                curie = data_provider + ':' + gff3_id
                             transcript_map.update({'curie': curie})
 
                             transcript_map.update({'parentId': parent})
@@ -329,7 +326,6 @@ class TranscriptETL(ETL):
                             transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'end': columns[4]})
                             transcript_map.update({'assembly': assembly})
-                            transcript_map.update({'dataProvider': data_provider})
                             transcript_map.update({'name': name})
                             transcript_map.update({'synonym': synonym}),
                             transcript_map.update({'strand': columns[6]}),
@@ -355,7 +351,6 @@ class TranscriptETL(ETL):
                             exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'end': columns[4]})
                             exon_map.update({'assembly': assembly})
-                            exon_map.update({'dataProvider': data_provider})
                             exon_map.update({'name': name})
                             exon_map.update({'synonym': synonym}),
                             exon_map.update({'strand': columns[6]})
@@ -374,7 +369,6 @@ class TranscriptETL(ETL):
                             cds_map.update({'dataProvider': data_provider})
                             cds_map.update({'end': columns[4]})
                             cds_map.update({'assembly': assembly})
-                            cds_map.update({'dataProvider': data_provider})
                             cds_map.update({'name': name})
                             cds_map.update({'synonym': synonym})
                             cds_map.update({'strand': columns[6]})
