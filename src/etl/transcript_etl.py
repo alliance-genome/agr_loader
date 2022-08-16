@@ -31,8 +31,8 @@ class TranscriptETL(ETL):
                         t.name = row.name,
                         t.synonym = row.synonym
 
-               CREATE (t)<-[tso:TYPE]-(so)
-               CREATE (g)<-[gt:CDS]-(t)"""
+               MERGE (t)<-[tso:TYPE]-(so)
+               MERGE (g)<-[gt:CDS]-(t)"""
 
     cds_genomic_locations_template = """
         USING PERIODIC COMMIT %s
@@ -42,19 +42,19 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
             MATCH (a:Assembly {primaryKey: row.assembly})
 
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-              SET gchrm.start = apoc.number.parseInt(row.start),
+            MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosomeNumber,
                 gchrm.phase = row.phase
 
-            CREATE (o)-[of:ASSOCIATION]->(gchrm)
-            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
+            MERGE (o)-[of:ASSOCIATION]->(gchrm)
+            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            MERGE(gchrm)-[ao:ASSOCIATION]->(a)"""
 
     exon_query_template = """
             USING PERIODIC COMMIT %s
@@ -69,8 +69,8 @@ class TranscriptETL(ETL):
                         t.name = row.name,
                         t.synonym = row.synonym
 
-               CREATE (t)<-[tso:TYPE]-(so)
-               CREATE (g)<-[gt:EXON]-(t)"""
+               MERGE (t)<-[tso:TYPE]-(so)
+               MERGE (g)<-[gt:EXON]-(t)"""
 
     exon_genomic_locations_template = """
         USING PERIODIC COMMIT %s
@@ -80,18 +80,18 @@ class TranscriptETL(ETL):
             MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
             MATCH (a:Assembly {primaryKey: row.assembly})
 
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            CREATE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-              SET gchrm.start = apoc.number.parseInt(row.start),
+            MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosomeNumber
 
-            CREATE (o)-[of:ASSOCIATION]->(gchrm)
-            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
+            MERGE (o)-[of:ASSOCIATION]->(gchrm)
+            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     transcript_alternate_id_query_template = """
             USING PERIODIC COMMIT %s
@@ -131,19 +131,19 @@ class TranscriptETL(ETL):
             MERGE (a:Assembly {primaryKey:row.assembly})
              ON CREATE SET a.dataProvider = row.dataProvider
 
-            CREATE (o)-[ochrm:LOCATED_ON]->(chrm)
+            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            CREATE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
-              SET gchrm.start = apoc.number.parseInt(row.start),
+            MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
+              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
                 gchrm.end = apoc.number.parseInt(row.end),
                 gchrm.assembly = row.assembly,
                 gchrm.strand = row.strand,
                 gchrm.chromosome = row.chromosomeNumber,
                 gchrm.phase = row.phase
 
-            CREATE (o)-[of:ASSOCIATION]->(gchrm)
-            CREATE (gchrm)-[ofc:ASSOCIATION]->(chrm)
-            CREATE (gchrm)-[ao:ASSOCIATION]->(a)"""
+            MERGE (o)-[of:ASSOCIATION]->(gchrm)
+            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
+            MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     def __init__(self, config):
         """Initialise object."""
