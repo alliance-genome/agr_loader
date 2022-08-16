@@ -43,10 +43,11 @@ class MolecularInteractionETL(ETL):
         CREATE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
 
         //Create the Association node to be used for the object.
-        CREATE (oa:Association {primaryKey:row.uuid})
-            SET oa :InteractionGeneJoin
-            SET oa :InteractionMolecularGeneJoin
-            SET oa.joinType = 'molecular_interaction'
+        MERGE (oa:Association {primaryKey:row.uuid})
+            ON CREATE
+                SET oa :InteractionGeneJoin
+                SET oa :InteractionMolecularGeneJoin
+                SET oa.joinType = 'molecular_interaction'
         CREATE (g1)-[a1:ASSOCIATION]->(oa)
         CREATE (oa)-[a2:ASSOCIATION]->(g2)
 
