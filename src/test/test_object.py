@@ -364,7 +364,10 @@ class TestObject():
             'Xenbase:XB-GENE-492505', 'Xenbase:XB-GENE-17346370', 'Xenbase:XB-GENE-1000007',
             # orthology
             'Xenbase:XB-GENE-994391', 'Xenbase:XB-GENE-1018909', 'Xenbase:XB-GENE-940436',
-            'Xenbase:XB-GENE-479538', 'Xenbase:XB-GENE-5995297', 'Xenbase:XB-GENE-5863531'
+            'Xenbase:XB-GENE-479538', 'Xenbase:XB-GENE-5995297', 'Xenbase:XB-GENE-5863531',
+            # expression
+            'Xenbase:XB-GENE-478084', 'Xenbase:XB-GENE-478165', 'Xenbase:XB-GENE-478265',
+            'Xenbase:XB-GENE-865139', 'Xenbase:XB-GENE-6254396', 'Xenbase:XB-GENE-865143'
         }
 
         self.mod_map = {"RGD": self.rgd_test_set,
