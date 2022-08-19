@@ -189,6 +189,8 @@ class ETLHelper():
             identifier = identifier.split(":", 1)[1]
         return identifier
 
+    # Only used by orthology ETL. 
+    # Please don't use elsewhere unless you know what you are doing.
     @staticmethod
     def add_agr_prefix_by_species_taxon(identifier, taxon_id):
         """Add AGR prefix by Species Taxon."""
@@ -202,8 +204,8 @@ class ETLHelper():
             7227: 'FB:',
             9606: '',  # No HGNC prefix
             2697049: '',  # No SARS-CoV-2 prefix
-            8364: 'Xenbase:', # X. tropicalis
-            8355: 'Xenbase:' # X. laevis
+            8364: '', # No X. tropicalis prefix
+            8355: '' # No X. laevis prefix
         }
 
         new_identifier = species_dict[taxon_id] + identifier
