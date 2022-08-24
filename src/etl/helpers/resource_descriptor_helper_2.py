@@ -118,23 +118,23 @@ class ResourceDescriptorHelper2():
             mod = self.taxon_to_mod[tax_id]
         return mod
 
-    def get_subtype_from_taxon(self, key):
-        """Get subtype from taxon id."""
+    # def get_subtype_from_taxon(self, key):
+    #     """Get subtype from taxon id."""
 
-        taxon_to_subtype = {
-        10116: 'RGD',
-        10090: 'MGI',
-        7955: 'ZFIN',
-        4932: 'SGD',
-        6239: 'WB',
-        7227: 'FB',
-        9606: 'HUMAN',
-        8364: 'XBXT',
-        8355: 'XBXL'
-        }
+    #     taxon_to_subtype = {
+    #     10116: 'RGD',
+    #     10090: 'MGI',
+    #     7955: 'ZFIN',
+    #     4932: 'SGD',
+    #     6239: 'WB',
+    #     7227: 'FB',
+    #     9606: 'HUMAN',
+    #     8364: 'XBXT',
+    #     8355: 'XBXL'
+    #     }
 
-        subtype = taxon_to_subtype.get(key, None)
-        return subtype
+    #     subtype = taxon_to_subtype.get(key, None)
+    #     return subtype
 
 
     def _get_alt_keys(self):
@@ -151,7 +151,7 @@ class ResourceDescriptorHelper2():
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for item in yaml_list:
-            mod = item['primaryDataProvider']['dataProviderShortName'].upper()
+            mod = item['fmsSubtypeName']
             # Hack human data comes from RGD but we do not want to overwrite RGD
             # So hardcode test here to HGNC as the key instead.
             if mod == 'RGD' and item['fullName'] == 'Homo sapiens':
@@ -170,6 +170,7 @@ class ResourceDescriptorHelper2():
             if item['fullName'] == 'Saccharomyces cerevisiae':
                 self.taxon_to_shortname['4932'] = item['shortName']
                 self.taxon_to_mod['4932'] = mod
+
 
     def get_data(self):
         """Return dict."""

@@ -220,7 +220,7 @@ class OrthologyETL(ETL):
                 # Prefixed according to AGR prefixes.
                 gene_2_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(
                     gene_2, gene_2_species_taxon_id)
-                gene_2_data_provider = self.etlh.get_subtype_from_taxon(gene_2_species_taxon_id)
+                gene_2_data_provider = self.etlh.get_mod_from_taxon(str(gene_2_species_taxon_id))
 
                 counter = counter + 1
 
