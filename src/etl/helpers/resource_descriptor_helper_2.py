@@ -171,6 +171,11 @@ class ResourceDescriptorHelper2():
                 self.taxon_to_shortname['4932'] = item['shortName']
                 self.taxon_to_mod['4932'] = mod
 
+            # Special treatment for SARS-CoV-2.
+            if item['fullName'] == 'SARS-CoV-2':
+                self.taxon_to_mod['2697049'] = item['shortName']
+
+
 
     def get_data(self):
         """Return dict."""
