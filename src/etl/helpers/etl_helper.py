@@ -233,10 +233,6 @@ class ETLHelper():
         """Get MOD from Taxon."""
         return self.rdh2.get_mod_from_taxon(taxon_id)
 
-    def get_subtype_from_taxon(self, taxon_id):
-        """Get Subtype from Taxon."""
-        return self.rdh2.get_subtype_from_taxon(taxon_id)
-
     def get_page_complete_url(self, local_id, xref_url_map, prefix, page):
         """Get Page Complete URL."""
         if 'get_page_complete_url' not in self.rdh2.deprecated_mess:

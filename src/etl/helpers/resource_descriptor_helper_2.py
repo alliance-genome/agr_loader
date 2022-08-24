@@ -118,25 +118,6 @@ class ResourceDescriptorHelper2():
             mod = self.taxon_to_mod[tax_id]
         return mod
 
-    # def get_subtype_from_taxon(self, key):
-    #     """Get subtype from taxon id."""
-
-    #     taxon_to_subtype = {
-    #     10116: 'RGD',
-    #     10090: 'MGI',
-    #     7955: 'ZFIN',
-    #     4932: 'SGD',
-    #     6239: 'WB',
-    #     7227: 'FB',
-    #     9606: 'HUMAN',
-    #     8364: 'XBXT',
-    #     8355: 'XBXL'
-    #     }
-
-    #     subtype = taxon_to_subtype.get(key, None)
-    #     return subtype
-
-
     def _get_alt_keys(self):
         """Get alternative keys for species.
 
@@ -173,7 +154,7 @@ class ResourceDescriptorHelper2():
 
             # Special treatment for SARS-CoV-2.
             if item['fullName'] == 'SARS-CoV-2':
-                self.taxon_to_mod['2697049'] = item['shortName']
+                self.taxon_to_mod['2697049'] = item['shortName'].upper()
 
 
 
