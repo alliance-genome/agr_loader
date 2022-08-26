@@ -312,7 +312,7 @@ def test_molint_for_all_species_exists():
                RETURN count(distinct s) AS counter"""
     result = execute_transaction(query)
     for record in result:
-        assert record["counter"] == 8
+        assert record["counter"] == 10
 
 
 def test_vepgene_for_all_species_exists():
