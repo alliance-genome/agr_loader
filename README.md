@@ -58,7 +58,7 @@ AWS ECR uses an token-based authentication system, for which tokens automaticall
 - Upon setup, run `aws configure` (which will generate or append/update `~/.aws/config` and `~/.aws/credentials`) and provide the following details when asked for:
   * AWS Access Key ID: provide your personal access key ID
   * AWS Secret Access Key: provide your personal Secret Access Key (only accessible on access key creation, you may need to regenerate a new access key if you did not store it).
-  * Default region name: `us-east-1`
+  * Default region name: `us-east-1` 
   * Default output format: `<enter>` (accept default)
 -  To test that your credentials are working correctly, run `aws ecr get-login-password` and verify a token is returned.
 
