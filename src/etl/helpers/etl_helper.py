@@ -186,7 +186,7 @@ class ETLHelper():
         """Process Identifier."""
         if identifier.startswith("DRSC:"):
             # strip off DSRC prefix
-            identifier = identifier.split(":", 1)[1]
+            identifier = identifier[5:]
         return identifier
 
     # Only used by orthology ETL. 
