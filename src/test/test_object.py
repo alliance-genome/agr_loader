@@ -367,7 +367,13 @@ class TestObject():
             'Xenbase:XB-GENE-479538', 'Xenbase:XB-GENE-5995297', 'Xenbase:XB-GENE-5863531',
             # expression
             'Xenbase:XB-GENE-478084', 'Xenbase:XB-GENE-478165', 'Xenbase:XB-GENE-478265',
-            'Xenbase:XB-GENE-865139', 'Xenbase:XB-GENE-6254396', 'Xenbase:XB-GENE-865143'
+            'Xenbase:XB-GENE-865139', 'Xenbase:XB-GENE-6254396', 'Xenbase:XB-GENE-865143',
+            # mol interaction
+            'XB-GENE-6077306', 'XB-GENE-5900736', 'XB-GENE-5742498', 'XB-GENE-982236',
+            'XB-GENE-5914970', 'XB-GENE-920644', 'XB-GENE-978544', 'XB-GENE-978544',
+            # gen interaction
+            'Xenbase:XB-GENE-864864', 'Xenbase:XB-GENE-865473', 'Xenbase:XB-GENE-866540', 'Xenbase:XB-GENE-6252367',
+            'Xenbase:XB-GENE-6254025', 'Xenbase:XB-GENE-865846', 'Xenbase:XB-GENE-483062'
         }
 
         self.mod_map = {"RGD": self.rgd_test_set,
