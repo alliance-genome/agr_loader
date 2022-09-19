@@ -41,7 +41,6 @@ class TestClass():
                             dict(node1='Gene', node2='Chromosome'),
                             dict(node1='Gene', node2='DiseaseEntityJoin:Association'),
                             dict(node1='GenomicLocation', node2='Assembly'),
-                            dict(node1='GenomicLocation', node2='Chromosome'),
                             dict(node1='GenomicLocation', node2='Variant'),
                             dict(node1='GenomicLocation', node2='Gene'),
                             dict(node1='HTPDataset', node2='Publication'),
