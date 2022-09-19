@@ -86,7 +86,6 @@ class VariationETL(ETL):
                 gchrmn.chromosome = row.chromosome
 
             CREATE (o)-[of:ASSOCIATION]->(gchrmn)
-            CREATE (gchrmn)-[ofc:ASSOCIATION]->(chrm)
             CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
     """
     notes_query_template = """
@@ -158,20 +157,13 @@ class VariationETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
 
         query_template_list = [
-            [self.variation_query_template, commit_size,
-             "variation_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query_template, commit_size,
-             "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query_template, commit_size,
-             "variant_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.notes_query_template, commit_size,
-             "variant_notes_" + sub_type.get_data_provider() + ".csv"],
-            [self.notes_references_query_template, commit_size,
-             "variant_notes_references" + sub_type.get_data_provider() + ".csv"],
-            [self.pubs_query_template, commit_size,
-             "variant_references" + sub_type.get_data_provider() + ".csv"],
-            [self.variant_xrefs_query_template, commit_size,
-             "variant_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [self.variation_query_template, commit_size, "variation_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.genomic_locations_query_template, commit_size, "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
+            [self.so_terms_query_template, commit_size, "variant_so_terms_" + sub_type.get_data_provider() + ".csv"],
+            [self.notes_query_template, commit_size, "variant_notes_" + sub_type.get_data_provider() + ".csv"],
+            [self.notes_references_query_template, commit_size, "variant_notes_references" + sub_type.get_data_provider() + ".csv"],
+            [self.pubs_query_template, commit_size, "variant_references" + sub_type.get_data_provider() + ".csv"],
+            [self.variant_xrefs_query_template, commit_size, "variant_xrefs_" + sub_type.get_data_provider() + ".csv"],
         ]
 
         generators = self.get_generators(data, batch_size)
@@ -180,9 +172,7 @@ class VariationETL(ETL):
         Neo4jTransactor.execute_query_batch(query_and_file_list)
         self.error_messages("Var-{}: ".format(sub_type.get_data_provider()))
 
-    def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position,
-                              end_position, reference_sequence, variant_sequence,
-                              assembly, chromosome):
+    def get_hgvs_nomenclature(self, refseq_id, variant_type, start_position, end_position, reference_sequence, variant_sequence, assembly, chromosome):
         """Get HGVS nomenclature."""
         if start_position is None:
             start_position_str = ""
@@ -313,13 +303,9 @@ class VariationETL(ETL):
                 if left_padding_start < 1:
                     left_padding_start = 1
 
-                padding_left = assemblies[assembly].get_sequence(chromosome_str,
-                                                                 left_padding_start,
-                                                                 start)
+                padding_left = assemblies[assembly].get_sequence(chromosome_str, left_padding_start, start)
                 right_padding_end = end + padding_width
-                padding_right = assemblies[assembly].get_sequence(chromosome_str,
-                                                                  end,
-                                                                  right_padding_end)
+                padding_right = assemblies[assembly].get_sequence(chromosome_str, end, right_padding_end)
 
             if self.test_object.using_test_data() is True:
                 is_it_test_entry = self.test_object.check_for_test_id_entry(global_id)
@@ -331,8 +317,7 @@ class VariationETL(ETL):
             local_cross_ref_id = cross_ref_primary_id.split(":")[1]
             prefix = cross_ref_primary_id.split(":")[0]
 
-            cross_ref_complete_url = self.etlh.get_no_page_complete_url(
-                            local_cross_ref_id, prefix, global_id)
+            cross_ref_complete_url = self.etlh.get_no_page_complete_url(local_cross_ref_id, prefix, global_id)
             xref_map_acc = ETLHelper.get_xref_dict(
                             local_cross_ref_id,
                             prefix,
@@ -348,13 +333,11 @@ class VariationETL(ETL):
                 cross_references.append(xref_map_acc)
 
             if genomic_reference_sequence is not None:
-                if len(genomic_reference_sequence) > 1000 and (allele_record.get('type') == 'SO:1000002'
-                                                               or allele_record.get('type') == 'SO:1000008'):
+                if len(genomic_reference_sequence) > 1000 and (allele_record.get('type') == 'SO:1000002' or allele_record.get('type') == 'SO:1000008'):
                     self.logger.debug("%s genomicReferenceSequence", allele_record.get('alleleId'))
 
             if genomic_variant_sequence is not None:
-                if len(genomic_variant_sequence) > 1000 and (allele_record.get('type')
-                                                             in ['SO:1000002', 'SO:1000008']):
+                if len(genomic_variant_sequence) > 1000 and (allele_record.get('type') in ['SO:1000002', 'SO:1000008']):
                     self.logger.debug("%s genomicVariantSequence", allele_record.get('alleleId'))
 
             hgvs_nomenclature, hgvs_synonym = self.get_hgvs_nomenclature(
@@ -394,10 +377,8 @@ class VariationETL(ETL):
                             xref_map['dataId'] = hgvs_nomenclature
                             cross_references.append(xref_map)
 
-            if (genomic_reference_sequence is not None and len(genomic_reference_sequence) > 30000) \
-                    or (genomic_variant_sequence is not None and len(genomic_variant_sequence)) > 30000:
-                self.logger.debug("%s has too long of a sequence potentionally",
-                                  allele_record.get('alleleId'))
+            if (genomic_reference_sequence is not None and len(genomic_reference_sequence) > 30000) or (genomic_variant_sequence is not None and len(genomic_variant_sequence)) > 30000:
+                self.logger.debug("%s has too long of a sequence potentionally", allele_record.get('alleleId'))
 
             references = allele_record.get('references')
             if references is not None:
@@ -420,16 +401,12 @@ class VariationETL(ETL):
                                 pub_xref = evidence.get('crossReference')
                                 publication_mod_id = pub_xref.get('id')
                                 prefix = publication_mod_id.split(":")[0]
-                                pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
-                                                                                       publication_mod_id.split(":")[1],
-                                                                                       page)
+                                pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix, publication_mod_id.split(":")[1], page)
 
                         else:
                             page = 'reference'
                             publication_mod_id = publication
-                            pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix,
-                                                                                   publication_mod_id.split(":")[1],
-                                                                                   page)
+                            pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix, publication_mod_id.split(":")[1], page)
 
                     variant_pub = {
                         "publicationId": publication_mod_id + pub_med_id,
@@ -448,8 +425,7 @@ class VariationETL(ETL):
                 for note in notes:
                     vnote = note.get('note')
 
-                    variant_note_map = {"variantId": hgvs_nomenclature,
-                                        "note": vnote}
+                    variant_note_map = {"variantId": hgvs_nomenclature, "note": vnote}
 
                     variant_notes.append(variant_note_map)
 
@@ -479,10 +455,7 @@ class VariationETL(ETL):
                                     page = 'reference'
                                     publication_mod_id = publication
                                     prefix = publication_mod_id.split(":")[0]
-                                    pub_mod_url = self.etlh.rdh2.return_url_from_key_value(
-                                        prefix,
-                                        publication_mod_id.split(":")[1],
-                                        page)
+                                    pub_mod_url = self.etlh.rdh2.return_url_from_key_value(prefix, publication_mod_id.split(":")[1], page)
 
                                 note_pub = {"publicationId": publication_mod_id + pub_med_id,
                                             "pubModId": publication_mod_id,
