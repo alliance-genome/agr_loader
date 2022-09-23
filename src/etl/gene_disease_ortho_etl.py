@@ -117,7 +117,7 @@ class GeneDiseaseOrthoETL(ETL):
         self.logger.info("reached gene disease ortho retrieval")
 
         retrieve_gene_disease_ortho_query = """
-            MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]->(gene2:Gene)
+            MATCH (disease:DOTerm)-[da:IS_IMPLICATED_IN|IS_MARKER_FOR]-(gene1:Gene)-[o:ORTHOLOGOUS]-(gene2:Gene)
             MATCH (ec:ECOTerm)-[ecpej:ASSOCIATION]-(pej:PublicationJoin:Association)-[:EVIDENCE]-(dej:DiseaseEntityJoin)-[a:ASSOCIATION]-(gene1:Gene)
                     WHERE o.strictFilter = true
                     AND da.uuid = dej.primaryKey

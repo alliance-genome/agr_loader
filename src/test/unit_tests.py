@@ -28,7 +28,7 @@ class TestClass():
         """Test obtaining a species mod from its taxon id."""
         lookups = {
             '10116': 'RGD',
-            '8364': 'XB',
+            '8364': 'XBXT',
             '7227': 'FB',
             'bad': None}
         for key in lookups.keys():

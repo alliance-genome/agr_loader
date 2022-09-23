@@ -50,24 +50,9 @@ class BGIETL(ETL):
                 gchrm.assembly = row.assembly
 
             MERGE (o)-[of:ASSOCIATION]-(gchrm)
-            MERGE (gchrm)-[ofc:ASSOCIATION]-(chrm)
             MERGE (gchrmn)-[ao:ASSOCIATION]->(a)
 
         """
-
-    genomic_locations_bins_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (o:Gene {primaryKey:row.genePrimaryId})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosome})
-
-            MERGE (bin:GenomicLocationBin {primaryKey:row.binPrimaryKey})
-            ON CREATE SET bin.number = toInt(row.number),
-               bin.assembly = row.assembly
-
-            MERGE (o)-[:LOCATED_IN]->(bin)
-            MERGE (bin)-[:LOCATED_ON]->(chrm) """
 
     gene_secondary_ids_query_template = """
         USING PERIODIC COMMIT %s

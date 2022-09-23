@@ -132,7 +132,7 @@ class ResourceDescriptorHelper2():
 
         yaml_list = yaml.load(resource_descriptor_file, Loader=yaml.SafeLoader)
         for item in yaml_list:
-            mod = item['primaryDataProvider']['dataProviderShortName'].upper()
+            mod = item['fmsSubtypeName']
             # Hack human data comes from RGD but we do not want to overwrite RGD
             # So hardcode test here to HGNC as the key instead.
             if mod == 'RGD' and item['fullName'] == 'Homo sapiens':
@@ -151,6 +151,10 @@ class ResourceDescriptorHelper2():
             if item['fullName'] == 'Saccharomyces cerevisiae':
                 self.taxon_to_shortname['4932'] = item['shortName']
                 self.taxon_to_mod['4932'] = mod
+
+            # Special treatment for SARS-CoV-2.
+            if item['fullName'] == 'SARS-CoV-2':
+                self.taxon_to_mod['2697049'] = item['primaryDataProvider']['dataProviderShortName'].upper()
 
     def get_data(self):
         """Return dict."""

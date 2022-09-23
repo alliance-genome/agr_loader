@@ -53,7 +53,6 @@ class TranscriptETL(ETL):
                 gchrm.phase = row.phase
 
             MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             MERGE(gchrm)-[ao:ASSOCIATION]->(a)"""
 
     exon_query_template = """
@@ -90,7 +89,6 @@ class TranscriptETL(ETL):
                 gchrm.chromosome = row.chromosomeNumber
 
             MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     transcript_alternate_id_query_template = """
@@ -142,7 +140,6 @@ class TranscriptETL(ETL):
                 gchrm.phase = row.phase
 
             MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE (gchrm)-[ofc:ASSOCIATION]->(chrm)
             MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
 
     def __init__(self, config):
