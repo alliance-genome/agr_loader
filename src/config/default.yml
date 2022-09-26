@@ -89,7 +89,7 @@ Closure:
   - ZECO
 INTERACTION-MOL: [COMBINED]
 INTERACTION-GEN: [COMBINED]
-GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+GeneDescriptions: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT]
 VEPTRANSCRIPT: [FB, WB, ZFIN, RGD, MGI]
 VEPGENE: [FB, WB, ZFIN, RGD, MGI]
 ProteinSequence: [ProteinSequence]
