@@ -39,15 +39,15 @@ SPECIES_BY_PROVIDER = {
     'XBXT': 'Xenopus tropicalis'
 }
 TAXON_BY_PROVIDER = {
-    'WB': 'NCBITaxon:6239',
-    'ZFIN': 'NCBITaxon:7955',
-    'FB': 'NCBITaxon:7227',
-    'HUMAN': 'NCBITaxon:9606',
-    'MGI': 'NCBITaxon:10090',
-    'RGD': 'NCBITaxon:10116',
-    'SGD': 'NCBITaxon:559292',
-    'XBXL': 'NCBITaxon:8355',
-    'XBXT': 'NCBITaxon:8364'
+    'WB': '6239',
+    'ZFIN': '7955',
+    'FB': '7227',
+    'HUMAN': '9606',
+    'MGI': '10090',
+    'RGD': '10116',
+    'SGD': '559292',
+    'XBXL': '8355',
+    'XBXT': '8364'
 }
 
 
@@ -567,7 +567,7 @@ class GeneDescriptionsETL(ETL):
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='tsv', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                               data_format='tsv', readme=readme, species=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
                                                                                             taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
