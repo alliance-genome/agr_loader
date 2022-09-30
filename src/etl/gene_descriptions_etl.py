@@ -561,7 +561,7 @@ class GeneDescriptionsETL(ETL):
         taxon_id = TAXON_BY_PROVIDER[data_provider]
         species = SPECIES_BY_PROVIDER[data_provider]
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                               data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
                                                                                             taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
