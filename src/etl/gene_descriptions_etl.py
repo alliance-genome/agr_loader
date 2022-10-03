@@ -27,6 +27,28 @@ from generators.header import create_header
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA', 'XBXL': 'XAO', 'XBXT': 'XAO'}
 GAF_PRVD_SUBTYPE_MAP = {'XBXL': 'XB', 'XBXT': 'XB'}
+SPECIES_BY_PROVIDER = {
+    'WB': 'Caenorhabditis elegans',
+    'ZFIN': 'Danio rerio',
+    'FB': 'Drosophila melanogaster',
+    'HUMAN': 'Homo sapiens',
+    'MGI': 'Mus musculus',
+    'RGD': 'Rattus norvegicus',
+    'SGD': 'Saccharomyces cerevisiae',
+    'XBXL': 'Xenopus laevis',
+    'XBXT': 'Xenopus tropicalis'
+}
+TAXON_BY_PROVIDER = {
+    'WB': '6239',
+    'ZFIN': '7955',
+    'FB': '7227',
+    'HUMAN': '9606',
+    'MGI': '10090',
+    'RGD': '10116',
+    'SGD': '559292',
+    'XBXL': '8355',
+    'XBXT': '8364'
+}
 
 
 logger = logging.getLogger(__name__)
@@ -536,20 +558,16 @@ class GeneDescriptionsETL(ETL):
                  "have been trimmed to an ancestor term in the ontology, in order to balance readability with the " \
                  "amount of information in the description. The complete set of annotations to any gene in this file " \
                  "may be found in the relevant data tables on the Alliance gene page."
-        # TODO Unfortunately we can no longer lookup species by data provider as Xenbase now provides multiple species.
-        # TODO The function below will need to be modified in order to lookup species and/or taxon id.
-        # species = self.etlh.species_lookup_by_data_provider(data_provider)
-        # taxon_id = self.etlh.get_taxon_from_mod(data_provider)
-        taxon_id = '1234'
-        species = 'Tempus species'
+        taxon_id = TAXON_BY_PROVIDER[data_provider]
+        species = SPECIES_BY_PROVIDER[data_provider]
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                               data_format='txt', readme=readme, species=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
                                                                                             taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
         header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='tsv', readme=readme, species=species, taxon_ids='# TaxonIDs:NCBITaxon:' +
+                               data_format='tsv', readme=readme, species=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
                                                                                             taxon_id)
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
