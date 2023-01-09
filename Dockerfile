@@ -18,4 +18,4 @@ RUN conda run -n agr_loader pip install -r requirements.txt
 
 RUN mkdir -p /var/lib/neo4j/import
 
-CMD ["conda", "run", "-n", "agr_loader", "python3", "src/aggregate_loader.py"]
+CMD ["conda", "run", "-n", "agr_loader", "--no-capture-output", "python3", "src/aggregate_loader.py"]

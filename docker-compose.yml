@@ -44,6 +44,7 @@ services:
       - run
       - -n
       - agr_loader
+      - --no-capture-output
       - python3
       - -u 
       - src/aggregate_loader.py
@@ -75,6 +76,7 @@ services:
       - run
       - -n
       - agr_loader
+      - --no-capture-output
       - python3
       - -u 
       - src/aggregate_loader.py
@@ -105,6 +107,7 @@ services:
       - run
       - -n
       - agr_loader
+      - --no-capture-output
       - pytest
       - --verbose
       - -n=10
