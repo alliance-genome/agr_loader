@@ -40,6 +40,10 @@ services:
       - FMS_API_URL=https://fms.alliancegenome.org
       - API_KEY=${API_KEY}
     entrypoint:
+      - conda
+      - run
+      - -n
+      - agr_loader
       - python3
       - -u 
       - src/aggregate_loader.py
@@ -67,6 +71,10 @@ services:
      - API_KEY=${API_KEY}
      - TEST_SCHEMA_BRANCH=${TEST_SCHEMA_BRANCH:-master}
     entrypoint:
+      - conda
+      - run
+      - -n
+      - agr_loader
       - python3
       - -u 
       - src/aggregate_loader.py
@@ -93,6 +101,10 @@ services:
      - FMS_API_URL=https://fms.alliancegenome.org
      - API_KEY=${API_KEY}
     entrypoint:
+      - conda
+      - run
+      - -n
+      - agr_loader
       - pytest
       - --verbose
       - -n=10

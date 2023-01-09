@@ -6,13 +6,12 @@ ijson==2.4
 pytest
 jsonschema
 PyYAML>=5.1
-urllib3==1.26.13
+urllib3==1.26.5
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.2.5#egg=genedescriptions
-#git+https://github.com/alliance-genome/agr_file_generator.git@8b47011a14d9e79d13cf9239fe0cf63c54bc9b87
 git+https://github.com/alliance-genome/agr_file_generator.git@release-5.4.0
-ontobio==2.1.1
-boto3==1.26.43
+ontobio==1.20.0
+boto3
 coloredlogs
 verboselogs
 cerberus
@@ -24,7 +23,7 @@ xmltodict
 biopython
 pyfaidx
 pytest-parallel
-pylint_venv
-pylint
+pylint_venv==2.0.0
+pylint==2.4.4
 pytest-xdist
-pysam
+pysam==0.16.0.1
