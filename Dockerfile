@@ -4,11 +4,11 @@ FROM ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 WORKDIR /usr/src/app
 
-ADD . .
-
-RUN wget -q https://s3.amazonaws.com/agr-build-files/Miniconda3-py310_22.11.1-1-Linux-x86_64.sh && bash Miniconda3-py310_22.11.1-1-Linux-x86_64.sh -b
+RUN wget -q https://s3.amazonaws.com/agr-build-files/Miniconda3-py310_22.11.1-1-Linux-x86_64.sh && bash Miniconda3-py310_22.11.1-1-Linux-x86_64.sh -b && rm Miniconda3-py310_22.11.1-1-Linux-x86_64.sh
 
 ENV PATH="${PATH}:/root/miniconda3/bin"
+
+ADD . .
 
 RUN conda env create -f conda_env.yml
 SHELL ["conda", "run", "-n", "agr_loader", "/bin/bash", "-c"]
