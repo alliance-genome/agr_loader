@@ -23,7 +23,7 @@ from ontobio import AssociationSetFactory, Ontology
 from transactors import CSVTransactor, Neo4jTransactor
 from loader_common import ContextInfo
 from data_manager import DataFileManager
-from generators.header import create_header
+from headers.header import create_header
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA', 'XBXL': 'XAO', 'XBXT': 'XAO'}
 GAF_PRVD_SUBTYPE_MAP = {'XBXL': 'XB', 'XBXT': 'XB'}
