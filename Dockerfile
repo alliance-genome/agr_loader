@@ -4,12 +4,17 @@ FROM ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 WORKDIR /usr/src/app
 
-ADD requirements.txt .
+RUN wget -q https://s3.amazonaws.com/agr-build-files/Miniconda3-py310_22.11.1-1-Linux-x86_64.sh && bash Miniconda3-py310_22.11.1-1-Linux-x86_64.sh -b && rm Miniconda3-py310_22.11.1-1-Linux-x86_64.sh
 
-RUN pip3 install -r requirements.txt
+ENV PATH="${PATH}:/root/miniconda3/bin"
 
 ADD . .
 
+RUN conda env create -f conda_env.yml
+SHELL ["conda", "run", "-n", "agr_loader", "/bin/bash", "-c"]
+
+RUN conda run -n agr_loader pip install -r requirements.txt
+
 RUN mkdir -p /var/lib/neo4j/import
 
-CMD ["python3", "-u", "src/aggregate_loader.py"]
+CMD ["conda", "run", "-n", "agr_loader", "--no-capture-output", "python3", "src/aggregate_loader.py"]
