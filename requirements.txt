@@ -9,6 +9,7 @@ PyYAML>=5.1
 urllib3==1.26.13
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.2.5#egg=genedescriptions
+prefixcommons==0.1.11a0
 ontobio==1.20.0
 boto3
 coloredlogs
