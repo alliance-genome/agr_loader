@@ -23,7 +23,7 @@ from ontobio import AssociationSetFactory, Ontology
 from transactors import CSVTransactor, Neo4jTransactor
 from loader_common import ContextInfo
 from data_manager import DataFileManager
-from headers.header import create_header
+from string import Template
 
 EXPRESSION_PRVD_SUBTYPE_MAP = {'WB': 'WBBT', 'ZFIN': 'ZFA', 'FB': 'FBBT', 'MGI': 'EMAPA', 'XBXL': 'XAO', 'XBXT': 'XAO'}
 GAF_PRVD_SUBTYPE_MAP = {'XBXL': 'XB', 'XBXT': 'XB'}
@@ -49,6 +49,25 @@ TAXON_BY_PROVIDER = {
     'XBXL': '8355',
     'XBXT': '8364'
 }
+
+FILE_HEADER_TEMPLATE = """
+##########################################################################
+#
+# Data type: %filetype
+# Data format: %data_format
+# README: %readme
+# Source: Alliance of Genome Resources (Alliance)
+# Source URL: https://www.alliancegenome.org/downloads
+# Help Desk: help@alliancegenome.org
+# Taxon IDs: %taxon_ids
+# Species: %species
+# Alliance Database Version: %database_version
+# Date file generated (UTC): %gen_time
+#
+##########################################################################
+"""
+
+file_header_obj = Template(FILE_HEADER_TEMPLATE)
 
 
 logger = logging.getLogger(__name__)
@@ -560,15 +579,23 @@ class GeneDescriptionsETL(ETL):
                  "may be found in the relevant data tables on the Alliance gene page."
         taxon_id = TAXON_BY_PROVIDER[data_provider]
         species = SPECIES_BY_PROVIDER[data_provider]
-        header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='txt', readme=readme, config_info=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
-                                                                                            taxon_id)
+        header = file_header_obj.substitute(file_type='Gene Descriptions',
+                                            data_format='txt',
+                                            readme=readme,
+                                            taxon_ids='# TaxonIDs: NCBITaxon:' + taxon_id,
+                                            species=species,
+                                            database_version=context_info.env["ALLIANCE_RELEASE"],
+                                            gen_time=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M"))
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".txt", header=header)
         json_desc_writer.write_tsv(file_path=file_path + ".tsv")
-        header = create_header(file_type='Gene Descriptions', database_version=context_info.env["ALLIANCE_RELEASE"],
-                               data_format='tsv', readme=readme, config_info=species, taxon_ids='# TaxonIDs: NCBITaxon:' +
-                                                                                            taxon_id)
+        header = file_header_obj.substitute(file_type='Gene Descriptions',
+                                            data_format='tsv',
+                                            readme=readme,
+                                            taxon_ids='# TaxonIDs: NCBITaxon:' + taxon_id,
+                                            species=species,
+                                            database_version=context_info.env["ALLIANCE_RELEASE"],
+                                            gen_time=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M"))
         header = "\n".join([line.strip() for line in header.splitlines() if len(line.strip()) != 0])
         self.add_header_to_file(file_path=file_path + ".tsv", header=header)
         if context_info.env["GENERATE_REPORTS"]:
