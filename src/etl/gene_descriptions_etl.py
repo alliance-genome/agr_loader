@@ -53,16 +53,16 @@ TAXON_BY_PROVIDER = {
 FILE_HEADER_TEMPLATE = """
 ##########################################################################
 #
-# Data type: %filetype
-# Data format: %data_format
-# README: %readme
+# Data type: $file_type
+# Data format: $data_format
+# README: $readme
 # Source: Alliance of Genome Resources (Alliance)
 # Source URL: https://www.alliancegenome.org/downloads
 # Help Desk: help@alliancegenome.org
-# Taxon IDs: %taxon_ids
-# Species: %species
-# Alliance Database Version: %database_version
-# Date file generated (UTC): %gen_time
+# Taxon IDs: $taxon_ids
+# Species: $species
+# Alliance Database Version: $database_version
+# Date file generated (UTC): $gen_time
 #
 ##########################################################################
 """
