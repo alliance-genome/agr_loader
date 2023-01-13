@@ -131,7 +131,7 @@ class GeneDiseaseOrthoETL(ETL):
                     ec.primaryKey as ec
         """
 
-        return_set = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho_query)
+        return_set = Neo4jHelper.run_single_query(retrieve_gene_disease_ortho_query)
 
         gene_disease_ortho_data = []
         relation_type = ""

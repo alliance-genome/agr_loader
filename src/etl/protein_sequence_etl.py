@@ -141,9 +141,9 @@ class ProteinSequenceETL(ETL):
         """
 
         # get all transcripts to iterate through.
-        return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
+        return_set_t = Neo4jHelper.run_single_query(fetch_transcript_query)
         # get all CDS coordinates for all transcripts.
-        return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
+        return_set_cds = Neo4jHelper.run_single_query(fetch_cds_transcript_query)
         returned_cds = []
         returned_ts = []
 
