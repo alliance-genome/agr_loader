@@ -22,6 +22,7 @@ requests
 xmltodict
 biopython
 pyfaidx
+py
 pytest-parallel
 pylint_venv==2.0.0
 pylint==2.4.4
