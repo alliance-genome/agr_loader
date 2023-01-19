@@ -22,12 +22,9 @@ class Neo4jHelper():
         Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
         Neo4jHelper.logger.debug("Query: %s", query)
         ret = []
-        with graph.session() as session:
-            with session.begin_transaction() as transaction:
-                return_set = transaction.run(query, parameter=parameter)
-                for result in return_set:
-                    ret.append(result)
-        return ret
+        session = graph.session()
+        transaction = session.begin_transaction()
+        return transaction.run(query, parameter=parameter)
 
     @staticmethod
     def run_single_query(query):
@@ -36,13 +33,9 @@ class Neo4jHelper():
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
-        ret = []
-        with graph.session() as session:
-            with session.begin_transaction() as transaction:
-                return_set = transaction.run(query)
-                for result in return_set:
-                    ret.append(result)
-        return ret
+        session = graph.session()
+        transaction = session.begin_transaction()
+        return transaction.run(query)
 
     #def execute_transaction_batch(self, query, data, batch_size):
     #    logger.info("Executing batch query. Please wait...")
