@@ -21,10 +21,10 @@ class Neo4jHelper():
 
         Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
         Neo4jHelper.logger.debug("Query: %s", query)
-        ret = []
-        session = graph.session()
-        transaction = session.begin_transaction()
-        return transaction.run(query, parameter=parameter)
+
+        with graph.session() as session:
+            with session.begin_transaction() as transaction:
+                return transaction.run(query, parameter=parameter)
 
     @staticmethod
     def run_single_query(query):
@@ -33,9 +33,13 @@ class Neo4jHelper():
         uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
-        session = graph.session()
-        transaction = session.begin_transaction()
-        return transaction.run(query)
+        Neo4jHelper.logger.debug("Running run_single_query. Please wait...")
+        Neo4jHelper.logger.debug("Query: %s", query)
+
+
+        with graph.session() as session:
+            with session.begin_transaction() as transaction:
+                return transaction.run(query)
 
     #def execute_transaction_batch(self, query, data, batch_size):
     #    logger.info("Executing batch query. Please wait...")
@@ -51,11 +55,8 @@ class Neo4jHelper():
     def create_indices():
         """Create Indicies"""
 
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        driver = GraphDatabase.driver(uri,
-                                      auth=("neo4j", "neo4j"),
-                                      max_connection_pool_size=-1)
+        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+        driver = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
         with driver.session() as session:
             indicies = [":CDS(primaryKey)",

@@ -49,10 +49,7 @@ class Neo4jTransactor():
         """Execture Query Batch"""
 
         Neo4jTransactor.count = Neo4jTransactor.count + 1
-        Neo4jTransactor.logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s ",
-                                     Neo4jTransactor.count,
-                                     len(query_batch),
-                                     Neo4jTransactor.queue.qsize())
+        Neo4jTransactor.logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s ", Neo4jTransactor.count, len(query_batch), Neo4jTransactor.queue.qsize())
         Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
 
     def check_for_thread_errors(self):
@@ -72,8 +69,7 @@ class Neo4jTransactor():
         context_info = ContextInfo()
 
         if context_info.env["USING_PICKLE"] is False:
-            uri = "bolt://" + context_info.env["NEO4J_HOST"] \
-                    + ":" + str(context_info.env["NEO4J_PORT"])
+            uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
             graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
         self.logger.info("%s: Starting Neo4jTransactor Thread Runner: ", self._get_name())
@@ -84,10 +80,7 @@ class Neo4jTransactor():
                 self.logger.info("Queue Closed exiting: %s", error)
                 return
 
-            self.logger.debug("%s: Processing query batch: %s BatchSize: %s",
-                              self._get_name(),
-                              query_counter,
-                              len(query_batch))
+            self.logger.debug("%s: Processing query batch: %s BatchSize: %s", self._get_name(), query_counter, len(query_batch))
             batch_start = time.time()
 
             total_query_counter = 0
@@ -96,21 +89,14 @@ class Neo4jTransactor():
 
                 (neo4j_query, filename) = query_batch.pop(0)
 
-                self.logger.debug("%s: Processing query for file: %s QueryNum: %s QueueSize: %s",
-                                  self._get_name(),
-                                  filename,
-                                  query_counter,
-                                  Neo4jTransactor.queue.qsize())
+                self.logger.debug("%s: Processing query for file: %s QueryNum: %s QueueSize: %s", self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize())
                 start = time.time()
                 try:
                     if context_info.env["USING_PICKLE"] is True:
                         # Save VIA pickle rather then NEO
-                        file_name = "tmp/temp/transaction_%s_%s" \
-                                     % (query_counter, total_query_counter)
+                        file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         with open(file_name, 'wb') as file:
-                            self.logger.debug("Writting to file: tmp/temp/transaction_%s_%s",
-                                              query_counter,
-                                              total_query_counter)
+                            self.logger.debug("Writting to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
                             pickle.dump(neo4j_query, file)
                     else:
                         with graph.session() as session:
@@ -118,23 +104,14 @@ class Neo4jTransactor():
 
                     end = time.time()
                     elapsed_time = end - start
-                    self.logger.info(\
-                            "%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s",
-                            self._get_name(),
-                            filename,
-                            query_counter,
-                            Neo4jTransactor.queue.qsize(),
-                            time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+                    self.logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s", self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
                 except Exception as error:
                     self.logger.error(error)
                     #self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
                     # TODO Extract and print NODE information from error message.
                     # Would be helpful for troubleshooting.
                     #TODO: write mechanism to prevent infinite retries on failure (can currently occur)
-                    self.logger.warning(\
-                            "%s: Query Conflict, putting data back in Queue to run later. %s",
-                            self._get_name(),
-                            filename)
+                    self.logger.warning( "%s: Query Conflict, putting data back in Queue to run later. %s", self._get_name(), filename)
                     query_batch.insert(0, (neo4j_query, filename))
                     time.sleep(12)
                     Neo4jTransactor.queue.put((query_batch, query_counter))
@@ -144,9 +121,5 @@ class Neo4jTransactor():
 
             batch_end = time.time()
             batch_elapsed_time = batch_end - batch_start
-            self.logger.debug("%s: Query Batch finished: %s BatchSize: %s Time: %s",
-                              self._get_name(),
-                              query_counter,
-                              len(query_batch),
-                              time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time)))
+            self.logger.debug("%s: Query Batch finished: %s BatchSize: %s Time: %s", self._get_name(), query_counter, len(query_batch), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time)))
             Neo4jTransactor.queue.task_done()
