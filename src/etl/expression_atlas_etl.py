@@ -65,10 +65,9 @@ class ExpressionAtlasETL(ETL):
 
     @staticmethod
     def _get_mod_gene_symbol_to_primary_ids(data_provider):
-        return_set = Neo4jHelper.run_single_parameter_query(
-            ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_query,
-            data_provider)
-        return {record["g.symbol"].lower(): record["g.primaryKey"] for record in return_set}
+        with Neo4jHelper.run_single_parameter_query(ExpressionAtlasETL.get_mod_gene_symbol_to_primary_ids_query,
+                                                    data_provider) as return_set:
+            return {record["g.symbol"].lower(): record["g.primaryKey"] for record in return_set}
 
     # Returns only pages for genes that we have in the Alliance
     def _get_expression_atlas_gene_pages(self, sub_type,
@@ -122,29 +121,29 @@ class ExpressionAtlasETL(ETL):
 
     def get_generators(self, expression_atlas_gene_pages, data_provider, batch_size):
         """Get Generators."""
-        return_set = Neo4jHelper.run_single_parameter_query(
+        with Neo4jHelper.run_single_parameter_query(
             ExpressionAtlasETL.get_genes_with_expression_atlas_links_query,
             list(expression_atlas_gene_pages.keys())
-        )
+        ) as return_set:
 
-        counter = 0
-        cross_reference_list = []
-        for record in return_set:
-            counter += 1
-            cross_reference = ETLHelper.get_xref_dict(
-                record["g.primaryKey"].split(":")[1],
-                "ExpressionAtlas_gene",
-                "gene/expression-atlas",
-                "gene/expressionAtlas",
-                record["g.modLocalId"],
-                expression_atlas_gene_pages[record["g.primaryKey"].lower()],
-                data_provider + ":" + record["g.modLocalId"] + "gene/expression-atlas")
-            cross_reference["genePrimaryKey"] = record["g.primaryKey"]
-            cross_reference_list.append(cross_reference)
-            if counter > batch_size:
+            counter = 0
+            cross_reference_list = []
+            for record in return_set:
+                counter += 1
+                cross_reference = ETLHelper.get_xref_dict(
+                    record["g.primaryKey"].split(":")[1],
+                    "ExpressionAtlas_gene",
+                    "gene/expression-atlas",
+                    "gene/expressionAtlas",
+                    record["g.modLocalId"],
+                    expression_atlas_gene_pages[record["g.primaryKey"].lower()],
+                    data_provider + ":" + record["g.modLocalId"] + "gene/expression-atlas")
+                cross_reference["genePrimaryKey"] = record["g.primaryKey"]
+                cross_reference_list.append(cross_reference)
+                if counter > batch_size:
+                    yield [cross_reference_list]
+                    counter = 0
+                    cross_reference_list = []
+
+            if counter > 0:
                 yield [cross_reference_list]
-                counter = 0
-                cross_reference_list = []
-
-        if counter > 0:
-            yield [cross_reference_list]

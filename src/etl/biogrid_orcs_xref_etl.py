@@ -76,26 +76,24 @@ class BiogridOrcsXrefETL(ETL):
         """Get Generators."""
 
         biogrid_orcs_data_list = []
-        return_set = Neo4jHelper.run_single_parameter_query(self.gene_crossref_query_template,
-                                                            entrez_ids)
+        with Neo4jHelper.run_single_parameter_query(self.gene_crossref_query_template, entrez_ids) as return_set:
+            for record in return_set:
+                gene_primary_key = record["g.primaryKey"]
+                mod_local_id = record["g.modLocalId"]
+                global_cross_ref_id = record["cr.globalCrossRefId"]
+                url = self.etlh.rdh2.return_url_from_key_value('NCBI_Gene', global_cross_ref_id.split(":")[1], 'biogrid/orcs')
+                biogrid_orcs_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
+                                                   "NCBI_Gene",
+                                                   "gene/biogrid_orcs",
+                                                   "gene/biogrid_orcs",
+                                                   "BioGRID CRISPR Screen Cell Line Phenotypes",
+                                                   url,
+                                                   global_cross_ref_id+"gene/biogrid_orcs")
 
-        for record in return_set:
-            gene_primary_key = record["g.primaryKey"]
-            mod_local_id = record["g.modLocalId"]
-            global_cross_ref_id = record["cr.globalCrossRefId"]
-            url = self.etlh.rdh2.return_url_from_key_value('NCBI_Gene', global_cross_ref_id.split(":")[1], 'biogrid/orcs')
-            biogrid_orcs_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
-                                               "NCBI_Gene",
-                                               "gene/biogrid_orcs",
-                                               "gene/biogrid_orcs",
-                                               "BioGRID CRISPR Screen Cell Line Phenotypes",
-                                               url,
-                                               global_cross_ref_id+"gene/biogrid_orcs")
+                biogrid_orcs_xref["genePrimaryKey"] = gene_primary_key
+                biogrid_orcs_xref["modLocalId"] = mod_local_id
 
-            biogrid_orcs_xref["genePrimaryKey"] = gene_primary_key
-            biogrid_orcs_xref["modLocalId"] = mod_local_id
-
-            biogrid_orcs_data_list.append(biogrid_orcs_xref)
+                biogrid_orcs_data_list.append(biogrid_orcs_xref)
 
         yield [biogrid_orcs_data_list]
 
