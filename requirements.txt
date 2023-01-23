@@ -1,7 +1,7 @@
 neotime==1.7.4
 py2neo
 cryptography==3.3.1 #cryptography required for py2neo, but current version (3.4.4 at 2021/02/11) causes conflicts with pip version
-neo4j
+neo4j-driver==5.1.0
 ijson==2.4
 pytest
 jsonschema

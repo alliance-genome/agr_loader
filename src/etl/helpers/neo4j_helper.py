@@ -46,11 +46,8 @@ class Neo4jHelper():
     def create_indices():
         """Create Indicies"""
 
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        driver = GraphDatabase.driver(uri,
-                                      auth=("neo4j", "neo4j"),
-                                      max_connection_pool_size=-1)
+        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+        driver = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
         with driver.session() as session:
             indicies = [":CDS(primaryKey)",
