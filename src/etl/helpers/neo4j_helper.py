@@ -10,7 +10,6 @@ from loader_common import ContextInfo
 logger = logging.getLogger(__name__)
 context_info = ContextInfo()
 uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
-graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
 
 class Neo4jHelper:
@@ -21,6 +20,7 @@ class Neo4jHelper:
     def run_single_parameter_query(query, parameter):
         """Run single parameter query"""
         try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
             logger.debug("Running run_single_parameter_query. Please wait...")
             logger.debug("Query: %s", query)
             with graph.session() as session:
@@ -28,29 +28,34 @@ class Neo4jHelper:
                     yield transaction.run(query, parameter=parameter)
         finally:
             logger.debug("closing neo4j transaction and session")
+            graph.close()
 
     @staticmethod
     @contextmanager
     def run_single_query(query):
         """Run Single Query"""
         try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
             with graph.session() as session:
                 with session.begin_transaction() as transaction:
                     yield transaction.run(query)
         finally:
             logger.debug("closing neo4j transaction and session")
+            graph.close()
 
     @staticmethod
     def run_single_query_no_return(query):
         """Run Single Query"""
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
         with graph.session() as session:
             with session.begin_transaction() as transaction:
                 transaction.run(query)
+        graph.close()
 
     @staticmethod
     def create_indices():
         """Create Indicies"""
-
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
         with graph.session() as session:
             indicies = [":CDS(primaryKey)",
                         ":Gene(primaryKey)",
@@ -157,3 +162,4 @@ class Neo4jHelper:
 
             for index in indicies:
                 session.run("CREATE INDEX ON " + index)
+        graph.close()
