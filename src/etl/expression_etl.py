@@ -367,7 +367,7 @@ class ExpressionETL(ETL):
                 ON CREATE SET othergo.type = 'other'
                 ON CREATE SET othergo.subset = 'goslim_agr' """
 
-        Neo4jHelper.run_single_query(add_other_query)
+        Neo4jHelper.run_single_query_no_return(add_other_query)
 
     def get_generators(self, expression_file, batch_size):  # noqa
         """Get Generators."""

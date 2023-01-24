@@ -122,6 +122,6 @@ class TestClass():
         query = """MATCH (n:%s)-[]-(m:%s)
                    RETURN DISTINCT COUNT(n) AS count""" % (node1, node2)
 
-        result = Neo4jHelper.run_single_query(query)
-        for record in result:
-            assert record["count"] > 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] > 0

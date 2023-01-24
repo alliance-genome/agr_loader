@@ -53,12 +53,10 @@ class ExpressionRibbonOtherETL(ETL):
         """Get Ribbon Terms."""
         self.logger.debug("made it to the gocc ribbon retrieve")
 
-        return_set_rle = Neo4jHelper().run_single_query(self.ribbonless_ebes_query)
-
         gocc_ribbonless_data = []
-
-        for record in return_set_rle:
-            row = dict(ebe_id=record["ebe.primaryKey"])
-            gocc_ribbonless_data.append(row)
+        with Neo4jHelper().run_single_query(self.ribbonless_ebes_query) as return_set_rle:
+            for record in return_set_rle:
+                row = dict(ebe_id=record["ebe.primaryKey"])
+                gocc_ribbonless_data.append(row)
 
         yield [gocc_ribbonless_data]

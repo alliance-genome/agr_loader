@@ -1,21 +1,15 @@
 from etl import Neo4jHelper
 
 
-def execute_transaction(query):
-    """Excute Transactor"""
-
-    return Neo4jHelper.run_single_query(query)
-
-
 def test_fgf8a_exists():
     """Test fgf8a Exists"""
 
     query = """MATCH (g:Gene)
                WHERE g.symbol = 'fgf8a'
                RETURN count(g) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] > 0
 
 
 def test_doterm_exists():

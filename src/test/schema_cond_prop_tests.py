@@ -3,12 +3,6 @@
 from etl import Neo4jHelper
 
 
-def execute_transaction(query):
-    """Execute Transaction"""
-
-    return Neo4jHelper.run_single_query(query)
-
-
 def pytest_generate_tests(metafunc):
     """pyTest Generat Test"""
 
@@ -69,6 +63,6 @@ class TestClass(object):
                          AND n.%s is NULL
                    RETURN COUNT(n) as count""" % (node1, prop1, prop2)
 
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] == 0

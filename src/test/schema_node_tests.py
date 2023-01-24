@@ -3,12 +3,6 @@
 from etl import Neo4jHelper
 
 
-def execute_transaction(query):
-    """Execute Transaction"""
-
-    return Neo4jHelper.run_single_query(query)
-
-
 def pytest_generate_tests(metafunc):
     """PyTest Generate Tests"""
 
@@ -339,9 +333,9 @@ class TestClass():
 
         query = """MATCH (n:%s)
                    RETURN DISTINCT COUNT(n) AS count""" % node
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] > 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] > 0
 
     @staticmethod
     def test_relationship_exists(relationship):

@@ -59,44 +59,44 @@ class GenePhenoCrossReferenceETL(ETL):
     def get_generators(self, batch_size):
         """Get Generators."""
         gene_pheno_data_list = []
-        return_set = Neo4jHelper.run_single_query(self.gene_pheno_query_template)
-        counter = 0
+        with Neo4jHelper.run_single_query(self.gene_pheno_query_template) as return_set:
+            counter = 0
 
-        for record in return_set:
-            counter = counter + 1
-            global_cross_ref_id = record["g.primaryKey"]
-            data_provider = record["g.dataProvider"]
-            id_prefix = global_cross_ref_id.split(":")[0]
-            if data_provider == 'MGI':
-                page = 'gene/phenotypes_impc'
-                url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
-                gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
-                                                          id_prefix,
-                                                          page,
-                                                          page,
-                                                          "IMPC",
-                                                          url,
-                                                          global_cross_ref_id+page)
-            elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
-                continue
-            else:
-                page = 'gene/phenotypes'
-                url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
-                gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
-                                                          id_prefix,
-                                                          page,
-                                                          page,
-                                                          id_prefix,
-                                                          url,
-                                                          global_cross_ref_id+page)
+            for record in return_set:
+                counter = counter + 1
+                global_cross_ref_id = record["g.primaryKey"]
+                data_provider = record["g.dataProvider"]
+                id_prefix = global_cross_ref_id.split(":")[0]
+                if data_provider == 'MGI':
+                    page = 'gene/phenotypes_impc'
+                    url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
+                    gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
+                                                              id_prefix,
+                                                              page,
+                                                              page,
+                                                              "IMPC",
+                                                              url,
+                                                              global_cross_ref_id+page)
+                elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
+                    continue
+                else:
+                    page = 'gene/phenotypes'
+                    url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
+                    gene_pheno_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
+                                                              id_prefix,
+                                                              page,
+                                                              page,
+                                                              id_prefix,
+                                                              url,
+                                                              global_cross_ref_id+page)
 
-            gene_pheno_xref["genePrimaryKey"] = global_cross_ref_id
+                gene_pheno_xref["genePrimaryKey"] = global_cross_ref_id
 
-            gene_pheno_data_list.append(gene_pheno_xref)
+                gene_pheno_data_list.append(gene_pheno_xref)
 
-            if counter == batch_size:
+                if counter == batch_size:
+                    yield [gene_pheno_data_list, gene_pheno_data_list]
+                    gene_pheno_data_list = []
+
+            if counter > 0:
                 yield [gene_pheno_data_list, gene_pheno_data_list]
-                gene_pheno_data_list = []
-
-        if counter > 0:
-            yield [gene_pheno_data_list, gene_pheno_data_list]

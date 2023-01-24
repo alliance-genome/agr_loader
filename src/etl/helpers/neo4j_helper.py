@@ -7,49 +7,51 @@ from neo4j import GraphDatabase
 from loader_common import ContextInfo
 
 
-class Neo4jHelper():
-    """Neo4j Helper"""
+logger = logging.getLogger(__name__)
+context_info = ContextInfo()
+uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
+graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
 
-    logger = logging.getLogger(__name__)
-    context_info = ContextInfo()
+
+class Neo4jHelper:
+    """Neo4j Helper"""
 
     @staticmethod
     @contextmanager
     def run_single_parameter_query(query, parameter):
         """Run single parameter query"""
         try:
-            uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
-            Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
-            Neo4jHelper.logger.debug("Query: %s", query)
+            logger.debug("Running run_single_parameter_query. Please wait...")
+            logger.debug("Query: %s", query)
             with graph.session() as session:
                 with session.begin_transaction() as transaction:
                     yield transaction.run(query, parameter=parameter)
         finally:
-            Neo4jHelper.logger.debug("closing neo4j transaction and session")
+            logger.debug("closing neo4j transaction and session")
 
     @staticmethod
     @contextmanager
     def run_single_query(query):
         """Run Single Query"""
         try:
-            uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
             with graph.session() as session:
                 with session.begin_transaction() as transaction:
                     yield transaction.run(query)
         finally:
-            Neo4jHelper.logger.debug("closing neo4j transaction and session")
+            logger.debug("closing neo4j transaction and session")
+
+    @staticmethod
+    def run_single_query_no_return(query):
+        """Run Single Query"""
+        with graph.session() as session:
+            with session.begin_transaction() as transaction:
+                transaction.run(query)
 
     @staticmethod
     def create_indices():
         """Create Indicies"""
 
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        driver = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
-        with driver.session() as session:
+        with graph.session() as session:
             indicies = [":CDS(primaryKey)",
                         ":Gene(primaryKey)",
                         ":Gene(modLocalId)",

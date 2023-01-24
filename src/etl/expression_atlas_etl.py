@@ -60,8 +60,8 @@ class ExpressionAtlasETL(ETL):
 
     @staticmethod
     def _get_primary_gene_ids_to_ensembl_ids():
-        return_set = Neo4jHelper.run_single_query(ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_query)
-        return {record["c.localId"].lower(): record["g.primaryKey"] for record in return_set}
+        with Neo4jHelper.run_single_query(ExpressionAtlasETL.get_all_gene_primary_to_ensmbl_ids_query) as return_set:
+            return {record["c.localId"].lower(): record["g.primaryKey"] for record in return_set}
 
     @staticmethod
     def _get_mod_gene_symbol_to_primary_ids(data_provider):

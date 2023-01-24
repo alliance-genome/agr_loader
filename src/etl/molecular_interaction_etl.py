@@ -91,6 +91,10 @@ class MolecularInteractionETL(ETL):
 
             MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
 
+    query_xrefs = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
+                     WHERE cr.prefix = {parameter}
+                     RETURN g.primaryKey, cr.globalCrossRefId"""
+
     def __init__(self, config):
         """Initiaslise object."""
         super().__init__()
@@ -129,20 +133,12 @@ class MolecularInteractionETL(ETL):
 
         query = "MATCH (g:Gene) RETURN g.primaryKey"
 
-        result = Neo4jHelper().run_single_query(query)
+        with Neo4jHelper().run_single_query(query) as result:
 
-        for record in result:
-            master_gene_set.add(record['g.primaryKey'])
+            for record in result:
+                master_gene_set.add(record['g.primaryKey'])
 
         return master_gene_set
-
-    @staticmethod
-    def query_crossreferences(crossref_prefix):
-        """Query Cross References."""
-        query = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
-                   WHERE cr.prefix = {parameter}
-                   RETURN g.primaryKey, cr.globalCrossRefId"""
-        return Neo4jHelper().run_single_parameter_query(query, crossref_prefix)
 
     def populate_crossreference_dictionary(self):
         """Populate the crossreference dictionary.
@@ -165,28 +161,28 @@ class MolecularInteractionETL(ETL):
 
         for key in master_crossreference_dictionary:
             self.logger.info('Querying for %s cross references.', key)
-            result = self.query_crossreferences(key)
-            for record in result:
-                cross_ref_record = None
-                # Modify the cross reference ID to match the PSI MITAB format if necessary.
-                # So far, this is just converting 'NCBI_Gene' to 'entrez gene/locuslink'.
-                if record['cr.globalCrossRefId'].startswith('NCBI_Gene'):
-                    cross_ref_record_split = record['cr.globalCrossRefId'].split(':')[1]
-                    cross_ref_record = 'entrez gene/locuslink:' + cross_ref_record_split
-                else:
-                    cross_ref_record = record['cr.globalCrossRefId']
+            with Neo4jHelper().run_single_parameter_query(self.query_xrefs, key) as result:
+                for record in result:
+                    cross_ref_record = None
+                    # Modify the cross reference ID to match the PSI MITAB format if necessary.
+                    # So far, this is just converting 'NCBI_Gene' to 'entrez gene/locuslink'.
+                    if record['cr.globalCrossRefId'].startswith('NCBI_Gene'):
+                        cross_ref_record_split = record['cr.globalCrossRefId'].split(':')[1]
+                        cross_ref_record = 'entrez gene/locuslink:' + cross_ref_record_split
+                    else:
+                        cross_ref_record = record['cr.globalCrossRefId']
 
-                # The crossreference dictionary is a list of genes
-                # linked to a single crossreference.
-                # Append the gene if the crossref dict entry exists.
-                # Otherwise, create a list and append the entry.
-                if cross_ref_record.lower() in master_crossreference_dictionary[key]:
-                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
-                else:
-                    master_crossreference_dictionary[key][cross_ref_record.lower()] = []
-                    master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
+                    # The crossreference dictionary is a list of genes
+                    # linked to a single crossreference.
+                    # Append the gene if the crossref dict entry exists.
+                    # Otherwise, create a list and append the entry.
+                    if cross_ref_record.lower() in master_crossreference_dictionary[key]:
+                        master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
+                    else:
+                        master_crossreference_dictionary[key][cross_ref_record.lower()] = []
+                        master_crossreference_dictionary[key][cross_ref_record.lower()].append(record['g.primaryKey'])
 
-                # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
+                    # The ids in PSI-MITAB files are lower case, hence the .lower() used above.
 
         return master_crossreference_dictionary
 
