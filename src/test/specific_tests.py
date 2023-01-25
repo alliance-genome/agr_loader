@@ -18,9 +18,9 @@ def test_doterm_exists():
     query = """MATCH(n:DOTerm)
                WHERE n.primaryKey = 'DOID:0001816'
                RETURN count(n) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] == 1
 
 
 def test_isobsolete_false():
@@ -29,9 +29,9 @@ def test_isobsolete_false():
     query = """MATCH(n:DOTerm)
                WHERE n.isObsolete = 'false'
                RETURN count(n) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] > 0
 
 
 def test_currated_disease_associations_have_date_assigned():
@@ -41,9 +41,9 @@ def test_currated_disease_associations_have_date_assigned():
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
                      AND NOT EXISTS(p.dateAssigned)
                RETURN COUNT(n) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] == 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] == 0
 
 
 def test_species_disease_pub_gene_exists():
@@ -52,9 +52,9 @@ def test_species_disease_pub_gene_exists():
     query = """
         MATCH (s:Species)--(g:Gene)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
         RETURN COUNT(p) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] > 0
 
 
 def test_species_disease_pub_allele_exists():
@@ -63,9 +63,9 @@ def test_species_disease_pub_allele_exists():
     query = """
         MATCH (s:Species)--(a:Allele:Feature)--(dg:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(p:Publication)
         RETURN COUNT(p) AS count"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["count"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["count"] > 0
 
 
 def test_uuid_is_not_duplicated():
@@ -75,9 +75,9 @@ def test_uuid_is_not_duplicated():
                WITH g.uuid AS uuid, count(*)
                AS counter WHERE counter > 0 AND g.uuid IS NOT NULL
                RETURN uuid, counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 2
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 2
 
 
 def test_zfin_gene_has_expression_link():
@@ -87,9 +87,9 @@ def test_zfin_gene_has_expression_link():
                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-990415-72'
                      AND c.crossRefType = 'gene/expression'
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_mods_have_gene_expression_atlas_link():
@@ -99,9 +99,9 @@ def test_mods_have_gene_expression_atlas_link():
     query = """MATCH (s:Species)--(g:Gene)-[]-(c:CrossReference)
                WHERE c.crossRefType = 'gene/expression-atlas'
                RETURN distinct(s.species) as species_abbr"""
-    result = execute_transaction(query)
-    for record in result:
-        species[record["species_abbr"]] += 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            species[record["species_abbr"]] += 1
 
     for key in species.keys():
         assert species[key] == 1, "Species {} has no matches for XRef gene/expression-atlas".format(key)
@@ -112,9 +112,9 @@ def test_xref_complete_url_is_formatted():
 
     query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 10
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 10
 
 
 def test_spell_display_name():
@@ -124,9 +124,9 @@ def test_spell_display_name():
                WHERE cr.prefix = 'SPELL'
                      AND cr.displayName <> 'Serial Patterns of Expression Levels Locator (SPELL)'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_spell_cross_ref_type():
@@ -136,9 +136,9 @@ def test_spell_cross_ref_type():
                WHERE cr.prefix = 'SPELL'
                      AND cr.crossRefType <> 'gene/spell'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_genes_have_automated_description():
@@ -152,9 +152,9 @@ def test_genes_have_automated_description():
                                                      'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-030131-4430']
                AND g.automatedGeneSynopsis IS NULL
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 0
 
 
 def test_at_least_one_gene_has_go_description():
@@ -167,9 +167,9 @@ def test_at_least_one_gene_has_go_description():
                       OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*'
                       OR g.automatedGeneSynopsis =~ '.*redicted to localize to.*')
                RETURN COUNT(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_at_least_one_gene_has_disease_description():
@@ -180,9 +180,9 @@ def test_at_least_one_gene_has_disease_description():
                       OR g.automatedGeneSynopsis =~ '.*mplicated in.*'
                       OR g.automatedGeneSynopsis =~ '.*iomarker of.*')
                RETURN COUNT(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_at_least_one_gene_has_expression_description():
@@ -192,9 +192,9 @@ def test_at_least_one_gene_has_expression_description():
                WHERE (g.automatedGeneSynopsis =~ '.*s expressed in.*'
                       OR g.automatedGeneSynopsis =~ '.*s enriched in.*')
                RETURN COUNT(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_at_least_one_gene_has_orthology_description():
@@ -203,9 +203,9 @@ def test_at_least_one_gene_has_orthology_description():
     query = """MATCH (g:Gene)
                WHERE g.automatedGeneSynopsis =~ '.*rthologous to.*'
                RETURN COUNT(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
@@ -214,9 +214,9 @@ def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
     query = """MATCH (d:DOTerm)-[]-(g:Gene)
                WHERE d.name = 'nephrogenic diabetes insipidus'
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_zdb_alt_160129_6_has_at_least_one_disease():
@@ -226,9 +226,9 @@ def test_zdb_alt_160129_6_has_at_least_one_disease():
                WHERE a.dataProvider = 'ZFIN'
                      AND a.primaryKey ='ZFIN:ZDB-ALT-160129-6'
                RETURN count(a) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_do_terms_have_parents():
@@ -240,9 +240,9 @@ def test_do_terms_have_parents():
                      AND d.isObsolete = 'false'
                      AND d.doId <> 'DOID:4'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_phenotype_for_all_species_exists():
@@ -255,9 +255,9 @@ def test_phenotype_for_all_species_exists():
                WHERE labels(r) = ['Gene']
                      OR labels(r) = ['Feature', 'Allele']
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 7
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 7
 
 
 def test_variant_for_expected_species_exists():
@@ -266,9 +266,9 @@ def test_variant_for_expected_species_exists():
     query = """MATCH (s:Species)--(r)--(p:Variant)
                WHERE labels(r) = ['Feature', 'Allele']
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 5
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 5
 
 
 def test_disease_for_all_species_exists():
@@ -281,9 +281,9 @@ def test_disease_for_all_species_exists():
                WHERE labels(r) = ['Gene']
                      OR labels(r) = ['Feature', 'Allele']
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 7
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 7
 
 
 def test_goannot_for_all_species_exists():
@@ -294,9 +294,9 @@ def test_goannot_for_all_species_exists():
 
     query = """MATCH (s:Species)--(g:Gene)-[hp:ANNOTATED_TO]-(got:GOTerm)
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 7
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 7
 
 
 def test_molint_for_all_species_exists():
@@ -304,9 +304,9 @@ def test_molint_for_all_species_exists():
 
     query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 10
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 10
 
 
 def test_vepgene_for_all_species_exists():
@@ -320,9 +320,9 @@ def test_vepgene_for_all_species_exists():
 
     query = """MATCH (s:Species)--(:Gene)--(glc:GeneLevelConsequence)
                RETURN distinct s.species AS species_abbr"""
-    result = execute_transaction(query)
-    for record in result:
-        species[record["species_abbr"]] += 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            species[record["species_abbr"]] += 1
 
     for key in species.keys():
         assert species[key] == 1, "Species {} has no matches".format(key)
@@ -335,9 +335,9 @@ def test_veptranscript_for_all_species_exists():
 
     query = """MATCH (s:Species)--(:Gene)--(:Transcript)--(glc:TranscriptLevelConsequence)
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 5
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 5
 
 
 # def test_variant_consequences_for_five_species_exists():
@@ -358,9 +358,9 @@ def test_expression_for_non_human_species_exists():
 
     query = """MATCH (s:Species)--(:Gene)-[hp:EXPRESSED_IN]-(e:ExpressionBioEntity)
              RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 8
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 8
 
 
 def test_cellular_component_relationship_for_expression_exists():
@@ -368,9 +368,9 @@ def test_cellular_component_relationship_for_expression_exists():
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT]-(g:GOTerm)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_structure_relationship_for_expression_exists():
@@ -378,9 +378,9 @@ def test_anatomical_structure_relationship_for_expression_exists():
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE]-(o:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_sub_structure_relationship_for_expression_exists():
@@ -388,9 +388,9 @@ def test_anatomical_sub_structure_relationship_for_expression_exists():
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_SUBSTRUCTURE]-(o:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_structure_qualifier_relationship_for_expression_exists():
@@ -398,9 +398,9 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_STRUCTURE_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_cellular_component_qualifier_relationship_for_expression_exists():
@@ -408,9 +408,9 @@ def test_cellular_component_qualifier_relationship_for_expression_exists():
 
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
@@ -418,9 +418,9 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
 
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(o:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
@@ -429,9 +429,9 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                WHERE o.primaryKey <> 'UBERON:AnatomyOtherLocation'
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
@@ -440,9 +440,9 @@ def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
     query = """MATCH (n:ExpressionBioEntity)-[r:ANATOMICAL_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                WHERE o.primaryKey = 'UBERON:AnatomyOtherLocation'
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gocc_other_relationship_for_expression_exists():
@@ -451,9 +451,9 @@ def test_gocc_other_relationship_for_expression_exists():
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
                WHERE o.primaryKey = 'GO:otherLocations'
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gocc_ribbon_relationship_for_expression_exists():
@@ -462,9 +462,9 @@ def test_gocc_ribbon_relationship_for_expression_exists():
     query = """MATCH (n:ExpressionBioEntity)-[r:CELLULAR_COMPONENT_RIBBON_TERM]-(o:GOTerm:Ontology)
                WHERE o.primaryKey <> 'GO:otherLocations'
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_stage_uberon_other_relationship_for_expression_exists():
@@ -472,9 +472,9 @@ def test_stage_uberon_other_relationship_for_expression_exists():
 
     query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_stage_uberon_relationship_for_expression_exists():
@@ -482,9 +482,9 @@ def test_stage_uberon_relationship_for_expression_exists():
 
     query = """MATCH (n:BioEntityGeneExpressionJoin)-[r:STAGE_RIBBON_TERM]-(o:UBERONTerm:Ontology)
                RETURN count(r) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_mmoterm_has_display_synonym():
@@ -493,9 +493,9 @@ def test_mmoterm_has_display_synonym():
     query = """MATCH (n:MMOTerm)
                WHERE n.primaryKey = 'MMO:0000658' AND n.displaySynonym = 'RNA in situ'
                RETURN count(n) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_crip2_has_cardiac_neural_crest():
@@ -507,9 +507,9 @@ def test_crip2_has_cardiac_neural_crest():
           AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-2889'
           AND pub.pubModId = 'ZFIN:ZDB-PUB-130309-4'
        RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_expression_gocc_other_term_for_specific_gene_exists():
@@ -521,9 +521,9 @@ def test_expression_gocc_other_term_for_specific_gene_exists():
                       AND ebe.whereExpressedStatement = 'vesicle lumen'
                       AND got.primaryKey = 'GO:otherLocations'
                RETURN count(got) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_expression_gocc_term_for_specific_gene_exists():
@@ -533,9 +533,9 @@ def test_expression_gocc_term_for_specific_gene_exists():
                WHERE g.primaryKey = 'RGD:2129'
                      AND ebe.whereExpressedStatement = 'vesicle lumen'
                RETURN count(go) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_gocc_other_has_type():
@@ -545,9 +545,9 @@ def test_gocc_other_has_type():
                WHERE go.subset = 'goslim_agr'
                      AND go.type = 'other'
                RETURN count(go) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_gocc_self_ribbon_term_exists():
@@ -558,9 +558,9 @@ def test_gocc_self_ribbon_term_exists():
     WHERE gene.primaryKey = 'ZFIN:ZDB-GENE-140619-1'
          AND got.primaryKey = 'GO:0005739'
     RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
@@ -568,9 +568,9 @@ def test_gene_to_disease_annotation_via_ortho_has_biomarker_relation():
 
     query = """MATCH (gene:Gene)-[r:BIOMARKER_VIA_ORTHOLOGY]-(do:DOTerm)
                RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
@@ -578,9 +578,9 @@ def test_gene_to_disease_annotation_via_ortho_has_implicated_relation():
 
     query = """MATCH (gene:Gene)-[r:IMPLICATED_VIA_ORTHOLOGY]-(do:DOTerm)
                RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
@@ -591,9 +591,9 @@ def test_gene_to_disease_annotation_via_ortho_has_alliance_source_type():
        WHERE ec.primaryKey = 'ECO:0000501'
              AND deg.dataProvider = 'Alliance'
        RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_via_ortho_has_publication():
@@ -603,9 +603,9 @@ def test_gene_to_disease_annotation_via_ortho_has_publication():
        MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
        WHERE deg.dataProvider = 'Alliance'
        RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_annotation_has_publication():
@@ -614,9 +614,9 @@ def test_gene_to_disease_annotation_has_publication():
     query = """
         MATCH (gene:Gene)--(deg:Association:DiseaseEntityJoin)--(pubECJ:PublicationJoin)--(pub:Publication)
         RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
@@ -627,9 +627,9 @@ def test_gene_to_disease_via_ortho_exists_for_holoprosencephaly3():
                WHERE g.primaryKey='HGNC:10848'
                    AND do.name = 'holoprosencephaly 3'
                RETURN count(deg) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_has_two_ortho_disease_annotations():
@@ -641,9 +641,9 @@ def test_gene_has_two_ortho_disease_annotations():
         WHERE gene.primaryKey = 'MGI:98371'
             AND ortho.primaryKey = 'HGNC:11204'
         RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_human_gene_has_zebrafish_ortho_disease_annotation():
@@ -654,9 +654,9 @@ def test_human_gene_has_zebrafish_ortho_disease_annotation():
                WHERE ortho.primaryKey = 'ZFIN:ZDB-GENE-060312-41'
                      AND gene.primaryKey = 'HGNC:12597'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_worm_gene_has_human_alzheimers_via_ortho():
@@ -668,9 +668,9 @@ def test_worm_gene_has_human_alzheimers_via_ortho():
                      AND do.primaryKey = 'DOID:10652'
                      AND ortho.primaryKey = 'HGNC:6091'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_worm_gene_has_rat_alzheimers_via_ortho():
@@ -682,9 +682,9 @@ def test_worm_gene_has_rat_alzheimers_via_ortho():
                      AND do.primaryKey = 'DOID:10652'
                      AND ortho.primaryKey = 'RGD:2869'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_worm_gene2_has_rat_alzheimers_via_ortho():
@@ -696,9 +696,9 @@ def test_worm_gene2_has_rat_alzheimers_via_ortho():
                      AND do.primaryKey = 'DOID:10652'
                      AND ortho.primaryKey = 'RGD:2917'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_human_gene_has_mouse_ortho_disease_annotation():
@@ -709,9 +709,9 @@ def test_human_gene_has_mouse_ortho_disease_annotation():
                WHERE ortho.primaryKey = 'MGI:1919338'
                      AND gene.primaryKey = 'HGNC:12597'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_human_gene_has_hgnc_cross_reference():
@@ -723,9 +723,9 @@ def test_human_gene_has_hgnc_cross_reference():
                      AND cr.globalCrossRefId = 'HGNC:11204'
                      AND cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_human_gene_has_rgd_cross_reference():
@@ -737,9 +737,9 @@ def test_human_gene_has_rgd_cross_reference():
                      AND cr.globalCrossRefId = 'RGD:1322513'
                      AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/elasticResults.html?term=RGD:1322513'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_human_gene_has_rgd_references_cross_reference():
@@ -751,9 +751,9 @@ def test_human_gene_has_rgd_references_cross_reference():
                      AND cr.globalCrossRefId = 'RGD:1322513'
                      AND cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/report/gene/main.html?view=5&id=1322513'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_gene_has_symbol_with_species():
@@ -763,9 +763,9 @@ def test_gene_has_symbol_with_species():
                WHERE gene.symbolWithSpecies = 'fgf8a (Dre)'
                      AND gene.symbol = 'fgf8a'
                RETURN count(gene) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_genome_start_is_long():
@@ -774,9 +774,9 @@ def test_genome_start_is_long():
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
                WHERE ch.start <> toInt(ch.start)
                RETURN count(gf) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_genome_end_is_long():
@@ -785,9 +785,9 @@ def test_genome_end_is_long():
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
                WHERE ch.end <> toInt(ch.end)
                RETURN count(gf) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_phylogenetic_order_is_int():
@@ -796,9 +796,9 @@ def test_phylogenetic_order_is_int():
     query = """MATCH (g:Species)
                WHERE g.phylogeneticOrder <> toInt(g.phylogeneticOrder)
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_all_species_have_order():
@@ -807,9 +807,9 @@ def test_all_species_have_order():
     query = """MATCH (g:Species)
                WHERE g.phylogeneticOrder IS NULL
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_ortho_is_strict_filter_is_boolean():
@@ -818,9 +818,9 @@ def test_ortho_is_strict_filter_is_boolean():
     query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
                WHERE orth.strictFilter <> toBoolean(orth.strictFilter)
                RETURN count(orth) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_ortho_moderate_filter_is_boolean():
@@ -829,9 +829,9 @@ def test_ortho_moderate_filter_is_boolean():
     query = """MATCH (g1:Gene)-[orth:ORTHOLOGOUS]->(g2:Gene)
                WHERE orth.moderateFilter <> toBoolean(orth.moderateFilter)
                RETURN count(orth) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_go_term_has_type_biological_process():
@@ -840,9 +840,9 @@ def test_go_term_has_type_biological_process():
     query = """MATCH (go:GOTerm)
                WHERE go.primaryKey = 'GO:0000003' AND go.type = 'biological_process'
                RETURN count(go) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_sgd_gene_has_gene_disease_ortho():
@@ -851,9 +851,9 @@ def test_sgd_gene_has_gene_disease_ortho():
     query = """Match (d:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)
                WHERE g.primaryKey = 'SGD:S000002536'
                RETURN count(d) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 1
 
 
 def test_mmo_term_has_display_alias():
@@ -863,9 +863,9 @@ def test_mmo_term_has_display_alias():
                WHERE mmo.primaryKey = 'MMO:0000642'
                      AND mmo.displaySynonym = 'protein expression'
                RETURN count(mmo) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_expression_for_mgi_109583():
@@ -876,9 +876,9 @@ def test_expression_for_mgi_109583():
     WHERE o.name = 'spinal cord'
         AND g.primaryKey = 'MGI:109583'
     RETURN count(distinct ebge) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 2
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 2
 
 
 def test_part_of_relations_exist():
@@ -888,9 +888,9 @@ def test_part_of_relations_exist():
                WHERE e.name = 'nucleus pulposus'
                AND em.name = 'intervertebral disc'
                RETURN count(e) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_expression_images_cross_references_for_species_exists():
@@ -899,9 +899,9 @@ def test_expression_images_cross_references_for_species_exists():
     query = """MATCH (s:Species)--(g:Gene)--(cr:CrossReference)
                WHERE cr.page = 'gene/expression_images'
                RETURN count(distinct s) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 4
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 4
 
 
 def test_eco_term_has_display_synonym():
@@ -910,9 +910,9 @@ def test_eco_term_has_display_synonym():
     query = """MATCH (e:ECOTerm:Ontology)
                WHERE e.primaryKey = 'ECO:0000269' AND e.displaySynonym = 'EXP'
                RETURN count(e) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_point_mutation_hgvs():
@@ -922,9 +922,9 @@ def test_point_mutation_hgvs():
                WHERE v.primaryKey = 'NC_007124.7:g.50540171C>T'
                      AND a.primaryKey='ZFIN:ZDB-ALT-160601-8105'
                RETURN count(v) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_variant_consequence():
@@ -935,9 +935,9 @@ def test_variant_consequence():
                      AND a.primaryKey = 'ZFIN:ZDB-ALT-160601-8105'
                      AND vc.geneLevelConsequence = 'splice_donor_variant'
                RETURN count(v) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_deletion_hgvs():
@@ -947,9 +947,9 @@ def test_deletion_hgvs():
                WHERE v.primaryKey = 'NC_003284.9:g.5113285_5115215del'
                      AND a.primaryKey='WB:WBVar00275424'
                RETURN count(v) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_insertion_hgvs():
@@ -959,9 +959,9 @@ def test_insertion_hgvs():
                WHERE v.primaryKey = 'NC_007121.7:g.16027812_16027813insCCGTT'
                      AND a.primaryKey = 'ZFIN:ZDB-ALT-180207-16'
                RETURN count(v) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_hgnc_gene_has_curated_and_loaded_db_xref():
@@ -971,9 +971,9 @@ def test_hgnc_gene_has_curated_and_loaded_db_xref():
     MATCH (g:Gene)--(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(cr:CrossReference)
     WHERE g.primaryKey = 'HGNC:7'
     RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 1
 
 
 def test_pej_has_agm():
@@ -982,9 +982,9 @@ def test_pej_has_agm():
     query = """MATCH (agm:AffectedGenomicModel)-[:PRIMARY_GENETIC_ENTITY]-(pej:PublicationJoin)
                WHERE agm.primaryKey = 'ZFIN:ZDB-FISH-190411-12'
                RETuRN count(agm) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_allele_has_description():
@@ -993,9 +993,9 @@ def test_allele_has_description():
     query = """MATCH (a:Allele)--(cr:CrossReference)
                WHERE cr.crossRefType = 'allele/references'
                RETURN count(a) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_allele_has_submitted_description():
@@ -1004,9 +1004,9 @@ def test_allele_has_submitted_description():
     query = """MATCH (a:Allele)
                WHERE a.description IS NOT NULL
                RETURN count(a) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_sgd_gene_has_dej_with_many_orthologous_genes():
@@ -1015,9 +1015,9 @@ def test_sgd_gene_has_dej_with_many_orthologous_genes():
     query = """MATCH (dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(g:Gene)
                WHERE dej.primaryKey = 'SGD:S000005844IS_IMPLICATED_INDOID:14501HGNC:10996HGNC:10998HGNC:16496HGNC:16526HGNC:29567HGNC:3570HGNC:3571'
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 7
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 7
 
 
 def test_spaw_should_have_disease_genes():
@@ -1026,9 +1026,9 @@ def test_spaw_should_have_disease_genes():
     query = """MATCH (dej:DiseaseEntityJoin)--(g:Gene)
                WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030219-1'
                 RETuRN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_wb_transgene_has_phenotype():
@@ -1037,9 +1037,9 @@ def test_wb_transgene_has_phenotype():
     query = """MATCH (a:Allele)--(pej:PhenotypeEntityJoin)
                WHERE a.primaryKey = 'WB:WBTransgene00001048'
                RETURN count(a) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_wb_gene_has_inferred_from_allele():
@@ -1049,9 +1049,9 @@ def test_wb_gene_has_inferred_from_allele():
                WHERE g.primaryKey = 'WB:WBGene00000149'
                      AND a.primaryKey = 'WB:WBVar00275424'
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 # currently WB file is not submitting these, will reactivate when we get a corrected file.
 # def test_wb_genes_have_phenotype():
@@ -1071,9 +1071,9 @@ def test_human_gene_has_disease():
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)
                WHERE g.primaryKey = 'HGNC:11950'
                RETURN count(g) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_mi_term_has_name_flybase():
@@ -1082,9 +1082,9 @@ def test_mi_term_has_name_flybase():
     query = """MATCH (o:MITerm)
                WHERE o.label = 'FlyBase'
                RETURN count(o) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_mi_term_has_corrected_url():
@@ -1094,9 +1094,9 @@ def test_mi_term_has_corrected_url():
                WHERE o.primaryKey = 'MI:0465'
                      AND o.url = 'http://dip.doe-mbi.ucla.edu/'
                RETURN count(o) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_rgd_dej_has_rgd_full_url_cross_reference():
@@ -1105,9 +1105,9 @@ def test_rgd_dej_has_rgd_full_url_cross_reference():
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
             WHERE cr.crossRefCompleteUrl = 'https://rgd.mcw.edu/rgdweb/ontology/annot.html?species=Rat&x=1&acc_id=DOID:583#annot'
             RETURN COUNT(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_human_dej_has_omim_full_url_cross_reference():
@@ -1116,9 +1116,9 @@ def test_human_dej_has_omim_full_url_cross_reference():
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
                WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
                RETURN count(cr) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_vep_transcript_consequence_has_cdna_start_end_range():
@@ -1133,9 +1133,9 @@ def test_vep_transcript_consequence_has_cdna_start_end_range():
                 and tc.proteinStartPosition IS NOT NULL
                 AND tc.aminoAcidVariation IS NOT NULL
                 RETURN COUNT(tc) AS counter"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 # please retain this code for testing purposes.
 # def test_node_count_is_consistently_growing():
@@ -1154,9 +1154,9 @@ def test_variant_consequence_has_codon_change():
                 AND tc.codonChange IS NOT NULL
                 RETURN COUNT(tc) AS counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_orphanet_publication_exists():
@@ -1167,9 +1167,9 @@ def test_orphanet_publication_exists():
                 AND pr.pubModId = 'ORPHA:198'
                 RETURN COUNT(pr) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_omim_publication_exists():
@@ -1180,9 +1180,9 @@ def test_omim_publication_exists():
                 and pr.pubModId = 'OMIM:600513'
                 RETURN count(p) AS counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_wb_gene_has_variant_tc_consequence_exists():
@@ -1192,9 +1192,9 @@ def test_wb_gene_has_variant_tc_consequence_exists():
                 WHERE g.primaryKey = 'WB:WBGene00022276'
                 RETURN count(g) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_zfin_gene_has_variant_tc_consequence_exists():
@@ -1204,9 +1204,9 @@ def test_zfin_gene_has_variant_tc_consequence_exists():
                 WHERE g.primaryKey = 'ZFIN:ZDB-GENE-030131-9825'
                 RETURN count(g) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_mgi_gene_has_variant_tc_consequence_exists():
@@ -1216,9 +1216,9 @@ def test_mgi_gene_has_variant_tc_consequence_exists():
                 WHERE g.primaryKey = 'MGI:104554'
                 RETURN count(g) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_fb_gene_has_variant_tc_consequence_exists():
@@ -1228,9 +1228,9 @@ def test_fb_gene_has_variant_tc_consequence_exists():
                 WHERE g.primaryKey = 'FB:FBgn0031209'
                 RETURN count(g) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_fb_allele_synonym_exists():
@@ -1240,9 +1240,9 @@ def test_fb_allele_synonym_exists():
                 WHERE a.primaryKey = 'FB:FBal0138114'
                 RETURN count(a) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_pseudogenic_transcript_exists():
@@ -1251,9 +1251,9 @@ def test_pseudogenic_transcript_exists():
     query = """ MATCH (t:Transcript)--(so:SOTerm) WHERE so.primaryKey = 'SO:0000516'
                 RETURN count(t) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_protein_consequence_exists():
@@ -1265,9 +1265,9 @@ def test_protein_consequence_exists():
                     AND tlc.proteinStartPosition IS NOT NULL
                     AND tlc.proteinEndPosition IS NOT NULL
                 RETURN count(v) AS counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_codon_consequence_exists():
@@ -1279,9 +1279,9 @@ def test_codon_consequence_exists():
                     AND tlc.codonReference IS NOT NULL
                     AND tlc.codonVariation IS NOT NULL
                 RETURN count(v) AS counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_level_sift_results_exist():
@@ -1297,9 +1297,9 @@ def test_gene_level_sift_results_exist():
                         )
                     )
                 RETURN count(v) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_gene_level_polyphen_results_exist():
@@ -1315,9 +1315,9 @@ def test_gene_level_polyphen_results_exist():
                         )
                     )
                 RETURN count(v) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_transcript_level_sift_results_exist():
@@ -1333,9 +1333,9 @@ def test_transcript_level_sift_results_exist():
                         )
                     )
                 RETURN count(v) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_transcript_level_polyphen_results_exist():
@@ -1351,9 +1351,9 @@ def test_transcript_level_polyphen_results_exist():
                         )
                     )
                 RETURN count(v) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_tc_consequence_is_null_vs_dash():
@@ -1365,9 +1365,9 @@ def test_tc_consequence_is_null_vs_dash():
                     AND tlc.aminoAcidChange <> '-'
                     AND tlc.aminoAcidReference <> '-'
                 RETURN count(v) AS counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_manual_sars2_synonym_exists():
@@ -1376,9 +1376,9 @@ def test_manual_sars2_synonym_exists():
     query = """ MATCH (s:Synonym) WHERE s.name = 'SARS-CoV-2 infection'
                 RETURN count(s) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_not_disease_annotation_exists_exists():
@@ -1387,9 +1387,9 @@ def test_not_disease_annotation_exists_exists():
     query = """ MATCH (d:DOTerm)-[x:IS_NOT_MARKER_FOR]-(g:Gene)
                 RETURN count(d) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_protein_sequence_exists():
@@ -1400,9 +1400,9 @@ def test_protein_sequence_exists():
                  and n.proteinSequence <> ''
                  RETURN count(distinct t.dataProvider) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 4
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 4
 
 
 def test_fb_variant_has_note():
@@ -1412,9 +1412,9 @@ def test_fb_variant_has_note():
                 WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
                 RETURN count(v) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_fb_variant_has_note_with_pub():
@@ -1424,9 +1424,9 @@ def test_fb_variant_has_note_with_pub():
                 WHERE v.primaryKey = 'NT_033777.3:g.31883471_31883472ins'
                 RETURN count(v) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_correct_number_of_species_have_variant_transcript_exon_relations():
@@ -1435,9 +1435,9 @@ def test_correct_number_of_species_have_variant_transcript_exon_relations():
     query = """ MATCH (e:Exon)--(t:Transcript)--(v:Variant)
                 RETURN COUNT(DISTINCT t.dataProvider) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 5
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 5
 
 
 def test_correct_number_of_species_datasetsample_relations():
@@ -1446,9 +1446,9 @@ def test_correct_number_of_species_datasetsample_relations():
     query = """ MATCH (hd:HTPDataset)--(hds:HTPDatasetSample)
                 RETURN COUNT(DISTINCT hd.dataProvider) as counter
     """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 4
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 4
 
 
 def test_correct_number_of_species_phenotype_xrefs_relations():
@@ -1458,9 +1458,9 @@ def test_correct_number_of_species_phenotype_xrefs_relations():
             MATCH (g:Gene)--(cr:CrossReference)
             WHERE cr.crossRefType = 'gene/phenotypes'
             RETURN count(DISTINCT g.dataProvider) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 4
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 4
 
 
 def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
@@ -1472,9 +1472,9 @@ def test_htp_dataset_has_correct_number_of_preferred_xrefs_relations():
             AND cr.preferred = 'true'
             AND cr.globalCrossRefId = 'SGD:GSE3431'
             RETURN count(DISTINCT cr) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
@@ -1487,9 +1487,9 @@ def test_htp_dataset_has_correct_number_of_not_preferred_xrefs_relations():
             AND g.primaryKey = 'GEO:GSE3431'
             and cr.globalCrossRefId = 'GEO:GSE3431'
             RETURN count(DISTINCT cr) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_mgi_reference_url_creation():
@@ -1500,9 +1500,9 @@ def test_mgi_reference_url_creation():
             where a.primaryKey = 'MGI:5806340'
             and p.pubModUrl = 'http://www.informatics.jax.org/reference/MGI:5806759'
             RETURN count(DISTINCT v) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_iagp_name_exists():
@@ -1511,9 +1511,9 @@ def test_iagp_name_exists():
     query = """
             MATCH (e:ECOTerm) where e.displaySynonym = 'IAGP'
             RETURN count(DISTINCT e) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_display_name_for_impc_is_correct():
@@ -1522,9 +1522,9 @@ def test_display_name_for_impc_is_correct():
     query = """
             MATCH (cr:CrossReference) where cr.displayName = 'IMPC'
             RETURN count(DISTINCT cr) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_htp_xref_has_preferred_attribute_true_is_correct():
@@ -1536,9 +1536,9 @@ def test_htp_xref_has_preferred_attribute_true_is_correct():
             AND cr.globalCrossRefId = 'MGI:E-GEOD-56866'
             AND cr.preferred = 'true'
             RETURN count(DISTINCT cr) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_genome_location_for_exon_has_strand():
@@ -1548,9 +1548,9 @@ def test_genome_location_for_exon_has_strand():
             MATCH (e:Exon)--(gl:GenomicLocation)
             WHERE not exists (gl.strand)
             RETURN count(DISTINCT e) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_genome_location_for_transcript_has_strand():
@@ -1560,9 +1560,9 @@ def test_genome_location_for_transcript_has_strand():
             MATCH (t:Transcript)--(gl:GenomicLocation)
             WHERE not exists (gl.strand)
             RETURN count(DISTINCT t) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_all_pheno_xrefs_have_display_names():
@@ -1573,9 +1573,9 @@ def test_all_pheno_xrefs_have_display_names():
             WHERE (cr.displayName = '' or cr.displayName IS NULL)
             AND cr.crossRefType = 'gene/phenotypes'
             RETURN count(DISTINCT cr) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_papers_have_urls():
@@ -1587,9 +1587,9 @@ def test_papers_have_urls():
             AND p.pubModId is not null
             AND p.pubModId <> ''
             RETURN count(DISTINCT p) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_papers_have_mod_urls():
@@ -1601,9 +1601,9 @@ def test_papers_have_mod_urls():
             AND p.pubModId is not null
             AND p.pubModId <> ''
             RETURN count(DISTINCT labels(n)) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
 
 
 def test_wb_has_agm():
@@ -1613,9 +1613,9 @@ def test_wb_has_agm():
             MATCH (a:AffectedGenomicModel)
             WHERE a.primaryKey = 'WB:WBStrain00023353'
             RETURN count(a) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 1
 
 
 def test_wb_has_agm_with_disease():
@@ -1625,9 +1625,9 @@ def test_wb_has_agm_with_disease():
             MATCH (a:AffectedGenomicModel)--(dej:DiseaseEntityJoin)
             WHERE a.primaryKey = 'WB:WBGenotype00000021'
             RETURN count(a) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 0
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
 
 
 def test_fb_variant_has_a_single_note():
@@ -1637,9 +1637,9 @@ def test_fb_variant_has_a_single_note():
             MATCH (a:Variant)--(n:Note)
             WHERE a.hgvsNomenclature = 'NT_033779.5:g.8419681_8431132del'
             RETURN count(n) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] < 2
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 2
 
 
 def test_ontology_metadata():
@@ -1647,9 +1647,9 @@ def test_ontology_metadata():
     query = """
             MATCH (node:OntologyFileMetadata)
             RETURN count(node) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 1
 
 
 def test_mod_release_metadata():
@@ -1657,9 +1657,9 @@ def test_mod_release_metadata():
     query = """
             MATCH (node:ModFileMetadata)
             RETURN count(node) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] > 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 1
 
 
 def test_alliance_release_metadata():
@@ -1667,9 +1667,9 @@ def test_alliance_release_metadata():
     query = """
             MATCH (node:AllianceReleaseInfo)
             RETURN count(node) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] >= 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] >= 1
 
 
 def test_correct_model_experimental_condition_parsing():
@@ -1679,10 +1679,11 @@ def test_correct_model_experimental_condition_parsing():
                   (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
                   (dfa)--(ec:ExperimentalCondition),
                   (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
-    result = execute_transaction(query)
-    for record in result:
-        assert record["ec_count"] == 2
-        assert record["pubj_count"] == 1
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["ec_count"] == 2
+            assert record["pubj_count"] == 1
+
 
 def test_gff_so_terms_exist():
     """Test that feature types in transcript loader match loaded SO names"""
@@ -1693,6 +1694,6 @@ def test_gff_so_terms_exist():
               'antisense_RNA', 'C_gene_segment', 'V_gene_segment',
               'pseudogene_attribute', 'snoRNA_gene', 'pseudogenic_transcript']
             RETURN count(s) as counter """
-    result = execute_transaction(query)
-    for record in result:
-        assert record["counter"] == 20
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] == 20
