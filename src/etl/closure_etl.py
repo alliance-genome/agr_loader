@@ -68,12 +68,11 @@ class ClosureETL(ETL):
         query = self.retrieve_isa_partof_closure_query_template % (data_provider, data_provider)
         self.logger.debug("Query to Run: %s", query)
 
-        return_set = Neo4jHelper().run_single_query(query)
-
         closure_data = []
-        for record in return_set:
-            row = dict(child_id=record["childTerm.primaryKey"],
-                       parent_id=record["parentTerm.primaryKey"])
-            closure_data.append(row)
+        with Neo4jHelper().run_single_query(query) as return_set:
+            for record in return_set:
+                row = dict(child_id=record["childTerm.primaryKey"],
+                           parent_id=record["parentTerm.primaryKey"])
+                closure_data.append(row)
 
         yield [closure_data]

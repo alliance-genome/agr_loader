@@ -1,64 +1,62 @@
 """Neo4j Helper"""
 
 import logging
+from contextlib import contextmanager
 
 from neo4j import GraphDatabase
 from loader_common import ContextInfo
 
 
-class Neo4jHelper():
+logger = logging.getLogger(__name__)
+context_info = ContextInfo()
+uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
+
+
+class Neo4jHelper:
     """Neo4j Helper"""
 
-    logger = logging.getLogger(__name__)
-    context_info = ContextInfo()
-
     @staticmethod
+    @contextmanager
     def run_single_parameter_query(query, parameter):
         """Run single parameter query"""
-
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
-        Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
-        Neo4jHelper.logger.debug("Query: %s", query)
-
-        with graph.session() as session:
-            with session.begin_transaction() as transaction:
-                return transaction.run(query, parameter=parameter)
+        try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
+            logger.debug("Running run_single_parameter_query. Please wait...")
+            logger.debug("Query: %s", query)
+            with graph.session() as session:
+                with session.begin_transaction() as transaction:
+                    yield transaction.run(query, parameter=parameter)
+        finally:
+            logger.debug("closing neo4j transaction and session")
+            graph.close()
 
     @staticmethod
+    @contextmanager
     def run_single_query(query):
         """Run Single Query"""
+        try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
+            with graph.session() as session:
+                with session.begin_transaction() as transaction:
+                    yield transaction.run(query)
+        finally:
+            logger.debug("closing neo4j transaction and session")
+            graph.close()
 
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
-        Neo4jHelper.logger.debug("Running run_single_query. Please wait...")
-        Neo4jHelper.logger.debug("Query: %s", query)
-
-
+    @staticmethod
+    def run_single_query_no_return(query):
+        """Run Single Query"""
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
         with graph.session() as session:
             with session.begin_transaction() as transaction:
-                return transaction.run(query)
-
-    #def execute_transaction_batch(self, query, data, batch_size):
-    #    logger.info("Executing batch query. Please wait...")
-    #    logger.debug("Query: " + query)
-    #    for submission in self.split_into_chunks(data, batch_size):
-    #        self.execute_transaction(query, submission)
-    #    logger.info("Finished batch loading.")
-
-    #def split_into_chunks(self, data, batch_size):
-    #    return (data[pos:pos + batch_size] for pos in range(0, len(data), batch_size))
+                transaction.run(query)
+        graph.close()
 
     @staticmethod
     def create_indices():
         """Create Indicies"""
-
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        driver = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
-
-        with driver.session() as session:
+        graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
+        with graph.session() as session:
             indicies = [":CDS(primaryKey)",
                         ":Gene(primaryKey)",
                         ":Gene(modLocalId)",
@@ -164,3 +162,4 @@ class Neo4jHelper():
 
             for index in indicies:
                 session.run("CREATE INDEX ON " + index)
+        graph.close()

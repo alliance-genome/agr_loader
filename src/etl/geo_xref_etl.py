@@ -69,25 +69,23 @@ class GeoXrefETL(ETL):
                             entrez_ids.append("NCBI_Gene:" + entrez_id)
 
         geo_data_list = []
-        return_set = Neo4jHelper.run_single_parameter_query(self.gene_crossref_query_template,
-                                                            entrez_ids)
+        with Neo4jHelper.run_single_parameter_query(self.gene_crossref_query_template, entrez_ids) as return_set:
+            for record in return_set:
+                gene_primary_key = record["g.primaryKey"]
+                mod_local_id = record["g.modLocalId"]
+                global_cross_ref_id = record["cr.globalCrossRefId"]
+                url = self.etlh.rdh2.return_url_from_key_value('GEO', global_cross_ref_id.split(":")[1], 'entrezgene')
+                geo_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
+                                                   "NCBI_Gene",
+                                                   "gene/other_expression",
+                                                   "gene/other_expression",
+                                                   "GEO",
+                                                   url,
+                                                   global_cross_ref_id+"gene/other_expression")
 
-        for record in return_set:
-            gene_primary_key = record["g.primaryKey"]
-            mod_local_id = record["g.modLocalId"]
-            global_cross_ref_id = record["cr.globalCrossRefId"]
-            url = self.etlh.rdh2.return_url_from_key_value('GEO', global_cross_ref_id.split(":")[1], 'entrezgene')
-            geo_xref = ETLHelper.get_xref_dict(global_cross_ref_id.split(":")[1],
-                                               "NCBI_Gene",
-                                               "gene/other_expression",
-                                               "gene/other_expression",
-                                               "GEO",
-                                               url,
-                                               global_cross_ref_id+"gene/other_expression")
+                geo_xref["genePrimaryKey"] = gene_primary_key
+                geo_xref["modLocalId"] = mod_local_id
 
-            geo_xref["genePrimaryKey"] = gene_primary_key
-            geo_xref["modLocalId"] = mod_local_id
-
-            geo_data_list.append(geo_xref)
+                geo_data_list.append(geo_xref)
 
         yield [geo_data_list]
