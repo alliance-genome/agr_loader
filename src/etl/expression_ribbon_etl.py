@@ -15,20 +15,28 @@ class ExpressionRibbonETL(ETL):
     # Query templates which take params and will be processed later
 
     insert_gocc_self_ribbon_terms_query_template = """
-                USING PERIODIC COMMIT %s
-                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                   MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
-                   MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
+                MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
+                MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+
+                MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     insert_gocc_ribbon_terms_query_template = """
-                USING PERIODIC COMMIT %s
-                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-                   MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
-                   MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-                   MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)"""
+                MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
+                MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+
+                MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     # Querys which do not take params and can be used as is
 
@@ -51,10 +59,10 @@ class ExpressionRibbonETL(ETL):
 
         self.logger.info("Starting Expression Ribbon Data")
         query_template_list = [
-            [self.insert_gocc_ribbon_terms_query_template, "30000",
-             "expression_gocc_ribbon_terms.csv"],
-            [self.insert_gocc_self_ribbon_terms_query_template, "30000",
-             "expression_gocc_self_ribbon_terms" + ".csv"]
+            [self.insert_gocc_ribbon_terms_query_template,
+             "expression_gocc_ribbon_terms.csv", "30000"],
+            [self.insert_gocc_self_ribbon_terms_query_template, 
+             "expression_gocc_self_ribbon_terms" + ".csv", "30000"]
         ]
 
         generators = self.get_ribbon_terms()

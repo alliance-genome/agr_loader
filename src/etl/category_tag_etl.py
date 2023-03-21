@@ -21,6 +21,7 @@ class CategoryTagETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+                
                 MERGE (e:CategoryTag {primaryKey: row.tag})
                     ON CREATE SET e.tagName = row.tag,
                                 e.tagDefinition = row.definition

@@ -25,6 +25,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
             """ + ETLHelper.get_cypher_xref_text_annotation_level() + """
             }
@@ -34,6 +35,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 // GET PRIMARY DATA OBJECTS
 
                 MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
@@ -75,6 +77,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 // GET PRIMARY DATA OBJECTS
 
                 MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
@@ -117,6 +120,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
                 MATCH (gene:Gene {primaryKey:row.primaryId})
 
@@ -155,6 +159,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
                 MATCH (pubjk:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
@@ -165,6 +170,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
 
                 MATCH (diseaseWith:Gene {primaryKey:row.withD})
@@ -176,6 +182,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (n:Gene {primaryKey:row.pgeId})
                 MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
@@ -187,6 +194,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (n:Allele {primaryKey:row.pgeId})
                 MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
@@ -198,6 +206,7 @@ class DiseaseETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+                
                 MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
                 MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 

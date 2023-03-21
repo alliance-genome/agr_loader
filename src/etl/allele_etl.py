@@ -20,6 +20,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (c:Construct {primaryKey: row.constructId})
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
@@ -48,6 +49,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (g:Gene {primaryKey: row.geneId})
                 MATCH (c:Construct {primaryKey: row.constructId})
                 MATCH (s:Species {primaryKey: row.taxonId})
@@ -77,6 +79,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (g:Gene {primaryKey: row.geneId})
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
@@ -104,6 +107,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
                 MERGE (o:Allele:Feature {primaryKey:row.primaryId})
@@ -129,6 +133,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (f:Allele:Feature {primaryKey:row.data_id})
                 MERGE (second:SecondaryId {primaryKey:row.secondary_id})
                     SET second.name = row.secondary_id
@@ -140,10 +145,11 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
-                    MATCH (a:Allele:Feature {primaryKey:row.data_id})
-                    MERGE(syn:Synonym {primaryKey:row.synonym})
-                        SET syn.name = row.synonym
-                    MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+
+                MATCH (a:Allele:Feature {primaryKey:row.data_id})
+                MERGE(syn:Synonym {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -151,6 +157,7 @@ class AlleleETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Allele {primaryKey:row.dataId})
                 """ + ETLHelper.get_cypher_xref_text() + """
             }

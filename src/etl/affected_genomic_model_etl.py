@@ -20,6 +20,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (s:Species {primaryKey: row.taxonId})
 
                 MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
@@ -46,6 +47,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (f:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
@@ -58,6 +60,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
                 MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
@@ -69,6 +72,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (a:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
@@ -81,6 +85,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
                 MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
 
@@ -92,6 +97,7 @@ class AffectedGenomicModelETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+                
                 MATCH (feature:Feature:Allele {primaryKey:row.componentId})
                 MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 

@@ -20,6 +20,7 @@ class BiogridOrcsXrefETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+                
                 MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
                 """ + ETLHelper.get_cypher_xref_text() + """
             }

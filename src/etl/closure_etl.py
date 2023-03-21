@@ -18,6 +18,7 @@ class ClosureETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+                
                 MATCH (termChild:%sTerm {primaryKey:row.child_id})
                 MATCH (termParent:%sTerm {primaryKey:row.parent_id})
                 CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent)

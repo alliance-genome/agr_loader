@@ -22,6 +22,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 //Create the Construct node and set properties. primaryKey is required.
                 MERGE (o:Construct {primaryKey:row.primaryId})
                     ON CREATE SET o.name = row.name,
@@ -42,6 +43,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (f:Construct {primaryKey:row.data_id})
 
                 MERGE (second:SecondaryId {primaryKey:row.secondary_id})
@@ -54,6 +56,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (a:Construct {primaryKey:row.data_id})
 
                 MERGE(syn:Synonym {primaryKey:row.synonym})
@@ -66,6 +69,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Construct {primaryKey:row.dataId}) 
                 """ + ETLHelper.get_cypher_xref_text() + """
             }
@@ -75,6 +79,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
                 CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
                 REMOVE rel.noOp
@@ -85,6 +90,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
                 CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
                 REMOVE rel.noOp            
@@ -95,6 +101,7 @@ class ConstructETL(ETL):
         LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
             CALL {
                 WITH row
+                
                 MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})
             }
         IN TRANSACTIONS of %s ROWS"""

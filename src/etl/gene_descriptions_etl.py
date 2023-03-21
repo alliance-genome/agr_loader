@@ -79,12 +79,15 @@ class GeneDescriptionsETL(ETL):
     # Query templates which take params and will be processed later
 
     gene_descriptions_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene)
-        WHERE o.primaryKey = row.genePrimaryKey
-        SET o.automatedGeneSynopsis = row.geneDescription"""
+                MATCH (o:Gene)
+                WHERE o.primaryKey = row.genePrimaryKey
+                SET o.automatedGeneSynopsis = row.geneDescription
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     # Querys which do not take params and can be used as is
 
@@ -234,8 +237,8 @@ class GeneDescriptionsETL(ETL):
                                              gd_config_mod_specific,
                                              json_desc_writer)
             query_template_list = [
-                [self.gene_descriptions_query_template, commit_size,
-                 "genedescriptions_data_" + prvdr + ".csv"]
+                [self.gene_descriptions_query_template, 
+                 "genedescriptions_data_" + prvdr + ".csv", commit_size]
             ]
 
             query_and_file_list = self.process_query_params(query_template_list)

@@ -22,6 +22,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Gene {primaryKey:row.primaryKey})
                 MATCH (s:SOTerm {primaryKey:row.soTermId})
                 MERGE (o)-[:ANNOTATED_TO]->(s)
@@ -32,6 +33,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MERGE (chrm:Chromosome {primaryKey: row.primaryKey})
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -40,6 +42,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Gene {primaryKey:row.primaryId})
                 MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
@@ -64,6 +67,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (g:Gene {primaryKey:row.primary_id})
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
                     ON CREATE SET second.name = row.secondary_id
@@ -75,6 +79,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (g:Gene {primaryKey:row.primary_id})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
@@ -87,6 +92,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (l:Load {primaryKey:row.loadKey})
 
                 //Create the Gene node and set properties. primaryKey is required.
@@ -114,6 +120,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (l:Load {primaryKey:row.loadKey})
                 MATCH (g:Gene {primaryKey:row.primaryId})
                 MERGE (g)-[:LOADED_FROM]->(l)
@@ -124,6 +131,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (spec:Species {primaryKey: row.taxonId})
                 MATCH (g:Gene {primaryKey: row.primaryId})
 
@@ -135,6 +143,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Gene {primaryKey:row.dataId}) 
                 """ + ETLHelper.get_cypher_xref_tuned_text() + """
             }
@@ -144,6 +153,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+
                 MATCH (o:Gene {primaryKey:row.dataId})
                 MATCH (c:CrossReference {primaryKey:row.primaryKey})
 
@@ -157,6 +167,7 @@ class BGIETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
+                
                 //Create the load node(s)
                 CREATE (l:Load:Entity {primaryKey: row.loadKey})
                     SET l.dateProduced = row.dateProduced,
