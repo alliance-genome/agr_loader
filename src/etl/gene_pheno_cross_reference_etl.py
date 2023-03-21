@@ -13,21 +13,26 @@ class GenePhenoCrossReferenceETL(ETL):
     logger = logging.getLogger(__name__)
 
     pheno_xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene {primaryKey:row.genePrimaryKey})
-        """ + ETLHelper.get_cypher_xref_tuned_text()
+                MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+                """ + ETLHelper.get_cypher_xref_tuned_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     pheno_xref_relations_template = """
-         USING PERIODIC COMMIT %s
-         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-         MATCH (o:Gene {primaryKey:row.genePrimaryKey})
-         MATCH (id:CrossReference {primaryKey:row.primaryKey})
+                MATCH (o:Gene {primaryKey:row.genePrimaryKey})
+                MATCH (id:CrossReference {primaryKey:row.primaryKey})
 
-         MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
-        """
+                MERGE (o)-[gcr:CROSS_REFERENCE]->(id)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     gene_pheno_query_template = """
                    MATCH (g:Gene)-[gp:HAS_PHENOTYPE]-(p:Phenotype)
@@ -45,10 +50,10 @@ class GenePhenoCrossReferenceETL(ETL):
         generators = self.get_generators(batch_size)
 
         query_template_list = [
-                [self.pheno_xref_query_template, commit_size,
-                 "pheno_xref_data_" + ".csv"],
-                [self.pheno_xref_relations_template, commit_size,
-                 "pheno_xref_relations_data_" + ".csv"],
+                [self.pheno_xref_query_template,
+                 "pheno_xref_data_" + ".csv", commit_size],
+                [self.pheno_xref_relations_template,
+                 "pheno_xref_relations_data_" + ".csv", commit_size],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

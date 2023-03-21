@@ -16,16 +16,18 @@ class MIETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        //Create the MITerm node and set properties. primaryKey is required.
-        MERGE (g:MITerm:Ontology {primaryKey:row.identifier})
-            SET g.label = row.label
-            SET g.url = row.url
-            SET g.definition = row.definition
-        MERGE (g)-[ggmg:IS_A_PART_OF_CLOSURE]->(g)
-    """
+                //Create the MITerm node and set properties. primaryKey is required.
+                MERGE (g:MITerm:Ontology {primaryKey:row.identifier})
+                    SET g.label = row.label
+                    SET g.url = row.url
+                    SET g.definition = row.definition
+                MERGE (g)-[ggmg:IS_A_PART_OF_CLOSURE]->(g)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise."""
@@ -37,7 +39,7 @@ class MIETL(ETL):
         filepath = self.data_type_config.get_single_filepath()
         generators = self.get_generators(filepath)
 
-        query_template_list = [[self.main_query_template, 10000, "mi_term_data.csv"]]
+        query_template_list = [[self.main_query_template, "mi_term_data.csv", 10000]]
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)

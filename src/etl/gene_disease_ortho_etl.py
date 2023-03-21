@@ -18,8 +18,9 @@ class GeneDiseaseOrthoETL(ETL):
     # Query templates which take params and will be processed later
 
     insert_gene_disease_ortho_query_template = """
-                USING PERIODIC COMMIT %s
-                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
@@ -50,7 +51,9 @@ class GeneDiseaseOrthoETL(ETL):
                 MERGE (dga)-[:FROM_ORTHOLOGOUS_GENE]->(fromGene)
 
                 CREATE (pubEJ)-[pubEJecode1g:ASSOCIATION]->(ecode)
-                CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)"""
+                CREATE (pub)-[pubgpubEJ:ASSOCIATION {uuid:row.pubEvidenceUuid}]->(pubEJ)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialize object."""
@@ -74,8 +77,8 @@ class GeneDiseaseOrthoETL(ETL):
         self.logger.info("Starting Gene Disease Ortho Data: %s", subtype)
 
         query_template_list = [
-            [self.insert_gene_disease_ortho_query_template, "10000",
-             "gene_disease_by_orthology.csv"]
+            [self.insert_gene_disease_ortho_query_template, 
+             "gene_disease_by_orthology.csv", "10000"]
         ]
 
         self.logger.info("gene disease ortho pub created")

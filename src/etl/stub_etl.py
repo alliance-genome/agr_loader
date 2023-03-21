@@ -16,11 +16,14 @@ class StubETL(ETL):
     # Query templates which take params and will be processed later
 
     query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MERGE (n:Node {primaryKey:row.id})
-            SET n.name = row.name """
+                MERGE (n:Node {primaryKey:row.id})
+                    SET n.name = row.name
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     # Querys which do not take params and can be used as is
 
@@ -53,7 +56,7 @@ class StubETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.query_template, commit_size, "stub_data.csv"],
+            [self.query_template, "stub_data.csv", commit_size],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

@@ -16,22 +16,27 @@ class MolInteractionsModXrefETL(ETL):
 
     query_mod_xref_query_template = """
 
-    USING PERIODIC COMMIT %s
-    LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
+                MATCH (o:Gene {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_xref_tuned_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     xrefs_relationships_query_template = """
 
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Gene {primaryKey:row.dataId})
-            MATCH (c:CrossReference:Identifier {primaryKey:row.primaryKey})
+                MATCH (o:Gene {primaryKey:row.dataId})
+                MATCH (c:CrossReference:Identifier {primaryKey:row.primaryKey})
 
-            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
-
-    """
+                MERGE (o)-[oc:CROSS_REFERENCE]-(c)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -43,8 +48,8 @@ class MolInteractionsModXrefETL(ETL):
         commit_size = self.data_type_config.get_neo4j_commit_size()
 
         query_template_list = [
-            [self.query_mod_xref_query_template, commit_size, "mol_int_MOD_xref.csv"],
-            [self.xrefs_relationships_query_template, commit_size, "mol_int_MOD_xref.csv"]
+            [self.query_mod_xref_query_template, "mol_int_MOD_xref.csv", commit_size],
+            [self.xrefs_relationships_query_template, "mol_int_MOD_xref.csv", commit_size]
         ]
 
         query_list = self.process_query_params(query_template_list)

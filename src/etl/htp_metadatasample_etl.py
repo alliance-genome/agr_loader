@@ -15,260 +15,312 @@ class HTPMetaDatasetSampleETL(ETL):
     """HTP Meta Data."""
 
     htp_dataset_sample_query_template = """
-
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:OBITerm {primaryKey:row.sampleType})
-        MATCH (s:Species {primaryKey:row.taxonId})
-        MATCH (a:MMOTerm {primaryKey:row.assayType})
+                MATCH (o:OBITerm {primaryKey:row.sampleType})
+                MATCH (s:Species {primaryKey:row.taxonId})
+                MATCH (a:MMOTerm {primaryKey:row.assayType})
 
-        MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
-          ON CREATE SET ds.dateAssigned = row.dateAssigned,
-              ds.abundance = row.abundance,
-              ds.sex = row.sex,
-              ds.notes = row.notes,
-              ds.dateAssigned = row.dateAssigned,
-              ds.biosampleText = row.biosampleText,
-              ds.sequencingFormat = row.sequencingFormat,
-              ds.title = row.sampleTitle,
-              ds.sampleAge = row.sampleAge,
-              ds.sampleId = row.sampleId
+                MERGE (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                ON CREATE SET ds.dateAssigned = row.dateAssigned,
+                    ds.abundance = row.abundance,
+                    ds.sex = row.sex,
+                    ds.notes = row.notes,
+                    ds.dateAssigned = row.dateAssigned,
+                    ds.biosampleText = row.biosampleText,
+                    ds.sequencingFormat = row.sequencingFormat,
+                    ds.title = row.sampleTitle,
+                    ds.sampleAge = row.sampleAge,
+                    ds.sampleId = row.sampleId
 
-        MERGE (ds)-[dssp:FROM_SPECIES]-(s)
-        MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
-        MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
+                MERGE (ds)-[dssp:FROM_SPECIES]-(s)
+                MERGE (ds)-[dsat:ASSAY_TYPE]-(a)
+                MERGE (ds)-[dsst:SAMPLE_TYPE]-(o)
 
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_dataset_sample_agm_query_template = """
-        USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
-        MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
+                MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MATCH (agm:AffectedGenomicModel {primaryKey:row.biosampleId})
 
-        MERGE (agm)-[agmds:ASSOCIATION]-(ds)
+                MERGE (agm)-[agmds:ASSOCIATION]-(ds)
 
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_dataset_sample_agmtext_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MERGE (agm:AffectedGenomicModel {primaryKey:row.biosampleText})
 
-        MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
-        MERGE (agm:AffectedGenomicModel {primaryKey:row.biosampleText})
+                MERGE (agm)-[agmds:ASSOCIATION]-(ds)
 
-        MERGE (agm)-[agmds:ASSOCIATION]-(ds)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_bio_entity_expression_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-       USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
 
-       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                        ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
 
-       MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+                MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(e)
 
-       MERGE (dss)-[dsdss:STRUCTURE_SAMPLED]-(e)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_stages_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-       USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MATCH (st:Stage {primaryKey:row.stageName})
 
-       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
-       MATCH (st:Stage {primaryKey:row.stageName})
+                MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
 
-       MERGE (dss)-[eotcctq:SAMPLED_DURING]-(s)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_dataset_join_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-       USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (ds:HTPDataset {primaryKey:row.datasetId})
+                MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
 
-       MATCH (ds:HTPDataset {primaryKey:row.datasetId})
-       MATCH (dss:HTPDatasetSample {primaryKey:row.datasetSampleId})
+                MERGE (ds)-[dsdss:ASSOCIATION]-(dss)
 
-       MERGE (ds)-[dsdss:ASSOCIATION]-(dss)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_secondaryIds_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (dss:HTPDatasetSample {primaryKey: row.datasetSampleId})
+                MATCH (dss:HTPDatasetSample {primaryKey: row.datasetSampleId})
 
-        MERGE (sec:SecondaryId {primaryKey:row.secondaryId})
-                ON CREATE SET sec.name = row.secondaryId
+                MERGE (sec:SecondaryId {primaryKey:row.secondaryId})
+                        ON CREATE SET sec.name = row.secondaryId
 
-        MERGE (dss)<-[aka:ALSO_KNOWN_AS]-(sec)
+                MERGE (dss)<-[aka:ALSO_KNOWN_AS]-(sec)
 
 
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_substructures_query_template = """
-     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                        AND NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
 
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_qualifiers_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                        AND NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
 
 
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_ss_qualifiers_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                        AND NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
 
 
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_terms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureTermId})
-                WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
-    """
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalStructureTermId})
+                    WHERE NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     cc_term_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.cellularComponentTermId})
-                WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
-    """
+                MATCH (otasst:Ontology {primaryKey:row.cellularComponentTermId})
+                    WHERE NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUBSTRUCTURE]->(otasst)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eas_substructure_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                WHERE NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                    WHERE NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eas_qualified_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-                WHERE NOT 'FBCVTerm' in LABELS(otastq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
+                MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                    WHERE NOT 'FBCVTerm' in LABELS(otastq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eass_qualified_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasstq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasstq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
 
-            MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
+                MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ccq_expression_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otcctq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otcctq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
 
-            MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
+                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     stage_expression_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MERGE (s:Stage {primaryKey:row.stageName})
-                ON CREATE SET s.name = row.stageName
-            MERGE (ei)-[eotcctq:DURING]-(s) """
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MERGE (s:Stage {primaryKey:row.stageName})
+                    ON CREATE SET s.name = row.stageName
+                MERGE (ei)-[eotcctq:DURING]-(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_ao_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
-            MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
+                MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_stage_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
 
-            MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
+                MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_ao_other_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
-            MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+                MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_stage_other_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
 
-            MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
+                MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_dataset_sample_assemblies_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (ds:HTPDatasetSample {primaryKey:row.datasetSampleId})
                 MATCH (u:Assembly {primaryKey:row.assembly})
 
-                CREATE (ds)<-[dsu:ASSEMBLY]-(u) """
+                CREATE (ds)<-[dsu:ASSEMBLY]-(u)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htpdatasetsample_xrefs_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:HTPDatasetSample {primaryKey:row.datasetId}) """ + ETLHelper.get_cypher_xref_text()
+            CALL {
+                WITH row
+            MATCH (o:HTPDatasetSample {primaryKey:row.datasetId}) 
+            """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise."""
@@ -308,55 +360,39 @@ class HTPMetaDatasetSampleETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, commit_size,
-             "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_query_template, "htp_metadataset_sample_samples_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, commit_size,
-             "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_bio_entity_expression_query_template, "htp_metadataset_sample_bioentities_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, commit_size,
-             "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_secondaryIds_query_template, "htp_metadataset_sample_secondaryIds_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, commit_size,
-             "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_dataset_join_query_template, "htp_metadataset_sample_datasets_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_stages_query_template, commit_size,
-             "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_stages_query_template, "htp_metadataset_sample_stages_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.ao_terms_query_template, commit_size,
-             "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_terms_query_template, "htp_metadataset_sample_aoterms_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.ao_substructures_query_template, commit_size,
-             "htp_metadataset_sample_ao_substructures_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_substructures_query_template, "htp_metadataset_sample_ao_substructures_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, commit_size,
-             "htp_metadataset_sample_ao_qualifiers_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_qualifiers_query_template, "htp_metadataset_sample_ao_qualifiers_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, commit_size,
-             "htp_metadataset_sample_ao_ss_qualifiers_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ao_ss_qualifiers_query_template, "htp_metadataset_sample_ao_ss_qualifiers_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.cc_term_query_template, commit_size,
-             "htp_metadataset_sample_ccterms" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.cc_term_query_template, "htp_metadataset_sample_ccterms" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.ccq_expression_query_template, commit_size,
-             "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.ccq_expression_query_template, "htp_metadataset_sample_ccqterms_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.uberon_ao_query_template, commit_size,
-             "htp_metadataset_sample_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.uberon_ao_query_template, "htp_metadataset_sample_uberon_ao_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, commit_size,
-             "htp_metadataset_sample_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.uberon_ao_other_query_template, "htp_metadataset_sample_uberon_ao_other_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, commit_size,
-             "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_agm_query_template, "htp_metadataset_sample_agms_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_dataset_sample_agmtext_query_template, commit_size,
-             "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv"],
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_agmtext_query_template, "htp_metadataset_sample_agmstext_" + sub_type.get_data_provider() + ".csv", commit_size],
 
-            [HTPMetaDatasetSampleETL.htp_dataset_sample_assemblies_query_template, commit_size,
-             "htp_metadataset_sample_assemblies_" + sub_type.get_data_provider() + ".csv"]
-
+            [HTPMetaDatasetSampleETL.htp_dataset_sample_assemblies_query_template, "htp_metadataset_sample_assemblies_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
+
 
         # Obtain the generator
         generators = self.get_generators(data, batch_size)

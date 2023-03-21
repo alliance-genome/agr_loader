@@ -19,8 +19,9 @@ class TranscriptETL(ETL):
     # Query templates which take params and will be processed later
 
     cds_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (g:Transcript {gff3ID: row.parentId, dataProvider: row.dataProvider})
                 MATCH (so:SOTerm {name: row.featureType})
@@ -32,32 +33,38 @@ class TranscriptETL(ETL):
                         t.synonym = row.synonym
 
                MERGE (t)<-[tso:TYPE]-(so)
-               MERGE (g)<-[gt:CDS]-(t)"""
+               MERGE (g)<-[gt:CDS]-(t)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     cds_genomic_locations_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:CDS {primaryKey: row.gff3ID})
-            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-            MATCH (a:Assembly {primaryKey: row.assembly})
+                MATCH (o:CDS {primaryKey: row.gff3ID})
+                MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+                MATCH (a:Assembly {primaryKey: row.assembly})
 
-            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
+                MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosomeNumber,
-                gchrm.phase = row.phase
+                MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+                ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                    gchrm.end = apoc.number.parseInt(row.end),
+                    gchrm.assembly = row.assembly,
+                    gchrm.strand = row.strand,
+                    gchrm.chromosome = row.chromosomeNumber,
+                    gchrm.phase = row.phase
 
-            MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE(gchrm)-[ao:ASSOCIATION]->(a)"""
+                MERGE (o)-[of:ASSOCIATION]->(gchrm)
+                MERGE(gchrm)-[ao:ASSOCIATION]->(a)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     exon_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (g:Transcript {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
@@ -69,38 +76,47 @@ class TranscriptETL(ETL):
                         t.synonym = row.synonym
 
                MERGE (t)<-[tso:TYPE]-(so)
-               MERGE (g)<-[gt:EXON]-(t)"""
-
+               MERGE (g)<-[gt:EXON]-(t)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     exon_genomic_locations_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Exon {primaryKey: row.gff3ID})
-            MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
-            MATCH (a:Assembly {primaryKey: row.assembly})
+                MATCH (o:Exon {primaryKey: row.gff3ID})
+                MATCH (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+                MATCH (a:Assembly {primaryKey: row.assembly})
 
-            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
+                MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
-              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosomeNumber
+                MERGE (gchrm:GenomicLocation {primaryKey: row.genomicLocationUUID})
+                ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                    gchrm.end = apoc.number.parseInt(row.end),
+                    gchrm.assembly = row.assembly,
+                    gchrm.strand = row.strand,
+                    gchrm.chromosome = row.chromosomeNumber
 
-            MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
+                MERGE (o)-[of:ASSOCIATION]->(gchrm)
+                MERGE (gchrm)-[ao:ASSOCIATION]->(a)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     transcript_alternate_id_query_template = """
-            USING PERIODIC COMMIT %s
-                LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (g:Gene {primaryKey:row.curie})
-                  SET g.gff3ID = row.gff3ID"""
+                  SET g.gff3ID = row.gff3ID
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     transcript_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (g:Gene {gff3ID:row.parentId, dataProvider:row.dataProvider})
                 MATCH (so:SOTerm {name:row.featureType})
@@ -112,35 +128,43 @@ class TranscriptETL(ETL):
                         t.synonym = row.synonym
 
                MERGE (t)<-[tso:TRANSCRIPT_TYPE]-(so)
-               MERGE (g)<-[gt:TRANSCRIPT]-(t)"""
+               MERGE (g)<-[gt:TRANSCRIPT]-(t)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     chromosomes_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
+            CALL {
+                WITH row
+                MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     genomic_locations_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Transcript {primaryKey:row.curie})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
+                MATCH (o:Transcript {primaryKey:row.curie})
+                MATCH (chrm:Chromosome {primaryKey:row.chromosomeNumber})
 
-            MERGE (a:Assembly {primaryKey:row.assembly})
-             ON CREATE SET a.dataProvider = row.dataProvider
+                MERGE (a:Assembly {primaryKey:row.assembly})
+                ON CREATE SET a.dataProvider = row.dataProvider
 
-            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
+                MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
 
-            MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
-              ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosomeNumber,
-                gchrm.phase = row.phase
+                MERGE (gchrm:GenomicLocation {primaryKey:row.genomicLocationUUID})
+                ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                    gchrm.end = apoc.number.parseInt(row.end),
+                    gchrm.assembly = row.assembly,
+                    gchrm.strand = row.strand,
+                    gchrm.chromosome = row.chromosomeNumber,
+                    gchrm.phase = row.phase
 
-            MERGE (o)-[of:ASSOCIATION]->(gchrm)
-            MERGE (gchrm)-[ao:ASSOCIATION]->(a)"""
+                MERGE (o)-[of:ASSOCIATION]->(gchrm)
+                MERGE (gchrm)-[ao:ASSOCIATION]->(a)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -166,22 +190,22 @@ class TranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.transcript_alternate_id_query_template, commit_size,
-             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.transcript_query_template, commit_size,
-             "transcript_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_query_template, commit_size,
-             "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query_template, commit_size,
-             "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
-            [self.exon_query_template, commit_size,
-             "exon_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.exon_genomic_locations_template, commit_size,
-             "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.cds_query_template, commit_size,
-             "cds_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.cds_genomic_locations_template, commit_size,
-             "cds_genomic_location_data_" + sub_type.get_data_provider() + ".csv"]
+            [self.transcript_alternate_id_query_template,
+             "transcript_gff3ID_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.transcript_query_template,
+             "transcript_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.chromosomes_query_template,
+             "transcript_data_chromosome_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.genomic_locations_query_template,
+             "transcript_genomic_locations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.exon_query_template,
+             "exon_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.exon_genomic_locations_template,
+             "exon_genomic_location_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.cds_query_template,
+             "cds_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.cds_genomic_locations_template,
+             "cds_genomic_location_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

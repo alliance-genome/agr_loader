@@ -22,50 +22,62 @@ class OrthologyETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            //using match here to limit ortho set to genes that have already been loaded by bgi.
-            MATCH(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
-            MATCH(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
+                //using match here to limit ortho set to genes that have already been loaded by bgi.
+                MATCH(g1:Gene {primaryKey:row.gene1AgrPrimaryId})
+                MATCH(g2:Gene {primaryKey:row.gene2AgrPrimaryId})
 
-            CREATE (g1)-[orth:ORTHOLOGOUS]->(g2)
-                SET orth.primaryKey = row.uuid,
-                    orth.isBestScore = row.isBestScore,
-                    orth.isBestRevScore = row.isBestRevScore,
-                    orth.confidence = row.confidence,
-                    orth.strictFilter = apoc.convert.toBoolean(row.strictFilter),
-                    orth.moderateFilter = apoc.convert.toBoolean(row.moderateFilter)
+                CREATE (g1)-[orth:ORTHOLOGOUS]->(g2)
+                    SET orth.primaryKey = row.uuid,
+                        orth.isBestScore = row.isBestScore,
+                        orth.isBestRevScore = row.isBestRevScore,
+                        orth.confidence = row.confidence,
+                        orth.strictFilter = apoc.convert.toBoolean(row.strictFilter),
+                        orth.moderateFilter = apoc.convert.toBoolean(row.moderateFilter)
 
-            //Create the Association node to be used for the object/doTerm
-            CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
-                SET oa.joinType = 'orthologous'
-            CREATE (g1)-[a1:ASSOCIATION]->(oa)
-            CREATE (oa)-[a2:ASSOCIATION]->(g2) """
+                //Create the Association node to be used for the object/doTerm
+                CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+                    SET oa.joinType = 'orthologous'
+                CREATE (g1)-[a1:ASSOCIATION]->(oa)
+                CREATE (oa)-[a2:ASSOCIATION]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     not_matched_algorithm_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
-            CREATE (ogj)-[:NOT_MATCHED]->(oa) """
+                MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
+                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                CREATE (ogj)-[:NOT_MATCHED]->(oa)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     matched_algorithm_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
-            CREATE (ogj)-[:MATCHED]->(oa) """
+                MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
+                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                CREATE (ogj)-[:MATCHED]->(oa)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     not_called_algorithm_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-            MERGE (oa:OrthoAlgorithm {name:row.algorithm})
-            CREATE (ogj)-[:NOT_CALLED]->(oa) """
+                MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
+                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                CREATE (ogj)-[:NOT_CALLED]->(oa)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -133,18 +145,18 @@ class OrthologyETL(ETL):
         for mod_sub_type in sub_types:
             if mod_sub_type != sub_type.get_data_provider():
                 query_template_list.append(
-                    [self.main_query_template, "100000",
-                     "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv"])
+                    [self.main_query_template,
+                     "orthology_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv", "100000"])
 
         query_template_list.append(
-            [self.matched_algorithm_query_template, commit_size,
-             "orthology_matched_algorithm_data_{}.csv".format(sub_type.get_data_provider())])
+            [self.matched_algorithm_query_template, 
+             "orthology_matched_algorithm_data_{}.csv".format(sub_type.get_data_provider()), commit_size])
         query_template_list.append(
-            [self.not_matched_algorithm_query_template, commit_size,
-             "orthology_not_matched_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
+            [self.not_matched_algorithm_query_template,
+             "orthology_not_matched_algorithm_data_" + sub_type.get_data_provider() + ".csv", commit_size])
         query_template_list.append(
-            [self.not_called_algorithm_query_template, commit_size,
-             "orthology_not_called_algorithm_data_" + sub_type.get_data_provider() + ".csv"])
+            [self.not_called_algorithm_query_template,
+             "orthology_not_called_algorithm_data_" + sub_type.get_data_provider() + ".csv", commit_size])
 
         query_and_file_list = self.process_query_params(query_template_list)
 

@@ -18,58 +18,66 @@ class SequenceTargetingReagentETL(ETL):
     # Query templates which take params and will be processed later
 
     sequence_targeting_reagent_query_template = """
-
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (s:Species {primaryKey: row.taxonId})
+                MATCH (s:Species {primaryKey: row.taxonId})
 
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:SequenceTargetingReagent {primaryKey:row.primaryId})
-                ON CREATE SET o.name = row.name,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider
+                //Create the Allele node and set properties. primaryKey is required.
+                MERGE (o:SequenceTargetingReagent {primaryKey:row.primaryId})
+                    ON CREATE SET o.name = row.name,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider
 
-            MERGE (o)-[:FROM_SPECIES]-(s)
-    """
+                MERGE (o)-[:FROM_SPECIES]-(s)
+
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     sequence_targeting_reagent_secondary_ids_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (f:SequenceTargetingReagent {primaryKey:row.primaryId})
+                MATCH (f:SequenceTargetingReagent {primaryKey:row.primaryId})
 
-            MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
-                SET second.name = row.secondary_id
-            MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
-    """
+                MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
+                    SET second.name = row.secondary_id
+                MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     sequence_targeting_reagent_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
+                MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
 
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                SET syn.name = row.synonym
-            MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
-    """
+                MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     sequence_targeting_reagent_target_genes_query_template = """
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
-            MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (a:SequenceTargetingReagent {primaryKey:row.primaryId})
+                MATCH (g:Gene {primaryKey:row.geneId})
 
-            MERGE (a)-[:TARGETS]-(g)
-    """
+                MERGE (a)-[:TARGETS]-(g)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -110,13 +118,13 @@ class SequenceTargetingReagentETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
             [self.sequence_targeting_reagent_query_template,
-             commit_size, "str_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_secondary_ids_query_template, commit_size,
-             "str_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_synonyms_query_template, commit_size,
-             "str_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [self.sequence_targeting_reagent_target_genes_query_template, commit_size,
-             "str_target_genes_" + sub_type.get_data_provider() + ".csv"]
+             "str_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.sequence_targeting_reagent_secondary_ids_query_template,
+             "str_secondary_ids_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.sequence_targeting_reagent_synonyms_query_template,
+             "str_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.sequence_targeting_reagent_target_genes_query_template,
+             "str_target_genes_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

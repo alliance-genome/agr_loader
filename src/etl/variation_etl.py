@@ -20,8 +20,9 @@ class VariationETL(ETL):
     # Query templates which take params and will be processed later
 
     variation_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (a:Allele {primaryKey:row.alleleId})
                 MATCH (g:Gene)-[:IS_ALLELE_OF]-(a)
@@ -45,81 +46,99 @@ class VariationETL(ETL):
                 MERGE (o)-[aka2:ALSO_KNOWN_AS]->(s)
 
                 MERGE (o)-[:VARIATION]->(a)
-                MERGE (g)-[:COMPUTED_GENE]->(o) """
+                MERGE (g)-[:COMPUTED_GENE]->(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     so_terms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Variant {primaryKey:row.variantId})
-            MATCH (s:SOTerm {primaryKey:row.soTermId})
-            CREATE (o)-[:VARIATION_TYPE]->(s)"""
+            CALL {
+                WITH row
+                MATCH (o:Variant {primaryKey:row.variantId})
+                MATCH (s:SOTerm {primaryKey:row.soTermId})
+                CREATE (o)-[:VARIATION_TYPE]->(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     pubs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Variant {primaryKey:row.variantId})
-            MERGE (p:Publication {primaryKey:row.publicationId})
-              ON CREATE SET p.pubModId = row.pubModId,
-                 p.pubMedId = row.pubMedId,
-                 p.pubModUrl = row.pubModUrl,
-                 p.pubMedUrl = row.pubMedUrl
+            CALL {
+                WITH row
+                MATCH (o:Variant {primaryKey:row.variantId})
+                MERGE (p:Publication {primaryKey:row.publicationId})
+                ON CREATE SET p.pubModId = row.pubModId,
+                    p.pubMedId = row.pubMedId,
+                    p.pubModUrl = row.pubModUrl,
+                    p.pubMedUrl = row.pubMedUrl
 
-           MERGE (o)-[pn:ASSOCIATION]-(p)
-            """
+            MERGE (o)-[pn:ASSOCIATION]-(p)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     genomic_locations_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Variant {primaryKey:row.variantId})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosome})
-            MERGE (a:Assembly {primaryKey:row.assembly})
-             ON CREATE SET a.dataProvider = row.dataProvider
+                MATCH (o:Variant {primaryKey:row.variantId})
+                MATCH (chrm:Chromosome {primaryKey:row.chromosome})
+                MERGE (a:Assembly {primaryKey:row.assembly})
+                ON CREATE SET a.dataProvider = row.dataProvider
 
-            CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
+                CREATE (o)-[gchrm:LOCATED_ON]->(chrm)
 
-            CREATE (gchrmn:GenomicLocation {primaryKey:row.uuid})
-              SET gchrmn.start = apoc.number.parseInt(row.start),
-                gchrmn.end = apoc.number.parseInt(row.end),
-                gchrmn.assembly = row.assembly,
-                gchrmn.strand = row.strand,
-                gchrmn.chromosome = row.chromosome
+                CREATE (gchrmn:GenomicLocation {primaryKey:row.uuid})
+                SET gchrmn.start = apoc.number.parseInt(row.start),
+                    gchrmn.end = apoc.number.parseInt(row.end),
+                    gchrmn.assembly = row.assembly,
+                    gchrmn.strand = row.strand,
+                    gchrmn.chromosome = row.chromosome
 
-            CREATE (o)-[of:ASSOCIATION]->(gchrmn)
-            CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
-    """
+                CREATE (o)-[of:ASSOCIATION]->(gchrmn)
+                CREATE (gchrmn)-[ao:ASSOCIATION]->(a)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     notes_query_template = """
-           USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-           MATCH (o:Variant {primaryKey:row.variantId})
+                MATCH (o:Variant {primaryKey:row.variantId})
 
-           MERGE (n:Note {primaryKey:row.note})
-                SET n.note = row.note
-           MERGE (o)-[pn:ASSOCIATION]-(n)
-    """
+                MERGE (n:Note {primaryKey:row.note})
+                        SET n.note = row.note
+                MERGE (o)-[pn:ASSOCIATION]-(n)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     notes_references_query_template = """
-           USING PERIODIC COMMIT %s
-           LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-           MATCH (o:Note {primaryKey:row.noteId})
-           MERGE (p:Publication {primaryKey:row.publicationId})
-              ON CREATE SET p.pubModId = row.pubModId,
-                 p.pubMedId = row.pubMedId,
-                 p.pubModUrl = row.pubModUrl,
-                 p.pubMedUrl = row.pubMedUrl
+                MATCH (o:Note {primaryKey:row.noteId})
+                MERGE (p:Publication {primaryKey:row.publicationId})
+                    ON CREATE SET p.pubModId = row.pubModId,
+                        p.pubMedId = row.pubMedId,
+                        p.pubModUrl = row.pubModUrl,
+                        p.pubMedUrl = row.pubMedUrl
 
-           MERGE (o)-[pn:ASSOCIATION]-(p)
-    """
+                MERGE (o)-[pn:ASSOCIATION]-(p)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     variant_xrefs_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Variant {primaryKey:row.dataId})
+                MATCH (o:Variant {primaryKey:row.dataId})
 
-    """ + ETLHelper.get_cypher_xref_text()
+            """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -157,13 +176,13 @@ class VariationETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
 
         query_template_list = [
-            [self.variation_query_template, commit_size, "variation_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query_template, commit_size, "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query_template, commit_size, "variant_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.notes_query_template, commit_size, "variant_notes_" + sub_type.get_data_provider() + ".csv"],
-            [self.notes_references_query_template, commit_size, "variant_notes_references" + sub_type.get_data_provider() + ".csv"],
-            [self.pubs_query_template, commit_size, "variant_references" + sub_type.get_data_provider() + ".csv"],
-            [self.variant_xrefs_query_template, commit_size, "variant_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [self.variation_query_template, "variation_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.genomic_locations_query_template, "variant_genomiclocations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.so_terms_query_template, "variant_so_terms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.notes_query_template, "variant_notes_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.notes_references_query_template, "variant_notes_references" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.pubs_query_template, "variant_references" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.variant_xrefs_query_template, "variant_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         generators = self.get_generators(data, batch_size)

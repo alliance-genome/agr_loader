@@ -23,23 +23,25 @@ class ProteinSequenceETL(ETL):
     # Query templates which take params and will be processed later
 
     add_protein_sequences_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
-        MATCH (t:Transcript {primaryKey:row.transcriptId})
-        
-        MERGE (p:TranscriptProteinSequence {primaryKey:row.tpId})
-           ON CREATE SET p.proteinSequence = row.proteinSequence,
-            p.transcriptId = row.transcriptId
-        
-        MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
-           ON CREATE SET ts.cdsSequence = row.CDSSequence,
-            ts.transcriptId = row.transcriptId
-           
-        MERGE (p)-[pt:ASSOCIATION]->(t)
-        MERGE (ts)-[tst:ASSOCIATION]->(t)
+            CALL {
+                WITH row
 
-    """
+                MATCH (t:Transcript {primaryKey:row.transcriptId})
+                
+                MERGE (p:TranscriptProteinSequence {primaryKey:row.tpId})
+                ON CREATE SET p.proteinSequence = row.proteinSequence,
+                    p.transcriptId = row.transcriptId
+                
+                MERGE (ts:CDSSequence {primaryKey:row.transcriptId})
+                ON CREATE SET ts.cdsSequence = row.CDSSequence,
+                    ts.transcriptId = row.transcriptId
+                
+                MERGE (p)-[pt:ASSOCIATION]->(t)
+                MERGE (ts)-[tst:ASSOCIATION]->(t)
+
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         super().__init__()
@@ -60,8 +62,8 @@ class ProteinSequenceETL(ETL):
         self.logger.info("Starting Protein Sequence Load")
 
         query_template_list = [
-            [self.add_protein_sequences_query_template, "10000",
-             "protein_sequence.csv"]
+            [self.add_protein_sequences_query_template, 
+             "protein_sequence.csv", "10000"]
         ]
 
         batch_size = 10000

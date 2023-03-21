@@ -29,98 +29,114 @@ class GeneticInteractionETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        MATCH (g1:Gene {primaryKey:row.interactor_A})
-        MATCH (g2:Gene {primaryKey:row.interactor_B})
+            CALL {
+                WITH row
 
-        MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
-        MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
-        MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
-        MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
-        MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_role
-        MATCH (it:MITerm) WHERE it.primaryKey = row.interaction_type
+                MATCH (g1:Gene {primaryKey:row.interactor_A})
+                MATCH (g2:Gene {primaryKey:row.interactor_B})
 
-        //Create the relationship between the two genes.
-        CREATE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
+                MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
+                MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
+                MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
+                MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
+                MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_role
+                MATCH (it:MITerm) WHERE it.primaryKey = row.interaction_type
 
-        //Create the Association node to be used for the object.
-        MERGE (oa:Association {primaryKey:row.uuid})
-            ON CREATE
-                SET oa :InteractionGeneJoin
-                SET oa :InteractionGeneticGeneJoin
-                SET oa.joinType = 'genetic_interaction'
-        CREATE (g1)-[a1:ASSOCIATION]->(oa)
-        CREATE (oa)-[a2:ASSOCIATION]->(g2)
+                //Create the relationship between the two genes.
+                CREATE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
 
-        //Create the publication nodes and link them to the Association node.
-        MERGE (pn:Publication {primaryKey:row.pub_med_id})
-            ON CREATE SET pn.pubMedUrl = row.pub_med_url,
-            pn.pubMedId = row.pub_med_id
-        CREATE (oa)-[ev:EVIDENCE]->(pn)
+                //Create the Association node to be used for the object.
+                MERGE (oa:Association {primaryKey:row.uuid})
+                    ON CREATE
+                        SET oa :InteractionGeneJoin
+                        SET oa :InteractionGeneticGeneJoin
+                        SET oa.joinType = 'genetic_interaction'
+                CREATE (g1)-[a1:ASSOCIATION]->(oa)
+                CREATE (oa)-[a2:ASSOCIATION]->(g2)
 
-        //Link source database to the MI ontology.
-        CREATE (oa)-[sd:SOURCE_DATABASE]->(sdb)
+                //Create the publication nodes and link them to the Association node.
+                MERGE (pn:Publication {primaryKey:row.pub_med_id})
+                    ON CREATE SET pn.pubMedUrl = row.pub_med_url,
+                    pn.pubMedId = row.pub_med_id
+                CREATE (oa)-[ev:EVIDENCE]->(pn)
 
-        //Link interactor roles and types to the MI ontology.
-        CREATE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
-        CREATE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
-        CREATE (oa)-[ira1:INTERACTOR_A_ROLE]->(ira)
-        CREATE (oa)-[irb1:INTERACTOR_B_ROLE]->(irb)
+                //Link source database to the MI ontology.
+                CREATE (oa)-[sd:SOURCE_DATABASE]->(sdb)
 
-        //Link interaction type to the MI ontology.
-        CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
-    """
+                //Link interactor roles and types to the MI ontology.
+                CREATE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
+                CREATE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
+                CREATE (oa)-[ira1:INTERACTOR_A_ROLE]->(ira)
+                CREATE (oa)-[irb1:INTERACTOR_B_ROLE]->(irb)
+
+                //Link interaction type to the MI ontology.
+                CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        // This needs to be a MERGE below.
-        MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
-        """ + ETLHelper.get_cypher_xref_text()
+                // This needs to be a MERGE below.
+                MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     mod_xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+                MATCH (o:Gene {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     allele_A_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (oa:Association {primaryKey:row.reference_uuid})
-        MATCH (a:Allele {primaryKey:row.allele_A})
-        CREATE (oa)-[p:INTERACTOR_A_GENETIC_PERTURBATION]->(a);
-    """
+                MATCH (oa:Association {primaryKey:row.reference_uuid})
+                MATCH (a:Allele {primaryKey:row.allele_A})
+                CREATE (oa)-[p:INTERACTOR_A_GENETIC_PERTURBATION]->(a);
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     allele_B_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (oa:Association {primaryKey:row.reference_uuid})
-        MATCH (a:Allele {primaryKey:row.allele_B})
-        CREATE (oa)-[p:INTERACTOR_B_GENETIC_PERTURBATION]->(a);
-    """
+                MATCH (oa:Association {primaryKey:row.reference_uuid})
+                MATCH (a:Allele {primaryKey:row.allele_B})
+                CREATE (oa)-[p:INTERACTOR_B_GENETIC_PERTURBATION]->(a);
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     phenotype_trait_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (oa:Association {primaryKey:row.reference_uuid})
-        MERGE (pn:Phenotype {primaryKey:row.phenotype_statement})
-            ON CREATE SET pn.phenotypeStatement = row.phenotype_statement,
-            pn.primaryKey = row.phenotype_statement
-        CREATE (oa)-[p:PHENOTYPE_TRAIT]->(pn);
-    """
+                MATCH (oa:Association {primaryKey:row.reference_uuid})
+                MERGE (pn:Phenotype {primaryKey:row.phenotype_statement})
+                    ON CREATE SET pn.phenotypeStatement = row.phenotype_statement,
+                    pn.primaryKey = row.phenotype_statement
+                CREATE (oa)-[p:PHENOTYPE_TRAIT]->(pn);
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     query_xrefs = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
                      WHERE cr.prefix = {parameter}
                      RETURN g.primaryKey, cr.globalCrossRefId"""
 
     def __init__(self, config):
-        """Initiaslise object."""
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -141,12 +157,12 @@ class GeneticInteractionETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size, "gen_int_data.csv"],
-            [self.xref_query_template, commit_size, "gen_int_xref.csv"],
-            [self.mod_xref_query_template, commit_size, "gen_int_mod_xref.csv"],
-            [self.allele_A_query_template, commit_size, "gen_int_allele_A.csv"],
-            [self.allele_B_query_template, commit_size, "gen_int_allele_B.csv"],
-            [self.phenotype_trait_query_template, commit_size, "gen_int_phenotype_trait.csv"]
+            [self.main_query_template, "gen_int_data.csv", commit_size],
+            [self.xref_query_template, "gen_int_xref.csv", commit_size],
+            [self.mod_xref_query_template, "gen_int_mod_xref.csv", commit_size],
+            [self.allele_A_query_template, "gen_int_allele_A.csv", commit_size],
+            [self.allele_B_query_template, "gen_int_allele_B.csv", commit_size],
+            [self.phenotype_trait_query_template, "gen_int_phenotype_trait.csv", commit_size]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

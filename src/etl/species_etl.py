@@ -16,32 +16,34 @@ class SpeciesETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        CREATE (s:Species {primaryKey: row.taxonId})
-        
-          SET s.shortName = row.shortName,
-              s.species = row.shortName,
-              s.name = row.name,
-              s.dataProviderFullName = row.dataProviderFullName,
-              s.dataProviderShortName = row.dataProviderShortName,
-              s.phylogeneticOrder = apoc.number.parseInt(row.phylogeneticOrder),
-              s.commonNames = row.commonNames
-
-        """
-    synonym_query_template = """
-     USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        
-        MATCH (s:Species {primaryKey:row.taxonId})
-        MERGE (sy:Synonym:Identifier {primaryKey:row.synonym})
-          SET sy.name = row.synonym
-          
-        MERGE (s)-[ss:ALSO_KNOWN_AS]->(sy)
-        
+                CREATE (s:Species {primaryKey: row.taxonId})
+                
+                SET s.shortName = row.shortName,
+                    s.species = row.shortName,
+                    s.name = row.name,
+                    s.dataProviderFullName = row.dataProviderFullName,
+                    s.dataProviderShortName = row.dataProviderShortName,
+                    s.phylogeneticOrder = apoc.number.parseInt(row.phylogeneticOrder),
+                    s.commonNames = row.commonNames
+            }
+        IN TRANSACTIONS of %s ROWS"""
     
-    """
+    synonym_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+        
+                MATCH (s:Species {primaryKey:row.taxonId})
+                MERGE (sy:Synonym:Identifier {primaryKey:row.synonym})
+                SET sy.name = row.synonym
+                
+                MERGE (s)-[ss:ALSO_KNOWN_AS]->(sy)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -53,8 +55,8 @@ class SpeciesETL(ETL):
         filepath = 'https://raw.githubusercontent.com/alliance-genome/agr_schemas/master/ingest/species/species.yaml'
         generators = self.get_generators(filepath)
 
-        query_template_list = [[self.main_query_template, 10000, "species_data.csv"],
-                               [self.synonym_query_template, 10000, "species_synonym_data.csv"]]
+        query_template_list = [[self.main_query_template, "species_data.csv", 10000],
+                               [self.synonym_query_template, "species_synonym_data.csv", 10000]]
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)

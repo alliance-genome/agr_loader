@@ -19,131 +19,138 @@ class PhenoTypeETL(ETL):
     # Query templates which take params and will be processed later
 
     execute_allele_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (allele:Allele {primaryKey:row.primaryId})
+                MATCH (allele:Allele {primaryKey:row.primaryId})
 
 
-            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
-                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
+                MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                    ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET
-                    pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
+                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET
+                        pa.joinType = 'phenotype',
+                        pa.dataProvider = row.dataProvider
 
-            MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
-            MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
-            MERGE (pa)-[pad:ASSOCIATION]->(p)
-
-             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
-
-                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
-
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-
-            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
-
-            """
-    execute_gene_query_template = """
-
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (g:Gene {primaryKey:row.primaryId})
-
-            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
-                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
-
-            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET
-                    pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
-
+                MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
                 MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
-             MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    ON CREATE SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
-                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-           MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-             ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+                MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+                MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
-            """
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
+    execute_gene_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+
+                MATCH (g:Gene {primaryKey:row.primaryId})
+
+                MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                    ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
+
+                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET
+                        pa.joinType = 'phenotype',
+                        pa.dataProvider = row.dataProvider
+
+                    MERGE (pa)-[pad:ASSOCIATION]->(p)
+                    MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                    MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    ON CREATE SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
+
+                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+
+                MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+
+                MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
+
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_agm_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (g:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            MATCH (g:AffectedGenomicModel {primaryKey:row.primaryId})
+                MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
+                    ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-            MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
-                ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
+                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET
+                        pa.joinType = 'phenotype',
+                        pa.dataProvider = row.dataProvider
 
-            MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                ON CREATE SET
-                    pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
+                    MERGE (pa)-[pad:ASSOCIATION]->(p)
+                    MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                    MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
-                MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    ON CREATE SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                ON CREATE SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
+                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
-                       //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-              ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+                MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
 
-            MERGE (pa)-[pubfpubEE:EVIDENCE]->(pubEJ)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_pges_allele_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+                MATCH (n:Allele {primaryKey:row.pgeId})
+                MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
 
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:Allele {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+                CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
-            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_pges_agm_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+                MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
+                MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
 
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+                CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
 
-            CREATE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]->(n)
-
-    """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -178,20 +185,20 @@ class PhenoTypeETL(ETL):
         self.logger.info("subtype: " + data_provider)
 
         query_template_list = [
-                [self.execute_gene_query_template, commit_size,
-                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_allele_query_template, commit_size,
-                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_agm_query_template, commit_size,
-                 "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.exp_cond_helper.execute_exp_condition_query_template, commit_size,
-                 "phenotype_exp_condition_node_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.exp_cond_helper.execute_exp_condition_relations_query_template, commit_size,
-                 "phenotype_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_pges_allele_query_template, commit_size,
-                 "phenotype_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
-                [self.execute_pges_agm_query_template, commit_size,
-                 "phenotype_pges_agm_data_" + sub_type.get_data_provider() + ".csv"]
+                [self.execute_gene_query_template,
+                 "phenotype_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.execute_allele_query_template,
+                 "phenotype_allele_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.execute_agm_query_template,
+                 "phenotype_agm_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.exp_cond_helper.execute_exp_condition_query_template,
+                 "phenotype_exp_condition_node_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.exp_cond_helper.execute_exp_condition_relations_query_template,
+                 "phenotype_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.execute_pges_allele_query_template,
+                 "phenotype_pges_allele_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+                [self.execute_pges_agm_query_template,
+                 "phenotype_pges_agm_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

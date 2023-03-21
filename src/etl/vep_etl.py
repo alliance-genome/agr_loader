@@ -19,27 +19,29 @@ class VEPETL(ETL):
     # Query templates which take params and will be processed later
 
     vep_gene_query_template = """
-               USING PERIODIC COMMIT %s
-               LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-                   MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
-                   MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (a:Variant {primaryKey:row.hgvsNomenclature})
+                MATCH (g:Gene {primaryKey:row.geneId})
 
-                   MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
-                   ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
-                       gc.geneId = g.primaryKey,
-                       gc.variantId = a.hgvsNomenclature,
-                       gc.impact = row.impact,
-                       gc.polyphenPrediction = row.polyphenPrediction,
-                       gc.polyphenScore = row.polyphenScore,
-                       gc.siftPrediction = row.siftPrediction,
-                       gc.siftScore = row.siftScore
+                MERGE (gc:GeneLevelConsequence {primaryKey:row.primaryKey})
+                ON CREATE SET gc.geneLevelConsequence = row.geneLevelConsequence,
+                    gc.geneId = g.primaryKey,
+                    gc.variantId = a.hgvsNomenclature,
+                    gc.impact = row.impact,
+                    gc.polyphenPrediction = row.polyphenPrediction,
+                    gc.polyphenScore = row.polyphenScore,
+                    gc.siftPrediction = row.siftPrediction,
+                    gc.siftScore = row.siftScore
 
 
-                   MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
-                   MERGE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                MERGE (g)-[ggc:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
+                MERGE (a)-[ga:ASSOCIATION {primaryKey:row.primaryKey}]->(gc)
 
-                   """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -64,8 +66,8 @@ class VEPETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.vep_gene_query_template, commit_size,
-             "vep_gene_data_" + sub_type.get_data_provider() + ".csv"]
+            [self.vep_gene_query_template,
+             "vep_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator
