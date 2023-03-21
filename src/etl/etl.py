@@ -88,18 +88,23 @@ class ETL:
         # query_list_with_parms = list of queries, each with batch size and CSV file name.
         query_and_file_names = []
 
+        # Example query_params:
+        # [self.gene_synonyms_query_template, "gene_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size]
+        # [self.insert_isa_partof_closure_query_template, "isa_partof_closure_" + data_provider + ".csv", "100000", data_provider]
+
         for query_params in query_list_with_params:
-            # Remove the first query + batch size + CSV file name
+            # Remove the first item (the template) from the list. Format that query with all remaining paramenters.
             cypher_query_template = query_params.pop(0)
 
-            #  from the list. Format the query with all remaining paramenters.
             query_to_run = cypher_query_template % tuple(query_params)
 
-            while len(query_params) > 2:  # We need to remove extra params before we append
-                # the modified query. Assuming the last entry in the list is the filepath
-                query_params.pop()
+            # while len(query_params) > 2:  # We need to remove extra params before we append
+            #     # the modified query. Assuming the last entry in the list is the filepath
+            #     query_params.pop()
 
-            file_name = query_params.pop()
+            # The first item in query_params (after we've pop'ed an item above) should be the filepath.
+            file_name = query_params[0]
+            
             query_and_file_names.append([query_to_run, file_name])
 
         return query_and_file_names

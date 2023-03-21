@@ -19,73 +19,86 @@ class ConstructETL(ETL):
     # Query templates which take params and will be processed later
 
     construct_query_template = """
-          USING PERIODIC COMMIT %s
-          LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-              //Create the Construct node and set properties. primaryKey is required.
-              MERGE (o:Construct {primaryKey:row.primaryId})
-                  ON CREATE SET o.name = row.name,
-                   o.dateProduced = row.dateProduced,
-                   o.release = row.release,
-                   o.localId = row.localId,
-                   o.globalId = row.globalId,
-                   o.uuid = row.uuid,
-                   o.nameText = row.nameText,
-                   o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                   o.dataProviders = row.dataProviders,
-                   o.dataProvider = row.dataProvider,
-                   o.symbol = row.symbol
-
-            """
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                //Create the Construct node and set properties. primaryKey is required.
+                MERGE (o:Construct {primaryKey:row.primaryId})
+                    ON CREATE SET o.name = row.name,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.nameText = row.nameText,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.symbol = row.symbol
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     construct_secondary_ids_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MATCH (f:Construct {primaryKey:row.data_id})
 
-            MATCH (f:Construct {primaryKey:row.data_id})
-
-            MERGE (second:SecondaryId {primaryKey:row.secondary_id})
-                SET second.name = row.secondary_id
-            MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
-
+                MERGE (second:SecondaryId {primaryKey:row.secondary_id})
+                    SET second.name = row.secondary_id
+                MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     construct_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MATCH (a:Construct {primaryKey:row.data_id})
 
-            MATCH (a:Construct {primaryKey:row.data_id})
-
-            MERGE(syn:Synonym {primaryKey:row.synonym})
-                SET syn.name = row.synonym
-            MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
-
+                MERGE(syn:Synonym {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     construct_xrefs_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (o:Construct {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MATCH (o:Construct {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     construct_gene_component_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
-            CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
-            REMOVE rel.noOp"""
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MATCH (o:Construct {primaryKey:row.constructID}), (g:Gene {primaryKey:row.componentID})
+                CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
+                REMOVE rel.noOp
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     construct_no_gene_component_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
-            CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
-            REMOVE rel.noOp"""
-
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MATCH (o:Construct {primaryKey:row.constructID}), (g:NonBGIConstructComponent {primaryKey:row.componentSymbol})
+                CALL apoc.create.relationship(g, row.componentRelation, {}, o) yield rel
+                REMOVE rel.noOp            
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     non_bgi_component_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})"""
-
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                MERGE (o:NonBGIConstructComponent {primaryKey:row.componentSymbol})
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     def __init__(self, config):
         """Initialise object."""
         super().__init__()
@@ -120,20 +133,20 @@ class ConstructETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [ConstructETL.construct_query_template, commit_size,
-             "Construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_secondary_ids_query_template, commit_size,
-             "Construct_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_synonyms_query_template, commit_size,
-             "Construct_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_xrefs_query_template, commit_size,
-             "Construct_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.non_bgi_component_query_template, commit_size,
-             "Construct_non_bgi_component_" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_gene_component_query_template, commit_size,
-             "Construct_components_gene" + sub_type.get_data_provider() + ".csv"],
-            [ConstructETL.construct_no_gene_component_query_template, commit_size,
-             "Construct_components_no_gene" + sub_type.get_data_provider() + ".csv"]
+            [ConstructETL.construct_query_template,
+             "Construct_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.construct_secondary_ids_query_template, 
+             "Construct_secondary_ids_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.construct_synonyms_query_template, 
+             "Construct_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.construct_xrefs_query_template, 
+             "Construct_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.non_bgi_component_query_template, 
+             "Construct_non_bgi_component_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.construct_gene_component_query_template, 
+             "Construct_components_gene" + sub_type.get_data_provider() + ".csv", commit_size],
+            [ConstructETL.construct_no_gene_component_query_template, 
+             "Construct_components_no_gene" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

@@ -17,86 +17,88 @@ class AffectedGenomicModelETL(ETL):
     # Query templates which take params and will be processed later
 
     agm_query_template = """
-
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (s:Species {primaryKey: row.taxonId})
+            CALL {
+                WITH row
+                MATCH (s:Species {primaryKey: row.taxonId})
 
-            MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
-                ON CREATE SET o.name = row.name,
-                o.nameText = row.nameText,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider,
-                 o.nameText = row.nameText,
-                 o.nameTextWithSpecies = row.nameTextWithSpecies,
-                 o.nameWithSpecies = row.nameWithSpecies,
-                 o.subtype = row.subtype
+                MERGE (o:AffectedGenomicModel {primaryKey:row.primaryId})
+                    ON CREATE SET o.name = row.name,
+                    o.nameText = row.nameText,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefUrl,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.nameText = row.nameText,
+                    o.nameTextWithSpecies = row.nameTextWithSpecies,
+                    o.nameWithSpecies = row.nameWithSpecies,
+                    o.subtype = row.subtype
 
-            MERGE (o)-[:FROM_SPECIES]-(s)
-    """
+                MERGE (o)-[:FROM_SPECIES]-(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     agm_secondary_ids_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
                 MATCH (f:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE (second:SecondaryId:Identifier {primaryKey:row.secondaryId})
                     SET second.name = row.secondary_id
                 MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
-
-        """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     agm_sqtrs_query_template = """
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+                MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
+                MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            MATCH (sqtr:SequenceTargetingReagent {primaryKey:row.sqtrId})
-            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-
-            MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
-    """
+                MERGE (agm)-[:SEQUENCE_TARGETING_REAGENT]-(sqtr)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     agm_synonyms_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
                 MATCH (a:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
                     SET syn.name = row.synonym
                 MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
-
-        """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     agm_backgrounds_query_template = """
-     USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+                MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
+                MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
 
-            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-            MATCH (b:AffectedGenomicModel {primaryKey:row.backgroundId})
-
-            MERGE (agm)-[:BACKGROUND]-(b)
-
-    """
+                MERGE (agm)-[:BACKGROUND]-(b)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     agm_components_query_template = """
-     USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+                MATCH (feature:Feature:Allele {primaryKey:row.componentId})
+                MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            MATCH (feature:Feature:Allele {primaryKey:row.componentId})
-            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
-
-            MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
-                SET agmf.zygosity = row.zygosityId
-
-    """
+                MERGE (agm)-[agmf:MODEL_COMPONENT]-(feature)
+                    SET agmf.zygosity = row.zygosityId
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -136,18 +138,18 @@ class AffectedGenomicModelETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.agm_query_template, commit_size,
-             "agm_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_secondary_ids_query_template, commit_size,
-             "agm_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_synonyms_query_template, commit_size,
-             "agm_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_components_query_template, commit_size,
-             "agm_components_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_sqtrs_query_template, commit_size,
-             "agm_sqtrs_" + sub_type.get_data_provider() + ".csv"],
-            [self.agm_backgrounds_query_template, commit_size,
-             "agm_backgrounds_" + sub_type.get_data_provider() + ".csv"]
+            [self.agm_query_template,
+             "agm_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.agm_secondary_ids_query_template, 
+             "agm_secondary_ids_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.agm_synonyms_query_template,
+             "agm_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.agm_components_query_template, 
+             "agm_components_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.agm_sqtrs_query_template, 
+             "agm_sqtrs_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.agm_backgrounds_query_template,
+             "agm_backgrounds_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator
