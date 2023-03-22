@@ -344,6 +344,9 @@ class PhenoTypeETL(ETL):
                 counter = 0
 
         if counter > 0:
+            self.logger.info('Waiting for queues to clear before last load.')
+            Neo4jTransactor().wait_for_queues()
+
             yield [ list_to_yield,
                     list_to_yield,
                     list_to_yield,
