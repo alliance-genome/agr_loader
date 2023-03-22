@@ -101,8 +101,8 @@ class Neo4jTransactor():
                             self.logger.debug("Writting to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
                             pickle.dump(neo4j_query, file)
                     else:
-                        with graph.session() as session:
-                            session.run(neo4j_query)
+                        with graph.begin_transaction() as tx:
+                            tx.run(neo4j_query)
 
                     end = time.time()
                     elapsed_time = end - start
