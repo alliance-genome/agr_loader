@@ -51,8 +51,7 @@ def main():
     if args.verbose:
         context_info.env["DEBUG"] = True
 
-    # debug_level = logging.DEBUG if context_info.env["DEBUG"] else logging.INFO
-    debug_level = logging.DEBUG
+    debug_level = logging.DEBUG if context_info.env["DEBUG"] else logging.INFO
 
     coloredlogs.install(level=debug_level,
                         fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
