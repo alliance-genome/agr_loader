@@ -30,7 +30,7 @@ class PhenoTypeETL(ETL):
 
                 CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                     SET pa.joinType = 'phenotype',
-                    SET pa.dataProvider = row.dataProvider
+                    pa.dataProvider = row.dataProvider
 
                 CREATE (allele)-[fpaf:ASSOCIATION]->(pa)
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
@@ -64,7 +64,7 @@ class PhenoTypeETL(ETL):
 
                 CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                     SET pa.joinType = 'phenotype',
-                    SET pa.dataProvider = row.dataProvider
+                    pa.dataProvider = row.dataProvider
 
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
                 CREATE (g)-[gpa:ASSOCIATION]->(pa)
@@ -98,7 +98,7 @@ class PhenoTypeETL(ETL):
 
                 CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
                     SET pa.joinType = 'phenotype',
-                    SET pa.dataProvider = row.dataProvider
+                    pa.dataProvider = row.dataProvider
 
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
                 CREATE (g)-[gpa:ASSOCIATION]->(pa)
