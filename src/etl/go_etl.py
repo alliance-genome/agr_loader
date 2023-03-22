@@ -28,7 +28,7 @@ class GOETL(ETL):
                     g.nameKey = row.name_key,
                     g.isObsolete = row.is_obsolete,
                     g.href = row.href
-                    MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)
+                    CREATE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -38,8 +38,8 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-                MERGE (g1)-[aka:IS_A]->(g2)
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:IS_A]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
     
@@ -49,8 +49,8 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-                MERGE (g1)-[aka:PART_OF]->(g2)
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:PART_OF]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -62,7 +62,7 @@ class GOETL(ETL):
                 MATCH (g:GOTerm {primaryKey:row.primary_id})
 
                 MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                    SET syn.name = row.synonym
+                    ON CREATE SET syn.name = row.synonym
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -73,8 +73,8 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-                MERGE (g1)-[aka:REGULATES]->(g2) 
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:REGULATES]->(g2) 
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -84,8 +84,8 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-                MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2)
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:NEGATIVELY_REGULATES]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -95,8 +95,8 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-                MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2)
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:POSITIVELY_REGULATES]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
 
