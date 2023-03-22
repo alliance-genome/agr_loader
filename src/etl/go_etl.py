@@ -308,8 +308,6 @@ class GOETL(ETL):
                 counter = 0
 
         if counter > 0:
-            self.logger.info('Waiting for queues to clear before last load.')
-            Neo4jTransactor().wait_for_queues()
 
             yield [go_term_list,
                    go_isas_list,
