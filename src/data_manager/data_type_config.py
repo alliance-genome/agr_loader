@@ -17,7 +17,7 @@ class DataTypeConfig():
         self.submission_system_data = submission_system_data
 
         # TODO These will be set by the config YAML.
-        self.neo4j_commit_size = 10000
+        self.neo4j_commit_size = 25000
         self.generator_batch_size = 10000
 
         self.list_of_subtype_objects = []
