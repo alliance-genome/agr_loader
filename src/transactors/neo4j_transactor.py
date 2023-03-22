@@ -72,6 +72,7 @@ class Neo4jTransactor():
         if context_info.env["USING_PICKLE"] is False:
             uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
             graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, fetch_size=10000)
+            session = graph.session()
             watch("neo4j")
 
         self.logger.info("%s: Starting Neo4jTransactor Thread Runner: ", self._get_name())
@@ -101,8 +102,10 @@ class Neo4jTransactor():
                             self.logger.debug("Writting to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
                             pickle.dump(neo4j_query, file)
                     else:
-                        with graph.begin_transaction() as tx:
+                        with session.begin_transaction() as tx:
                             tx.run(neo4j_query)
+                            tx.commit()
+                            tx.close()
 
                     end = time.time()
                     elapsed_time = end - start
