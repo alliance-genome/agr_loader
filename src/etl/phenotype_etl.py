@@ -25,19 +25,16 @@ class PhenoTypeETL(ETL):
 
                 MATCH (allele:Allele {primaryKey:row.primaryId})
 
-
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    ON CREATE SET
-                        pa.joinType = 'phenotype',
-                        pa.dataProvider = row.dataProvider
+                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    SET pa.joinType = 'phenotype',
+                    SET pa.dataProvider = row.dataProvider
 
-                MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
-
-                MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
-                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                CREATE (allele)-[fpaf:ASSOCIATION]->(pa)
+                CREATE (pa)-[pad:ASSOCIATION]->(p)
+                CREATE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -45,8 +42,7 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -66,14 +62,13 @@ class PhenoTypeETL(ETL):
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    ON CREATE SET
-                        pa.joinType = 'phenotype',
-                        pa.dataProvider = row.dataProvider
+                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    SET pa.joinType = 'phenotype',
+                    SET pa.dataProvider = row.dataProvider
 
-                    MERGE (pa)-[pad:ASSOCIATION]->(p)
-                    MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                    MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                CREATE (pa)-[pad:ASSOCIATION]->(p)
+                CREATE (g)-[gpa:ASSOCIATION]->(pa)
+                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -81,8 +76,7 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
@@ -102,14 +96,13 @@ class PhenoTypeETL(ETL):
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                MERGE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    ON CREATE SET
-                        pa.joinType = 'phenotype',
-                        pa.dataProvider = row.dataProvider
+                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
+                    SET pa.joinType = 'phenotype',
+                    SET pa.dataProvider = row.dataProvider
 
-                    MERGE (pa)-[pad:ASSOCIATION]->(p)
-                    MERGE (g)-[gpa:ASSOCIATION]->(pa)
-                    MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                CREATE (pa)-[pad:ASSOCIATION]->(p)
+                CREATE (g)-[gpa:ASSOCIATION]->(pa)
+                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -117,7 +110,6 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                        //MERGE (pubf)-[pe:EVIDENCE]-(pa)
                 MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
 
@@ -270,7 +262,6 @@ class PhenoTypeETL(ETL):
         list_to_yield = []
         self.exp_cond_helper.reset()
         pge_list_to_yield = []
-        calculated_cross_references = []
         date_produced = phenotype_data['metaData']['dateProduced']
         data_providers = []
         counter = 0

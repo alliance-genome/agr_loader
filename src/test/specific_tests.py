@@ -1697,3 +1697,14 @@ def test_gff_so_terms_exist():
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["counter"] == 20
+
+def test_phenotype_entity_join_not_greater_than_two_associations():
+    """test_phenotype_entity_join_not_greater_than_two_associations"""
+
+    query = """
+            MATCH (p:PhenotypeEntityJoin)
+            WHERE SIZE((p)-[:ASSOCIATION]-()) > 2
+            RETURN count(p) as counter """
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] < 1
