@@ -61,8 +61,9 @@ class GOETL(ETL):
 
                 MATCH (g:GOTerm {primaryKey:row.primary_id})
 
-                MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                    ON CREATE SET syn.name = row.synonym
+                MERGE(syn:Synonym {primaryKey:row.synonym})
+                    ON CREATE SET syn.name = row.synonym,
+                    syn:Identifier
                 MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -107,7 +108,8 @@ class GOETL(ETL):
 
                 MATCH (got:GOTerm {primaryKey:row.primary_id})
 
-                MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                MERGE(sec:SecondaryId {primaryKey:row.secondary_id})
+                ON CREATE SET sec:Identifier
 
                 MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
             }
