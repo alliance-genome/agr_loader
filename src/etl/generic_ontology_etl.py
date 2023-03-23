@@ -44,7 +44,7 @@ class GenericOntologyETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
+                MATCH (g:%sTerm {primaryKey:row.oid})
                 MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
                         SET syn.name = row.syn
                 MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
@@ -56,8 +56,8 @@ class GenericOntologyETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-                MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
+                MATCH (g:%sTerm {primaryKey:row.oid})
+                MATCH (g2:%sTerm {primaryKey:row.isa})
                 CREATE (g)-[aka:IS_A]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -67,8 +67,8 @@ class GenericOntologyETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-                MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
+                MATCH (g:%sTerm {primaryKey:row.oid})
+                MATCH (g2:%sTerm {primaryKey:row.partof})
                 CREATE (g)-[aka:PART_OF]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -78,7 +78,7 @@ class GenericOntologyETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
+                MATCH (got:%sTerm {primaryKey:row.primary_id})
                 MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
                 CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
             }
