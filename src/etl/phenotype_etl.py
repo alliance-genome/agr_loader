@@ -44,7 +44,7 @@ class PhenoTypeETL(ETL):
 
                 MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                pubEJ::Association
+                pubEJ:Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -79,7 +79,7 @@ class PhenoTypeETL(ETL):
 
                 MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                pubEJ::Association
+                pubEJ:Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -114,7 +114,7 @@ class PhenoTypeETL(ETL):
 
                 MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
                 ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                pubEJ::Association
+                pubEJ:Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
