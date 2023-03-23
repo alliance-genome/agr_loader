@@ -158,7 +158,8 @@ class Neo4jHelper:
                         "(n:MMOTerm) on (n.primaryKey)",
                         "(n:WBLSTerm) on (n.primaryKey)",
                         "(n:XPOTerm) on (n.primaryKey)",
-                        "(n:BioEntityGeneExpressionJoin) on (n.primaryKey)"]
+                        "(n:BioEntityGeneExpressionJoin) on (n.primaryKey)",
+                        "(n:NonBGIConstructComponent) on (n.primaryKey)"]
 
             for index in indicies:
                 session.run("CREATE INDEX FOR " + index)
