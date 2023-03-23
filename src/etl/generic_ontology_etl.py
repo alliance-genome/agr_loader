@@ -117,7 +117,7 @@ class GenericOntologyETL(ETL):
             [self.generic_ontology_term_query_template,
              "generic_ontology_term_" + ont_type + ".csv", ont_type, commit_size],
             [self.generic_ontology_isas_query_template, 
-             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type, commit_size],
+             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type, 1000],
             [self.generic_ontology_partofs_query_template,
              "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type, commit_size],
             [self.generic_ontology_synonyms_query_template,
