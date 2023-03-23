@@ -157,6 +157,7 @@ class Neo4jHelper:
                         "(n:BSPOTerm) on (n.primaryKey)",
                         "(n:MMOTerm) on (n.primaryKey)",
                         "(n:WBLSTerm) on (n.primaryKey)",
+                        "(n:XPOTerm) on (n.primaryKey)",
                         "(n:BioEntityGeneExpressionJoin) on (n.primaryKey)"]
 
             for index in indicies:
