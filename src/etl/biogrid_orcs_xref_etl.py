@@ -28,7 +28,7 @@ class BiogridOrcsXrefETL(ETL):
 
     gene_crossref_query_template = """
                    MATCH (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference)
-                   WHERE cr.globalCrossRefId IN {parameter}
+                   WHERE cr.globalCrossRefId IN $parameter
                    RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
 
     def __init__(self, config):

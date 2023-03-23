@@ -93,7 +93,7 @@ class GeneDescriptionsETL(ETL):
 
     get_all_genes_query = """
         MATCH (g:Gene)
-        WHERE g.dataProvider = {parameter} AND NOT g.primaryKey CONTAINS "HGNC:"
+        WHERE g.dataProvider = $parameter AND NOT g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol"""
 
     get_all_genes_human_query = """
@@ -104,7 +104,7 @@ class GeneDescriptionsETL(ETL):
     get_gene_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         MATCH (dga)-[:EVIDENCE]->(pec:PublicationJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId,
                         g.symbol AS geneSymbol,
@@ -116,7 +116,7 @@ class GeneDescriptionsETL(ETL):
     get_feature_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(f)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE f.dataProvider = {parameter}
+        WHERE f.dataProvider = $parameter
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
         MATCH (dga)-[:EVIDENCE]->(pec:PublicationJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId,
@@ -130,7 +130,7 @@ class GeneDescriptionsETL(ETL):
     get_filtered_human_orthologs_query = """
         MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->
         (g2:Gene)
-        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND
+        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = $parameter AND g2.taxonId ='NCBITaxon:9606' AND
         orth.strictFilter = true
         MATCH (ogj)-[:MATCHED]->(oa:OrthoAlgorithm)
         RETURN g.primaryKey AS geneId,
@@ -142,7 +142,7 @@ class GeneDescriptionsETL(ETL):
     get_disease_via_orthology_query = """
         MATCH (d:DOTerm:Ontology)-[r:IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         MATCH (dga)-[:FROM_ORTHOLOGOUS_GENE]-(orthGene:Gene)
         WHERE orthGene.taxonId = 'NCBITaxon:9606'
         RETURN DISTINCT g.primaryKey AS geneId,
@@ -163,7 +163,7 @@ class GeneDescriptionsETL(ETL):
 
     get_expression_annotations_query = """
         MATCH (g:Gene)-[EXPRESSED_IN]->(:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE|ANATOMICAL_SUB_STRUCTURE]->(t:Ontology)-[:IS_A|PART_OF]->(t2:Ontology)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         RETURN g.primaryKey AS geneId,
                g.symbol AS geneSymbol,
                t.primaryKey AS TermId,

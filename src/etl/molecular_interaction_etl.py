@@ -101,7 +101,7 @@ class MolecularInteractionETL(ETL):
         IN TRANSACTIONS of %s ROWS"""
 
     query_xrefs = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
-                     WHERE cr.prefix = {parameter}
+                     WHERE cr.prefix = $parameter
                      RETURN g.primaryKey, cr.globalCrossRefId"""
 
     def __init__(self, config):
