@@ -107,7 +107,7 @@ class GenericOntologyETL(ETL):
         # A list of tuples.
 
         # commit_size = self.data_type_config.get_neo4j_commit_size()
-        commit_size = 1000000
+        commit_size = 100000000
         batch_size = self.data_type_config.get_generator_batch_size()
 
         ont_type = sub_type.get_data_provider()
