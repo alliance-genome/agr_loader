@@ -9,7 +9,7 @@ from random import shuffle
 import ijson
 
 from etl import ETL
-from etl.helpers import ETLHelper
+from etl.helpers import ETLHelper, Neo4jHelper
 # from files import JSONFile
 from transactors import CSVTransactor, Neo4jTransactor
 
@@ -39,8 +39,9 @@ class OrthologyETL(ETL):
                         orth.moderateFilter = toBoolean(row.moderateFilter)
 
                 //Create the Association node to be used for the object/doTerm
-                CREATE (oa:Association:OrthologyGeneJoin {primaryKey:row.uuid})
+                CREATE (oa:Association {primaryKey:row.uuid})
                     SET oa.joinType = 'orthologous'
+                    SET oa :OrthologyGeneJoin
                 CREATE (g1)-[a1:ASSOCIATION]->(oa)
                 CREATE (oa)-[a2:ASSOCIATION]->(g2)
             }
@@ -52,7 +53,7 @@ class OrthologyETL(ETL):
                 WITH row
 
                 MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                MATCH (oa:OrthoAlgorithm {name:row.algorithm})
                 CREATE (ogj)-[:NOT_MATCHED]->(oa)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -63,7 +64,7 @@ class OrthologyETL(ETL):
                 WITH row
 
                 MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                MATCH (oa:OrthoAlgorithm {name:row.algorithm})
                 CREATE (ogj)-[:MATCHED]->(oa)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -74,7 +75,7 @@ class OrthologyETL(ETL):
                 WITH row
 
                 MATCH (ogj:OrthologyGeneJoin {primaryKey:row.uuid})
-                MERGE (oa:OrthoAlgorithm {name:row.algorithm})
+                MATCH (oa:OrthoAlgorithm {name:row.algorithm})
                 CREATE (ogj)-[:NOT_CALLED]->(oa)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -85,6 +86,30 @@ class OrthologyETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
+
+        self.load_algorithm = """
+            CREATE (oa:OrthoAlgorithm)
+                SET oa.name = $parameter
+        """
+
+        # Load single pass of algorithms in first.
+        list_of_algorithms = ["Ensembl Compara", 
+                            "HGNC", 
+                            "Hieranoid", 
+                            "InParanoid", 
+                            "OMA", 
+                            "OrthoFinder", 
+                            "OrthoInspector", 
+                            "PANTHER", 
+                            "PhylomeDB", 
+                            "Roundup", 
+                            "SonicParanoid", 
+                            "TreeFam", 
+                            "ZFIN"]
+
+        for algorithm in list_of_algorithms:
+            self.logger.info("Loading algorithm node: %s", algorithm)
+            Neo4jHelper.run_single_parameter_query(self.load_algorithm, algorithm)
 
         sub_types = []
 
