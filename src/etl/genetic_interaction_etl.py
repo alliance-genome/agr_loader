@@ -81,7 +81,7 @@ class GeneticInteractionETL(ETL):
                 WITH row
 
                 // This needs to be a MERGE below.
-                MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
+                MATCH (o:InteractionGeneJoin) WHERE o.primaryKey = row.reference_uuid
                 """ + ETLHelper.get_cypher_xref_text() + """
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -103,7 +103,7 @@ class GeneticInteractionETL(ETL):
 
                 MATCH (oa:Association {primaryKey:row.reference_uuid})
                 MATCH (a:Allele {primaryKey:row.allele_A})
-                CREATE (oa)-[p:INTERACTOR_A_GENETIC_PERTURBATION]->(a);
+                CREATE (oa)-[p:INTERACTOR_A_GENETIC_PERTURBATION]->(a)
             }
         IN TRANSACTIONS of %s ROWS"""
 
@@ -114,7 +114,7 @@ class GeneticInteractionETL(ETL):
 
                 MATCH (oa:Association {primaryKey:row.reference_uuid})
                 MATCH (a:Allele {primaryKey:row.allele_B})
-                CREATE (oa)-[p:INTERACTOR_B_GENETIC_PERTURBATION]->(a);
+                CREATE (oa)-[p:INTERACTOR_B_GENETIC_PERTURBATION]->(a)
             }
         IN TRANSACTIONS of %s ROWS"""
 

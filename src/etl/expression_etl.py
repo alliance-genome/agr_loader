@@ -48,7 +48,7 @@ class ExpressionETL(ETL):
                 MATCH (assay:MMOTerm {primaryKey:row.assay})
                 MERGE (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                     ON CREATE SET gej.joinType = 'expression',
-                    gej:Association
+                    gej :Association
 
                 MERGE (gej)-[geja:ASSAY]->(assay)
             }
