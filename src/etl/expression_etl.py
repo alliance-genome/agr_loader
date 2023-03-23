@@ -351,22 +351,22 @@ class ExpressionETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.bio_entity_expression_query_template, commit_size,
-             "expression_entities_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_ao_query_template, commit_size,
-             "expression_gene_ao_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_expression_join_query_template, commit_size,
-             "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
-            [self.ao_expression_query_template, commit_size,
-             "expression_ao_expression_" + sub_type.get_data_provider() + ".csv"]
+            [self.bio_entity_expression_query_template,
+             "expression_entities_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.bio_entity_gene_ao_query_template,
+             "expression_gene_ao_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.bio_entity_gene_expression_join_query_template,
+             "expression_entity_joins_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.ao_expression_query_template,
+             "expression_ao_expression_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         if data_provider == 'SGD':
-            query_template_list += [[self.sgd_cc_expression_query_template, commit_size,
-                                     "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
+            query_template_list += [[self.sgd_cc_expression_query_template,
+                                     "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size]]
         else:
-            query_template_list += [[self.cc_expression_query_template, commit_size,
-                                     "expression_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
+            query_template_list += [[self.cc_expression_query_template, 
+                                     "expression_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size,]]
 
         query_template_list += [
             [self.ao_cc_expression_query_template, "expression_ao_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size],
