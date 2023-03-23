@@ -106,7 +106,8 @@ class GenericOntologyETL(ETL):
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
-        commit_size = self.data_type_config.get_neo4j_commit_size()
+        # commit_size = self.data_type_config.get_neo4j_commit_size()
+        commit_size = 1000000
         batch_size = self.data_type_config.get_generator_batch_size()
 
         ont_type = sub_type.get_data_provider()
@@ -114,13 +115,13 @@ class GenericOntologyETL(ETL):
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
             [self.generic_ontology_term_query_template,
-             "generic_ontology_term_" + ont_type + ".csv", ont_type, 600000],
+             "generic_ontology_term_" + ont_type + ".csv", ont_type, commit_size],
             [self.generic_ontology_isas_query_template, 
              "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type, commit_size],
             [self.generic_ontology_partofs_query_template,
              "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type, commit_size],
             [self.generic_ontology_synonyms_query_template,
-             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type, 400000],
+             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type, commit_size],
             [self.generic_ontology_altids_query_template, 
              "generic_ontology_altids_" + ont_type + ".csv", ont_type, commit_size],
         ]
