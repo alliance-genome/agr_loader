@@ -19,29 +19,37 @@ class Neo4jHelper:
     @contextmanager
     def run_single_parameter_query(query, parameter):
         """Run single parameter query"""
-        try:
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
-            logger.debug("Running run_single_parameter_query. Please wait...")
-            logger.debug("Query: %s", query)
-            with graph.session() as session:
-                with session.begin_transaction() as transaction:
-                    yield transaction.run(query, parameter=parameter)
-        finally:
-            logger.debug("closing neo4j transaction and session")
-            graph.close()
+
+        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
+                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+        graph = GraphDatabase.driver(uri,
+                                     auth=("neo4j", "neo4j"),
+                                     max_connection_pool_size=-1,
+                                     encrypted=False)
+        Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
+        Neo4jHelper.logger.debug("Query: %s", query)
+        with graph.session() as session:
+            result = session.run(query, parameter=parameter)
+            data_to_return = result.data()
+            Neo4jHelper.logger.debug("Query returned %s results", data_to_return)
+        return data_to_return
 
     @staticmethod
-    @contextmanager
     def run_single_query(query):
         """Run Single Query"""
-        try:
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
-            with graph.session() as session:
-                with session.begin_transaction() as transaction:
-                    yield transaction.run(query)
-        finally:
-            logger.debug("closing neo4j transaction and session")
-            graph.close()
+
+        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
+              + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
+        graph = GraphDatabase.driver(uri,
+                                     auth=("neo4j", "neo4j"),
+                                     max_connection_pool_size=-1,
+                                     encrypted=False)
+
+        with graph.session() as session:
+            result = session.run(query)
+            data_to_return = result.data()
+            Neo4jHelper.logger.debug("Query returned %s results", data_to_return)
+        return data_to_return
 
     @staticmethod
     def run_single_query_no_return(query):
@@ -163,4 +171,10 @@ class Neo4jHelper:
 
             for index in indicies:
                 session.run("CREATE INDEX FOR " + index)
-        graph.close()
+
+            two_composite_indices = [["n:Gene", "n.gff3ID", "n.dataProvider"], # transcript_etl
+                                    ["n:Transcript", "n.gff3ID", "n.dataProvider"] # transcript_etl"
+                                    ]
+
+            for index in two_composite_indices:
+                session.run("CREATE INDEX FOR ({}) ON ({}, {})".format(index[0], index[1], index[2]))

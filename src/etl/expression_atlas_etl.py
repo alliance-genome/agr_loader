@@ -23,12 +23,12 @@ class ExpressionAtlasETL(ETL):
 
     get_mod_gene_symbol_to_primary_ids_query = """
         MATCH (g:Gene)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         RETURN g.primaryKey, g.symbol"""
 
     get_genes_with_expression_atlas_links_query = """
         MATCH (g:Gene)
-        WHERE LOWER(g.primaryKey) IN {parameter}
+        WHERE toLower(g.primaryKey) IN $parameter
         RETURN g.primaryKey, g.modLocalId"""
 
     # Query templates which take params and will be processed later
