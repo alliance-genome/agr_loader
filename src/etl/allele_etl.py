@@ -24,8 +24,9 @@ class AlleleETL(ETL):
                 MATCH (c:Construct {primaryKey: row.constructId})
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
-                MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+                MERGE (o:Allele {primaryKey:row.primaryId})
                     ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
                     o.taxonId = row.taxonId,
                     o.dateProduced = row.dateProduced,
                     o.release = row.release,
@@ -54,8 +55,9 @@ class AlleleETL(ETL):
                 MATCH (c:Construct {primaryKey: row.constructId})
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
-                MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+                MERGE (o:Allele {primaryKey:row.primaryId})
                     ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
                     o.taxonId = row.taxonId,
                     o.dateProduced = row.dateProduced,
                     o.release = row.release,
@@ -83,8 +85,9 @@ class AlleleETL(ETL):
                 MATCH (g:Gene {primaryKey: row.geneId})
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
-                MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+                MERGE (o:Allele {primaryKey:row.primaryId})
                     ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
                     o.taxonId = row.taxonId,
                     o.dateProduced = row.dateProduced,
                     o.release = row.release,
@@ -110,8 +113,9 @@ class AlleleETL(ETL):
 
                 MATCH (s:Species {primaryKey: row.taxonId})
                 //Create the Allele node and set properties. primaryKey is required.
-                MERGE (o:Allele:Feature {primaryKey:row.primaryId})
+                MERGE (o:Allele {primaryKey:row.primaryId})
                     ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
                     o.taxonId = row.taxonId,
                     o.dateProduced = row.dateProduced,
                     o.release = row.release,
