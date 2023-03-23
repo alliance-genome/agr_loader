@@ -134,7 +134,7 @@ class AlleleETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (f:Allele:Feature {primaryKey:row.data_id})
+                MATCH (f:Allele {primaryKey:row.data_id})
                 MERGE (second:SecondaryId {primaryKey:row.secondary_id})
                     SET second.name = row.secondary_id
                 MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
@@ -146,7 +146,7 @@ class AlleleETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (a:Allele:Feature {primaryKey:row.data_id})
+                MATCH (a:Allele {primaryKey:row.data_id})
                 MERGE(syn:Synonym {primaryKey:row.synonym})
                     SET syn.name = row.synonym
                 MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
@@ -193,7 +193,8 @@ class AlleleETL(ETL):
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
-        commit_size = self.data_type_config.get_neo4j_commit_size()
+        # commit_size = self.data_type_config.get_neo4j_commit_size()
+        commit_size = 100000000
         batch_size = self.data_type_config.get_generator_batch_size()
 
         query_list = [
