@@ -6,11 +6,9 @@ from contextlib import contextmanager
 from neo4j import GraphDatabase
 from loader_common import ContextInfo
 
-
 logger = logging.getLogger(__name__)
 context_info = ContextInfo()
 uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
-
 
 class Neo4jHelper:
     """Neo4j Helper"""
@@ -19,37 +17,29 @@ class Neo4jHelper:
     @contextmanager
     def run_single_parameter_query(query, parameter):
         """Run single parameter query"""
-
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-                + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        graph = GraphDatabase.driver(uri,
-                                     auth=("neo4j", "neo4j"),
-                                     max_connection_pool_size=-1,
-                                     encrypted=False)
-        Neo4jHelper.logger.debug("Running run_single_parameter_query. Please wait...")
-        Neo4jHelper.logger.debug("Query: %s", query)
-        with graph.session() as session:
-            result = session.run(query, parameter=parameter)
-            data_to_return = result.data()
-            Neo4jHelper.logger.debug("Query returned %s results", data_to_return)
-        return data_to_return
+        try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
+            logger.debug("Running run_single_parameter_query. Please wait...")
+            logger.debug("Query: %s", query)
+            with graph.session() as session:
+                with session.begin_transaction() as transaction:
+                    yield transaction.run(query, parameter=parameter)
+        finally:
+            logger.debug("closing neo4j transaction and session")
+            graph.close()
 
     @staticmethod
+    @contextmanager
     def run_single_query(query):
         """Run Single Query"""
-
-        uri = "bolt://" + Neo4jHelper.context_info.env["NEO4J_HOST"] \
-              + ":" + str(Neo4jHelper.context_info.env["NEO4J_PORT"])
-        graph = GraphDatabase.driver(uri,
-                                     auth=("neo4j", "neo4j"),
-                                     max_connection_pool_size=-1,
-                                     encrypted=False)
-
-        with graph.session() as session:
-            result = session.run(query)
-            data_to_return = result.data()
-            Neo4jHelper.logger.debug("Query returned %s results", data_to_return)
-        return data_to_return
+        try:
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
+            with graph.session() as session:
+                with session.begin_transaction() as transaction:
+                    yield transaction.run(query)
+        finally:
+            logger.debug("closing neo4j transaction and session")
+            graph.close()
 
     @staticmethod
     def run_single_query_no_return(query):
