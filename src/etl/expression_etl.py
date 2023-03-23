@@ -23,7 +23,7 @@ class ExpressionETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MATCH (o:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
             """ + ETLHelper.get_cypher_xref_text() + """
             }
         IN TRANSACTIONS of %s ROWS"""
