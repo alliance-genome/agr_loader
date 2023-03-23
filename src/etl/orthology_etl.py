@@ -102,9 +102,8 @@ class OrthologyETL(ETL):
                             "OrthoInspector", 
                             "PANTHER", 
                             "PhylomeDB", 
-                            "Roundup", 
                             "SonicParanoid", 
-                            "TreeFam", 
+                            "Xenbase", 
                             "ZFIN"]
 
         for algorithm in list_of_algorithms:
