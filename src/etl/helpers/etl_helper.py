@@ -355,5 +355,5 @@ class ETLHelper():
         fields = []
         for k in metadata:
             fields.append(k + ": " + json.dumps(metadata[k]))
-        logger.warning(",".join(fields))
+        logger.info(",".join(fields))
         Neo4jHelper().run_single_query_no_return("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")
