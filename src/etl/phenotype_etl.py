@@ -42,8 +42,9 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                pubEJ::Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -76,8 +77,9 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                pubEJ::Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
@@ -110,8 +112,9 @@ class PhenoTypeETL(ETL):
                     pubf.pubModUrl = row.pubModUrl,
                     pubf.pubMedUrl = row.pubMedUrl
 
-                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join'
+                MERGE (pubEJ:PublicationJoin {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                pubEJ::Association
 
                 MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
 
