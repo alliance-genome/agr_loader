@@ -352,7 +352,7 @@ class TestClass():
     def test_prop_exist(node, prop):
         """Test Prop Exits"""
         query = """MATCH (n:%s)
-                   WHERE NOT EXISTS(n.%s)
+                   WHERE (n.%s) is NOT NULL
                    RETURN COUNT(n) AS count""" % (node, prop)
 
         with Neo4jHelper.run_single_query(query) as result:

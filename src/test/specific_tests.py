@@ -39,7 +39,7 @@ def test_currated_disease_associations_have_date_assigned():
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
-                     AND NOT EXISTS(p.dateAssigned)
+                     p.dateAssigned is NULL
                RETURN COUNT(n) AS count"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -772,7 +772,7 @@ def test_genome_start_is_long():
     """Test Genome Start is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
-               WHERE ch.start <> toInt(ch.start)
+               WHERE ch.start <> toInteger(ch.start)
                RETURN count(gf) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -783,7 +783,7 @@ def test_genome_end_is_long():
     """Test Genome End is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
-               WHERE ch.end <> toInt(ch.end)
+               WHERE ch.end <> toInteger(ch.end)
                RETURN count(gf) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -794,7 +794,7 @@ def test_phylogenetic_order_is_int():
     """Test PHlogenic Order is Int"""
 
     query = """MATCH (g:Species)
-               WHERE g.phylogeneticOrder <> toInt(g.phylogeneticOrder)
+               WHERE g.phylogeneticOrder <> toInteger(g.phylogeneticOrder)
                RETURN count(g) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1703,7 +1703,7 @@ def test_phenotype_entity_join_not_greater_than_two_associations():
 
     query = """
             MATCH (p:PhenotypeEntityJoin)
-            WHERE SIZE((p)-[:ASSOCIATION]-()) > 2
+            WHERE LENGTH((p)-[:ASSOCIATION]-()) > 2
             RETURN count(p) as counter """
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
