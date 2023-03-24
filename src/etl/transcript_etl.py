@@ -136,7 +136,9 @@ class TranscriptETL(ETL):
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
             CALL {
                 WITH row
-            MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber}) """
+            MERGE (chrm:Chromosome {primaryKey: row.chromosomeNumber})
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     genomic_locations_query_template = """
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
