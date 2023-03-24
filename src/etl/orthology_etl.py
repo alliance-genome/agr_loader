@@ -108,7 +108,9 @@ class OrthologyETL(ETL):
 
         for algorithm in list_of_algorithms:
             self.logger.info("Loading algorithm node: %s", algorithm)
-            Neo4jHelper.run_single_parameter_query(self.load_algorithm, algorithm)
+            with Neo4jHelper.run_single_parameter_query(self.load_algorithm, algorithm) as results:
+                for result in results:
+                    self.logger.debug(result)
 
         sub_types = []
 
