@@ -28,9 +28,10 @@ class PhenoTypeETL(ETL):
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    SET pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
+                MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET pa.joinType = 'phenotype',
+                    pa.dataProvider = row.dataProvider,
+                    pa :Association
 
                 CREATE (allele)-[fpaf:ASSOCIATION]->(pa)
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
@@ -63,9 +64,10 @@ class PhenoTypeETL(ETL):
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    SET pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
+                MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET pa.joinType = 'phenotype',
+                    pa.dataProvider = row.dataProvider,
+                    pa :Association
 
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
                 CREATE (g)-[gpa:ASSOCIATION]->(pa)
@@ -98,9 +100,10 @@ class PhenoTypeETL(ETL):
                 MERGE (p:Phenotype {primaryKey:row.phenotypeStatement})
                     ON CREATE SET p.phenotypeStatement = row.phenotypeStatement
 
-                CREATE (pa:PhenotypeEntityJoin:Association {primaryKey:row.phenotypeUniqueKey})
-                    SET pa.joinType = 'phenotype',
-                    pa.dataProvider = row.dataProvider
+                MERGE (pa:PhenotypeEntityJoin {primaryKey:row.phenotypeUniqueKey})
+                    ON CREATE SET pa.joinType = 'phenotype',
+                    pa.dataProvider = row.dataProvider,
+                    pa :Association
 
                 CREATE (pa)-[pad:ASSOCIATION]->(p)
                 CREATE (g)-[gpa:ASSOCIATION]->(pa)
