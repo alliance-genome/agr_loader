@@ -121,7 +121,6 @@ class ExpressionETL(ETL):
 
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                    ON CREATE SET gej :Association
 
                     MERGE (g)-[gex:EXPRESSED_IN]->(e)
                         ON CREATE SET gex.uuid = row.ei_uuid
@@ -296,7 +295,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                MATCH (u:Ontology:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -307,7 +306,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (u:Ontology:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
             }
@@ -402,11 +401,14 @@ class ExpressionETL(ETL):
 
         add_other_query = """
 
-            MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+            MERGE(other:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 ON CREATE SET other.name = 'other'
-            MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
-                ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
-            MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                ON CREATE SET other :Ontology
+            MERGE(otherstage:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                ON CREATE SET otherstage.name = 'post embryonic, pre-adult',
+                otherstage :Ontology
+            MERGE(othergo:GOTerm {primaryKey:'GO:otherLocations'})
+                ON CREATE SET othergo :Ontology
                 ON CREATE SET othergo.name = 'other locations'
                 ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
                 ON CREATE SET othergo.type = 'other'
