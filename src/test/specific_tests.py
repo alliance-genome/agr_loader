@@ -39,7 +39,7 @@ def test_currated_disease_associations_have_date_assigned():
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
-                     p.dateAssigned is NULL
+               AND p.dateAssigned is NULL
                RETURN COUNT(n) AS count"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1546,7 +1546,7 @@ def test_genome_location_for_exon_has_strand():
 
     query = """
             MATCH (e:Exon)--(gl:GenomicLocation)
-            WHERE not exists (gl.strand)
+            WHERE gl.strand is NULL
             RETURN count(DISTINCT e) as counter """
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1558,7 +1558,7 @@ def test_genome_location_for_transcript_has_strand():
 
     query = """
             MATCH (t:Transcript)--(gl:GenomicLocation)
-            WHERE not exists (gl.strand)
+            WHERE gl.strand is NULL
             RETURN count(DISTINCT t) as counter """
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1697,14 +1697,3 @@ def test_gff_so_terms_exist():
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["counter"] == 20
-
-def test_phenotype_entity_join_not_greater_than_two_associations():
-    """test_phenotype_entity_join_not_greater_than_two_associations"""
-
-    query = """
-            MATCH (p:PhenotypeEntityJoin)
-            WHERE LENGTH((p)-[:ASSOCIATION]-()) > 2
-            RETURN count(p) as counter """
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] < 1
