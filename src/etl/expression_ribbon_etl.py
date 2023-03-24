@@ -48,7 +48,7 @@ class ExpressionRibbonETL(ETL):
     gocc_self_ribbon_ebes_query = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
         WHERE got.subset =~ '.*goslim_agr.*'
-        RETURN ebe.primaryKey, got.primaryKey; """
+        RETURN ebe.primaryKey, got.primaryKey """
 
     def __init__(self, config):
         """Initialise object."""

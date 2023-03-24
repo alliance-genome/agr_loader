@@ -1678,7 +1678,7 @@ def test_correct_model_experimental_condition_parsing():
             MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842high cholesterolZECO:0000112ZECO:0000119high fatZECO:0000112ZECO:0000122IS_MODEL_OFDOID:9452"}),
                   (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
                   (dfa)--(ec:ExperimentalCondition),
-                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
+                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["ec_count"] == 2

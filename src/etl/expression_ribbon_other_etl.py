@@ -16,7 +16,7 @@ class ExpressionRibbonOtherETL(ETL):
 
     ribbonless_ebes_query = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
-        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;
+        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey
     """
 
     # Query templates which take params and will be processed later

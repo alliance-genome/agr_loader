@@ -127,7 +127,7 @@ class GeneticInteractionETL(ETL):
                 MERGE (pn:Phenotype {primaryKey:row.phenotype_statement})
                     ON CREATE SET pn.phenotypeStatement = row.phenotype_statement,
                     pn.primaryKey = row.phenotype_statement
-                CREATE (oa)-[p:PHENOTYPE_TRAIT]->(pn);
+                CREATE (oa)-[p:PHENOTYPE_TRAIT]->(pn)
             }
         IN TRANSACTIONS of %s ROWS"""
 
