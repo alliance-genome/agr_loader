@@ -52,7 +52,7 @@ class HTPMetaDatasetETL(ETL):
                 WITH row
 
                 MATCH (ds:HTPDataset {primaryKey: row.datasetId})
-                MERGE (p:Publication {primaryKey: row.pubPrimaryKey})
+                MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
 
                 MERGE (p)-[:ASSOCIATION]-(ds)
             }
