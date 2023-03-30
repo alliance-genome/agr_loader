@@ -55,6 +55,76 @@ class Neo4jHelper:
         """Create Indicies"""
         graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, max_connection_lifetime=3600)
         with graph.session() as session:
+
+            constraints =  [['n:Publication', 'n.primaryKey'],
+                    ['n:Association', 'n.primaryKey'],
+                    ['n:Variant', 'n.primaryKey'],
+                    ['n:DiseaseEntityJoin', 'n.primaryKey'],
+                    ['n:ExperimentalCondition', 'n.primaryKey'],
+                    # ['n:PhenotypeEntityJoin', 'n.primaryKey'], # Breaks MERGE in Phenotype ETL
+                    # ['n:Entity', 'n.primaryKey'], # Breaks MERGE in BGI ETL
+                    ['n:Species', 'n.primaryKey'],
+                    ['n:CrossReference', 'n.primaryKey'],
+                    ['n:CrossReference', 'n.uuid'],
+                    ['n:Gene', 'n.primaryKey'],
+                    ['n:Gene', 'n.uuid'],
+                    ['n:Allele', 'n.primaryKey'],
+                    ['n:Allele', 'n.uuid'],
+                    ['n:Stage', 'n.primaryKey'],
+                    ['n:SequenceTargetingReagent', 'n.primaryKey'],
+                    ['n:AffectedGenomicModel', 'n.primaryKey'],
+                    ['n:Variant', 'n.hgvsNomenclature'],
+                    # ['n:BioEntityGeneExpressionJoin', 'n.primaryKey'], # Breaks MERGE in Expression ETL
+                    # ['n:ExpressionBioEntity', 'n.primaryKey'], # Breaks MERGE in Expression ETL
+                    ['n:HTPDataset', 'n.primaryKey'],
+                    ['n:HTPDatasetSample', 'n.primaryKey'],
+                    ['n:CategoryTag', 'n.primaryKey'],
+                    ['n:CHEBITerm', 'n.primaryKey'],
+                    ['n:ZECOTerm', 'n.primaryKey'],
+                    ['n:DOTerm', 'n.primaryKey'],
+                    ['n:SOTerm', 'n.primaryKey'],
+                    ['n:GOTerm', 'n.primaryKey'],
+                    ['n:MITerm', 'n.primaryKey'],
+                    ["n:ECOTerm", "n.primaryKey"],
+                    ["n:ZFATerm", "n.primaryKey"],
+                    ["n:ZFSTerm", "n.primaryKey"],
+                    ["n:CLTerm", "n.primaryKey"],
+                    ["n:WBBTTerm", "n.primaryKey"],
+                    ["n:FBCVTerm", "n.primaryKey"],
+                    ["n:FBBTTerm", "n.primaryKey"],
+                    ["n:MATerm", "n.primaryKey"],
+                    ["n:EMAPATerm", "n.primaryKey"],
+                    ["n:UBERONTerm", "n.primaryKey"],
+                    ["n:PATOTerm", "n.primaryKey"],
+                    ["n:APOTerm", "n.primaryKey"],
+                    ["n:DPOTerm", "n.primaryKey"],
+                    ["n:FYPOTerm", "n.primaryKey"],
+                    ["n:WBPhenotypeTerm", "n.primaryKey"],
+                    ["n:MPTerm", "n.primaryKey"],
+                    ["n:HPTerm", "n.primaryKey"],
+                    ["n:OBITerm", "n.primaryKey"],
+                    ["n:BTOTerm", "n.primaryKey"],
+                    ["n:MMUSDVTerm", "n.primaryKey"],
+                    ["n:BSPOTerm", "n.primaryKey"],
+                    ["n:MMOTerm", "n.primaryKey"],
+                    ["n:WBLSTerm", "n.primaryKey"],
+                    ["n:XPOTerm", "n.primaryKey"],
+                    ["n:XSMOTerm", "n.primaryKey"],
+                    ["n:XAOTerm", "n.primaryKey"],
+                    ["n:XBEDTerm", "n.primaryKey"],
+                    ["n:NonBGIConstructComponent", "n.primaryKey"],
+                    ['n:Exon', 'n.primaryKey'], 
+                    ['n:Transcript', 'n.primaryKey'],
+                    ['n:CDS', 'n.primaryKey'], 
+                    ['n:GenomicLocation', 'n.primaryKey'],
+                    ['n:OrthoAlgorithm', 'n.name']
+                    ]
+
+            # Constraints must be run before indices.
+            for constraint in constraints:
+                session.run("CREATE CONSTRAINT FOR ({}) REQUIRE {} IS UNIQUE".format(constraint[0], constraint[1]))
+
+
             indicies = ["(n:CDS) on (n.primaryKey)",
                         "(n:Gene) on (n.primaryKey)",
                         "(n:Gene) on (n.modLocalId)",
