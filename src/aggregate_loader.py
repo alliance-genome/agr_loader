@@ -229,7 +229,7 @@ class AggregateLoader():
         for k in metadata:
             fields.append(k + ": " + json.dumps(metadata[k]))
         load_rel = "CREATE (o:AllianceReleaseInfo {" + ",".join(fields) + "})"
-        Neo4jHelper().run_single_query(load_rel)
+        Neo4jHelper().run_single_query_no_return(load_rel)
 
         file_transactor = FileTransactor()
         file_transactor.start_threads(data_manager.get_file_transactor_thread_settings())

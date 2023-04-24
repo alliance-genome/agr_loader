@@ -140,34 +140,33 @@ class ProteinSequenceETL(ETL):
                    order by transcriptPrimaryKey, CDSStartPosition 
         """
 
-        # get all transcripts to iterate through.
-        return_set_t = Neo4jHelper().run_single_query(fetch_transcript_query)
-        # get all CDS coordinates for all transcripts.
-        return_set_cds = Neo4jHelper().run_single_query(fetch_cds_transcript_query)
         returned_cds = []
+        with Neo4jHelper.run_single_query(fetch_cds_transcript_query) as return_set_cds:
+            for setcds in return_set_cds:
+                cds = {
+                    "CDSChromosome": setcds["CDSChromosome"],
+                    "CDSStartPosition": setcds["CDSStartPosition"],
+                    "CDSEndPosition": setcds["CDSEndPosition"],
+                    "CDSAssembly": setcds["CDSAssembly"],
+                    "transcriptPrimaryKey": setcds["transcriptPrimaryKey"]
+                }
+                returned_cds.append(cds)
+
+        # get all transcripts to iterate through.
         returned_ts = []
+        with Neo4jHelper.run_single_query(fetch_transcript_query) as return_set_t:
+            # get all CDS coordinates for all transcripts.
+            # Process the query results into a list that can be cycled through many times to pull
+            # CDS group for each transcript.
 
-        # Process the query results into a list that can be cycled through many times to pull
-        # CDS group for each transcript.
+            for tid in return_set_t:
+                ts = {
+                    "transcriptPrimaryKey": tid['transcriptPrimaryKey'],
+                    "transcriptAssembly": tid['transcriptAssembly'],
+                    "transcriptStrand": tid['transcriptStrand']
 
-        for setcds in return_set_cds:
-            cds = {
-                "CDSChromosome": setcds["CDSChromosome"],
-                "CDSStartPosition": setcds["CDSStartPosition"],
-                "CDSEndPosition": setcds["CDSEndPosition"],
-                "CDSAssembly": setcds["CDSAssembly"],
-                "transcriptPrimaryKey": setcds["transcriptPrimaryKey"]
-            }
-            returned_cds.append(cds)
-
-        for tid in return_set_t:
-            ts = {
-                "transcriptPrimaryKey": tid['transcriptPrimaryKey'],
-                "transcriptAssembly": tid['transcriptAssembly'],
-                "transcriptStrand": tid['transcriptStrand']
-
-            }
-            returned_ts.append(ts)
+                }
+                returned_ts.append(ts)
 
         counter = 0
 

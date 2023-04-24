@@ -214,7 +214,7 @@ class DiseaseETL(ETL):
                       AND size(keys(dd)) = 1
                 DETACH DELETE (dd)"""
 
-        Neo4jHelper.run_single_query(delete_empty_do_nodes_query)
+        Neo4jHelper.run_single_query_no_return(delete_empty_do_nodes_query)
 
     def _process_sub_type(self, sub_type):
 

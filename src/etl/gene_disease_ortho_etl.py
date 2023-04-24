@@ -108,7 +108,7 @@ class GeneDiseaseOrthoETL(ETL):
                     """
 
         self.logger.info("pub creation started")
-        Neo4jHelper().run_single_query(add_pub_query)
+        Neo4jHelper().run_single_query_no_return(add_pub_query)
 
         self.logger.info("pub creation finished")
 
@@ -131,25 +131,24 @@ class GeneDiseaseOrthoETL(ETL):
                     ec.primaryKey as ec
         """
 
-        return_set = Neo4jHelper().run_single_query(retrieve_gene_disease_ortho_query)
-
         gene_disease_ortho_data = []
-        relation_type = ""
-        date = datetime.now()
-        for record in return_set:
-            if record['relationType'] == 'IS_IMPLICATED_IN':
-                relation_type = 'IMPLICATED_VIA_ORTHOLOGY'
-            elif record['relationType'] == 'IS_MARKER_FOR':
-                relation_type = 'BIOMARKER_VIA_ORTHOLOGY'
-            row = {"primaryId": record["geneID"],
-                   "fromGeneId": record["fromGeneID"],
-                   "relationshipType": relation_type,
-                   "relationTypeLower": relation_type.lower(),
-                   "doId": record["doId"],
-                   "dateProduced": date,
-                   "dateAssigned": date,
-                   "uuid": record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
-                   "pubEvidenceUuid": str(uuid.uuid4())}
-            gene_disease_ortho_data.append(row)
+        with Neo4jHelper.run_single_query(retrieve_gene_disease_ortho_query) as return_set:
+            relation_type = ""
+            date = datetime.now()
+            for record in return_set:
+                if record['relationType'] == 'IS_IMPLICATED_IN':
+                    relation_type = 'IMPLICATED_VIA_ORTHOLOGY'
+                elif record['relationType'] == 'IS_MARKER_FOR':
+                    relation_type = 'BIOMARKER_VIA_ORTHOLOGY'
+                row = {"primaryId": record["geneID"],
+                       "fromGeneId": record["fromGeneID"],
+                       "relationshipType": relation_type,
+                       "relationTypeLower": relation_type.lower(),
+                       "doId": record["doId"],
+                       "dateProduced": date,
+                       "dateAssigned": date,
+                       "uuid": record["geneID"] + record["fromGeneID"] + relation_type + record["doId"],
+                       "pubEvidenceUuid": str(uuid.uuid4())}
+                gene_disease_ortho_data.append(row)
 
         yield [gene_disease_ortho_data]

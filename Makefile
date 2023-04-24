@@ -1,6 +1,6 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
 ALLIANCE_RELEASE=0.0.0
-DOCKER_PULL_TAG=build
+DOCKER_PULL_TAG=stage
 DOCKER_BUILD_TAG=latest
 
 registry-docker-login:

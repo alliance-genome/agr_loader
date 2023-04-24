@@ -3,12 +3,6 @@
 from etl import Neo4jHelper
 
 
-def execute_transaction(query):
-    """Execute Transaction"""
-
-    return Neo4jHelper.run_single_query(query)
-
-
 def pytest_generate_tests(metafunc):
     """PyTest Generate Tests"""
 
@@ -339,9 +333,9 @@ class TestClass():
 
         query = """MATCH (n:%s)
                    RETURN DISTINCT COUNT(n) AS count""" % node
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] > 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] > 0
 
     @staticmethod
     def test_relationship_exists(relationship):
@@ -350,9 +344,9 @@ class TestClass():
         query = """MATCH ()-[r:%s]-()
                    RETURN count(r) AS count""" % relationship
 
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] > 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] > 0
 
     @staticmethod
     def test_prop_exist(node, prop):
@@ -361,9 +355,9 @@ class TestClass():
                    WHERE NOT EXISTS(n.%s)
                    RETURN COUNT(n) AS count""" % (node, prop)
 
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] == 0
 
     @staticmethod
     def test_prop_not_null(node, prop):
@@ -373,9 +367,9 @@ class TestClass():
                    WHERE n.%s is NULL
                    RETURN COUNT(n) AS count""" % (node, prop)
 
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 0
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] == 0
 
     @staticmethod
     def test_prop_unique(node, prop):
@@ -385,6 +379,6 @@ class TestClass():
                    WITH n.%s AS value, COLLECT(n) AS nodelist, COUNT(*) AS count
                    RETURN count""" % (node, prop)
 
-        result = execute_transaction(query)
-        for record in result:
-            assert record["count"] == 1
+        with Neo4jHelper.run_single_query(query) as result:
+            for record in result:
+                assert record["count"] == 1

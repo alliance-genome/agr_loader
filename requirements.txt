@@ -1,15 +1,15 @@
-neotime==1.7.2
+neotime==1.7.4
 py2neo
 cryptography==3.3.1 #cryptography required for py2neo, but current version (3.4.4 at 2021/02/11) causes conflicts with pip version
-neo4j-driver
+neo4j
 ijson==2.4
 pytest
 jsonschema
 PyYAML>=5.1
-urllib3==1.26.5
+urllib3==1.26.13
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.2.5#egg=genedescriptions
-git+https://github.com/alliance-genome/agr_file_generator.git@8b47011a14d9e79d13cf9239fe0cf63c54bc9b87
+git+https://github.com/prefixcommons/prefixcommons-py.git@v0.1.11-a
 ontobio==1.20.0
 boto3
 coloredlogs
@@ -22,8 +22,10 @@ requests
 xmltodict
 biopython
 pyfaidx
+py
 pytest-parallel
 pylint_venv==2.0.0
 pylint==2.4.4
 pytest-xdist
 pysam==0.16.0.1
+numpy==1.21.2

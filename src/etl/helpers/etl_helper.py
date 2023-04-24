@@ -296,7 +296,8 @@ class ETLHelper():
         fields = []
         for k in metadata:
             fields.append(k + ": " + json.dumps(metadata[k]))
-        Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")
+        with Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})"):
+            pass
 
     @staticmethod
     def check_date_format(dateString, logger=None):
@@ -355,4 +356,4 @@ class ETLHelper():
         for k in metadata:
             fields.append(k + ": " + json.dumps(metadata[k]))
         logger.warning(",".join(fields))
-        Neo4jHelper().run_single_query("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")
+        Neo4jHelper().run_single_query_no_return("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")

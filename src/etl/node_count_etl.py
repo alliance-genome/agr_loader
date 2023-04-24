@@ -70,11 +70,9 @@ class NodeCountETL(ETL):
                 RETURN label AS label, value.count AS node_count
                 ORDER BY label"""
 
-        return_set = Neo4jHelper().run_single_query(retrieve_node_count)
-
         current_node_count = {}
-
-        for record in return_set:
-            current_node_count[record['label']] = record['node_count']
+        with Neo4jHelper().run_single_query(retrieve_node_count) as return_set:
+            for record in return_set:
+                current_node_count[record['label']] = record['node_count']
 
         return current_node_count
