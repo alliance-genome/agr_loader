@@ -131,19 +131,12 @@ class HTPMetaDatasetETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [HTPMetaDatasetETL.htp_dataset_query_template,
-             "htp_metadataset_" + sub_type.get_data_provider() + ".csv", commit_size],
-            [HTPMetaDatasetETL.htp_category_tags_relations_query_template,
-             "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
-            [HTPMetaDatasetETL.htp_dataset_pub_query_template,
-             "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv", commit_size],
-            [HTPMetaDatasetETL.htp_pub_relation_template,
-             "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
-            [HTPMetaDatasetETL.htpdataset_xrefs_template,
-             "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
-            [HTPMetaDatasetETL.htp_secondaryIds_query_template,
-             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv", commit_size],
-
+            [HTPMetaDatasetETL.htp_dataset_query_template, "htp_metadataset_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_category_tags_relations_query_template, "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_dataset_pub_query_template, "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_pub_relation_template, "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htpdataset_xrefs_template, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_secondaryIds_query_template, "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         # Obtain the generator
