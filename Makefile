@@ -1,5 +1,5 @@
 REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
-ALLIANCE_RELEASE=5.4.0
+ALLIANCE_RELEASE=0.0.0
 DOCKER_PULL_TAG=stage
 DOCKER_BUILD_TAG=latest
 
@@ -19,13 +19,13 @@ build: pull
 buildenv: build
 
 startdb:
-	REG=${REG} DOCKER_PULL_TAG=5.5.0-enterprise docker-compose up -d neo4j
+	REG=${REG} DOCKER_PULL_TAG=${DOCKER_PULL_TAG} docker-compose up -d neo4j
 
 stopdb:
 	docker-compose stop neo4j
 
 pull: registry-docker-login
-	docker pull ${REG}/agr_neo4j_env:5.5.0-enterprise
+	docker pull ${REG}/agr_neo4j_env:${DOCKER_PULL_TAG}
 	docker pull ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 removedb:
