@@ -180,9 +180,9 @@ class AffectedGenomicModelETL(ETL):
         # some pages collection have 0 elements
         if pages is not None and len(pages) > 0:
             for page in pages:
-                if page.lower() in ['fish', 'genotype', 'strain']:
-                    cross_ref = self.etlh.rdh2.return_url_from_key_value(
-                        prefix, local_crossref_id, alt_page=page)
+                page = page.lower()
+                if page in ['fish', 'genotype', 'strain']:
+                    cross_ref = self.etlh.rdh2.return_url_from_key_value(prefix, local_crossref_id, alt_page=page)
         return cross_ref
 
     def agm_process(self, agms, agm_record, date_produced):
