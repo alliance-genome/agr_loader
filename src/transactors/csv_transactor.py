@@ -30,9 +30,7 @@ class CSVTransactor():
                     individual_list = [x for x in individual_list if x is not None]
 
                     if len(individual_list) == 0:
-                        CSVTransactor.logger.debug("No data found when writing to csv! %s: %s",
-                                                   'Skipping output file',
-                                                   current_filename)
+                        CSVTransactor.logger.info("No data found when writing to %s. Skipping file.", current_filename)
                         continue
 
                     if csv_file_writer[index] is None:  # If we haven't yet created a DictWriter
