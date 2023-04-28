@@ -117,8 +117,7 @@ class Neo4jHelper:
                     ['n:Transcript', 'n.primaryKey'],
                     ['n:CDS', 'n.primaryKey'], 
                     ['n:GenomicLocation', 'n.primaryKey'],
-                    ['n:OrthoAlgorithm', 'n.name'],
-                    ['n:Synonym', 'n.primaryKey'],
+                    ['n:OrthoAlgorithm', 'n.name']
                     ]
 
             # Constraints must be run before indices.
@@ -138,7 +137,8 @@ class Neo4jHelper:
                         "(n:Gene) on (n.modGlobalId)",    
                         "(n:Gene) on (n.localId)",    
                         "(n:VariantProteinSequence) on (n.transcriptId)",    
-                        "(n:VariantProteinSequence) on (n.variantId)"]
+                        "(n:VariantProteinSequence) on (n.variantId)",
+                        "(n:Synonym) on (n.primaryKey)"]
 
             for index in indicies:
                 session.run("CREATE INDEX FOR " + index)
