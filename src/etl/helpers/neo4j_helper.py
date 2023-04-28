@@ -126,15 +126,13 @@ class Neo4jHelper:
 
             # A list of indices to create. 
             # IMPORTANT: If an entry already exists in the constraint list, it also receives an index and does not need to be added here.
-            indicies = ["(n:BioEntityGeneExpressionJoin) on (n.primaryKey)",
-                        "(n:CDS) on (n.gff3ID)",
+            indicies = ["(n:CDS) on (n.gff3ID)",
                         "(n:CDSSequence) on (n.primaryKey)",
                         "(n:CrossReference) on (n.crossRefType)",
                         "(n:CrossReference) on (n.globalCrossRefId)",
                         "(n:CrossReference) on (n.localId)",
                         "(n:DOTerm) on (n.isObsolete)",
                         "(n:DOTerm) on (n.oid)",
-                        "(n:ExpressionBioEntity) on (n.primaryKey)",
                         "(n:Feature) on (n.primaryKey)",
                         "(n:Gene) on (n.localId)",
                         "(n:Gene) on (n.modGlobalId)",
@@ -153,7 +151,6 @@ class Neo4jHelper:
                         "(n:ProteinSequence) on (n.primaryKey)",
                         "(n:PublicationJoin) on (n.primaryKey)",
                         "(n:SOTerm) on (n.name)",
-                        "(n:Stage) on (n.primaryKey)",
                         "(n:Synonym) on (n.primaryKey)",
                         "(n:Transcript) on (n.dataProvider)",
                         "(n:Transcript) on (n.gff3ID)",
