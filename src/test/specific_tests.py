@@ -251,9 +251,7 @@ def test_phenotype_for_all_species_exists():
     Not used for SARS-CoV-2.
     """
 
-    query = """MATCH (s:Species)--(r)--(p:Phenotype)
-               WHERE labels(r) = ['Gene']
-                     OR labels(r) = ['Feature', 'Allele']
+    query = """MATCH (s:Species)--(r:Gene|Feature|Allele)--(p:Phenotype)
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -263,9 +261,8 @@ def test_phenotype_for_all_species_exists():
 def test_variant_for_expected_species_exists():
     """Test Variant for Expected Species Exists"""
 
-    query = """MATCH (s:Species)--(r)--(p:Variant)
-               WHERE labels(r) = ['Feature', 'Allele']
-               RETURN count(distinct s) AS counter"""
+    query = """MATCH (s:Species)--(r:Feature|Allele)--(p:Variant)
+            RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["counter"] == 5
@@ -277,9 +274,7 @@ def test_disease_for_all_species_exists():
     Not used for SARS-CoV-2.
     """
 
-    query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
-               WHERE labels(r) = ['Gene']
-                     OR labels(r) = ['Feature', 'Allele']
+    query = """MATCH (s:Species)--(r:Gene|Feature|Allele)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
