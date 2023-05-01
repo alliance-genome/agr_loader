@@ -19,11 +19,14 @@ class ECOMAPETL(ETL):
 
     eco_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
-            SET e.displaySynonym = row.threeLetterCode"""
+                MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
+                    SET e.displaySynonym = row.threeLetterCode
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialize object."""
@@ -50,8 +53,8 @@ class ECOMAPETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.eco_query_template, commit_size,
-             "ecomap_data_" + sub_type.get_data_provider() + ".csv"],
+            [self.eco_query_template, 
+             "ecomap_data_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         # Obtain the generator

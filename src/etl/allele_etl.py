@@ -17,122 +17,155 @@ class AlleleETL(ETL):
     """Call AlleleETL."""
 
     allele_construct_no_gene_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (c:Construct {primaryKey: row.constructId})
-            MATCH (s:Species {primaryKey: row.taxonId})
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
-                ON CREATE SET o.symbol = row.symbol,
-                 o.taxonId = row.taxonId,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.symbolText = row.symbolText,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider,
-                 o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
-                 o.description = row.alleleDescription
-            MERGE (o)-[:FROM_SPECIES]-(s)
-            MERGE (o)-[:CONTAINS]-(c) """
+            CALL {
+                WITH row
+
+                MATCH (c:Construct {primaryKey: row.constructId})
+                MATCH (s:Species {primaryKey: row.taxonId})
+                //Create the Allele node and set properties. primaryKey is required.
+                MERGE (o:Allele {primaryKey:row.primaryId})
+                    ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
+                    o.taxonId = row.taxonId,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.symbolText = row.symbolText,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.symbolWithSpecies = row.symbolWithSpecies,
+                    o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                    o.description = row.alleleDescription
+                MERGE (o)-[:FROM_SPECIES]-(s)
+                MERGE (o)-[:CONTAINS]-(c) 
+            }
+        IN TRANSACTIONS of %s ROWS"""
+
 
     allele_construct_gene_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (g:Gene {primaryKey: row.geneId})
-            MATCH (c:Construct {primaryKey: row.constructId})
-            MATCH (s:Species {primaryKey: row.taxonId})
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
-                ON CREATE SET o.symbol = row.symbol,
-                 o.taxonId = row.taxonId,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.symbolText = row.symbolText,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider,
-                 o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
-                 o.description = row.alleleDescription
-            MERGE (o)-[:FROM_SPECIES]-(s)
-            MERGE (o)-[:IS_ALLELE_OF]-(g)
-            MERGE (o)-[:CONTAINS]-(c) """
+            CALL {
+                WITH row
 
+                MATCH (g:Gene {primaryKey: row.geneId})
+                MATCH (c:Construct {primaryKey: row.constructId})
+                MATCH (s:Species {primaryKey: row.taxonId})
+                //Create the Allele node and set properties. primaryKey is required.
+                MERGE (o:Allele {primaryKey:row.primaryId})
+                    ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
+                    o.taxonId = row.taxonId,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.symbolText = row.symbolText,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.symbolWithSpecies = row.symbolWithSpecies,
+                    o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                    o.description = row.alleleDescription
+                MERGE (o)-[:FROM_SPECIES]-(s)
+                MERGE (o)-[:IS_ALLELE_OF]-(g)
+                MERGE (o)-[:CONTAINS]-(c)            
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     allele_gene_no_construct_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (g:Gene {primaryKey: row.geneId})
-            MATCH (s:Species {primaryKey: row.taxonId})
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
-                ON CREATE SET o.symbol = row.symbol,
-                 o.taxonId = row.taxonId,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.symbolText = row.symbolText,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider,
-                 o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
-                 o.description = row.alleleDescription
-            MERGE (o)-[:FROM_SPECIES]-(s)
-            MERGE (o)-[:IS_ALLELE_OF]->(g) """
+            CALL {
+                WITH row
+
+                MATCH (g:Gene {primaryKey: row.geneId})
+                MATCH (s:Species {primaryKey: row.taxonId})
+                //Create the Allele node and set properties. primaryKey is required.
+                MERGE (o:Allele {primaryKey:row.primaryId})
+                    ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
+                    o.taxonId = row.taxonId,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.symbolText = row.symbolText,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.symbolWithSpecies = row.symbolWithSpecies,
+                    o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                    o.description = row.alleleDescription
+                MERGE (o)-[:FROM_SPECIES]-(s)
+                MERGE (o)-[:IS_ALLELE_OF]->(g)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     allele_no_gene_no_construct_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (s:Species {primaryKey: row.taxonId})
-            //Create the Allele node and set properties. primaryKey is required.
-            MERGE (o:Allele:Feature {primaryKey:row.primaryId})
-                ON CREATE SET o.symbol = row.symbol,
-                 o.taxonId = row.taxonId,
-                 o.dateProduced = row.dateProduced,
-                 o.release = row.release,
-                 o.localId = row.localId,
-                 o.globalId = row.globalId,
-                 o.uuid = row.uuid,
-                 o.symbolText = row.symbolText,
-                 o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
-                 o.dataProviders = row.dataProviders,
-                 o.dataProvider = row.dataProvider,
-                 o.symbolWithSpecies = row.symbolWithSpecies,
-                 o.symbolTextWithSpecies = row.symbolTextWithSpecies,
-                 o.description = row.alleleDescription
-            MERGE (o)-[:FROM_SPECIES]-(s)
-    """
+            CALL {
+                WITH row
+
+                MATCH (s:Species {primaryKey: row.taxonId})
+                //Create the Allele node and set properties. primaryKey is required.
+                MERGE (o:Allele {primaryKey:row.primaryId})
+                    ON CREATE SET o.symbol = row.symbol,
+                    o:Feature,
+                    o.taxonId = row.taxonId,
+                    o.dateProduced = row.dateProduced,
+                    o.release = row.release,
+                    o.localId = row.localId,
+                    o.globalId = row.globalId,
+                    o.uuid = row.uuid,
+                    o.symbolText = row.symbolText,
+                    o.modCrossRefCompleteUrl = row.modGlobalCrossRefId,
+                    o.dataProviders = row.dataProviders,
+                    o.dataProvider = row.dataProvider,
+                    o.symbolWithSpecies = row.symbolWithSpecies,
+                    o.symbolTextWithSpecies = row.symbolTextWithSpecies,
+                    o.description = row.alleleDescription
+                MERGE (o)-[:FROM_SPECIES]-(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     allele_secondaryids_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (f:Allele:Feature {primaryKey:row.data_id})
-            MERGE (second:SecondaryId {primaryKey:row.secondary_id})
-                SET second.name = row.secondary_id
-            MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second) """
+            CALL {
+                WITH row
 
+                MATCH (f:Allele {primaryKey:row.data_id})
+                MERGE (second:SecondaryId {primaryKey:row.secondary_id})
+                    SET second.name = row.secondary_id
+                MERGE (f)-[aka1:ALSO_KNOWN_AS]->(second)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     allele_synonyms_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (a:Allele:Feature {primaryKey:row.data_id})
-            MERGE(syn:Synonym {primaryKey:row.synonym})
-                SET syn.name = row.synonym
-            MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn) """
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+
+                MATCH (a:Allele {primaryKey:row.data_id})
+                MERGE(syn:Synonym {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     allele_xrefs_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Allele {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+
+                MATCH (o:Allele {primaryKey:row.dataId})
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise Object."""
@@ -164,24 +197,18 @@ class AlleleETL(ETL):
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
-        commit_size = self.data_type_config.get_neo4j_commit_size()
+        # commit_size = self.data_type_config.get_neo4j_commit_size()
+        commit_size = 100000000
         batch_size = self.data_type_config.get_generator_batch_size()
 
-        # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [AlleleETL.allele_gene_no_construct_query_template, commit_size,
-             "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_gene_query_template, commit_size,
-             "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_construct_no_gene_query_template, commit_size,
-             "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_no_gene_no_construct_query_template, commit_size,
-             "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_secondaryids_template, commit_size,
-             "allele_secondaryids_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_synonyms_template, commit_size,
-             "allele_synonyms_" + sub_type.get_data_provider() + ".csv"],
-            [AlleleETL.allele_xrefs_template, commit_size, "allele_xrefs_" + sub_type.get_data_provider() + ".csv"],
+            [AlleleETL.allele_gene_no_construct_query_template, "allele_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_construct_gene_query_template, "allele_construct_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_construct_no_gene_query_template, "allele_construct_no_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_no_gene_no_construct_query_template, "allele_no_gene_no_construct_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_secondaryids_template, "allele_secondaryids_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_synonyms_template, "allele_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [AlleleETL.allele_xrefs_template, "allele_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         # Obtain the generator

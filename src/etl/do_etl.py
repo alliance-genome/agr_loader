@@ -19,65 +19,79 @@ class DOETL(ETL):
     # Query templates which take params and will be processed later
 
     do_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        //Create the DOTerm node and set properties. primaryKey is required.
-        MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
-            SET doterm.name = row.name,
-             doterm.nameKey = row.name_key,
-             doterm.definition = row.definition,
-             doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
-             doterm.isObsolete = row.is_obsolete,
-             doterm.subset = row.subset,
-             doterm.doDisplayId = row.oid,
-             doterm.doUrl = row.oUrl,
-             doterm.doPrefix = "DOID",
-             doterm.doId = row.oid,
-             doterm.rgdLink = row.rgd_link,
-             doterm.ratOnlyRgdLink = row.rat_only_rgd_link,
-             doterm.humanOnlyRgdLink = row.human_only_rgd_link,
-             doterm.mgiLink = row.mgi_link,
-             doterm.zfinLink = row.zfin_link,
-             doterm.flybaseLink = row.flybase_link,
-             doterm.wormbaseLink = row.wormbase_link,
-             doterm.sgdLink = row.sgd_link
+                //Create the DOTerm node and set properties. primaryKey is required.
+                MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
+                    SET doterm.name = row.name,
+                    doterm.nameKey = row.name_key,
+                    doterm.definition = row.definition,
+                    doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
+                    doterm.isObsolete = row.is_obsolete,
+                    doterm.subset = row.subset,
+                    doterm.doDisplayId = row.oid,
+                    doterm.doUrl = row.oUrl,
+                    doterm.doPrefix = "DOID",
+                    doterm.doId = row.oid,
+                    doterm.rgdLink = row.rgd_link,
+                    doterm.ratOnlyRgdLink = row.rat_only_rgd_link,
+                    doterm.humanOnlyRgdLink = row.human_only_rgd_link,
+                    doterm.mgiLink = row.mgi_link,
+                    doterm.zfinLink = row.zfin_link,
+                    doterm.flybaseLink = row.flybase_link,
+                    doterm.wormbaseLink = row.wormbase_link,
+                    doterm.sgdLink = row.sgd_link
 
-            MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)"""
+                    MERGE (doterm)-[ggcg:IS_A_PART_OF_CLOSURE]->(doterm)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     doterm_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (d:DOTerm {primaryKey:row.primary_id})
+                MATCH (d:DOTerm {primaryKey:row.primary_id})
 
-            MERGE (syn:Synonym:Identifier {primaryKey:row.synonym})
-                SET syn.name = row.synonym
-            MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn) """
+                MERGE (syn:Synonym:Identifier {primaryKey:row.synonym})
+                    SET syn.name = row.synonym
+                MERGE (d)-[aka2:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     doterm_isas_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (d1:DOTerm:Ontology {primaryKey:row.primary_id})
-            MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (d1)-[aka:IS_A]->(d2) """
-
+                MATCH (d1:DOTerm:Ontology {primaryKey:row.primary_id})
+                MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
+                MERGE (d1)-[aka:IS_A]->(d2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     xrefs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:DOTerm {primaryKey:row.oid}) """ + ETLHelper.get_cypher_xref_text()
+                MATCH (o:DOTerm {primaryKey:row.oid}) 
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     doterm_alt_ids_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-            MATCH (d:DOTerm {primaryKey:row.primary_id})
-
-            MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-
-            MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec) """
+            CALL {
+                WITH row
+                
+                MATCH (d:DOTerm {primaryKey:row.primary_id})
+                MERGE (sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                MERGE (d)-[aka2:ALSO_KNOWN_AS]->(sec)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -93,11 +107,11 @@ class DOETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.do_query_template, commit_size, "do_term_data.csv"],
-            [self.doterm_isas_query_template, commit_size, "do_isas_data.csv"],
-            [self.doterm_synonyms_query_template, commit_size, "do_synonyms_data.csv"],
-            [self.xrefs_query_template, commit_size, "do_xrefs_data.csv"],
-            [self.doterm_alt_ids_query_template, commit_size, "do_alt_ids_data.csv"]
+            [self.do_query_template, "do_term_data.csv", commit_size],
+            [self.doterm_isas_query_template, "do_isas_data.csv", commit_size],
+            [self.doterm_synonyms_query_template, "do_synonyms_data.csv", commit_size],
+            [self.xrefs_query_template, "do_xrefs_data.csv", commit_size],
+            [self.doterm_alt_ids_query_template, "do_alt_ids_data.csv", commit_size]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

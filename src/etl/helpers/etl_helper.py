@@ -118,8 +118,8 @@ class ETLHelper():
                      id.page = row.page,
                      id.primaryKey = row.primaryKey,
                      id.displayName = row.displayName,
-                     id.curatedDB = apoc.convert.toBoolean(row.curatedDB),
-                     id.loadedDB = apoc.convert.toBoolean(row.loadedDB)
+                     id.curatedDB = toBoolean(row.curatedDB),
+                     id.loadedDB = toBoolean(row.loadedDB)
 
                 MERGE (o)-[gcr:ANNOTATION_SOURCE_CROSS_REFERENCE]->(id) """
 
@@ -355,5 +355,5 @@ class ETLHelper():
         fields = []
         for k in metadata:
             fields.append(k + ": " + json.dumps(metadata[k]))
-        logger.warning(",".join(fields))
+        logger.info(",".join(fields))
         Neo4jHelper().run_single_query_no_return("CREATE (o:ModFileMetadata {" + ",".join(fields) + "})")

@@ -22,166 +22,197 @@ class DiseaseETL(ETL):
     # Query templates which take params and will be processed later
 
     execute_annotation_xrefs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
-        """ + ETLHelper.get_cypher_xref_text_annotation_level()
-
+                MATCH (o:DiseaseEntityJoin:Association {primaryKey:row.dataId})
+            """ + ETLHelper.get_cypher_xref_text_annotation_level() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_agms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            // GET PRIMARY DATA OBJECTS
+            CALL {
+                WITH row
 
-            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
-            MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
+                // GET PRIMARY DATA OBJECTS
 
-            //Intentional MERGEing (preventing duplicates), please leave as is
+                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
-            CALL apoc.merge.relationship(d, row.relationshipType, {uuid: row.diseaseUniqueKey}, {}, agm) yield rel
-            REMOVE rel.noOp
+                //Intentional MERGEing (preventing duplicates), please leave as is
 
-            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                ON CREATE SET dfa.dataProvider = row.dataProvider,
-                              dfa.sortOrder = 1,
-                              dfa.joinType = row.relationshipType,
-                              dfa.negation = row.negation
+                CALL apoc.merge.relationship(d, row.relationshipType, {uuid: row.diseaseUniqueKey}, {}, agm) yield rel
+                REMOVE rel.noOp
 
-            MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
-            MERGE (dfa)-[dadf:ASSOCIATION]->(d)
+                MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                    ON CREATE SET dfa.dataProvider = row.dataProvider,
+                                dfa.sortOrder = 1,
+                                dfa.joinType = row.relationshipType,
+                                dfa.negation = row.negation
 
-            // PUBLICATIONS FOR FEATURE
+                MERGE (agm)-[fdaf:ASSOCIATION]->(dfa)
+                MERGE (dfa)-[dadf:ASSOCIATION]->(d)
 
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
+                // PUBLICATIONS FOR FEATURE
 
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                    ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                    pubEJ.dateAssigned = row.dateAssigned
 
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            """
+                MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+
+                MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_allele_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            // GET PRIMARY DATA OBJECTS
+            CALL {
+                WITH row
 
-            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
-            MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
+                // GET PRIMARY DATA OBJECTS
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
-                        SET rel.uuid = row.diseaseUniqueKey
-            REMOVE rel.noOp
+                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
 
-            //This is an intentional MERGE, please leave as is
+                CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
+                            SET rel.uuid = row.diseaseUniqueKey
+                REMOVE rel.noOp
 
-            MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                ON CREATE SET dfa.dataProvider = row.dataProvider,
-                              dfa.sortOrder = 1,
-                              dfa.joinType = row.relationshipType,
-                              dfa.negation = row.negation
+                //This is an intentional MERGE, please leave as is
 
-            MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
-            MERGE (dfa)-[dadf:ASSOCIATION]->(d)
+                MERGE (dfa:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                    ON CREATE SET dfa.dataProvider = row.dataProvider,
+                                dfa.sortOrder = 1,
+                                dfa.joinType = row.relationshipType,
+                                dfa.negation = row.negation
 
-            // PUBLICATIONS FOR FEATURE
+                MERGE (allele)-[fdaf:ASSOCIATION]->(dfa)
+                MERGE (dfa)-[dadf:ASSOCIATION]->(d)
 
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubf.pubModId = row.pubModId,
-                 pubf.pubMedId = row.pubMedId,
-                 pubf.pubModUrl = row.pubModUrl,
-                 pubf.pubMedUrl = row.pubMedUrl
+                // PUBLICATIONS FOR FEATURE
 
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubf.pubModId = row.pubModId,
+                    pubf.pubMedId = row.pubMedId,
+                    pubf.pubModUrl = row.pubModUrl,
+                    pubf.pubMedUrl = row.pubMedUrl
 
-            MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                    ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                    pubEJ.dateAssigned = row.dateAssigned
 
-            MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
+                MERGE (dfa)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+
+                MERGE (pubf)-[pubfpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_gene_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
-            MATCH (gene:Gene {primaryKey:row.primaryId})
+                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (gene:Gene {primaryKey:row.primaryId})
 
-            CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
-                        SET rel.uuid = row.diseaseUniqueKey
-            REMOVE rel.noOp
+                CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
+                            SET rel.uuid = row.diseaseUniqueKey
+                REMOVE rel.noOp
 
-            MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
-                SET dga.dataProvider = row.dataProvider,
-                    dga.sortOrder = 1,
-                    dga.joinType = row.relationshipType,
-                    dga.negation = row.negation
+                MERGE (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+                    SET dga.dataProvider = row.dataProvider,
+                        dga.sortOrder = 1,
+                        dga.joinType = row.relationshipType,
+                        dga.negation = row.negation
 
 
-            MERGE (gene)-[fdag:ASSOCIATION]->(dga)
-            MERGE (dga)-[dadg:ASSOCIATION]->(d)
+                MERGE (gene)-[fdag:ASSOCIATION]->(dga)
+                MERGE (dga)-[dadg:ASSOCIATION]->(d)
 
-            // PUBLICATIONS FOR GENE
+                // PUBLICATIONS FOR GENE
 
-            MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
-                SET pubg.pubModId = row.pubModId,
-                    pubg.pubMedId = row.pubMedId,
-                    pubg.pubModUrl = row.pubModUrl,
-                    pubg.pubMedUrl = row.pubMedUrl
+                MERGE (pubg:Publication {primaryKey:row.pubPrimaryKey})
+                    SET pubg.pubModId = row.pubModId,
+                        pubg.pubMedId = row.pubMedId,
+                        pubg.pubModUrl = row.pubModUrl,
+                        pubg.pubMedUrl = row.pubMedUrl
 
-            MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-            ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
-                                pubEJ.dateAssigned = row.dateAssigned
+                MERGE (pubEJ:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                ON CREATE SET pubEJ.joinType = 'pub_evidence_code_join',
+                                    pubEJ.dateAssigned = row.dateAssigned
 
-            MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
-            MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)"""
+                MERGE (dga)-[dapug:EVIDENCE {uuid:row.pecjPrimaryKey}]->(pubEJ)
+                MERGE (pubg)-[pubgpubEJ:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(pubEJ)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_ecode_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
-            MATCH (pubjk:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
-            MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)"""
-
+                MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
+                MATCH (pubjk:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+                MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     execute_withs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
+            CALL {
+                WITH row
 
-            MATCH (diseaseWith:Gene {primaryKey:row.withD})
-            MERGE (dga)-[dgaw:FROM_ORTHOLOGOUS_GENE]-(diseaseWith) """
+                MATCH (dga:Association:DiseaseEntityJoin {primaryKey:row.diseaseUniqueKey})
 
+                MATCH (diseaseWith:Gene {primaryKey:row.withD})
+                MERGE (dga)-[dgaw:FROM_ORTHOLOGOUS_GENE]-(diseaseWith)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     execute_pges_gene_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:Gene {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            CALL {
+                WITH row
 
-            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
+                MATCH (n:Gene {primaryKey:row.pgeId})
+                MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
+                MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     execute_pges_allele_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:Allele {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            CALL {
+                WITH row
 
-            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
+                MATCH (n:Allele {primaryKey:row.pgeId})
+                MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+
+                MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     execute_pges_agm_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
-            MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
+            CALL {
+                WITH row
+                
+                MATCH (n:AffectedGenomicModel {primaryKey:row.pgeId})
+                MATCH (d:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
 
-            MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)"""
+                MERGE (d)-[dgaw:PRIMARY_GENETIC_ENTITY]-(n)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -233,28 +264,28 @@ class DiseaseETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.execute_allele_query_template, commit_size,
-             "disease_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_gene_query_template, commit_size,
-             "disease_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.exp_cond_helper.execute_exp_condition_query_template, commit_size,
-             "disease_exp_condition_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_agms_query_template, commit_size,
-             "disease_agms_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.exp_cond_helper.execute_exp_condition_relations_query_template, commit_size,
-             "disease_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_gene_query_template, commit_size,
-             "disease_pges_gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_allele_query_template, commit_size,
-             "disease_pges_allele_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_pges_agm_query_template, commit_size,
-             "disease_pges_agms_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_withs_query_template, commit_size,
-             "disease_withs_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_ecode_query_template, commit_size,
-             "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.execute_annotation_xrefs_query_template, commit_size,
-             "disease_annotation_xrefs_data_" + sub_type.get_data_provider() + ".csv"]
+            [self.execute_allele_query_template,
+             "disease_allele_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_gene_query_template,
+             "disease_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.exp_cond_helper.execute_exp_condition_query_template,
+             "disease_exp_condition_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_agms_query_template,
+             "disease_agms_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.exp_cond_helper.execute_exp_condition_relations_query_template,
+             "disease_exp_condition_rel_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_pges_gene_query_template,
+             "disease_pges_gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_pges_allele_query_template,
+             "disease_pges_allele_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_pges_agm_query_template,
+             "disease_pges_agms_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_withs_query_template,
+             "disease_withs_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_ecode_query_template,
+             "disease_evidence_code_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.execute_annotation_xrefs_query_template,
+             "disease_annotation_xrefs_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

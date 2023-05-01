@@ -20,59 +20,69 @@ class GenericOntologyETL(ETL):
     # Query templates which take params and will be processed later
 
     generic_ontology_term_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        //Create the Term node and set properties. primaryKey is required.
-        MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
-            ON CREATE SET g.definition = row.definition,
-                g.type = row.o_type,
-                g.href = row.href,
-                g.name = row.name,
-                g.nameKey = row.name_key,
-                g.isObsolete = row.is_obsolete,
-                g.href = row.href,
-                g.displaySynonym = row.display_synonym,
-                g.subsets = apoc.convert.fromJsonList(row.subsets)
-        CREATE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
-        """
+                //Create the Term node and set properties. primaryKey is required.
+                MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
+                    ON CREATE SET g.definition = row.definition,
+                        g.type = row.o_type,
+                        g.href = row.href,
+                        g.name = row.name,
+                        g.nameKey = row.name_key,
+                        g.isObsolete = row.is_obsolete,
+                        g.href = row.href,
+                        g.displaySynonym = row.display_synonym,
+                        g.subsets = apoc.convert.fromJsonList(row.subsets)
+                CREATE (g)-[gccg:IS_A_PART_OF_CLOSURE]->(g)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     generic_ontology_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
-                    SET syn.name = row.syn
-            MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
-        """
+                MATCH (g:%sTerm {primaryKey:row.oid})
+                MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
+                        SET syn.name = row.syn
+                MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     generic_ontology_isas_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MATCH (g2:%sTerm:Ontology {primaryKey:row.isa})
-            CREATE (g)-[aka:IS_A]->(g2)
-        """
+                MATCH (g:%sTerm {primaryKey:row.oid})
+                MATCH (g2:%sTerm {primaryKey:row.isa})
+                CREATE (g)-[aka:IS_A]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     generic_ontology_partofs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:%sTerm:Ontology {primaryKey:row.oid})
-            MATCH (g2:%sTerm:Ontology {primaryKey:row.partof})
-            CREATE (g)-[aka:PART_OF]->(g2)
-        """
+                MATCH (g:%sTerm {primaryKey:row.oid})
+                MATCH (g2:%sTerm {primaryKey:row.partof})
+                CREATE (g)-[aka:PART_OF]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     generic_ontology_altids_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (got:%sTerm:Ontology {primaryKey:row.primary_id})
-            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
-            CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
-    """
+                MATCH (got:%sTerm {primaryKey:row.primary_id})
+                MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -96,23 +106,24 @@ class GenericOntologyETL(ETL):
         # This order is the same as the lists yielded from the get_generators function.
         # A list of tuples.
 
-        commit_size = self.data_type_config.get_neo4j_commit_size()
+        # commit_size = self.data_type_config.get_neo4j_commit_size()
+        commit_size = 100000000
         batch_size = self.data_type_config.get_generator_batch_size()
 
         ont_type = sub_type.get_data_provider()
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.generic_ontology_term_query_template, 600000,
-             "generic_ontology_term_" + ont_type + ".csv", ont_type],
-            [self.generic_ontology_isas_query_template, commit_size,
-             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type],
-            [self.generic_ontology_partofs_query_template, commit_size,
-             "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type],
-            [self.generic_ontology_synonyms_query_template, 400000,
-             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type],
-            [self.generic_ontology_altids_query_template, commit_size,
-             "generic_ontology_altids_" + ont_type + ".csv", ont_type],
+            [self.generic_ontology_term_query_template,
+             "generic_ontology_term_" + ont_type + ".csv", ont_type, commit_size],
+            [self.generic_ontology_isas_query_template, 
+             "generic_ontology_isas_" + ont_type + ".csv", ont_type, ont_type, commit_size],
+            [self.generic_ontology_partofs_query_template,
+             "generic_ontology_partofs_" + ont_type + ".csv", ont_type, ont_type, commit_size],
+            [self.generic_ontology_synonyms_query_template,
+             "generic_ontology_synonyms_" + ont_type + ".csv", ont_type, commit_size],
+            [self.generic_ontology_altids_query_template, 
+             "generic_ontology_altids_" + ont_type + ".csv", ont_type, commit_size],
         ]
 
         # Obtain the generator

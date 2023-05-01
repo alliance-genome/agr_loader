@@ -15,79 +15,105 @@ class GOETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' as row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        //Create the GOTerm node and set properties. primaryKey is required.
-        CREATE (g:GOTerm:Ontology {primaryKey:row.oid})
-            SET g.definition = row.definition,
-             g.type = row.type,
-             g.name = row.name ,
-             g.subset = row.subset,
-             g.nameKey = row.name_key,
-             g.isObsolete = row.is_obsolete,
-             g.href = row.href
-            MERGE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)"""
+                //Create the GOTerm node and set properties. primaryKey is required.
+                CREATE (g:GOTerm:Ontology {primaryKey:row.oid})
+                    SET g.definition = row.definition,
+                    g.type = row.type,
+                    g.name = row.name ,
+                    g.subset = row.subset,
+                    g.nameKey = row.name_key,
+                    g.isObsolete = row.is_obsolete,
+                    g.href = row.href
+                    CREATE (g)-[ggcg:IS_A_PART_OF_CLOSURE]->(g)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_isas_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g1:GOTerm {primaryKey:row.primary_id})
-            MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:IS_A]->(g2) """
-
+                MATCH (g1:GOTerm {primaryKey:row.primary_id})
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:IS_A]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     goterm_partofs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g1:GOTerm {primaryKey:row.primary_id})
-            MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:PART_OF]->(g2) """
+                MATCH (g1:GOTerm {primaryKey:row.primary_id})
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:PART_OF]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:GOTerm {primaryKey:row.primary_id})
+                MATCH (g:GOTerm {primaryKey:row.primary_id})
 
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                SET syn.name = row.synonym
-            MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
+                MERGE(syn:Synonym {primaryKey:row.synonym})
+                    ON CREATE SET syn.name = row.synonym,
+                    syn:Identifier
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_regulates_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g1:GOTerm {primaryKey:row.primary_id})
-            MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:REGULATES]->(g2) """
+                MATCH (g1:GOTerm {primaryKey:row.primary_id})
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:REGULATES]->(g2) 
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_negatively_regulates_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g1:GOTerm {primaryKey:row.primary_id})
-            MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:NEGATIVELY_REGULATES]->(g2) """
+                MATCH (g1:GOTerm {primaryKey:row.primary_id})
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:NEGATIVELY_REGULATES]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_positively_regulates_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g1:GOTerm {primaryKey:row.primary_id})
-            MERGE (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
-            MERGE (g1)-[aka:POSITIVELY_REGULATES]->(g2) """
+                MATCH (g1:GOTerm {primaryKey:row.primary_id})
+                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                CREATE (g1)-[aka:POSITIVELY_REGULATES]->(g2)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     goterm_secondary_query_template = """
-         USING PERIODIC COMMIT %s
-         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (got:GOTerm {primaryKey:row.primary_id})
+                MATCH (got:GOTerm {primaryKey:row.primary_id})
 
-            MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                MERGE(sec:SecondaryId {primaryKey:row.secondary_id})
+                ON CREATE SET sec:Identifier
 
-            MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec) """
+                MERGE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialize object."""
@@ -104,14 +130,14 @@ class GOETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size, "go_term_data.csv"],
-            [self.goterm_isas_query_template, commit_size, "go_isas_data.csv"],
-            [self.goterm_partofs_query_template, commit_size, "go_partofs_data.csv"],
-            [self.goterm_synonyms_query_template, commit_size, "go_synonym_data.csv"],
-            [self.goterm_regulates_query_template, commit_size, "go_regulates_data.csv"],
-            [self.goterm_negatively_regulates_query_template, commit_size, "go_negatively_regulates_data.csv"],
-            [self.goterm_positively_regulates_query_template, commit_size, "go_positively_regulates_data.csv"],
-            [self.goterm_secondary_query_template, commit_size, "goterm_secondary_data.csv"]
+            [self.main_query_template, "go_term_data.csv", commit_size],
+            [self.goterm_isas_query_template, "go_isas_data.csv", commit_size],
+            [self.goterm_partofs_query_template, "go_partofs_data.csv", commit_size],
+            [self.goterm_synonyms_query_template, "go_synonym_data.csv", commit_size],
+            [self.goterm_regulates_query_template, "go_regulates_data.csv", commit_size],
+            [self.goterm_negatively_regulates_query_template, "go_negatively_regulates_data.csv", commit_size],
+            [self.goterm_positively_regulates_query_template, "go_positively_regulates_data.csv", commit_size],
+            [self.goterm_secondary_query_template, "goterm_secondary_data.csv", commit_size]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)
@@ -284,6 +310,7 @@ class GOETL(ETL):
                 counter = 0
 
         if counter > 0:
+
             yield [go_term_list,
                    go_isas_list,
                    go_partofs_list,

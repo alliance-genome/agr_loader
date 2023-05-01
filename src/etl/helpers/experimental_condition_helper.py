@@ -15,37 +15,41 @@ class ExperimentalConditionHelper():
         self.cond_nodes = dict()
 
         self.execute_exp_condition_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (zeco:Ontology:ZECOTerm {primaryKey:row.conditionClassId})
+                MATCH (zeco:Ontology:ZECOTerm {primaryKey:row.conditionClassId})
 
-            MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
-                ON CREATE SET ec.conditionClassId     = row.conditionClassId,
-                            ec.conditionId          = row.conditionId,
-                            ec.anatomicalOntologyId = row.anatomicalOntologyId,
-                            ec.chemicalOntologyId   = row.chemicalOntologyId,
-                            ec.geneOntologyId       = row.geneOntologyId,
-                            ec.NCBITaxonID          = row.NCBITaxonID,
-                            ec.conditionStatement   = row.conditionStatement
+                MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
+                    ON CREATE SET ec.conditionClassId     = row.conditionClassId,
+                                ec.conditionId          = row.conditionId,
+                                ec.anatomicalOntologyId = row.anatomicalOntologyId,
+                                ec.chemicalOntologyId   = row.chemicalOntologyId,
+                                ec.geneOntologyId       = row.geneOntologyId,
+                                ec.NCBITaxonID          = row.NCBITaxonID,
+                                ec.conditionStatement   = row.conditionStatement
 
-            MERGE (ec)-[:ASSOCIATION]-(zeco)
+                MERGE (ec)-[:ASSOCIATION]-(zeco)
 
-            WITH ec, row.chemicalOntologyId AS chemicalOntologyId
-            MATCH (chebi :Ontology:CHEBITerm {primaryKey: chemicalOntologyId})
-            MERGE (ec)-[:ASSOCIATION]-(chebi)
-        """
+                WITH ec, row.chemicalOntologyId AS chemicalOntologyId
+                MATCH (chebi :Ontology:CHEBITerm {primaryKey: chemicalOntologyId})
+                MERGE (ec)-[:ASSOCIATION]-(chebi)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
         self.execute_exp_condition_relations_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (dfa:Association:"""+entity_join_label+""" {primaryKey:row.entityUniqueKey})
-            MATCH (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
+                MATCH (dfa:Association:"""+entity_join_label+""" {primaryKey:row.entityUniqueKey})
+                MATCH (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
 
-            CALL apoc.merge.relationship(dfa, row.relationshipType, null, {conditionQuantity: row.conditionQuantity}, ec) yield rel
-            REMOVE rel.noOp
-        """
+                CALL apoc.merge.relationship(dfa, row.relationshipType, null, {conditionQuantity: row.conditionQuantity}, ec) yield rel
+                REMOVE rel.noOp
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def conditionrelations_process(self, entity_record) -> str:
         """Condition relations (JSON) processing.

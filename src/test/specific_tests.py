@@ -39,7 +39,7 @@ def test_currated_disease_associations_have_date_assigned():
 
     query = """MATCH (n:DiseaseEntityJoin)--(p:PublicationJoin)
                WHERE NOT n.joinType IN ['implicated_via_orthology', 'biomarker_via_orthology']
-                     AND NOT EXISTS(p.dateAssigned)
+               AND p.dateAssigned is NULL
                RETURN COUNT(n) AS count"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -251,9 +251,7 @@ def test_phenotype_for_all_species_exists():
     Not used for SARS-CoV-2.
     """
 
-    query = """MATCH (s:Species)--(r)--(p:Phenotype)
-               WHERE labels(r) = ['Gene']
-                     OR labels(r) = ['Feature', 'Allele']
+    query = """MATCH (s:Species)--(r:Gene|Feature|Allele)--(p:Phenotype)
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -263,9 +261,8 @@ def test_phenotype_for_all_species_exists():
 def test_variant_for_expected_species_exists():
     """Test Variant for Expected Species Exists"""
 
-    query = """MATCH (s:Species)--(r)--(p:Variant)
-               WHERE labels(r) = ['Feature', 'Allele']
-               RETURN count(distinct s) AS counter"""
+    query = """MATCH (s:Species)--(r:Feature|Allele)--(p:Variant)
+            RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["counter"] == 5
@@ -277,9 +274,7 @@ def test_disease_for_all_species_exists():
     Not used for SARS-CoV-2.
     """
 
-    query = """MATCH (s:Species)--(r)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
-               WHERE labels(r) = ['Gene']
-                     OR labels(r) = ['Feature', 'Allele']
+    query = """MATCH (s:Species)--(r:Gene|Feature|Allele)-[sdot:IS_IMPLICATED_IN|IS_MARKER_FOR]-(dot:DOTerm)
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -772,7 +767,7 @@ def test_genome_start_is_long():
     """Test Genome Start is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
-               WHERE ch.start <> toInt(ch.start)
+               WHERE ch.start <> toInteger(ch.start)
                RETURN count(gf) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -783,7 +778,7 @@ def test_genome_end_is_long():
     """Test Genome End is Long"""
 
     query = """MATCH (gene:Gene)-[gf:ASSOCIATION]-(ch:GenomicLocation)
-               WHERE ch.end <> toInt(ch.end)
+               WHERE ch.end <> toInteger(ch.end)
                RETURN count(gf) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -794,7 +789,7 @@ def test_phylogenetic_order_is_int():
     """Test PHlogenic Order is Int"""
 
     query = """MATCH (g:Species)
-               WHERE g.phylogeneticOrder <> toInt(g.phylogeneticOrder)
+               WHERE g.phylogeneticOrder <> toInteger(g.phylogeneticOrder)
                RETURN count(g) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1546,7 +1541,7 @@ def test_genome_location_for_exon_has_strand():
 
     query = """
             MATCH (e:Exon)--(gl:GenomicLocation)
-            WHERE not exists (gl.strand)
+            WHERE gl.strand is NULL
             RETURN count(DISTINCT e) as counter """
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1558,7 +1553,7 @@ def test_genome_location_for_transcript_has_strand():
 
     query = """
             MATCH (t:Transcript)--(gl:GenomicLocation)
-            WHERE not exists (gl.strand)
+            WHERE gl.strand is NULL
             RETURN count(DISTINCT t) as counter """
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -1678,7 +1673,7 @@ def test_correct_model_experimental_condition_parsing():
             MATCH (d :DOTerm:Ontology {primaryKey: "DOID:9452"})-[:ASSOCIATION]-(dfa :DiseaseEntityJoin {primaryKey: "ZFIN:ZDB-FISH-150901-27842high cholesterolZECO:0000112ZECO:0000119high fatZECO:0000112ZECO:0000122IS_MODEL_OFDOID:9452"}),
                   (dfa)-[:ASSOCIATION]-(agm :AffectedGenomicModel {primaryKey: "ZFIN:ZDB-FISH-150901-27842"}),
                   (dfa)--(ec:ExperimentalCondition),
-                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count;"""
+                  (dfa)-[:EVIDENCE]-(pubj:PublicationJoin) RETURN DISTINCT COUNT(DISTINCT ec) as ec_count, COUNT(DISTINCT pubj) as pubj_count"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
             assert record["ec_count"] == 2

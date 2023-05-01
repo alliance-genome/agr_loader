@@ -18,14 +18,15 @@ class CategoryTagETL(ETL):
     # Query templates which take params and will be processed later
 
     tag_query_template = """
-
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-        MERGE (e:CategoryTag {primaryKey: row.tag})
-            ON CREATE SET e.tagName = row.tag,
-                          e.tagDefinition = row.definition
-               """
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                
+                MERGE (e:CategoryTag {primaryKey: row.tag})
+                    ON CREATE SET e.tagName = row.tag,
+                                e.tagDefinition = row.definition
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -59,8 +60,8 @@ class CategoryTagETL(ETL):
         self.logger.info("subtype: " + data_provider)
 
         query_template_list = [
-                [self.tag_query_template, commit_size,
-                 "tag_data_" + sub_type.get_data_provider() + ".csv"]
+                [self.tag_query_template,
+                 "tag_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         generators = self.get_generators(data)

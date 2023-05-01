@@ -70,7 +70,7 @@ class Neo4jTransactor():
 
         if context_info.env["USING_PICKLE"] is False:
             uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1)
+            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, fetch_size=10000)
 
         self.logger.info("%s: Starting Neo4jTransactor Thread Runner: ", self._get_name())
         while True:
@@ -96,7 +96,7 @@ class Neo4jTransactor():
                         # Save VIA pickle rather then NEO
                         file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
                         with open(file_name, 'wb') as file:
-                            self.logger.debug("Writting to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
+                            self.logger.debug("Writing to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
                             pickle.dump(neo4j_query, file)
                     else:
                         with graph.session() as session:

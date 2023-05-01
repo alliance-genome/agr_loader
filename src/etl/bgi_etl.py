@@ -19,140 +19,164 @@ class BGIETL(ETL):
     # Query templates which take params and will be processed later
 
     so_terms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:Gene {primaryKey:row.primaryKey})
-            MATCH (s:SOTerm {primaryKey:row.soTermId})
-            MERGE (o)-[:ANNOTATED_TO]->(s)"""
+            CALL {
+                WITH row
+
+                MATCH (o:Gene {primaryKey:row.primaryKey})
+                MATCH (s:SOTerm {primaryKey:row.soTermId})
+                MERGE (o)-[:ANNOTATED_TO]->(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     chromosomes_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MERGE (chrm:Chromosome {primaryKey: row.primaryKey}) """
+            CALL {
+                WITH row
+
+                MERGE (chrm:Chromosome {primaryKey: row.primaryKey})
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     genomic_locations_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Gene {primaryKey:row.primaryId})
-            MATCH (chrm:Chromosome {primaryKey:row.chromosome})
+                MATCH (o:Gene {primaryKey:row.primaryId})
+                MATCH (chrm:Chromosome {primaryKey:row.chromosome})
 
-            MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
-            MERGE (a:Assembly {primaryKey:row.assembly})
-              ON CREATE SET a.dataProvider = row.dataProvider
+                MERGE (o)-[ochrm:LOCATED_ON]->(chrm)
+                MERGE (a:Assembly {primaryKey:row.assembly})
+                ON CREATE SET a.dataProvider = row.dataProvider
 
-            MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
-            ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
-                gchrm.end = apoc.number.parseInt(row.end),
-                gchrm.assembly = row.assembly,
-                gchrm.strand = row.strand,
-                gchrm.chromosome = row.chromosome,
-                gchrm.assembly = row.assembly
+                MERGE (gchrm:GenomicLocation {primaryKey:row.uuid})
+                ON CREATE SET gchrm.start = apoc.number.parseInt(row.start),
+                    gchrm.end = apoc.number.parseInt(row.end),
+                    gchrm.assembly = row.assembly,
+                    gchrm.strand = row.strand,
+                    gchrm.chromosome = row.chromosome,
+                    gchrm.assembly = row.assembly
 
-            MERGE (o)-[of:ASSOCIATION]-(gchrm)
-            MERGE (gchrmn)-[ao:ASSOCIATION]->(a)
-
-        """
+                MERGE (o)-[of:ASSOCIATION]-(gchrm)
+                MERGE (gchrmn)-[ao:ASSOCIATION]->(a)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     gene_secondary_ids_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:Gene {primaryKey:row.primary_id})
-
-            MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
-                ON CREATE SET second.name = row.secondary_id
-            MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second) """
+                MATCH (g:Gene {primaryKey:row.primary_id})
+                MERGE (second:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                    ON CREATE SET second.name = row.secondary_id
+                MERGE (g)-[aka1:ALSO_KNOWN_AS]->(second)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     gene_synonyms_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:Gene {primaryKey:row.primary_id})
+                MATCH (g:Gene {primaryKey:row.primary_id})
 
-            MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
-                    SET syn.name = row.synonym
-            MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) """
-
+                MERGE(syn:Synonym:Identifier {primaryKey:row.synonym})
+                        SET syn.name = row.synonym
+                MERGE (g)-[aka2:ALSO_KNOWN_AS]->(syn) 
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     gene_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (l:Load {primaryKey:row.loadKey})
+                MATCH (l:Load {primaryKey:row.loadKey})
 
-            //Create the Gene node and set properties. primaryKey is required.
-            MERGE (o:Gene {primaryKey:row.primaryId})
-                ON CREATE SET o.symbol = row.symbol,
-                              o.taxonId = row.taxonId,
-                              o.name = row.name,
-                              o.description = row.description,
-                              o.geneSynopsisUrl = row.geneSynopsisUrl,
-                              o.geneSynopsis = row.geneSynopsis,
-                              o.geneLiteratureUrl = row.geneLiteratureUrl,
-                              o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
-                              o.dateProduced = row.dateProduced,
-                              o.modGlobalCrossRefId = row.modGlobalCrossRefId,
-                              o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
-                              o.modLocalId = row.localId,
-                              o.modGlobalId = row.modGlobalId,
-                              o.uuid = row.uuid,
-                              o.dataProvider = row.dataProvider,
-                              o.symbolWithSpecies = row.symbolWithSpecies
-    """
+                //Create the Gene node and set properties. primaryKey is required.
+                MERGE (o:Gene {primaryKey:row.primaryId})
+                    ON CREATE SET o.symbol = row.symbol,
+                                o.taxonId = row.taxonId,
+                                o.name = row.name,
+                                o.description = row.description,
+                                o.geneSynopsisUrl = row.geneSynopsisUrl,
+                                o.geneSynopsis = row.geneSynopsis,
+                                o.geneLiteratureUrl = row.geneLiteratureUrl,
+                                o.geneticEntityExternalUrl = row.geneticEntityExternalUrl,
+                                o.dateProduced = row.dateProduced,
+                                o.modGlobalCrossRefId = row.modGlobalCrossRefId,
+                                o.modCrossRefCompleteUrl = row.modCrossRefCompleteUrl,
+                                o.modLocalId = row.localId,
+                                o.modGlobalId = row.modGlobalId,
+                                o.uuid = row.uuid,
+                                o.dataProvider = row.dataProvider,
+                                o.symbolWithSpecies = row.symbolWithSpecies
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     basic_gene_load_relations_query_template = """
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (l:Load {primaryKey:row.loadKey})
-        MATCH (g:Gene {primaryKey:row.primaryId})
-        MERGE (g)-[:LOADED_FROM]->(l)
-
-    """
+                MATCH (l:Load {primaryKey:row.loadKey})
+                MATCH (g:Gene {primaryKey:row.primaryId})
+                MERGE (g)-[:LOADED_FROM]->(l)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     basic_gene_species_relations_query_template = """
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (spec:Species {primaryKey: row.taxonId})
-        MATCH (g:Gene {primaryKey: row.primaryId})
+                MATCH (spec:Species {primaryKey: row.taxonId})
+                MATCH (g:Gene {primaryKey: row.primaryId})
 
-        MERGE (g)-[:FROM_SPECIES]->(spec)
-
-    """
+                MERGE (g)-[:FROM_SPECIES]->(spec)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     xrefs_query_template = """
-
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_tuned_text()
+                MATCH (o:Gene {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_xref_tuned_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS""" 
 
     xrefs_relationships_query_template = """
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+                MATCH (o:Gene {primaryKey:row.dataId})
+                MATCH (c:CrossReference {primaryKey:row.primaryKey})
 
-            MATCH (o:Gene {primaryKey:row.dataId})
-            MATCH (c:CrossReference {primaryKey:row.primaryKey})
+                MERGE (o)-[oc:CROSS_REFERENCE]-(c)
+                """ + ETLHelper.merge_crossref_relationships() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
-            MERGE (o)-[oc:CROSS_REFERENCE]-(c)
-
-    """ + ETLHelper.merge_crossref_relationships()
 
     gene_metadata_query_template = """
-
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-        //Create the load node(s)
-        CREATE (l:Load:Entity {primaryKey:row.loadKey})
-            SET l.dateProduced = row.dateProduced,
-                l.loadName = "BGI",
-                l.release = row.release,
-                l.dataProviders = row.dataProviders,
-                l.dataProvider = row.dataProvider
-        """
+            CALL {
+                WITH row
+                
+                //Create the load node(s)
+                CREATE (l:Load:Entity {primaryKey: row.loadKey})
+                    SET l.dateProduced = row.dateProduced,
+                        l.loadName = "BGI",
+                        l.release = row.release,
+                        l.dataProviders = row.dataProviders,
+                        l.dataProvider = row.dataProvider
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -198,18 +222,19 @@ class BGIETL(ETL):
 
         # gene_metadata, gene_dataset, secondary_ids, genomic_locations, cross_references, synonyms
         # This needs to be in this format (template, param1, params2) others will be ignored
+
         query_template_list = [
-            [self.gene_metadata_query_template, commit_size, "gene_metadata_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_query_template, commit_size, "gene_data_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_load_relations_query_template, commit_size, "gene_data_load_" + sub_type.get_data_provider() + ".csv"],
-            [self.basic_gene_species_relations_query_template, commit_size, "gene_data_species_" + sub_type.get_data_provider() + ".csv"],
-            [self.so_terms_query_template, commit_size, "gene_so_terms_" + sub_type.get_data_provider() + ".csv"],
-            [self.chromosomes_query_template, commit_size, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_secondary_ids_query_template, commit_size, "gene_secondary_ids_" + sub_type.get_data_provider() + ".csv"],
-            [self.genomic_locations_query_template, commit_size, "gene_genomic_locations_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query_template, commit_size, "gene_cross_references_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_relationships_query_template, commit_size, "gene_cross_references_relationships_" + sub_type.get_data_provider() + ".csv"],
-            [self.gene_synonyms_query_template, commit_size, "gene_synonyms_" + sub_type.get_data_provider() + ".csv"]
+            [self.gene_metadata_query_template, "gene_metadata_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.gene_query_template, "gene_data_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.basic_gene_load_relations_query_template, "gene_data_load_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.basic_gene_species_relations_query_template, "gene_data_species_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.so_terms_query_template, "gene_so_terms_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.chromosomes_query_template, "gene_chromosomes_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.gene_secondary_ids_query_template, "gene_secondary_ids_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.genomic_locations_query_template, "gene_genomic_locations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.xrefs_query_template, "gene_cross_references_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.xrefs_relationships_query_template, "gene_cross_references_relationships_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.gene_synonyms_query_template, "gene_synonyms_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

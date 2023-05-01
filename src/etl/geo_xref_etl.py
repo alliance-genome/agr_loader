@@ -17,15 +17,18 @@ class GeoXrefETL(ETL):
     logger = logging.getLogger(__name__)
 
     geo_xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
-        """ + ETLHelper.get_cypher_xref_text()
+            MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
+            """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     gene_crossref_query_template = """
                    MATCH (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference)
-                   WHERE cr.globalCrossRefId IN {parameter}
+                   WHERE cr.globalCrossRefId IN $parameter
                    RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
 
     def __init__(self, config):
@@ -42,8 +45,8 @@ class GeoXrefETL(ETL):
             generators = self.get_generators(sub_type)
 
             query_template_list = [
-                [self.geo_xref_query_template, commit_size,
-                 "geo_xref_data_" + sub_type.get_data_provider() + ".csv"],
+                [self.geo_xref_query_template, 
+                 "geo_xref_data_" + sub_type.get_data_provider() + ".csv", commit_size],
             ]
 
             query_and_file_list = self.process_query_params(query_template_list)

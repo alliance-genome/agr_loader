@@ -15,11 +15,15 @@ class ClosureETL(ETL):
     logger = logging.getLogger(__name__)
 
     insert_isa_partof_closure_query_template = """
-        USING PERIODIC COMMIT %s
-        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (termChild:%sTerm {primaryKey:row.child_id})
-            MATCH (termParent:%sTerm {primaryKey:row.parent_id})
-            CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent) """
+        LOAD CSV WITH HEADERS FROM 'file:///%s' AS row
+            CALL {
+                WITH row
+                
+                MATCH (termChild:%sTerm {primaryKey:row.child_id})
+                MATCH (termParent:%sTerm {primaryKey:row.parent_id})
+                CREATE (termChild)-[closure:IS_A_PART_OF_CLOSURE]->(termParent)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     retrieve_isa_partof_closure_query_template = """
         MATCH (childTerm:%sTerm)-[:PART_OF|IS_A*]->(parentTerm:%sTerm)
@@ -49,9 +53,8 @@ class ClosureETL(ETL):
         self.logger.debug("Starting isa_partof_ Closure for: %s", data_provider)
 
         query_list = [
-            [self.insert_isa_partof_closure_query_template, "100000",
-             "isa_partof_closure_" + data_provider + ".csv",
-             data_provider, data_provider],
+            [self.insert_isa_partof_closure_query_template, "isa_partof_closure_" + data_provider + ".csv",
+             data_provider, data_provider, "100000"],
         ]
 
         generators = self.get_closure_terms(data_provider)

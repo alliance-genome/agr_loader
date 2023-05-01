@@ -25,78 +25,87 @@ class MolecularInteractionETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-        MATCH (g1:Gene {primaryKey:row.interactor_A})
-        MATCH (g2:Gene {primaryKey:row.interactor_B})
+            CALL {
+                WITH row
+                MATCH (g1:Gene {primaryKey:row.interactor_A})
+                MATCH (g2:Gene {primaryKey:row.interactor_B})
 
-        MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
-        MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
-        MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
-        MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
-        MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
-        MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
-        MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_role
-        MATCH (it:MITerm) WHERE it.primaryKey = row.interaction_type
+                MATCH (mi:MITerm) WHERE mi.primaryKey = row.detection_method
+                MATCH (sdb:MITerm) WHERE sdb.primaryKey = row.source_database
+                MATCH (adb:MITerm) WHERE adb.primaryKey = row.aggregation_database
+                MATCH (ita:MITerm) WHERE ita.primaryKey = row.interactor_A_type
+                MATCH (itb:MITerm) WHERE itb.primaryKey = row.interactor_B_type
+                MATCH (ira:MITerm) WHERE ira.primaryKey = row.interactor_A_role
+                MATCH (irb:MITerm) WHERE irb.primaryKey = row.interactor_B_role
+                MATCH (it:MITerm) WHERE it.primaryKey = row.interaction_type
 
-        //Create the relationship between the two genes.
-        CREATE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
+                //Create the relationship between the two genes.
+                CREATE (g1)-[iw:INTERACTS_WITH {uuid:row.uuid}]->(g2)
 
-        //Create the Association node to be used for the object.
-        MERGE (oa:Association {primaryKey:row.uuid})
-            ON CREATE
-                SET oa :InteractionGeneJoin
-                SET oa :InteractionMolecularGeneJoin
-                SET oa.joinType = 'molecular_interaction'
-        CREATE (g1)-[a1:ASSOCIATION]->(oa)
-        CREATE (oa)-[a2:ASSOCIATION]->(g2)
+                //Create the Association node to be used for the object.
+                MERGE (oa:Association {primaryKey:row.uuid})
+                    ON CREATE
+                        SET oa :InteractionGeneJoin
+                        SET oa :InteractionMolecularGeneJoin
+                        SET oa.joinType = 'molecular_interaction'
+                CREATE (g1)-[a1:ASSOCIATION]->(oa)
+                CREATE (oa)-[a2:ASSOCIATION]->(g2)
 
-        //Create the publication nodes and link them to the Association node.
-        MERGE (pn:Publication {primaryKey:row.pub_med_id})
-            ON CREATE SET pn.pubMedUrl = row.pub_med_url,
-            pn.pubMedId = row.pub_med_id
-        CREATE (oa)-[ev:EVIDENCE]->(pn)
+                //Create the publication nodes and link them to the Association node.
+                MERGE (pn:Publication {primaryKey:row.pub_med_id})
+                    ON CREATE SET pn.pubMedUrl = row.pub_med_url,
+                    pn.pubMedId = row.pub_med_id
+                CREATE (oa)-[ev:EVIDENCE]->(pn)
 
-        //Link detection method to the MI ontology.
-        CREATE (oa)-[dm:DETECTION_METHOD]->(mi)
+                //Link detection method to the MI ontology.
+                CREATE (oa)-[dm:DETECTION_METHOD]->(mi)
 
-        //Link source database to the MI ontology.
-        CREATE (oa)-[sd:SOURCE_DATABASE]->(sdb)
+                //Link source database to the MI ontology.
+                CREATE (oa)-[sd:SOURCE_DATABASE]->(sdb)
 
-        //Link aggregation database to the MI ontology.
-        CREATE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
+                //Link aggregation database to the MI ontology.
+                CREATE (oa)-[ad:AGGREGATION_DATABASE]->(adb)
 
-        //Link interactor roles and types to the MI ontology.
-        CREATE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
-        CREATE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
-        CREATE (oa)-[ira1:INTERACTOR_A_ROLE]->(ira)
-        CREATE (oa)-[irb1:INTERACTOR_B_ROLE]->(irb)
+                //Link interactor roles and types to the MI ontology.
+                CREATE (oa)-[ita1:INTERACTOR_A_TYPE]->(ita)
+                CREATE (oa)-[itb1:INTERACTOR_B_TYPE]->(itb)
+                CREATE (oa)-[ira1:INTERACTOR_A_ROLE]->(ira)
+                CREATE (oa)-[irb1:INTERACTOR_B_ROLE]->(irb)
 
-        //Link interaction type to the MI ontology.
-        CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
-    """
+                //Link interaction type to the MI ontology.
+                CREATE (oa)-[it1:INTERACTION_TYPE]->(it)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        // This needs to be a MERGE below.
-        MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
-        """ + ETLHelper.get_cypher_xref_text()
+                // This needs to be a MERGE below.
+                MATCH (o:InteractionGeneJoin :Association) WHERE o.primaryKey = row.reference_uuid
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     mod_xref_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (o:Gene {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_xref_text()
+                MATCH (o:Gene {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     query_xrefs = """MATCH (g:Gene)-[C:CROSS_REFERENCE]-(cr:CrossReference)
-                     WHERE cr.prefix = {parameter}
+                     WHERE cr.prefix = $parameter
                      RETURN g.primaryKey, cr.globalCrossRefId"""
 
     def __init__(self, config):
-        """Initiaslise object."""
+        """Initialise object."""
         super().__init__()
         self.data_type_config = config
 
@@ -117,9 +126,9 @@ class MolecularInteractionETL(ETL):
         generators = self.get_generators(filepath, batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size, "mol_int_data.csv"],
-            [self.xref_query_template, commit_size, "mol_int_xref.csv"],
-            [self.mod_xref_query_template, commit_size, "mol_int_mod_xref.csv"]
+            [self.main_query_template, "mol_int_data.csv", commit_size],
+            [self.xref_query_template, "mol_int_xref.csv", commit_size],
+            [self.mod_xref_query_template, "mol_int_mod_xref.csv", commit_size]
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

@@ -14,77 +14,85 @@ class HTPMetaDatasetETL(ETL):
     """HTP Meta Dataset."""
 
     htp_dataset_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MERGE (ds:HTPDataset {primaryKey:row.datasetId})
-          ON CREATE SET ds.dateAssigned = row.dateAssigned,
-                        ds.summary = row.summary,
-                        ds.numChannels = row.numChannels,
-                        ds.subSeries = row.subSeries,
-                        ds.title = row.title,
-                        ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
-                        ds.dataProvider = row.dataProvider
-         """
+                MERGE (ds:HTPDataset {primaryKey:row.datasetId})
+                ON CREATE SET ds.dateAssigned = row.dateAssigned,
+                                ds.summary = row.summary,
+                                ds.numChannels = row.numChannels,
+                                ds.subSeries = row.subSeries,
+                                ds.title = row.title,
+                                ds.crossRefCompleteUrl = row.crossRefCompleteUrl,
+                                ds.dataProvider = row.dataProvider
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_dataset_pub_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+                MATCH (ds:HTPDataset {primaryKey: row.datasetId})
 
-        MERGE (p:Publication {primaryKey:row.pubPrimaryKey})
-            ON CREATE SET p.pubModId = row.pubModId,
-                          p.pubMedId = row.pubMedId,
-                          p.pubModUrl = row.pubModUrl,
-                          p.pubMedUrl = row.pubMedUrl
-
-
-    """
+                MERGE (p:Publication {primaryKey:row.pubPrimaryKey})
+                    ON CREATE SET p.pubModId = row.pubModId,
+                                p.pubMedId = row.pubMedId,
+                                p.pubModUrl = row.pubModUrl,
+                                p.pubMedUrl = row.pubMedUrl
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_pub_relation_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (ds:HTPDataset {primaryKey: row.datasetId})
-        MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
+                MATCH (ds:HTPDataset {primaryKey: row.datasetId})
+                MATCH (p:Publication {primaryKey: row.pubPrimaryKey})
 
-        MERGE (p)-[:ASSOCIATION]-(ds)
-
-    """
+                MERGE (p)-[:ASSOCIATION]-(ds)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_category_tags_relations_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (ds:HTPDataset {primaryKey:row.datasetId})
+                MATCH (ds:HTPDataset {primaryKey:row.datasetId})
 
-        MATCH (ct:CategoryTag {primaryKey:row.tag})
+                MATCH (ct:CategoryTag {primaryKey:row.tag})
 
-        MERGE (ds)-[:CATEGORY_TAG]-(ct)
-
-    """
+                MERGE (ds)-[:CATEGORY_TAG]-(ct)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htp_secondaryIds_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (ds:HTPDataset {primaryKey:row.datasetId})
+                MATCH (ds:HTPDataset {primaryKey:row.datasetId})
 
-        MERGE (s:SecondaryId:Identifier {primaryKey:row.secondaryId})
-                ON CREATE SET s.name = row.secondaryId
+                MERGE (s:SecondaryId:Identifier {primaryKey:row.secondaryId})
+                        ON CREATE SET s.name = row.secondaryId
 
-        MERGE (ds)-[aka:ALSO_KNOWN_AS]-(s)
-
-
-    """
+                MERGE (ds)-[aka:ALSO_KNOWN_AS]-(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     htpdataset_xrefs_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:HTPDataset {primaryKey:row.dataId}) """ + ETLHelper.get_cypher_preferred_xref_text()
+            CALL {
+                WITH row
+                MATCH (o:HTPDataset {primaryKey:row.dataId}) 
+                """ + ETLHelper.get_cypher_preferred_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise."""
@@ -123,19 +131,12 @@ class HTPMetaDatasetETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_list = [
-            [HTPMetaDatasetETL.htp_dataset_query_template, commit_size,
-             "htp_metadataset_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_category_tags_relations_query_template, commit_size,
-             "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_dataset_pub_query_template, commit_size,
-             "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_pub_relation_template, commit_size,
-             "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htpdataset_xrefs_template, commit_size,
-             "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv"],
-            [HTPMetaDatasetETL.htp_secondaryIds_query_template, commit_size,
-             "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv"],
-
+            [HTPMetaDatasetETL.htp_dataset_query_template, "htp_metadataset_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_category_tags_relations_query_template, "htp_metadataset_tags_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_dataset_pub_query_template, "htp_metadataset_publications_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_pub_relation_template, "htp_metadataset_publication_relations_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htpdataset_xrefs_template, "htp_metadataset_xrefs_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [HTPMetaDatasetETL.htp_secondaryIds_query_template, "htp_metadataset_secondaryIds_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         # Obtain the generator

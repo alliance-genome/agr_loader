@@ -23,23 +23,25 @@ class ExpressionAtlasETL(ETL):
 
     get_mod_gene_symbol_to_primary_ids_query = """
         MATCH (g:Gene)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         RETURN g.primaryKey, g.symbol"""
 
     get_genes_with_expression_atlas_links_query = """
         MATCH (g:Gene)
-        WHERE LOWER(g.primaryKey) IN {parameter}
+        WHERE toLower(g.primaryKey) IN $parameter
         RETURN g.primaryKey, g.modLocalId"""
 
     # Query templates which take params and will be processed later
 
     add_expression_atlas_crossreferences_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-        MATCH (o:Gene)
-        WHERE o.primaryKey = row.genePrimaryKey
-        """ + ETLHelper.get_cypher_xref_text()
+            CALL {
+                WITH row
+                MATCH (o:Gene)
+                WHERE o.primaryKey = row.genePrimaryKey
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialise object."""
@@ -110,8 +112,8 @@ class ExpressionAtlasETL(ETL):
         generators = self.get_generators(expression_atlas_gene_pages, data_provider, batch_size)
 
         query_template_list = [
-            [self.add_expression_atlas_crossreferences_query_template, commit_size,
-             "expression_atlas_" + data_provider + "_data.csv"],
+            [self.add_expression_atlas_crossreferences_query_template, 
+             "expression_atlas_" + data_provider + "_data.csv", commit_size],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

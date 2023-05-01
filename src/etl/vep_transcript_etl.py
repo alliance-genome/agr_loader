@@ -20,8 +20,9 @@ class VEPTranscriptETL(ETL):
     # Query templates which take params and will be processed later
 
     vep_transcript_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
                 MATCH (g:Transcript {primaryKey:row.transcriptId})
                 MATCH (a:Variant {hgvsNomenclature:row.hgvsNomenclature})
@@ -70,7 +71,9 @@ class VEPTranscriptETL(ETL):
                         SET syn.name = row.hgvsVEPGeneNomenclature
                 MERGE (a)-[aka2:ALSO_KNOWN_AS]->(syn)
 
-            """
+            }
+        IN TRANSACTIONS of %s ROWS"""
+
 
     def __init__(self, config):
         """Initialise object."""
@@ -95,8 +98,8 @@ class VEPTranscriptETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.vep_transcript_query_template, commit_size,
-             "vep_transcript_data_" + sub_type.get_data_provider() + ".csv"]
+            [self.vep_transcript_query_template,
+             "vep_transcript_data_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator

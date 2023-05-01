@@ -19,16 +19,19 @@ class SOETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MERGE (s:SOTerm:Ontology {primaryKey:row.id})
-            SET s.name = row.name
+                MERGE (s:SOTerm:Ontology {primaryKey:row.id})
+                    SET s.name = row.name
 
-            MERGE (s)-[ggcg:IS_A_PART_OF_CLOSURE]->(s)"""
+                    MERGE (s)-[ggcg:IS_A_PART_OF_CLOSURE]->(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
-        """Initialie iobject."""
+        """Initialise iobject."""
         super().__init__()
         self.data_type_config = config
 
@@ -40,7 +43,7 @@ class SOETL(ETL):
 
         generators = self.get_generators(filepath)
 
-        query_template_list = [[self.main_query_template, commit_size, "so_term_data.csv"]]
+        query_template_list = [[self.main_query_template, "so_term_data.csv", commit_size]]
 
         query_and_file_list = self.process_query_params(query_template_list)
         CSVTransactor.save_file_static(generators, query_and_file_list)

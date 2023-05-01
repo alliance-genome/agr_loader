@@ -17,15 +17,18 @@ class BiogridOrcsXrefETL(ETL):
     logger = logging.getLogger(__name__)
 
     biogrid_orcs_xref_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-
-        MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
-        """ + ETLHelper.get_cypher_xref_text()
+            CALL {
+                WITH row
+                
+                MATCH (o:Gene) where o.primaryKey = row.genePrimaryKey
+                """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     gene_crossref_query_template = """
                    MATCH (g:Gene)-[crr:CROSS_REFERENCE]-(cr:CrossReference)
-                   WHERE cr.globalCrossRefId IN {parameter}
+                   WHERE cr.globalCrossRefId IN $parameter
                    RETURN g.primaryKey, g.modLocalId, cr.name, cr.globalCrossRefId"""
 
     def __init__(self, config):
@@ -42,7 +45,7 @@ class BiogridOrcsXrefETL(ETL):
         generators = self.get_generators(entrez_ids)
 
         query_template_list = [
-            [self.biogrid_orcs_xref_query_template, commit_size, "biogrid_orcs_xref_data.csv"],
+            [self.biogrid_orcs_xref_query_template, "biogrid_orcs_xref_data.csv", commit_size],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)

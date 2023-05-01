@@ -16,17 +16,21 @@ class ExpressionRibbonOtherETL(ETL):
 
     ribbonless_ebes_query = """
         MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
-        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey;
+        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey
     """
 
     # Query templates which take params and will be processed later
 
     insert_ribonless_ebes_query_template = """
-            USING PERIODIC COMMIT %s
-            LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+        LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
+
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_id})
                 MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
-                MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm) """
+                MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialize object."""
@@ -37,7 +41,7 @@ class ExpressionRibbonOtherETL(ETL):
         self.logger.info("Starting Expression Ribbon Data")
 
         query_template_list = [
-            [self.insert_ribonless_ebes_query_template, "30000", "expression_ribbonless_ebes" + ".csv"]
+            [self.insert_ribonless_ebes_query_template, "expression_ribbonless_ebes" + ".csv", "30000"]
         ]
 
         generators = self.get_ribbon_terms()

@@ -19,242 +19,298 @@ class ExpressionETL(ETL):
     # Query templates which take params and will be processed later
 
     xrefs_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
-            MATCH (o:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-        """ + ETLHelper.get_cypher_xref_text()
+            CALL {
+                WITH row
+
+                MATCH (o:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+            """ + ETLHelper.get_cypher_xref_text() + """
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     bio_entity_expression_query_template = """
 
-    USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-    MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-         ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement"""
+                MERGE (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                ON CREATE SET e.whereExpressedStatement = row.whereExpressedStatement
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     bio_entity_gene_expression_join_query_template = """
 
-     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-        MERGE (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-            ON CREATE SET gej.joinType = 'expression'
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MERGE (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                    ON CREATE SET gej.joinType = 'expression',
+                    gej :Association
 
-        MERGE (gej)-[geja:ASSAY]->(assay)"""
+                MERGE (gej)-[geja:ASSAY]->(assay)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     bio_entity_gene_ao_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                AND NOT 'FBCVTerm' in LABELS(otast)
+                MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otast)
+                    AND NOT 'FBCVTerm' in LABELS(otast)
 
-            MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
-            MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)"""
+                MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                        ON CREATE SET gex.uuid = row.ei_uuid
+                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]->(otast)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     add_pubs_query_template = """
 
-     USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
 
-            MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
-                    ON CREATE SET pubf.pubModId = row.pubModId,
-                     pubf.pubMedId = row.pubMedId,
-                     pubf.pubModUrl = row.pubModUrl,
-                     pubf.pubMedUrl = row.pubMedUrl
+                MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
+                        ON CREATE SET pubf.pubModId = row.pubModId,
+                        pubf.pubMedId = row.pubMedId,
+                        pubf.pubModUrl = row.pubModUrl,
+                        pubf.pubMedUrl = row.pubMedUrl
 
-            CREATE (gej)-[gejpubf:EVIDENCE]->(pubf) """
+                CREATE (gej)-[gejpubf:EVIDENCE]->(pubf)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_expression_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            // GET PRIMARY DATA OBJECTS
+                // GET PRIMARY DATA OBJECTS
 
-            // LOAD NODES
-            MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                // LOAD NODES
+                MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
 
-            MERGE (g)-[ggej:ASSOCIATION]->(gej)
-            MERGE (e)-[egej:ASSOCIATION]->(gej)"""
+                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                MERGE (e)-[egej:ASSOCIATION]->(gej)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     sgd_cc_expression_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            // GET PRIMARY DATA OBJECTS
+                // GET PRIMARY DATA OBJECTS
 
-            // LOAD NODES
-            MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+                // LOAD NODES
+                MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
 
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
 
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                    MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                        ON CREATE SET gex.uuid = row.ei_uuid
+                    MERGE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                    MERGE (g)-[ggej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                    MERGE (e)-[egej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
+                    MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     cc_expression_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            // GET PRIMARY DATA OBJECTS
+                // GET PRIMARY DATA OBJECTS
 
-            // LOAD NODES
-            MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+                // LOAD NODES
+                MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
 
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
 
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                    MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                        ON CREATE SET gex.uuid = row.ei_uuid
 
 
-                MERGE (gej)-[geja:ASSAY]->(assay)
+                    MERGE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
+                    MERGE (g)-[ggej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                    MERGE (e)-[egej:ASSOCIATION]->(gej)
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)"""
+                    MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ao_cc_expression_query_template = """
 
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            // GET PRIMARY DATA OBJECTS
+                // GET PRIMARY DATA OBJECTS
 
-            // LOAD NODES
-            MATCH (g:Gene {primaryKey:row.geneId})
-            MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-            MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
-            MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otast)
-                    AND NOT 'FBCVTerm' in LABELS(otast)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (gej:BioEntityGeneExpressionJoin:Association {primaryKey:row.ei_uuid})
+                // LOAD NODES
+                MATCH (g:Gene {primaryKey:row.geneId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
+                MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otast)
+                        AND NOT 'FBCVTerm' in LABELS(otast)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
 
-            WITH g, e, gej, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
-
-
-                MERGE (g)-[gex:EXPRESSED_IN]->(e)
-                    ON CREATE SET gex.uuid = row.ei_uuid
+                WITH g, e, gej, assay, otcct, otast, row WHERE NOT otast IS NULL AND NOT otcct IS NULL
 
 
-                MERGE (gej)-[geja:ASSAY]->(assay)
-
-                MERGE (g)-[ggej:ASSOCIATION]->(gej)
-
-                MERGE (e)-[egej:ASSOCIATION]->(gej)
+                    MERGE (g)-[gex:EXPRESSED_IN]->(e)
+                        ON CREATE SET gex.uuid = row.ei_uuid
 
 
-                MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+                    MERGE (gej)-[geja:ASSAY]->(assay)
 
-                MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)"""
+                    MERGE (g)-[ggej:ASSOCIATION]->(gej)
+
+                    MERGE (e)-[egej:ASSOCIATION]->(gej)
+
+
+                    MERGE (e)-[eotcct:CELLULAR_COMPONENT]->(otcct)
+
+                    MERGE (e)-[gejotast:ANATOMICAL_STRUCTURE]-(otast)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eas_substructure_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasst)
-                    AND NOT 'FBCVTerm' in LABELS(otasst)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst) """
+                MATCH (otasst:Ontology {primaryKey:row.anatomicalSubStructureTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasst)
+                        AND NOT 'FBCVTerm' in LABELS(otasst)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotasst:ANATOMICAL_SUB_SUBSTRUCTURE]->(otasst)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eas_qualified_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otastq)
-                    AND NOT 'FBCVTerm' in LABELS(otastq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq) """
+                MATCH (otastq:Ontology {primaryKey:row.anatomicalStructureQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otastq)
+                        AND NOT 'FBCVTerm' in LABELS(otastq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MERGE (e)-[eotastq:ANATOMICAL_STRUCTURE_QUALIFIER]-(otastq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     eass_qualified_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otasstq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (otasstq:Ontology {primaryKey:row.anatomicalSubStructureQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otasstq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
 
-            MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq) """
+                MERGE (e)-[eotasstq:ANATOMICAL_SUB_STRUCTURE_QUALIFIER]-(otasstq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     ccq_expression_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
-                WHERE NOT 'UBERONTerm' in LABELS(otcctq)
-            MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (otcctq:Ontology {primaryKey:row.cellularComponentQualifierTermId})
+                    WHERE NOT 'UBERONTerm' in LABELS(otcctq)
+                MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
 
-            MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq) """
+                MERGE (e)-[eotcctq:CELLULAR_COMPONENT_QUALIFIER]-(otcctq)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     stage_expression_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MERGE (s:Stage {primaryKey:row.stageName})
-                ON CREATE SET s.name = row.stageName
-            MERGE (ei)-[eotcctq:DURING]-(s) """
-
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MERGE (s:Stage {primaryKey:row.stageName})
+                    ON CREATE SET s.name = row.stageName
+                MERGE (ei)-[eotcctq:DURING]-(s)
+            }
+        IN TRANSACTIONS of %s ROWS"""
+    
     uberon_ao_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
-            MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o) """
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})
+                MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_stage_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
 
-            MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o) """
+                MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_ao_other_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
-            MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u) """
+                MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
+                MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     uberon_stage_other_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-            MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
 
-            MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u) """
+                MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Ibnitialise object."""
@@ -296,48 +352,36 @@ class ExpressionETL(ETL):
 
         # This needs to be in this format (template, param1, params2) others will be ignored
         query_template_list = [
-            [self.bio_entity_expression_query_template, commit_size,
-             "expression_entities_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_ao_query_template, commit_size,
-             "expression_gene_ao_" + sub_type.get_data_provider() + ".csv"],
-            [self.bio_entity_gene_expression_join_query_template, commit_size,
-             "expression_entity_joins_" + sub_type.get_data_provider() + ".csv"],
-            [self.ao_expression_query_template, commit_size,
-             "expression_ao_expression_" + sub_type.get_data_provider() + ".csv"]
+            [self.bio_entity_expression_query_template,
+             "expression_entities_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.bio_entity_gene_ao_query_template,
+             "expression_gene_ao_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.bio_entity_gene_expression_join_query_template,
+             "expression_entity_joins_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.ao_expression_query_template,
+             "expression_ao_expression_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         if data_provider == 'SGD':
-            query_template_list += [[self.sgd_cc_expression_query_template, commit_size,
-                                     "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
+            query_template_list += [[self.sgd_cc_expression_query_template,
+                                     "expression_SGD_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size]]
         else:
-            query_template_list += [[self.cc_expression_query_template, commit_size,
-                                     "expression_cc_expression_" + sub_type.get_data_provider() + ".csv"]]
+            query_template_list += [[self.cc_expression_query_template, 
+                                     "expression_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size,]]
 
         query_template_list += [
-            [self.ao_cc_expression_query_template, commit_size,
-             "expression_ao_cc_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.eas_qualified_query_template, commit_size,
-             "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv"],
-            [self.eas_substructure_query_template, commit_size,
-             "expression_eas_substructure_" + sub_type.get_data_provider() + ".csv"],
-            [self.eass_qualified_query_template, commit_size,
-             "expression_eass_qualified_" + sub_type.get_data_provider() + ".csv"],
-            [self.ccq_expression_query_template, commit_size,
-             "expression_ccq_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.stage_expression_query_template, commit_size,
-             "expression_stage_expression_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_stage_query_template, commit_size,
-             "expression_uberon_stage_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_ao_query_template, commit_size,
-             "expression_uberon_ao_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_ao_other_query_template, commit_size,
-             "expression_uberon_ao_other_" + sub_type.get_data_provider() + ".csv"],
-            [self.uberon_stage_other_query_template, commit_size,
-             "expression_uberon_stage_other_" + sub_type.get_data_provider() + ".csv"],
-            [self.xrefs_query_template, commit_size,
-             "expression_cross_references_" + sub_type.get_data_provider() + ".csv"],
-            [self.add_pubs_query_template, commit_size,
-             "expression_add_pubs_" + sub_type.get_data_provider() + ".csv"]
+            [self.ao_cc_expression_query_template, "expression_ao_cc_expression_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.eas_qualified_query_template, "expression_eas_qualified_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.eas_substructure_query_template, "expression_eas_substructure_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.eass_qualified_query_template, "expression_eass_qualified_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.ccq_expression_query_template, "expression_ccq_expression_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.stage_expression_query_template, "expression_stage_expression_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.uberon_stage_query_template, "expression_uberon_stage_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.uberon_ao_query_template, "expression_uberon_ao_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.uberon_ao_other_query_template, "expression_uberon_ao_other_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.uberon_stage_other_query_template, "expression_uberon_stage_other_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.xrefs_query_template, "expression_cross_references_" + sub_type.get_data_provider() + ".csv", commit_size],
+            [self.add_pubs_query_template, "expression_add_pubs_" + sub_type.get_data_provider() + ".csv", commit_size]
         ]
 
         # Obtain the generator
@@ -357,11 +401,14 @@ class ExpressionETL(ETL):
 
         add_other_query = """
 
-            MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+            MERGE(other:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 ON CREATE SET other.name = 'other'
-            MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
-                ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
-            MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                ON CREATE SET other :Ontology
+            MERGE(otherstage:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                ON CREATE SET otherstage.name = 'post embryonic, pre-adult',
+                otherstage :Ontology
+            MERGE(othergo:GOTerm {primaryKey:'GO:otherLocations'})
+                ON CREATE SET othergo :Ontology
                 ON CREATE SET othergo.name = 'other locations'
                 ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
                 ON CREATE SET othergo.type = 'other'

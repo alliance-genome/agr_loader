@@ -79,18 +79,21 @@ class GeneDescriptionsETL(ETL):
     # Query templates which take params and will be processed later
 
     gene_descriptions_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-        MATCH (o:Gene)
-        WHERE o.primaryKey = row.genePrimaryKey
-        SET o.automatedGeneSynopsis = row.geneDescription"""
+                MATCH (o:Gene)
+                WHERE o.primaryKey = row.genePrimaryKey
+                SET o.automatedGeneSynopsis = row.geneDescription
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     # Querys which do not take params and can be used as is
 
     get_all_genes_query = """
         MATCH (g:Gene)
-        WHERE g.dataProvider = {parameter} AND NOT g.primaryKey CONTAINS "HGNC:"
+        WHERE g.dataProvider = $parameter AND NOT g.primaryKey CONTAINS "HGNC:"
         RETURN g.primaryKey, g.symbol"""
 
     get_all_genes_human_query = """
@@ -101,7 +104,7 @@ class GeneDescriptionsETL(ETL):
     get_gene_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         MATCH (dga)-[:EVIDENCE]->(pec:PublicationJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId,
                         g.symbol AS geneSymbol,
@@ -113,7 +116,7 @@ class GeneDescriptionsETL(ETL):
     get_feature_disease_annot_query = """
         MATCH (d:DOTerm:Ontology)-[r:IS_MARKER_FOR|IS_IMPLICATED_IN|IS_MODEL_OF]-(f)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE f.dataProvider = {parameter}
+        WHERE f.dataProvider = $parameter
         MATCH (f)<-[:IS_ALLELE_OF]->(g:Gene)
         MATCH (dga)-[:EVIDENCE]->(pec:PublicationJoin)-[:ASSOCIATION]-(e:ECOTerm)
         RETURN DISTINCT g.primaryKey AS geneId,
@@ -127,7 +130,7 @@ class GeneDescriptionsETL(ETL):
     get_filtered_human_orthologs_query = """
         MATCH (g2)<-[orth:ORTHOLOGOUS]-(g:Gene)-[:ASSOCIATION]->(ogj:Association:OrthologyGeneJoin)-[:ASSOCIATION]->
         (g2:Gene)
-        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = {parameter} AND g2.taxonId ='NCBITaxon:9606' AND
+        WHERE ogj.joinType = 'orthologous' AND g.dataProvider = $parameter AND g2.taxonId ='NCBITaxon:9606' AND
         orth.strictFilter = true
         MATCH (ogj)-[:MATCHED]->(oa:OrthoAlgorithm)
         RETURN g.primaryKey AS geneId,
@@ -139,7 +142,7 @@ class GeneDescriptionsETL(ETL):
     get_disease_via_orthology_query = """
         MATCH (d:DOTerm:Ontology)-[r:IMPLICATED_VIA_ORTHOLOGY]-(g:Gene)-[:ASSOCIATION]->
         (dga:Association:DiseaseEntityJoin)-[:ASSOCIATION]->(d)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         MATCH (dga)-[:FROM_ORTHOLOGOUS_GENE]-(orthGene:Gene)
         WHERE orthGene.taxonId = 'NCBITaxon:9606'
         RETURN DISTINCT g.primaryKey AS geneId,
@@ -160,7 +163,7 @@ class GeneDescriptionsETL(ETL):
 
     get_expression_annotations_query = """
         MATCH (g:Gene)-[EXPRESSED_IN]->(:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE|ANATOMICAL_SUB_STRUCTURE]->(t:Ontology)-[:IS_A|PART_OF]->(t2:Ontology)
-        WHERE g.dataProvider = {parameter}
+        WHERE g.dataProvider = $parameter
         RETURN g.primaryKey AS geneId,
                g.symbol AS geneSymbol,
                t.primaryKey AS TermId,
@@ -234,8 +237,8 @@ class GeneDescriptionsETL(ETL):
                                              gd_config_mod_specific,
                                              json_desc_writer)
             query_template_list = [
-                [self.gene_descriptions_query_template, commit_size,
-                 "genedescriptions_data_" + prvdr + ".csv"]
+                [self.gene_descriptions_query_template, 
+                 "genedescriptions_data_" + prvdr + ".csv", commit_size]
             ]
 
             query_and_file_list = self.process_query_params(query_template_list)

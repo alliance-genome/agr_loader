@@ -17,12 +17,15 @@ class GOAnnotETL(ETL):
     # Query templates which take params and will be processed later
 
     main_query_template = """
-        USING PERIODIC COMMIT %s
         LOAD CSV WITH HEADERS FROM \'file:///%s\' AS row
+            CALL {
+                WITH row
 
-            MATCH (g:Gene {primaryKey:row.gene_id})
-            MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
-            CREATE (g)-[:ANNOTATED_TO]->(go) """
+                MATCH (g:Gene {primaryKey:row.gene_id})
+                MATCH (go:GOTerm:Ontology {primaryKey:row.go_id})
+                CREATE (g)-[:ANNOTATED_TO]->(go)
+            }
+        IN TRANSACTIONS of %s ROWS"""
 
     def __init__(self, config):
         """Initialize object."""
@@ -68,8 +71,8 @@ class GOAnnotETL(ETL):
             batch_size)
 
         query_template_list = [
-            [self.main_query_template, commit_size,
-             "go_annot_" + sub_type.get_data_provider() + ".csv"],
+            [self.main_query_template, 
+             "go_annot_" + sub_type.get_data_provider() + ".csv", commit_size],
         ]
 
         query_and_file_list = self.process_query_params(query_template_list)
