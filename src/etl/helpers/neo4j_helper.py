@@ -160,6 +160,7 @@ class Neo4jHelper:
                         "(n:Ontology) on (n.name)",
                         "(n:Ontology) on (n.primaryKey)",
                         "(n:OntologyGeneJoin) on (n.primaryKey)",
+                        "(n:OrthologyGeneJoin) on (n.primaryKey)",
                         "(n:Phenotype) on (n.primaryKey)",
                         "(n:PhenotypeEntityJoin) on (n.primaryKey)",
                         "(n:PhenotypePublicationJoin) on (n.primaryKey)",
