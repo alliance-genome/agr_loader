@@ -11,6 +11,7 @@ from .mi_etl import MIETL
 from .variation_etl import VariationETL
 from .phenotype_etl import PhenoTypeETL
 from .orthology_etl import OrthologyETL
+from .paralogy_etl import ParalogyETL
 from .helpers import *
 from .generic_ontology_etl import GenericOntologyETL
 from .go_annot_etl import GOAnnotETL
