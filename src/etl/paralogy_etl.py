@@ -102,7 +102,8 @@ class ParalogyETL(ETL):
                             "OrthoInspector", 
                             "PANTHER", 
                             "PhylomeDB", 
-                            "SonicParanoid", 
+                            "SonicParanoid",
+                            "SGD", 
                             "Xenbase", 
                             "ZFIN"]
 
@@ -248,8 +249,8 @@ class ParalogyETL(ETL):
                 gene_2 = ETLHelper.process_identifiers(para_record['gene2'])
                 # 'DRSC:'' removed, local ID, functions as display ID.
 
-                gene_1_species_taxon_id = para_record['gene1Species']
-                gene_2_species_taxon_id = para_record['gene2Species']
+                gene_1_species_taxon_id = para_record['species']
+                gene_2_species_taxon_id = para_record['species']
 
                 # Prefixed according to AGR prefixes.
                 gene_1_agr_primary_id = ETLHelper.add_agr_prefix_by_species_taxon(
