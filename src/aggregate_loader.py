@@ -99,7 +99,7 @@ class AggregateLoader():
         'ExpressionRibbonOther': ExpressionRibbonOtherETL,
         'DAF': DiseaseETL,
         'ORTHO': OrthologyETL,
-        'PARA' : ParalogyETL,
+        'PARALOGY' : ParalogyETL,
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
