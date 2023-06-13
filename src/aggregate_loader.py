@@ -137,7 +137,7 @@ class AggregateLoader():
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
-        ['PARALOGY']
+        ['PARALOGY'],
         ['GeneDiseaseOrtho'],
         ['GFF'],
         ['EXPRESSION'],
