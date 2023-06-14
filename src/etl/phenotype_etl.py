@@ -33,9 +33,9 @@ class PhenoTypeETL(ETL):
                     pa.dataProvider = row.dataProvider,
                     pa :Association
 
-                CREATE (allele)-[fpaf:ASSOCIATION]->(pa)
-                CREATE (pa)-[pad:ASSOCIATION]->(p)
-                CREATE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                MERGE (allele)-[fpaf:ASSOCIATION]->(pa)
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (allele)-[:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -69,9 +69,9 @@ class PhenoTypeETL(ETL):
                     pa.dataProvider = row.dataProvider,
                     pa :Association
 
-                CREATE (pa)-[pad:ASSOCIATION]->(p)
-                CREATE (g)-[gpa:ASSOCIATION]->(pa)
-                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
@@ -105,9 +105,9 @@ class PhenoTypeETL(ETL):
                     pa.dataProvider = row.dataProvider,
                     pa :Association
 
-                CREATE (pa)-[pad:ASSOCIATION]->(p)
-                CREATE (g)-[gpa:ASSOCIATION]->(pa)
-                CREATE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
+                MERGE (pa)-[pad:ASSOCIATION]->(p)
+                MERGE (g)-[gpa:ASSOCIATION]->(pa)
+                MERGE (g)-[genep:HAS_PHENOTYPE {uuid:row.phenotypeUniqueKey}]->(p)
 
                 MERGE (pubf:Publication {primaryKey:row.pubPrimaryKey})
                     ON CREATE SET pubf.pubModId = row.pubModId,
