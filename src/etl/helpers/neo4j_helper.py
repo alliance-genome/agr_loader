@@ -118,6 +118,7 @@ class Neo4jHelper:
                     ['n:CDS', 'n.primaryKey'], 
                     ['n:GenomicLocation', 'n.primaryKey'],
                     ['n:OrthoAlgorithm', 'n.name']
+                    ['n:ParaAlgorithm', 'n.name']
                     ]
 
             # Constraints must be run before indices.
@@ -161,6 +162,7 @@ class Neo4jHelper:
                         "(n:Ontology) on (n.primaryKey)",
                         "(n:OntologyGeneJoin) on (n.primaryKey)",
                         "(n:OrthologyGeneJoin) on (n.primaryKey)",
+                        "(n:ParalogyGeneJoin) on (n.primaryKey)",
                         "(n:Phenotype) on (n.primaryKey)",
                         "(n:PhenotypeEntityJoin) on (n.primaryKey)",
                         "(n:PhenotypePublicationJoin) on (n.primaryKey)",
