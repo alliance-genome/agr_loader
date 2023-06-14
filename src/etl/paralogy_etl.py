@@ -238,9 +238,11 @@ class ParalogyETL(ETL):
 
         list_of_mod_lists = {}
 
+        print('sub_types:' + sub_types)
+        print('sub_type:' + sub_type)
+
         for mod_sub_type in sub_types:
-            if mod_sub_type != sub_type:
-                list_of_mod_lists[mod_sub_type] = []
+            list_of_mod_lists[mod_sub_type] = []
 
         self.logger.info("streaming json data from %s ...", datafile)
         with codecs.open(datafile, 'r', 'utf-8') as file_handle:
