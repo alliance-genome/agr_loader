@@ -117,7 +117,7 @@ class Neo4jHelper:
                     ['n:Transcript', 'n.primaryKey'],
                     ['n:CDS', 'n.primaryKey'], 
                     ['n:GenomicLocation', 'n.primaryKey'],
-                    ['n:OrthoAlgorithm', 'n.name']
+                    ['n:OrthoAlgorithm', 'n.name'],
                     ['n:ParaAlgorithm', 'n.name']
                     ]
 
