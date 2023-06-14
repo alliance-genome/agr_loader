@@ -35,6 +35,8 @@ class TestClass():
                                      dict(relationship='IS_MARKER_FOR'),
                                      dict(relationship='IS_NOT_MARKER_FOR'),
                                      dict(relationship='ASSOCIATION'),
+                                     dict(relationship='PARALOGOUS'),
+                                     dict(relationship='ORTHOLOGOUS')
                                      ],
 
         'test_node_exists': [dict(node='Ontology'),
@@ -63,6 +65,8 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin'),
                              dict(node='OrthologyGeneJoin'),
                              dict(node='OrthoAlgorithm'),
+                             dict(node='ParalogyGeneJoin'),
+                             dict(node='ParaAlgorithm'),
                              dict(node='Load'),
                              dict(node='ExpressionBioEntity'),
                              dict(node='Stage'),
