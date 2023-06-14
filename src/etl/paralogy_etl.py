@@ -238,8 +238,10 @@ class ParalogyETL(ETL):
 
         list_of_mod_lists = {}
 
-        print('sub_types:' + sub_types)
-        print('sub_type:' + sub_type)
+        print('sub_types:')
+        print(sub_types)
+        print('sub_type:')
+        print(sub_type)
 
         for mod_sub_type in sub_types:
             list_of_mod_lists[mod_sub_type] = []
