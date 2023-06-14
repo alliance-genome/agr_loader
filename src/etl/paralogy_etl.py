@@ -140,18 +140,21 @@ class ParalogyETL(ETL):
             if "algorithm" in item[1]:
                 algo_queries.append(item)
 
-        main_list = self.get_randomized_list(sub_types)
+        # main_list = self.get_randomized_list(sub_types)
 
-        for file_set in main_list:
-            for pair in file_set:
-                for item in queries:
-                    if pair[0] + "_" + pair[1] in item[1]:
-                        self.logger.debug("Pair: %s Item: %s", pair, item[1])
-                        Neo4jTransactor.execute_query_batch([item])
+        # for file_set in main_list:
+        #     for pair in file_set:
+        #         for item in queries:
+        #             if pair[0] + "_" + pair[1] in item[1]:
+        #                 self.logger.debug("Pair: %s Item: %s", pair, item[1])
+        #                 Neo4jTransactor.execute_query_batch([item])
 
-            Neo4jTransactor().wait_for_queues()
+        # Neo4jTransactor().wait_for_queues()
 
         Neo4jTransactor.execute_query_batch(algo_queries)
+        self.error_messages()
+
+        Neo4jTransactor.execute_query_batch(queries)
         self.error_messages()
 
     def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
@@ -195,35 +198,35 @@ class ParalogyETL(ETL):
         self.error_messages("Paralogy-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Paralogy Data: %s", sub_type.get_data_provider())
 
-    def get_randomized_list(self, sub_types):
-        """Get Randomized List."""
-        pairs = [perm for perm in permutations(sub_types, 2)]
+    # def get_randomized_list(self, sub_types):
+    #     """Get Randomized List."""
+    #     pairs = [perm for perm in permutations(sub_types, 2)]
 
-        list_o = []
-        counter = 0
-        while (len(list_o) == 0 or len(list_o) > len(sub_types) * 2) and counter < 10000:
+    #     list_o = []
+    #     counter = 0
+    #     while (len(list_o) == 0 or len(list_o) > len(sub_types) * 2) and counter < 10000:
 
-            list_o = []
+    #         list_o = []
 
-            shuffle(pairs)
-            for pair in pairs:
-                inserted = False
-                for item in list_o:
-                    found = False
-                    for item2 in item:
-                        if pair[0] in item2 or pair[1] in item2:
-                            found = True
-                            break
-                    if not found:
-                        item.append(pair)
-                        inserted = True
-                        break
-                if not inserted:
-                    list_o.append([pair])
+    #         shuffle(pairs)
+    #         for pair in pairs:
+    #             inserted = False
+    #             for item in list_o:
+    #                 found = False
+    #                 for item2 in item:
+    #                     if pair[0] in item2 or pair[1] in item2:
+    #                         found = True
+    #                         break
+    #                 if not found:
+    #                     item.append(pair)
+    #                     inserted = True
+    #                     break
+    #             if not inserted:
+    #                 list_o.append([pair])
 
-            counter += 1
+    #         counter += 1
 
-        return list_o
+    #     return list_o
 
     def get_generators(self, datafile, sub_type, sub_types, batch_size):  # noqa
         """Get Generators."""
