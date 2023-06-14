@@ -113,17 +113,12 @@ class ParalogyETL(ETL):
                 for result in results:
                     self.logger.debug(result)
 
-        sub_types = []
-
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            sub_types.append(sub_type.get_data_provider())
-
         thread_pool = []
 
         query_tracking_list = multiprocessing.Manager().list()
         for sub_type in self.data_type_config.get_sub_type_objects():
             process = multiprocessing.Process(target=self._process_sub_type,
-                                              args=(sub_type, sub_types,
+                                              args=(sub_type,
                                                     query_tracking_list))
             process.start()
             thread_pool.append(process)
@@ -157,7 +152,7 @@ class ParalogyETL(ETL):
         Neo4jTransactor.execute_query_batch(queries)
         self.error_messages()
 
-    def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
+    def _process_sub_type(self, sub_type, query_tracking_list):
         self.logger.info("Loading Paralogy Data: %s", sub_type.get_data_provider())
         filepath = sub_type.get_filepath()
         # data = JSONFile().get_data(filepath)
@@ -167,17 +162,13 @@ class ParalogyETL(ETL):
 
         generators = self.get_generators(filepath,
                                          sub_type.get_data_provider(),
-                                         sub_types,
                                          batch_size)
 
         query_template_list = []
 
-        for mod_sub_type in sub_types:
-            if mod_sub_type != sub_type.get_data_provider():
-                query_template_list.append(
-                    [self.main_query_template,
-                     "Paralogy_data_" + sub_type.get_data_provider() + "_" + mod_sub_type + ".csv", "100000"])
-
+        query_template_list.append(
+            [self.main_query_template,
+            "Paralogy_data_" + sub_type.get_data_provider() + ".csv", "100000"])
         query_template_list.append(
             [self.matched_algorithm_query_template, 
              "Paralogy_matched_algorithm_data_{}.csv".format(sub_type.get_data_provider()), commit_size])
@@ -228,23 +219,14 @@ class ParalogyETL(ETL):
 
     #     return list_o
 
-    def get_generators(self, datafile, sub_type, sub_types, batch_size):  # noqa
+    def get_generators(self, datafile, sub_type, batch_size):  # noqa
         """Get Generators."""
         counter = 0
 
         matched_algorithm_data = []
         unmatched_algorithm_data = []
         not_called_algorithm_data = []
-
-        list_of_mod_lists = {}
-
-        print('sub_types:')
-        print(sub_types)
-        print('sub_type:')
-        print(sub_type)
-
-        for mod_sub_type in sub_types:
-            list_of_mod_lists[mod_sub_type] = []
+        paralogy_data = []
 
         self.logger.info("streaming json data from %s ...", datafile)
         with codecs.open(datafile, 'r', 'utf-8') as file_handle:
@@ -294,7 +276,7 @@ class ParalogyETL(ETL):
                         'moderateFilter': para_record['moderateFilter'],
                         'uuid': para_uuid
                     }
-                    list_of_mod_lists[gene_2_data_provider].append(para_dataset)
+                    paralogy_data.append(para_dataset)
 
                     for matched in para_record.get('predictionMethodsMatched'):
                         matched_dataset = {
@@ -320,18 +302,14 @@ class ParalogyETL(ETL):
                     # Establishes the number of entries to yield (return) at a time.
                     if counter == batch_size:
                         list_to_yield = []
-                        for mod_sub_type in sub_types:
-                            if mod_sub_type != sub_type:
-                                list_to_yield.append(list_of_mod_lists[mod_sub_type])
+                        list_to_yield.append(paralogy_data)
                         list_to_yield.append(matched_algorithm_data)
                         list_to_yield.append(unmatched_algorithm_data)
                         list_to_yield.append(not_called_algorithm_data)
 
                         yield list_to_yield
 
-                        for mod_sub_type in sub_types:
-                            if mod_sub_type != sub_type:
-                                list_of_mod_lists[mod_sub_type] = []
+                        paralogy_data = []
                         matched_algorithm_data = []
                         unmatched_algorithm_data = []
                         not_called_algorithm_data = []
@@ -339,9 +317,7 @@ class ParalogyETL(ETL):
 
             if counter > 0:
                 list_to_yield = []
-                for mod_sub_type in sub_types:
-                    if mod_sub_type != sub_type:
-                        list_to_yield.append(list_of_mod_lists[mod_sub_type])
+                list_to_yield.append(paralogy_data)
                 list_to_yield.append(matched_algorithm_data)
                 list_to_yield.append(unmatched_algorithm_data)
                 list_to_yield.append(not_called_algorithm_data)
