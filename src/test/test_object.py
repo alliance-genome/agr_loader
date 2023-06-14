@@ -306,6 +306,8 @@ class TestObject():
             'FB:FBlc0003325', 'FB:FBlc0003347', 'FB:FBlc0003498', 'FB:FBlc0000236',
             # interactions
             'FB:FBgn0063493', 'FB:FBgn0063492',
+            # paralogy
+            'FB:FBgn0261633', 'FB:FBgn0261630'
         }
 
         self.rgd_test_set = {

@@ -101,6 +101,9 @@ ExpressionAtlas:
 ORTHO:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT, HUMAN]
+PARALOGY:
+  type: list
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXT, HUMAN]
 ExpressionRibbon:
   type: list
   allowed: [ExpressionRibbon]

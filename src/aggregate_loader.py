@@ -16,7 +16,7 @@ from etl import (BGIETL, DOETL, ECOMAPETL, ETL, GOETL, MIETL, VEPETL,
                  GeneDescriptionsETL, GeneDiseaseOrthoETL, GenericOntologyETL,
                  GeoXrefETL, GOAnnotETL, GeneticInteractionETL,
                  MolecularInteractionETL, Neo4jHelper, NodeCountETL,
-                 OrthologyETL, PhenoTypeETL, SequenceTargetingReagentETL,
+                 OrthologyETL, ParalogyETL, PhenoTypeETL, SequenceTargetingReagentETL,
                  SpeciesETL, TranscriptETL, VariationETL, VEPTranscriptETL,
                  ProteinSequenceETL, HTPMetaDatasetSampleETL,
                  HTPMetaDatasetETL, GenePhenoCrossReferenceETL,
@@ -99,6 +99,7 @@ class AggregateLoader():
         'ExpressionRibbonOther': ExpressionRibbonOtherETL,
         'DAF': DiseaseETL,
         'ORTHO': OrthologyETL,
+        'PARALOGY' : ParalogyETL,
         'Closure': ClosureETL,
         'GAF': GOAnnotETL,
         'GEOXREF': GeoXrefETL,
@@ -136,6 +137,7 @@ class AggregateLoader():
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
+        ['PARALOGY'],
         ['GeneDiseaseOrtho'],
         ['GFF'],
         ['EXPRESSION'],
