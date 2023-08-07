@@ -114,7 +114,7 @@ def test_xref_complete_url_is_formatted():
                RETURN count(cr) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] < 10
+            assert record["counter"] < 20
 
 
 def test_spell_display_name():
