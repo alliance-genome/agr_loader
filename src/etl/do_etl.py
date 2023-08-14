@@ -25,8 +25,8 @@ class DOETL(ETL):
 
                 //Create the DOTerm node and set properties. primaryKey is required.
                 MERGE (doterm:DOTerm {primaryKey:row.oid})
-                    ON CREATE SET doterm :Ontology,
                     SET doterm.name = row.name,
+                    doterm :Ontology,
                     doterm.nameKey = row.name_key,
                     doterm.definition = row.definition,
                     doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
