@@ -406,7 +406,7 @@ class ExpressionETL(ETL):
                 ON CREATE SET other.name = 'other'
             MERGE(otherstage:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 ON CREATE SET otherstage :Ontology
-                ON CREATE SET otherstage.name = 'post embryonic, pre-adult',
+                ON CREATE SET otherstage.name = 'post embryonic, pre-adult'
             MERGE(othergo:GOTerm {primaryKey:'GO:otherLocations'})
                 ON CREATE SET othergo :Ontology
                 ON CREATE SET othergo.name = 'other locations'
