@@ -533,6 +533,16 @@ def test_expression_gocc_term_for_specific_gene_exists():
             assert record["counter"] == 1
 
 
+def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
+    """Test BioEntityGeneExpressionJoin connected to an Ontology node for file generator"""
+
+    query = """MATCH (b:BioEntityGeneExpressionJoin)-(o:Ontology))
+               RETURN count(b) AS counter"""
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+            assert record["counter"] > 0
+            
+
 def test_gocc_other_has_type():
     """Test GOCC Other Has Type"""
 

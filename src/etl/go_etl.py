@@ -38,7 +38,7 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                MATCH (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
                 CREATE (g1)-[aka:IS_A]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -49,7 +49,7 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                MATCH (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
                 CREATE (g1)-[aka:PART_OF]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -74,7 +74,7 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                MATCH (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
                 CREATE (g1)-[aka:REGULATES]->(g2) 
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -85,7 +85,7 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                MATCH (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
                 CREATE (g1)-[aka:NEGATIVELY_REGULATES]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -96,7 +96,7 @@ class GOETL(ETL):
                 WITH row
 
                 MATCH (g1:GOTerm {primaryKey:row.primary_id})
-                MATCH (g2:GOTerm {primaryKey:row.primary_id2})
+                MATCH (g2:GOTerm:Ontology {primaryKey:row.primary_id2})
                 CREATE (g1)-[aka:POSITIVELY_REGULATES]->(g2)
             }
         IN TRANSACTIONS of %s ROWS"""
