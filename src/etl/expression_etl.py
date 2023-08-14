@@ -402,10 +402,13 @@ class ExpressionETL(ETL):
         add_other_query = """
 
             MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+                ON CREATE SET other :Ontology
                 ON CREATE SET other.name = 'other'
             MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                ON CREATE SET otherstage :Ontology
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult',
-            MERGE(othergo:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+            MERGE(othergo:GOTerm {primaryKey:'GO:otherLocations'})
+                ON CREATE SET othergo :Ontology
                 ON CREATE SET othergo.name = 'other locations'
                 ON CREATE SET othergo.definition = 'temporary node to group expression entities up to ribbon terms'
                 ON CREATE SET othergo.type = 'other'
