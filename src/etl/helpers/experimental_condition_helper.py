@@ -19,7 +19,7 @@ class ExperimentalConditionHelper():
             CALL {
                 WITH row
 
-                MATCH (zeco:Ontology:ZECOTerm {primaryKey:row.conditionClassId})
+                MATCH (zeco:ZECOTerm {primaryKey:row.conditionClassId})
 
                 MERGE (ec:ExperimentalCondition {primaryKey:row.ecUniqueKey})
                     ON CREATE SET ec.conditionClassId     = row.conditionClassId,
@@ -33,7 +33,7 @@ class ExperimentalConditionHelper():
                 MERGE (ec)-[:ASSOCIATION]-(zeco)
 
                 WITH ec, row.chemicalOntologyId AS chemicalOntologyId
-                MATCH (chebi :Ontology:CHEBITerm {primaryKey: chemicalOntologyId})
+                MATCH (chebi:CHEBITerm {primaryKey: chemicalOntologyId})
                 MERGE (ec)-[:ASSOCIATION]-(chebi)
             }
         IN TRANSACTIONS of %s ROWS"""

@@ -45,7 +45,7 @@ class ExpressionETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
                 MERGE (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
                     ON CREATE SET gej.joinType = 'expression',
                     gej :Association
@@ -116,8 +116,8 @@ class ExpressionETL(ETL):
 
                 // LOAD NODES
                 MATCH (g:Gene {primaryKey:row.geneId})
-                MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-                MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
 
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
@@ -144,8 +144,8 @@ class ExpressionETL(ETL):
 
                 // LOAD NODES
                 MATCH (g:Gene {primaryKey:row.geneId})
-                MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-                MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
 
                 MATCH (e:ExpressionBioEntity {primaryKey:row.ebe_uuid})
                 MATCH (gej:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
@@ -174,8 +174,8 @@ class ExpressionETL(ETL):
 
                 // LOAD NODES
                 MATCH (g:Gene {primaryKey:row.geneId})
-                MATCH (assay:MMOTerm:Ontology {primaryKey:row.assay})
-                MATCH (otcct:GOTerm:Ontology {primaryKey:row.cellularComponentTermId})
+                MATCH (assay:MMOTerm {primaryKey:row.assay})
+                MATCH (otcct:GOTerm {primaryKey:row.cellularComponentTermId})
                 MATCH (otast:Ontology {primaryKey:row.anatomicalStructureTermId})
                     WHERE NOT 'UBERONTerm' in LABELS(otast)
                         AND NOT 'FBCVTerm' in LABELS(otast)
@@ -272,7 +272,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
+                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})
                 MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -283,7 +283,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
+                MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
 
                 MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
             }
@@ -295,7 +295,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                MATCH (u:Ontology:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -306,7 +306,7 @@ class ExpressionETL(ETL):
                 WITH row
 
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (u:Ontology:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
             }
@@ -401,10 +401,10 @@ class ExpressionETL(ETL):
 
         add_other_query = """
 
-            MERGE(other:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+            MERGE(other:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 ON CREATE SET other :Ontology
                 ON CREATE SET other.name = 'other'
-            MERGE(otherstage:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+            MERGE(otherstage:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
                 ON CREATE SET otherstage :Ontology
                 ON CREATE SET otherstage.name = 'post embryonic, pre-adult',
             MERGE(othergo:GOTerm {primaryKey:'GO:otherLocations'})

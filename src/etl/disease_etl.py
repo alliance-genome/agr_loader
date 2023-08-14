@@ -38,7 +38,7 @@ class DiseaseETL(ETL):
 
                 // GET PRIMARY DATA OBJECTS
 
-                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (d:DOTerm {primaryKey:row.doId})
                 MATCH (agm:AffectedGenomicModel {primaryKey:row.primaryId})
 
                 //Intentional MERGEing (preventing duplicates), please leave as is
@@ -80,7 +80,7 @@ class DiseaseETL(ETL):
 
                 // GET PRIMARY DATA OBJECTS
 
-                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (d:DOTerm {primaryKey:row.doId})
                 MATCH (allele:Allele:Feature {primaryKey:row.primaryId})
 
                 CALL apoc.create.relationship(d, row.relationshipType, {}, allele) yield rel
@@ -121,7 +121,7 @@ class DiseaseETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (d:DOTerm:Ontology {primaryKey:row.doId})
+                MATCH (d:DOTerm {primaryKey:row.doId})
                 MATCH (gene:Gene {primaryKey:row.primaryId})
 
                 CALL apoc.create.relationship(d, row.relationshipType, {}, gene) yield rel
@@ -160,7 +160,7 @@ class DiseaseETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (o:Ontology:ECOTerm {primaryKey:row.ecode})
+                MATCH (o:ECOTerm {primaryKey:row.ecode})
                 MATCH (pubjk:PublicationJoin:Association {primaryKey:row.pecjPrimaryKey})
                 MERGE (pubjk)-[daecode1g:ASSOCIATION {uuid:row.pecjPrimaryKey}]->(o)
             }

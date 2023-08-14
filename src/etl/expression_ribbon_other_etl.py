@@ -15,8 +15,8 @@ class ExpressionRibbonOtherETL(ETL):
     # Querys which do not take params and can be used as is
 
     ribbonless_ebes_query = """
-        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
-        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm:Ontology)) RETURN ebe.primaryKey
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm)
+        WHERE not ((ebe)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(:GOTerm)) RETURN ebe.primaryKey
     """
 
     # Query templates which take params and will be processed later
@@ -27,7 +27,7 @@ class ExpressionRibbonOtherETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_id})
-                MATCH (goterm:GOTerm:Ontology {primaryKey:'GO:otherLocations'})
+                MATCH (goterm:GOTerm {primaryKey:'GO:otherLocations'})
                 MERGE (ebe)-[ebegoccother:CELLULAR_COMPONENT_RIBBON_TERM]-(goterm)
             }
         IN TRANSACTIONS of %s ROWS"""

@@ -22,7 +22,7 @@ class GeneDiseaseOrthoETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (d:DOTerm:Ontology {primaryKey:row.doId}),
+                MATCH (d:DOTerm {primaryKey:row.doId}),
                   (gene:Gene {primaryKey:row.primaryId}),
                   (fromGene:Gene {primaryKey:row.fromGeneId}),
                   (pub:Publication {primaryKey:"MGI:6194238"}),
@@ -100,7 +100,8 @@ class GeneDiseaseOrthoETL(ETL):
               MERGE (pubg:Publication {primaryKey:"MGI:6194238"})
                   ON CREATE SET pubg.pubModId = "MGI:6194238",
                                 pubg.pubModUrl = "http://www.informatics.jax.org/accession/MGI:6194238"
-              MERGE (eco:ECOTerm:Ontology {primaryKey:"ECO:0000501"})
+              MERGE (eco:ECOTerm {primaryKey:"ECO:0000501"})
+                  ON CREATE SET eco :Ontology
 
               // TODO remove for 3.2.0 - AGR-2343 for details.
               MERGE (syn1:Synonym {primaryKey:"SARS-CoV-2 infection"})
