@@ -536,7 +536,7 @@ def test_expression_gocc_term_for_specific_gene_exists():
 def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
     """Test BioEntityGeneExpressionJoin connected to an Ontology node for file generator"""
 
-    query = """MATCH (b:BioEntityGeneExpressionJoin)--(o:Ontology))
+    query = """MATCH (b:BioEntityGeneExpressionJoin)--(o:Ontology)
                RETURN count(b) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
