@@ -5,7 +5,7 @@
 ETL pipeline for Alliance of Genome Resources
 
 ## Requirements
-- Docker
+- Docker 
 - Docker-compose
 - AWS access keys (project is agr_aws).  Please contact Stuart Myasato or Olin Blodgett for permission on the AWS project.  (below are instructions for getting a login token and pulling the base images after you have access keys).
 
