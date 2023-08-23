@@ -20,7 +20,7 @@ class ExpressionRibbonETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
-                MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+                MATCH (goTerm:GOTerm) WHERE goTerm.primaryKey = row.go_id
 
                 MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
             }
@@ -32,7 +32,7 @@ class ExpressionRibbonETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity) WHERE ebe.primaryKey = row.ebe_id
-                MATCH (goTerm:GOTerm:Ontology) WHERE goTerm.primaryKey = row.go_id
+                MATCH (goTerm:GOTerm) WHERE goTerm.primaryKey = row.go_id
 
                 MERGE (ebe)-[ebego:CELLULAR_COMPONENT_RIBBON_TERM]-(goTerm)
             }
@@ -41,12 +41,12 @@ class ExpressionRibbonETL(ETL):
     # Querys which do not take params and can be used as is
 
     expression_gocc_ribbon_retrieve_query = """
-                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm:Ontology)-[:PART_OF|IS_A*]->(slimTerm:GOTerm:Ontology)
+                MATCH (ebe:ExpressionBioEntity)--(go:GOTerm)-[:PART_OF|IS_A*]->(slimTerm:GOTerm)
                 WHERE slimTerm.subset =~ '.*goslim_agr.*'
                 RETURN ebe.primaryKey, slimTerm.primaryKey"""
 
     gocc_self_ribbon_ebes_query = """
-        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm:Ontology)
+        MATCH (ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(got:GOTerm)
         WHERE got.subset =~ '.*goslim_agr.*'
         RETURN ebe.primaryKey, got.primaryKey """
 

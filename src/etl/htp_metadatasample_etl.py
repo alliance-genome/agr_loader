@@ -261,7 +261,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                MATCH (o:Ontology:UBERONTerm {primaryKey:row.aoUberonId})
+                MATCH (o:UBERONTerm {primaryKey:row.aoUberonId})
                 MERGE (ebe)-[ebeo:ANATOMICAL_RIBBON_TERM]-(o)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -272,7 +272,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 WITH row
 
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (o:Ontology:UBERONTerm {primaryKey:row.uberonStageId})
+                MATCH (o:UBERONTerm {primaryKey:row.uberonStageId})
 
                 MERGE (ei)-[eio:STAGE_RIBBON_TERM]-(o)
             }
@@ -284,7 +284,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 WITH row
 
                 MATCH (ebe:ExpressionBioEntity {primaryKey:row.ebe_uuid})
-                MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:AnatomyOtherLocation'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:AnatomyOtherLocation'})
                 MERGE (ebe)-[ebeu:ANATOMICAL_RIBBON_TERM]-(u)
             }
         IN TRANSACTIONS of %s ROWS"""
@@ -295,7 +295,7 @@ class HTPMetaDatasetSampleETL(ETL):
                 WITH row
 
                 MATCH (ei:BioEntityGeneExpressionJoin {primaryKey:row.ei_uuid})
-                MATCH (u:Ontology:UBERONTerm:Ontology {primaryKey:'UBERON:PostEmbryonicPreAdult'})
+                MATCH (u:UBERONTerm {primaryKey:'UBERON:PostEmbryonicPreAdult'})
 
                 MERGE (ei)-[eiu:STAGE_RIBBON_TERM]-(u)
             }

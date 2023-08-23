@@ -24,8 +24,9 @@ class DOETL(ETL):
                 WITH row
 
                 //Create the DOTerm node and set properties. primaryKey is required.
-                MERGE (doterm:DOTerm:Ontology {primaryKey:row.oid})
+                MERGE (doterm:DOTerm {primaryKey:row.oid})
                     SET doterm.name = row.name,
+                    doterm :Ontology,
                     doterm.nameKey = row.name_key,
                     doterm.definition = row.definition,
                     doterm.defLinks = apoc.convert.fromJsonList(row.defLinksProcessed),
@@ -66,8 +67,8 @@ class DOETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (d1:DOTerm:Ontology {primaryKey:row.primary_id})
-                MATCH (d2:DOTerm:Ontology {primaryKey:row.primary_id2})
+                MATCH (d1:DOTerm{primaryKey:row.primary_id})
+                MATCH (d2:DOTerm {primaryKey:row.primary_id2})
                 MERGE (d1)-[aka:IS_A]->(d2)
             }
         IN TRANSACTIONS of %s ROWS"""

@@ -25,8 +25,9 @@ class GenericOntologyETL(ETL):
                 WITH row
 
                 //Create the Term node and set properties. primaryKey is required.
-                MERGE (g:%sTerm:Ontology {primaryKey:row.oid})
+                MERGE (g:%sTerm {primaryKey:row.oid})
                     ON CREATE SET g.definition = row.definition,
+                        g :Ontology,
                         g.type = row.o_type,
                         g.href = row.href,
                         g.name = row.name,
@@ -45,7 +46,8 @@ class GenericOntologyETL(ETL):
                 WITH row
 
                 MATCH (g:%sTerm {primaryKey:row.oid})
-                MERGE (syn:Synonym:Identifier {primaryKey:row.syn})
+                MERGE (syn:Synonym {primaryKey:row.syn})
+                        ON CREATE SET syn :Identifier
                         SET syn.name = row.syn
                 MERGE (g)-[aka:ALSO_KNOWN_AS]->(syn)
             }
@@ -79,7 +81,8 @@ class GenericOntologyETL(ETL):
                 WITH row
 
                 MATCH (got:%sTerm {primaryKey:row.primary_id})
-                MERGE(sec:SecondaryId:Identifier {primaryKey:row.secondary_id})
+                MERGE(sec:SecondaryId {primaryKey:row.secondary_id})
+                    ON CREATE SET sec :Identifier
                 CREATE (got)-[aka2:ALSO_KNOWN_AS]->(sec)
             }
         IN TRANSACTIONS of %s ROWS"""

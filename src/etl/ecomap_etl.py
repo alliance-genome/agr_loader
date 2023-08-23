@@ -23,7 +23,7 @@ class ECOMAPETL(ETL):
             CALL {
                 WITH row
 
-                MATCH (e:ECOTerm:Ontology {primaryKey: row.ecoId})
+                MATCH (e:ECOTerm {primaryKey: row.ecoId})
                     SET e.displaySynonym = row.threeLetterCode
             }
         IN TRANSACTIONS of %s ROWS"""

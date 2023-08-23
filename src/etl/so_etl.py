@@ -23,7 +23,8 @@ class SOETL(ETL):
             CALL {
                 WITH row
 
-                MERGE (s:SOTerm:Ontology {primaryKey:row.id})
+                MERGE (s:SOTerm {primaryKey:row.id})
+                    ON CREATE SET s :Ontology
                     SET s.name = row.name
 
                     MERGE (s)-[ggcg:IS_A_PART_OF_CLOSURE]->(s)
