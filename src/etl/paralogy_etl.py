@@ -32,11 +32,11 @@ class ParalogyETL(ETL):
 
                 CREATE (g1)-[para:PARALOGOUS]->(g2)
                     SET para.primaryKey = row.uuid,
-                        para.isBestScore = row.isBestScore,
-                        para.isBestRevScore = row.isBestRevScore,
                         para.confidence = row.confidence,
-                        para.strictFilter = toBoolean(row.strictFilter),
-                        para.moderateFilter = toBoolean(row.moderateFilter)
+                        para.length = row.length,
+                        para.similarity = row.similarity,
+                        para.identity = row.identity,
+                        para.rank = row.rank
 
                 //Create the Association node to be used for the object/doTerm
                 CREATE (oa:Association {primaryKey:row.uuid})
@@ -103,9 +103,7 @@ class ParalogyETL(ETL):
                             "PANTHER", 
                             "PhylomeDB", 
                             "SonicParanoid",
-                            "SGD", 
-                            "Xenbase", 
-                            "ZFIN"]
+                            "SGD"]
 
         for algorithm in list_of_algorithms:
             self.logger.info("Loading algorithm node: %s", algorithm)
