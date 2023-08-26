@@ -220,16 +220,16 @@ class ParalogyETL(ETL):
                 if gene_1_agr_primary_id is not None and gene_2_agr_primary_id is not None:
 
                     para_dataset = {
-                        'isBestScore': para_record['isBestScore'],
-                        'isBestRevScore': para_record['isBestRevScore'],
+                        'rank': para_record['rank'],
+                        'length': para_record['length'],
+                        'similarity': para_record['similarity'],
+                        'identity': para_record['identity'],
 
                         'gene1AgrPrimaryId': gene_1_agr_primary_id,
                         'gene2AgrPrimaryId': gene_2_agr_primary_id,
 
                         'confidence': para_record['confidence'],
 
-                        'strictFilter': para_record['strictFilter'],
-                        'moderateFilter': para_record['moderateFilter'],
                         'uuid': para_uuid
                     }
                     paralogy_data.append(para_dataset)
