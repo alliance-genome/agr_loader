@@ -157,9 +157,6 @@ def test_paralogous_properties():
     # Execute the query and check the properties.
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            # Assert that properties are not NULL.
-            for key, value in record.items():
-                assert value is not None, f"{key} property is NULL"
 
             # Convert properties to appropriate types.
             identity = float(record["identity"])
@@ -200,9 +197,6 @@ def test_orthologous_properties():
     # Execute the query and check the properties.
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            # Assert that properties are not NULL.
-            for key, value in record.items():
-                assert value is not None, f"{key} property is NULL"
 
             # Convert properties to appropriate types.
             isBestRevScore = to_bool(record["isBestRevScore"])

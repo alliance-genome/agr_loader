@@ -176,6 +176,13 @@ class ParalogyETL(ETL):
         self.error_messages("Paralogy-{}: ".format(sub_type.get_data_provider()))
         self.logger.info("Finished Loading Paralogy Data: %s", sub_type.get_data_provider())
 
+    def safely_round(value):
+        # Check if value is of type float or int
+        if isinstance(value, (float, int)):
+            return round(value, 2)
+        else:
+            return value
+
     def get_generators(self, datafile, sub_type, batch_size):  # noqa
         """Get Generators."""
         counter = 0
@@ -218,8 +225,8 @@ class ParalogyETL(ETL):
                         continue
 
                 # Obtain similarity from dictionary and round to two decimal places.
-                similarity = round(para_record['similarity'], 2)
-                identity = round(para_record['identity'], 2)
+                similarity = safely_round(para_record['similarity'])
+                identity = safely_round(para_record['identity'])
 
                 if gene_1_agr_primary_id is not None and gene_2_agr_primary_id is not None:
 
