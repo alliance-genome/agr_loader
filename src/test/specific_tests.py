@@ -141,6 +141,84 @@ def test_spell_cross_ref_type():
             assert record["counter"] < 1
 
 
+def test_paralogous_properties():
+    """Test PARALOGOUS Relationship Properties"""
+
+    # Construct the query.
+    query = """
+        MATCH ()-[r:PARALOGOUS]->()
+        WHERE 
+            r.identity IS NOT NULL
+            AND r.similarity IS NOT NULL
+            AND r.length IS NOT NULL
+            AND r.rank IS NOT NULL
+        RETURN 
+            r.identity AS identity,
+            r.similarity AS similarity,
+            r.length AS length,
+            r.rank AS rank
+        LIMIT 25
+    """
+
+    # Execute the query and check the properties.
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+
+            # Convert properties to appropriate types.
+            identity = float(record["identity"])
+            similarity = float(record["similarity"])
+            length = float(record["length"])
+            rank = int(record["rank"])
+
+            # Assert conditions based on requirements.
+            assert 0.0 <= identity <= 1.0, f"Invalid identity value: {identity}"
+            assert 0.0 <= similarity <= 1.0, f"Invalid similarity value: {similarity}"
+            assert length > 0, f"Invalid length value: {length}"
+            assert rank > 0, f"Invalid rank value: {rank}"
+
+
+def test_orthologous_properties():
+    """Test ORTHOLOGOUS Relationship Properties"""
+
+    # Construct the query.
+    query = """
+        MATCH ()-[r:ORTHOLOGOUS]->()
+        RETURN 
+            r.isBestRevScore AS isBestRevScore,
+            r.isBestScore AS isBestScore,
+            r.moderateFilter AS moderateFilter,
+            r.strictFilter AS strictFilter
+        LIMIT 25
+    """
+
+    # Helper function to convert "Yes"/"No" and "true"/"false" to boolean.
+    def to_bool(value):
+        if isinstance(value, bool):  # Check if the value is already a boolean
+            return value
+        elif value.lower() in ["yes", "true"]:
+            return True
+        elif value.lower() in ["no", "false"]:
+            return False
+        else:
+            raise ValueError(f"Invalid boolean string: {value}")
+
+    # Execute the query and check the properties.
+    with Neo4jHelper.run_single_query(query) as result:
+        for record in result:
+
+            # Convert properties to appropriate types.
+            isBestRevScore = to_bool(record["isBestRevScore"])
+            isBestScore = to_bool(record["isBestScore"])
+            moderateFilter = to_bool(record["moderateFilter"])
+            strictFilter = to_bool(record["strictFilter"])
+
+            # Assert conditions based on requirements.
+            assert isinstance(isBestRevScore, bool), f"Invalid isBestRevScore value: {isBestRevScore}"
+            assert isinstance(isBestScore, bool), f"Invalid isBestScore value: {isBestScore}"
+            assert isinstance(moderateFilter, bool), f"Invalid moderateFilter value: {moderateFilter}"
+            assert isinstance(strictFilter, bool), f"Invalid strictFilter value: {strictFilter}"
+
+
 def test_genes_have_automated_description():
     """Test Genes Have Automated Description"""
 
