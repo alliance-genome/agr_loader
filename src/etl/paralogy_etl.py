@@ -221,7 +221,6 @@ class ParalogyETL(ETL):
                 similarity = round(para_record['similarity'], 2)
                 identity = round(para_record['identity'], 2)
 
-
                 if gene_1_agr_primary_id is not None and gene_2_agr_primary_id is not None:
 
                     para_dataset = {
