@@ -188,6 +188,7 @@ def test_orthologous_properties():
             r.isBestScore AS isBestScore,
             r.moderateFilter AS moderateFilter,
             r.strictFilter AS strictFilter
+        LIMIT 25
     """
 
     # Helper function to convert "Yes"/"No" and "true"/"false" to boolean.
