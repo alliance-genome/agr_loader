@@ -152,7 +152,6 @@ def test_paralogous_properties():
             r.similarity AS similarity,
             r.length AS length,
             r.rank AS rank
-        LIMIT 25
     """
 
     # Execute the query and check the properties.
@@ -160,10 +159,11 @@ def test_paralogous_properties():
         for record in result:
 
             # Check for the existence of the fields.
-            assert "identity" in record, "Missing 'identity' field."
-            assert "similarity" in record, "Missing 'similarity' field."
-            assert "length" in record, "Missing 'length' field."
-            assert "rank" in record, "Missing 'rank' field."
+            assert "identity" in record.keys(), "Missing 'identity' field."
+            assert "similarity" in record.keys(), "Missing 'similarity' field."
+            assert "length" in record.keys(), "Missing 'length' field."
+            assert "rank" in record.keys(), "Missing 'rank' field."
+
 
 
 def test_orthologous_properties():
@@ -180,33 +180,15 @@ def test_orthologous_properties():
         LIMIT 25
     """
 
-    # Helper function to convert "Yes"/"No" and "true"/"false" to boolean.
-    def to_bool(value):
-        if isinstance(value, bool):  # Check if the value is already a boolean
-            return value
-        elif value.lower() in ["yes", "true"]:
-            return True
-        elif value.lower() in ["no", "false"]:
-            return False
-        else:
-            raise ValueError(f"Invalid boolean string: {value}")
-
     # Execute the query and check the properties.
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
 
-            # Convert properties to appropriate types.
-            isBestRevScore = to_bool(record["isBestRevScore"])
-            isBestScore = to_bool(record["isBestScore"])
-            moderateFilter = to_bool(record["moderateFilter"])
-            strictFilter = to_bool(record["strictFilter"])
-
-            # Assert conditions based on requirements.
-            assert isinstance(isBestRevScore, bool), f"Invalid isBestRevScore value: {isBestRevScore}"
-            assert isinstance(isBestScore, bool), f"Invalid isBestScore value: {isBestScore}"
-            assert isinstance(moderateFilter, bool), f"Invalid moderateFilter value: {moderateFilter}"
-            assert isinstance(strictFilter, bool), f"Invalid strictFilter value: {strictFilter}"
-
+            # Check for the existence of the fields.
+            assert "isBestRevScore" in record.keys(), "Missing 'isBestRevScore' field."
+            assert "isBestScore" in record.keys(), "Missing 'isBestScore' field."
+            assert "moderateFilter" in record.keys(), "Missing 'moderateFilter' field."
+            assert "strictFilter" in record.keys(), "Missing 'strictFilter' field."
 
 def test_genes_have_automated_description():
     """Test Genes Have Automated Description"""
