@@ -140,6 +140,7 @@ def test_spell_cross_ref_type():
         for record in result:
             assert record["counter"] < 1
 
+
 def test_paralogous_properties():
     """Test PARALOGOUS Relationship Properties"""
 
@@ -174,7 +175,7 @@ def test_paralogous_properties():
 def test_orthologous_properties():
     """Test ORTHOLOGOUS Relationship Properties"""
 
-    # Construct the query.
+    # Construct the query
     query = """
         MATCH ()-[r:ORTHOLOGOUS]->()
         RETURN 
@@ -182,10 +183,9 @@ def test_orthologous_properties():
             r.isBestScore AS isBestScore,
             r.moderateFilter AS moderateFilter,
             r.strictFilter AS strictFilter
-        LIMIT 25
     """
 
-    # Helper function to convert "Yes"/"No" and "true"/"false" to boolean.
+    # Helper function to convert "Yes"/"No" and "true"/"false" to boolean
     def to_bool(value):
         if value.lower() in ["yes", "true"]:
             return True
@@ -194,14 +194,22 @@ def test_orthologous_properties():
         else:
             raise ValueError(f"Invalid boolean string: {value}")
 
-    # Execute the query and check the properties.
+    # Execute the query and check the properties
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
 
-            # Convert properties to appropriate types.
+            # Convert properties to appropriate types
             isBestRevScore = to_bool(record["isBestRevScore"])
             isBestScore = to_bool(record["isBestScore"])
-            moderateFilter = to_bool(record["moderate
+            moderateFilter = to_bool(record["moderateFilter"])
+            strictFilter = to_bool(record["strictFilter"])
+
+            # Assert conditions based on your requirements
+            assert isinstance(isBestRevScore, bool), f"Invalid isBestRevScore value: {isBestRevScore}"
+            assert isinstance(isBestScore, bool), f"Invalid isBestScore value: {isBestScore}"
+            assert isinstance(moderateFilter, bool), f"Invalid moderateFilter value: {moderateFilter}"
+            assert isinstance(strictFilter, bool), f"Invalid strictFilter value: {strictFilter}"
+
 
 def test_genes_have_automated_description():
     """Test Genes Have Automated Description"""
