@@ -192,7 +192,9 @@ def test_orthologous_properties():
 
     # Helper function to convert "Yes"/"No" and "true"/"false" to boolean.
     def to_bool(value):
-        if value.lower() in ["yes", "true"]:
+        if isinstance(value, bool):  # Check if the value is already a boolean
+            return value
+        elif value.lower() in ["yes", "true"]:
             return True
         elif value.lower() in ["no", "false"]:
             return False
