@@ -149,6 +149,8 @@ class TestObject():
             # allele
             'SGD:S000283439', 'SGD:S000000316', 'SGD:S000005770', 'SGD:S000277574',
             'SGD:S000000383', 'SGD:S000297409', 'SGD:S000006064', 'SGD:S000297411',
+            # paralogy
+            'SGD:S000028562', 'SGD:S000028564', 'SGD:S000004146', 'SGD:S000004149',
         }
 
         self.zfin_id_set = {

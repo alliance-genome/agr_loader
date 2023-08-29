@@ -217,13 +217,18 @@ class ParalogyETL(ETL):
                         counter = counter - 1
                         continue
 
+                # Obtain similarity from dictionary and round to two decimal places.
+                similarity = round(para_record['similarity'], 2)
+                identity = round(para_record['identity'], 2)
+
+
                 if gene_1_agr_primary_id is not None and gene_2_agr_primary_id is not None:
 
                     para_dataset = {
                         'rank': para_record['rank'],
                         'length': para_record['length'],
-                        'similarity': para_record['similarity'],
-                        'identity': para_record['identity'],
+                        'similarity': similarity,
+                        'identity': identity,
 
                         'gene1AgrPrimaryId': gene_1_agr_primary_id,
                         'gene2AgrPrimaryId': gene_2_agr_primary_id,

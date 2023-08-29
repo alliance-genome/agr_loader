@@ -190,3 +190,7 @@ class Neo4jHelper:
 
             for index in two_composite_indices:
                 session.run("CREATE INDEX FOR ({}) ON ({}, {})".format(index[0], index[1], index[2]))
+
+            # Run our relationship indices.
+            session.run("CREATE INDEX orthology FOR ()-[r:ORTHOLOGOUS]-() on (r.isBestScore, r.isBestRevScore, r.strictFilter, r.moderateFilter)")
+            session.run("CREATE INDEX paralogy FOR ()-[r:PARALOGOUS]-() on (r.rank, r.length, r.similarity, r.identity)")
