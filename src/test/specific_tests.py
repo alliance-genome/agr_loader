@@ -147,6 +147,11 @@ def test_paralogous_properties():
     # Construct the query.
     query = """
         MATCH ()-[r:PARALOGOUS]->()
+        WHERE 
+            r.identity IS NOT NULL
+            AND r.similarity IS NOT NULL
+            AND r.length IS NOT NULL
+            AND r.rank IS NOT NULL
         RETURN 
             r.identity AS identity,
             r.similarity AS similarity,
