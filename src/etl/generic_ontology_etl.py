@@ -182,40 +182,22 @@ class GenericOntologyETL(ETL):
                 if isinstance(o_syns, (list, tuple)):
                     for syn in o_syns:
 
-                        # Replace escaped double quotes with a placeholder.
-                        syn = syn.replace('\\"', '__ESC_DQUOTE__')
+                        # Apply the regex patterns to extract the clean synonym.
+                        clean_syn_match = re.search(r'\"(.*?)\"', syn)
+                        if clean_syn_match is None:
+                            clean_syn_match = re.search(r'\"\\\"(.*?)\\\"\"', syn)
 
-                        # Perform the splitting and formatting operations.
-                        if '"' in syn:
-                            synsplit = syn.split('"')
-                            clean_syn = synsplit[1].strip().replace('"', '')
-                            # Remove the ' EXACT IUPAC_NAME [SUBMITTER]' part to get the clean synonym.
-                            clean_syn = clean_syn.split(' EXACT')[0]
+                        if clean_syn_match:
+                            clean_syn = clean_syn_match.group(1)
                             syns_dict_to_append = {
                                 'oid': ident,
-                                'syn': clean_syn  
+                                'syn': clean_syn
                             }
                             syns.append(syns_dict_to_append)  # Synonyms appended here.
-                            if "DISPLAY_SYNONYM" in syn:
-                                display_synonym = clean_syn
-                        else:
-                            synsplit = re.split(r'(?<!\\\\)"', syn)
-                            clean_syn = synsplit[0].strip().replace('"', '')
-                            # Remove the ' EXACT IUPAC_NAME [SUBMITTER]' part to get the clean synonym.
-                            clean_syn = clean_syn.split(' EXACT')[0]
-                            syns_dict_to_append = {
-                                'oid': ident,
-                                'syn': clean_syn  
-                            }
-                            syns.append(syns_dict_to_append)
+
                             if "DISPLAY_SYNONYM" in syn:
                                 display_synonym = clean_syn
 
-                        # Remove the placeholder (instead of replacing it with double quotes).
-                        for syn_dict in syns:
-                            syn_dict['syn'] = syn_dict['syn'].replace('__ESC_DQUOTE__', '')
-                        display_synonym = display_synonym.replace('__ESC_DQUOTE__', '')
-            
             # subset
             new_subset = line.get('subset')
             subsets.append(new_subset)
