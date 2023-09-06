@@ -200,8 +200,8 @@ class GenericOntologyETL(ETL):
                             }
                             syns.append(syns_dict_to_append)  # Synonyms appended here.
 
-                            if "DISPLAY_SYNONYM" in syn:
-                                display_synonym = clean_syn
+                        if "DISPLAY_SYNONYM" in syn:
+                            display_synonym = clean_syn
 
             # subset
             new_subset = line.get('subset')
