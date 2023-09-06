@@ -183,10 +183,14 @@ class GenericOntologyETL(ETL):
                     for syn in o_syns:
 
                         # Apply the regex patterns to extract the clean synonym.
+                        # e.g. synonym: "NC-alpha-GalCer" RELATED [ChEBI]
                         clean_syn_match = re.search(r'\"(.*?)\"', syn)
                         if clean_syn_match is None:
+                            # e.g. synonym: "\"(2S,3R)-2-[[(2S)-2-amino-5-(diaminomethylideneamino)pentanoyl]amino]-3-hydroxybutanoic acid\"" EXACT IUPAC_NAME [SUBMITTER]
                             clean_syn_match = re.search(r'\"\\\"(.*?)\\\"\"', syn)
                         if clean_syn_match is None:
+                            # e.g. synonym: "alpha-GalCer-6\"(1-naphthyl)carbamate" RELATED [ChEBI]
+                            # Note: Only returns the first half of the synonym up to but not including the escaped quote.
                             clean_syn_match = re.search(r'\"(.*?)\\"', syn)
                         if clean_syn_match:
                             clean_syn = clean_syn_match.group(1)
