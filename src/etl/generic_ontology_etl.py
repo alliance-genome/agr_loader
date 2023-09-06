@@ -185,7 +185,7 @@ class GenericOntologyETL(ETL):
                         # Replace escaped double quotes with a placeholder.
                         syn = syn.replace('\\"', '__ESC_DQUOTE__')
 
-                        # Perform the splitting and formatting operations.
+                        # Perform the splitting and formatting operations/
                         if '"' in syn:
                             synsplit = syn.split('"')
                             syns_dict_to_append = {
@@ -199,11 +199,11 @@ class GenericOntologyETL(ETL):
                             synsplit = re.split(r'(?<!\\\\)"', syn)
                             syns_dict_to_append = {
                                 'oid': ident,
-                                'syn': synsplit[1].replace('"', '""')
+                                'syn': synsplit[0].replace('"', '""')
                             }
                             syns.append(syns_dict_to_append)
                             if "DISPLAY_SYNONYM" in syn:
-                                display_synonym = synsplit[1].replace('"', '""')
+                                display_synonym = synsplit[0].replace('"', '""')
 
                         # Replace the placeholder back with escaped double quotes.
                         for syn_dict in syns:
