@@ -183,33 +183,32 @@ class GenericOntologyETL(ETL):
                     for syn in o_syns:
 
                         # Replace escaped double quotes with a placeholder.
-                        o_syns = o_syns.replace('\\"', '__ESC_DQUOTE__')
+                        syn = syn.replace('\\"', '__ESC_DQUOTE__')
 
                         # Perform the splitting and formatting operations.
-                        if '"' in o_syns:
-                            synsplit = o_syns.split('"')
+                        if '"' in syn:
+                            synsplit = syn.split('"')
                             syns_dict_to_append = {
                                 'oid': ident,
                                 'syn': synsplit[1].replace('"', '""')
                             }
                             syns.append(syns_dict_to_append)  # Synonyms appended here.
-                            if "DISPLAY_SYNONYM" in o_syns:
+                            if "DISPLAY_SYNONYM" in syn:
                                 display_synonym = synsplit[1].replace('"', '""')
                         else:
-                            synsplit = re.split(r'(?<!\\\\)"', o_syns)
+                            synsplit = re.split(r'(?<!\\\\)"', syn)
                             syns_dict_to_append = {
                                 'oid': ident,
                                 'syn': synsplit[1].replace('"', '""')
                             }
                             syns.append(syns_dict_to_append)
-                            if "DISPLAY_SYNONYM" in o_syns:
+                            if "DISPLAY_SYNONYM" in syn:
                                 display_synonym = synsplit[1].replace('"', '""')
 
                         # Replace the placeholder back with escaped double quotes.
                         for syn_dict in syns:
                             syn_dict['syn'] = syn_dict['syn'].replace('__ESC_DQUOTE__', '\\"')
                         display_synonym = display_synonym.replace('__ESC_DQUOTE__', '\\"')
-            
             
             # subset
             new_subset = line.get('subset')
