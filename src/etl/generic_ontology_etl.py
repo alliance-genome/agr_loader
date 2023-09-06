@@ -186,7 +186,8 @@ class GenericOntologyETL(ETL):
                         clean_syn_match = re.search(r'\"(.*?)\"', syn)
                         if clean_syn_match is None:
                             clean_syn_match = re.search(r'\"\\\"(.*?)\\\"\"', syn)
-
+                        if clean_syn_match is None:
+                            clean_syn_match = re.search(r'\"(.*?)\\"', syn)
                         if clean_syn_match:
                             clean_syn = clean_syn_match.group(1)
                             syns_dict_to_append = {
