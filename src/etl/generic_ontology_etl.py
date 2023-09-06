@@ -185,30 +185,36 @@ class GenericOntologyETL(ETL):
                         # Replace escaped double quotes with a placeholder.
                         syn = syn.replace('\\"', '__ESC_DQUOTE__')
 
-                        # Perform the splitting and formatting operations/
+                        # Perform the splitting and formatting operations.
                         if '"' in syn:
                             synsplit = syn.split('"')
+                            clean_syn = synsplit[1].strip().replace('"', '')
+                            # Remove the ' EXACT IUPAC_NAME [SUBMITTER]' part to get the clean synonym.
+                            clean_syn = clean_syn.split(' EXACT')[0]
                             syns_dict_to_append = {
                                 'oid': ident,
-                                'syn': synsplit[1].replace('"', '""')
+                                'syn': clean_syn  
                             }
                             syns.append(syns_dict_to_append)  # Synonyms appended here.
                             if "DISPLAY_SYNONYM" in syn:
-                                display_synonym = synsplit[1].replace('"', '""')
+                                display_synonym = clean_syn
                         else:
                             synsplit = re.split(r'(?<!\\\\)"', syn)
+                            clean_syn = synsplit[0].strip().replace('"', '')
+                            # Remove the ' EXACT IUPAC_NAME [SUBMITTER]' part to get the clean synonym.
+                            clean_syn = clean_syn.split(' EXACT')[0]
                             syns_dict_to_append = {
                                 'oid': ident,
-                                'syn': synsplit[0].replace('"', '""')
+                                'syn': clean_syn  
                             }
                             syns.append(syns_dict_to_append)
                             if "DISPLAY_SYNONYM" in syn:
-                                display_synonym = synsplit[0].replace('"', '""')
+                                display_synonym = clean_syn
 
-                        # Replace the placeholder back with escaped double quotes.
+                        # Remove the placeholder (instead of replacing it with double quotes).
                         for syn_dict in syns:
-                            syn_dict['syn'] = syn_dict['syn'].replace('__ESC_DQUOTE__', '\\"')
-                        display_synonym = display_synonym.replace('__ESC_DQUOTE__', '\\"')
+                            syn_dict['syn'] = syn_dict['syn'].replace('__ESC_DQUOTE__', '')
+                        display_synonym = display_synonym.replace('__ESC_DQUOTE__', '')
             
             # subset
             new_subset = line.get('subset')
