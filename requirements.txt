@@ -6,7 +6,7 @@ ijson==2.4
 pytest
 jsonschema
 PyYAML>=5.1
-urllib3==1.26.13
+urllib3==1.26.17
 xmltodict
 git+https://github.com/alliance-genome/agr_genedescriptions.git@v3.2.5#egg=genedescriptions
 git+https://github.com/prefixcommons/prefixcommons-py.git@v0.1.11-a
