@@ -932,7 +932,7 @@ def test_expression_for_mgi_109583():
     RETURN count(distinct ebge) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] == 2
+            assert record["counter"] == 5
 
 
 def test_part_of_relations_exist():
