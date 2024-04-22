@@ -775,7 +775,7 @@ def test_human_gene_has_hgnc_cross_reference():
                WHERE g.primaryKey = 'HGNC:11204'
                      AND cr.crossRefType = 'gene'
                      AND cr.globalCrossRefId = 'HGNC:11204'
-                     AND cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'
+                     AND cr.crossRefCompleteUrl = 'https://bioregistry.io/hgnc:11204'
                RETURN count(cr) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
