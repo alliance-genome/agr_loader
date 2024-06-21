@@ -19,7 +19,7 @@ jobs:
         ssh-private-key: |
           ${{ secrets.SSH_PRIVATE_KEY_1 }}
           ${{ secrets.SSH_PRIVATE_KEY_2 }}
-          
+
     - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
@@ -32,14 +32,16 @@ jobs:
           HostName ${{ secrets.GATEWAY_HOST }}
           User ${{ secrets.GATEWAY_USER }}
           IdentityFile ~/.ssh/id_rsa_1
+          ServerAliveInterval 60
         Host target_host
           HostName localhost
           Port 8153
           User ${{ secrets.TARGET_USER }}
           IdentityFile ~/.ssh/id_rsa_2
           ProxyCommand ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
+          ServerAliveInterval 60
         " > ~/.ssh/config
-        
+
     - name: Add keys to SSH agent
       run: ssh-add -l
 
@@ -49,17 +51,17 @@ jobs:
 
     - name: Establish SSH tunnel
       run: |
-        ssh -v -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Add target host to known_hosts through tunnel
       run: |
         ssh-keyscan -H -p 8153 localhost >> ~/.ssh/known_hosts
-        
+
     - name: Create .password file
       run: |
         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
         chmod 600 ~/.ssh/.password
-        
+
     - name: Configure AWS credentials
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
