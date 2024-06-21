@@ -39,11 +39,11 @@ jobs:
     - name: Check SSH agent keys
       run: ssh-add -l
 
-    - name: Add gateway host to known hosts
-      run: ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+    # - name: Add gateway host to known hosts
+    #   run: ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Add target host to known hosts
-      run: ssh-keyscan -v -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
+    # - name: Add target host to known hosts
+    #   run: ssh-keyscan -v -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
