@@ -13,7 +13,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH for gateway and target users
+    - name: Set up SSH agent and add both keys
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
@@ -48,7 +48,7 @@ jobs:
 
     - name: Add target host to known_hosts through gateway
       run: |
-        ssh -v -o StrictHostKeyChecking=no gateway_host "ssh-keyscan -v -H ${{ secrets.TARGET_HOST }}" >> ~/.ssh/known_hosts
+        ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa_1 gateway_host "ssh-keyscan -v -H ${{ secrets.TARGET_HOST }}" >> ~/.ssh/known_hosts
 
     - name: Create .password file
       run: |
@@ -102,4 +102,4 @@ jobs:
 
     - name: Confirm Connection to Final Server
       run: |
-        ssh -v target_host "touch ~/github_action_test_file"
+        ssh -v -i ~/.ssh/id_rsa_2 target_host "touch ~/github_action_test_file"
