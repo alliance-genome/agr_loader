@@ -1,0 +1,59 @@
+name: Test Ansible Playbook Setup
+
+on:
+  push:
+    branches:
+      - fb_ansible_test
+
+jobs:
+  ansible:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH for gateway user
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_1 }}
+
+    - name: Add gateway user key to SSH config
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
+        chmod 600 ~/.ssh/id_rsa_1
+
+    - name: Set up SSH for target user
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_2 }}
+
+    - name: Add target user key to SSH config
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY_2 }}" > ~/.ssh/id_rsa_2
+        chmod 600 ~/.ssh/id_rsa_2
+        echo "
+        Host target_host
+          HostName ${{ secrets.TARGET_HOST }}
+          User ${{ secrets.TARGET_USER }}
+          IdentityFile ~/.ssh/id_rsa_2
+          ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
+        " >> ~/.ssh/config
+
+    - name: Create .password file
+      run: |
+        echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
+        chmod 600 ~/.ssh/.password
+
+    - name: Pull Ansible Docker Image
+      run: docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage
+
+    - name: Test Docker Container
+      run: |
+        docker run --rm \
+          --mount type=bind,source=${{ github.workspace }},target=/usr/src/ansible \
+          --mount type=bind,source=$HOME/.ssh/.password,target=/usr/src/ansible/.password \
+          100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage \
+          /bin/bash -c "echo 'Hello, World!'"
