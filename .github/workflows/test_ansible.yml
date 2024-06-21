@@ -32,12 +32,11 @@ jobs:
           HostName ${{ secrets.GATEWAY_HOST }}
           User ${{ secrets.GATEWAY_USER }}
           IdentityFile ~/.ssh/id_rsa_1
-          ProxyCommand ssh -o ServerAliveInterval=15 -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
         Host target_host
-          HostName localhost
-          Port 8153
+          HostName 140.247.91.26
           User ${{ secrets.TARGET_USER }}
           IdentityFile ~/.ssh/id_rsa_2
+          ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
         " >> ~/.ssh/config
 
     - name: Check SSH agent keys
@@ -47,13 +46,9 @@ jobs:
       run: |
         ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Establish SSH tunnel
+    - name: Add target host to known_hosts through gateway
       run: |
-        ssh -vvv -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
-
-    - name: Add target host to known_hosts through tunnel
-      run: |
-        ssh-keyscan -vvv -H -p 8153 localhost >> ~/.ssh/known_hosts
+        ssh -o ProxyCommand="ssh -W %h:%p gateway_host" target_host "echo Connected to target host"
 
     - name: Create .password file
       run: |
@@ -107,4 +102,4 @@ jobs:
 
     - name: Confirm Connection to Final Server
       run: |
-        ssh -vvv -i ~/.ssh/id_rsa_2 -p 8153 target_host "touch ~/github_action_test_file"
+        ssh -o ProxyCommand="ssh -W %h:%p gateway_host" target_host "touch ~/github_action_test_file"
