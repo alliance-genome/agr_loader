@@ -35,18 +35,19 @@ jobs:
 
     - name: Establish SSH tunnel
       run: |
-        ssh -vvv -f -N -L 8157:localhost:22 -o ServerAliveInterval=15 -i ~/.ssh/id_rsa -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -f -N -L 8157:localhost:22 -o ServerAliveInterval=15 -i ~/.ssh/id_rsa -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Wait for tunnel to establish
-      run: sleep 10
-
-    - name: Check if tunnel is open
       run: |
-        ss -ltn | grep 8157
+        for i in {1..10}; do
+          ss -ltn | grep 8157 && break
+          echo "Waiting for tunnel to establish..."
+          sleep 1
+        done
 
     - name: Test SSH tunnel
       run: |
-        ssh -vvv -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+        ssh -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
 
     - name: Create .password file
       run: |
@@ -97,6 +98,3 @@ jobs:
           --mount type=bind,source=$HOME/.ssh/.password,target=/usr/src/ansible/.password \
           100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage \
           /bin/bash -c "echo 'Hello, World!'"
-
-    - name: Confirm Connection to Final Server
-      run: ssh -vvv -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "touch ~/github_action_test_file"
