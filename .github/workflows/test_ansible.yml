@@ -13,33 +13,44 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH agent and add both keys
+    - name: Set up SSH agent and add key
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: |
-          ${{ secrets.SSH_PRIVATE_KEY_1 }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_1 }}
 
-    - name: Add SSH key to the agent
+    - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-add ~/.ssh/id_rsa
+        echo "
+        Host gateway_host
+          HostName ${{ secrets.GATEWAY_HOST }}
+          User ${{ secrets.GATEWAY_USER }}
+          IdentityFile ~/.ssh/id_rsa
+        Host target_host
+          HostName ${{ secrets.TARGET_HOST }}
+          User ${{ secrets.TARGET_USER }}
+          IdentityFile ~/.ssh/id_rsa
+          ProxyCommand ssh -W %h:%p ${GATEWAY_USER}@${GATEWAY_HOST}
+        " > ~/.ssh/config
 
     - name: Check SSH agent keys
       run: ssh-add -l
 
-    - name: Add known hosts
-      run: |
-        echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
-        echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
+    - name: Add gateway host to known hosts
+      run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
+
+    - name: Add target host to known hosts
+      run: echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
-        ssh -vvv -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -vvv -o StrictHostKeyChecking=no -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Test SSH tunnel
-      run: ssh -v -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+      run: ssh -vvv -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
 
     - name: Create .password file
       run: |
@@ -92,4 +103,4 @@ jobs:
           /bin/bash -c "echo 'Hello, World!'"
 
     - name: Confirm Connection to Final Server
-      run: ssh -v target_host "touch ~/github_action_test_file"
+      run: ssh -vvv target_host "touch ~/github_action_test_file"
