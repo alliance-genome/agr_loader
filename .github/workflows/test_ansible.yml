@@ -46,13 +46,16 @@ jobs:
           ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
         " >> ~/.ssh/config
 
+    - name: Check SSH agent keys
+      run: ssh-add -l
+
     - name: Add gateway host to known_hosts
       run: |
         ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
     - name: Add target host to known_hosts through gateway
       run: |
-        ssh -v -o StrictHostKeyChecking=no gateway_host "ssh-keyscan -H ${{ secrets.TARGET_HOST }}" >> ~/.ssh/known_hosts
+        ssh -v -o StrictHostKeyChecking=no gateway_host "ssh-keyscan -v -H ${{ secrets.TARGET_HOST }}" >> ~/.ssh/known_hosts
 
     - name: Create .password file
       run: |
