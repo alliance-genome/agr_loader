@@ -7,6 +7,20 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    - name: Cleanup build folder
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Listing all files and folders before cleanup:"
+        ls -la ./
+        
+        echo "Cleaning up build folder..."
+        rm -rf ./* || true
+        rm -rf ./.??* || true
+        
+        echo "Listing all files and folders after cleanup:"
+        ls -la ./
+    
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
