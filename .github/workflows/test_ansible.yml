@@ -38,7 +38,7 @@ jobs:
         ssh -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -i ~/.ssh/id_rsa -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Test SSH tunnel
-      run: ssh -vv-v -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+      run: ssh -vvv -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
 
     - name: Create .password file
       run: |
@@ -91,4 +91,4 @@ jobs:
           /bin/bash -c "echo 'Hello, World!'"
 
     - name: Confirm Connection to Final Server
-      run: ssh -vvv target_host "touch ~/github_action_test_file"
+      run: ssh -vvv -p 8157 ${{ secrets.TARGET_USER }}@localhost "touch ~/github_action_test_file"
