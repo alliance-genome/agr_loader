@@ -47,6 +47,14 @@ jobs:
         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
         chmod 600 ~/.ssh/.password
 
+    - name: Clone agr_ansible_devops repository
+      run: git clone https://github.com/alliance-genome/agr_ansible_devops
+
+    - name: Run make registry_docker_login
+      run: |
+        cd agr_ansible_devops
+        make registry_docker_login
+
     - name: Pull Ansible Docker Image
       run: docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage
 
