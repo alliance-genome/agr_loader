@@ -13,20 +13,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH agent and add both keys
+    - name: Set up SSH agent and add key
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
           ${{ secrets.SSH_PRIVATE_KEY_1 }}
-          ${{ secrets.SSH_PRIVATE_KEY_2 }}
 
     - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
         chmod 600 ~/.ssh/id_rsa_1
-        echo "${{ secrets.SSH_PRIVATE_KEY_2 }}" > ~/.ssh/id_rsa_2
-        chmod 600 ~/.ssh/id_rsa_2
         echo "
         Host gateway_host
           HostName ${{ secrets.GATEWAY_HOST }}
@@ -37,12 +34,11 @@ jobs:
           HostName localhost
           Port 8153
           User ${{ secrets.TARGET_USER }}
-          IdentityFile ~/.ssh/id_rsa_2
           ProxyCommand ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
           ServerAliveInterval 60
         " > ~/.ssh/config
 
-    - name: Add keys to SSH agent
+    - name: Check SSH agent keys
       run: ssh-add -l
 
     - name: Add gateway host to known_hosts
