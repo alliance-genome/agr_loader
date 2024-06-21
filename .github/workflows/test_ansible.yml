@@ -19,31 +19,20 @@ jobs:
         ssh-private-key: |
           ${{ secrets.SSH_PRIVATE_KEY_1 }}
 
-    - name: Add keys to SSH config
+    - name: Add SSH key to the agent
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        echo "
-        Host gateway_host
-          HostName ${{ secrets.GATEWAY_HOST }}
-          User ${{ secrets.GATEWAY_USER }}
-          IdentityFile ~/.ssh/id_rsa
-        Host target_host
-          HostName ${{ secrets.TARGET_HOST }}
-          User ${{ secrets.TARGET_USER }}
-          IdentityFile ~/.ssh/id_rsa
-          ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
-        " >> ~/.ssh/config
+        ssh-add ~/.ssh/id_rsa
 
     - name: Check SSH agent keys
       run: ssh-add -l
 
-    - name: Add gateway host to known hosts
-      run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
-
-    - name: Add target host to known hosts
-      run: echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
+    - name: Add known hosts
+      run: |
+        echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
+        echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
