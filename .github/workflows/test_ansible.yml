@@ -49,17 +49,17 @@ jobs:
       run: |
         ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Test direct connection to gateway host
+    - name: Test direct connection to gateway host with sshpass
       run: |
-        sshpass -p "${{ secrets.GATEWAY_PASSWORD }}" ssh -v -o StrictHostKeyChecking=no gateway_host "echo Connected to gateway host"
+        sshpass -p "${{ secrets.GATEWAY_PASSWORD }}" ssh -v -o StrictHostKeyChecking=no ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} "echo Connected to gateway host"
 
     - name: Add target host to known_hosts through gateway
       run: |
         ssh-keyscan -vvv -H 140.247.91.26 >> ~/.ssh/known_hosts
 
-    - name: Test connection to target host through gateway
+    - name: Test connection to target host through gateway with sshpass
       run: |
-        sshpass -p "${{ secrets.TARGET_PASSWORD }}" ssh -vvv -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p '${{ secrets.GATEWAY_PASSWORD }}' ssh -W %h:%p gateway_host" target_host "echo Connected to target host"
+        sshpass -p "${{ secrets.TARGET_PASSWORD }}" ssh -vvv -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p '${{ secrets.GATEWAY_PASSWORD }}' ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}" ${{ secrets.TARGET_USER }}@140.247.91.26 "echo Connected to target host"
 
     - name: Create .password file
       run: |
