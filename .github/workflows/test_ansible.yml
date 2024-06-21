@@ -25,14 +25,14 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         echo "
         Host gateway_host
-          HostName ${{ secrets.GATEWAY_HOST }}
-          User ${{ secrets.GATEWAY_USER }}
+          # HostName ${{ secrets.GATEWAY_HOST }}
+          # User ${{ secrets.GATEWAY_USER }}
           IdentityFile ~/.ssh/id_rsa
         Host target_host
-          HostName ${{ secrets.TARGET_HOST }}
-          User ${{ secrets.TARGET_USER }}
+          # HostName ${{ secrets.TARGET_HOST }}
+          # User ${{ secrets.TARGET_USER }}
           IdentityFile ~/.ssh/id_rsa
-          ProxyJump ${GATEWAY_USER}@${GATEWAY_HOST}
+          # ProxyJump ${GATEWAY_USER}@${GATEWAY_HOST}
         " > ~/.ssh/config
 
     - name: Check SSH agent keys
