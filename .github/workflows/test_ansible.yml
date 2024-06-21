@@ -13,45 +13,44 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH agent and add key
+    - name: Set up SSH agent and add both keys
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
-          ${{ secrets.SSH_PRIVATE_KEY_1 }}
+          ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Configure SSH
+    - name: Add keys to SSH config
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
-        chmod 600 ~/.ssh/id_rsa_1
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
         echo "
         Host gateway_host
           HostName ${{ secrets.GATEWAY_HOST }}
           User ${{ secrets.GATEWAY_USER }}
-          IdentityFile ~/.ssh/id_rsa_1
-          ServerAliveInterval 60
+          IdentityFile ~/.ssh/id_rsa
         Host target_host
-          HostName localhost
-          Port 8153
+          HostName ${{ secrets.TARGET_HOST }}
           User ${{ secrets.TARGET_USER }}
-          ProxyCommand ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
-          ServerAliveInterval 60
-        " > ~/.ssh/config
+          IdentityFile ~/.ssh/id_rsa
+          ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
+        " >> ~/.ssh/config
 
     - name: Check SSH agent keys
       run: ssh-add -l
 
-    - name: Add gateway host to known_hosts
-      run: |
-        ssh-keyscan -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+    - name: Add gateway host to known hosts
+      run: ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Add target host to known hosts
+      run: ssh-keyscan -v -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
-        ssh -v -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -v -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
-    - name: Add target host to known_hosts through tunnel
-      run: |
-        ssh-keyscan -H -p 8153 localhost >> ~/.ssh/known_hosts
+    - name: Test SSH tunnel
+      run: ssh -v -o StrictHostKeyChecking=no -p 8153 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
 
     - name: Create .password file
       run: |
@@ -104,5 +103,4 @@ jobs:
           /bin/bash -c "echo 'Hello, World!'"
 
     - name: Confirm Connection to Final Server
-      run: |
-        ssh -v target_host "touch ~/github_action_test_file"
+      run: ssh -v target_host "touch ~/github_action_test_file"
