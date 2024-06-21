@@ -46,9 +46,17 @@ jobs:
       run: |
         ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
+    - name: Test direct connection to gateway host
+      run: |
+        ssh -v gateway_host "echo Connected to gateway host"
+
     - name: Add target host to known_hosts through gateway
       run: |
-        ssh -o ProxyCommand="ssh -W %h:%p gateway_host" target_host "echo Connected to target host"
+        ssh-keyscan -vvv -H 140.247.91.26 >> ~/.ssh/known_hosts
+
+    - name: Test connection to target host through gateway
+      run: |
+        ssh -vvv -o ProxyCommand="ssh -W %h:%p gateway_host" target_host "echo Connected to target host"
 
     - name: Create .password file
       run: |
