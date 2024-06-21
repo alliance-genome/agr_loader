@@ -47,13 +47,19 @@ jobs:
         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
         chmod 600 ~/.ssh/.password
 
-    - name: Clone agr_ansible_devops repository
-      run: git clone https://github.com/alliance-genome/agr_ansible_devops
-
-    - name: Run make registry-docker-login
+    - name: Configure AWS credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        cd agr_ansible_devops
-        make registry-docker-login
+        mkdir -p ~/.aws
+        echo "[default]" > ~/.aws/credentials
+        echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+        echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+
+    - name: Log in to ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 100225593120.dkr.ecr.us-east-1.amazonaws.com
 
     - name: Pull Ansible Docker Image
       run: docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage
