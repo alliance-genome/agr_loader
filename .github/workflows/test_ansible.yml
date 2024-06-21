@@ -45,15 +45,15 @@ jobs:
 
     - name: Add gateway host to known_hosts
       run: |
-        ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
-        ssh -v -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
+        ssh -vvv -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
 
     - name: Add target host to known_hosts through tunnel
       run: |
-        ssh-keyscan -v -H -p 8153 localhost >> ~/.ssh/known_hosts
+        ssh-keyscan -vvv -H -p 8153 localhost >> ~/.ssh/known_hosts
 
     - name: Create .password file
       run: |
@@ -107,4 +107,4 @@ jobs:
 
     - name: Confirm Connection to Final Server
       run: |
-        ssh -v -i ~/.ssh/id_rsa_2 -p 8153 target_host "touch ~/github_action_test_file"
+        ssh -vvv -i ~/.ssh/id_rsa_2 -p 8153 target_host "touch ~/github_action_test_file"
