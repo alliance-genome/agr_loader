@@ -1,0 +1,13 @@
+name: Test Self-Hosted Runner
+
+on: [push]
+
+jobs:
+  clone-repo:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        repository: alliance-genome/agr_loader
