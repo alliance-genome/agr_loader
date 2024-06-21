@@ -13,25 +13,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH for gateway user
+    - name: Set up SSH for gateway and target users
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_1 }}
+        ssh-private-key: |
+          ${{ secrets.SSH_PRIVATE_KEY_1 }}
+          ${{ secrets.SSH_PRIVATE_KEY_2 }}
 
-    - name: Add gateway user key to SSH config
+    - name: Add keys to SSH config
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
         chmod 600 ~/.ssh/id_rsa_1
-
-    - name: Set up SSH for target user
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_2 }}
-
-    - name: Add target user key to SSH config
-      run: |
-        mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_2 }}" > ~/.ssh/id_rsa_2
         chmod 600 ~/.ssh/id_rsa_2
         echo "
