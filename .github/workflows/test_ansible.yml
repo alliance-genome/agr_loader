@@ -13,34 +13,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install sshpass
-      run: sudo apt-get install -y sshpass
-
     - name: Set up SSH agent and add keys
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
           ${{ secrets.SSH_PRIVATE_KEY_1 }}
           ${{ secrets.SSH_PRIVATE_KEY_2 }}
-
-    - name: Add keys to SSH config
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
-        chmod 600 ~/.ssh/id_rsa_1
-        echo "${{ secrets.SSH_PRIVATE_KEY_2 }}" > ~/.ssh/id_rsa_2
-        chmod 600 ~/.ssh/id_rsa_2
-        echo "
-        Host gateway_host
-          HostName ${{ secrets.GATEWAY_HOST }}
-          User ${{ secrets.GATEWAY_USER }}
-          IdentityFile ~/.ssh/id_rsa_1
-        Host target_host
-          HostName 140.247.91.26
-          User ${{ secrets.TARGET_USER }}
-          IdentityFile ~/.ssh/id_rsa_2
-          ProxyJump gateway_host
-        " >> ~/.ssh/config
 
     - name: Add gateway host to known hosts
       run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
@@ -50,7 +28,7 @@ jobs:
 
     - name: Create SSH tunnel
       run: |
-        ssh -v -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
+        ssh -v -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Test SSH tunnel
       run: |
