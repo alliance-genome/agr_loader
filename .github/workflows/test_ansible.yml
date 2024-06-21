@@ -36,7 +36,7 @@ jobs:
 
     - name: Establish SSH tunnel
       run: |
-        ssh -v -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -vvv -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
 
     - name: Test SSH tunnel
       run: ssh -v -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
