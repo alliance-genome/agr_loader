@@ -39,19 +39,14 @@ jobs:
           HostName 140.247.91.26
           User ${{ secrets.TARGET_USER }}
           IdentityFile ~/.ssh/id_rsa_2
-          ProxyJump ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
+          ProxyJump gateway_host
         " >> ~/.ssh/config
 
-    - name: Check SSH agent keys
-      run: ssh-add -l
+    - name: Add gateway host to known hosts
+      run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
 
-    - name: Add gateway host to known_hosts
-      run: |
-        ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Add target host to known_hosts through gateway
-      run: |
-        ssh -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26 "ssh-keyscan -H 140.247.91.26" >> ~/.ssh/known_hosts
+    - name: Add target host to known hosts
+      run: echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
 
     - name: Create SSH tunnel
       run: |
