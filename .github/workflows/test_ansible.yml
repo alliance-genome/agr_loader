@@ -1,4 +1,4 @@
-name: Test Ansible Playbook Setup
+name: Test SSH Tunnel Setup
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - fb_ansible_test
 
 jobs:
-  ansible:
+  ssh-tunnel:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,7 @@ jobs:
     - name: Install sshpass
       run: sudo apt-get install -y sshpass
 
-    - name: Set up SSH agent and add both keys
+    - name: Set up SSH agent and add keys
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
@@ -49,68 +49,14 @@ jobs:
       run: |
         ssh-keyscan -vvv -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Test direct connection to gateway host with sshpass
-      run: |
-        sshpass -p "${{ secrets.GATEWAY_PASSWORD }}" ssh -v -o StrictHostKeyChecking=no ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} "echo Connected to gateway host"
-
     - name: Add target host to known_hosts through gateway
       run: |
         ssh-keyscan -vvv -H 140.247.91.26 >> ~/.ssh/known_hosts
 
-    - name: Test connection to target host through gateway with sshpass
+    - name: Create SSH tunnel
       run: |
-        sshpass -p "${{ secrets.TARGET_PASSWORD }}" ssh -vvv -o StrictHostKeyChecking=no -o ProxyCommand="sshpass -p '${{ secrets.GATEWAY_PASSWORD }}' ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}" ${{ secrets.TARGET_USER }}@140.247.91.26 "echo Connected to target host"
+        ssh -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
 
-    - name: Create .password file
+    - name: Test SSH tunnel
       run: |
-        echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
-        chmod 600 ~/.ssh/.password
-
-    - name: Configure AWS credentials
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: |
-        mkdir -p ~/.aws
-        echo "[default]" > ~/.aws/credentials
-        echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-        echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-
-    - name: Log in to ECR
-      run: |
-        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 100225593120.dkr.ecr.us-east-1.amazonaws.com
-
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.docker-cache
-        key: ${{ runner.os }}-docker-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-docker-
-
-    - name: Load Docker cache
-      run: |
-        if [ -d "/tmp/.docker-cache" ]; then
-          mkdir -p ~/.docker
-          cp /tmp/.docker-cache/* ~/.docker/ -r
-        fi
-
-    - name: Pull Ansible Docker Image
-      run: docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage
-
-    - name: Save Docker cache
-      run: |
-        mkdir -p /tmp/.docker-cache
-        cp ~/.docker/* /tmp/.docker-cache/ -r
-
-    - name: Test Docker Container
-      run: |
-        docker run --rm \
-          --mount type=bind,source=${{ github.workspace }},target=/usr/src/ansible \
-          --mount type=bind,source=$HOME/.ssh/.password,target=/usr/src/ansible/.password \
-          100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage \
-          /bin/bash -c "echo 'Hello, World!'"
-
-    - name: Confirm Connection to Final Server
-      run: |
-        sshpass -p "${{ secrets.TARGET_PASSWORD }}" ssh -o ProxyCommand="sshpass -p '${{ secrets.GATEWAY_PASSWORD }}' ssh -W %h:%p gateway_host" target_host "touch ~/github_action_test_file"
+        ssh -o StrictHostKeyChecking=no -p 8153 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
