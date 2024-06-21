@@ -51,7 +51,7 @@ jobs:
 
     - name: Add target host to known_hosts through gateway
       run: |
-        ssh-keyscan -vvv -H 140.247.91.26 >> ~/.ssh/known_hosts
+        ssh -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26 "ssh-keyscan -H 140.247.91.26" >> ~/.ssh/known_hosts
 
     - name: Create SSH tunnel
       run: |
