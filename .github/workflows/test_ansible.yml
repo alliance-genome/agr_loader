@@ -1,4 +1,4 @@
-name: Test SSH Tunnel Setup
+name: Test SSH Connection to Gateway Server
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - fb_ansible_test
 
 jobs:
-  ssh-tunnel:
+  ssh-connection-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,20 +16,8 @@ jobs:
     - name: Set up SSH agent and add keys
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: |
-          ${{ secrets.SSH_PRIVATE_KEY_1 }}
-          ${{ secrets.SSH_PRIVATE_KEY_2 }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Add gateway host to known hosts
-      run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
-
-    - name: Add target host to known hosts
-      run: echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
-
-    - name: Create SSH tunnel
+    - name: Test SSH connection to gateway server
       run: |
-        ssh -v -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
-
-    - name: Test SSH tunnel
-      run: |
-        ssh -v -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=no -p 8153 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+        ssh -v -o StrictHostKeyChecking=no ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} "echo Connected to gateway server"
