@@ -50,8 +50,8 @@ jobs:
 
     - name: Create SSH tunnel
       run: |
-        ssh -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
+        ssh -v -o StrictHostKeyChecking=no -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
 
     - name: Test SSH tunnel
       run: |
-        ssh -o StrictHostKeyChecking=no -p 8153 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+        ssh -v -o StrictHostKeyChecking=no -p 8153 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
