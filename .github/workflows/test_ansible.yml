@@ -71,3 +71,7 @@ jobs:
           --mount type=bind,source=$HOME/.ssh/.password,target=/usr/src/ansible/.password \
           100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage \
           /bin/bash -c "echo 'Hello, World!'"
+
+    - name: Confirm Connection to Final Server
+      run: |
+        ssh target_host "touch ~/github_action_test_file"
