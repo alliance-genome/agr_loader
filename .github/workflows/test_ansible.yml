@@ -46,7 +46,7 @@ jobs:
 
     - name: Test SSH tunnel
       run: |
-        ssh -vvv -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
+        ssh -vvv -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
 
     - name: Create .password file
       run: |
@@ -99,4 +99,4 @@ jobs:
           /bin/bash -c "echo 'Hello, World!'"
 
     - name: Confirm Connection to Final Server
-      run: ssh -vvv -p 8157 ${{ secrets.TARGET_USER }}@localhost "touch ~/github_action_test_file"
+      run: ssh -vvv -o StrictHostKeyChecking=no -p 8157 ${{ secrets.TARGET_USER }}@localhost "touch ~/github_action_test_file"
