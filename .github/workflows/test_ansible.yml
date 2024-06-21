@@ -23,17 +23,17 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        echo "
-        Host gateway_host
-          # HostName ${{ secrets.GATEWAY_HOST }}
-          # User ${{ secrets.GATEWAY_USER }}
-          IdentityFile ~/.ssh/id_rsa
-        Host target_host
-          # HostName ${{ secrets.TARGET_HOST }}
-          # User ${{ secrets.TARGET_USER }}
-          IdentityFile ~/.ssh/id_rsa
-          # ProxyJump ${GATEWAY_USER}@${GATEWAY_HOST}
-        " > ~/.ssh/config
+        # echo "
+        # Host gateway_host
+        #   # HostName ${{ secrets.GATEWAY_HOST }}
+        #   # User ${{ secrets.GATEWAY_USER }}
+        #   IdentityFile ~/.ssh/id_rsa
+        # Host target_host
+        #   # HostName ${{ secrets.TARGET_HOST }}
+        #   # User ${{ secrets.TARGET_USER }}
+        #   IdentityFile ~/.ssh/id_rsa
+        #   # ProxyJump ${GATEWAY_USER}@${GATEWAY_HOST}
+        # " > ~/.ssh/config
 
     - name: Check SSH agent keys
       run: ssh-add -l
@@ -46,7 +46,7 @@ jobs:
 
     - name: Establish SSH tunnel
       run: |
-        ssh -vvv -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -i ~/.ssh/id_rsa -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+        ssh -vvv -f -N -L 8157:localhost:8157 -o ServerAliveInterval=15 -i ~/.ssh/id_rsa -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
 
     - name: Test SSH tunnel
       run: ssh -vvv -p 8157 ${{ secrets.TARGET_USER }}@localhost "echo Connected to target host through tunnel"
