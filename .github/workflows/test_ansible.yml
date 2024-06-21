@@ -17,12 +17,12 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: |
-          ${{ secrets.SSH_PRIVATE_KEY_1 }}
+          ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Add keys to SSH config
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         echo "
         Host gateway_host
@@ -39,11 +39,11 @@ jobs:
     - name: Check SSH agent keys
       run: ssh-add -l
 
-    # - name: Add gateway host to known hosts
-    #   run: ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+    - name: Add gateway host to known hosts
+      run: echo "${{ secrets.GATEWAY_HOST_KEY }}" >> ~/.ssh/known_hosts
 
-    # - name: Add target host to known hosts
-    #   run: ssh-keyscan -v -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
+    - name: Add target host to known hosts
+      run: echo "${{ secrets.TARGET_HOST_KEY }}" >> ~/.ssh/known_hosts
 
     - name: Establish SSH tunnel
       run: |
