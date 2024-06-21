@@ -19,7 +19,8 @@ jobs:
         ssh-private-key: |
           ${{ secrets.SSH_PRIVATE_KEY_1 }}
           ${{ secrets.SSH_PRIVATE_KEY_2 }}
-    - name: Add keys to SSH config
+          
+    - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_1 }}" > ~/.ssh/id_rsa_1
@@ -37,23 +38,28 @@ jobs:
           User ${{ secrets.TARGET_USER }}
           IdentityFile ~/.ssh/id_rsa_2
           ProxyCommand ssh -W %h:%p ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }}
-        " >> ~/.ssh/config
-    - name: Check SSH agent keys
+        " > ~/.ssh/config
+        
+    - name: Add keys to SSH agent
       run: ssh-add -l
 
     - name: Add gateway host to known_hosts
       run: |
-        ssh-keyscan -v -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.GATEWAY_HOST }} >> ~/.ssh/known_hosts
+
     - name: Establish SSH tunnel
       run: |
-        ssh -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@140.247.91.26
+        ssh -v -f -N -L 8153:localhost:8153 -o ServerAliveInterval=15 -J ${{ secrets.GATEWAY_USER }}@${{ secrets.GATEWAY_HOST }} ${{ secrets.TARGET_USER }}@${{ secrets.TARGET_HOST }}
+
     - name: Add target host to known_hosts through tunnel
       run: |
-        ssh-keyscan -v -H -p 8153 localhost >> ~/.ssh/known_hosts
+        ssh-keyscan -H -p 8153 localhost >> ~/.ssh/known_hosts
+        
     - name: Create .password file
       run: |
         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ~/.ssh/.password
         chmod 600 ~/.ssh/.password
+        
     - name: Configure AWS credentials
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -63,9 +69,11 @@ jobs:
         echo "[default]" > ~/.aws/credentials
         echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
         echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+
     - name: Log in to ECR
       run: |
         aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 100225593120.dkr.ecr.us-east-1.amazonaws.com
+
     - name: Cache Docker layers
       uses: actions/cache@v3
       with:
@@ -73,12 +81,14 @@ jobs:
         key: ${{ runner.os }}-docker-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-docker-
+
     - name: Load Docker cache
       run: |
         if [ -d "/tmp/.docker-cache" ]; then
           mkdir -p ~/.docker
           cp /tmp/.docker-cache/* ~/.docker/ -r
         fi
+
     - name: Pull Ansible Docker Image
       run: docker pull 100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage
 
@@ -86,6 +96,7 @@ jobs:
       run: |
         mkdir -p /tmp/.docker-cache
         cp ~/.docker/* /tmp/.docker-cache/ -r
+
     - name: Test Docker Container
       run: |
         docker run --rm \
@@ -93,6 +104,7 @@ jobs:
           --mount type=bind,source=$HOME/.ssh/.password,target=/usr/src/ansible/.password \
           100225593120.dkr.ecr.us-east-1.amazonaws.com/agr_ansible_run:stage \
           /bin/bash -c "echo 'Hello, World!'"
+
     - name: Confirm Connection to Final Server
       run: |
         ssh -v target_host "touch ~/github_action_test_file"
