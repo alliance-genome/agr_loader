@@ -31,18 +31,21 @@ jobs:
           eval ${DOCKER_LOGIN_CMD}
         fi
     
-    - name: Pull Neo4j Env Image
+    - name: Construct NEO_ENV_IMAGE
+      id: construct-image
       env:
         REGISTRY: 100225593120.dkr.ecr.us-east-1.amazonaws.com
         DOCKER_PULL_TAG: "stage"  # Adjust as needed
-        NEO_ENV_IMAGE: ${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}
-      run: docker pull ${{ env.NEO_ENV_IMAGE }}
+      run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
+
+    - name: Debug NEO_ENV_IMAGE
+      run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
+
+    - name: Pull Neo4j Env Image
+      run: docker pull $NEO_ENV_IMAGE
 
     - name: Run Neo4j
       env:
-        REGISTRY: 100225593120.dkr.ecr.us-east-1.amazonaws.com
-        DOCKER_PULL_TAG: "stage"  # Adjust as needed
-        NEO_ENV_IMAGE: ${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}
         NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
         LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
         NEO_VOLUME_NAME: "/data"
@@ -69,4 +72,9 @@ jobs:
           -e NEO4J_db_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
           -e NEO4J_db_memory_transaction_max=${{ env.NEO_TRANSACTION }} \
           -e NEO4J_AUTH=${{ env.NEO4J_AUTH }} \
-          ${{ env.NEO_ENV_IMAGE }}
+          $NEO_ENV_IMAGE
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        repository: alliance-genome/agr_loader
