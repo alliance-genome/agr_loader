@@ -38,8 +38,8 @@ jobs:
         DOCKER_PULL_TAG: "stage"  # Adjust as needed
       run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
 
-    - name: Debug NEO_ENV_IMAGE
-      run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
+    # - name: Debug NEO_ENV_IMAGE
+    #   run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
 
     - name: Pull Neo4j Env Image
       run: docker pull $NEO_ENV_IMAGE
@@ -47,7 +47,7 @@ jobs:
     - name: Run Neo4j
       env:
         NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
-        LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
+        # LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
         NEO_VOLUME_NAME: "/data"
         NET: "host"
         NEO_MAX_HEAP: "31GB"
@@ -73,8 +73,3 @@ jobs:
           -e NEO4J_db_memory_transaction_max=${{ env.NEO_TRANSACTION }} \
           -e NEO4J_AUTH=${{ env.NEO4J_AUTH }} \
           $NEO_ENV_IMAGE
-
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        repository: alliance-genome/agr_loader
