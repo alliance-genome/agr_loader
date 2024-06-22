@@ -21,19 +21,15 @@ jobs:
         echo "Listing all files and folders after cleanup:"
         ls -la ./
     
-    - name: Configure AWS credentials
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: |
-        mkdir -p ~/.aws
-        echo "[default]" > ~/.aws/credentials
-        echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-        echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-
     - name: Log in to ECR
+      env:
+        REG: "100225593120.dkr.ecr.us-east-1.amazonaws.com"
       run: |
-        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 100225593120.dkr.ecr.us-east-1.amazonaws.com
+        if echo "${{ env.REG }}" | egrep "ecr\..+\.amazonaws\.com"; then
+          DOCKER_LOGIN_CMD="docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli"
+          DOCKER_LOGIN_CMD="${DOCKER_LOGIN_CMD} ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin https://${{ env.REG }}"
+          eval ${DOCKER_LOGIN_CMD}
+        fi
     
     - name: Pull Neo4j Env Image
       env:
@@ -45,10 +41,10 @@ jobs:
     - name: Run Neo4j
       env:
         REGISTRY: 100225593120.dkr.ecr.us-east-1.amazonaws.com
-        DOCKER_PULL_TAG: "latest"  # Adjust as needed
+        DOCKER_PULL_TAG: "stage"  # Adjust as needed
         NEO_ENV_IMAGE: ${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}
         NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
-        # LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
+        LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
         NEO_VOLUME_NAME: "/data"
         NET: "host"
         NEO_MAX_HEAP: "31GB"
