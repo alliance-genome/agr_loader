@@ -56,7 +56,7 @@ jobs:
         NEO_TRANSACTION: "0"
         NEO4J_AUTH: "none"
       run: |
-        docker run -d \
+        docker run --rm -d \
           --name ${{ env.NEO_SERVER_NAME }} \
           -p 7474:7474 \
           -p 7687:7687 \
