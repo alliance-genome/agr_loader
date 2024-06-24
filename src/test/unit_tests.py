@@ -90,4 +90,4 @@ class TestClass():
         # we still get a url eror is logged.
         for item_name in self.etlh.rdh2.bad_regex.keys():
             assert 1 == self.etlh.rdh2.bad_regex[item_name]
-            assert item_name == 'MESH'
+            assert item_name == 'MIM'
