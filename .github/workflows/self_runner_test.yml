@@ -8,14 +8,14 @@ jobs:
   start-runner:
     runs-on: flysql26-dispatch
     outputs:
-      runner_name: ${{ steps.start_runner.outputs.runner_name }}
+      runner_name: ${{ steps.set-runner-name.outputs.runner_name }}
     steps:
       - name: Start Dockerized Runner
         id: start_runner
         run: |
-          RUNNER_NAME=$(bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.RUNNER_ACCESS_TOKEN }} runner-prefix Default self-hosted,Linux,X64 latest ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
+          RUNNER_NAME=$(bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.CREATE_RUNNER_TOKEN }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
           echo "RUNNER_NAME=${RUNNER_NAME}" >> $GITHUB_ENV
-          echo "::set-output name=runner_name::${RUNNER_NAME}"
+          echo "runner_name=${RUNNER_NAME}" >> $GITHUB_ENV
 
   use-runner:
     needs: start-runner
