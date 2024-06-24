@@ -1,73 +1,82 @@
-name: Test Self-Hosted Runner
+name: Dynamic Runner
 
-on: [push]
+on:
+  workflow_dispatch:
+  push:
 
 jobs:
-  clone-repo:
-    runs-on: self-hosted
-
+  start-runner:
+    runs-on: flybase26-dispatch
     steps:
-    - name: Cleanup build folder
-      run: |
-        echo "Current directory:"
-        pwd
-        echo "Listing all files and folders before cleanup:"
-        ls -la ./
-        
-        echo "Cleaning up build folder..."
-        rm -rf ./* || true
-        rm -rf ./.??* || true
-        
-        echo "Listing all files and folders after cleanup:"
-        ls -la ./
-    
-    - name: Log in to ECR
-      env:
-        REG: "100225593120.dkr.ecr.us-east-1.amazonaws.com"
-      run: |
-        if echo "${{ env.REG }}" | egrep "ecr\..+\.amazonaws\.com"; then
-          DOCKER_LOGIN_CMD="docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli"
-          DOCKER_LOGIN_CMD="${DOCKER_LOGIN_CMD} ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin https://${{ env.REG }}"
-          eval ${DOCKER_LOGIN_CMD}
-        fi
-    
-    - name: Construct NEO_ENV_IMAGE
-      id: construct-image
-      env:
-        REGISTRY: 100225593120.dkr.ecr.us-east-1.amazonaws.com
-        DOCKER_PULL_TAG: "stage"  # Adjust as needed
-      run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
+      - name: Start Dockerized Runner
+        id: start_runner
+        run: |
+          RUNNER_NAME=$(./runner-controller.sh start ${{ secrets.RUNNER_ACCESS_TOKEN }} runner-prefix Default self-hosted,Linux,X64 latest ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
+          echo "Runner name: $RUNNER_NAME"
+          echo "::set-output name=runner_name::$RUNNER_NAME"
 
-    # - name: Debug NEO_ENV_IMAGE
-    #   run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
+  use-runner:
+    needs: start-runner
+    runs-on: ${{ steps.start_runner.outputs.runner_name }}
+    steps:
+      - name: Log in to ECR
+        env:
+          REG: "100225593120.dkr.ecr.us-east-1.amazonaws.com"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if echo "${{ env.REG }}" | egrep "ecr\..+\.amazonaws\.com"; then
+            DOCKER_LOGIN_CMD="docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli"
+            DOCKER_LOGIN_CMD="${DOCKER_LOGIN_CMD} ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin https://${{ env.REG }}"
+            eval ${DOCKER_LOGIN_CMD}
+          fi
 
-    - name: Pull Neo4j Env Image
-      run: docker pull $NEO_ENV_IMAGE
+      - name: Construct NEO_ENV_IMAGE
+        id: construct-image
+        env:
+          REGISTRY: 100225593120.dkr.ecr.us-east-1.amazonaws.com
+          DOCKER_PULL_TAG: "stage"  # Adjust as needed
+        run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
 
-    - name: Run Neo4j
-      env:
-        NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
-        # LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
-        NEO_VOLUME_NAME: "/data"
-        NET: "host"
-        NEO_MAX_HEAP: "31GB"
-        NEO_OFF_HEAP_MAX: "0GB"
-        NEO_ON_OFF_HEAP: "OFF_HEAP"
-        NEO_TRANSACTION: "0"
-        NEO4J_AUTH: "none"
-      run: |
-        docker run --rm -d \
-          --name ${{ env.NEO_SERVER_NAME }} \
-          -p 7474:7474 \
-          -p 7687:7687 \
-          -v ${{ env.NEO_VOLUME_NAME }}:/var/lib/neo4j/import \
-          --network ${{ env.NET }} \
-          -e NEO4J_server_memory_heap_max__size=${{ env.NEO_MAX_HEAP }} \
-          -e NEO4J_server_memory_heap_initial__size=${{ env.NEO_MAX_HEAP }} \
-          -e NEO4J_server_memory_off__heap_max__size=${{ env.NEO_OFF_HEAP_MAX }} \
-          -e NEO4J_db_tx__state_memory__allocation=${{ env.NEO_ON_OFF_HEAP }} \
-          -e NEO4J_dbms_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
-          -e NEO4J_db_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
-          -e NEO4J_db_memory_transaction_max=${{ env.NEO_TRANSACTION }} \
-          -e NEO4J_AUTH=${{ env.NEO4J_AUTH }} \
-          $NEO_ENV_IMAGE
+      # - name: Debug NEO_ENV_IMAGE
+      #   run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
+
+      - name: Pull Neo4j Env Image
+        run: docker pull $NEO_ENV_IMAGE
+
+      - name: Run Neo4j
+        env:
+          NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
+          # LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
+          NEO_VOLUME_NAME: "/data"
+          NET: "host"
+          NEO_MAX_HEAP: "31GB"
+          NEO_OFF_HEAP_MAX: "0GB"
+          NEO_ON_OFF_HEAP: "OFF_HEAP"
+          NEO_TRANSACTION: "0"
+          NEO4J_AUTH: "none"
+        run: |
+          docker run --rm -d \
+            --name ${{ env.NEO_SERVER_NAME }} \
+            -p 7474:7474 \
+            -p 7687:7687 \
+            -v ${{ env.NEO_VOLUME_NAME }}:/var/lib/neo4j/import \
+            --network ${{ env.NET }} \
+            -e NEO4J_server_memory_heap_max__size=${{ env.NEO_MAX_HEAP }} \
+            -e NEO4J_server_memory_heap_initial__size=${{ env.NEO_MAX_HEAP }} \
+            -e NEO4J_server_memory_off__heap_max__size=${{ env.NEO_OFF_HEAP_MAX }} \
+            -e NEO4J_db_tx__state_memory__allocation=${{ env.NEO_ON_OFF_HEAP }} \
+            -e NEO4J_dbms_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
+            -e NEO4J_db_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
+            -e NEO4J_db_memory_transaction_max=${{ env.NEO_TRANSACTION }} \
+            -e NEO4J_AUTH=${{ env.NEO4J_AUTH }} \
+            $NEO_ENV_IMAGE
+
+  stop-runner:
+    needs: use-runner
+    runs-on: flybase26-dispatch
+    steps:
+      - name: Stop Dockerized Runner
+        run: |
+          RUNNER_NAME="${{ needs.start-runner.outputs.runner_name }}"
+          ./runner-controller.sh stop $RUNNER_NAME
