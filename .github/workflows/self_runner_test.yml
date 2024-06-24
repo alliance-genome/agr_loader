@@ -79,5 +79,7 @@ jobs:
     runs-on: flysql26-dispatch
     steps:
       - name: Stop Dockerized Runner
+        env:
+          UUID: ${{ needs.start-runner.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/runner-controller.sh stop ${{ needs.start-runner.outputs.uuid }}
+          bash /var/go/actions-runner-dispatch/runner-controller.sh stop $UUID
