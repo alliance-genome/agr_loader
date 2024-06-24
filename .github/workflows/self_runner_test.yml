@@ -7,6 +7,8 @@ on:
 jobs:
   start-runner:
     runs-on: flybase26-dispatch
+    outputs:
+      runner_name: ${{ steps.start_runner.outputs.runner_name }}
     steps:
       - name: Start Dockerized Runner
         id: start_runner
@@ -17,7 +19,7 @@ jobs:
 
   use-runner:
     needs: start-runner
-    runs-on: ${{ steps.start_runner.outputs.runner_name }}
+    runs-on: ${{ needs.start-runner.outputs.runner_name }}
     steps:
       - name: Log in to ECR
         env:
