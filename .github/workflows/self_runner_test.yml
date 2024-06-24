@@ -8,7 +8,6 @@ jobs:
   start-runner:
     runs-on: flysql26-dispatch
     outputs:
-      runner_name: ${{ steps.start_runner.outputs.runner_name }}
       uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
       - name: Generate UUID
@@ -19,15 +18,12 @@ jobs:
           echo "::set-output name=uuid::$UUID"
 
       - name: Start Dockerized Runner
-        id: start_runner
         run: |
-          RUNNER_NAME=$(bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.CREATE_RUNNER_TOKEN }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ steps.generate_uuid.outputs.uuid }})
-          echo "RUNNER_NAME=${RUNNER_NAME}" >> $GITHUB_ENV
-          echo "::set-output name=runner_name::${RUNNER_NAME}"
+          bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.CREATE_RUNNER_TOKEN }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ steps.generate_uuid.outputs.uuid }}
 
   use-runner:
     needs: start-runner
-    runs-on: ${{ needs.start-runner.outputs.runner_name }}
+    runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
       - name: Log in to ECR
         env:
@@ -84,5 +80,4 @@ jobs:
     steps:
       - name: Stop Dockerized Runner
         run: |
-          RUNNER_NAME="${{ needs.start-runner.outputs.runner_name }}"
-          bash /var/go/actions-runner-dispatch/runner-controller.sh stop $RUNNER_NAME
+          bash /var/go/actions-runner-dispatch/runner-controller.sh stop ${{ needs.start-runner.outputs.uuid }}
