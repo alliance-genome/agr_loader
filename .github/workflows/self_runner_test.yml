@@ -8,14 +8,16 @@ jobs:
   start-runner:
     runs-on: flysql26-dispatch
     outputs:
-      runner_name: ${{ steps.start_runner.outputs.runner_name }}
+      runner_name: ${{ steps.set-runner-name.outputs.runner_name }}
     steps:
       - name: Start Dockerized Runner
         id: start_runner
         run: |
           RUNNER_NAME=$(bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.RUNNER_ACCESS_TOKEN }} runner-prefix Default self-hosted,Linux,X64 latest ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
-          echo "Runner name: $RUNNER_NAME"
-          echo "::set-output name=runner_name::$RUNNER_NAME"
+          echo "RUNNER_NAME=$RUNNER_NAME" >> $GITHUB_ENV
+      - name: Set Runner Name Output
+        id: set-runner-name
+        run: echo "runner_name=${RUNNER_NAME}" >> $GITHUB_ENV
 
   use-runner:
     needs: start-runner
@@ -40,16 +42,12 @@ jobs:
           DOCKER_PULL_TAG: "stage"  # Adjust as needed
         run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
 
-      # - name: Debug NEO_ENV_IMAGE
-      #   run: echo "NEO_ENV_IMAGE=$NEO_ENV_IMAGE"
-
       - name: Pull Neo4j Env Image
         run: docker pull $NEO_ENV_IMAGE
 
       - name: Run Neo4j
         env:
           NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
-          # LOG_SERVER_ADDRESS: "udp://logserver.example.com:12201"
           NEO_VOLUME_NAME: "/data"
           NET: "host"
           NEO_MAX_HEAP: "31GB"
