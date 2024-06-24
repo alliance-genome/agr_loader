@@ -13,7 +13,7 @@ jobs:
       - name: Start Dockerized Runner
         id: start_runner
         run: |
-          RUNNER_NAME=$(./runner-controller.sh start ${{ secrets.RUNNER_ACCESS_TOKEN }} runner-prefix Default self-hosted,Linux,X64 latest ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
+          RUNNER_NAME=$(bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.RUNNER_ACCESS_TOKEN }} runner-prefix Default self-hosted,Linux,X64 latest ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }})
           echo "Runner name: $RUNNER_NAME"
           echo "::set-output name=runner_name::$RUNNER_NAME"
 
@@ -81,4 +81,4 @@ jobs:
       - name: Stop Dockerized Runner
         run: |
           RUNNER_NAME="${{ needs.start-runner.outputs.runner_name }}"
-          ./runner-controller.sh stop $RUNNER_NAME
+          bash /var/go/actions-runner-dispatch/runner-controller.sh stop $RUNNER_NAME
