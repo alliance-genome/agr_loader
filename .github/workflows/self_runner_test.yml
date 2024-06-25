@@ -50,10 +50,9 @@ jobs:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
-
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
-        env:
+        with:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
