@@ -10,6 +10,11 @@ jobs:
     outputs:
       uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
+      - name: Checkout agr_github_runner repository
+        uses: actions/checkout@v2
+        with:
+          repository: your-org/agr_github_runner
+
       - name: Generate UUID
         id: generate_uuid
         run: |
@@ -18,18 +23,28 @@ jobs:
           echo "::set-output name=uuid::$UUID"
 
       - name: Start Dockerized Runner
+        env:
+          CREATE_RUNNER_TOKEN: ${{ secrets.CREATE_RUNNER_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          UUID: ${{ steps.generate_uuid.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/runner-controller.sh start ${{ secrets.CREATE_RUNNER_TOKEN }} ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ steps.generate_uuid.outputs.uuid }}
+          bash /var/go/actions-runner-dispatch/runner-controller.sh start
 
   use-runner:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
+      - name: Checkout agr_github_runner repository
+        uses: actions/checkout@v2
+        with:
+          repository: your-org/agr_github_runner
+
       - name: Log in to ECR
-        run: |
-          if echo "100225593120.dkr.ecr.us-east-1.amazonaws.com" | egrep "ecr\..+\.amazonaws\.com"; then
-            docker run --rm -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} -e AWS_DEFAULT_REGION=us-east-1 amazon/aws-cli ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin https://100225593120.dkr.ecr.us-east-1.amazonaws.com
-          fi
+        uses: your-org/agr_github_runner/.github/actions/login_to_ecr@main
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Construct NEO_ENV_IMAGE
         id: construct-image
@@ -38,40 +53,18 @@ jobs:
           DOCKER_PULL_TAG: "stage"  # Adjust as needed
         run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
 
-      - name: Pull Neo4j Env Image
-        run: docker pull $NEO_ENV_IMAGE
-
-      - name: Run Neo4j
-        env:
-          NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"
-          NEO_VOLUME_NAME: "/data"
-          NET: "host"
-          NEO_MAX_HEAP: "31GB"
-          NEO_OFF_HEAP_MAX: "0GB"
-          NEO_ON_OFF_HEAP: "OFF_HEAP"
-          NEO_TRANSACTION: "0"
-          NEO4J_AUTH: "none"
-        run: |
-          docker run --rm -d \
-            --name ${{ env.NEO_SERVER_NAME }} \
-            -p 7474:7474 \
-            -p 7687:7687 \
-            -v ${{ env.NEO_VOLUME_NAME }}:/var/lib/neo4j/import \
-            --network ${{ env.NET }} \
-            -e NEO4J_server_memory_heap_max__size=${{ env.NEO_MAX_HEAP }} \
-            -e NEO4J_server_memory_heap_initial__size=${{ env.NEO_MAX_HEAP }} \
-            -e NEO4J_server_memory_off__heap_max__size=${{ env.NEO_OFF_HEAP_MAX }} \
-            -e NEO4J_db_tx__state_memory__allocation=${{ env.NEO_ON_OFF_HEAP }} \
-            -e NEO4J_dbms_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
-            -e NEO4J_db_memory_transaction_total_max=${{ env.NEO_TRANSACTION }} \
-            -e NEO4J_db_memory_transaction_max=${{ env.NEO_TRANSACTION }} \
-            -e NEO4J_AUTH=${{ env.NEO4J_AUTH }} \
-            $NEO_ENV_IMAGE
+      - name: Start Neo4j Environment
+        uses: your-org/agr_github_runner/.github/actions/start_neo4j_env@main
 
   stop-runner:
     needs: use-runner
     runs-on: flysql26-dispatch
     steps:
+      - name: Checkout agr_github_runner repository
+        uses: actions/checkout@v2
+        with:
+          repository: your-org/agr_github_runner
+
       - name: Stop Dockerized Runner
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
