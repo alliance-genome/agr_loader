@@ -14,7 +14,7 @@ jobs:
         id: generate_uuid
         run: |
           UUID=$(uuidgen)
-          echo "UUID=$UUID" >> $GITHUB_ENV
+          echo "UUID=$UUID"
           echo "::set-output name=uuid::$UUID"
 
       - name: Remove existing agr_github_runner directory
