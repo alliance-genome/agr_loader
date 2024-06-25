@@ -10,6 +10,12 @@ jobs:
     outputs:
       uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
+      - name: Checkout agr_github_runner repository
+        uses: actions/checkout@v1
+        with:
+          repository: alliance-genome/agr_github_runner
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Generate UUID
         id: generate_uuid
         run: |
@@ -31,10 +37,10 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
       - name: Checkout agr_github_runner repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          bash /var/go/actions-runner-dispatch/checkout_in_docker.sh
+        uses: actions/checkout@v1
+        with:
+          repository: alliance-genome/agr_github_runner
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
@@ -56,6 +62,12 @@ jobs:
     needs: use-runner
     runs-on: flysql26-dispatch
     steps:
+      - name: Checkout agr_github_runner repository
+        uses: actions/checkout@v1
+        with:
+          repository: alliance-genome/agr_github_runner
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Stop Dockerized Runner
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
