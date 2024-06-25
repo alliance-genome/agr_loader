@@ -10,11 +10,6 @@ jobs:
     outputs:
       uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
-      - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v2
-        with:
-          repository: your-org/agr_github_runner
-
       - name: Generate UUID
         id: generate_uuid
         run: |
@@ -36,12 +31,13 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
       - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v2
-        with:
-          repository: your-org/agr_github_runner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash /var/go/actions-runner-dispatch/checkout_in_docker.sh
 
       - name: Log in to ECR
-        uses: your-org/agr_github_runner/.github/actions/login_to_ecr@main
+        uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,17 +50,12 @@ jobs:
         run: echo "NEO_ENV_IMAGE=${{ env.REGISTRY }}/agr_neo4j_env:${{ env.DOCKER_PULL_TAG }}" >> $GITHUB_ENV
 
       - name: Start Neo4j Environment
-        uses: your-org/agr_github_runner/.github/actions/start_neo4j_env@main
+        uses: alliance-genome/agr_github_runner/.github/actions/start_neo4j_env@main
 
   stop-runner:
     needs: use-runner
     runs-on: flysql26-dispatch
     steps:
-      - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v2
-        with:
-          repository: your-org/agr_github_runner
-
       - name: Stop Dockerized Runner
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
