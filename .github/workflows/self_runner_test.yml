@@ -31,10 +31,10 @@ jobs:
     runs-on: flysql26-dispatch
     needs: setup
     outputs:
-      uuid: ${{ steps.set_uuid.outputs.uuid }}
+      uuid: ${{ steps.start_dockerized_runner.outputs.uuid }}
     steps:
       - name: Start Dockerized Runner
-        id: set_uuid
+        id: start_dockerized_runner
         env:
           CREATE_RUNNER_TOKEN: ${{ secrets.CREATE_RUNNER_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
