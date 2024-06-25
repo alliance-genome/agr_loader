@@ -15,6 +15,7 @@ jobs:
         run: |
           UUID=$(uuidgen)
           echo "UUID=$UUID"
+          echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
 
       - name: Remove existing agr_github_runner directory
@@ -49,8 +50,6 @@ jobs:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
-      - name: Print UUID for Debugging
-        run: echo "UUID from start-runner job: ${{ needs.start-runner.outputs.uuid }}"
 
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
