@@ -5,10 +5,8 @@ on:
   push:
 
 jobs:
-  start-runner:
+  setup:
     runs-on: flysql26-dispatch
-    outputs:
-      uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
       - name: Generate UUID
         id: generate_uuid
@@ -17,27 +15,35 @@ jobs:
           echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
 
+      - name: Remove existing agr_github_runner directory
+        run: |
+          if [ -d "/var/go/actions-runner-dispatch/agr_github_runner" ]; then
+            rm -rf /var/go/actions-runner-dispatch/agr_github_runner
+          fi
+
       - name: Clone agr_github_runner repository
         run: |
           git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
 
+  start-runner:
+    runs-on: flysql26-dispatch
+    needs: setup
+    outputs:
+      uuid: ${{ needs.setup.outputs.uuid }}
+    steps:
       - name: Start Dockerized Runner
         env:
           CREATE_RUNNER_TOKEN: ${{ secrets.CREATE_RUNNER_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          UUID: ${{ steps.generate_uuid.outputs.uuid }}
+          UUID: ${{ needs.setup.outputs.uuid }}
         run: |
           bash /var/go/actions-runner-dispatch/agr_github_runner/.github/actions/start_runner/start_runner.sh start
 
   use-runner:
-    needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
+    needs: start-runner
     steps:
-      - name: Clone agr_github_runner repository
-        run: |
-          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
-
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
         env:
@@ -55,13 +61,9 @@ jobs:
         uses: alliance-genome/agr_github_runner/.github/actions/start_neo4j_env@main
 
   stop-runner:
-    needs: use-runner
     runs-on: flysql26-dispatch
+    needs: use-runner
     steps:
-      - name: Clone agr_github_runner repository
-        run: |
-          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
-
       - name: Stop Dockerized Runner
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
