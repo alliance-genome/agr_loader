@@ -13,7 +13,7 @@ jobs:
       - name: Generate UUID
         id: generate_uuid
         run: |
-          UUID=$(uuidgen)
+          UUID=$(openssl rand -hex 16)
           echo "UUID=$UUID"
           echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
