@@ -10,18 +10,16 @@ jobs:
     outputs:
       uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
-      - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v1
-        with:
-          repository: alliance-genome/agr_github_runner
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Generate UUID
         id: generate_uuid
         run: |
           UUID=$(uuidgen)
           echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
+
+      - name: Clone agr_github_runner repository
+        run: |
+          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
 
       - name: Start Dockerized Runner
         env:
@@ -30,17 +28,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           UUID: ${{ steps.generate_uuid.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/runner-controller.sh start
+          bash /var/go/actions-runner-dispatch/agr_github_runner/runner-controller.sh start
 
   use-runner:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
-      - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v1
-        with:
-          repository: alliance-genome/agr_github_runner
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone agr_github_runner repository
+        run: |
+          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
 
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
@@ -62,14 +58,12 @@ jobs:
     needs: use-runner
     runs-on: flysql26-dispatch
     steps:
-      - name: Checkout agr_github_runner repository
-        uses: actions/checkout@v1
-        with:
-          repository: alliance-genome/agr_github_runner
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone agr_github_runner repository
+        run: |
+          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
 
       - name: Stop Dockerized Runner
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/runner-controller.sh stop $UUID
+          bash /var/go/actions-runner-dispatch/agr_github_runner/runner-controller.sh stop $UUID
