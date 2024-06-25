@@ -17,28 +17,28 @@ jobs:
           echo "UUID=$UUID"
           echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
-          
+
       - name: Check UUID in Setup
-        run: echo "Setup UUID $UUID"
-        
+        run: echo "Setup UUID: ${{ steps.generate_uuid.outputs.uuid }}"
+
       - name: Remove existing agr_github_runner directory
         run: |
           if [ -d "/var/go/actions-runner-dispatch/agr_github_runner" ]; then
             rm -rf /var/go/actions-runner-dispatch/agr_github_runner
           fi
-          
+
       - name: Clone agr_github_runner repository
         run: |
           git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
-          
+
   start-runner:
     runs-on: flysql26-dispatch
     needs: setup
     outputs:
-      uuid: ${{ steps.start_dockerized_runner.outputs.uuid }}
+      uuid: ${{ steps.set_output_uuid.outputs.uuid }}
     steps:
       - name: Check UUID in Start Runner
-        run: echo "Start Runner UUID ${{ needs.setup.outputs.uuid }}"
+        run: echo "Start Runner UUID: ${{ needs.setup.outputs.uuid }}"
 
       - name: Start Dockerized Runner
         id: start_dockerized_runner
@@ -49,12 +49,16 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Set Output UUID
+        id: set_output_uuid
+        run: echo "::set-output name=uuid::${{ needs.setup.outputs.uuid }}"
+
   use-runner:
     needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
       - name: Check UUID in Use Runner
-        run: echo "Use Runner UUID ${{ needs.start-runner.outputs.uuid }}"
+        run: echo "Use Runner UUID: ${{ needs.start-runner.outputs.uuid }}"
 
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
@@ -77,9 +81,8 @@ jobs:
     needs: use-runner
     steps:
       - name: Stop Dockerized Runner
-        uses: alliance-genome/agr_github_runner/.github/actions/start_runner@main
+        uses: alliance-genome/agr_github_runner/.github/actions/stop_runner@main
         with:
-          command: stop
           UUID: ${{ needs.start-runner.outputs.uuid }}
           ACCESS_TOKEN: ${{ secrets.CREATE_RUNNER_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
