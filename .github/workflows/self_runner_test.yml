@@ -7,6 +7,8 @@ on:
 jobs:
   setup:
     runs-on: flysql26-dispatch
+    outputs:
+      uuid: ${{ steps.generate_uuid.outputs.uuid }}
     steps:
       - name: Generate UUID
         id: generate_uuid
@@ -29,21 +31,27 @@ jobs:
     runs-on: flysql26-dispatch
     needs: setup
     outputs:
-      uuid: ${{ needs.setup.outputs.uuid }}
+      uuid: ${{ steps.set_uuid.outputs.uuid }}
     steps:
       - name: Start Dockerized Runner
+        id: set_uuid
         env:
           CREATE_RUNNER_TOKEN: ${{ secrets.CREATE_RUNNER_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           UUID: ${{ needs.setup.outputs.uuid }}
         run: |
+          echo "UUID=${UUID}"
+          echo "::set-output name=uuid::${UUID}"
           bash /var/go/actions-runner-dispatch/agr_github_runner/.github/actions/start_runner/start_runner.sh start
 
   use-runner:
-    runs-on: ${{ needs.start-runner.outputs.uuid }}
     needs: start-runner
+    runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
+      - name: Print UUID for Debugging
+        run: echo "UUID from start-runner job: ${{ needs.start-runner.outputs.uuid }}"
+
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
         env:
