@@ -1,8 +1,13 @@
-name: Dynamic Runner
+name: Loader PR Test
 
+# Comment out the existing trigger
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+
+# Add the workflow_dispatch trigger
 on:
   workflow_dispatch:
-  push:
 
 jobs:
   setup:
@@ -66,6 +71,58 @@ jobs:
 
       - name: Start Neo4j Environment
         uses: alliance-genome/agr_github_runner/.github/actions/start_neo4j_env@main
+        
+      - name: Checkout PR code
+        uses: actions/checkout@v2
+        with:
+          repository: alliance-genome/agr_loader
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set environment variables
+        run: |
+          echo "NET=testing" >> $GITHUB_ENV
+          echo "REG=100225593120.dkr.ecr.us-east-1.amazonaws.com" >> $GITHUB_ENV
+          echo "LOGOPT='--log-driver=gelf --log-opt gelf-address=udp://logs.alliancegenome.org:12201'" >> $GITHUB_ENV
+          echo "DOCKER_PULL_TAG=stage" >> $GITHUB_ENV
+          echo "ALLIANCE_RELEASE=7.3.0" >> $GITHUB_ENV
+
+      - name: Build Docker container
+        run: |
+          docker build --pull --no-cache --force-rm --build-arg DOCKER_PULL_TAG=${{ env.DOCKER_PULL_TAG }} --build-arg REG=${{ env.REG }} -t ${{ env.REG }}/agr_loader_run:${{ env.NET }}_loader .
+
+      - name: Run Loader in Test Mode
+        env:
+          LOADER_TEST_NAME: "agr.testing.loader.test"
+          LOADER_TEST_RUN_IMAGE: "${{ env.REG }}/agr_loader_run:${{ env.NET }}_loader"
+          LOG_SERVER_ADDRESS: "udp://logs.alliancegenome.org:12201"
+          NEO_VOLUME_NAME: "/data"
+          NET: "testing"
+          API_ACCESS_TOKEN: ${{ secrets.API_ACCESS_TOKEN }}
+          DOWNLOAD_HOST: "download.alliancegenome.org"
+          TEST_SET: "true"
+          ALLIANCE_RELEASE: "7.3.0"
+          FMS_API_URL: "https://fms.alliancegenome.org"
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GENERATE_REPORTS: "true"
+          NEO_SERVER_NAME: "testing-neo4j.alliancegenome.org"
+        run: |
+          docker run --rm \
+            --name $LOADER_TEST_NAME \
+            --env API_KEY=$API_ACCESS_TOKEN \
+            --env DEBUG=False \
+            --env DOWNLOAD_HOST=$DOWNLOAD_HOST \
+            --env TEST_SET=$TEST_SET \
+            --env ALLIANCE_RELEASE=$ALLIANCE_RELEASE \
+            --env FMS_API_URL=$FMS_API_URL \
+            --env AWS_ACCESS_KEY=$AWS_ACCESS_KEY \
+            --env AWS_SECRET_KEY=$AWS_SECRET_KEY \
+            --env GENERATE_REPORTS=$GENERATE_REPORTS \
+            --env NEO4J_HOST=$NEO_SERVER_NAME \
+            --network $NET \
+            --volume $NEO_VOLUME_NAME:/usr/src/app/tmp \
+            --log-driver=gelf --log-opt gelf-address=$LOG_SERVER_ADDRESS \
+            $LOADER_TEST_RUN_IMAGE
 
   stop-runner:
     runs-on: flysql26-dispatch
