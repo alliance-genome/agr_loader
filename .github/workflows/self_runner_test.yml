@@ -19,7 +19,7 @@ jobs:
           echo "::set-output name=uuid::$UUID"
 
       - name: Check UUID in Setup
-        run: echo "Setup UUID: $UUID"
+        run: echo "UUID ${{env.UUID}}"
 
       - name: Remove existing agr_github_runner directory
         run: |
@@ -38,7 +38,7 @@ jobs:
       uuid: ${{ steps.start_dockerized_runner.outputs.uuid }}
     steps:
       - name: Check UUID in Start Runner
-        run: echo "Start Runner UUID: ${{ needs.setup.outputs.uuid }}"
+        run: echo "Start Runner UUID ${{ needs.setup.outputs.uuid }}"
 
       - name: Start Dockerized Runner
         id: start_dockerized_runner
@@ -54,7 +54,7 @@ jobs:
     runs-on: ${{ needs.start-runner.outputs.uuid }}
     steps:
       - name: Check UUID in Use Runner
-        run: echo "Use Runner UUID: ${{ needs.start-runner.outputs.uuid }}"
+        run: echo "Use Runner UUID ${{ needs.start-runner.outputs.uuid }}"
 
       - name: Log in to ECR
         uses: alliance-genome/agr_github_runner/.github/actions/login_to_ecr@main
