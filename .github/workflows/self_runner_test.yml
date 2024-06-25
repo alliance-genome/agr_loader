@@ -28,7 +28,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           UUID: ${{ steps.generate_uuid.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/agr_github_runner/runner-controller.sh start
+          bash /var/go/actions-runner-dispatch/agr_github_runner/.github/actions/start_runner/start_runner.sh start
 
   use-runner:
     needs: start-runner
@@ -66,4 +66,4 @@ jobs:
         env:
           UUID: ${{ needs.start-runner.outputs.uuid }}
         run: |
-          bash /var/go/actions-runner-dispatch/agr_github_runner/runner-controller.sh stop $UUID
+          bash /var/go/actions-runner-dispatch/agr_github_runner/.github/actions/start_runner/start_runner.sh stop $UUID
