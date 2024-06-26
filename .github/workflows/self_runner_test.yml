@@ -107,7 +107,7 @@ jobs:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GENERATE_REPORTS: "true"
-          NEO_SERVER_NAME: "testing-neo4j.alliancegenome.org"
+          NEO_SERVER_NAME: "stage-neo4j.alliancegenome.org"  # Use the name from the constructed NEO_ENV_IMAGE
         run: |
           docker run --rm \
             --name $LOADER_TEST_NAME \
