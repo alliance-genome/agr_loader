@@ -84,6 +84,8 @@ jobs:
           echo "ALLIANCE_RELEASE=7.3.0" >> $GITHUB_ENV
 
       - name: Build Docker container
+        env:
+          DOCKER_BUILDKIT: 1
         run: |
           docker build --pull --no-cache --force-rm --build-arg DOCKER_PULL_TAG=${{ env.DOCKER_PULL_TAG }} --build-arg REG=${{ env.REG }} -t ${{ env.REG }}/agr_loader_run:${{ env.NET }}_loader .
 
