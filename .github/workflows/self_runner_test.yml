@@ -1,11 +1,5 @@
 name: Loader PR Test
 
-# Comment out the existing trigger
-# on:
-#   pull_request:
-#     types: [opened, synchronize, reopened]
-
-# Add the workflow_dispatch trigger
 on:
   workflow_dispatch: {}
   push:
@@ -93,6 +87,9 @@ jobs:
         run: |
           docker build --pull --no-cache --force-rm --build-arg DOCKER_PULL_TAG=${{ env.DOCKER_PULL_TAG }} --build-arg REG=${{ env.REG }} -t ${{ env.REG }}/agr_loader_run:${{ env.NET }}_loader .
 
+      - name: Create Docker network
+        run: docker network create testing
+
       - name: Run Loader in Test Mode
         env:
           LOADER_TEST_NAME: "agr.testing.loader.test"
@@ -126,6 +123,9 @@ jobs:
             --volume $NEO_VOLUME_NAME:/usr/src/app/tmp \
             --log-driver=gelf --log-opt gelf-address=$LOG_SERVER_ADDRESS \
             $LOADER_TEST_RUN_IMAGE
+
+      - name: Remove Docker network
+        run: docker network rm testing
 
   stop-runner:
     runs-on: flysql26-dispatch
