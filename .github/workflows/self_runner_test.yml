@@ -19,16 +19,6 @@ jobs:
           echo "UUID=$UUID"
           echo "UUID=$UUID" >> $GITHUB_ENV
           echo "::set-output name=uuid::$UUID"
-
-      - name: Remove existing agr_github_runner directory
-        run: |
-          if [ -d "/var/go/actions-runner-dispatch/agr_github_runner" ]; then
-            rm -rf /var/go/actions-runner-dispatch/agr_github_runner
-          fi
-          
-      - name: Clone agr_github_runner repository
-        run: |
-          git clone https://github.com/alliance-genome/agr_github_runner.git /var/go/actions-runner-dispatch/agr_github_runner
           
   start-runner:
     runs-on: flysql26-dispatch
