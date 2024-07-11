@@ -73,7 +73,7 @@ class TestClass():
                     'result': 'https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&code=C5604'},
                    {'local_id': 'badregexdoesnotmatch', 'global_id': 'MESH:badregexdoesnotmatch',
                     'result': 'https://www.ncbi.nlm.nih.gov/mesh/badregexdoesnotmatch'},
-                   {'local_id': 'Cdiff', 'global_id': 'MIM:1111', 'result': 'https://www.omim.org/entry/1111'}] 
+                   {'local_id': 'Cdiff', 'global_id': 'MIM:1111', 'result': 'https://www.omim.org/1111'}] 
     
         for item in lookups:
             url = self.etlh.get_complete_url_ont(item['local_id'], item['global_id'])

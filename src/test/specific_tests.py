@@ -1168,7 +1168,7 @@ def test_human_dej_has_omim_full_url_cross_reference():
     """Test Human DEJ has OMIM Full URL Cross Reference"""
 
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
-               WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
+               WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/605242'
                RETURN count(cr) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
