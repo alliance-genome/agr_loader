@@ -333,4 +333,11 @@ class ResourceDescriptorHelper2():
                 self.bad_regex[key] = 1
             else:
                 self.bad_regex[key] += 1
+        # if page == "ontology_provided_cross_reference":
+        #     self.logger.info('Processing ontology_provided_cross_reference')
+        #     self.logger.info('DB Prefix: %s', db_prefix)
+        #     self.logger.info('Identifier: %s', identifier)
+        #     self.logger.info('Identifier Processed: %s', identifier_post_processed)
+        #     self.logger.info('GID Pattern: %s', gid_pattern)
+        #     self.logger.info('Regex Match: %s', regex_output)
         return self.return_url_from_key_value(key, identifier_stripped, alt_page=page)
