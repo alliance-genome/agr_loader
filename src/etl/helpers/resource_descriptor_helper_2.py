@@ -302,7 +302,13 @@ class ResourceDescriptorHelper2():
     def return_url_from_identifier(self, identifier, page=None):
         """Return URL for an identifier."""
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
-
+        
+        # Normalize the identifier
+        # Special case for EFO.
+        if db_prefix and db_prefix.upper() == "EFO":
+            if not identifier_stripped.startswith("EFO_"):
+                identifier_stripped = "EFO_" + identifier_stripped
+        
         key = self.get_key(db_prefix, identifier)
         if not key:
             return None
@@ -325,19 +331,12 @@ class ResourceDescriptorHelper2():
         regex_output = re.match(gid_pattern, identifier_post_processed, re.IGNORECASE)
         if regex_output is None:
             if key not in self.bad_regex:
-                self.logger.info('Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
-                self.logger.info('Database prefix: %s', db_prefix)
-                self.logger.info('Identifier: %s', identifier_post_processed)
-                self.logger.info('gid pattern: %s', gid_pattern)
-                self.logger.info('page: %s', page)
+                self.logger.warning('Cross Reference identifier did not match Resource Descriptor YAML file gid pattern.')
+                self.logger.warning('Database prefix: %s', db_prefix)
+                self.logger.warning('Identifier: %s', identifier_post_processed)
+                self.logger.warning('gid pattern: %s', gid_pattern)
+                self.logger.warning('page: %s', page)
                 self.bad_regex[key] = 1
             else:
                 self.bad_regex[key] += 1
-        if page == "ontology_provided_cross_reference":
-            self.logger.info('Processing ontology_provided_cross_reference')
-            self.logger.info('DB Prefix: %s', db_prefix)
-            self.logger.info('Identifier: %s', identifier)
-            self.logger.info('Identifier Processed: %s', identifier_post_processed)
-            self.logger.info('GID Pattern: %s', gid_pattern)
-            self.logger.info('Regex Match: %s', regex_output)
         return self.return_url_from_key_value(key, identifier_stripped, alt_page=page)
