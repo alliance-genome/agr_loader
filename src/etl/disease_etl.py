@@ -315,7 +315,7 @@ class DiseaseETL(ETL):
         for page in pages:
             if (self.data_provider == 'RGD' or self.data_provider == 'HUMAN') and prefix == 'DOID':
                 display_name = 'RGD'
-            elif (self.data_provider == 'RGD' or self.data_provider == 'HUMAN') and prefix == 'OMIM':
+            elif (self.data_provider == 'RGD' or self.data_provider == 'HUMAN') and (prefix == 'OMIM' or prefix == 'MIM'):
                 display_name = 'OMIM'
             else:
                 display_name = cross_ref_id.split(":")[0]

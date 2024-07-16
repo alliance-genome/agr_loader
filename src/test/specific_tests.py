@@ -775,7 +775,7 @@ def test_human_gene_has_hgnc_cross_reference():
                WHERE g.primaryKey = 'HGNC:11204'
                      AND cr.crossRefType = 'gene'
                      AND cr.globalCrossRefId = 'HGNC:11204'
-                     AND cr.crossRefCompleteUrl = 'http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:11204'
+                     AND cr.crossRefCompleteUrl = 'https://bioregistry.io/hgnc:11204'
                RETURN count(cr) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
@@ -932,7 +932,7 @@ def test_expression_for_mgi_109583():
     RETURN count(distinct ebge) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] == 2
+            assert record["counter"] == 5
 
 
 def test_part_of_relations_exist():
@@ -1168,7 +1168,7 @@ def test_human_dej_has_omim_full_url_cross_reference():
     """Test Human DEJ has OMIM Full URL Cross Reference"""
 
     query = """MATCH (g:Gene)--(dej:DiseaseEntityJoin)--(cr:CrossReference)
-               WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/entry/605242'
+               WHERE cr.crossRefCompleteUrl = 'https://www.omim.org/MIM:605242'
                RETURN count(cr) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
