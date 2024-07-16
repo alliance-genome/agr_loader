@@ -302,7 +302,13 @@ class ResourceDescriptorHelper2():
     def return_url_from_identifier(self, identifier, page=None):
         """Return URL for an identifier."""
         db_prefix, identifier_stripped, separator = self.split_identifier(identifier)
-
+        
+        # Normalize the identifier
+        # Special case for EFO.
+        if db_prefix and db_prefix.upper() == "EFO":
+            if not identifier_stripped.startswith("EFO_"):
+                identifier_stripped = "EFO_" + identifier_stripped
+        
         key = self.get_key(db_prefix, identifier)
         if not key:
             return None

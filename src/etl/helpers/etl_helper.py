@@ -154,7 +154,7 @@ class ETLHelper():
     def get_complete_url_ont(self, local_id, global_id, key=None):
         """Get Complete 'ont'."""
         page = None
-        if 'OMIM:PS' in global_id:
+        if 'OMIM:PS' in global_id or 'MIM:PS' in global_id:
             page = 'ont'
 
         if not key:  # split not done before hand
