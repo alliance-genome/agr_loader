@@ -1231,7 +1231,7 @@ def test_omim_publication_exists():
 
     query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
                 WHERE g.primaryKey = 'HGNC:1958'
-                and pr.pubModId = 'OMIM:600513'
+                and pr.pubModId = 'MIM:600513'
                 RETURN count(p) AS counter
     """
     with Neo4jHelper.run_single_query(query) as result:
