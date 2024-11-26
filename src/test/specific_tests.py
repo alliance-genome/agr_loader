@@ -304,7 +304,7 @@ def test_phenotype_for_all_species_exists():
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] == 7
+            assert record["counter"] == 8
 
 
 def test_variant_for_expected_species_exists():
