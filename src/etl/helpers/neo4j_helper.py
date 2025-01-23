@@ -171,6 +171,7 @@ class Neo4jHelper:
                         "(n:SecondaryId) on (n.primaryKey)",
                         "(n:SOTerm) on (n.name)",
                         "(n:Synonym) on (n.primaryKey)",
+                        "(n:Transcript) on (n.primaryKey)",
                         "(n:Transcript) on (n.dataProvider)",
                         "(n:Transcript) on (n.gff3ID)",
                         "(n:TranscriptLevelConsequence) on (n.primaryKey)",
