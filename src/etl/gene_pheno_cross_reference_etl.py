@@ -82,8 +82,9 @@ class GenePhenoCrossReferenceETL(ETL):
                                                               "IMPC",
                                                               url,
                                                               global_cross_ref_id+page)
-                elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
-                    continue
+                # Test change for KANBAN-681
+                # elif data_provider == 'HUMAN' or id_prefix == 'HGNC':
+                #     continue
                 else:
                     page = 'gene/phenotypes'
                     url = self.etlh.rdh2.return_url_from_key_value(id_prefix, global_cross_ref_id.split(":")[1], page)
