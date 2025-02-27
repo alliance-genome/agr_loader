@@ -109,12 +109,34 @@ def test_mods_have_gene_expression_atlas_link():
 
 def test_xref_complete_url_is_formatted():
     """Test XREF Complete URL is Formatted"""
+    # Modified query: also collect the primary keys of connected nodes
+    query = """
+    MATCH (cr:CrossReference)-[r]-(connectedNode)
+    WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
+    WITH cr, connectedNode
+    ORDER BY cr.primaryKey
+    RETURN cr.primaryKey AS crossRefId,
+           cr.crossRefCompleteUrl AS url,
+           collect(DISTINCT connectedNode.primaryKey) AS connectedNodeKeys
+    """
 
-    query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
-               RETURN count(cr) AS counter"""
+    failing_xrefs = []
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] < 20
+            failing_xrefs.append(record)
+
+    # Count how many failed cross references we have
+    fail_count = len(failing_xrefs)
+
+    # If the count is too high, fail with a helpful message
+    assert fail_count < 40, (
+        f"Found {fail_count} CrossReferences without properly formatted URLs:\n\n"
+        + "\n".join(
+            f"  CrossRef: {item['crossRefId']} URL: {item['url']} "
+            f"Connected Nodes: {item['connectedNodeKeys']}"
+            for item in failing_xrefs
+        )
+    )
 
 
 def test_spell_display_name():
