@@ -143,24 +143,25 @@ class GenePhenoCrossReferenceETL(ETL):
 
                 # New special logic for RGD Genes with an HGNC prefix
                 elif data_provider == 'RGD' and id_prefix == 'HGNC':
-                    # Look up the RGD crossReference from our dictionary
                     if global_cross_ref_id in hgnc_to_rgd_map:
-                        rgd_id_full = hgnc_to_rgd_map[global_cross_ref_id]  # e.g. "RGD:731360"
-                        rgd_prefix  = rgd_id_full.split(":")[0]             # "RGD"
-                        rgd_number  = rgd_id_full.split(":")[1]             # "731360"
+                        rgd_id_full = hgnc_to_rgd_map[global_cross_ref_id]  # e.g. "RGD:730855"
+                        rgd_prefix  = rgd_id_full.split(":")[0]            # "RGD"
+                        rgd_number  = rgd_id_full.split(":")[1]            # "730855"
 
-                        page = 'gene/phenotypes'
+                        # If you want the page to be "generic_cross_reference", do:
+                        page = "generic_cross_reference"
+
                         url = self.etlh.rdh2.return_url_from_key_value(rgd_prefix, rgd_number, page)
 
-                        # Build xref using the real RGD ID
+                        # Build xref using the real RGD ID as the final argument (avoid "+ page")
                         gene_pheno_xref = ETLHelper.get_xref_dict(
-                            rgd_number,
-                            rgd_prefix,
-                            page,
-                            page,
-                            rgd_prefix,
-                            url,
-                            rgd_id_full + page
+                            rgd_number,         # local_id
+                            rgd_prefix,         # prefix
+                            page,               # pages
+                            page,               # display_name
+                            rgd_prefix,         # set as "authority" or "provider"
+                            url,                # crossRefCompleteUrl
+                            rgd_id_full         # This becomes the crossRef node's primaryKey = "RGD:730855"
                         )
                     else:
                         # If no RGD crossreference is found, skip or fallback
@@ -169,7 +170,6 @@ class GenePhenoCrossReferenceETL(ETL):
                             f"even though it's labeled RGD + HGNC."
                         )
                         continue
-
                 # Default logic for everything else
                 else:
                     page = 'gene/phenotypes'

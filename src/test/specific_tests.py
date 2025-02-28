@@ -129,7 +129,7 @@ def test_xref_complete_url_is_formatted():
     fail_count = len(failing_xrefs)
 
     # If the count is too high, fail with a helpful message
-    assert fail_count < 40, (
+    assert fail_count < 20, (
         f"Found {fail_count} CrossReferences without properly formatted URLs:\n\n"
         + "\n".join(
             f"  CrossRef: {item['crossRefId']} URL: {item['url']} "
