@@ -148,8 +148,7 @@ class GenePhenoCrossReferenceETL(ETL):
                         rgd_prefix  = rgd_id_full.split(":")[0]            # "RGD"
                         rgd_number  = rgd_id_full.split(":")[1]            # "730855"
 
-                        # If you want the page to be "generic_cross_reference", do:
-                        page = "generic_cross_reference"
+                        page = 'gene/phenotypes'
 
                         url = self.etlh.rdh2.return_url_from_key_value(rgd_prefix, rgd_number, page)
 
