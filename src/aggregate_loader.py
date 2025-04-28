@@ -208,6 +208,23 @@ class AggregateLoader():
             logger.info("Waiting for Queues to sync up")
             neo_transactor.check_for_thread_errors()
             neo_transactor.wait_for_queues()
+
+            # Retry any deadlock-stashed batches before proceeding to next group
+            from transactors import Neo4jTransactor
+            failed_batches = list(getattr(Neo4jTransactor, 'failed_stash', []))
+            if failed_batches:
+                logger.info("Retrying %d stashed batches for ETL group %s in single-threaded mode", len(failed_batches), etl_group)
+                helper = Neo4jHelper()
+                for batch in failed_batches:
+                    for query, filename in batch:
+                        try:
+                            helper.run_single_query_no_return(query)
+                            logger.info("Retried query for file: %s", filename)
+                        except Exception as e:
+                            logger.error("Error retrying stashed query for file %s: %s", filename, e)
+                # Clear stash after retries
+                Neo4jTransactor.failed_stash[:] = []
+
             etl_elapsed_time = time.time() - etl_group_start_time
             etl_time_message = ("Finished ETL group: %s, Elapsed time: %s"
                                 % (etl_group,
@@ -258,6 +275,20 @@ class AggregateLoader():
         etl_time_tracker_list = self.run_etl_groups(self.logger, data_manager, neo_transactor)
 
         neo_transactor.shutdown()
+
+        # Retry any batches stashed due to deadlocks in single-threaded mode
+        failed_batches = getattr(Neo4jTransactor, 'failed_stash', [])
+        if failed_batches:
+            self.logger.info("Retrying %d stashed batches in single-threaded mode", len(failed_batches))
+            helper = Neo4jHelper()
+            for batch in failed_batches:
+                for query, filename in batch:
+                    try:
+                        helper.run_single_query_no_return(query)
+                        self.logger.info("Retried query for file: %s", filename)
+                    except Exception as e:
+                        self.logger.error("Error retrying stashed query for file %s: %s", filename, e)
+            self.logger.info("Finished retrying stashed batches")
 
         elapsed_time = time.time() - self.start_time
 

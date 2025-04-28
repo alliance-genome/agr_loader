@@ -30,7 +30,10 @@ class Neo4jTransactor():
 
         manager = multiprocessing.Manager()
         queue = manager.Queue()
+        # Initialize shared list for failed batches
+        failed_stash = manager.list()
         Neo4jTransactor.queue = queue
+        Neo4jTransactor.failed_stash = failed_stash
 
         for i in range(0, thread_count):
             process = multiprocessing.Process(target=self.run, name=str(i))
@@ -196,24 +199,30 @@ class Neo4jTransactor():
                         process_name, filename, batch_data['retries'], max_retries)
 
                     if batch_data['retries'] > max_retries:
-                        self.logger.error(
-                            "%s: Max retries exceeded for file: %s at Index %s due to TransientError. Raising error.",
-                            process_name, filename, current_index)
-                        # Raise a new error to clearly indicate max retries failure
-                        raise RuntimeError(f"Max retries exceeded for {filename} due to {type(error).__name__}") from error
-
-                    else: # If okay to retry
+                        # Stash this batch for later single-thread retry
                         try:
-                            Neo4jTransactor.queue.put((batch_data, query_counter))
-                            batch_requeued = True
-                            # Incremental backoff for sleep time
-                            sleep_time = base_retry_sleep + batch_data['retries']
-                            self.logger.info(f"{process_name}: Sleeping for {sleep_time} seconds before retry for batch {batch_id}")
-                            time.sleep(sleep_time)
-                        except Exception as queue_err:
-                             self.logger.error(f"{process_name}: Failed to requeue Batch {batch_id} after TransientError: {queue_err}. Worker stopping.", exc_info=True)
-                             raise queue_err # Stop worker if requeue fails
-                        break # Exit the inner while loop to wait before next attempt
+                            Neo4jTransactor.failed_stash.append(batch_data['all_queries'])
+                        except Exception:
+                            self.logger.error(f"{process_name}: Unable to stash failed batch for file {filename}")
+                        # Skip this query after too many deadlock retries and continue
+                        self.logger.error(
+                            "%s: Max retries exceeded for file: %s at Index %s. Stashing batch and continuing.",
+                            process_name, filename, current_index)
+                        batch_data['next_query_index'] += 1  # skip problematic query
+                        batch_data['retries'] = 0            # reset retry counter
+                        continue  # move to next query without requeue
+                    # Else perform requeue and incremental backoff
+                    try:
+                        Neo4jTransactor.queue.put((batch_data, query_counter))
+                        batch_requeued = True
+                        # Incremental backoff for sleep time
+                        sleep_time = base_retry_sleep + batch_data['retries']
+                        self.logger.info(f"{process_name}: Sleeping for {sleep_time} seconds before retry for batch {batch_id}")
+                        time.sleep(sleep_time)
+                    except Exception as queue_err:
+                        self.logger.error(f"{process_name}: Failed to requeue Batch {batch_id} after TransientError: {queue_err}. Worker stopping.", exc_info=True)
+                        raise queue_err
+                    break  # exit inner loop to wait before next attempt
 
                 # Handle potential connection issues explicitly
                 except ConnectionError as error: # Catch ConnectionError raised if graph is None
