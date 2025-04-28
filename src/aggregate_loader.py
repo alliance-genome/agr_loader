@@ -276,20 +276,6 @@ class AggregateLoader():
 
         neo_transactor.shutdown()
 
-        # Retry any batches stashed due to deadlocks in single-threaded mode
-        failed_batches = getattr(Neo4jTransactor, 'failed_stash', [])
-        if failed_batches:
-            self.logger.info("Retrying %d stashed batches in single-threaded mode", len(failed_batches))
-            helper = Neo4jHelper()
-            for batch in failed_batches:
-                for query, filename in batch:
-                    try:
-                        helper.run_single_query_no_return(query)
-                        self.logger.info("Retried query for file: %s", filename)
-                    except Exception as e:
-                        self.logger.error("Error retrying stashed query for file %s: %s", filename, e)
-            self.logger.info("Finished retrying stashed batches")
-
         elapsed_time = time.time() - self.start_time
 
         for time_item in etl_time_tracker_list:
