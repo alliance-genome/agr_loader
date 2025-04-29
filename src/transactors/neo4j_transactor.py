@@ -4,7 +4,7 @@ import logging
 import multiprocessing
 import pickle
 import time
-# Import specific exceptions if needed for check below
+# Import specific exceptions for refined error handling
 from neo4j import GraphDatabase, exceptions as neo4j_exceptions
 from etl import ETL
 from loader_common import ContextInfo
@@ -30,7 +30,10 @@ class Neo4jTransactor():
 
         manager = multiprocessing.Manager()
         queue = manager.Queue()
+        # Initialize shared list for failed batches
+        failed_stash = manager.list()
         Neo4jTransactor.queue = queue
+        Neo4jTransactor.failed_stash = failed_stash
 
         for i in range(0, thread_count):
             process = multiprocessing.Process(target=self.run, name=str(i))
@@ -88,6 +91,7 @@ class Neo4jTransactor():
         context_info = ContextInfo()
         graph = None
         max_retries = 10 # Define max_retries needed for new logic
+        base_retry_sleep = 12 # Base sleep time in seconds for retries
 
         if context_info.env["USING_PICKLE"] is False:
             # Keep original connection try/except structure - minimal change
@@ -171,53 +175,65 @@ class Neo4jTransactor():
                     processed_this_attempt += 1 # Increment attempt counter
                     # --- End Success --- # 
 
-                except Exception as error:
-                    # Original error log
-                    self.logger.error(error)
-
-                    # --- Check for Constraint Error --- # 
-                    # Using original style check as much as possible
-                    is_constraint_error = hasattr(error, 'code') and \
-                                          isinstance(error, neo4j_exceptions.ClientError) and \
-                                          'ConstraintValidationFailed' in error.code
-
-                    if is_constraint_error: # Check if constraint error
-                        # Original behavior: Log critical and stop worker by raising
+                # Specific handling for Neo4j Client Errors (e.g., constraints) - Non-retryable
+                except neo4j_exceptions.ClientError as error:
+                    self.logger.error(f"{process_name}: Neo4j ClientError processing file {filename} at index {current_index}: {error}", exc_info=True)
+                    # Check if it's a constraint violation
+                    if hasattr(error, 'code') and 'ConstraintValidationFailed' in error.code:
                         self.logger.critical(
                             "%s: Constraint violation, aborting processing for file: %s. Worker stopping.",
-                            process_name, filename) # Original log
-                        raise error # Stop worker by re-raising
-
-                    # --- Handle Other Errors (Treat as Transient for Retry) --- # 
+                            process_name, filename)
                     else:
-                        batch_data['retries'] += 1 # Increment retries counter in batch state
-                        # Original warning log - adapted for new retry info
-                        self.logger.warning(
-                            "%s: Query Conflict, putting data back in Queue to run later. File: %s (Retry %d/%d)",
-                            process_name, filename, batch_data['retries'], max_retries) # Modified log
+                         self.logger.error(
+                            "%s: Unrecoverable ClientError processing file: %s. Worker stopping.",
+                            process_name, filename)
+                    raise error # Stop worker for all ClientErrors
 
-                        if batch_data['retries'] > max_retries: # Check max retries
-                            # Original behavior: Log error and stop worker by raising
-                            self.logger.error(
-                                "%s: Max retries exceeded for file: %s at Index %s. Raising error.",
-                                process_name, filename, current_index) # Modified log
-                            raise RuntimeError(f"Max retries exceeded for {filename}") # Stop worker
+                # Specific handling for Neo4j Transient Errors (e.g., deadlocks) - Retryable
+                except neo4j_exceptions.TransientError as error:
+                    # Log transient errors without full traceback unless debugging needed
+                    self.logger.error(f"{process_name}: Neo4j TransientError processing file {filename} at index {current_index}: {error}", exc_info=False)
+                    batch_data['retries'] += 1
+                    self.logger.warning(
+                        "%s: Query Conflict (TransientError), putting data back in Queue to run later. File: %s (Retry %d/%d)",
+                        process_name, filename, batch_data['retries'], max_retries)
 
-                        else: # If okay to retry
-                            # --- Requeue the batch_data with current state --- 
-                            try: # Minimal try/except for queue put safety
-                                # Put the state dict back, index is NOT incremented
-                                Neo4jTransactor.queue.put((batch_data, query_counter))
-                                batch_requeued = True # Set flag
-                                time.sleep(12) # Original sleep
-                            except Exception as queue_err: # Catch error during requeue
-                                 self.logger.error(f"{process_name}: Failed to requeue Batch {batch_id}: {queue_err}. Worker stopping.")
-                                 raise queue_err # Stop worker if requeue fails
-                            # --- Stop processing this batch attempt ---
-                            break # Exit the inner while loop
+                    if batch_data['retries'] > max_retries:
+                        # Stash this batch for later single-thread retry
+                        try:
+                            Neo4jTransactor.failed_stash.append(batch_data['all_queries'])
+                        except Exception:
+                            self.logger.error(f"{process_name}: Unable to stash failed batch for file {filename}")
+                        # Skip this query after too many deadlock retries and continue
+                        self.logger.error(
+                            "%s: Max retries exceeded for file: %s at Index %s. Stashing batch and continuing.",
+                            process_name, filename, current_index)
+                        batch_data['next_query_index'] += 1  # skip problematic query
+                        batch_data['retries'] = 0            # reset retry counter
+                        continue  # move to next query without requeue
+                    # Else perform requeue and incremental backoff
+                    try:
+                        Neo4jTransactor.queue.put((batch_data, query_counter))
+                        batch_requeued = True
+                        # Incremental backoff for sleep time
+                        sleep_time = base_retry_sleep + batch_data['retries']
+                        self.logger.info(f"{process_name}: Sleeping for {sleep_time} seconds before retry for batch {batch_id}")
+                        time.sleep(sleep_time)
+                    except Exception as queue_err:
+                        self.logger.error(f"{process_name}: Failed to requeue Batch {batch_id} after TransientError: {queue_err}. Worker stopping.", exc_info=True)
+                        raise queue_err
+                    break  # exit inner loop to wait before next attempt
 
-                # Original total_query_counter increment - removed
-                # total_query_counter = total_query_counter + 1
+                # Handle potential connection issues explicitly
+                except ConnectionError as error: # Catch ConnectionError raised if graph is None
+                     self.logger.error(f"{process_name}: ConnectionError during query execution for file {filename}: {error}. Worker stopping.", exc_info=True)
+                     raise error # Stop worker
+
+                # Catch-all for other unexpected errors
+                except Exception as error:
+                    self.logger.error(f"{process_name}: Unexpected error processing file {filename} at index {current_index}: {error}", exc_info=True)
+                    # Re-raise the original error to stop the worker
+                    raise error
 
             # --- End of inner while loop --- 
 
