@@ -373,7 +373,6 @@ class Neo4jTransactor():
                               process_name, batch_id, processed_this_attempt, batch_requeued,
                               len(all_queries), # Use length from state dict
                               time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time)))
-            # Only call task_done() if batch was NOT requeued
-            # If requeued, the batch is back in the queue and will call task_done() when it finally completes
-            if not batch_requeued:
-                Neo4jTransactor.queue.task_done()
+            # ALWAYS call task_done() - each get() from queue needs a corresponding task_done()
+            # Requeued items are NEW tasks that will get their own task_done() when processed
+            Neo4jTransactor.queue.task_done()
