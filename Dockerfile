@@ -6,6 +6,8 @@ WORKDIR /usr/src/app
 
 ADD conda_env.yml conda_env.yml
 
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 RUN conda env create -f conda_env.yml
 SHELL ["conda", "run", "-n", "agr_loader", "/bin/bash", "-c"]
 
