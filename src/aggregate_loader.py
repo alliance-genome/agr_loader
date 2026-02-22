@@ -150,7 +150,7 @@ class AggregateLoader():
         ['INTERACTION-GEN'],
         ['INTERACTION-MOL'],
         ['Closure'],
-        ['GeneDescriptions'],
+        # ['GeneDescriptions'],  # Disabled - genedescriptions package is being retired
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
         ['ProteinSequence'],
