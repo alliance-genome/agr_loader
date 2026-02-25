@@ -68,10 +68,10 @@ class TestClass():
                              # dict(node='ParalogyGeneJoin'),  # Paralogy ETL disabled
                              # dict(node='ParaAlgorithm'),  # Paralogy ETL disabled
                              dict(node='Load'),
-                             dict(node='ExpressionBioEntity'),
+                             # dict(node='ExpressionBioEntity'),  # Expression ETL disabled
                              dict(node='Stage'),
                              dict(node='SequenceTargetingReagent'),
-                             dict(node='BioEntityGeneExpressionJoin'),
+                             # dict(node='BioEntityGeneExpressionJoin'),  # Expression ETL disabled
                              # dict(node='InteractionGeneJoin'),  # Interaction ETLs disabled
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
@@ -189,9 +189,9 @@ class TestClass():
                             dict(node='DOTerm', prop='definition'),
                             dict(node='GOTerm', prop='type'),
                             dict(node='DOTerm', prop='subset'),
-                            dict(node='ExpressionBioEntity', prop='primaryKey'),
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
-                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                            # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
+                            # dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),  # Expression ETL disabled
+                            # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
                             dict(node='DOTerm', prop='defLinks'),
                             dict(node='Variant', prop='primaryKey'),
                             dict(node='Assembly', prop='primaryKey'),
@@ -284,9 +284,9 @@ class TestClass():
                                dict(node='Allele', prop='symbolText'),
                                dict(node='Allele', prop='symbolWithSpecies'),
                                dict(node='MITerm', prop='primaryKey'),
-                               dict(node='ExpressionBioEntity', prop='primaryKey'),
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
-                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                               # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
+                               # dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),  # Expression ETL disabled
+                               # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
                                dict(node='Stage', prop='primaryKey'),
                                dict(node='Variant', prop='hgvsNomenclature'),
                                dict(node='Assembly', prop='primaryKey'),
@@ -322,8 +322,8 @@ class TestClass():
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
                              dict(node='Variant', prop='hgvsNomenclature'),
-                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
-                             dict(node='ExpressionBioEntity', prop='primaryKey'),
+                             # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
+                             # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
                              dict(node='HTPDataset', prop='primaryKey'),
                              dict(node='HTPDatasetSample', prop='primaryKey'),
                              dict(node='CategoryTag', prop='primaryKey'),

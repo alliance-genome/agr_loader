@@ -140,9 +140,9 @@ class AggregateLoader():
         # ['PARALOGY'],  # Disabled - data migrated to curation system
         ['GeneDiseaseOrtho'],
         ['GFF'],
-        ['EXPRESSION'],
-        ['ExpressionRibbon'],
-        ['ExpressionRibbonOther'],
+        # ['EXPRESSION'],  # Disabled - UI uses ES/curation data, Neo4j endpoints are dead
+        # ['ExpressionRibbon'],  # Disabled - depends on EXPRESSION Neo4j data
+        # ['ExpressionRibbonOther'],  # Disabled - depends on EXPRESSION Neo4j data
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes

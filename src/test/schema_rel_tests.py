@@ -48,7 +48,7 @@ class TestClass():
                             dict(node1='HTPDataset', node2='HTPDatasetSample'),
                             dict(node1='HTPDatasetSample', node2='Species'),
                             dict(node1='HTPDataset', node2='CrossReference'),
-                            dict(node1='ExpressionBioEntity', node2='HTPDatasetSample'),
+                            # dict(node1='ExpressionBioEntity', node2='HTPDatasetSample'),  # Expression ETL disabled
                             dict(node1='Exon', node2='GenomicLocation'),
                             dict(node1='Transcript', node2='GenomicLocation'),
                             dict(node1='Identifier:SecondaryId', node2='Gene'),
@@ -75,15 +75,15 @@ class TestClass():
                             dict(node1='PhenotypeEntityJoin:Association', node2='Gene'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='Allele'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='ExperimentalCondition'),
-                            dict(node1='Gene', node2='ExpressionBioEntity'),
-                            dict(node1='Gene', node2='BioEntityGeneExpressionJoin'),
-                            dict(node1='BioEntityGeneExpressionJoin', node2='Stage'),
-                            dict(node1='BioEntityGeneExpressionJoin', node2='Publication'),
-                            dict(node1='BioEntityGeneExpressionJoin', node2='Ontology'),
-                            dict(node1='BioEntityGeneExpressionJoin', node2='MMOTerm'),
-                            dict(node1='ExpressionBioEntity', node2='GOTerm'),
-                            dict(node1='ExpressionBioEntity', node2='Ontology'),
-                            dict(node1='ExpressionBioEntity', node2='ZFATerm'),
+                            # dict(node1='Gene', node2='ExpressionBioEntity'),  # Expression ETL disabled
+                            # dict(node1='Gene', node2='BioEntityGeneExpressionJoin'),  # Expression ETL disabled
+                            # dict(node1='BioEntityGeneExpressionJoin', node2='Stage'),  # Expression ETL disabled
+                            # dict(node1='BioEntityGeneExpressionJoin', node2='Publication'),  # Expression ETL disabled
+                            # dict(node1='BioEntityGeneExpressionJoin', node2='Ontology'),  # Expression ETL disabled
+                            # dict(node1='BioEntityGeneExpressionJoin', node2='MMOTerm'),  # Expression ETL disabled
+                            # dict(node1='ExpressionBioEntity', node2='GOTerm'),  # Expression ETL disabled
+                            # dict(node1='ExpressionBioEntity', node2='Ontology'),  # Expression ETL disabled
+                            # dict(node1='ExpressionBioEntity', node2='ZFATerm'),  # Expression ETL disabled
                             dict(node1='Variant', node2='Chromosome'),
                             dict(node1='Ontology', node2='Ontology'),
                             dict(node1='SequenceTargetingReagent', node2='Gene'),

@@ -351,6 +351,7 @@ def test_veptranscript_for_all_species_exists():
 #        assert record["counter"] == 5
 
 
+@pytest.mark.skip(reason="Expression ETL disabled - data migrated to curation system")
 def test_expression_for_non_human_species_exists():
     """
     Test Expression for Non Human Species Exists
@@ -364,6 +365,7 @@ def test_expression_for_non_human_species_exists():
             assert record["counter"] == 8
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_cellular_component_relationship_for_expression_exists():
     """Test Cellular Component Relationship For Expression Exists"""
 
@@ -374,6 +376,7 @@ def test_cellular_component_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_relationship_for_expression_exists():
     """Test Anatomical Strucutre Relationship for Expression Exists"""
 
@@ -384,6 +387,7 @@ def test_anatomical_structure_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_sub_structure_relationship_for_expression_exists():
     """Test Anatomical Substructure Relationship for Expression Exists"""
 
@@ -394,6 +398,7 @@ def test_anatomical_sub_structure_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_qualifier_relationship_for_expression_exists():
     """Test Anatomical Structure Qualifier Relationship For Expression Exists"""
 
@@ -404,6 +409,7 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_cellular_component_qualifier_relationship_for_expression_exists():
     """Test Cellular Component Qualifier Relationship For Exprssion Exists"""
 
@@ -414,6 +420,7 @@ def test_cellular_component_qualifier_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
     """Test Anaatomical Sub Strucutre qualifier Relationship For Exprssion Exists"""
 
@@ -424,6 +431,7 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
     """Test Anatomical Structure UBERON Relationship for Expression Exists"""
 
@@ -435,6 +443,7 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
     """Test Anatomical Strucutre UBERON Other Relationship for Expression Exists"""
 
@@ -446,6 +455,7 @@ def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_other_relationship_for_expression_exists():
     """Test GOCC Other Relationship For Expression Exists"""
 
@@ -457,6 +467,7 @@ def test_gocc_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_ribbon_relationship_for_expression_exists():
     """Test GOCC Ribbon Relationship for Expression Exists"""
 
@@ -468,6 +479,7 @@ def test_gocc_ribbon_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_stage_uberon_other_relationship_for_expression_exists():
     """Test Stage UBERON Other Relationship for Expression Exists"""
 
@@ -478,6 +490,7 @@ def test_stage_uberon_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_stage_uberon_relationship_for_expression_exists():
     """Test Stage UBERON Relationship For Expression Exists"""
 
@@ -499,6 +512,7 @@ def test_mmoterm_has_display_synonym():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_crip2_has_cardiac_neural_crest():
     """Test crip2 has Cardiac Neural Crest"""
 
@@ -513,6 +527,7 @@ def test_crip2_has_cardiac_neural_crest():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_gocc_other_term_for_specific_gene_exists():
     """Test Expression GOCC Other Term For Specific Gene Exists"""
 
@@ -527,6 +542,7 @@ def test_expression_gocc_other_term_for_specific_gene_exists():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_gocc_term_for_specific_gene_exists():
     """Test Expression GOCC Term For SpecificGene Exists"""
 
@@ -539,6 +555,7 @@ def test_expression_gocc_term_for_specific_gene_exists():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
     """Test BioEntityGeneExpressionJoin connected to an Ontology node for file generator"""
 
@@ -561,6 +578,7 @@ def test_gocc_other_has_type():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_self_ribbon_term_exists():
     """Test GOCC Self Ribbin Term Exists"""
 
@@ -879,6 +897,7 @@ def test_mmo_term_has_display_alias():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_for_mgi_109583():
     """Test Expression for MGI 109583"""
 
@@ -904,6 +923,7 @@ def test_part_of_relations_exist():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_images_cross_references_for_species_exists():
     """Test Expression Images Cross References for Species Exists"""
 
