@@ -69,7 +69,7 @@ class TestClass():
                              # dict(node='ParaAlgorithm'),  # Paralogy ETL disabled
                              dict(node='Load'),
                              # dict(node='ExpressionBioEntity'),  # Expression ETL disabled
-                             dict(node='Stage'),
+                             # dict(node='Stage'),  # Expression ETL disabled
                              dict(node='SequenceTargetingReagent'),
                              # dict(node='BioEntityGeneExpressionJoin'),  # Expression ETL disabled
                              # dict(node='InteractionGeneJoin'),  # Interaction ETLs disabled

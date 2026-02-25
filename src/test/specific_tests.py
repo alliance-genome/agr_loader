@@ -566,6 +566,7 @@ def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
             assert record["counter"] > 0
             
 
+@pytest.mark.skip(reason="ExpressionRibbon ETL disabled - sets GOTerm.type property")
 def test_gocc_other_has_type():
     """Test GOCC Other Has Type"""
 
