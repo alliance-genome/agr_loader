@@ -299,9 +299,9 @@ def test_goannot_for_all_species_exists():
             assert record["counter"] == 7
 
 
+@pytest.mark.skip(reason="Interaction ETLs disabled - data migrated to curation system")
 def test_molint_for_all_species_exists():
     """Test Molecular Interaction for all Species Exists"""
-    pytest.skip("Interaction ETLs disabled - data migrated to curation system")
 
     query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
                RETURN count(distinct s) AS counter"""
@@ -1423,9 +1423,9 @@ def test_not_disease_annotation_exists_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="ProteinSequence ETL disabled - data not loaded")
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
-    pytest.skip("ProteinSequence ETL disabled - data not loaded")
 
     query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
                  WHERE n.proteinSequence IS NOT NULL
