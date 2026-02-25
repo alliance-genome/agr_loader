@@ -65,14 +65,14 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin'),
                              dict(node='OrthologyGeneJoin'),
                              dict(node='OrthoAlgorithm'),
-                             dict(node='ParalogyGeneJoin'),
-                             dict(node='ParaAlgorithm'),
+                             # dict(node='ParalogyGeneJoin'),  # Paralogy ETL disabled
+                             # dict(node='ParaAlgorithm'),  # Paralogy ETL disabled
                              dict(node='Load'),
                              dict(node='ExpressionBioEntity'),
                              dict(node='Stage'),
                              dict(node='SequenceTargetingReagent'),
                              dict(node='BioEntityGeneExpressionJoin'),
-                             dict(node='InteractionGeneJoin'),
+                             # dict(node='InteractionGeneJoin'),  # Interaction ETLs disabled
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
@@ -172,7 +172,7 @@ class TestClass():
                             dict(node='ExperimentalCondition', prop='NCBITaxonID'),
                             dict(node='ExperimentalCondition', prop='conditionStatement'),
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                            dict(node='InteractionGeneJoin', prop='joinType'),
+                            # dict(node='InteractionGeneJoin', prop='joinType'),  # Interaction ETLs disabled
                             dict(node='Association', prop='joinType'),
                             dict(node='Association', prop='primaryKey'),
                             dict(node='Phenotype', prop='primaryKey'),

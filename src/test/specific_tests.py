@@ -301,6 +301,7 @@ def test_goannot_for_all_species_exists():
 
 def test_molint_for_all_species_exists():
     """Test Molecular Interaction for all Species Exists"""
+    pytest.skip("Interaction ETLs disabled - data migrated to curation system")
 
     query = """MATCH (s:Species)--(:Gene)--(molint:InteractionGeneJoin)
                RETURN count(distinct s) AS counter"""

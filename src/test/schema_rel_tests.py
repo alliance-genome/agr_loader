@@ -65,11 +65,11 @@ class TestClass():
                             dict(node1='PublicationJoin:Association', node2='ECOTerm'),
                             dict(node1='PublicationJoin:Association',
                                  node2='DiseaseEntityJoin:Association'),
-                            dict(node1='InteractionGeneJoin:Association', node2='Gene'),
-                            dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'),
-                            dict(node1='InteractionGeneJoin:Association', node2='Publication'),
-                            dict(node1='InteractionGeneJoin:Association',
-                                 node2='Identifier:CrossReference'),
+                            # dict(node1='InteractionGeneJoin:Association', node2='Gene'),  # Interaction ETLs disabled
+                            # dict(node1='InteractionGeneJoin:Association', node2='Ontology:MITerm'),  # Interaction ETLs disabled
+                            # dict(node1='InteractionGeneJoin:Association', node2='Publication'),  # Interaction ETLs disabled
+                            # dict(node1='InteractionGeneJoin:Association',  # Interaction ETLs disabled
+                            #      node2='Identifier:CrossReference'),  # Interaction ETLs disabled
                             dict(node1='Allele', node2='CrossReference'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='Phenotype'),
                             dict(node1='PhenotypeEntityJoin:Association', node2='Gene'),
