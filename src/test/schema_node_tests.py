@@ -96,7 +96,7 @@ class TestClass():
                              dict(node='Exon'),
                              # dict(node='TranscriptProteinSequence'),  # ProteinSequence ETL disabled
                              dict(node='VariantProteinSequence'),
-                             dict(node='CDSSequence'),
+                             # dict(node='CDSSequence'),  # CDS data migrated to curation system
                              dict(node='ExperimentalCondition')
                              ],
 
@@ -138,7 +138,7 @@ class TestClass():
                             # dict(node='TranscriptProteinSequence', prop='proteinSequence'),  # ProteinSequence ETL disabled
                             dict(node='VariantProteinSequence', prop='primaryKey'),
                             dict(node='VariantProteinSequence', prop='proteinSequence'),
-                            dict(node='CDSSequence', prop='primaryKey'),
+                            # dict(node='CDSSequence', prop='primaryKey'),  # CDS data migrated to curation system
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
