@@ -137,23 +137,23 @@ class AggregateLoader():
         ['PHENOTYPE'],  # Locks Genes
         ['DAF'],  # Locks Genes
         ['ORTHO'],  # Locks Genes
-        ['PARALOGY'],
+        # ['PARALOGY'],  # Disabled - data migrated to curation system
         ['GeneDiseaseOrtho'],
         ['GFF'],
-        ['EXPRESSION'],
-        ['ExpressionRibbon'],
-        ['ExpressionRibbonOther'],
+        # ['EXPRESSION'],  # Disabled - UI uses ES/curation data, Neo4j endpoints are dead
+        # ['ExpressionRibbon'],  # Disabled - depends on EXPRESSION Neo4j data
+        # ['ExpressionRibbonOther'],  # Disabled - depends on EXPRESSION Neo4j data
         ['GENEEEXPRESSIONATLASSITEMAP'],
         ['GAF'],  # Locks Genes
         ['GEOXREF'],  # Locks Genes
-        ['BIOGRID-ORCS'],  # Locks Genes
-        ['INTERACTION-GEN'],
-        ['INTERACTION-MOL'],
+        # ['BIOGRID-ORCS'],  # Disabled - data migrated to curation system
+        # ['INTERACTION-GEN'],  # Disabled - data migrated to curation system
+        # ['INTERACTION-MOL'],  # Disabled - data migrated to curation system
         ['Closure'],
         # ['GeneDescriptions'],  # Disabled - genedescriptions package is being retired
         ['VEPGENE'],
         ['VEPTRANSCRIPT'],
-        ['ProteinSequence'],
+        # ['ProteinSequence'],  # Disabled - not used by API or indexer
         ['GENEPHENOCROSSREFERENCE'],
         ['DB-SUMMARY']
     ]
