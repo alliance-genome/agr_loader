@@ -35,7 +35,7 @@ class TestClass():
                                      dict(relationship='IS_MARKER_FOR'),
                                      dict(relationship='IS_NOT_MARKER_FOR'),
                                      dict(relationship='ASSOCIATION'),
-                                     dict(relationship='PARALOGOUS'),
+                                     # dict(relationship='PARALOGOUS'),  # Paralogy ETL disabled
                                      dict(relationship='ORTHOLOGOUS')
                                      ],
 
