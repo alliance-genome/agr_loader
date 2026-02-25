@@ -94,7 +94,7 @@ class TestClass():
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
                              dict(node='Exon'),
-                             dict(node='TranscriptProteinSequence'),
+                             # dict(node='TranscriptProteinSequence'),  # ProteinSequence ETL disabled
                              dict(node='VariantProteinSequence'),
                              dict(node='CDSSequence'),
                              dict(node='ExperimentalCondition')
@@ -134,8 +134,8 @@ class TestClass():
                             dict(node='MITerm', prop='primaryKey'),
                             dict(node='CHEBITerm', prop='primaryKey'),
                             dict(node='ZECOTerm', prop='primaryKey'),
-                            dict(node='TranscriptProteinSequence', prop='primaryKey'),
-                            dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            # dict(node='TranscriptProteinSequence', prop='primaryKey'),  # ProteinSequence ETL disabled
+                            # dict(node='TranscriptProteinSequence', prop='proteinSequence'),  # ProteinSequence ETL disabled
                             dict(node='VariantProteinSequence', prop='primaryKey'),
                             dict(node='VariantProteinSequence', prop='proteinSequence'),
                             dict(node='CDSSequence', prop='primaryKey'),

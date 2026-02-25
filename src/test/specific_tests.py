@@ -1,3 +1,4 @@
+import pytest
 from etl import Neo4jHelper
 
 
@@ -1403,6 +1404,7 @@ def test_not_disease_annotation_exists_exists():
 
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
+    pytest.skip("ProteinSequence ETL disabled - data not loaded")
 
     query = """  MATCH (t:Transcript)--(n:TranscriptProteinSequence)
                  WHERE n.proteinSequence IS NOT NULL
