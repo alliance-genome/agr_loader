@@ -3,8 +3,8 @@
 # TODO need to fix the difference between disaeseRecord and disease_record in original code
 
 import logging
-import multiprocessing
 import uuid
+
 from etl import ETL
 from etl.helpers import ETLHelper
 from etl.helpers import Neo4jHelper
@@ -224,16 +224,12 @@ class DiseaseETL(ETL):
         self.exp_cond_helper = ExperimentalConditionHelper("DiseaseEntityJoin")
 
     def _load_and_process_data(self):
-        thread_pool = []
-
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type, args=(sub_type,))
-            process.start()
-            thread_pool.append(process)
-
-        ETL.wait_for_threads(thread_pool)
-
-        self.delete_empty_nodes()
+        self.process_sub_types_with_threading(
+            self.data_type_config.get_sub_type_objects(),
+            self._process_sub_type,
+            'DAF',
+            cleanup_func=self.delete_empty_nodes
+        )
 
     def delete_empty_nodes(self):
         """Delete Empty Nodes."""

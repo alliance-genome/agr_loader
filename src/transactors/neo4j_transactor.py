@@ -1,10 +1,12 @@
-"""Neo4j Transacotr"""
+"""Neo4j Transactor"""
 
 import logging
 import multiprocessing
 import pickle
+import queue as stdlib_queue  # For queue.Empty exception
 import time
-from neo4j import GraphDatabase
+# Import specific exceptions for refined error handling
+from neo4j import GraphDatabase, Query, exceptions as neo4j_exceptions
 from etl import ETL
 from loader_common import ContextInfo
 
@@ -16,13 +18,253 @@ class Neo4jTransactor():
     count = 0
     queue = None
 
+    # Timeout configuration (in seconds)
+    # Connection timeout: Time to establish TCP connection to Neo4j
+    CONNECTION_TIMEOUT = 30.0
+    # Connection acquisition timeout: Time to wait for a connection from the pool
+    CONNECTION_ACQUISITION_TIMEOUT = 120.0
+    # Max connection lifetime: Recycle connections after this time to avoid stale connections
+    MAX_CONNECTION_LIFETIME = 3600
+    # Max connection pool size: Reasonable limit to prevent resource exhaustion
+    MAX_CONNECTION_POOL_SIZE = 50
+    # Query timeout: Maximum time for a single query (45 minutes for large CSV loads)
+    QUERY_TIMEOUT = 2700.0
+    # Queue get timeout: Time to wait for next item before logging heartbeat (5 minutes)
+    QUEUE_GET_TIMEOUT = 300
+    # Max retries for timeout errors (separate from deadlock retries)
+    MAX_TIMEOUT_RETRIES = 3
+
     def __init__(self):
         self.thread_pool = []
 
 
+    # Query result constants for _process_single_query return values
+    QUERY_SUCCESS = "success"
+    QUERY_REQUEUE = "requeue"  # Requeued for retry, continue to next batch
+    QUERY_FATAL = "fatal"  # Unrecoverable error, worker should stop
+
     @staticmethod
     def _get_name():
         return "Neo4jTransactor %s" % multiprocessing.current_process().name
+
+    def _execute_neo4j_query(self, graph, neo4j_query, filename, process_name):
+        """Execute a single Neo4j query with timeout. Returns result on success, raises on error."""
+        if not graph:
+            raise ConnectionError("Neo4j driver not initialized in worker.")
+        query_with_timeout = Query(neo4j_query, timeout=self.QUERY_TIMEOUT)
+        self.logger.debug("%s: Executing query for file %s with timeout=%ss",
+                          process_name, filename, self.QUERY_TIMEOUT)
+        with graph.session() as session:
+            result = session.run(query_with_timeout)
+            result.consume()  # CRITICAL: Ensure query is fully executed (Neo4j uses lazy evaluation)
+
+    def _recreate_neo4j_driver(self, graph, process_name):
+        """Close existing driver and create a new one. Returns the new driver."""
+        context_info = ContextInfo()
+        if graph:
+            try:
+                graph.close()
+            except Exception:
+                pass
+        uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
+        new_graph = GraphDatabase.driver(
+            uri,
+            auth=("neo4j", "neo4j"),
+            max_connection_pool_size=self.MAX_CONNECTION_POOL_SIZE,
+            connection_timeout=self.CONNECTION_TIMEOUT,
+            connection_acquisition_timeout=self.CONNECTION_ACQUISITION_TIMEOUT,
+            max_connection_lifetime=self.MAX_CONNECTION_LIFETIME,
+        )
+        new_graph.verify_connectivity()  # Fail fast if Neo4j is truly down
+        self.logger.info(f"{process_name}: Recreated Neo4j driver after connection error")
+        return new_graph
+
+    def _handle_transient_error(self, error, batch_data, query_counter, process_name, filename,
+                                 current_index, max_retries, base_retry_sleep):
+        """
+        Handle Neo4j TransientError (deadlocks). Requeues batch for retry.
+        Returns QUERY_REQUEUE if requeued, raises RuntimeError if max retries exceeded.
+        """
+        self.logger.error(f"{process_name}: Neo4j TransientError processing file {filename} "
+                          f"at index {current_index}: {error}", exc_info=False)
+        batch_data['retries'] += 1
+        self.logger.warning(
+            "%s: Query Conflict (TransientError), putting data back in Queue to run later. "
+            "File: %s (Retry %d/%d)",
+            process_name, filename, batch_data['retries'], max_retries)
+
+        if batch_data['retries'] > max_retries:
+            self.logger.critical(
+                "%s: FATAL - Max retries (%d) exceeded for file: %s at Index %s. "
+                "Data cannot be loaded. Failing program.",
+                process_name, max_retries, filename, current_index)
+            raise RuntimeError(
+                f"Max retries ({max_retries}) exceeded for file {filename} at index {current_index}. "
+                f"TransientError (deadlock) could not be resolved. Data load failed."
+            )
+
+        # Requeue with incremental backoff
+        Neo4jTransactor.queue.put((batch_data, query_counter))
+        sleep_time = base_retry_sleep + batch_data['retries']
+        self.logger.info(f"{process_name}: Sleeping for {sleep_time} seconds before retry for batch {batch_data['batch_id']}")
+        time.sleep(sleep_time)
+        return self.QUERY_REQUEUE
+
+    def _handle_connection_error(self, error, error_type, batch_data, query_counter, graph,
+                                  process_name, filename, current_index):
+        """
+        Handle ServiceUnavailable/SessionExpired. Requeues batch and optionally recreates driver.
+        Returns (QUERY_REQUEUE, new_graph) if requeued, raises RuntimeError if max retries exceeded.
+        """
+        self.logger.error(f"{process_name}: Neo4j {error_type} for file {filename} "
+                          f"at index {current_index}: {error}", exc_info=False)
+        batch_data['timeout_retries'] += 1
+        self.logger.warning(
+            "%s: %s, will retry. File: %s (Timeout Retry %d/%d)",
+            process_name, error_type, filename, batch_data['timeout_retries'], self.MAX_TIMEOUT_RETRIES)
+
+        if batch_data['timeout_retries'] > self.MAX_TIMEOUT_RETRIES:
+            self.logger.critical(
+                "%s: FATAL - Max timeout retries (%d) exceeded for file: %s at Index %s. "
+                "%s. Failing program.",
+                process_name, self.MAX_TIMEOUT_RETRIES, filename, current_index, error_type)
+            raise RuntimeError(
+                f"Max timeout retries ({self.MAX_TIMEOUT_RETRIES}) exceeded for file {filename} "
+                f"at index {current_index}. {error_type}. Data load failed."
+            )
+
+        # Recreate driver for ServiceUnavailable
+        new_graph = graph
+        if error_type == "ServiceUnavailable":
+            new_graph = self._recreate_neo4j_driver(graph, process_name)
+            sleep_time = 30 + (batch_data['timeout_retries'] * 10)
+        else:  # SessionExpired
+            sleep_time = 20 + (batch_data['timeout_retries'] * 5)
+
+        Neo4jTransactor.queue.put((batch_data, query_counter))
+        self.logger.info(f"{process_name}: Sleeping for {sleep_time} seconds before retry after {error_type}")
+        time.sleep(sleep_time)
+        return self.QUERY_REQUEUE, new_graph
+
+    def _process_single_query(self, graph, batch_data, query_counter, process_name,
+                               max_retries, base_retry_sleep):
+        """
+        Process a single query from the batch at the current index.
+        Returns (result_code, updated_graph) where result_code is one of:
+          - QUERY_SUCCESS: Query succeeded, index incremented
+          - QUERY_REQUEUE: Batch requeued for retry, should break inner loop
+          - QUERY_FATAL: Unrecoverable error, raises exception
+        """
+        context_info = ContextInfo()
+        current_index = batch_data['next_query_index']
+        all_queries = batch_data['all_queries']
+        (neo4j_query, filename) = all_queries[current_index]
+        batch_id = batch_data['batch_id']
+
+        queue_size = -1
+        try:
+            queue_size = Neo4jTransactor.queue.qsize()
+        except NotImplementedError:
+            pass
+
+        self.logger.debug("%s: Processing query for file: %s QueryNum: %s Index: %s QueueSize: %s",
+                          process_name, filename, batch_id, current_index, queue_size)
+        start = time.time()
+
+        try:
+            if context_info.env["USING_PICKLE"] is True:
+                pickle_dir = context_info.env.get("PICKLE_PATH", "tmp/temp")
+                file_name = f"{pickle_dir}/transaction_{batch_id}_{current_index}.pkl"
+                with open(file_name, 'wb') as file:
+                    self.logger.debug("Writing to file: %s", file_name)
+                    pickle.dump(neo4j_query, file)
+            else:
+                self._execute_neo4j_query(graph, neo4j_query, filename, process_name)
+
+            # Success - log and update state
+            elapsed_time = time.time() - start
+            self.logger.info("%s: Processed query for file: %s QueryNum: %s Index: %s QueueSize: %s Time: %s",
+                             process_name, filename, batch_id, current_index, queue_size,
+                             time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+            batch_data['next_query_index'] += 1
+            batch_data['retries'] = 0
+            batch_data['timeout_retries'] = 0
+            return self.QUERY_SUCCESS, graph
+
+        except neo4j_exceptions.ClientError as error:
+            # Non-retryable errors (constraint violations, etc.)
+            self.logger.error(f"{process_name}: Neo4j ClientError processing file {filename} "
+                              f"at index {current_index}: {error}", exc_info=True)
+            if hasattr(error, 'code') and 'ConstraintValidationFailed' in error.code:
+                self.logger.critical("%s: Constraint violation, aborting. File: %s", process_name, filename)
+            else:
+                self.logger.error("%s: Unrecoverable ClientError. File: %s", process_name, filename)
+            raise error
+
+        except neo4j_exceptions.TransientError as error:
+            result = self._handle_transient_error(
+                error, batch_data, query_counter, process_name, filename,
+                current_index, max_retries, base_retry_sleep)
+            return result, graph
+
+        except neo4j_exceptions.ServiceUnavailable as error:
+            result, new_graph = self._handle_connection_error(
+                error, "ServiceUnavailable", batch_data, query_counter, graph,
+                process_name, filename, current_index)
+            return result, new_graph
+
+        except neo4j_exceptions.SessionExpired as error:
+            result, new_graph = self._handle_connection_error(
+                error, "SessionExpired", batch_data, query_counter, graph,
+                process_name, filename, current_index)
+            return result, new_graph
+
+        except ConnectionError as error:
+            self.logger.critical(
+                "%s: FATAL - ConnectionError for file %s at index %s: %s. Failing program.",
+                process_name, filename, current_index, error)
+            raise RuntimeError(
+                f"ConnectionError for file {filename} at index {current_index}: {error}. "
+                f"Neo4j driver not available. Data load failed."
+            ) from error
+
+        except Exception as error:
+            self.logger.critical(
+                "%s: FATAL - Unexpected error for file %s at index %s: %s. Failing program.",
+                process_name, filename, current_index, error, exc_info=True)
+            raise RuntimeError(
+                f"Unexpected error for file {filename} at index {current_index}: {error}. "
+                f"Data load failed."
+            ) from error
+
+    def _process_batch(self, graph, batch_data, query_counter, process_name, max_retries, base_retry_sleep):
+        """
+        Process all queries in a batch. Returns updated graph (may be recreated on connection errors).
+        """
+        batch_id = batch_data['batch_id']
+        all_queries = batch_data['all_queries']
+        batch_start = time.time()
+        processed_this_attempt = 0
+        batch_requeued = False
+
+        while batch_data['next_query_index'] < len(all_queries):
+            result, graph = self._process_single_query(
+                graph, batch_data, query_counter, process_name, max_retries, base_retry_sleep)
+
+            if result == self.QUERY_SUCCESS:
+                processed_this_attempt += 1
+            elif result == self.QUERY_REQUEUE:
+                batch_requeued = True
+                break  # Exit inner loop, batch was requeued
+
+        batch_elapsed = time.time() - batch_start
+        self.logger.debug(
+            "%s: Query Batch attempt finished: %s ProcessedThisAttempt: %s Requeued: %s "
+            "TotalInBatch: %s Time: %s",
+            process_name, batch_id, processed_this_attempt, batch_requeued,
+            len(all_queries), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed)))
+
+        return graph
 
     def start_threads(self, thread_count):
         """Start Threads"""
@@ -46,11 +288,29 @@ class Neo4jTransactor():
 
     @staticmethod
     def execute_query_batch(query_batch):
-        """Execture Query Batch"""
+        """Execute Query Batch"""
 
         Neo4jTransactor.count = Neo4jTransactor.count + 1
-        Neo4jTransactor.logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s ", Neo4jTransactor.count, len(query_batch), Neo4jTransactor.queue.qsize())
-        Neo4jTransactor.queue.put((query_batch, Neo4jTransactor.count))
+        batch_id = Neo4jTransactor.count # Added batch_id variable
+        queue_size = -1
+        try: queue_size = Neo4jTransactor.queue.qsize()
+        except NotImplementedError: pass
+
+        # --- Create the stateful batch object --- #
+        batch_data = { # New variable/dict holding state
+            'all_queries': list(query_batch), # Store original list
+            'next_query_index': 0,            # Add starting index
+            'retries': 0,                     # Add starting retry counter (for deadlocks)
+            'timeout_retries': 0,             # Separate counter for timeout/connection errors
+            'batch_id': batch_id              # Add batch id
+        }
+        # --- End modification --- # 
+
+        # Modified log to use batch_id and size from dict
+        Neo4jTransactor.logger.debug("Adding Query Batch: %s BatchSize: %s QueueSize: %s ",
+                                     batch_id, len(batch_data['all_queries']), queue_size)
+        # Put the new state object (dict) and original counter id onto the queue
+        Neo4jTransactor.queue.put((batch_data, batch_id)) # Modified item put on queue
 
     def check_for_thread_errors(self):
         """Check for Thread Errors"""
@@ -60,66 +320,79 @@ class Neo4jTransactor():
     @staticmethod
     def wait_for_queues():
         """Wait for Queues"""
-
+        # NOTE: This method remains unchanged from the original provided code.
+        # It will raise a NameError if called because staticmethods cannot access self.logger.
         Neo4jTransactor.queue.join()
 
     def run(self):
         """Run"""
 
         context_info = ContextInfo()
+        graph = None
+        max_retries = 10 # Define max_retries needed for new logic
+        base_retry_sleep = 12 # Base sleep time in seconds for retries
 
         if context_info.env["USING_PICKLE"] is False:
+            # Initialize Neo4j driver with proper timeout configuration
             uri = "bolt://" + context_info.env["NEO4J_HOST"] + ":" + str(context_info.env["NEO4J_PORT"])
-            graph = GraphDatabase.driver(uri, auth=("neo4j", "neo4j"), max_connection_pool_size=-1, fetch_size=10000)
+            graph = GraphDatabase.driver(
+                uri,
+                auth=("neo4j", "neo4j"),
+                max_connection_pool_size=self.MAX_CONNECTION_POOL_SIZE,
+                connection_timeout=self.CONNECTION_TIMEOUT,
+                connection_acquisition_timeout=self.CONNECTION_ACQUISITION_TIMEOUT,
+                max_connection_lifetime=self.MAX_CONNECTION_LIFETIME,
+            )
+            self.logger.info("Neo4j driver initialized with timeouts: connection=%ss, acquisition=%ss, lifetime=%ss, pool_size=%s",
+                             self.CONNECTION_TIMEOUT, self.CONNECTION_ACQUISITION_TIMEOUT,
+                             self.MAX_CONNECTION_LIFETIME, self.MAX_CONNECTION_POOL_SIZE)
 
-        self.logger.info("%s: Starting Neo4jTransactor Thread Runner: ", self._get_name())
+        process_name = self._get_name() # Moved after graph init to match original structure closer
+        self.logger.info("%s: Starting Neo4jTransactor Thread Runner: ", process_name)
         while True:
-            try:
-                (query_batch, query_counter) = Neo4jTransactor.queue.get()
-            except EOFError as error:
-                self.logger.info("Queue Closed exiting: %s", error)
-                return
+            item = None # Added variable for finally check
+            batch_data = None # Added variable for state dict
+            query_counter = None # Variable for original counter from queue
 
-            self.logger.debug("%s: Processing query batch: %s BatchSize: %s", self._get_name(), query_counter, len(query_batch))
-            batch_start = time.time()
-
-            total_query_counter = 0
-
-            while len(query_batch) > 0:
-
-                (neo4j_query, filename) = query_batch.pop(0)
-
-                self.logger.debug("%s: Processing query for file: %s QueryNum: %s QueueSize: %s", self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize())
-                start = time.time()
+            # Heartbeat loop: Try to get item with timeout, log heartbeat if waiting
+            while True:
                 try:
-                    if context_info.env["USING_PICKLE"] is True:
-                        # Save VIA pickle rather then NEO
-                        file_name = "tmp/temp/transaction_%s_%s" % (query_counter, total_query_counter)
-                        with open(file_name, 'wb') as file:
-                            self.logger.debug("Writing to file: tmp/temp/transaction_%s_%s", query_counter, total_query_counter)
-                            pickle.dump(neo4j_query, file)
-                    else:
-                        with graph.session() as session:
-                            session.run(neo4j_query)
+                    self.logger.debug("%s: Heartbeat - waiting for next queue item (timeout=%ss)",
+                                      process_name, self.QUEUE_GET_TIMEOUT)
+                    # Get item from queue with timeout for heartbeat visibility
+                    item = Neo4jTransactor.queue.get(timeout=self.QUEUE_GET_TIMEOUT)
+                    (batch_data, query_counter) = item # Unpack item
+                    break  # Successfully got item, exit heartbeat loop
+                except stdlib_queue.Empty:
+                    # No item available - log heartbeat and continue waiting
+                    self.logger.info("%s: Heartbeat - worker alive, waiting for work (queue empty for %ss)",
+                                     process_name, self.QUEUE_GET_TIMEOUT)
+                    continue  # Keep waiting
+                except EOFError as error:
+                    self.logger.info("Queue Closed exiting: %s", error)
+                    if graph:
+                        graph.close()
+                    return
+                except Exception as e:
+                    Neo4jTransactor.logger.error(f"{process_name}: Error getting item from queue: {e}. Worker stopping.", exc_info=True)
+                    if graph:
+                        graph.close()
+                    return
 
-                    end = time.time()
-                    elapsed_time = end - start
-                    self.logger.info("%s: Processed query for file: %s QueryNum: %s QueueSize: %s Time: %s", self._get_name(), filename, query_counter, Neo4jTransactor.queue.qsize(), time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-                except Exception as error:
-                    self.logger.error(error)
-                    #self.logger.error("%s: Query Failed: %s", self._get_name(), neo4j_query)
-                    # TODO Extract and print NODE information from error message.
-                    # Would be helpful for troubleshooting.
-                    #TODO: write mechanism to prevent infinite retries on failure (can currently occur)
-                    self.logger.warning( "%s: Query Conflict, putting data back in Queue to run later. %s", self._get_name(), filename)
-                    query_batch.insert(0, (neo4j_query, filename))
-                    time.sleep(12)
-                    Neo4jTransactor.queue.put((query_batch, query_counter))
-                    break
+            # Log batch start
+            batch_id = batch_data['batch_id']
+            self.logger.debug("%s: Processing query batch: %s StartingIndex: %s TotalQueries: %s",
+                              process_name, batch_id, batch_data['next_query_index'],
+                              len(batch_data['all_queries']))
 
-                total_query_counter = total_query_counter + 1
-
-            batch_end = time.time()
-            batch_elapsed_time = batch_end - batch_start
-            self.logger.debug("%s: Query Batch finished: %s BatchSize: %s Time: %s", self._get_name(), query_counter, len(query_batch), time.strftime("%H:%M:%S", time.gmtime(batch_elapsed_time)))
-            Neo4jTransactor.queue.task_done()
+            # CRITICAL: Wrap batch processing in try/finally to ensure task_done() is ALWAYS called.
+            # Without this, if a worker crashes (RuntimeError from max retries exceeded), task_done()
+            # is never called, causing queue.join() to hang forever waiting for a task that will never complete.
+            try:
+                graph = self._process_batch(
+                    graph, batch_data, query_counter, process_name, max_retries, base_retry_sleep)
+            finally:
+                # CRITICAL: ALWAYS call task_done() - each get() from queue needs a corresponding task_done()
+                # This MUST be in a finally block to ensure it's called even if the worker crashes.
+                # Requeued items are NEW tasks that will get their own task_done() when processed.
+                Neo4jTransactor.queue.task_done()

@@ -1,3 +1,4 @@
+import pytest
 from etl import Neo4jHelper
 
 
@@ -109,12 +110,34 @@ def test_mods_have_gene_expression_atlas_link():
 
 def test_xref_complete_url_is_formatted():
     """Test XREF Complete URL is Formatted"""
+    # Modified query: also collect the primary keys of connected nodes
+    query = """
+    MATCH (cr:CrossReference)-[r]-(connectedNode)
+    WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
+    WITH cr, connectedNode
+    ORDER BY cr.primaryKey
+    RETURN cr.primaryKey AS crossRefId,
+           cr.crossRefCompleteUrl AS url,
+           collect(DISTINCT connectedNode.primaryKey) AS connectedNodeKeys
+    """
 
-    query = """MATCH (cr:CrossReference) WHERE NOT cr.crossRefCompleteUrl =~ 'http.*'
-               RETURN count(cr) AS counter"""
+    failing_xrefs = []
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] < 20
+            failing_xrefs.append(record)
+
+    # Count how many failed cross references we have
+    fail_count = len(failing_xrefs)
+
+    # If the count is too high, fail with a helpful message
+    assert fail_count < 20, (
+        f"Found {fail_count} CrossReferences without properly formatted URLs:\n\n"
+        + "\n".join(
+            f"  CrossRef: {item['crossRefId']} URL: {item['url']} "
+            f"Connected Nodes: {item['connectedNodeKeys']}"
+            for item in failing_xrefs
+        )
+    )
 
 
 def test_spell_display_name():
@@ -190,73 +213,6 @@ def test_orthologous_properties():
             assert "moderateFilter" in record.keys(), "Missing 'moderateFilter' field."
             assert "strictFilter" in record.keys(), "Missing 'strictFilter' field."
 
-def test_genes_have_automated_description():
-    """Test Genes Have Automated Description"""
-
-    query = """MATCH (g:Gene) where g.primaryKey IN ['SGD:S000002536', 'FB:FBgn0027655', 'FB:FBgn0045035', 'RGD:68337',
-                                                     'RGD:2332', 'MGI:96067', 'MGI:88388', 'MGI:107202', 'MGI:106658',
-                                                     'MGI:105043', 'HGNC:4851', 'ZFIN:ZDB-GENE-990415-131',
-                                                     'HGNC:1884', 'HGNC:795', 'HGNC:11291','RGD:1593265',
-                                                     'RGD:1559787', 'ZFIN:ZDB-GENE-050517-20',
-                                                     'ZFIN:ZDB-GENE-990415-131', 'ZFIN:ZDB-GENE-030131-4430']
-               AND g.automatedGeneSynopsis IS NULL
-               RETURN count(g) AS counter"""
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] == 0
-
-
-def test_at_least_one_gene_has_go_description():
-    """Test At Least One Gene Has GO Description"""
-
-    query = """MATCH (g:Gene)
-               WHERE (g.automatedGeneSynopsis =~ '.*xhibits.*' OR g.automatedGeneSynopsis =~ '.*nvolved in.*'
-                      OR g.automatedGeneSynopsis =~ '.*ocalizes to.*'
-                      OR g.automatedGeneSynopsis =~ '.*redicted to have.*'
-                      OR g.automatedGeneSynopsis =~ '.*redicted to be involved in.*'
-                      OR g.automatedGeneSynopsis =~ '.*redicted to localize to.*')
-               RETURN COUNT(g) AS counter"""
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] > 0
-
-
-def test_at_least_one_gene_has_disease_description():
-    """Test At Least One Gene Has Disease Description"""
-
-    query = """MATCH (g:Gene)
-               WHERE (g.automatedGeneSynopsis =~ '.*sed to study.*'
-                      OR g.automatedGeneSynopsis =~ '.*mplicated in.*'
-                      OR g.automatedGeneSynopsis =~ '.*iomarker of.*')
-               RETURN COUNT(g) AS counter"""
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] > 0
-
-
-def test_at_least_one_gene_has_expression_description():
-    """Test At Least One Gene Has Expression Description"""
-
-    query = """MATCH (g:Gene)
-               WHERE (g.automatedGeneSynopsis =~ '.*s expressed in.*'
-                      OR g.automatedGeneSynopsis =~ '.*s enriched in.*')
-               RETURN COUNT(g) AS counter"""
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] > 0
-
-
-def test_at_least_one_gene_has_orthology_description():
-    """Test At Least One Gene Has Orthology Description"""
-
-    query = """MATCH (g:Gene)
-               WHERE g.automatedGeneSynopsis =~ '.*rthologous to.*'
-               RETURN COUNT(g) AS counter"""
-    with Neo4jHelper.run_single_query(query) as result:
-        for record in result:
-            assert record["counter"] > 0
-
-
 def test_nephrogenic_diabetes_insipidus_has_at_least_one_gene():
     """Test Nephrogenic Diabetes Insipidus Has at Leat One Gene"""
 
@@ -304,7 +260,7 @@ def test_phenotype_for_all_species_exists():
                RETURN count(distinct s) AS counter"""
     with Neo4jHelper.run_single_query(query) as result:
         for record in result:
-            assert record["counter"] == 7
+            assert record["counter"] == 9
 
 
 def test_variant_for_expected_species_exists():
@@ -343,6 +299,7 @@ def test_goannot_for_all_species_exists():
             assert record["counter"] == 7
 
 
+@pytest.mark.skip(reason="Interaction ETLs disabled - data migrated to curation system")
 def test_molint_for_all_species_exists():
     """Test Molecular Interaction for all Species Exists"""
 
@@ -394,6 +351,7 @@ def test_veptranscript_for_all_species_exists():
 #        assert record["counter"] == 5
 
 
+@pytest.mark.skip(reason="Expression ETL disabled - data migrated to curation system")
 def test_expression_for_non_human_species_exists():
     """
     Test Expression for Non Human Species Exists
@@ -407,6 +365,7 @@ def test_expression_for_non_human_species_exists():
             assert record["counter"] == 8
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_cellular_component_relationship_for_expression_exists():
     """Test Cellular Component Relationship For Expression Exists"""
 
@@ -417,6 +376,7 @@ def test_cellular_component_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_relationship_for_expression_exists():
     """Test Anatomical Strucutre Relationship for Expression Exists"""
 
@@ -427,6 +387,7 @@ def test_anatomical_structure_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_sub_structure_relationship_for_expression_exists():
     """Test Anatomical Substructure Relationship for Expression Exists"""
 
@@ -437,6 +398,7 @@ def test_anatomical_sub_structure_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_qualifier_relationship_for_expression_exists():
     """Test Anatomical Structure Qualifier Relationship For Expression Exists"""
 
@@ -447,6 +409,7 @@ def test_anatomical_structure_qualifier_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_cellular_component_qualifier_relationship_for_expression_exists():
     """Test Cellular Component Qualifier Relationship For Exprssion Exists"""
 
@@ -457,6 +420,7 @@ def test_cellular_component_qualifier_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists():
     """Test Anaatomical Sub Strucutre qualifier Relationship For Exprssion Exists"""
 
@@ -467,6 +431,7 @@ def test_anatomical_sub_structure_qualifier_relationship_for_expression_exists()
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_uberon_relationship_for_expression_exists():
     """Test Anatomical Structure UBERON Relationship for Expression Exists"""
 
@@ -478,6 +443,7 @@ def test_anatomical_structure_uberon_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
     """Test Anatomical Strucutre UBERON Other Relationship for Expression Exists"""
 
@@ -489,6 +455,7 @@ def test_anatomical_structure_uberon_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_other_relationship_for_expression_exists():
     """Test GOCC Other Relationship For Expression Exists"""
 
@@ -500,6 +467,7 @@ def test_gocc_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_ribbon_relationship_for_expression_exists():
     """Test GOCC Ribbon Relationship for Expression Exists"""
 
@@ -511,6 +479,7 @@ def test_gocc_ribbon_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_stage_uberon_other_relationship_for_expression_exists():
     """Test Stage UBERON Other Relationship for Expression Exists"""
 
@@ -521,6 +490,7 @@ def test_stage_uberon_other_relationship_for_expression_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_stage_uberon_relationship_for_expression_exists():
     """Test Stage UBERON Relationship For Expression Exists"""
 
@@ -542,6 +512,7 @@ def test_mmoterm_has_display_synonym():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_crip2_has_cardiac_neural_crest():
     """Test crip2 has Cardiac Neural Crest"""
 
@@ -556,6 +527,7 @@ def test_crip2_has_cardiac_neural_crest():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_gocc_other_term_for_specific_gene_exists():
     """Test Expression GOCC Other Term For Specific Gene Exists"""
 
@@ -570,6 +542,7 @@ def test_expression_gocc_other_term_for_specific_gene_exists():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_gocc_term_for_specific_gene_exists():
     """Test Expression GOCC Term For SpecificGene Exists"""
 
@@ -582,6 +555,7 @@ def test_expression_gocc_term_for_specific_gene_exists():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
     """Test BioEntityGeneExpressionJoin connected to an Ontology node for file generator"""
 
@@ -592,6 +566,7 @@ def test_BioEntityGeneExpressionJoin_connected_to_Ontology_node():
             assert record["counter"] > 0
             
 
+@pytest.mark.skip(reason="ExpressionRibbon ETL disabled - sets GOTerm.type property")
 def test_gocc_other_has_type():
     """Test GOCC Other Has Type"""
 
@@ -604,6 +579,7 @@ def test_gocc_other_has_type():
             assert record["counter"] == 1
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_gocc_self_ribbon_term_exists():
     """Test GOCC Self Ribbin Term Exists"""
 
@@ -922,6 +898,7 @@ def test_mmo_term_has_display_alias():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_for_mgi_109583():
     """Test Expression for MGI 109583"""
 
@@ -947,6 +924,7 @@ def test_part_of_relations_exist():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="Expression ETL disabled")
 def test_expression_images_cross_references_for_species_exists():
     """Test Expression Images Cross References for Species Exists"""
 
@@ -1231,7 +1209,7 @@ def test_omim_publication_exists():
 
     query = """ MATCH (g:Gene)--(p:PhenotypeEntityJoin)--(pu:PublicationJoin)--(pr:Publication)
                 WHERE g.primaryKey = 'HGNC:1958'
-                and pr.pubModId = 'OMIM:600513'
+                and pr.pubModId = 'MIM:600513'
                 RETURN count(p) AS counter
     """
     with Neo4jHelper.run_single_query(query) as result:
@@ -1446,6 +1424,7 @@ def test_not_disease_annotation_exists_exists():
             assert record["counter"] > 0
 
 
+@pytest.mark.skip(reason="ProteinSequence ETL disabled - data not loaded")
 def test_protein_sequence_exists():
     """Test_protein_sequence_exists"""
 

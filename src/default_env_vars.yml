@@ -11,3 +11,9 @@ TEST_SET: False
 API_KEY: ""
 FILE_TRANSACTOR_THREADS: 10
 NEO4J_TRANSACTOR_THREADS: 8
+# Sequential ETL Types - comma-separated list of ETL type names
+# ETLs listed here will load sub-types sequentially instead of in parallel
+# This prevents Neo4j deadlocks when multiple MODs update shared nodes (e.g., Gene)
+# Valid values: PHENOTYPE, DAF, ORTHO, GAF (matches etl_dispatch keys)
+# PHENOTYPE is enabled by default to prevent known deadlock issues
+SEQUENTIAL_ETL_TYPES: "PHENOTYPE"

@@ -375,11 +375,26 @@ class TestObject():
             # mol interaction
             'Xenbase:XB-GENE-6077306', 'Xenbase:XB-GENE-5900736', 'Xenbase:XB-GENE-5742498', 'Xenbase:XB-GENE-982236',
             'Xenbase:XB-GENE-5914970', 'Xenbase:XB-GENE-920644', 'Xenbase:XB-GENE-978544', 'Xenbase:XB-GENE-978544',
-            'Xenbase:XB-GENE-479228', 'Xenbase:XB-GENE-944825'
+            'Xenbase:XB-GENE-479228', 'Xenbase:XB-GENE-944825',
             # gen interaction
             'Xenbase:XB-GENE-864864', 'Xenbase:XB-GENE-865473', 'Xenbase:XB-GENE-866540', 'Xenbase:XB-GENE-6252367',
-            'Xenbase:XB-GENE-6254025', 'Xenbase:XB-GENE-865846', 'Xenbase:XB-GENE-483062'
+            'Xenbase:XB-GENE-6254025', 'Xenbase:XB-GENE-865846', 'Xenbase:XB-GENE-483062',
+            # phenotype
+            'Xenbase:XB-GENE-982818',
+            'Xenbase:XB-GENE-480647',
+            'Xenbase:XB-GENE-483703',
+            'Xenbase:XB-GENE-982819',
+            'Xenbase:XB-GENE-982820',
+            'Xenbase:XB-GENE-480648',
+            'Xenbase:XB-GENE-480649',
+            'Xenbase:XB-GENE-483704',
+            'Xenbase:XB-GENE-483705',
+            'Xenbase:XB-GENE-483706',
+            'Xenbase:XB-GENE-483707',
+            'Xenbase:XB-GENE-483708'
         }
+
+
 
         self.mod_map = {"RGD": self.rgd_test_set,
                         "MGI": self.mgi_id_set,

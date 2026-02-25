@@ -21,7 +21,7 @@ DAF:
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
 PHENOTYPE:
   type: list
-  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
+  allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN, XBXL, XBXT]
 EXPRESSION:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, XBXL, XBXT]
@@ -36,7 +36,7 @@ BIOGRID-ORCS:
   allowed: [FB, MGI, HUMAN]
 FASTA:
   type: list
-  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235, XT9.1,  XL9.2]
+  allowed: [R627, GRCm39, GRCz11, mRatBN7.2, WBcel235, XT10.0,  XL10.1]
 GENEEEXPRESSIONATLASSITEMAP:
   type: list
   allowed: [FB, SGD, WB, ZFIN, RGD, MGI, HUMAN]
