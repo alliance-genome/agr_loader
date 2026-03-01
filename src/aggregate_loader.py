@@ -5,6 +5,7 @@ import argparse
 import logging
 import multiprocessing
 import os
+import sys
 import time
 import coloredlogs
 import json
@@ -53,15 +54,29 @@ def main():
 
     debug_level = logging.DEBUG if context_info.env["DEBUG"] else logging.INFO
 
-    coloredlogs.install(level=debug_level,
-                        fmt='%(asctime)s %(levelname)s: %(name)s:%(lineno)d: %(message)s',
-                        field_styles={
-                            'asctime': {'color': 'green'},
-                            'hostname': {'color': 'magenta'},
-                            'levelname': {'color': 'white', 'bold': True},
-                            'name': {'color': 'blue'},
-                            'programname': {'color': 'cyan'}
-                        })
+    log_fmt = '%(levelname)s: %(name)s:%(lineno)d: %(message)s'
+    field_styles = {
+        'asctime': {'color': 'green'},
+        'hostname': {'color': 'magenta'},
+        'levelname': {'color': 'white', 'bold': True},
+        'name': {'color': 'blue'},
+        'programname': {'color': 'cyan'}
+    }
+
+    # INFO/DEBUG -> stdout, WARNING/ERROR -> stderr
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(debug_level)
+    stdout_handler.addFilter(lambda record: record.levelno < logging.WARNING)
+    coloredlogs.install(level=debug_level, handler=stdout_handler, fmt=log_fmt, field_styles=field_styles)
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setLevel(logging.WARNING)
+    coloredlogs.install(level=logging.WARNING, handler=stderr_handler, fmt=log_fmt, field_styles=field_styles)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(debug_level)
+    root_logger.addHandler(stdout_handler)
+    root_logger.addHandler(stderr_handler)
 
     logger = logging.getLogger(__name__)
     logging.getLogger("ontobio").setLevel(logging.ERROR)
