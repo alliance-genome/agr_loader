@@ -5,6 +5,7 @@ Tests that methods return what they should etc.
 Remember to remove bad_pages test once the olf code has been removed.
 """
 from etl.helpers import ETLHelper
+from etl.orthology_etl import OrthologyETL
 
 
 class TestClass():
@@ -91,3 +92,44 @@ class TestClass():
         for item_name in self.etlh.rdh2.bad_regex.keys():
             assert 1 == self.etlh.rdh2.bad_regex[item_name]
             assert item_name == 'MESH'
+
+    def test_apply_orthology_flag_overrides_for_vma21_pdcd2(self):
+        """Known-bad Vma21/pdcd-2 best orthology flags are demoted."""
+        ortho_dataset = {
+            'isBestScore': True,
+            'isBestRevScore': True,
+            'strictFilter': True,
+            'moderateFilter': True,
+            'confidence': '0.5',
+            'uuid': 'test-uuid'
+        }
+
+        corrected_dataset = OrthologyETL.apply_orthology_flag_overrides(
+            'MGI:1914298',
+            'WB:WBGene00011116',
+            ortho_dataset
+        )
+
+        assert corrected_dataset['isBestScore'] is False
+        assert corrected_dataset['isBestRevScore'] is False
+        assert corrected_dataset['strictFilter'] is False
+        assert corrected_dataset['moderateFilter'] is False
+        assert corrected_dataset['confidence'] == ortho_dataset['confidence']
+        assert corrected_dataset['uuid'] == ortho_dataset['uuid']
+
+    def test_apply_orthology_flag_overrides_leaves_other_pairs_unchanged(self):
+        """Unlisted orthology pairs should pass through unchanged."""
+        ortho_dataset = {
+            'isBestScore': True,
+            'isBestRevScore': True,
+            'strictFilter': True,
+            'moderateFilter': True
+        }
+
+        corrected_dataset = OrthologyETL.apply_orthology_flag_overrides(
+            'MGI:1914298',
+            'WB:WBGene00303105',
+            ortho_dataset
+        )
+
+        assert corrected_dataset == ortho_dataset

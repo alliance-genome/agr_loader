@@ -18,6 +18,14 @@ class OrthologyETL(ETL):
     """Orthology ETL."""
 
     logger = logging.getLogger(__name__)
+    ORTHOLOGY_FLAG_OVERRIDES = {
+        frozenset(("MGI:1914298", "WB:WBGene00011116")): {
+            "isBestScore": False,
+            "isBestRevScore": False,
+            "strictFilter": False,
+            "moderateFilter": False
+        }
+    }
 
     # Query templates which take params and will be processed later
 
@@ -224,6 +232,19 @@ class OrthologyETL(ETL):
 
         return list_o
 
+    @classmethod
+    def apply_orthology_flag_overrides(cls, gene_1_agr_primary_id, gene_2_agr_primary_id, ortho_dataset):
+        """Apply curated overrides for known-bad orthology flag assignments."""
+        override = cls.ORTHOLOGY_FLAG_OVERRIDES.get(
+            frozenset((gene_1_agr_primary_id, gene_2_agr_primary_id))
+        )
+        if override is None:
+            return ortho_dataset
+
+        corrected_dataset = ortho_dataset.copy()
+        corrected_dataset.update(override)
+        return corrected_dataset
+
     def get_generators(self, datafile, sub_type, sub_types, batch_size):  # noqa
         """Get Generators."""
         counter = 0
@@ -286,6 +307,11 @@ class OrthologyETL(ETL):
                         'moderateFilter': ortho_record['moderateFilter'],
                         'uuid': ortho_uuid
                     }
+                    ortho_dataset = self.apply_orthology_flag_overrides(
+                        gene_1_agr_primary_id,
+                        gene_2_agr_primary_id,
+                        ortho_dataset
+                    )
                     list_of_mod_lists[gene_2_data_provider].append(ortho_dataset)
 
                     for matched in ortho_record.get('predictionMethodsMatched'):
