@@ -35,7 +35,7 @@ class TestClass():
                                      dict(relationship='IS_MARKER_FOR'),
                                      dict(relationship='IS_NOT_MARKER_FOR'),
                                      dict(relationship='ASSOCIATION'),
-                                     dict(relationship='PARALOGOUS'),
+                                     # dict(relationship='PARALOGOUS'),  # Paralogy ETL disabled
                                      dict(relationship='ORTHOLOGOUS')
                                      ],
 
@@ -65,14 +65,14 @@ class TestClass():
                              dict(node='PhenotypeEntityJoin'),
                              dict(node='OrthologyGeneJoin'),
                              dict(node='OrthoAlgorithm'),
-                             dict(node='ParalogyGeneJoin'),
-                             dict(node='ParaAlgorithm'),
+                             # dict(node='ParalogyGeneJoin'),  # Paralogy ETL disabled
+                             # dict(node='ParaAlgorithm'),  # Paralogy ETL disabled
                              dict(node='Load'),
-                             dict(node='ExpressionBioEntity'),
-                             dict(node='Stage'),
+                             # dict(node='ExpressionBioEntity'),  # Expression ETL disabled
+                             # dict(node='Stage'),  # Expression ETL disabled
                              dict(node='SequenceTargetingReagent'),
-                             dict(node='BioEntityGeneExpressionJoin'),
-                             dict(node='InteractionGeneJoin'),
+                             # dict(node='BioEntityGeneExpressionJoin'),  # Expression ETL disabled
+                             # dict(node='InteractionGeneJoin'),  # Interaction ETLs disabled
                              dict(node='ZFATerm'),
                              dict(node='WBBTTerm'),
                              dict(node='CLTerm'),
@@ -94,9 +94,9 @@ class TestClass():
                              dict(node='GeneLevelConsequence'),
                              dict(node='Transcript'),
                              dict(node='Exon'),
-                             dict(node='TranscriptProteinSequence'),
+                             # dict(node='TranscriptProteinSequence'),  # ProteinSequence ETL disabled
                              dict(node='VariantProteinSequence'),
-                             dict(node='CDSSequence'),
+                             # dict(node='CDSSequence'),  # CDS data migrated to curation system
                              dict(node='ExperimentalCondition')
                              ],
 
@@ -134,11 +134,11 @@ class TestClass():
                             dict(node='MITerm', prop='primaryKey'),
                             dict(node='CHEBITerm', prop='primaryKey'),
                             dict(node='ZECOTerm', prop='primaryKey'),
-                            dict(node='TranscriptProteinSequence', prop='primaryKey'),
-                            dict(node='TranscriptProteinSequence', prop='proteinSequence'),
+                            # dict(node='TranscriptProteinSequence', prop='primaryKey'),  # ProteinSequence ETL disabled
+                            # dict(node='TranscriptProteinSequence', prop='proteinSequence'),  # ProteinSequence ETL disabled
                             dict(node='VariantProteinSequence', prop='primaryKey'),
                             dict(node='VariantProteinSequence', prop='proteinSequence'),
-                            dict(node='CDSSequence', prop='primaryKey'),
+                            # dict(node='CDSSequence', prop='primaryKey'),  # CDS data migrated to curation system
                             dict(node='Identifier', prop='primaryKey'),
                             dict(node='Synonym', prop='primaryKey'),
                             dict(node='SequenceTargetingReagent', prop='primaryKey'),
@@ -172,7 +172,7 @@ class TestClass():
                             dict(node='ExperimentalCondition', prop='NCBITaxonID'),
                             dict(node='ExperimentalCondition', prop='conditionStatement'),
                             dict(node='PhenotypeEntityJoin', prop='primaryKey'),
-                            dict(node='InteractionGeneJoin', prop='joinType'),
+                            # dict(node='InteractionGeneJoin', prop='joinType'),  # Interaction ETLs disabled
                             dict(node='Association', prop='joinType'),
                             dict(node='Association', prop='primaryKey'),
                             dict(node='Phenotype', prop='primaryKey'),
@@ -189,9 +189,9 @@ class TestClass():
                             dict(node='DOTerm', prop='definition'),
                             dict(node='GOTerm', prop='type'),
                             dict(node='DOTerm', prop='subset'),
-                            dict(node='ExpressionBioEntity', prop='primaryKey'),
-                            dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
-                            dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                            # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
+                            # dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),  # Expression ETL disabled
+                            # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
                             dict(node='DOTerm', prop='defLinks'),
                             dict(node='Variant', prop='primaryKey'),
                             dict(node='Assembly', prop='primaryKey'),
@@ -284,9 +284,9 @@ class TestClass():
                                dict(node='Allele', prop='symbolText'),
                                dict(node='Allele', prop='symbolWithSpecies'),
                                dict(node='MITerm', prop='primaryKey'),
-                               dict(node='ExpressionBioEntity', prop='primaryKey'),
-                               dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),
-                               dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
+                               # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
+                               # dict(node='ExpressionBioEntity', prop='whereExpressedStatement'),  # Expression ETL disabled
+                               # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
                                dict(node='Stage', prop='primaryKey'),
                                dict(node='Variant', prop='hgvsNomenclature'),
                                dict(node='Assembly', prop='primaryKey'),
@@ -322,8 +322,8 @@ class TestClass():
                              dict(node='SequenceTargetingReagent', prop='primaryKey'),
                              dict(node='AffectedGenomicModel', prop='primaryKey'),
                              dict(node='Variant', prop='hgvsNomenclature'),
-                             dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),
-                             dict(node='ExpressionBioEntity', prop='primaryKey'),
+                             # dict(node='BioEntityGeneExpressionJoin', prop='primaryKey'),  # Expression ETL disabled
+                             # dict(node='ExpressionBioEntity', prop='primaryKey'),  # Expression ETL disabled
                              dict(node='HTPDataset', prop='primaryKey'),
                              dict(node='HTPDatasetSample', prop='primaryKey'),
                              dict(node='CategoryTag', prop='primaryKey'),

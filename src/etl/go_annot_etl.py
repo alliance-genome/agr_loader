@@ -33,16 +33,17 @@ class GOAnnotETL(ETL):
         self.data_type_config = config
 
     def _load_and_process_data(self):
-        thread_pool = []
-
         query_tracking_list = multiprocessing.Manager().list()
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type,
-                                              args=(sub_type, query_tracking_list))
-            process.start()
-            thread_pool.append(process)
 
-        ETL.wait_for_threads(thread_pool)
+        # Wrapper function to pass query_tracking_list to _process_sub_type
+        def process_wrapper(sub_type):
+            self._process_sub_type(sub_type, query_tracking_list)
+
+        self.process_sub_types_with_threading(
+            self.data_type_config.get_sub_type_objects(),
+            process_wrapper,
+            'GAF'
+        )
 
         queries = []
         for item in query_tracking_list:

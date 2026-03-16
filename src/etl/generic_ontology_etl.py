@@ -264,9 +264,17 @@ class GenericOntologyETL(ETL):
             if ident is None or ident == '':
                 self.logger.warning("Missing oid.")
             else:
+                # Get name and normalize escaped quotes for Neo4j CSV compatibility
+                # Some ontologies (e.g., CHEBI) have backslash-escaped quotes in names
+                # like: 5-Oxoavermectin \"2b\" aglycone
+                # These must be converted to regular quotes before CSV export
+                name = line.get('name')
+                if name and "\\\"" in name:
+                    name = name.replace('\\\"', '\"')
+
                 term_dict_to_append = {
-                    'name': line.get('name'),
-                    'name_key': line.get('name'),
+                    'name': name,
+                    'name_key': name,
                     'oid': ident,
                     'definition': definition,
                     'is_obsolete': is_obsolete,

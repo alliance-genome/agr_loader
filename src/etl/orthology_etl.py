@@ -130,17 +130,17 @@ class OrthologyETL(ETL):
         for sub_type in self.data_type_config.get_sub_type_objects():
             sub_types.append(sub_type.get_data_provider())
 
-        thread_pool = []
-
         query_tracking_list = multiprocessing.Manager().list()
-        for sub_type in self.data_type_config.get_sub_type_objects():
-            process = multiprocessing.Process(target=self._process_sub_type,
-                                              args=(sub_type, sub_types,
-                                                    query_tracking_list))
-            process.start()
-            thread_pool.append(process)
 
-        ETL.wait_for_threads(thread_pool)
+        # Wrapper function to pass extra arguments to _process_sub_type
+        def process_wrapper(sub_type):
+            self._process_sub_type(sub_type, sub_types, query_tracking_list)
+
+        self.process_sub_types_with_threading(
+            self.data_type_config.get_sub_type_objects(),
+            process_wrapper,
+            'ORTHO'
+        )
 
         queries = []
         for item in query_tracking_list:

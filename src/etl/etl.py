@@ -1,6 +1,7 @@
 """ETL."""
 
 import logging
+import multiprocessing
 import sys
 import time
 
@@ -81,6 +82,96 @@ class ETL:
                     return
 
             time.sleep(5)
+
+    def process_sub_types_with_threading(self, sub_type_objects, process_func,
+                                         etl_type_name, cleanup_func=None):
+        """
+        Process sub-types either sequentially or in parallel based on configuration.
+
+        This method abstracts the decision to run ETL sub-types sequentially or in parallel,
+        based on whether the ETL type name appears in the SEQUENTIAL_ETL_TYPES environment
+        variable / config setting.
+
+        Sequential mode is useful for:
+        - Preventing Neo4j deadlocks when multiple MODs update shared nodes (e.g., Gene)
+        - Debugging and troubleshooting data loading issues
+        - Reducing memory pressure on resource-constrained systems
+
+        Args:
+            sub_type_objects: List of sub-type config objects from
+                             data_type_config.get_sub_type_objects()
+            process_func: Function to call for each sub-type. Will be called as
+                         process_func(sub_type) for each sub_type in sub_type_objects.
+                         In parallel mode, this becomes the target for multiprocessing.Process.
+            etl_type_name: The ETL type name to check against SEQUENTIAL_ETL_TYPES config.
+                          Should match the key in aggregate_loader.py's etl_dispatch
+                          (e.g., 'PHENOTYPE', 'DAF', 'ORTHO', 'GAF').
+            cleanup_func: Optional function to call after processing. In sequential mode,
+                         this is called after EACH sub-type. In parallel mode, this is
+                         called ONCE after all sub-types complete. This is important for
+                         DiseaseETL which needs to run delete_empty_nodes() after each
+                         sub-type in sequential mode for correct data cleanup.
+
+        Returns:
+            None
+
+        Configuration:
+            Set SEQUENTIAL_ETL_TYPES environment variable or config to a comma-separated
+            list of ETL type names:
+
+            # Run phenotype and disease ETLs sequentially:
+            export SEQUENTIAL_ETL_TYPES="PHENOTYPE,DAF"
+
+            # Run all listed ETLs sequentially:
+            export SEQUENTIAL_ETL_TYPES="PHENOTYPE,DAF,ORTHO,GAF"
+        """
+        context_info = ContextInfo()
+        sequential_types_str = context_info.env.get("SEQUENTIAL_ETL_TYPES", "")
+
+        # Parse comma-separated string into list, normalize to uppercase
+        if sequential_types_str and sequential_types_str.strip():
+            sequential_types = [t.strip().upper() for t in sequential_types_str.split(',') if t.strip()]
+        else:
+            sequential_types = []
+
+        # Check if this ETL should run sequentially
+        run_sequentially = etl_type_name.upper() in sequential_types
+
+        if run_sequentially:
+            self.logger.info("Loading %s sub-types SEQUENTIALLY (configured for deadlock prevention)",
+                             etl_type_name)
+
+            # Sequential execution: process each sub-type one at a time
+            for sub_type in sub_type_objects:
+                self.logger.info("Processing sub-type sequentially: %s", sub_type.get_data_provider())
+                process_func(sub_type)
+
+                # Run cleanup after EACH sub-type in sequential mode
+                if cleanup_func is not None:
+                    self.logger.debug("Running cleanup after sub-type: %s", sub_type.get_data_provider())
+                    cleanup_func()
+
+            self.logger.info("Completed %s sequential loading (%d sub-types)",
+                             etl_type_name, len(sub_type_objects))
+        else:
+            self.logger.info("Loading %s sub-types in PARALLEL (%d sub-types)",
+                             etl_type_name, len(sub_type_objects))
+
+            # Parallel execution: spawn process for each sub-type
+            thread_pool = []
+            for sub_type in sub_type_objects:
+                process = multiprocessing.Process(target=process_func, args=(sub_type,))
+                process.start()
+                thread_pool.append(process)
+
+            ETL.wait_for_threads(thread_pool)
+
+            # Run cleanup ONCE after all parallel processes complete
+            if cleanup_func is not None:
+                self.logger.debug("Running cleanup after parallel processing")
+                cleanup_func()
+
+            self.logger.info("Completed %s parallel loading", etl_type_name)
 
     def process_query_params(self, query_list_with_params):
         """Process Query Params."""
