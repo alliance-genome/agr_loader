@@ -1,0 +1,117 @@
+# Gitleaks configuration template for Git Safety Project
+# This file is copied to repositories by install_git_hooks.py
+# Updated: 2025-12-10 - Added Alliance Genome Ansible vault password protection
+
+title = "Git Safety Project - Secret Detection"
+
+[extend]
+# Use default gitleaks rules as base
+useDefault = true
+
+[allowlist]
+description = "Safe patterns - minimal exclusions for security"
+# Only exclude truly safe patterns like .git internals
+paths = [
+    '''\.git/''',
+    '''node_modules/''',
+    '''venv/''',
+    '''\.venv/''',
+    '''__pycache__/''',
+]
+
+# Only allow example/placeholder patterns, not real secrets
+regexes = [
+    # Documentation examples only
+    '''AKIAEXAMPLE[A-Z0-9]{8}''',
+    '''XXXXXXXXXXXX''',
+    '''123456789012''',
+    '''i-REDACTED''',
+    '''sk-EXAMPLE''',
+]
+
+# ============================================================
+# CRITICAL: Alliance Genome Ansible Vault Password Protection
+# ============================================================
+# Protects ansible vault passwords used for AWS infrastructure credentials,
+# database passwords, and API tokens across production systems.
+# Pattern-based detection to avoid hardcoding actual secrets.
+
+[[rules]]
+id = "ansible-vault-password-pattern"
+description = "Ansible Vault Password Pattern (32-char hex)"
+# Catches common contexts where vault passwords appear:
+# - .password files with 32-char hex
+# - echo commands with 32-char hex
+# - Variable assignments with 32-char hex in ansible contexts
+regex = '''(?i)(password|vault|ansible)["\s:=]+[a-f0-9]{32}'''
+keywords = ["password", "vault", "ansible"]
+tags = ["alliance", "ansible", "critical"]
+
+[[rules]]
+id = "ansible-vault-password-partial-match"
+description = "Ansible Vault Password Partial Match (FAILSAFE)"
+# Failsafe: Catches strings with specific start/end patterns
+# Uses first 3 and last 3 characters as fingerprint (minimal exposure)
+regex = '''512[a-f0-9]{26}e42'''
+tags = ["alliance", "ansible", "critical", "failsafe"]
+
+[[rules]]
+id = "ansible-vault-password-file"
+description = "Ansible Vault Password in .password files"
+# Specifically catches passwords in .password files or similar
+regex = '''[a-f0-9]{32}'''
+paths = [
+    '''.password$''',
+    '''password\.txt$''',
+    '''vault\.txt$''',
+    '''ansible_vault''',
+]
+tags = ["ansible", "password-file"]
+
+[[rules]]
+id = "echo-password-command"
+description = "Echo command with potential vault password"
+# Catches echo commands that might be writing passwords to files
+regex = '''echo\s+(-n\s+)?['"]*[a-f0-9]{32}['"]*\s*[>|]'''
+keywords = ["echo"]
+tags = ["command", "password"]
+
+# ============================================================
+# Additional Custom Rules
+# ============================================================
+
+[[rules]]
+id = "ansible-vault-password-generic"
+description = "Generic Ansible Vault Password Pattern"
+regex = '''vault_password\s*[:=]\s*[a-f0-9]{32}'''
+keywords = ["vault_password"]
+
+[[rules]]
+id = "elevenlabs-api-key"
+description = "ElevenLabs API Key"
+regex = '''sk_[a-f0-9]{32}'''
+keywords = ["elevenlabs", "sk_"]
+
+[[rules]]
+id = "mem0-api-key"
+description = "Mem0 API Key"
+regex = '''m0-[A-Za-z0-9]{20,}'''
+keywords = ["mem0", "m0-"]
+
+[[rules]]
+id = "langsmith-api-key"
+description = "LangSmith API Key"
+regex = '''lsv2_pt_[a-f0-9]{20,}'''
+keywords = ["langsmith", "lsv2_pt_"]
+
+[[rules]]
+id = "aws-session-token"
+description = "AWS Session Token"
+regex = '''(?i)(aws_session_token|AWS_SESSION_TOKEN)\s*[:=]\s*['"]?[A-Za-z0-9+/]{200,}={0,2}['"]?'''
+keywords = ["aws_session_token", "AWS_SESSION_TOKEN"]
+
+[[rules]]
+id = "github-fine-grained-pat"
+description = "GitHub Fine-Grained Personal Access Token"
+regex = '''github_pat_[0-9a-zA-Z_]{82}'''
+keywords = ["github_pat_"]
