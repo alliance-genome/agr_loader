@@ -18,6 +18,14 @@ class OrthologyETL(ETL):
     """Orthology ETL."""
 
     logger = logging.getLogger(__name__)
+    # KANBAN-965 temporary fix: exclude the known bad DIOPT VMA21/pdcd-2 pairs
+    # until the upstream orthology source data is corrected.
+    excluded_gene_pairs = {
+        frozenset({"WB:WBGene00011116", "HGNC:22082"}),
+        frozenset({"WB:WBGene00011116", "MGI:1914298"}),
+        frozenset({"WB:WBGene00011116", "Xenbase:XB-GENE-5730849"}),
+        frozenset({"WB:WBGene00011116", "ZFIN:ZDB-GENE-081104-272"}),
+    }
 
     # Query templates which take params and will be processed later
 
@@ -84,6 +92,11 @@ class OrthologyETL(ETL):
         """Initialise object."""
         super().__init__()
         self.data_type_config = config
+
+    @classmethod
+    def is_excluded_gene_pair(cls, gene_1_agr_primary_id, gene_2_agr_primary_id):
+        """Return True when a pair should be skipped during orthology loading."""
+        return frozenset({gene_1_agr_primary_id, gene_2_agr_primary_id}) in cls.excluded_gene_pairs
 
     def _load_and_process_data(self):
 
@@ -272,6 +285,8 @@ class OrthologyETL(ETL):
                         continue
 
                 if gene_1_agr_primary_id is not None and gene_2_agr_primary_id is not None:
+                    if self.is_excluded_gene_pair(gene_1_agr_primary_id, gene_2_agr_primary_id):
+                        continue
 
                     ortho_dataset = {
                         'isBestScore': ortho_record['isBestScore'],

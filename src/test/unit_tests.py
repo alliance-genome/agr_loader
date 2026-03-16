@@ -5,6 +5,7 @@ Tests that methods return what they should etc.
 Remember to remove bad_pages test once the olf code has been removed.
 """
 from etl.helpers import ETLHelper
+from etl import OrthologyETL
 
 
 class TestClass():
@@ -91,3 +92,19 @@ class TestClass():
         for item_name in self.etlh.rdh2.bad_regex.keys():
             assert 1 == self.etlh.rdh2.bad_regex[item_name]
             assert item_name == 'MESH'
+
+    def test_orthology_excluded_gene_pairs(self):
+        """Only the ticketed DIOPT VMA21/pdcd-2 pairs should be excluded."""
+        blocked_pairs = [
+            ("WB:WBGene00011116", "HGNC:22082"),
+            ("WB:WBGene00011116", "MGI:1914298"),
+            ("WB:WBGene00011116", "Xenbase:XB-GENE-5730849"),
+            ("WB:WBGene00011116", "ZFIN:ZDB-GENE-081104-272"),
+        ]
+
+        for gene_1, gene_2 in blocked_pairs:
+            assert OrthologyETL.is_excluded_gene_pair(gene_1, gene_2) is True
+            assert OrthologyETL.is_excluded_gene_pair(gene_2, gene_1) is True
+
+        assert OrthologyETL.is_excluded_gene_pair("WB:WBGene00011116", "RGD:1566155") is False
+        assert OrthologyETL.is_excluded_gene_pair("WB:WBGene00011115", "HGNC:22082") is False
