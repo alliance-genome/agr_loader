@@ -108,3 +108,23 @@ class TestClass():
 
         assert OrthologyETL.is_excluded_gene_pair("WB:WBGene00011116", "RGD:1566155") is False
         assert OrthologyETL.is_excluded_gene_pair("WB:WBGene00011115", "HGNC:22082") is False
+
+    def test_orthology_excluded_gene_pair_cleanup_query(self):
+        """The cleanup query should remove stale copies of the excluded orthology pairs."""
+        cleanup_query = OrthologyETL.get_excluded_gene_pair_cleanup_query()
+
+        blocked_pairs = [
+            ("WB:WBGene00011116", "HGNC:22082"),
+            ("WB:WBGene00011116", "MGI:1914298"),
+            ("WB:WBGene00011116", "Xenbase:XB-GENE-5730849"),
+            ("WB:WBGene00011116", "ZFIN:ZDB-GENE-081104-272"),
+        ]
+
+        for gene_1, gene_2 in blocked_pairs:
+            assert gene_1 in cleanup_query
+            assert gene_2 in cleanup_query
+
+        assert "DETACH DELETE join" in cleanup_query
+        assert "DELETE orth" in cleanup_query
+        assert "DELETE algo_rel" in cleanup_query
+        assert "RGD:1566155" not in cleanup_query

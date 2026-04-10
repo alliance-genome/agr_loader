@@ -20,12 +20,13 @@ class OrthologyETL(ETL):
     logger = logging.getLogger(__name__)
     # KANBAN-965 temporary fix: exclude the known bad DIOPT VMA21/pdcd-2 pairs
     # until the upstream orthology source data is corrected.
-    excluded_gene_pairs = {
-        frozenset({"WB:WBGene00011116", "HGNC:22082"}),
-        frozenset({"WB:WBGene00011116", "MGI:1914298"}),
-        frozenset({"WB:WBGene00011116", "Xenbase:XB-GENE-5730849"}),
-        frozenset({"WB:WBGene00011116", "ZFIN:ZDB-GENE-081104-272"}),
-    }
+    excluded_gene_pair_tuples = (
+        ("WB:WBGene00011116", "HGNC:22082"),
+        ("WB:WBGene00011116", "MGI:1914298"),
+        ("WB:WBGene00011116", "Xenbase:XB-GENE-5730849"),
+        ("WB:WBGene00011116", "ZFIN:ZDB-GENE-081104-272"),
+    )
+    excluded_gene_pairs = {frozenset(pair) for pair in excluded_gene_pair_tuples}
 
     # Query templates which take params and will be processed later
 
@@ -98,7 +99,43 @@ class OrthologyETL(ETL):
         """Return True when a pair should be skipped during orthology loading."""
         return frozenset({gene_1_agr_primary_id, gene_2_agr_primary_id}) in cls.excluded_gene_pairs
 
+    @classmethod
+    def get_excluded_gene_pair_cleanup_query(cls):
+        """Build a Cypher query that removes stale excluded orthology pairs."""
+        excluded_pair_conditions = []
+
+        for gene_1_agr_primary_id, gene_2_agr_primary_id in cls.excluded_gene_pair_tuples:
+            excluded_pair_conditions.append(
+                "(g1.primaryKey = '{gene_1}' AND g2.primaryKey = '{gene_2}')".format(
+                    gene_1=gene_1_agr_primary_id,
+                    gene_2=gene_2_agr_primary_id
+                )
+            )
+            excluded_pair_conditions.append(
+                "(g1.primaryKey = '{gene_2}' AND g2.primaryKey = '{gene_1}')".format(
+                    gene_1=gene_1_agr_primary_id,
+                    gene_2=gene_2_agr_primary_id
+                )
+            )
+
+        where_clause = " OR ".join(excluded_pair_conditions)
+
+        return """
+            MATCH (g1:Gene)-[orth:ORTHOLOGOUS]-(g2:Gene)
+            WHERE {where_clause}
+            OPTIONAL MATCH (g1)-[:ASSOCIATION]->(ogj:OrthologyGeneJoin)-[:ASSOCIATION]->(g2)
+            OPTIONAL MATCH (ogj)-[algo_rel:MATCHED|NOT_MATCHED|NOT_CALLED]-(:OrthoAlgorithm)
+            WITH collect(DISTINCT orth) AS orths,
+                 collect(DISTINCT ogj) AS joins,
+                 collect(DISTINCT algo_rel) AS algo_rels
+            FOREACH (orth IN orths | DELETE orth)
+            FOREACH (algo_rel IN algo_rels | DELETE algo_rel)
+            FOREACH (join IN joins | DETACH DELETE join)
+        """.format(where_clause=where_clause)
+
     def _load_and_process_data(self):
+        self.logger.info("Removing excluded orthology pairs before load")
+        Neo4jHelper.run_single_query_no_return(self.get_excluded_gene_pair_cleanup_query())
 
         self.load_algorithm = """
             CREATE (oa:OrthoAlgorithm)
@@ -165,6 +202,9 @@ class OrthologyETL(ETL):
 
         Neo4jTransactor.execute_query_batch(algo_queries)
         self.error_messages()
+
+        self.logger.info("Removing excluded orthology pairs after load")
+        Neo4jHelper.run_single_query_no_return(self.get_excluded_gene_pair_cleanup_query())
 
     def _process_sub_type(self, sub_type, sub_types, query_tracking_list):
         self.logger.info("Loading Orthology Data: %s", sub_type.get_data_provider())
